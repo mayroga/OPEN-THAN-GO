@@ -1,0 +1,130 @@
+{
+  "sys": "OPEN THAN GO SYSTEM",
+  "company": "May Roga LLC",
+  "ch": 3,
+  "rng": "15-21",
+  "ui": {
+    "fw": ["AWARENESS", "SAFETY", "CALM", "ACTION", "TRUTH", "CONTROL", "HELP", "FOCUS", "GOOD", "WISDOM", "WONDER", "DISCIPLINE", "CARE", "AFFECTION", "STRENGTH"]
+  },
+  "rules": [
+    "Awareness>Reaction",
+    "Safety>Impulse",
+    "AskForHelp=Strength",
+    "Distance>Conflict",
+    "Calm=Better Decisions",
+    "Truth=Protection",
+    "Good=Wellbeing",
+    "Mistakes=Wisdom",
+    "Curiosity=Growth",
+    "Responsibility=Future",
+    "SelfCare=Love",
+    "Affection=Connection",
+    "Challenges=Strength"
+  ],
+  "missions": [
+    {
+      "id": 15,
+      "cat": "madre",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 15: MY MOMENT OF CARE", "es": "MISIÓN 15: MI MOMENTO DE CUIDADO"}},
+        {"t": "h", "tx": {"en": "Taking care of yourself is an active form of love", "es": "Cuidarte a ti mismo es una forma activa de amor"}},
+        {"story": {
+          "en": "You cannot pour from an empty cup. When urban exhaustion drains your battery, pausing to deliberately protect and pamper your body balances your entire system.",
+          "es": "No puedes dar de una taza vacía. Cuando el agotamiento urbano drena tu batería, pausar para proteger y consentir deliberadamente tu cuerpo equilibra todo tu sistema."
+        }},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe slow... anchor yourself in this moment", "es": "Respira lento... ánclate en este momento"}, "inf": {"en": "This physical pause decreases somatic tension.", "es": "Esta pausa física disminuye la tensión somática."}},
+        {
+          "t": "d",
+          "q": {"en": "Your body and soul feel deeply fatigued by routines. What is your commitment?", "es": "Tu cuerpo y tu alma se sienten profundamente fatigados por las rutinas. ¿Cuál es tu compromiso?"},
+          "op": [
+            {"en": "Keep ignoring the warnings and push harder", "es": "Seguir ignorando las advertencias y presionando más"},
+            {"en": "Identify an urgent need and execute one real action of self-care today", "es": "Identificar una necesidad urgente y ejecutar una acción real de autocuidado hoy"},
+            {"en": "Assume you will rest next month when you have time", "es": "Asumir que descansarás el próximo mes cuando tengas tiempo"},
+            {"en": "Buy luxury goods to mask the exhaustion", "es": "Comprar artículos de lujo para enmascarar el agotamiento"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Pushing past exhaustion leads to complete burnout and anxiety.", "es": "Presionar más allá del agotamiento conduce al desgaste absoluto y la ansiedad."},
+            {"en": "A concrete act of self-care immediately alerts your body that it is safe.", "es": "Un acto concreto de autocuidado le avisa de inmediato a tu cuerpo que está a salvo."},
+            {"en": "Delaying rest keeps you trapped in the routine zombie cycle.", "es": "Retrasar el descanso te mantiene atrapado en el ciclo zombi de la rutina."},
+            {"en": "Material items provide transient relief but do not restore vital energy.", "es": "Los objetos materiales brindan un alivio pasajero pero no restauran la energía vital."}
+          ]
+        },
+        {"t": "r", "tx": "+Care", "p": 25},
+        {"t": "c", "tx": {"en": "Taking care of myself is an active practice of love.", "es": "Cuidarme es una práctica activa de amor."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Visualize yourself completing your act of self-care tonight", "es": "Visualízate realizando tu acto de autocuidado esta noche"}, "inf": {"en": "Mental planning ensures task completion and updates mindset.", "es": "La planificación mental asegura la realización de la tarea y actualiza la mentalidad."}}
+      ]
+    },
+    {
+      "id": 16,
+      "cat": "beso",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 16: THE MESSAGE OF AFFECTION", "es": "MISIÓN 16: EL MENSAJE DE CARIÑO"}},
+        {"t": "h", "tx": {"en": "The technique of the Kiss utilizes affection to build wellbeing", "es": "La técnica del Beso utiliza el afecto para construir bienestar"}},
+        {"story": {
+          "en": "Affection, recognition, and emotional closeness are powerful human forces. Sharing genuine appreciation breaks isolation and strengthens your network.",
+          "es": "El afecto, el reconocimiento y la cercanía emocional son fuerzas humanas poderosas. Compartir un aprecio genuino rompe el aislamiento y fortalece tu red."
+        }},
+        {
+          "t": "d",
+          "q": {"en": "You think of a loved one who might be trapped in their own routine. What is the move?", "es": "Piensas en un ser querido que podría estar atrapado en su propia rutina. ¿Cuál es el movimiento?"},
+          "op": [
+            {"en": "Keep it to yourself and do not disturb them", "es": "Guardártelo para ti y no molestarlos"},
+            {"en": "Send a real message of true gratitude, appreciation, or affection right now", "es": "Enviar un mensaje real de verdadera gratitud, aprecio o afecto ahora mismo"},
+            {"en": "Wait until they call you first to respond", "es": "Esperar a que te llamen primero para responder"},
+            {"en": "Like one of their old photos on digital networks", "es": "Darle 'me gusta' a una de sus fotos viejas en redes digitales"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Withholding connection leaves both parties in isolated routine states.", "es": "Retener la conexión deja a ambas partes en estados aislados de rutina."},
+            {"en": "A direct message of real warmth updates your connection and lowers mutual stress.", "es": "Un mensaje directo de calidez real actualiza tu conexión y reduce el estrés mutuo."},
+            {"en": "Pride and waiting limit your personal power to cultivate connection.", "es": "El orgullo y la espera limitan tu poder personal para cultivar la conexión."},
+            {"en": "Digital interactions lack emotional substance and closeness.", "es": "Las interacciones digitales carecen de sustancia emocional y cercanía."}
+          ]
+        },
+        {"t": "r", "tx": "+Affection", "p": 25},
+        {"t": "c", "tx": {"en": "The affection I give also strengthens my own balance.", "es": "El afecto que doy también fortalece mi propio equilibrio."}},
+        {"t": "sil", "d": 30, "tx": {"en": "Recall a funny or bright anecdote with that person", "es": "Recuerda una anécdota divertida o brillante con esa persona"}, "inf": {"en": "Evoking happy shared histories releases natural connection chemistry.", "es": "Evocar historias compartidas felices libera química natural de conexión."}}
+      ]
+    },
+    {
+      "id": 17,
+      "cat": "beso",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 17: SHARED SMILE", "es": "MISIÓN 17: SONRISA COMPARTIDA"}},
+        {"t": "h", "tx": {"en": "Expressions of human warmth transform environments", "es": "Las expresiones de calidez humana transforman entornos"}},
+        {"story": {
+          "en": "The automatic routine loop turns individuals into emotionless zombies. Sharing a simple gesture of warmth breaks your own autopilot and brings light to others.",
+          "es": "El bucle de rutina automático convierte a las personas en zombis sin emoción. Compartir un gesto simple de calidez rompe tu propio piloto automático y aporta luz a otros."
+        }},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Inhale confidence... exhale social anxiety", "es": "Inhala confianza... exhala ansiedad social"}, "inf": {"en": "This breath pattern grounds you for open expression.", "es": "Este patrón de respiración te prepara para una expresión abierta."}},
+        {
+          "t": "d",
+          "q": {"en": "You encounter others while moving through your daily city routine. What is your goal?", "es": "Te encuentras con otras personas mientras te mueves en tu rutina diaria por la ciudad. ¿Cuál es tu meta?"},
+          "op": [
+            {"en": "Keep looking at the floor or your phone screen", "es": "Seguir mirando al suelo o la pantalla de tu teléfono"},
+            {"en": "Look with a neutral or hard face to protect your space", "es": "Mirar con rostro neutral o duro para proteger tu espacio"},
+            {"en": "Smile with genuine warmth to three people during your day", "es": "Sonreír con calidez genuina a tres personas durante tu día"},
+            {"en": "Avoid any eye contact with anyone", "es": "Evitar cualquier contacto visual con cualquier persona"}
+          ],
+          "c": 2,
+          "ex": [
+            {"en": "Looking down reinforces the automatic zombie loop.", "es": "Mirar hacia abajo refuerza el bucle zombi automático."},
+            {"en": "Hard expressions deepen urban separation and isolation barriers.", "es": "Las expresiones duras profundizan la separación urbana y las barreras de aislamiento."},
+            {"en": "An active smile breaks your autopilot structure and updates your internal energy.", "es": "Una sonrisa activa rompe tu estructura de piloto automático y actualiza tu energía interna."},
+            {"en": "Avoiding contact removes all chance of organic connection and growth.", "es": "Evitar el contacto elimina toda oportunidad de conexión orgánica y crecimiento."}
+          ]
+        },
+        {"t": "r", "tx": "+Affection", "p": 25},
+        {"t": "c", "tx": {"en": "Sharing joy helps me grow and updates my environment.", "es": "Compartir alegría me ayuda a crecer y actualiza mi entorno."}}
+      ]
+    },
+    {
+      "id": 18,
+      "cat": "beso",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 18: THE ALBUM OF GOOD MEMORIES", "es": "MISIÓN 18: EL ÁLBUM DE LOS BUENOS RECUERDOS"}},
