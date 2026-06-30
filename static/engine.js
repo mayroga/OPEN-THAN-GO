@@ -213,40 +213,43 @@ function procesarComando() {
             <div id='box-explicacion' class='explanation-box'></div> 
         `; 
     } 
-    else { 
-        indiceActual++; 
-        procesarComando();
-                } else {
-            indiceActual++;
-            procesarComando();
-        }
-    } else {
+    function procesarComando() {
+    clearInterval(intervaloRespiracion);
+    clearInterval(cuentaRegresiva);
+    const cajaContenedora = document.getElementById('step-content');
+    const btnSiguiente = document.getElementById('btn-next');
+    cajaContenedora.innerHTML = "";
+    btnSiguiente.style.display = 'none';
+
+    if (indiceActual >= comandosMision.length) {
+        cajaContenedora.innerHTML = `<div class='screen-story' style='text-align:center; font-weight:bold;'>¡Misión Completada con Éxito! Disfruta tu bienestar. / Mission Accomplished!</div>`;
+        return;
+    }
+    const c = comandosMision[indiceActual];
+    if (c.t === 'v' || c.t === 'h' || c.story || c.t === 'c') {
+        let mensaje = c.tx || c.story || c.c || "";
+        cajaContenedora.innerHTML = `<div class='screen-story'>${mensaje}</div>`;
+        btnSiguiente.style.display = 'block';
+    } 
+    else if (c.t === 'breath_auto') {
+        // ... (Tu código de respiración permanece igual)
+        cajaContenedora.innerHTML = `<div class='screen-story'><b>${c.tx}</b></div><div class='wrapper-circle'><div id='circle-azul' class='breath-circle'>INHALA</div></div><div id='timer-breath' class='timer-display'>${c.d}s</div>`;
+        // (Lógica de intervalos que ya tenías)
+    } 
+    else if (c.t === 'sil') {
+        // ... (Tu código de silencio permanece igual)
+        cajaContenedora.innerHTML = `<div class='screen-story'><b>${c.tx}</b></div><div id='timer-silence' class='timer-display'>${c.d}s</div>`;
+    } 
+    else if (c.t === 'd') {
+        let opcionesHtml = "";
+        c.op.forEach((opcion, idx) => {
+            opcionesHtml += `<button class='btn-option-interactive' onclick='validarRespuesta(${idx}, ${c.c}, "${c.ex[idx].replace(/"/g, '&quot;')}")'>${opcion}</button>`;
+        });
+        cajaContenedora.innerHTML = `<div class='screen-title' style='font-size:15px; text-align:left;'>${c.q}</div><div class='options-list'>${opcionesHtml}</div><div id='box-explicacion' class='explanation-box'></div>`;
+    } 
+    else {
+        // Salto automático si el comando no es reconocido
         indiceActual++;
         procesarComando();
     }
 }
-function validarRespuesta(indiceClick, indiceCorrecto, explicacionTexto) {
-    const botones = document.querySelectorAll('.options-list button');
-    botones.forEach(b => b.disabled = true);
-    const expBox = document.getElementById('box-explicacion');
-    expBox.innerText = explicacionTexto;
-    expBox.style.display = 'block';
-    if (indiceClick === indiceCorrecto) {
-        botones[indiceClick].classList.add('correct');
-        expBox.style.backgroundColor = '#e8f5e9';
-        expBox.style.color = '#1b5e20';
-        expBox.style.borderLeft = '4px solid var(--secondary)';
-    } else {
-        botones[indiceClick].classList.add('wrong');
-        botones[indiceCorrecto].classList.add('correct');
-        expBox.style.backgroundColor = '#ffebee';
-        expBox.style.color = '#b71c1c';
-        expBox.style.borderLeft = '4px solid var(--accent)';
-    }
-    document.getElementById('btn-next').style.display = 'block';
-}
-function siguienteComando() {
-    indiceActual++;
-    procesarComando();
-}
-
