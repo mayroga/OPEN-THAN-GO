@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 # FUNCIÓN INTELIGENTE: Lee tus archivos JSON existentes tal como están en GitHub
 def cargar_mision_tvid_desde_archivos(categoria_emocional, bolsillo_usuario):
-    # Lista de los archivos donde guardas tus bloques de misiones
+    # Lista de los archivos donde guardas tus bloques de misiones ordenadas
     archivos_kamizen = ['missions_01_07.json', 'missions_08_14.json', 'missions_15_21.json']
     todas_las_tvid = []
     
@@ -14,20 +14,20 @@ def cargar_mision_tvid_desde_archivos(categoria_emocional, bolsillo_usuario):
         try:
             with open(nombre_archivo, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                # Extraemos misiones de las Técnicas de Vida (ID >= 5 de tu nueva lista bilingüe)
+                # Extraemos todas las misiones (Rango del 1 al 21 completo de OPEN THAN GO)
                 for m in data["missions"]:
-                    if m.get("id", 0) >= 5:
+                    if m.get("id", 0) >= 1:
                         todas_las_tvid.append(m)
         except Exception as e:
             print(f"Error cargando {nombre_archivo}: {e}")
 
-    # Filtramos la lista de las TVid por la emoción detectada y el bolsillo del usuario
+    # Filtramos la lista de las misiones por la emoción detectada y el bolsillo del usuario
     filtradas = [
         m for m in todas_las_tvid 
         if m["cat"] == categoria_emocional and bolsillo_usuario in m.get("pocket_match", ["cero", "moderado", "libre"])
     ]
     
-    # Si encuentra coincidencia exacta la regresa; si no, elige una TVid al azar del pozo de 21 misiones
+    # Si encuentra coincidencia exacta la regresa; si no, elige una misiones al azar del pozo de 21 misiones
     if filtradas:
         return random.choice(filtradas)
     elif todas_las_tvid:
@@ -58,7 +58,7 @@ def diagnostico_kamizen():
     elif "aburrid" in texto_libre or "niñ" in texto_libre or "hijo" in texto_libre or "kid" in texto_libre:
         categoria_detectada = "nino"
 
-    # 2. Cargar el objeto estructurado de comandos desde tus JSONs existentes (Rango ID >= 5)
+    # 2. Cargar el objeto estructurado de comandos desde tus JSONs existentes (Rango ID 1-21)
     mision_tvid = cargar_mision_tvid_desde_archivos(categoria_detectada, bolsillo)
     
     if not mision_tvid:
@@ -75,6 +75,8 @@ def diagnostico_kamizen():
             bloque_clon["inf"] = bloque_clon["inf"][idioma]
         if "story" in bloque_clon:
             bloque_clon["story"] = bloque_clon["story"][idioma]
+        if "c" in bloque_clon:  # CORRECCIÓN: Traducir la conclusión para evitar undefined
+            bloque_clon["c"] = bloque_clon["c"][idioma]
             
         if bloque_clon["t"] == "d":
             bloque_clon["q"] = bloque_clon["q"][idioma]
@@ -107,7 +109,7 @@ def diagnostico_kamizen():
 
         query_busqueda = f"{tipo_mapa}+in+{zip_code}+{estado}+USA"
         
-        # REPARACIÓN DE LA URL DE MAPAS CON DEEP LINKING OFICIAL:
+        # CORRECCIÓN: Enlace de mapas oficial con Deep Linking gratuito
         url_maps_gratis = f"https://google.com{query_busqueda}"
         
         titulo_out = "Plan de Escape Abierto: OPEN THAN GO" if idioma == 'es' else "Open Escape Plan: OPEN THAN GO"
@@ -117,8 +119,6 @@ def diagnostico_kamizen():
             "t": "h",
             "tx": f"Dirígete al área abierta en tu zona postal {zip_code}. Al llegar, ejecuta tu secuencia:" if idioma == 'es' else f"Drive to the open space in your zip code {zip_code}. Upon arrival, start your sequence:"
         }
-        
-        # REPARACIÓN DE LA ASIGNACIÓN ERRONEA QUE CAUSABA UNDEFINED:
         bloques_processed.insert(0, instruccion_viaje)
 
         return jsonify({
