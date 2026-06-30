@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OPEN THAN GO</title>
     <style>
         :root {
@@ -14,105 +14,117 @@
             --white: #ffffff;
             --gray: #eeeeee;
         }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--light);
             color: var(--dark);
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100vh;
         }
         .container-app {
             background: var(--white);
-            max-width: 500px;
+            max-width: 480px;
             width: 100%;
-            padding: 30px;
+            padding: 20px;
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            box-sizing: border-box;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            margin: 10px auto;
         }
         .header-app {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .header-app h1 {
             color: var(--primary);
-            margin: 0 0 10px 0;
-            font-size: 28px;
-            letter-spacing: 1px;
+            margin: 0 0 8px 0;
+            font-size: 26px;
+            letter-spacing: 0.5px;
             font-weight: 800;
         }
         .header-app p {
             margin: 0;
-            color: #666;
-            font-size: 14px;
+            color: #555;
+            font-size: 13px;
             line-height: 1.4;
+            padding: 0 10px;
         }
         .lang-bar {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
         }
         .btn-lang {
             background: var(--gray);
             border: none;
-            padding: 6px 12px;
+            padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 12px;
             font-weight: bold;
+            flex: 1;
+            max-width: 120px;
+            text-align: center;
         }
         .btn-lang.active {
             background: var(--primary);
             color: var(--white);
         }
         .form-group {
-            margin-bottom: 22px;
+            margin-bottom: 18px;
         }
         .form-group label {
             display: block;
             font-weight: 600;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 6px;
+            font-size: 13px;
             color: var(--primary);
         }
         .form-group select, .form-group input, .form-group textarea {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 10px;
             font-size: 14px;
             background-color: #fafafa;
+            font-family: inherit;
+            -webkit-appearance: none;
         }
         .form-group textarea {
             height: 90px;
             resize: none;
         }
+        /* Grid adaptabilidad móvil para 3 botones */
         .btn-grid-3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            gap: 6px;
         }
+        /* Grid adaptabilidad móvil para 2 botones */
         .btn-grid-2 {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 8px;
         }
         .btn-choice {
             background: var(--gray);
             border: none;
-            padding: 12px 5px;
-            border-radius: 8px;
+            padding: 14px 4px;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
-            transition: all 0.2s;
+            line-height: 1.2;
+            transition: background 0.2s, color 0.2s;
         }
         .btn-choice.active {
             background: var(--secondary);
@@ -124,45 +136,47 @@
             color: var(--white);
             border: none;
             padding: 16px;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 10px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             transition: background 0.2s;
-            margin-top: 10px;
-            letter-spacing: 0.5px;
+            margin-top: 5px;
+            box-shadow: 0 4px 12px rgba(216,67,21,0.2);
         }
-        .btn-trigger:hover {
+        .btn-trigger:active {
             background: #b2330f;
         }
         .card-surprise {
-            margin-top: 25px;
-            padding: 22px;
+            margin-top: 22px;
+            padding: 18px;
             border-left: 6px solid var(--secondary);
-            background: #f9f9f9;
+            background: #fdfdfd;
             border-radius: 4px 12px 12px 4px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.01);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
         .card-surprise h2 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
+            margin: 0 0 6px 0;
+            font-size: 17px;
             color: var(--primary);
             font-weight: 700;
         }
         .card-surprise .badge-location {
             font-weight: bold;
             color: var(--secondary);
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             font-size: 13px;
-            letter-spacing: 0.3px;
         }
         .card-surprise pre {
             white-space: pre-wrap;
             font-family: inherit;
-            font-size: 14px;
-            line-height: 1.6;
-            margin: 0 0 20px 0;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 0 0 16px 0;
             color: #333;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
         }
         .btn-maps {
             display: block;
@@ -171,10 +185,9 @@
             color: var(--white);
             text-decoration: none;
             padding: 14px;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: bold;
             font-size: 14px;
-            letter-spacing: 0.5px;
             box-shadow: 0 4px 10px rgba(66,133,244,0.2);
         }
     </style>
@@ -182,64 +195,56 @@
 <body>
 
 <div class="container-app">
-    <!-- Barra de Selección de Idioma Obligatoria -->
     <div class="lang-bar">
         <button class="btn-lang active" id="lang-es" onclick="cambiarIdioma('es')">Español 🇪🇸</button>
         <button class="btn-lang" id="lang-en" onclick="cambiarIdioma('en')">English 🇺🇸</button>
     </div>
 
-    <!-- Encabezado OPEN THAN GO -->
     <div class="header-app">
         <h1 id="txt-title">OPEN THAN GO</h1>
         <p id="txt-subtitle">Tu botón de escape inmediato para romper la monotonía urbana.</p>
     </div>
 
-    <!-- Filtro Geográfico de Estados Unidos -->
     <div class="form-group">
         <label id="lbl-state">Estado / State:</label>
         <select id="inp-state">
-            <option value="FL">Florida (Miami, Orlando, Tampa, Lehigh Acres, Fort Myers...)</option>
-            <option value="TX">Texas (Houston, Dallas, San Antonio...)</option>
-            <option value="CA">California (Los Angeles, San Diego...)</option>
+            <option value="FL">Florida (Miami, Orlando, Tampa, Lehigh Acres...)</option>
+            <option value="TX">Texas (Houston, Dallas...)</option>
+            <option value="CA">California (Los Angeles...)</option>
             <option value="NY">New York</option>
         </select>
     </div>
 
-    <!-- Entrada del Código Postal Nacional -->
     <div class="form-group">
         <label id="lbl-zip">ZIP Code (5 dígitos):</label>
-        <input type="text" id="inp-zip" placeholder="Ej: 33936" maxlength="5">
+        <input type="tel" id="inp-zip" placeholder="Ej: 33936" maxlength="5">
     </div>
 
-    <!-- BOTONES REALES DEL BOLSILLO (Cero Gastos, Moderado, Libre) -->
     <div class="form-group">
         <label id="lbl-pocket">¿Cuál es tu presupuesto real para hoy?</label>
         <div class="btn-grid-3">
             <button class="btn-choice active" id="pocket-cero" onclick="setBolsillo('cero')">GASTO $0 HOY</button>
             <button class="btn-choice" id="pocket-mod" onclick="setBolsillo('moderado')">MODERADO</button>
-            <button class="btn-choice" id="pocket-libre" onclick="setBolsillo('libre')">PRESUPUESTO LIBRE</button>
+            <button class="btn-choice" id="pocket-libre" onclick="setBolsillo('libre')">LIBRE</button>
         </div>
     </div>
 
-    <!-- Selector de Modalidad (Quedarse en casa o salir a la calle) -->
     <div class="form-group">
         <label id="lbl-mode">¿Puedes o quieres salir de casa hoy?</label>
         <div class="btn-grid-2">
-            <button class="btn-choice active" id="mode-out" onclick="setModalidad(true)">🟢 SÍ, NECESITO SALIR</button>
-            <button class="btn-choice" id="mode-in" onclick="setModalidad(false)">🏠 NO, ME QUEDO EN CASA</button>
+            <button class="btn-choice active" id="mode-out" onclick="setModalidad(true)">🟢 SÍ, SALIR</button>
+            <button class="btn-choice" id="mode-in" onclick="setModalidad(false)">🏠 EN CASA</button>
         </div>
     </div>
 
-    <!-- Caja Abierta Humana de Desahogo Emocional -->
     <div class="form-group">
         <label id="lbl-text">Desahógate aquí (Escribe libremente lo que traigas en la mente):</label>
         <textarea id="inp-text" placeholder="Escribe si estás cansado de la rutina, preocupado por biles o el trabajo, solo, o con niños aburridos..."></textarea>
     </div>
 
-    <!-- Disparador Único del Azar Inteligente -->
     <button class="btn-trigger" id="btn-submit" onclick="ejecutarEscape()">SÁCAME DE LA MONOTONÍA</button>
 
-    <!-- PANTALLA CONTENEDORA DE RESULTADOS SORPRESA -->
+    <!-- PANTALLA CONTENEDORA DE RESULTADOS -->
     <div id="result-box" class="card-surprise" style="display: none;">
         <h2 id="res-title"></h2>
         <div class="badge-location" id="res-location"></div>
