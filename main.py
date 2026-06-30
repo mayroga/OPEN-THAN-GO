@@ -34,7 +34,7 @@ def cargar_mision_tvid_desde_archivos(categoria_emocional, bolsillo_usuario):
         return random.choice(todas_las_tvid)
     else:
         return None
-        
+
 @app.route('/')
 def home():
     # Esto le indica a Python que cuando alguien entre a tu URL principal,
@@ -65,7 +65,7 @@ def diagnostico_kamizen():
         return jsonify({"error": "No misiones disponibles / No misiones encontradas"})
 
     # 3. Formateador de Idioma en Espejo (Extrae solo 'es' o 'en' para tu Javascript nativo)
-    bloques_procesados = []
+    bloques_processed = []
     for comando in mision_tvid["b"]:
         bloque_clon = comando.copy()
         
@@ -81,7 +81,7 @@ def diagnostico_kamizen():
             bloque_clon["op"] = [op[idioma] for op in bloque_clon["op"]]
             bloque_clon["ex"] = [ex[idioma] for ex in bloque_clon["ex"]]
             
-        bloques_procesados.append(bloque_clon)
+        bloques_processed.append(bloque_clon)
 
     # 4. BIFURCACIÓN DE ENTORNOS DE ESCAPE
     if not puedes_salir:
@@ -91,7 +91,7 @@ def diagnostico_kamizen():
             "modalidad": "indoor",
             "titulo": titulo,
             "lugar": "Tu espacio seguro en casa / Your home safe space",
-            "bloques_interactivos": bloques_procesados,
+            "bloques_interactivos": bloques_processed,
             "url_maps": None
         })
     else:
@@ -107,7 +107,7 @@ def diagnostico_kamizen():
 
         query_busqueda = f"{tipo_mapa}+in+{zip_code}+{estado}+USA"
         
-        # CORRECCIÓN ENLACE DE MAPAS COMPLETO CON DEEP LINKING OFICIAL:
+        # REPARACIÓN DE LA URL DE MAPAS CON DEEP LINKING OFICIAL:
         url_maps_gratis = f"https://google.com{query_busqueda}"
         
         titulo_out = "Plan de Escape Abierto: OPEN THAN GO" if idioma == 'es' else "Open Escape Plan: OPEN THAN GO"
@@ -117,13 +117,15 @@ def diagnostico_kamizen():
             "t": "h",
             "tx": f"Dirígete al área abierta en tu zona postal {zip_code}. Al llegar, ejecuta tu secuencia:" if idioma == 'es' else f"Drive to the open space in your zip code {zip_code}. Upon arrival, start your sequence:"
         }
-        bloques_processed = bloques_procesados.insert(0, instruccion_viaje)
+        
+        # REPARACIÓN DE LA ASIGNACIÓN ERRONEA QUE CAUSABA UNDEFINED:
+        bloques_processed.insert(0, instruccion_viaje)
 
         return jsonify({
             "modalidad": "outdoor",
             "titulo": titulo_out,
             "lugar": f"Zona de libertad recomendada en {zip_code}, {estado}",
-            "bloques_interactivos": bloques_procesados,
+            "bloques_interactivos": bloques_processed,
             "url_maps": url_maps_gratis
         })
 
