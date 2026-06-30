@@ -4,22 +4,16 @@
   "ch": 3,
   "rng": "15-21",
   "ui": {
-    "fw": ["AWARENESS", "SAFETY", "CALM", "ACTION", "TRUTH", "CONTROL", "HELP", "FOCUS", "GOOD", "WISDOM", "WONDER", "DISCIPLINE", "CARE", "AFFECTION", "STRENGTH"]
+    "fw": ["BIEN", "WISDOM", "WONDER", "DISCIPLINE", "CARE", "AFFECTION", "STRENGTH"]
   },
   "rules": [
-    "Awareness>Reaction",
-    "Safety>Impulse",
-    "AskForHelp=Strength",
-    "Distance>Conflict",
-    "Calm=Better Decisions",
-    "Truth=Protection",
-    "Good=Wellbeing",
-    "Mistakes=Wisdom",
-    "Curiosity=Growth",
-    "Responsibility=Future",
-    "SelfCare=Love",
-    "Affection=Connection",
-    "Challenges=Strength"
+    "Bien=Bienestar",
+    "Errores=Sabiduría",
+    "Curiosidad=Crecimiento",
+    "Responsabilidad=Futuro",
+    "Autocuidado=Amor",
+    "Afecto=Conexión",
+    "Batallas=Fortaleza"
   ],
   "missions": [
     {
@@ -28,32 +22,29 @@
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
         {"t": "v", "tx": {"en": "MISSION 15: MY MOMENT OF CARE", "es": "MISIÓN 15: MI MOMENTO DE CUIDADO"}},
-        {"t": "h", "tx": {"en": "Taking care of yourself is an active form of love", "es": "Cuidarte a ti mismo es una forma activa de amor"}},
-        {"story": {
-          "en": "You cannot pour from an empty cup. When urban exhaustion drains your battery, pausing to deliberately protect and pamper your body balances your entire system.",
-          "es": "No puedes dar de una taza vacía. Cuando el agotamiento urbano drena tu batería, pausar para proteger y consentir deliberadamente tu cuerpo equilibra todo tu sistema."
-        }},
-        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe slow... anchor yourself in this moment", "es": "Respira lento... ánclate en este momento"}, "inf": {"en": "This physical pause decreases somatic tension.", "es": "Esta pausa física disminuye la tensión somática."}},
+        {"t": "h", "tx": {"en": "Taking care of your body is an active form of love", "es": "Cuidar de tu cuerpo es una forma activa de amor"}},
+        {"story": {"en": "You spend your week managing tasks, driving through city traffic, and protecting others. When exhaustion hits, waiting for time to free up is a trap. Intentionally selecting an action to protect your health balances your biological system.", "es": "Pasas la semana manejando tareas, conduciendo en el tráfico de la ciudad y protegiendo a otros. Cuando llega el agotamiento, esperar a tener tiempo libre es una trampa. Seleccionar intencionalmente una acción para proteger tu salud equilibra tu sistema biológico."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe slow... anchor your awareness inside your physical body", "es": "Respira lento... ancla tu conciencia dentro de tu cuerpo físico"}, "inf": {"en": "This physical pause decreases chronic muscular tension.", "es": "Esta pausa física disminuye la tensión muscular crónica."}},
         {
           "t": "d",
-          "q": {"en": "Your body and soul feel deeply fatigued by routines. What is your commitment?", "es": "Tu cuerpo y tu alma se sienten profundamente fatigados por las rutinas. ¿Cuál es tu compromiso?"},
+          "q": {"en": "Your energy is completely depleted by the daily grind. What is your active commitment today?", "es": "Tu energía está completamente agotada por la rutina diaria. ¿Cuál es tu compromiso activo hoy?"},
           "op": [
-            {"en": "Keep ignoring the warnings and push harder", "es": "Seguir ignorando las advertencias y presionando más"},
-            {"en": "Identify an urgent need and execute one real action of self-care today", "es": "Identificar una necesidad urgente y ejecutar una acción real de autocuidado hoy"},
-            {"en": "Assume you will rest next month when you have time", "es": "Asumir que descansarás el próximo mes cuando tengas tiempo"},
-            {"en": "Buy luxury goods to mask the exhaustion", "es": "Comprar artículos de lujo para enmascarar el agotamiento"}
+            {"en": "Keep pushing past your limits until your body crashes", "es": "Seguir presionando más allá de tus límites hasta que tu cuerpo colapse"},
+            {"en": "Think of what you need, choose a small action of self-care, and commit to doing it", "es": "Pensar en lo que necesitas, elegir una pequeña acción de autocuidado y comprometerte a realizarla"},
+            {"en": "Assume you will rest next month when the bills are paid", "es": "Asumir que descansarás el próximo mes cuando los biles estén pagados"},
+            {"en": "Scroll digital networks to passively distract your eyes", "es": "Navegar en las redes digitales para distraer pasivamente tus ojos"}
           ],
           "c": 1,
           "ex": [
-            {"en": "Pushing past exhaustion leads to complete burnout and anxiety.", "es": "Presionar más allá del agotamiento conduce al desgaste absoluto y la ansiedad."},
-            {"en": "A concrete act of self-care immediately alerts your body that it is safe.", "es": "Un acto concreto de autocuidado le avisa de inmediato a tu cuerpo que está a salvo."},
-            {"en": "Delaying rest keeps you trapped in the routine zombie cycle.", "es": "Retrasar el descanso te mantiene atrapado en el ciclo zombi de la rutina."},
-            {"en": "Material items provide transient relief but do not restore vital energy.", "es": "Los objetos materiales brindan un alivio pasajero pero no restauran la energía vital."}
+            {"en": "Pushing past chronic fatigue causes burnout and clinical stress signals.", "es": "Presionar más allá de la fatiga crónica causa desgaste y señales de estrés clínico."},
+            {"en": "Executing an immediate act of care triggers safety parameters inside your nervous system.", "es": "Ejecutar un acto inmediato de cuidado activa parámetros de seguridad dentro de tu sistema nervioso."},
+            {"en": "Delaying self-protection keeps you locked inside the automatic zombie cycle permanently.", "es": "Retrasar la autoprotección te mantiene encerrado en el ciclo zombi automático permanentemente."},
+            {"en": "Passive screens increase digital fatigue and do not restore vital energy parameters.", "es": "Las pantallas pasivas aumentan la fatiga digital y no restauran los parámetros de energía vital."}
           ]
         },
         {"t": "r", "tx": "+Care", "p": 25},
-        {"t": "c", "tx": {"en": "Taking care of myself is an active practice of love.", "es": "Cuidarme es una práctica activa de amor."}},
-        {"t": "sil", "d": 40, "tx": {"en": "Visualize yourself completing your act of self-care tonight", "es": "Visualízate realizando tu acto de autocuidado esta noche"}, "inf": {"en": "Mental planning ensures task completion and updates mindset.", "es": "La planificación mental asegura la realización de la tarea y actualiza la mentalidad."}}
+        {"t": "c", "tx": {"en": "Cuidarme es una forma de amor.", "es": "Cuidarme es una forma de amor."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Think of what you need right now. Choose a small action to care for yourself and commit to it.", "es": "Piensa en algo que necesitas. Elige una acción para cuidarte hoy. Comprométete a realizarla."}, "inf": {"en": "Explicit self-care micro-planning lowers unconscious anxiety levels.", "es": "La micro-planificación explícita de autocuidado reduce los niveles de ansiedad inconsciente."}}
       ]
     },
     {
@@ -62,31 +53,29 @@
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
         {"t": "v", "tx": {"en": "MISSION 16: THE MESSAGE OF AFFECTION", "es": "MISIÓN 16: EL MENSAJE DE CARIÑO"}},
-        {"t": "h", "tx": {"en": "The technique of the Kiss utilizes affection to build wellbeing", "es": "La técnica del Beso utiliza el afecto para construir bienestar"}},
-        {"story": {
-          "en": "Affection, recognition, and emotional closeness are powerful human forces. Sharing genuine appreciation breaks isolation and strengthens your network.",
-          "es": "El afecto, el reconocimiento y la cercanía emocional son fuerzas humanas poderosas. Compartir un aprecio genuino rompe el aislamiento y fortalece tu red."
-        }},
+        {"t": "h", "tx": {"en": "Utilizing emotional closeness to cultivate connection", "es": "Utilizando la cercanía emocional para cultivar la conexión"}},
+        {"story": {"en": "The system isolates individuals, making parents, partners, and friends live under the same roof like strangers. Sharing unexpected, genuine warmth removes isolation boundaries and updates your connection structure.", "es": "El sistema aísla a los individuos, haciendo que los padres, parejas y amigos vivan bajo el mismo techo como extraños. Compartir una calidez genuina e inesperada elimina las barreras de aislamiento y actualiza tu estructura de conexión."}},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Inhale openness... exhale relational distance", "es": "Inhala apertura... exhala la distancia relacional"}, "inf": {"en": "This slow respiration reduces subcortical social defense barriers.", "es": "Esta respiración lenta reduce las barreras subcorticales de defensa social."}},
         {
           "t": "d",
-          "q": {"en": "You think of a loved one who might be trapped in their own routine. What is the move?", "es": "Piensas en un ser querido que podría estar atrapado en su propia rutina. ¿Cuál es el movimiento?"},
+          "q": {"en": "You think of a person you love who is also consumed by their daily routine. What do you execute?", "es": "Piensas en una persona querida que también está consumida por su rutina diaria. ¿Qué ejecutas?"},
           "op": [
-            {"en": "Keep it to yourself and do not disturb them", "es": "Guardártelo para ti y no molestarlos"},
-            {"en": "Send a real message of true gratitude, appreciation, or affection right now", "es": "Enviar un mensaje real de verdadera gratitud, aprecio o afecto ahora mismo"},
-            {"en": "Wait until they call you first to respond", "es": "Esperar a que te llamen primero para responder"},
-            {"en": "Like one of their old photos on digital networks", "es": "Darle 'me gusta' a una de sus fotos viejas en redes digitales"}
+            {"en": "Keep the thought to yourself to avoid bothering them", "es": "Guardarte el pensamiento para ti para evitar molestarlos"},
+            {"en": "Think of a loved one, remember something positive, and send them a text of cariño or appreciation", "es": "Pensar en una persona querida, recordar algo positivo de ella y enviarle un mensaje de agradecimiento o cariño"},
+            {"en": "Wait for them to initiate communication first to protect your pride", "es": "Esperar a que inicien la comunicación primero para proteger tu orgullo"},
+            {"en": "Send a commercial meme without any personalized words", "es": "Enviar un meme comercial sin ninguna palabra personalizada"}
           ],
           "c": 1,
           "ex": [
-            {"en": "Withholding connection leaves both parties in isolated routine states.", "es": "Retener la conexión deja a ambas partes en estados aislados de rutina."},
-            {"en": "A direct message of real warmth updates your connection and lowers mutual stress.", "es": "Un mensaje directo de calidez real actualiza tu conexión y reduce el estrés mutuo."},
-            {"en": "Pride and waiting limit your personal power to cultivate connection.", "es": "El orgullo y la espera limitan tu poder personal para cultivar la conexión."},
-            {"en": "Digital interactions lack emotional substance and closeness.", "es": "Las interacciones digitales carecen de sustancia emocional y cercanía."}
+            {"en": "Withholding connection maintains the flat, uninspired autopilot loop.", "es": "Retener la conexión mantiene el bucle plano y sin inspiración del piloto automático."},
+            {"en": "A direct message of real warmth updates your safety grid and reduces mutual stress index.", "es": "Un mensaje directo de calidez real actualiza tu red de seguridad y reduce el índice de estrés mutuo."},
+            {"en": "Pride limits your internal capacity to establish healthy, active wellbeing.", "es": "El orgullo limita tu capacidad interna para establecer un bienestar activo y saludable."},
+            {"en": "Impersonal digital interactions lack substance and create no real closeness.", "es": "Las interacciones digitales impersonales carecen de sustancia y no crean cercanía real."}
           ]
         },
         {"t": "r", "tx": "+Affection", "p": 25},
-        {"t": "c", "tx": {"en": "The affection I give also strengthens my own balance.", "es": "El afecto que doy también fortalece mi propio equilibrio."}},
-        {"t": "sil", "d": 30, "tx": {"en": "Recall a funny or bright anecdote with that person", "es": "Recuerda una anécdota divertida o brillante con esa persona"}, "inf": {"en": "Evoking happy shared histories releases natural connection chemistry.", "es": "Evocar historias compartidas felices libera química natural de conexión."}}
+        {"t": "c", "tx": {"en": "El afecto fortalece mi bienestar.", "es": "El afecto fortalece mi bienestar."}},
+        {"t": "sil", "d": 30, "tx": {"en": "Think of a dear person, recall something positive, and send them a text of true affection now.", "es": "Piensa en una persona querida. Recuerda algo positivo de ella. Envíale un mensaje de agradecimiento o cariño."}, "inf": {"en": "Generosity behaviors stimulate the production of neurochemicals linked to peace.", "es": "Los comportamientos de generosidad estimulan la producción de neuroquímicos vinculados a la paz."}}
       ]
     },
     {
@@ -96,18 +85,15 @@
       "b": [
         {"t": "v", "tx": {"en": "MISSION 17: SHARED SMILE", "es": "MISIÓN 17: SONRISA COMPARTIDA"}},
         {"t": "h", "tx": {"en": "Expressions of human warmth transform environments", "es": "Las expresiones de calidez humana transforman entornos"}},
-        {"story": {
-          "en": "The automatic routine loop turns individuals into emotionless zombies. Sharing a simple gesture of warmth breaks your own autopilot and brings light to others.",
-          "es": "El bucle de rutina automático convierte a las personas en zombis sin emoción. Compartir un gesto simple de calidez rompe tu propio piloto automático y aporta luz a otros."
-        }},
-        {"t": "breath_auto", "d": 20, "tx": {"en": "Inhale confidence... exhale social anxiety", "es": "Inhala confianza... exhala ansiedad social"}, "inf": {"en": "This breath pattern grounds you for open expression.", "es": "Este patrón de respiración te prepara para una expresión abierta."}},
+        {"story": {"en": "The automatic routine loop turns individuals into emotionless zombies. Sharing a simple gesture of warmth breaks your own autopilot and brings light to others.", "es": "El bucle de rutina automático convierte a las personas en zombis sin emoción. Compartir un gesto simple de calidez rompe tu propio piloto automático y aporta luz a otros."}},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Inhale warmth... exhale urban separation", "es": "Inhala calidez... exhala la separación urbana"}, "inf": {"en": "This breath pattern grounds you for open expression.", "es": "Este patrón de respiración te prepara para una expresión abierta."}},
         {
           "t": "d",
           "q": {"en": "You encounter others while moving through your daily city routine. What is your goal?", "es": "Te encuentras con otras personas mientras te mueves en tu rutina diaria por la ciudad. ¿Cuál es tu meta?"},
           "op": [
             {"en": "Keep looking at the floor or your phone screen", "es": "Seguir mirando al suelo o la pantalla de tu teléfono"},
             {"en": "Look with a neutral or hard face to protect your space", "es": "Mirar con rostro neutral o duro para proteger tu espacio"},
-            {"en": "Smile with genuine warmth to three people during your day", "es": "Sonreír con calidez genuina a tres personas durante tu día"},
+            {"en": "Smile with genuine warmth to three people during your day and notice their reaction", "es": "Sonreír con calidez a tres personas durante el día y observar sus reacciones"},
             {"en": "Avoid any eye contact with anyone", "es": "Evitar cualquier contacto visual con cualquier persona"}
           ],
           "c": 2,
@@ -115,11 +101,12 @@
             {"en": "Looking down reinforces the automatic zombie loop.", "es": "Mirar hacia abajo refuerza el bucle zombi automático."},
             {"en": "Hard expressions deepen urban separation and isolation barriers.", "es": "Las expresiones duras profundizan la separación urbana y las barreras de aislamiento."},
             {"en": "An active smile breaks your autopilot structure and updates your internal energy.", "es": "Una sonrisa activa rompe tu estructura de piloto automático y actualiza tu energía interna."},
-            {"en": "Avoiding contact removes all chance of organic connection and growth.", "es": "Evitar el contacto elimina toda oportunidad de conexión orgánica y crecimiento."}
+            {"en": "Avoiding contact removes all chance of organic connection and growth.", "es": "Evitar el contacto de todo tipo elimina toda oportunidad de conexión orgánica y crecimiento."}
           ]
         },
         {"t": "r", "tx": "+Affection", "p": 25},
-        {"t": "c", "tx": {"en": "Sharing joy helps me grow and updates my environment.", "es": "Compartir alegría me ayuda a crecer y actualiza mi entorno."}}
+        {"t": "c", "tx": {"en": "Compartir alegría me hace crecer.", "es": "Compartir alegría me hace crecer."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Sonríe a tres personas durante el día. Observa sus reacciones. Reflexiona sobre cómo te sentiste.", "es": "Sonríe a tres personas durante el día. Observa sus reacciones. Reflexiona sobre cómo te sentiste."}, "inf": {"en": "Sharing joy helps me grow and updates my environment.", "es": "Compartir alegría me ayuda a crecer y actualiza mi entorno."}}
       ]
     },
     {
@@ -128,3 +115,123 @@
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
         {"t": "v", "tx": {"en": "MISSION 18: THE ALBUM OF GOOD MEMORIES", "es": "MISIÓN 18: EL ÁLBUM DE LOS BUENOS RECUERDOS"}},
+        {"t": "h", "tx": {"en": "Good memories feed your heart and mind", "es": "Los buenos recuerdos alimentan tu corazón y tu mente"}},
+        {"story": {"en": "When current accounts and work tasks crowd your thoughts, your memory archive holds the ultimate medicine. Reliving happiness brings power back to your present state.", "es": "Cuando las cuentas actuales y las tareas laborales saturan tus pensamientos, tu archivo de memoria guarda la medicina definitiva. Revivir la felicidad devuelve poder a tu estado presente."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Inhale presence... exhale the current gray routine", "es": "Inhala presencia... exhala la rutina gris actual"}, "inf": {"en": "Slowing down your breath stabilizes your internal access parameters.", "es": "Ralentizar tu respiración establece tus parámetros de acceso interno."}},
+        {
+          "t": "d",
+          "q": {"en": "You feel mentally blocked, empty, or nostalgic for your country. How do you respond?", "es": "Te sientes mentalmente bloqueado, vacío o nostálgico por tu país. ¿Cómo respondes?"},
+          "op": [
+            {"en": "Assume those good times are gone forever and feel sad", "es": "Asumir que esos buenos tiempos se fueron para siempre y sentirte triste"},
+            {"en": "Bring 3 specific happy memories to mind and actively relive them for minutes", "es": "Traer 3 recuerdos felices específicos a la mente y revivirlos activamente por minutos"},
+            {"en": "Ruminate on how difficult the system is here in the US", "es": "Rumiar sobre lo difícil que es el sistema aquí en los EE. UU."},
+            {"en": "Watch continuous videos online to block out your thoughts", "es": "Ver videos continuos en línea para bloquear tus pensamientos"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Despair strips your present mind of strength and hope.", "es": "La desesperación le quita fuerza y esperanza a tu mente presente."},
+            {"en": "Actively reliving joy updates your internal chemistry, lowering stress codes.", "es": "Revivir activamente la alegría actualiza tu química interna, reduciendo los códigos de estrés."},
+            {"en": "Rumination deepens the stagnation loop and delays your recovery.", "es": "La rumiación profundiza el bucle de estancamiento y retrasa tu recuperación."},
+            {"en": "Passive streaming delivers temporary distraction but no real structural balance.", "es": "La transmisión pasiva ofrece una distracción temporal pero ningún equilibrio estructural real."}
+          ]
+        },
+        {"t": "r", "tx": "+Connection", "p": 30},
+        {"t": "c", "tx": {"en": "Los buenos recuerdos alimentan mi corazón.", "es": "Los buenos recuerdos alimentan mi corazón."}},
+        {"t": "sil", "d": 50, "tx": {"en": "Piensa en tres recuerdos felices. Revívelos durante unos minutos. Agradece por haberlos vivido.", "es": "Piensa en tres recuerdos felices. Revívelos durante unos minutos. Agradece por haberlos vivido."}, "inf": {"en": "This prolonged focus acts as a natural reset for cognitive noise.", "es": "Este enfoque prolongado actúa como un reinicio natural para el ruido cognitivo."}}
+      ]
+    },
+    {
+      "id": 19,
+      "cat": "guerra",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 19: THE QUIET WARRIOR", "es": "MISIÓN 19: EL GUERRERO TRANQUILO"}},
+        {"t": "h", "tx": {"en": "The technique of the War integrates all resources to face challenges", "es": "La técnica de la Guerra integra todos los recursos para enfrentar desafíos"}},
+        {"story": {"en": "Life brings constant battles, from bills to mental roadblocks. The Quiet Warrior does not panic; they combine logic, breathing, and strategy to secure victory.", "es": "La vida trae batallas constantes, desde biles hasta bloqueos mentales. El Guerrero Tranquilo no entra en pánico; combina lógica, respiración y estrategia para asegurar la victoria."}},
+        {"t": "breath_auto", "d": 30, "tx": {"en": "Execute 5 deep, slow, and calculated breaths", "es": "Ejecuta 5 respiraciones profundas, lentas y calculadas"}, "inf": {"en": "This controlled oxygenation reduces survival panic signals.", "es": "Esta oxigenación controlada reduce las señales de pánico de supervivencia."}},
+        {
+          "t": "d",
+          "q": {"en": "A massive challenge or problem is causing pressure right now. What is the move?", "es": "Un desafío o problema masivo está causando presión ahora mismo. ¿Cuál es el movimiento?"},
+          "op": [
+            {"en": "Surrender to the situation and feel defeated", "es": "Rendirte ante la situación y sentirte derrotado"},
+            {"en": "Identify one clear internal strength and choose one small tactical action for today", "es": "Identificar una fortaleza interna clara y elegir una pequeña acción táctica para hoy"},
+            {"en": "React with immediate impulse and chaos", "es": "Reaccionar con impulso inmediato y caos"},
+            {"en": "Expect someone else to solve your personal battle", "es": "Esperar que alguien más resuelva tu batalla personal"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Defeatism keeps you locked in the passive zombie loop.", "es": "El derrotismo te mantiene encerrado en el bucle zombi pasivo."},
+            {"en": "One micro-step executed with clarity breaks the problem's force and builds momentum.", "es": "Un micro-paso ejecutado con claridad rompe la fuerza del problema y construye impulso."},
+            {"en": "Impulsive chaos multiplies complications and wastes your resource system.", "es": "El caos impulsivo multiplica las complicaciones y desperdicia tu sistema de recursos."},
+            {"en": "Surrendering your strategic power removes your active autonomy.", "es": "Entregar tu poder estratégico elimina tu autonomía activa."}
+          ]
+        },
+        {"t": "r", "tx": "+Strength", "p": 25},
+        {"t": "c", "tx": {"en": "Tengo la fuerza para enfrentar mis desafíos.", "es": "Tengo la fuerza para enfrentar mis desafíos."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Piensa en un problema actual. Respira profundamente cinco veces. Identifica una fortaleza que posees. Elige una pequeña acción para avanzar.", "es": "Piensa en un problema actual. Respira profundamente cinco veces. Identifica una fortaleza que posees. Elige una pequeña acción para avanzar."}, "inf": {"en": "This controlled pattern de-escalates survival threat alarms immediately.", "es": "Este patrón de respiración controlada reduce de inmediato las alarmas de amenaza de supervivencia."}}
+      ]
+    },
+    {
+      "id": 20,
+      "cat": "guerra",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 20: MY BATTLE TEAM", "es": "MISIÓN 20: MI EQUIPO DE BATALLA"}},
+        {"t": "h", "tx": {"en": "Recognize the allies in your life system", "es": "Reconoce a los aliados en tu sistema de vida"}},
+        {"story": {"en": "A smart warrior knows that no battle is won entirely alone. Remembering and mapping the people who support your path removes the illusion of isolation.", "es": "Un guerrero inteligente sabe que ninguna batalla se gana por completo en solitario. Recordar y mapear a las personas que apoyan tu camino elimina la ilusión del aislamiento."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Inhale deep system logic... exhale isolation filters", "es": "Inhala lógica de sistema profunda... exhala filtros de aislamiento"}, "inf": {"en": "This breathing expands your clarity networks before scanning social assets.", "es": "Esta respiración expande tus redes de claridad antes de escanear los activos sociales."}},
+        {
+          "t": "d",
+          "q": {"en": "You feel completely isolated, assuming you are fighting the system all by yourself. What do you do?", "es": "Te sientes completamente aislado, asumiendo que estás luchando contra el sistema tú solo. ¿Qué haces?"},
+          "op": [
+            {"en": "Keep isolating and refuse to trust anyone", "es": "Seguir aislándote y negarte a confiar en nadie"},
+            {"en": "Think of 3 key people who support you and mentally acknowledge their value", "es": "Pensar en 3 personas clave que te apoyan y reconocer mentalmente su valor"},
+            {"en": "Complain that nobody understands your unique struggle", "es": "Quejarte de que nadie entiende tu lucha única"},
+            {"en": "Demand constant attention from your circle through anger", "es": "Exigir atención constante de tu círculo a través de la ira"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Isolation deepens stagnation and reinforces the zombie loop.", "es": "El aislamiento profundiza el estancamiento y refuerza el bucle zombi."},
+            {"en": "Acknowledging your allies anchors your mind into a collective safety structure.", "es": "Reconocer a tus aliados ancla tu mente en una estructura de seguridad colectiva."},
+            {"en": "Complaining builds invisible walls and solves no strategic tasks.", "es": "Quejarte construye muros invisibles y no resuelve ninguna tarea estratégica."},
+            {"en": "Anger creates friction and distances your core battle team.", "es": "La ira crea fricción y aleja a tu equipo de batalla principal."}
+          ]
+        },
+        {"t": "r", "tx": "+Strength", "p": 25},
+        {"t": "g", "tx": {"en": "No lucho solo; también cuento con otros.", "es": "No lucho solo; también cuento con otros."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Piensa en tres personas que te apoyan. Recuerda un momento en que te ayudaron. Agradece mentalmente su apoyo.", "es": "Piensa en tres personas que te apoyan. Recuerda un momento en que te ayudaron. Agradece mentalmente su apoyo."}, "inf": {"en": "Social connection visualization downregulates chronic baseline threat indicators.", "es": "La visualización de la conexión social reduce los indicadores crónicos de amenaza de base."}}
+      ]
+    },
+    {
+      "id": 21,
+      "cat": "guerra",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 21: TODAY'S VICTORY", "es": "MISIÓN 21: LA VICTORIA DEL DÍA"}},
+        {"t": "h", "tx": {"en": "Past victories are blueprints for present success", "es": "Las victorias pasadas son planos para el éxito presente"}},
+        {"story": {"en": "You have already survived massive challenges, adapted to new cities, and overcome walls. Accessing that proven skill archive transforms any current roadblock.", "es": "Ya has sobrevivido a desafíos masivos, te has adaptado a nuevas ciudades y has superado muros. Acceder a ese archivo de habilidades comprobadas transforma cualquier obstáculo actual."}},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Inhale victory... exhale the doubt", "es": "Inhala victoria... exhala la duda"}, "inf": {"en": "This breathing patterns secure confidence and analytical depth.", "es": "Este patrón de respiración asegura la confianza y la profundidad analítica."}},
+        {
+          "t": "d",
+          "q": {"en": "A current roadblock makes you feel stuck or hopeless. What is the tactical move?", "es": "Un obstáculo actual te hace sentir estancado o sin esperanza. ¿Cuál es el movimiento táctico?"},
+          "op": [
+            {"en": "Forget your power and assume this time you will fail", "es": "Olvidar tu poder y asumir que esta vez vas a fallar"},
+            {"en": "Recall a massive past challenge you beat, identify the skill used, and apply it today", "es": "Recordar un desafío pasado masivo que venciste, identificar la habilidad usada y aplicarla hoy"},
+            {"en": "Change your goals completely to avoid the barrier", "es": "Cambiar tus metas por completo para evitar la barrera"},
+            {"en": "Wait for external circumstances to change by themselves", "es": "Esperar a que las circunstancias externas cambien por sí solas"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Amnesia of your own power traps you in autopilot routine mode.", "es": "La amnesia de tu propio poder te atrapa en el modo de rutina automático."},
+            {"en": "Using your historical success blueprints delivers clear logic to conquer current challenges.", "es": "Usar tus planos de éxito históricos ofrece lógica clara para conquistar los desafíos actuales."},
+            {"en": "Evading the barrier leaves the stagnation trigger unresolved inside your life system.", "es": "Evadir la barrera deja el detonante de estancamiento sin resolver dentro de tu sistema de vida."},
+            {"en": "Passive waiting anchors you into the zombie loop permanently.", "es": "La espera pasiva te ancla en el bucle zombi de forma permanente."}
+          ]
+        },
+        {"t": "r", "tx": "+Strength", "p": 30},
+        {"t": "c", "tx": {"en": "Cada batalla superada me hace más fuerte.", "es": "Cada batalla superada me hace más fuerte."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Piensa en un desafío superado en el pasado. Recuerda cómo lo lograste. Identifica una habilidad que utilizaste. Decide cómo usarla hoy.", "es": "Piensa en un desafío superado en el pasado. Recuerda cómo lo lograste. Identifica una habilidad que utilizaste. Decide cómo usarla hoy."}, "inf": {"en": "Success pattern activation enhances execution resilience and cognitive clarity.", "es": "La activación de patrones de éxito mejora la resiliencia de ejecución y la claridad cognitiva."}}
+      ]
+    }
+  ]
+}
