@@ -4,11 +4,36 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Cargar la biblioteca estructurada de misiones de OPEN THAN GO
-def cargar_biblioteca_tvid():
-    # En producción esto lee tu archivo guardado en el repositorio de GitHub
-    with open('tvid_missions.json', 'r', encoding='utf-8') as f:
-        return json.load(f)
+# FUNCIÓN INTELIGENTE: Lee tus archivos JSON existentes tal como están en GitHub
+def cargar_mision_tvid_desde_archivos(categoria_emocional, bolsillo_usuario):
+    # Lista de los archivos donde guardas tus bloques de misiones
+    archivos_kamizen = ['missions_01_07.json', 'missions_08_14.json', 'missions_15_21.json']
+    todas_las_tvid = []
+    
+    for nombre_archivo in archivos_kamizen:
+        try:
+            with open(nombre_archivo, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                # Extraemos misiones de las Técnicas de Vida (ID >= 5 de tu nueva lista bilingüe)
+                for m in data["missions"]:
+                    if m.get("id", 0) >= 5:
+                        todas_las_tvid.append(m)
+        except Exception as e:
+            print(f"Error cargando {nombre_archivo}: {e}")
+
+    # Filtramos la lista de las TVid por la emoción detectada y el bolsillo del usuario
+    filtradas = [
+        m for m in todas_las_tvid 
+        if m["cat"] == categoria_emocional and bolsillo_usuario in m.get("pocket_match", ["cero", "moderado", "libre"])
+    ]
+    
+    # Si encuentra coincidencia exacta la regresa; si no, elige una TVid al azar del pozo de 21 misiones
+    if filtradas:
+        return random.choice(filtradas)
+    elif todas_las_tvid:
+        return random.choice(todas_las_tvid)
+    else:
+        return None
 
 @app.route('/diagnostico-kamizen', methods=['POST'])
 def diagnostico_kamizen():
@@ -20,31 +45,24 @@ def diagnostico_kamizen():
     bolsillo = datos.get('bolsillo', 'cero')     # 'cero', 'moderado', 'libre'
     texto_libre = datos.get('texto_libre', '').lower()
 
-    # 1. Leer biblioteca nativa estructurada por bloques de comandos
-    biblioteca = cargar_biblioteca_tvid()
-    misiones_disponibles = biblioteca["missions"]
-
-    # 2. Analizador de Palabras Clave Emocionales para emparejar la técnica de May Roga LLC
-    categoria_tvid = "bien" # Por defecto
-    if "error" in texto_libre or "biles" in texto_libre or "cuenta" in texto_libre or "mal" in texto_libre:
-        categoria_tvid = "mal"
+    # 1. Analizador Temático de Palabras Clave para asociar el desahogo a la TVid correcta
+    categoria_detectada = "bien" # Por defecto
+    if "error" in texto_libre or "biles" in texto_libre or "cuenta" in texto_libre or "dinero" in texto_libre or "mal" in texto_libre:
+        categoria_detectada = "mal"
     elif "aburrid" in texto_libre or "niñ" in texto_libre or "hijo" in texto_libre or "kid" in texto_libre:
-        categoria_tvid = "nino"
+        categoria_detectada = "nino"
 
-    # Filtrar misiones que correspondan con la necesidad emocional y el bolsillo del usuario
-    filtradas = [m for m in misiones_disponibles if m["cat"] == categoria_tvid and bolsillo in m["pocket_match"]]
+    # 2. Cargar el objeto estructurado de comandos desde tus JSONs existentes (Rango ID >= 5)
+    mision_tvid = cargar_mision_tvid_desde_archivos(categoria_detectada, bolsillo)
     
-    if not filtradas:
-        mision_elegida = random.choice(misiones_disponibles)
-    else:
-        mision_elegida = random.choice(filtradas)
+    if not mision_tvid:
+        return jsonify({"error": "No misiones disponibles / No misiones encontradas"})
 
-    # 3. Formatear los bloques internos en tiempo de ejecución para el idioma activo (Espejo Estricto)
+    # 3. Formateador de Idioma en Espejo (Extrae solo 'es' o 'en' para tu Javascript nativo)
     bloques_procesados = []
-    for comando in mision_elegida["b"]:
+    for comando in mision_tvid["b"]:
         bloque_clon = comando.copy()
         
-        # Traducir textos simples de encabezados, videos o conclusiones
         if "tx" in bloque_clon:
             bloque_clon["tx"] = bloque_clon["tx"][idioma]
         if "inf" in bloque_clon:
@@ -52,61 +70,53 @@ def diagnostico_kamizen():
         if "story" in bloque_clon:
             bloque_clon["story"] = bloque_clon["story"][idioma]
             
-        # Traducir estructuras complejas de preguntas interactivas
         if bloque_clon["t"] == "d":
             bloque_clon["q"] = bloque_clon["q"][idioma]
-            opciones_traducidas = [op[idioma] for op in bloque_clon["op"]]
-            explicaciones_traducidas = [ex[idioma] for ex in bloque_clon["ex"]]
-            bloque_clon["op"] = opciones_traducidas
-            bloque_clon["ex"] = explicaciones_traducidas
+            bloque_clon["op"] = [op[idioma] for op in bloque_clon["op"]]
+            bloque_clon["ex"] = [ex[idioma] for ex in bloque_clon["ex"]]
             
         bloques_procesados.append(bloque_clon)
 
-    # ==========================================================================
-    # CASO INDOOR: Ejecuta las misiones interactivas dentro de casa
-    # ==========================================================================
+    # 4. BIFURCACIÓN DE ENTORNOS DE ESCAPE
     if not puedes_salir:
+        # CASO CASA: Ejecuta directamente tus comandos interactivamente (Círculo azul, silencios)
         titulo = "Escape de Interiores: OPEN THAN GO" if idioma == 'es' else "Indoor Escape: OPEN THAN GO"
-        lugar = "Tu espacio seguro en casa / Your home safe space"
-        
         return jsonify({
             "modalidad": "indoor",
             "titulo": titulo,
-            "lugar": lugar,
+            "lugar": "Tu espacio seguro en casa / Your home safe space",
             "bloques_interactivos": bloques_procesados,
             "url_maps": None
         })
-
-    # ==========================================================================
-    # CASO OUTDOOR: Genera Deep Linking gratuito y adjunta la misión mental
-    # ==========================================================================
     else:
+        # CASO CALLE: Deep Linking Automático y Gratuito usando el ZIP code nacional
         if not zip_code or len(zip_code) != 5:
             zip_code = "33101"
 
         tipo_mapa = "parks"
-        if categoria_tvid == "nino":
+        if categoria_detectada == "nino":
             tipo_mapa = "family+parks+playground"
-        elif categoria_tvid == "mal":
+        elif categoria_detectada == "mal":
             tipo_mapa = "nature+reserves+scenic"
 
         query_busqueda = f"{tipo_mapa}+in+{zip_code}+{estado}+USA"
+        
+        # CORRECCIÓN ENLACE DE MAPAS COMPLETO CON DEEP LINKING OFICIAL:
         url_maps_gratis = f"https://google.com{query_busqueda}"
         
-        titulo_out = "Plan de Escape Abierto" if idioma == 'es' else "Open Escape Plan"
-        lugar_out = f"Zona de libertad recomendada en {zip_code}, {estado}"
-
-        # Inyectar un bloque inicial de instrucción de viaje en el idioma correspondiente
+        titulo_out = "Plan de Escape Abierto: OPEN THAN GO" if idioma == 'es' else "Open Escape Plan: OPEN THAN GO"
+        
+        # Insertamos el bloque guía de conducción al inicio de tus comandos interactivos
         instruccion_viaje = {
             "t": "h",
-            "tx": f"Conduce al espacio abierto en tu zona postal {zip_code}. Al llegar, ejecuta tu secuencia:" if idioma == 'es' else f"Drive to the open space in your zip code {zip_code}. Upon arrival, start your sequence:"
+            "tx": f"Dirígete al área abierta en tu zona postal {zip_code}. Al llegar, ejecuta tu secuencia:" if idioma == 'es' else f"Drive to the open space in your zip code {zip_code}. Upon arrival, start your sequence:"
         }
-        bloques_procesados.insert(0, instruccion_viaje)
+        bloques_processed = bloques_procesados.insert(0, instruccion_viaje)
 
         return jsonify({
             "modalidad": "outdoor",
             "titulo": titulo_out,
-            "lugar": lugar_out,
+            "lugar": f"Zona de libertad recomendada en {zip_code}, {estado}",
             "bloques_interactivos": bloques_procesados,
             "url_maps": url_maps_gratis
         })
