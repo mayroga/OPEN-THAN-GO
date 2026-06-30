@@ -31,7 +31,14 @@ def cargar_mision_tvid_desde_archivos(categoria_emocional, bolsillo_usuario):
 
 @app.route('/')
 def home():
-    return app.send_static_file('session.html')
+    try:
+        # Intenta enviarlo si está dentro de la carpeta static
+        return app.send_static_file('session.html')
+    except Exception:
+        # Si da error o está suelto en la raíz de GitHub, lo lee directamente de ahí
+        with open('session.html', 'r', encoding='utf-8') as f:
+            from flask import render_template_string
+            return render_template_string(f.read())
 
 @app.route('/diagnostico-kamizen', methods=['POST'])
 def diagnostico_kamizen():
