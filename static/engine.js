@@ -172,4 +172,4 @@ function ejecutarEscape() {
         console.error('Error detectado:', error); 
         alert(t.alertError); 
     }); 
-}
+}  
