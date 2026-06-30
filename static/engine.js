@@ -20,7 +20,7 @@ const textos = {
         placeholder: "Escribe si estás cansado de la rutina, preocupado por biles o el trabajo, solo, o con niños aburridos...", 
         btnSubmit: "SÁCAME DE LA MONOTONÍA", 
         alertZip: "Por favor, ingresa un código postal (ZIP Code) válido de 5 dígitos.", 
-        alertError: "Ocurrió un inconveniente al conectar con el servidor de OPEN THAN GO. Inténtalo de nuevo.", 
+        alertError: "Ocurrió un inconveniente al conectar con el servidor. Inténtalo de nuevo.", 
         btnMaps: "🗺️ ABRIR RUTA EN MI MAPA GRATIS" 
     }, 
     en: { 
@@ -38,7 +38,7 @@ const textos = {
         placeholder: "Write if you are tired of the routine, worried about bills or work, alone, or with bored kids...", 
         btnSubmit: "BREAK THE MONOTONY", 
         alertZip: "Please enter a valid 5-digit ZIP Code.", 
-        alertError: "An issue occurred while connecting to the OPEN THAN GO server. Please try again.", 
+        alertError: "An issue occurred while connecting to the server. Please try again.", 
         btnMaps: "🗺️ OPEN ROUTE IN MY MAP FOR FREE" 
     } 
 }; 
@@ -79,13 +79,8 @@ function setModalidad(salir) {
     document.getElementById('mode-in').classList.toggle('active', !salir); 
     
     const campoZip = document.getElementById('inp-zip'); 
-    if (!salir) { 
-        campoZip.style.opacity = '0.4'; 
-        campoZip.disabled = true; 
-    } else { 
-        campoZip.style.opacity = '1'; 
-        campoZip.disabled = false; 
-    } 
+    campoZip.style.opacity = salir ? '1' : '0.4'; 
+    campoZip.disabled = !salir; 
 } 
 
 function ejecutarEscape() { 
@@ -108,7 +103,6 @@ function ejecutarEscape() {
         texto_libre: textoLibre 
     }; 
 
-    // CONEXIÓN DIRECTA Y LIQUIDACIÓN DE ERRORES DE RED
     fetch('/diagnostico-kamizen', { 
         method: 'POST', 
         headers: { 
@@ -117,7 +111,10 @@ function ejecutarEscape() {
         }, 
         body: JSON.stringify(payload) 
     }) 
-    .then(response => response.json()) 
+    .then(response => {
+        if (!response.ok) throw new Error('Network error');
+        return response.json();
+    }) 
     .then(data => { 
         if (data.error) {
             alert(data.error);
@@ -127,22 +124,13 @@ function ejecutarEscape() {
         document.getElementById('res-title').innerText = data.titulo; 
         document.getElementById('res-location').innerText = data.lugar; 
         
-        // Muestra de forma secuencial las misiones, respiraciones, silencios y preguntas
         if (data.bloques_interactivos) { 
             let textoMisiones = ""; 
             data.bloques_interactivos.forEach(b => { 
-                if (b.tx) { 
-                    textoMisiones += `${b.tx}\n\n`; 
-                } 
-                if (b.story) { 
-                    textoMisiones += `📖 STORY:\n${b.story}\n\n`; 
-                } 
-                if (b.inf) { 
-                    textoMisiones += `💡 INFO:\n${b.inf}\n\n`; 
-                } 
-                if (b.c) { 
-                    textoMisiones += `🌟 CONCLUSIÓN:\n${b.c}\n\n`; 
-                } 
+                if (b.tx) textoMisiones += `${b.tx}\n\n`; 
+                if (b.story) textoMisiones += `📖 STORY:\n${b.story}\n\n`; 
+                if (b.inf) textoMisiones += `💡 INFO:\n${b.inf}\n\n`; 
+                if (b.c) textoMisiones += `🌟 CONCLUSIÓN:\n${b.c}\n\n`; 
                 if (b.q) { 
                     textoMisiones += `❓ CHALLENGE:\n${b.q}\n`; 
                     if (b.op && b.op.length > 0) { 
@@ -169,7 +157,7 @@ function ejecutarEscape() {
         resultBox.scrollIntoView({ behavior: 'smooth' }); 
     }) 
     .catch(error => { 
-        console.error('Error detectado:', error); 
+        console.error('Error:', error); 
         alert(t.alertError); 
     }); 
 }
