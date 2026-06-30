@@ -43,7 +43,7 @@
           ]
         },
         {"t": "r", "tx": "+Care", "p": 25},
-        {"t": "c", "tx": {"en": "Cuidarme es una forma de amor.", "es": "Cuidarme es una forma de amor."}},
+        {"t": "c", "tx": {"en": "Caring for myself is an act of love.", "es": "Cuidarme es una forma de amor."}},
         {"t": "sil", "d": 40, "tx": {"en": "Think of what you need right now. Choose a small action to care for yourself and commit to it.", "es": "Piensa en algo que necesitas. Elige una acción para cuidarte hoy. Comprométete a realizarla."}, "inf": {"en": "Explicit self-care micro-planning lowers unconscious anxiety levels.", "es": "La micro-planificación explícita de autocuidado reduce los niveles de ansiedad inconsciente."}}
       ]
     },
@@ -74,7 +74,7 @@
           ]
         },
         {"t": "r", "tx": "+Affection", "p": 25},
-        {"t": "c", "tx": {"en": "El afecto fortalece mi bienestar.", "es": "El afecto fortalece mi bienestar."}},
+        {"t": "c", "tx": {"en": "Affection strengthens my wellbeing.", "es": "El afecto fortalece mi bienestar."}},
         {"t": "sil", "d": 30, "tx": {"en": "Think of a dear person, recall something positive, and send them a text of true affection now.", "es": "Piensa en una persona querida. Recuerda algo positivo de ella. Envíale un mensaje de agradecimiento o cariño."}, "inf": {"en": "Generosity behaviors stimulate the production of neurochemicals linked to peace.", "es": "Los comportamientos de generosidad estimulan la producción de neuroquímicos vinculados a la paz."}}
       ]
     },
@@ -105,7 +105,7 @@
           ]
         },
         {"t": "r", "tx": "+Affection", "p": 25},
-        {"t": "c", "tx": {"en": "Compartir alegría me hace crecer.", "es": "Compartir alegría me hace crecer."}},
+        {"t": "c", "tx": {"en": "Sharing joy helps me grow.", "es": "Compartir alegría me hace crecer."}},
         {"t": "sil", "d": 40, "tx": {"en": "Sonríe a tres personas durante el día. Observa sus reacciones. Reflexiona sobre cómo te sentiste.", "es": "Sonríe a tres personas durante el día. Observa sus reacciones. Reflexiona sobre cómo te sentiste."}, "inf": {"en": "Sharing joy helps me grow and updates my environment.", "es": "Compartir alegría me ayuda a crecer y actualiza mi entorno."}}
       ]
     },
@@ -136,7 +136,7 @@
           ]
         },
         {"t": "r", "tx": "+Connection", "p": 30},
-        {"t": "c", "tx": {"en": "Los buenos recuerdos alimentan mi corazón.", "es": "Los buenos recuerdos alimentan mi corazón."}},
+        {"t": "c", "tx": {"en": "Good memories nourish my heart.", "es": "Los buenos recuerdos alimentan mi corazón."}},
         {"t": "sil", "d": 50, "tx": {"en": "Piensa en tres recuerdos felices. Revívelos durante unos minutos. Agradece por haberlos vivido.", "es": "Piensa en tres recuerdos felices. Revívelos durante unos minutos. Agradece por haberlos vivido."}, "inf": {"en": "This prolonged focus acts as a natural reset for cognitive noise.", "es": "Este enfoque prolongado actúa como un reinicio natural para el ruido cognitivo."}}
       ]
     },
@@ -167,7 +167,7 @@
           ]
         },
         {"t": "r", "tx": "+Strength", "p": 25},
-        {"t": "c", "tx": {"en": "Tengo la fuerza para enfrentar mis desafíos.", "es": "Tengo la fuerza para enfrentar mis desafíos."}},
+        {"t": "c", "tx": {"en": "Good memories nourish my heart.", "es": "Los buenos recuerdos alimentan mi corazón."}},
         {"t": "sil", "d": 40, "tx": {"en": "Piensa en un problema actual. Respira profundamente cinco veces. Identifica una fortaleza que posees. Elige una pequeña acción para avanzar.", "es": "Piensa en un problema actual. Respira profundamente cinco veces. Identifica una fortaleza que posees. Elige una pequeña acción para avanzar."}, "inf": {"en": "This controlled pattern de-escalates survival threat alarms immediately.", "es": "Este patrón de respiración controlada reduce de inmediato las alarmas de amenaza de supervivencia."}}
       ]
     },
@@ -198,7 +198,7 @@
           ]
         },
         {"t": "r", "tx": "+Strength", "p": 25},
-        {"t": "g", "tx": {"en": "No lucho solo; también cuento con otros.", "es": "No lucho solo; también cuento con otros."}},
+        {"t": "c", "tx": {"en": "I do not fight alone; I also count on others.", "es": "No lucho solo; también cuento con otros."}},
         {"t": "sil", "d": 40, "tx": {"en": "Piensa en tres personas que te apoyan. Recuerda un momento en que te ayudaron. Agradece mentalmente su apoyo.", "es": "Piensa en tres personas que te apoyan. Recuerda un momento en que te ayudaron. Agradece mentalmente su apoyo."}, "inf": {"en": "Social connection visualization downregulates chronic baseline threat indicators.", "es": "La visualización de la conexión social reduce los indicadores crónicos de amenaza de base."}}
       ]
     },
@@ -229,7 +229,7 @@
           ]
         },
         {"t": "r", "tx": "+Strength", "p": 30},
-        {"t": "c", "tx": {"en": "Cada batalla superada me hace más fuerte.", "es": "Cada batalla superada me hace más fuerte."}},
+        {"t": "c", "tx": {"en": "Every battle I overcome makes me stronger.", "es": "Cada batalla superada me hace más fuerte."}},
         {"t": "sil", "d": 40, "tx": {"en": "Piensa en un desafío superado en el pasado. Recuerda cómo lo lograste. Identifica una habilidad que utilizaste. Decide cómo usarla hoy.", "es": "Piensa en un desafío superado en el pasado. Recuerda cómo lo lograste. Identifica una habilidad que utilizaste. Decide cómo usarla hoy."}, "inf": {"en": "Success pattern activation enhances execution resilience and cognitive clarity.", "es": "La activación de patrones de éxito mejora la resiliencia de ejecución y la claridad cognitiva."}}
       ]
     }
