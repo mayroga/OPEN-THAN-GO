@@ -13,11 +13,9 @@
             --dark: #111111;
             --white: #ffffff;
             --gray: #eeeeee;
+            --blue-circle: #00bcd4;
         }
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--light);
@@ -38,218 +36,135 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.06);
             margin: 10px auto;
         }
-        .header-app {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .header-app h1 {
-            color: var(--primary);
-            margin: 0 0 8px 0;
-            font-size: 26px;
-            letter-spacing: 0.5px;
-            font-weight: 800;
-        }
-        .header-app p {
-            margin: 0;
-            color: #555;
-            font-size: 13px;
-            line-height: 1.4;
-            padding: 0 10px;
-        }
-        .lang-bar {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-        .btn-lang {
-            background: var(--gray);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-            flex: 1;
-            max-width: 120px;
-            text-align: center;
-        }
-        .btn-lang.active {
-            background: var(--primary);
-            color: var(--white);
-        }
-        .form-group {
-            margin-bottom: 18px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 13px;
-            color: var(--primary);
-        }
+        .header-app { text-align: center; margin-bottom: 20px; }
+        .header-app h1 { color: var(--primary); margin: 0 0 8px 0; font-size: 26px; font-weight: 800; }
+        .header-app p { margin: 0; color: #555; font-size: 13px; line-height: 1.4; }
+        .lang-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
+        .btn-lang { background: var(--gray); border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: bold; flex: 1; max-width: 120px; }
+        .btn-lang.active { background: var(--primary); color: var(--white); }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: var(--primary); }
         .form-group select, .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            font-size: 14px;
-            background-color: #fafafa;
-            font-family: inherit;
-            -webkit-appearance: none;
+            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 10px; font-size: 14px; background-color: #fafafa; font-family: inherit;
         }
-        .form-group textarea {
-            height: 90px;
-            resize: none;
-        }
-        /* Grid adaptabilidad móvil para 3 botones */
-        .btn-grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-        }
-        /* Grid adaptabilidad móvil para 2 botones */
-        .btn-grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-        .btn-choice {
-            background: var(--gray);
-            border: none;
-            padding: 14px 4px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 11px;
-            text-align: center;
-            line-height: 1.2;
-            transition: background 0.2s, color 0.2s;
-        }
-        .btn-choice.active {
-            background: var(--secondary);
-            color: var(--white);
-        }
+        .form-group textarea { height: 90px; resize: none; }
+        .btn-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .btn-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .btn-choice { background: var(--gray); border: none; padding: 14px 4px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 11px; text-align: center; }
+        .btn-choice.active { background: var(--secondary); color: var(--white); }
         .btn-trigger {
-            width: 100%;
-            background: var(--accent);
-            color: var(--white);
-            border: none;
-            padding: 16px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 5px;
-            box-shadow: 0 4px 12px rgba(216,67,21,0.2);
+            width: 100%; background: var(--accent); color: var(--white); border: none; padding: 16px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(216,67,21,0.2);
         }
-        .btn-trigger:active {
-            background: #b2330f;
-        }
-        .card-surprise {
-            margin-top: 22px;
-            padding: 18px;
-            border-left: 6px solid var(--secondary);
-            background: #fdfdfd;
-            border-radius: 4px 12px 12px 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        }
-        .card-surprise h2 {
-            margin: 0 0 6px 0;
-            font-size: 17px;
-            color: var(--primary);
-            font-weight: 700;
-        }
-        .card-surprise .badge-location {
-            font-weight: bold;
-            color: var(--secondary);
-            margin-bottom: 12px;
-            font-size: 13px;
-        }
-        .card-surprise pre {
-            white-space: pre-wrap;
-            font-family: inherit;
-            font-size: 13px;
-            line-height: 1.5;
-            margin: 0 0 16px 0;
-            color: #333;
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 8px;
-        }
-        .btn-maps {
-            display: block;
+        
+        /* PANTALLA INTERACTIVA DE ESCAPE (KAMIZEN ENGINE) */
+        .interactive-screen {
+            display: none;
             text-align: center;
-            background: #4285f4;
-            color: var(--white);
-            text-decoration: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 4px 10px rgba(66,133,244,0.2);
+            padding: 10px 5px;
+        }
+        .screen-title { color: var(--primary); font-size: 20px; font-weight: 800; margin-bottom: 15px; }
+        .screen-story { font-size: 14px; line-height: 1.6; color: #333; margin-bottom: 20px; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); }
+        
+        /* ANIMACIÓN DEL CÍRCULO RESPIRATORIO AZUL */
+        .wrapper-circle { display: flex; justify-content: center; align-items: center; height: 180px; margin: 20px 0; }
+        .breath-circle {
+            width: 80px; height: 80px; background-color: var(--blue-circle); border-radius: 50%;
+            display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 14px;
+            box-shadow: 0 0 20px rgba(0,188,212,0.4);
+        }
+        .breath-circle.expand {
+            transform: scale(1.8); transition: transform 4s ease-in-out;
+        }
+        .breath-circle.contract {
+            transform: scale(1.0); transition: transform 4s ease-in-out;
+        }
+        .timer-display { font-size: 32px; font-weight: 800; color: var(--primary); margin: 15px 0; }
+        
+        /* DISEÑO DE PREGUNTAS TÁCTILES */
+        .options-list { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; }
+        .btn-option-interactive {
+            width: 100%; text-align: left; padding: 14px; border: 1px solid #ddd; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .btn-option-interactive.correct { background-color: #c8e6c9; border-color: var(--secondary); color: #1b5e20; }
+        .btn-option-interactive.wrong { background-color: #ffcdd2; border-color: #e53935; color: #b71c1c; }
+        .explanation-box { display: none; margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.4; text-align: left; }
+        
+        .btn-next-step {
+            width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 15px;
+        }
+        .btn-maps-route {
+            display: none; text-align: center; background: #4285f4; color: white; text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 14px; margin-top: 20px; box-shadow: 0 4px 10px rgba(66,133,244,0.3);
         }
     </style>
 </head>
 <body>
 
 <div class="container-app">
-    <div class="lang-bar">
-        <button class="btn-lang active" id="lang-es" onclick="cambiarIdioma('es')">Español 🇪🇸</button>
-        <button class="btn-lang" id="lang-en" onclick="cambiarIdioma('en')">English 🇺🇸</button>
-    </div>
-
-    <div class="header-app">
-        <h1 id="txt-title">OPEN THAN GO</h1>
-        <p id="txt-subtitle">Tu botón de escape inmediato para romper la monotonía urbana.</p>
-    </div>
-
-    <div class="form-group">
-        <label id="lbl-state">Estado / State:</label>
-        <select id="inp-state">
-            <option value="FL">Florida (Miami, Orlando, Tampa, Lehigh Acres...)</option>
-            <option value="TX">Texas (Houston, Dallas...)</option>
-            <option value="CA">California (Los Angeles...)</option>
-            <option value="NY">New York</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label id="lbl-zip">ZIP Code (5 dígitos):</label>
-        <input type="tel" id="inp-zip" placeholder="Ej: 33936" maxlength="5">
-    </div>
-
-    <div class="form-group">
-        <label id="lbl-pocket">¿Cuál es tu presupuesto real para hoy?</label>
-        <div class="btn-grid-3">
-            <button class="btn-choice active" id="pocket-cero" onclick="setBolsillo('cero')">GASTO $0 HOY</button>
-            <button class="btn-choice" id="pocket-mod" onclick="setBolsillo('moderado')">MODERADO</button>
-            <button class="btn-choice" id="pocket-libre" onclick="setBolsillo('libre')">LIBRE</button>
+    <!-- BLOQUE 1: DIAGNÓSTICO (FORMULARIO) -->
+    <div id="wrapper-form">
+        <div class="lang-bar">
+            <button class="btn-lang active" id="lang-es" onclick="cambiarIdioma('es')">Español 🇪🇸</button>
+            <button class="btn-lang" id="lang-en" onclick="cambiarIdioma('en')">English 🇺🇸</button>
         </div>
-    </div>
 
-    <div class="form-group">
-        <label id="lbl-mode">¿Puedes o quieres salir de casa hoy?</label>
-        <div class="btn-grid-2">
-            <button class="btn-choice active" id="mode-out" onclick="setModalidad(true)">🟢 SÍ, SALIR</button>
-            <button class="btn-choice" id="mode-in" onclick="setModalidad(false)">🏠 EN CASA</button>
+        <div class="header-app">
+            <h1>OPEN THAN GO</h1>
+            <p id="txt-subtitle">Tu botón de escape inmediato para romper la monotonía urbana.</p>
         </div>
+
+        <div class="form-group">
+            <label id="lbl-state">Estado / State:</label>
+            <select id="inp-state">
+                <option value="FL">Florida (Miami, Orlando, Tampa, Lehigh Acres...)</option>
+                <option value="TX">Texas (Houston, Dallas...)</option>
+                <option value="CA">California (Los Angeles...)</option>
+                <option value="NY">New York</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label id="lbl-zip">ZIP Code (5 dígitos):</label>
+            <input type="tel" id="inp-zip" placeholder="Ej: 33936" maxlength="5">
+        </div>
+
+        <div class="form-group">
+            <label id="lbl-pocket">¿Cuál es tu presupuesto real para hoy?</label>
+            <div class="btn-grid-3">
+                <button class="btn-choice active" id="pocket-cero" onclick="setBolsillo('cero')">GASTO $0 HOY</button>
+                <button class="btn-choice" id="pocket-mod" onclick="setBolsillo('moderado')">MODERADO</button>
+                <button class="btn-choice" id="pocket-libre" onclick="setBolsillo('libre')">LIBRE</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label id="lbl-mode">¿Puedes o quieres salir de casa hoy?</label>
+            <div class="btn-grid-2">
+                <button class="btn-choice active" id="mode-out" onclick="setModalidad(true)">🟢 SÍ, SALIR</button>
+                <button class="btn-choice" id="mode-in" onclick="setModalidad(false)">🏠 EN CASA</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label id="lbl-text">Desahógate aquí (Escribe libremente lo que traigas en la mente):</label>
+            <textarea id="inp-text" placeholder="Escribe si estás cansado de la rutina, preocupado por biles o el trabajo, solo, o con niños aburridos..."></textarea>
+        </div>
+
+        <button class="btn-trigger" id="btn-submit" onclick="ejecutarEscape()">SÁCAME DE LA MONOTONÍA</button>
     </div>
 
-    <div class="form-group">
-        <label id="lbl-text">Desahógate aquí (Escribe libremente lo que traigas en la mente):</label>
-        <textarea id="inp-text" placeholder="Escribe si estás cansado de la rutina, preocupado por biles o el trabajo, solo, o con niños aburridos..."></textarea>
-    </div>
-
-    <button class="btn-trigger" id="btn-submit" onclick="ejecutarEscape()">SÁCAME DE LA MONOTONÍA</button>
-
-    <!-- PANTALLA CONTENEDORA DE RESULTADOS -->
-    <div id="result-box" class="card-surprise" style="display: none;">
-        <h2 id="res-title"></h2>
-        <div class="badge-location" id="res-location"></div>
-        <pre id="res-steps"></pre>
-        <a id="res-maps" href="#" target="_blank" class="btn-maps" style="display: none;">🗺️ ABRIR RUTA EN MI MAPA GRATIS</a>
+    <!-- BLOQUE 2: ESCENARIO INTERACTIVO DINÁMICO (MOTOR PASO A PASO) -->
+    <div id="wrapper-interactive" class="interactive-screen">
+        <h2 id="interactive-title" class="screen-title"></h2>
+        <div id="interactive-location" style="font-weight:bold; color:var(--secondary); margin-bottom:10px; font-size:13px;"></div>
+        
+        <!-- Contenedor Variable de Pasos -->
+        <div id="step-content"></div>
+        
+        <!-- Botón de avance -->
+        <button id="btn-next" class="btn-next-step" onclick="siguienteComando()" style="display:none;">CONTINUAR / NEXT</button>
+        
+        <!-- Botón final de Mapas -->
+        <a id="btn-maps-action" href="#" target="_blank" class="btn-maps-route">🗺️ ABRIR RUTA EN MI MAPA GRATIS</a>
     </div>
 </div>
 
