@@ -1,16 +1,15 @@
 import json
 import random
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 app = FastAPI()
 
-# Montamos la carpeta static de forma nativa para servir tus archivos JS y CSS
+# Servir la carpeta static nativamente
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Modelo de datos optimizado para recibir los JSON del celular
 class DiagnosticoPayload(BaseModel):
     puedes_salir: bool = True
     idioma: str = "es"
@@ -19,7 +18,6 @@ class DiagnosticoPayload(BaseModel):
     bolsillo: str = "cero"
     texto_libre: str = ""
 
-# FUNCIÓN INTELIGENTE ASÍNCRONA: Lee tus JSON existentes de GitHub sin bloquear el servidor
 def cargar_mision_tvid_desde_archivos(categoria_emocional: str, bolsillo_usuario: str):
     archivos_kamizen = ['missions_01_07.json', 'missions_08_14.json', 'missions_15_21.json']
     todas_las_tvid = []
@@ -46,12 +44,10 @@ def cargar_mision_tvid_desde_archivos(categoria_emocional: str, bolsillo_usuario
     else:
         return None
 
-# RUTA RAÍZ: Entrega el session.html instantáneamente sin lag
 @app.get("/")
 async def home():
     return FileResponse("static/session.html")
 
-# CONTROLADOR ASÍNCRONO DE ALTA VELOCIDAD (REEMPLAZA A FLASK)
 @app.post("/diagnostico-kamizen")
 async def diagnostico_kamizen(payload: DiagnosticoPayload):
     puedes_salir = payload.puedes_salir
@@ -61,19 +57,16 @@ async def diagnostico_kamizen(payload: DiagnosticoPayload):
     bolsillo = payload.bolsillo
     texto_libre = payload.texto_libre.lower()
 
-    # 1. Analizador Temático de Palabras Clave (Keywords)
     categoria_detectada = "bien"
     if any(x in texto_libre for x in ["error", "biles", "cuenta", "dinero", "mal"]):
         categoria_detectada = "mal"
     elif any(x in texto_libre for x in ["aburrid", "niñ", "hijo", "kid"]):
         categoria_detectada = "nino"
 
-    # 2. Cargar el objeto estructurado desde tus JSONs existentes (Rango 1-21)
     mision_tvid = cargar_mision_tvid_desde_archivos(categoria_detectada, bolsillo)
     if not mision_tvid:
         return JSONResponse(status_code=400, content={"error": "No misiones disponibles"})
 
-    # 3. Formateador de Idioma en Espejo Protegido
     bloques_processed = []
     for comando in mision_tvid.get("b", []):
         bloque_clon = comando.copy()
@@ -92,7 +85,6 @@ async def diagnostico_kamizen(payload: DiagnosticoPayload):
                 
         bloques_processed.append(bloque_clon)
 
-    # 4. BIFURCACIÓN DE ENTORNOS DE ESCAPE
     if not puedes_salir:
         titulo = "Escape de Interiores: OPEN THAN GO" if idioma == 'es' else "Indoor Escape: OPEN THAN GO"
         return JSONResponse(content={
