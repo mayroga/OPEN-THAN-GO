@@ -1,15 +1,20 @@
-// VARIABLES GLOBALES DE CONTROL
+// VARIABLES GLOBALES DE CONFIGURACIÓN Y CONTROL DE ESTADOS
 let configuracion = {
     idioma: 'es',
-    puedes_salir: true
+    puedes_salir: true,
+    bolsillo: 'cero'
 };
 
-// DICCIONARIO BILINGÜE OBLIGATORIO PARA LA INTERFAZ
+// DICCIONARIO BILINGÜE PARA TRADUCCIÓN COMPLETA DE LA INTERFAZ
 const textos = {
     es: {
         subtitle: "Tu botón de escape inmediato para romper la monotonía urbana.",
         lblState: "Estado / State:",
         lblZip: "ZIP Code (5 dígitos):",
+        lblPocket: "¿Cuál es tu presupuesto real para hoy?",
+        pocketCero: "GASTO $0 HOY",
+        pocketMod: "MODERADO",
+        pocketLibre: "PRESUPUESTO LIBRE",
         lblMode: "¿Puedes o quieres salir de casa hoy?",
         btnOut: "🟢 SÍ, NECESITO SALIR",
         btnIn: "🏠 NO, ME QUEDO EN CASA",
@@ -24,6 +29,10 @@ const textos = {
         subtitle: "Your instant escape button to break free from urban monotony.",
         lblState: "State / Estado:",
         lblZip: "ZIP Code (5 digits):",
+        lblPocket: "What is your real budget for today?",
+        pocketCero: "$0 SPENDING TODAY",
+        pocketMod: "MODERATE",
+        pocketLibre: "OPEN BUDGET",
         lblMode: "Can you or do you want to leave the house today?",
         btnOut: "🟢 YES, I NEED TO GO OUT",
         btnIn: "🏠 NO, I'M STAYING HOME",
@@ -36,19 +45,23 @@ const textos = {
     }
 };
 
-// FUNCIÓN PARA INTERCAMBIAR EL IDIOMA DE LA PANTALLA
+// CONTROLA EL INTERCAMBIO DE IDIOMA EN LA PANTALLA
 function cambiarIdioma(nuevoIdioma) {
     configuracion.idioma = nuevoIdioma;
     
-    // Actualizar estados visuales de los botones de idioma
+    // Cambiar estado activo visual de los botones de idioma
     document.getElementById('lang-es').classList.toggle('active', nuevoIdioma === 'es');
     document.getElementById('lang-en').classList.toggle('active', nuevoIdioma === 'en');
     
-    // Traducir todos los elementos de la interfaz en tiempo real
+    // Inyección de textos traducidos de forma masiva
     const t = textos[nuevoIdioma];
     document.getElementById('txt-subtitle').innerText = t.subtitle;
     document.getElementById('lbl-state').innerText = t.lblState;
     document.getElementById('lbl-zip').innerText = t.lblZip;
+    document.getElementById('lbl-pocket').innerText = t.lblPocket;
+    document.getElementById('pocket-cero').innerText = t.pocketCero;
+    document.getElementById('pocket-mod').innerText = t.pocketMod;
+    document.getElementById('pocket-libre').innerText = t.pocketLibre;
     document.getElementById('lbl-mode').innerText = t.lblMode;
     document.getElementById('mode-out').innerText = t.btnOut;
     document.getElementById('mode-in').innerText = t.btnIn;
@@ -57,47 +70,60 @@ function cambiarIdioma(nuevoIdioma) {
     document.getElementById('btn-submit').innerText = t.btnSubmit;
     document.getElementById('res-maps').innerText = t.btnMaps;
     
-    // Limpiar caja de resultados si cambia el idioma para evitar textos cruzados
+    // Ocultar resultados previos para evitar discrepancias de traducción
     document.getElementById('result-box').style.display = 'none';
 }
 
-// FUNCIÓN PARA SELECCIONAR SI SE QUEDA EN CASA O SALE
+// ASIGNA EL PRESUPUESTO REAL SELECCIONADO (Cero, Moderado, Libre)
+function setBolsillo(tipoBolsillo) {
+    configuracion.bolsillo = tipoBolsillo;
+    
+    document.getElementById('pocket-cero').classList.toggle('active', tipoBolsillo === 'cero');
+    document.getElementById('pocket-mod').classList.toggle('active', tipoBolsillo === 'moderado');
+    document.getElementById('pocket-libre').classList.toggle('active', tipoBolsillo === 'libre');
+}
+
+// ASIGNA SI EL USUARIO TIENE CAPACIDAD DE SALIR O SE QUEDA EN CASA
 function setModalidad(salir) {
     configuracion.puedes_salir = salir;
     document.getElementById('mode-out').classList.toggle('active', salir);
     document.getElementById('mode-in').classList.toggle('active', !salir);
     
-    // Si decide quedarse en casa, el ZIP code no es obligatorio visualmente
+    // Atenuar o iluminar el campo de código postal de acuerdo con la necesidad geográfica
+    const campoZip = document.getElementById('inp-zip');
     if (!salir) {
-        document.getElementById('inp-zip').style.opacity = '0.5';
+        campoZip.style.opacity = '0.4';
+        campoZip.disabled = true;
     } else {
-        document.getElementById('inp-zip').style.opacity = '1';
+        campoZip.style.opacity = '1';
+        campoZip.disabled = false;
     }
 }
 
-// FUNCIÓN PRINCIPAL: ENVÍA LOS DATOS A PYTHON EN RENDER
+// CONECTA LA INTERFAZ CON EL SERVIDOR PYTHON EN RENDER EN SEGUNDO PLANO
 function ejecutarEscape() {
     const estado = document.getElementById('inp-state').value;
     const zip = document.getElementById('inp-zip').value.trim();
     const textoLibre = document.getElementById('inp-text').value.trim();
     const t = textos[configuracion.idioma];
 
-    // Validación estricta del ZIP Code solo si el usuario seleccionó que quiere salir
+    // Validación obligatoria del ZIP Code solo si requiere geolocalización exterior
     if (configuracion.puedes_salir && (zip.length !== 5 || isNaN(zip))) {
         alert(t.alertZip);
         return;
     }
 
-    // Preparar el paquete de datos estructurado
+    // Estructuración del paquete JSON definitivo
     const payload = {
         puedes_salir: configuracion.puedes_salir,
         idioma: configuracion.idioma,
         zip_code: zip,
         estado: estado,
+        bolsillo: configuracion.bolsillo,
         texto_libre: textoLibre
     };
 
-    // Petición POST asíncrona hacia el Backend en Render
+    // Envío asíncrono asumiendo el control de las peticiones concurrentes
     fetch('/diagnostico-kamizen', {
         method: 'POST',
         headers: {
@@ -106,18 +132,18 @@ function ejecutarEscape() {
         body: JSON.stringify(payload)
     })
     .then(response => {
-        if (!response.ok) throw new Error('Network error');
+        if (!response.ok) throw new Error('Error de comunicación con Render');
         return response.json();
     })
     .then(data => {
-        // Inyectar los datos de la sorpresa en la tarjeta mística
+        // Carga de la respuesta sorpresa en la tarjeta mística
         document.getElementById('res-title').innerText = data.titulo;
         document.getElementById('res-location').innerText = data.lugar;
         document.getElementById('res-steps').innerText = data.instrucciones;
 
         const btnMaps = document.getElementById('res-maps');
         
-        // DEEP LINKING GRATUITO: Activar mapa solo si es modalidad exterior
+        // DEEP LINKING GRATUITO: Activa el enlace solo si se requiere ruta física
         if (data.modalidad === 'outdoor' && data.url_maps) {
             btnMaps.href = data.url_maps;
             btnMaps.style.display = 'block';
@@ -125,13 +151,13 @@ function ejecutarEscape() {
             btnMaps.style.display = 'none';
         }
 
-        // Mostrar la tarjeta y hacer scroll suave hacia abajo
+        // Mostrar la tarjeta y generar el desplazamiento suave de pantalla
         const resultBox = document.getElementById('result-box');
         resultBox.style.display = 'block';
         resultBox.scrollIntoView({ behavior: 'smooth' });
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error del sistema:', error);
         alert(t.alertError);
     });
 }
