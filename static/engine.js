@@ -127,7 +127,7 @@ function ejecutarEscape() {
         document.getElementById('res-title').innerText = data.titulo; 
         document.getElementById('res-location').innerText = data.lugar; 
         
-        // CONEXIÓN PERFECTA CON TUS JSON: Muestra de forma secuencial las respiraciones, silencios y preguntas
+        // Muestra de forma secuencial las misiones, respiraciones, silencios y preguntas
         if (data.bloques_interactivos) { 
             let textoMisiones = ""; 
             data.bloques_interactivos.forEach(b => { 
@@ -172,4 +172,4 @@ function ejecutarEscape() {
         console.error('Error detectado:', error); 
         alert(t.alertError); 
     }); 
-}  
+}
