@@ -1,0 +1,139 @@
+{
+  "sys": "OPEN THAN GO SYSTEM",
+  "company": "May Roga LLC",
+  "ch": 1,
+  "rng": "1-7",
+  "ui": {
+    "fw": ["AWARENESS", "SAFETY", "CALM", "ACTION", "TRUTH", "CONTROL", "HELP", "FOCUS", "GOOD", "WISDOM", "WONDER"]
+  },
+  "rules": [
+    "Awareness>Reaction",
+    "Safety>Impulse",
+    "AskForHelp=Strength",
+    "Distance>Conflict",
+    "Calm=Better Decisions",
+    "Truth=Protection",
+    "Good=Wellbeing",
+    "Mistakes=Wisdom",
+    "Curiosity=Growth"
+  ],
+  "missions": [
+    {
+      "id": 1,
+      "cat": "awareness",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 1: AWARENESS EVERYWHERE", "es": "MISIÓN 1: CONCIENCIA EN TODOS LADOS"}},
+        {"t": "h", "tx": {"en": "What you notice can protect you", "es": "Lo que notas puede protegerte"}},
+        {"story": {
+          "en": "Awareness is like turning on a light inside your mind. When you pay attention, you make safer choices without fear.",
+          "es": "La conciencia es como encender una luz dentro de tu mente. Cuando prestas atención, tomas decisiones más seguras sin miedo."
+        }},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe slowly and feel your body relax", "es": "Respira lentamente y siente tu cuerpo relajarse"}, "inf": {"en": "This breathing helps your brain focus and reduce distraction in the present moment.", "es": "Esta respiración ayuda a tu cerebro a enfocarse y reducir la distracción en el momento presente."}},
+        {
+          "t": "d",
+          "q": {"en": "You are in an environment and something feels unusual. What is the best action?", "es": "Estás en un entorno y algo se siente inusual. ¿Cuál es la mejor acción?"},
+          "op": [
+            {"en": "Ignore it completely", "es": "Ignorarlo por completo"},
+            {"en": "Run away without thinking", "es": "Correr sin pensar"},
+            {"en": "Observe carefully and assess reality", "es": "Observar cuidadosamente y evaluar la realidad"},
+            {"en": "Close your eyes and hope it passes", "es": "Cerrar los ojos y esperar que pase"}
+          ],
+          "c": 2,
+          "ex": [
+            {"en": "Ignoring it means you miss important signals.", "es": "Ignorarlo significa que te pierdes señales importantes."},
+            {"en": "Running without thinking creates confusion.", "es": "Correr sin pensar crea confusión."},
+            {"en": "Observing carefully helps you understand reality better.", "es": "Observar cuidadosamente te ayuda a entender mejor la realidad."},
+            {"en": "Closing your eyes removes your awareness.", "es": "Cerrar los ojos elimina tu conciencia."}
+          ]
+        },
+        {"t": "r", "tx": "+Awareness", "p": 25},
+        {"t": "c", "tx": {"en": "Attention helps you stay safe and smart.", "es": "La atención te ayuda a mantenerte seguro y listo."}},
+        {"t": "sil", "d": 25, "tx": {"en": "Notice 3 things around you quietly", "es": "Nota 3 cosas a tu alrededor en silencio"}, "inf": {"en": "This silence trains observation and reduces automatic reactions.", "es": "Este silencio entrena la observación y reduce las reacciones automáticas."}}
+      ]
+    },
+    {
+      "id": 2,
+      "cat": "bullying",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 2: STRONG WORDS, STRONG ACTIONS", "es": "MISIÓN 2: PALABRAS FUERTES, ACCIONES FUERTES"}},
+        {"t": "h", "tx": {"en": "You control your response, not others", "es": "Tú controlas tu respuesta, no los demás"}},
+        {"story": {
+          "en": "When someone tests your limits, your calm response is your real strength. You don’t lose power when you stay steady.",
+          "es": "Cuando alguien pone a prueba tus límites, tu respuesta tranquila es tu verdadera fuerza. No pierdes poder cuando te mantienes firme."
+        }},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe slowly to calm your emotions", "es": "Respira lentamente para calmar tus emociones"}, "inf": {"en": "This breathing helps reduce anger signals in the body.", "es": "Esta respiración ayuda a reducir las señales de ira en el cuerpo."}},
+        {
+          "t": "d",
+          "q": {"en": "Someone says something mean to provoke you. What is the best response?", "es": "Alguien te dice algo desagradable para provocarte. ¿Cuál es la mejor respuesta?"},
+          "op": [
+            {"en": "Shout back harder", "es": "Gritar de vuelta más fuerte"},
+            {"en": "Stay calm, do not react, and walk away", "es": "Mantener la calma, no reaccionar y alejarte"},
+            {"en": "React physically immediately", "es": "Reaccionar físicamente de inmediato"},
+            {"en": "Argue until they change their mind", "es": "Discutir hasta que cambien de opinión"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Shouting back escalates the conflict.", "es": "Gritar de vuelta escala el conflicto."},
+            {"en": "Staying calm and walking away protects your control.", "es": "Mantener la calma y alejarte protege tu control."},
+            {"en": "Physical reactions create much larger problems.", "es": "Las reacciones físicas crean problemas mucho mayores."},
+            {"en": "Arguing wastes your energy and solves nothing.", "es": "Discutir desperdicia tu energía y no resuelve nada."}
+          ]
+        },
+        {"t": "r", "tx": "+Control", "p": 25},
+        {"t": "c", "tx": {"en": "Calm decisions are powerful decisions.", "es": "Las decisiones tranquilas son decisiones poderosas."}},
+        {"t": "sil", "d": 30, "tx": {"en": "Let your thoughts settle like water", "es": "Deja que tus pensamientos se asienten como el agua"}, "inf": {"en": "This silence reduces emotional overload.", "es": "Este silencio reduce la sobrecarga emocional."}}
+      ]
+    },
+    {
+      "id": 3,
+      "cat": "stranger_safety",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 3: TRUST AND SAFETY", "es": "MISIÓN 3: CONFIANZA Y SEGURIDAD"}},
+        {"t": "h", "tx": {"en": "Smart boundaries protect your space", "es": "Los límites inteligentes protegen tu espacio"}},
+        {"story": {
+          "en": "Safety means staying anchored to your trusted environment and avoiding unknown, unverified situations. Clear choices keep you protected.",
+          "es": "La seguridad significa mantenerte anclado a tu entorno de confianza y evitar situaciones desconocidas o no verificadas. Las opciones claras te mantienen protegido."
+        }},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Breathe deeply to remain grounded", "es": "Respira profundamente para mantener los pies en la tierra"}, "inf": {"en": "This breathing keeps you alert and reduces sudden panic.", "es": "Esta respiración te mantiene alerta y reduce el pánico repentino."}},
+        {
+          "t": "d",
+          "q": {"en": "An unverified person asks you to follow them or share private info. What is correct?", "es": "Una persona no verificada te pide que la sigas o compartas información privada. ¿Qué es lo correcto?"},
+          "op": [
+            {"en": "Follow along quietly", "es": "Seguirla en silencio"},
+            {"en": "Say no firmly and head toward a safe, populated zone", "es": "Decir que no firmemente y dirigirte a una zona poblada y segura"},
+            {"en": "Keep it a secret from everyone", "es": "Mantenerlo en secreto para todos"},
+            {"en": "Trust them blindly", "es": "Confiar ciegamente"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Following unverified situations creates immediate risk.", "es": "Seguir situaciones no verificadas crea un riesgo inmediato."},
+            {"en": "Saying no and moving to safety keeps you fully protected.", "es": "Decir que no y moverte a un lugar seguro te mantiene totalmente protegido."},
+            {"en": "Secrets in unsafe situations increase danger.", "es": "Los secretos en situaciones inseguras aumentan el peligro."},
+            {"en": "Blind trust removes your defensive system.", "es": "La confianza ciega elimina tu sistema defensivo."}
+          ]
+        },
+        {"t": "r", "tx": "+Protection", "p": 25},
+        {"t": "c", "tx": {"en": "Establishing clear boundaries is your protection system.", "es": "Establecer límites claros es tu sistema de protección."}}
+      ]
+    },
+    {
+      "id": 4,
+      "cat": "emergency_awareness",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 4: FAST AND CALM ACTION", "es": "MISIÓN 4: ACCIÓN RÁPIDA Y TRANQUILA"}},
+        {"t": "h", "tx": {"en": "In emergencies, clear thinking is power", "es": "En emergencias, el pensamiento claro es poder"}},
+        {"story": {
+          "en": "When something unexpected happens around you, panicking blocks your choices. Staying calm helps you process real instructions quickly.",
+          "es": "Cuando algo inesperado sucede a tu alrededor, el pánico bloquea tus opciones. Mantener la calma te ayuda a procesar instrucciones reales rápidamente."
+        }},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Breathe slowly to keep your mind sharp", "es": "Respira lentamente para mantener tu mente aguda"}, "inf": {"en": "Slowing your breath reduces body panic and speeds up clear logic.", "es": "Ralentizar tu respiración reduce el pánico corporal y acelera la lógica clara."}},
+        {
+          "t": "d",
+          "q": {"en": "An emergency signal occurs or unexpected confusion begins. What do you do?", "es": "Ocurre una señal de emergencia o comienza una confusión inesperada. ¿Qué haces?"},
+          "op": [
+            {"en": "Panic and run in any direction", "es": "Entrar en pánico y correr en cualquier dirección"},
+            {"en": "Follow the structured safety procedures or designated authority", "es": "Seguir los procedimientos estructurados de seguridad o a la autoridad designada"},
