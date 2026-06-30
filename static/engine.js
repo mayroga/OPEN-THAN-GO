@@ -118,21 +118,30 @@ function ejecutarEscape() {
         return response.json();
     })
     .then(data => {
-        // CORRECCIÓN CLAVE: Emparejar con los nombres que regresa tu main.py
         document.getElementById('res-title').innerText = data.titulo;
         document.getElementById('res-location').innerText = data.lugar;
         
-        // Convertimos los bloques interactivos JSON en texto legible provisional para verificar
+        // CONEXIÓN PERFECTA CON TUS JSON: Extrae limpiamente la propiedad .tx que envía el backend
         if (data.bloques_interactivos) {
             let textoMisiones = "";
             data.bloques_interactivos.forEach(b => {
-                if(b.tx) textoMisiones += `➔ ${b.tx}\n`;
-                if(b.story) textoMisiones += `📖 ${b.story}\n`;
-                if(b.q) textoMisiones += `❓ PREGUNTA: ${b.q}\n`;
+                if (b.tx) {
+                    textoMisiones += `${b.tx}\n\n`;
+                }
+                if (b.story) {
+                    textoMisiones += `📖 STORY: ${b.story}\n\n`;
+                }
+                if (b.q) {
+                    textoMisiones += `❓ CHALLENGE: ${b.q}\n`;
+                    if (b.op && b.op.length > 0) {
+                        b.op.forEach((opcion, i) => {
+                            textoMisiones += `   [${i + 1}] ${opcion}\n`;
+                        });
+                    }
+                    textoMisiones += `\n`;
+                }
             });
             document.getElementById('res-steps').innerText = textoMisiones;
-        } else {
-            document.getElementById('res-steps').innerText = data.instrucciones || "";
         }
 
         const btnMaps = document.getElementById('res-maps');
