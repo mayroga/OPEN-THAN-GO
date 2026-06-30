@@ -4,136 +4,257 @@
   "ch": 1,
   "rng": "1-7",
   "ui": {
-    "fw": ["AWARENESS", "SAFETY", "CALM", "ACTION", "TRUTH", "CONTROL", "HELP", "FOCUS", "GOOD", "WISDOM", "WONDER"]
+    "fw": ["BIEN", "WISDOM", "WONDER", "DISCIPLINE", "CARE", "AFFECTION", "STRENGTH"]
   },
   "rules": [
-    "Awareness>Reaction",
-    "Safety>Impulse",
-    "AskForHelp=Strength",
-    "Distance>Conflict",
-    "Calm=Better Decisions",
-    "Truth=Protection",
-    "Good=Wellbeing",
-    "Mistakes=Wisdom",
-    "Curiosity=Growth"
+    "Bien=Bienestar",
+    "Errores=Sabiduría",
+    "Curiosidad=Crecimiento",
+    "Responsabilidad=Futuro",
+    "Autocuidado=Amor",
+    "Afecto=Conexión",
+    "Batallas=Fortaleza"
   ],
   "missions": [
     {
       "id": 1,
-      "cat": "awareness",
+      "cat": "bien",
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
-        {"t": "v", "tx": {"en": "MISSION 1: AWARENESS EVERYWHERE", "es": "MISIÓN 1: CONCIENCIA EN TODOS LADOS"}},
-        {"t": "h", "tx": {"en": "What you notice can protect you", "es": "Lo que notas puede protegerte"}},
+        {"t": "v", "tx": {"en": "MISSION 1: THE GRATITUDE CHAIN", "es": "MISIÓN 1: LA CADENA DE GRATITUD"}},
+        {"t": "h", "tx": {"en": "Breaking the financial stress loop", "es": "Rompiendo el bucle del estrés por el dinero"}},
         {"story": {
-          "en": "Awareness is like turning on a light inside your mind. When you pay attention, you make safer choices without fear.",
-          "es": "La conciencia es como encender una luz dentro de tu mente. Cuando prestas atención, tomas decisiones más seguras sin miedo."
+          "en": "You work all week, pay bills, and the weekend arrives. You go out to buy or eat just to escape, but you feel like a zombie waiting for another identical day. True wellbeing doesn't come from spending money; it begins when you actively shift your mind to notice the valuable human network around you.",
+          "es": "Trabajas toda la semana, pagas biles y llega el fin de semana. Sales a comprar o a comer solo por escapar, pero te sientes como un zombi esperando otro día idéntico. El verdadero bienestar no viene de gastar dinero; empieza cuando cambias tu mente para notar la red humana valiosa que tienes al lado."
         }},
-        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe slowly and feel your body relax", "es": "Respira lentamente y siente tu cuerpo relajarse"}, "inf": {"en": "This breathing helps your brain focus and reduce distraction in the present moment.", "es": "Esta respiración ayuda a tu cerebro a enfocarse y reducir la distracción en el momento presente."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe slowly and feel your body relax", "es": "Respira lentamente y siente tu cuerpo relajarse"}, "inf": {"en": "This breathing centers your mind and stops automatic panic signals about bills in your brain.", "es": "Esta respiración centra tu mente y detiene las señales automáticas de pánico por las cuentas en tu cerebro."}},
         {
           "t": "d",
-          "q": {"en": "You are in an environment and something feels unusual. What is the best action?", "es": "Estás en un entorno y algo se siente inusual. ¿Cuál es la mejor acción?"},
+          "q": {"en": "The weekend is slipping away, anxiety about next week's payments is rising, and your family feels bored. What is the most human way to break this loop?", "es": "El fin de semana se te está yendo, la ansiedad por los pagos de la otra semana sube y tu familia está aburrida. ¿Cuál es la forma más humana de romper este bucle?"},
           "op": [
-            {"en": "Ignore it completely", "es": "Ignorarlo por completo"},
-            {"en": "Run away without thinking", "es": "Correr sin pensar"},
-            {"en": "Observe carefully and assess reality", "es": "Observar cuidadosamente y evaluar la realidad"},
-            {"en": "Close your eyes and hope it passes", "es": "Cerrar los ojos y esperar que pase"}
+            {"en": "Go to a crowded store and buy things on credit to feel a temporary relief", "es": "Ir a una tienda llena y comprar cosas a crédito para sentir un alivio pasajero"},
+            {"en": "Stay quiet, look at your phone, and let the monotony consume the house", "es": "Quedarte callado, mirar el teléfono y dejar que la monotonía consuma la casa"},
+            {"en": "Execute the Gratitude Chain: think of 3 people, state a reason to thank them, and smile", "es": "Ejecutar la Cadena de Gratitud: pensar en 3 personas, decir una razón para agradecerles y sonreír"},
+            {"en": "Complain that life in this country is just working and paying biles", "es": "Quejarte de que la vida en este país es solo trabajar y pagar biles"}
           ],
           "c": 2,
           "ex": [
-            {"en": "Ignoring it means you miss important signals.", "es": "Ignorarlo significa que te pierdes señales importantes."},
-            {"en": "Running without thinking creates confusion.", "es": "Correr sin pensar crea confusión."},
-            {"en": "Observing carefully helps you understand reality better.", "es": "Observar cuidadosamente te ayuda a entender mejor la realidad."},
-            {"en": "Closing your eyes removes your awareness.", "es": "Cerrar los ojos elimina tu conciencia."}
+            {"en": "Impulsive shopping multiplies future debts and deepens your financial agobio.", "es": "Las compras impulsivas multiplican las deudas futuras y profundizan tu agobio financiero."},
+            {"en": "Phones isolate parents from children, increasing the feeling of being an empty zombie.", "es": "El teléfono aísla a los padres de los hijos, aumentando la sensación de ser un zombi vacío."},
+            {"en": "Actively declaring gratitude rewires your frequency and recovers true emotion without spending a single dollar.", "es": "Declarar gratitud activamente cambia tu frecuencia y recupera la emoción real sin gastar un solo dólari."},
+            {"en": "Constant complaining locks your family into stagnation and removes all hope.", "es": "La queja constante encierra a tu familia en el estancamiento y elimina toda esperanza."}
           ]
         },
-        {"t": "r", "tx": "+Awareness", "p": 25},
-        {"t": "c", "tx": {"en": "Attention helps you stay safe and smart.", "es": "La atención te ayuda a mantenerte seguro y listo."}},
-        {"t": "sil", "d": 25, "tx": {"en": "Notice 3 things around you quietly", "es": "Nota 3 cosas a tu alrededor en silencio"}, "inf": {"en": "This silence trains observation and reduces automatic reactions.", "es": "Este silencio entrena la observación y reduce las reacciones automáticas."}}
+        {"t": "r", "tx": "+Bien", "p": 25},
+        {"t": "c", "tx": {"en": "Gratitude increases the good in my life.", "es": "La gratitud aumenta el bien en mi vida."}},
+        {"t": "sil", "d": 30, "tx": {"en": "Think of three people you are grateful for, say a reason out loud, and smile.", "es": "Piensa en tres personas por las que sientes agradecimiento, di una razón en voz alta y sonríe."}, "inf": {"en": "This exercise brings back human warmth when the system feels cold.", "es": "Este ejercicio devuelve la calidez humana cuando el sistema se siente frío."}}
       ]
     },
     {
       "id": 2,
-      "cat": "bullying",
+      "cat": "bien",
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
-        {"t": "v", "tx": {"en": "MISSION 2: STRONG WORDS, STRONG ACTIONS", "es": "MISIÓN 2: PALABRAS FUERTES, ACCIONES FUERTES"}},
-        {"t": "h", "tx": {"en": "You control your response, not others", "es": "Tú controlas tu respuesta, no los demás"}},
+        {"t": "v", "tx": {"en": "MISSION 2: THE POSITIVE MIRROR", "es": "MISIÓN 2: EL ESPEJO POSITIVO"}},
+        {"t": "h", "tx": {"en": "Recovering your identity outside of work", "es": "Recuperando tu identidad fuera del trabajo"}},
         {"story": {
-          "en": "When someone tests your limits, your calm response is your real strength. You don’t lose power when you stay steady.",
-          "es": "Cuando alguien pone a prueba tus límites, tu respuesta tranquila es tu verdadera fuerza. No pierdes poder cuando te mantienes firme."
+          "en": "In the United States, it is very easy to forget who you are. You become a machine that clocks in and clocks out, and when you look at yourself, you only see tiredness. Your value as a parent, as a partner, and as a human being is intact. You need to look at yourself cleanly again.",
+          "es": "En Estados Unidos es muy fácil olvidar quién eres. Te conviertes en una máquina de marcar tarjeta y cuando te miras, solo ves cansancio. Tu valor como padre, como pareja y como ser humano está intacto. Necesitas volver a mirarte limpiamente."
         }},
-        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe slowly to calm your emotions", "es": "Respira lentamente para calmar tus emociones"}, "inf": {"en": "This breathing helps reduce anger signals in the body.", "es": "Esta respiración ayuda a reducir las señales de ira en el cuerpo."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Inhale your true value... exhale the fatigue of the system", "es": "Inhala tu valor real... exhala la fatiga del sistema"}, "inf": {"en": "Oxygenating deeply reminds your brain that you are more than your job.", "es": "Oxigenar profundo le recuerda a tu cerebro que eres más que tu trabajo."}},
         {
           "t": "d",
-          "q": {"en": "Someone says something mean to provoke you. What is the best response?", "es": "Alguien te dice algo desagradable para provocarte. ¿Cuál es la mejor respuesta?"},
+          "q": {"en": "You look at your face and you see a tired zombie consumer, worried about debts. How do you trigger the Positive Mirror?", "es": "Te miras el rostro y ves a un zombi consumidor cansado, preocupado por las deudas. ¿Cómo activas el Espejo Positivo?"},
           "op": [
-            {"en": "Shout back harder", "es": "Gritar de vuelta más fuerte"},
-            {"en": "Stay calm, do not react, and walk away", "es": "Mantener la calma, no reaccionar y alejarte"},
-            {"en": "React physically immediately", "es": "Reaccionar físicamente de inmediato"},
-            {"en": "Argue until they change their mind", "es": "Discutir hasta que cambien de opinión"}
+            {"en": "Avoid mirrors and keep running on autopilot", "es": "Evitar los espejos y seguir funcionando en piloto automático"},
+            {"en": "Look in a mirror or imagine one, and state five positive qualities about yourself", "es": "Mirarte al espejo o imaginarte frente a uno, y decir cinco cualidades positivas sobre ti"},
+            {"en": "Compare your lifestyle with others on social networks", "es": "Comparar tu estilo de vida con el de otros en las redes sociales"},
+            {"en": "Expect your boss or your bank to tell you that you are doing fine", "es": "Esperar que tu jefe o tu banco te digan que lo estás haciendo bien"}
           ],
           "c": 1,
           "ex": [
-            {"en": "Shouting back escalates the conflict.", "es": "Gritar de vuelta escala el conflicto."},
-            {"en": "Staying calm and walking away protects your control.", "es": "Mantener la calma y alejarte protege tu control."},
-            {"en": "Physical reactions create much larger problems.", "es": "Las reacciones físicas crean problemas mucho mayores."},
-            {"en": "Arguing wastes your energy and solves nothing.", "es": "Discutir desperdicia tu energía y no resuelve nada."}
+            {"en": "Avoiding your reflection keeps you trapped in the routine emptiness.", "es": "Evitar tu reflejo te mantiene atrapado en el vacío de la rutina."},
+            {"en": "Explicitly stating your virtues restores your dignity and biological well-being in seconds.", "es": "Declarar explícitamente tus virtudes restaura tu dignidad y bienestar biológico en segundos."},
+            {"en": "Digital comparison feeds anxiety and multiplies the feeling of lack.", "es": "La comparación digital alimenta la ansiedad y multiplica la sensación de escasez."},
+            {"en": "The system will never validate your soul; that power belongs entirely to you.", "es": "El sistema nunca va a validar tu alma; ese poder te pertenece completamente a ti."}
           ]
         },
-        {"t": "r", "tx": "+Control", "p": 25},
-        {"t": "c", "tx": {"en": "Calm decisions are powerful decisions.", "es": "Las decisiones tranquilas son decisiones poderosas."}},
-        {"t": "sil", "d": 30, "tx": {"en": "Let your thoughts settle like water", "es": "Deja que tus pensamientos se asienten como el agua"}, "inf": {"en": "This silence reduces emotional overload.", "es": "Este silencio reduce la sobrecarga emocional."}}
+        {"t": "r", "tx": "+Bien", "p": 25},
+        {"t": "c", "tx": {"en": "Recognizing my value strengthens my well-being.", "es": "Reconocer mi valor fortalece mi bienestar."}},
+        {"t": "sil", "d": 30, "tx": {"en": "Look at yourself or imagine a mirror, declare 5 positive qualities, and breathe deeply 3 times.", "es": "Mírate en un espejo o imagínate frente a uno. Di cinco cualidades positivas sobre ti y respira profundo tres veces."}, "inf": {"en": "This targets prefrontal clarity and breaks automatic defeatism.", "es": "Esto activa la claridad prefrontal y rompe el derrotismo automático."}}
       ]
     },
     {
       "id": 3,
-      "cat": "stranger_safety",
+      "cat": "bien",
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
-        {"t": "v", "tx": {"en": "MISSION 3: TRUST AND SAFETY", "es": "MISIÓN 3: CONFIANZA Y SEGURIDAD"}},
-        {"t": "h", "tx": {"en": "Smart boundaries protect your space", "es": "Los límites inteligentes protegen tu espacio"}},
+        {"t": "v", "tx": {"en": "MISSION 3: THE ACT OF KINDNESS", "es": "MISIÓN 3: LA ACCIÓN DE BONDAD"}},
+        {"t": "h", "tx": {"en": "Escaping your own agobio by connecting with others", "es": "Escapando de tu propio agobio al conectar con los demás"}},
         {"story": {
-          "en": "Safety means staying anchored to your trusted environment and avoiding unknown, unverified situations. Clear choices keep you protected.",
-          "es": "La seguridad significa mantenerte anclado a tu entorno de confianza y evitar situaciones desconocidas o no verificadas. Las opciones claras te mantienen protegido."
+          "en": "Many people look happy outside, but inside they look like zombies, consumed by the agitation of life and payments. When you take action to bring a light into someone else's routine, you instantly release the pressure on your own life.",
+          "es": "Mucha gente luce feliz por fuera, pero por dentro parecen zombis, consumidos por la agitación de la vida y los pagos. Cuando tomas acción para llevar una luz a la rutina de alguien más, liberas instantáneamente la presión sobre tu propia vida."
         }},
-        {"t": "breath_auto", "d": 20, "tx": {"en": "Breathe deeply to remain grounded", "es": "Respira profundamente para mantener los pies en la tierra"}, "inf": {"en": "This breathing keeps you alert and reduces sudden panic.", "es": "Esta respiración te mantiene alerta y reduce el pánico repentino."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe gently and connect with your human environment", "es": "Respira suavemente y conecta con tu entorno humano"}, "inf": {"en": "Slowing down allows your perception to step outside your own bills.", "es": "Ralentizar permite a tu percepción salir de tus propias cuentas."}},
         {
           "t": "d",
-          "q": {"en": "An unverified person asks you to follow them or share private info. What is correct?", "es": "Una persona no verificada te pide que la sigas o compartas información privada. ¿Qué es lo correcto?"},
+          "q": {"en": "You see your partner or your children trapped in the same repetitive weekend boredom. What is the most human action?", "es": "Ves a tu pareja o a tus hijos atrapados en el mismo aburrimiento repetitivo del fin de semana. ¿Cuál es la acción más humana?"},
           "op": [
-            {"en": "Follow along quietly", "es": "Seguirla en silencio"},
-            {"en": "Say no firmly and head toward a safe, populated zone", "es": "Decir que no firmemente y dirigirte a una zona poblada y segura"},
-            {"en": "Keep it a secret from everyone", "es": "Mantenerlo en secreto para todos"},
-            {"en": "Trust them blindly", "es": "Confiar ciegamente"}
+            {"en": "Give them screens so they leave you alone in your stress", "es": "Darles pantallas para que te dejen solo con tu estrés"},
+            {"en": "Think of a concrete good deed you can do for them today and commit to doing it", "es": "Pensar en una buena acción concreta que puedas hacer por ellos hoy y comprometerte a realizarla"},
+            {"en": "Tell them that you don't have money to go anywhere, so they must wait", "es": "Decirles que no hay dinero para ir a ningún lado, así que tienen que aguantarse"},
+            {"en": "Argue about who wastes more resources in the house", "es": "Discutir sobre quién desperdicia más recursos en la casa"}
           ],
           "c": 1,
           "ex": [
-            {"en": "Following unverified situations creates immediate risk.", "es": "Seguir situaciones no verificadas crea un riesgo inmediato."},
-            {"en": "Saying no and moving to safety keeps you fully protected.", "es": "Decir que no y moverte a un lugar seguro te mantiene totalmente protegido."},
-            {"en": "Secrets in unsafe situations increase danger.", "es": "Los secretos en situaciones inseguras aumentan el peligro."},
-            {"en": "Blind trust removes your defensive system.", "es": "La confianza ciega elimina tu sistema defensivo."}
+            {"en": "Digital isolation deepens the stagnation loop for the whole family.", "es": "El aislamiento digital profundiza el bucle de estancamiento de toda la familia."},
+            {"en": "An intentional act of kindness breaks the house monotony and restores true emotion.", "es": "Un acto intencional de bondad rompe la monotonía de la casa y restaura la emoción real."},
+            {"en": "Money limits places, but it should never limit human creativity or affection.", "es": "El dinero limita los lugares, pero jamás debe limitar la creatividad humana ni el afecto."},
+            {"en": "Friction over bills increases cortisol and damages your family safety structure.", "es": "La fricción por los biles sube el cortisol y daña tu estructura de seguridad familiar."}
           ]
         },
-        {"t": "r", "tx": "+Protection", "p": 25},
-        {"t": "c", "tx": {"en": "Establishing clear boundaries is your protection system.", "es": "Establecer límites claros es tu sistema de protección."}}
+        {"t": "r", "tx": "+Bien", "p": 25},
+        {"t": "c", "tx": {"en": "Every act of kindness improves my world.", "es": "Cada acto de bondad mejora mi mundo."}},
+        {"t": "sil", "d": 30, "tx": {"en": "Think of a good deed you can do today, imagine how that person will feel, and commit to it.", "es": "Piensa en una buena acción que puedas hacer hoy. Imagina cómo se sentirá la otra persona y comprométete a realizarla."}, "inf": {"en": "This mental commitment activates active empathy and updates your day.", "es": "Este compromiso mental activa la empatía activa y actualiza tu día."}}
       ]
     },
     {
       "id": 4,
-      "cat": "emergency_awareness",
+      "cat": "mal",
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
-        {"t": "v", "tx": {"en": "MISSION 4: FAST AND CALM ACTION", "es": "MISIÓN 4: ACCIÓN RÁPIDA Y TRANQUILA"}},
-        {"t": "h", "tx": {"en": "In emergencies, clear thinking is power", "es": "En emergencias, el pensamiento claro es poder"}},
+        {"t": "v", "tx": {"en": "MISSION 4: THE MENTAL TRAFFIC LIGHT", "es": "MISIÓN 4: EL SEMÁFORO MENTAL"}},
+        {"t": "h", "tx": {"en": "Transforming the errors and economic hits into learning", "es": "Transformando los errores y golpes económicos en aprendizaje"}},
         {"story": {
-          "en": "When something unexpected happens around you, panicking blocks your choices. Staying calm helps you process real instructions quickly.",
-          "es": "Cuando algo inesperado sucede a tu alrededor, el pánico bloquea tus opciones. Mantener la calma te ayuda a procesar instrucciones reales rápidamente."
+          "en": "An unexpected bill, a bad financial choice, or a hard day at work can consume your hope. The technique of the Mal says that difficulties are not dead ends; they are lessons. You just need to stop the panic and extract the wisdom.",
+          "es": "Un bil inesperado, una mala decisión financiera o un día duro en el trabajo pueden consumirte la esperanza. La técnica del Mal dice que las dificultades no son callejones sin salida; son lecciones. Solo necesitas parar el pánico y extraer la sabiduría."
         }},
-        {"t": "breath_auto", "d": 20, "tx": {"en": "Breathe slowly to keep your mind sharp", "es": "Respira lentamente para mantener tu mente aguda"}, "inf": {"en": "Slowing your breath reduces body panic and speeds up clear logic.", "es": "Ralentizar tu respiración reduce el pánico corporal y acelera la lógica clara."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Inhale deeply... blow the economic panic away through your mouth", "es": "Inhala profundamente... sopla el pánico económico por la boca"}, "inf": {"en": "This physical release safely rebalances your subcortical alert system.", "es": "Esta liberación física reequilibra tu sistema de alerta subcortical de forma segura."}},
         {
           "t": "d",
-          "q": {"en": "An emergency signal occurs or unexpected confusion begins. What do you do?", "es": "Ocurre una señal de emergencia o comienza una confusión inesperada. ¿Qué haces?"},
+          "q": {"en": "A negative event hits your pocket or your peace today. What is the execution order of the Traffic Light?", "es": "Un evento negativo golpea tu bolsillo o tu paz el día de hoy. ¿Cuál es el orden de ejecución del Semáforo?"},
           "op": [
-            {"en": "Panic and run in any direction", "es": "Entrar en pánico y correr en cualquier dirección"},
-            {"en": "Follow the structured safety procedures or designated authority", "es": "Seguir los procedimientos estructurados de seguridad o a la autoridad designada"},
+            {"en": "Ruminate on it, get angry at your partner, freeze", "es": "Rumiar el problema, enojarte con tu pareja, congelarte"},
+            {"en": "Red: Stop the reaction; Yellow: Think and extract the lesson; Green: Define what to do differently", "es": "Rojo: Detener la reacción; Amarillo: Pensar y extraer la lección; Verde: Definir qué hacer diferente"},
+            {"en": "Pretend nothing happened and repeat the exact same choice", "es": "Fingir que nada pasó y repetir la misma decisión exacta"},
+            {"en": "Isolate yourself in your room waiting for another day to pass", "es": "Aislarte en tu cuarto esperando que pase otro día más"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Anger and rumination feed the zombie loop and destroy the weekend.", "es": "La ira y la rumiación alimentan el bucle zombi y destruyen el fin de semana."},
+            {"en": "This structured sequence transforms raw friction into clear strategic wisdom.", "es": "Esta secuencia estructurada transforma la fricción pura en sabiduría estratégica clara."},
+            {"en": "Ignoring errors ensures you will hit the exact same wall in the future.", "es": "Ignorar los errores asegura que te chocarás contra la misma pared en el futuro."},
+            {"en": "Paralysis keeps you trapped in the routine agobio without solving any biles.", "es": "La parálisis te mantiene atrapado en el agobio de la rutina sin resolver ningún bil."}
+          ]
+        },
+        {"t": "r", "tx": "+Wisdom", "p": 30},
+        {"t": "c", "tx": {"en": "I can transform difficulties into learning.", "es": "Puedo transformar las dificultades en aprendizaje."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Think of a negative situation. Red: what to stop? Yellow: what to think? Green: what to do differently?", "es": "Piensa en una situación negativa. Rojo: ¿Qué debo detener? Amarillo: ¿Qué debo pensar? Verde: ¿Qué haré diferente?"}, "inf": {"en": "Objectifying the problem reduces cognitive weight and restores action.", "es": "Objetivar el problema reduce el peso cognitivo y restaura la acción."}}
+      ]
+    },
+    {
+      "id": 5,
+      "cat": "mal",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 5: THE HEAVY BACKPACK", "es": "MISIÓN 5: LA MOCHILA PESADA"}},
+        {"t": "h", "tx": {"en": "Unpacking the worries that consume your emotion", "es": "Descargando las preocupaciones que te consumen la emoción"}},
+        {"story": {
+          "en": "The worries about the rent, the car payment, and the accounts receivable feel like a physical backpack full of rocks. You are walking around your home like a zombie because you carry that load 24/7. It's time to open the backpack, learn from it, and lighten up.",
+          "es": "Las preocupaciones por la renta, el pago del carro y las cuentas por pagar se sienten como una mochila física llena de piedras. Caminas por tu casa como un zombi porque cargas ese peso las 24 horas. Es hora de abrir la mochila, aprender de ello y aligerarte."
+        }},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe slow and lower your shoulders to drop the weight", "es": "Respira lento y baja los hombros para soltar el peso"}, "inf": {"en": "Releasing physical tension alerts your mind that it is safe to rest.", "es": "Liberar la tensión física le avisa a tu mente que es seguro descansar."}},
+        {
+          "t": "d",
+          "q": {"en": "You feel an intense chest pressure due to work agitation and financial worry. What is the move?", "es": "Sientes una intensa presión en el pecho debido a la agitación laboral y la preocupación financiera. ¿Cuál es el movimiento?"},
+          "op": [
+            {"en": "Keep carrying the stress until you suffer a health block", "es": "Seguir cargando el estrés hasta que sufras un colapso de salud"},
+            {"en": "Imagine placing that negative weight inside a backpack, find the active lesson, and feel it get lighter", "es": "Imaginar que colocas ese peso negativo dentro de una mochila, buscar la lección activa y sentir cómo se aligera"},
+            {"en": "Work more hours on Sunday to escape your household reality", "es": "Trabajar más horas el domingo para escapar de la realidad de tu hogar"},
+            {"en": "Blame the country for your heavy internal load", "es": "Culpar al país por tu pesada carga interna"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Ignoring the somatic load damages your biopsicosocial balance structurally.", "es": "Ignorar la carga somática daña tu equilibrio biopsicosocial de forma estructural."},
+            {"en": "Visualizing the release and isolating what you can learn restores immediate mental mobility.", "es": "Visualizar la liberación e aislar lo que puedes aprender restaura la movilidad mental de inmediato."},
+            {"en": "Overworking hides the emotional trigger but creates deeper physical exhaustion.", "es": "Trabajar en exceso oculta el detonante emocional pero crea un agotamiento físico más profundo."},
+            {"en": "Externalizing causes you to lose control over your personal wellbeing strategy.", "es": "Externalizar hace que pierdas el control sobre tu estrategia de bienestar personal."}
+          ]
+        },
+        {"t": "r", "tx": "+Wisdom", "p": 25},
+        {"t": "c", "tx": {"en": "I learn, grow, and continue my path.", "es": "Aprendo, crezco y continúo."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Think of a negative weight you carry. Imagine placing it in a backpack, ask what you can learn, and watch it become lighter.", "es": "Piensa en algo negativo que llevas dentro. Imagina que lo colocas en una mochila. Pregúntate qué puedes aprender de ello e imagina que la mochila se vuelve más ligera."}, "inf": {"en": "This cognitive reframing reduces underlying anxiety in minutes.", "es": "Este reencuadre cognitivo reduce la ansiedad subyacente en minutos."}}
+      ]
+    },
+    {
+      "id": 6,
+      "cat": "mal",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 6: FROM PROBLEM TO SOLUTION", "es": "MISIÓN 6: DEL PROBLEMA A LA SOLUCIÓN"}},
+        {"t": "h", "tx": {"en": "Destroying the paralysis of financial worry", "es": "Destruyendo la parálisis de la preocupación financiera"}},
+        {"story": {
+          "en": "When accounts payable consume your mind, you lose all ideas and hope. You stay inside your house waiting for Monday, feeling stuck. Forcing your brain to calculate concrete solutions is the path to find the light and take control.",
+          "es": "Cuando las cuentas por pagar te consumen la mente, pierdes toda idea y esperanza. Te quedas dentro de tu casa esperando el lunes, sintiéndote estancado. Forzar a tu cerebro a calcular soluciones concretas es el camino para hallar la luz y tomar el control."
+        }},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Inhale sharpness... exhale the block of the biles", "es": "Inhala agudeza... exhala el bloqueo de los biles"}, "inf": {"en": "This localized attention breaks the cycle of passive rumination.", "es": "Esta atención localizada rompe el ciclo de rumiación pasiva."}},
+        {
+          "t": "d",
+          "q": {"en": "You have a real financial roadblock that is stealing your family peace today. What do you execute?", "es": "Tienes un obstáculo financiero real que te está robando la paz familiar hoy. ¿Qué ejecutas?"},
+          "op": [
+            {"en": "Ruminate on the problem and talk about how expensive everything is", "es": "Rumiar el problema y hablar de lo caro que está todo"},
+            {"en": "Write down or think about the problem, find 3 possible solutions, and select one to start today", "es": "Escribir o pensar en el problema, encontrar 3 posibles soluciones y elegir una para comenzar hoy"},
+            {"en": "Avoid looking at your accounts and watch television all day", "es": "Evitar mirar tus cuentas y ver la televisión todo el día"},
+            {"en": "Expect an external miracle to fix your financial structure", "es": "Esperar un milagro externo que arregle tu estructura financiera"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Talking only about the problem reinforces the automatic zombie frequency.", "es": "Hablar solo del problema refuerza la frecuencia zombi automática."},
+            {"en": "Isolating actionable options bypasses brain resistance and restores your power.", "es": "Aislar opciones accionables evita la resistencia cerebral y restauras tu poder."},
+            {"en": "Avoidance masks the pressure but multiplies underlying panic and anxiety.", "es": "La evitación enmascara la presión pero multiplica el pánico subyacente y la ansiedad."},
+            {"en": "Passive waiting keeps you stuck in monotony and removes your active autonomy.", "es": "La espera pasiva te mantiene estancado en la monotonía y elimina tu autonomía activa."}
+          ]
+        },
+        {"t": "r", "tx": "+Action", "p": 25},
+        {"t": "c", "tx": {"en": "Always there is a way forward.", "es": "Siempre existe un camino hacia adelante."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Write down or think about the problem. Find three possible solutions. Choose one to start today.", "es": "Escribe o piensa en un problema. Encuentra tres posibles soluciones. Elige una para comenzar hoy."}, "inf": {"en": "Structuring actions reduces the procrastination block significantly.", "es": "Estructurar acciones reduce el bloque de procrastinación significativamente."}}
+      ]
+    },
+    {
+      "id": 7,
+      "cat": "nino",
+      "pocket_match": ["cero", "moderado"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 7: THE QUESTION GAME", "es": "MISIÓN 7: EL JUEGO DE LAS PREGUNTAS"}},
+        {"t": "h", "tx": {"en": "Dismantling house monotony with zero dollars", "es": "Desmantelando la monotonía de la casa con cero dólares"}},
+        {"story": {
+          "en": "Boredom is a lack of light and guide. You stay inside your house because you think there is nothing to do without spending money. By activating a child's curious look, any simple object becomes a tool to trigger imagination and awaken your mind.",
+          "es": "El aburrimiento es falta de luz y guía. Te quedas dentro de tu casa porque crees que no hay nada que hacer sin gastar dinero. Al activar la mirada curiosa de un niño, cualquier objeto simple se convierte en una herramienta para activar la imaginación y despertar tu mente."
+        }},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Inhale fast neural energy... exhale with a real smile", "es": "Inhala energía neural rápida... exhala con una sonrisa real"}, "inf": {"en": "This pattern triggers biological alertness and dismantles stagnation.", "es": "Este patrón activa la alerta biológica y desmantela el estancamiento."}},
+        {
+          "t": "d",
+          "q": {"en": "Your children are bored, you have $0 budget today, and you feel the weight of routine. How do you trigger the Explorer state?", "es": "Tus hijos están aburridos, tienes $0 de presupuesto hoy y sientes el peso de la rutina. ¿Cómo activas el estado Explorador?"},
+          "op": [
+            {"en": "Drive to a mall just to walk around and feel financial anxiety", "es": "Conducir a un centro comercial solo para caminar y sentir ansiedad financiera"},
+            {"en": "Pick a simple object, ask 10 questions about it, and invent a totally different use", "es": "Tomar un objeto simple, hacerle 10 preguntas e inventarle un uso totalmente diferente"},
+            {"en": "Let everyone look at their separate screens in silence", "es": "Dejar que cada quien mire su pantalla por separado en silencio"},
+            {"en": "Sleep and wait for another day to pass", "es": "Dormir y esperar que pase otro día más"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Malls reinforce consumer routine and generate decision fatigue.", "es": "Los centros comerciales refuerzan la rutina de consumo y generan fatiga de decisión."},
+            {"en": "This exercise breaks autopilot logic, trains creativity, and builds family teamwork gratis.", "es": "Este ejercicio rompe la lógica del piloto automático, entrena la creatividad y construye trabajo en equipo familiar gratis."},
+            {"en": "Screens increase digital fatigue and remove true human connection.", "es": "Las pantallas aumentan la fatiga digital y eliminan la verdadera conexión humana."},
+            {"en": "Escaping via sleep leaves the stagnation loop intact.", "es": "Escapar durmiendo deja el bucle de estancamiento intacto."}
+          ]
+        },
+        {"t": "r", "tx": "+Wonder", "p": 25},
+        {"t": "c", "tx": {"en": "Curiosity makes my mind grow.", "es": "La curiosidad hace crecer mi mente."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Pick an object, ask 10 rapid questions about it, and invent a completely different use for it.", "es": "Elige un objeto. Hazte diez preguntas sobre él. Inventa un uso diferente para ese objeto."}, "inf": {"en": "Active curiosity reorganizes attention filters, removing stress blocks.", "es": "La curiosidad activa reorganiza los filtros de atención, eliminando bloques de estrés."}}
+      ]
+    }
+  ]
+}
+
+    
