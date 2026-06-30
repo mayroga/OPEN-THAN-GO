@@ -1,11 +1,9 @@
-// VARIABLES GLOBALES DE CONFIGURACIÓN Y CONTROL DE ESTADOS
 let configuracion = {
     idioma: 'es',
     puedes_salir: true,
     bolsillo: 'cero'
 };
 
-// DICCIONARIO BILINGÜE PARA TRADUCCIÓN COMPLETA DE LA INTERFAZ
 const textos = {
     es: {
         subtitle: "Tu botón de escape inmediato para romper la monotonía urbana.",
@@ -14,10 +12,10 @@ const textos = {
         lblPocket: "¿Cuál es tu presupuesto real para hoy?",
         pocketCero: "GASTO $0 HOY",
         pocketMod: "MODERADO",
-        pocketLibre: "PRESUPUESTO LIBRE",
+        pocketLibre: "LIBRE",
         lblMode: "¿Puedes o quieres salir de casa hoy?",
-        btnOut: "🟢 SÍ, NECESITO SALIR",
-        btnIn: "🏠 NO, ME QUEDO EN CASA",
+        btnOut: "🟢 SÍ, SALIR",
+        btnIn: "🏠 EN CASA",
         lblText: "Desahógate aquí (Escribe libremente lo que traigas en la mente):",
         placeholder: "Escribe si estás cansado de la rutina, preocupado por biles o el trabajo, solo, o con niños aburridos...",
         btnSubmit: "SÁCAME DE LA MONOTONÍA",
@@ -30,12 +28,12 @@ const textos = {
         lblState: "State / Estado:",
         lblZip: "ZIP Code (5 digits):",
         lblPocket: "What is your real budget for today?",
-        pocketCero: "$0 SPENDING TODAY",
+        pocketCero: "$0 SPENDING",
         pocketMod: "MODERATE",
-        pocketLibre: "OPEN BUDGET",
+        pocketLibre: "FREE BUDGET",
         lblMode: "Can you or do you want to leave the house today?",
-        btnOut: "🟢 YES, I NEED TO GO OUT",
-        btnIn: "🏠 NO, I'M STAYING HOME",
+        btnOut: "🟢 YES, GO OUT",
+        btnIn: "🏠 STAY HOME",
         lblText: "Vent here (Write freely whatever is on your mind):",
         placeholder: "Write if you are tired of the routine, worried about bills or work, alone, or with bored kids...",
         btnSubmit: "BREAK THE MONOTONY",
@@ -45,15 +43,11 @@ const textos = {
     }
 };
 
-// CONTROLA EL INTERCAMBIO DE IDIOMA EN LA PANTALLA
 function cambiarIdioma(nuevoIdioma) {
     configuracion.idioma = nuevoIdioma;
-    
-    // Cambiar estado activo visual de los botones de idioma
     document.getElementById('lang-es').classList.toggle('active', nuevoIdioma === 'es');
     document.getElementById('lang-en').classList.toggle('active', nuevoIdioma === 'en');
     
-    // Inyección de textos traducidos de forma masiva
     const t = textos[nuevoIdioma];
     document.getElementById('txt-subtitle').innerText = t.subtitle;
     document.getElementById('lbl-state').innerText = t.lblState;
@@ -69,27 +63,21 @@ function cambiarIdioma(nuevoIdioma) {
     document.getElementById('inp-text').placeholder = t.placeholder;
     document.getElementById('btn-submit').innerText = t.btnSubmit;
     document.getElementById('res-maps').innerText = t.btnMaps;
-    
-    // Ocultar resultados previos para evitar discrepancias de traducción
     document.getElementById('result-box').style.display = 'none';
 }
 
-// ASIGNA EL PRESUPUESTO REAL SELECCIONADO (Cero, Moderado, Libre)
 function setBolsillo(tipoBolsillo) {
     configuracion.bolsillo = tipoBolsillo;
-    
     document.getElementById('pocket-cero').classList.toggle('active', tipoBolsillo === 'cero');
     document.getElementById('pocket-mod').classList.toggle('active', tipoBolsillo === 'moderado');
     document.getElementById('pocket-libre').classList.toggle('active', tipoBolsillo === 'libre');
 }
 
-// ASIGNA SI EL USUARIO TIENE CAPACIDAD DE SALIR O SE QUEDA EN CASA
 function setModalidad(salir) {
     configuracion.puedes_salir = salir;
     document.getElementById('mode-out').classList.toggle('active', salir);
     document.getElementById('mode-in').classList.toggle('active', !salir);
     
-    // Atenuar o iluminar el campo de código postal de acuerdo con la necesidad geográfica
     const campoZip = document.getElementById('inp-zip');
     if (!salir) {
         campoZip.style.opacity = '0.4';
@@ -100,20 +88,17 @@ function setModalidad(salir) {
     }
 }
 
-// CONECTA LA INTERFAZ CON EL SERVIDOR PYTHON EN RENDER EN SEGUNDO PLANO
 function ejecutarEscape() {
     const estado = document.getElementById('inp-state').value;
     const zip = document.getElementById('inp-zip').value.trim();
     const textoLibre = document.getElementById('inp-text').value.trim();
     const t = textos[configuracion.idioma];
 
-    // Validación obligatoria del ZIP Code solo si requiere geolocalización exterior
     if (configuracion.puedes_salir && (zip.length !== 5 || isNaN(zip))) {
         alert(t.alertZip);
         return;
     }
 
-    // Estructuración del paquete JSON definitivo
     const payload = {
         puedes_salir: configuracion.puedes_salir,
         idioma: configuracion.idioma,
@@ -123,27 +108,34 @@ function ejecutarEscape() {
         texto_libre: textoLibre
     };
 
-    // Envío asíncrono asumiendo el control de las peticiones concurrentes
     fetch('/diagnostico-kamizen', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     })
     .then(response => {
-        if (!response.ok) throw new Error('Error de comunicación con Render');
+        if (!response.ok) throw new Error('Error backend');
         return response.json();
     })
     .then(data => {
-        // Carga de la respuesta sorpresa en la tarjeta mística
+        // CORRECCIÓN CLAVE: Emparejar con los nombres que regresa tu main.py
         document.getElementById('res-title').innerText = data.titulo;
         document.getElementById('res-location').innerText = data.lugar;
-        document.getElementById('res-steps').innerText = data.instrucciones;
+        
+        // Convertimos los bloques interactivos JSON en texto legible provisional para verificar
+        if (data.bloques_interactivos) {
+            let textoMisiones = "";
+            data.bloques_interactivos.forEach(b => {
+                if(b.tx) textoMisiones += `➔ ${b.tx}\n`;
+                if(b.story) textoMisiones += `📖 ${b.story}\n`;
+                if(b.q) textoMisiones += `❓ PREGUNTA: ${b.q}\n`;
+            });
+            document.getElementById('res-steps').innerText = textoMisiones;
+        } else {
+            document.getElementById('res-steps').innerText = data.instrucciones || "";
+        }
 
         const btnMaps = document.getElementById('res-maps');
-        
-        // DEEP LINKING GRATUITO: Activa el enlace solo si se requiere ruta física
         if (data.modalidad === 'outdoor' && data.url_maps) {
             btnMaps.href = data.url_maps;
             btnMaps.style.display = 'block';
@@ -151,13 +143,12 @@ function ejecutarEscape() {
             btnMaps.style.display = 'none';
         }
 
-        // Mostrar la tarjeta y generar el desplazamiento suave de pantalla
         const resultBox = document.getElementById('result-box');
         resultBox.style.display = 'block';
         resultBox.scrollIntoView({ behavior: 'smooth' });
     })
     .catch(error => {
-        console.error('Error del sistema:', error);
+        console.error('Error:', error);
         alert(t.alertError);
     });
 }
