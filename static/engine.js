@@ -1,8 +1,4 @@
-let configuracion = { 
-    idioma: 'es', 
-    puedes_salir: true, 
-    bolsillo: 'cero' 
-}; 
+let configuracion = { idioma: 'es', puedes_salir: true, bolsillo: 'cero' }; 
 let comandosMision = []; 
 let indiceActual = 0; 
 let intervaloRespiracion = null; 
@@ -11,39 +7,23 @@ let cuentaRegresiva = null;
 const textos = { 
     es: { 
         subtitle: "Tu botón de escape inmediato para romper la monotonía urbana.", 
-        lblState: "Estado / State:", 
-        lblZip: "ZIP Code (5 dígitos):", 
-        lblPocket: "¿Cuál es tu presupuesto real para hoy?", 
-        pocketCero: "GASTO $0 HOY", 
-        pocketMod: "MODERADO", 
-        pocketLibre: "LIBRE", 
-        lblMode: "¿Puedes o quieres salir de casa hoy?", 
-        btnOut: "🟢 SÍ, SALIR", 
-        btnIn: "🏠 EN CASA", 
+        lblState: "Estado / State:", lblZip: "ZIP Code (5 dígitos):", lblPocket: "¿Cuál es tu presupuesto real para hoy?", 
+        pocketCero: "GASTO $0 HOY", pocketMod: "MODERADO", pocketLibre: "LIBRE", 
+        lblMode: "¿Puedes o quieres salir de casa hoy?", btnOut: "🟢 SÍ, SALIR", btnIn: "🏠 EN CASA", 
         lblText: "Desahógate aquí (Escribe libremente lo que traigas en la mente):", 
         placeholder: "Escribe si estás cansado de la rutina, preocupado por biles o el trabajo, solo, o con niños aburridos...", 
-        btnSubmit: "SÁCAME DE LA MONOTONÍA", 
-        alertZip: "Por favor, ingresa un código postal (ZIP Code) válido de 5 dígitos.", 
-        alertError: "Ocurrió un inconveniente al conectar con el servidor de OPEN THAN GO. Inténtalo de nuevo.", 
-        btnMaps: "🗺️ ABRIR RUTA EN MI MAPA GRATIS" 
+        btnSubmit: "SÁCAME DE LA MONOTONÍA", alertZip: "Por favor, ingresa un código postal (ZIP Code) válido de 5 dígitos.", 
+        alertError: "Ocurrió un inconveniente al conectar con el servidor de OPEN THAN GO. Inténtalo de nuevo." 
     }, 
     en: { 
         subtitle: "Your instant escape button to break free from urban monotony.", 
-        lblState: "State / Estado:", 
-        lblZip: "ZIP Code (5 digits):", 
-        lblPocket: "What is your real budget for today?", 
-        pocketCero: "$0 SPENDING", 
-        pocketMod: "MODERATE", 
-        pocketLibre: "FREE BUDGET", 
-        lblMode: "Can you or do you want to leave the house today?", 
-        btnOut: "🟢 YES, GO OUT", 
-        btnIn: "🏠 STAY HOME", 
+        lblState: "State / Estado:", lblZip: "ZIP Code (5 digits):", lblPocket: "What is your real budget for today?", 
+        pocketCero: "$0 SPENDING", pocketMod: "MODERATE", pocketLibre: "FREE BUDGET", 
+        lblMode: "Can you or do you want to leave the house today?", btnOut: "🟢 YES, GO OUT", btnIn: "🏠 STAY HOME", 
         lblText: "Vent here (Write freely whatever is on your mind):", 
         placeholder: "Write if you are tired of the routine, worried about bills or work, alone, or with bored kids...", 
-        btnSubmit: "BREAK THE MONOTONY", 
-        alertZip: "Please enter a valid 5-digit ZIP Code.", 
-        alertError: "An issue occurred while connecting to the OPEN THAN GO server. Please try again.", 
-        btnMaps: "🗺️ OPEN ROUTE IN MY FOR FREE" 
+        btnSubmit: "BREAK THE MONOTONY", alertZip: "Please enter a valid 5-digit ZIP Code.", 
+        alertError: "An issue occurred while connecting to the OPEN THAN GO server. Please try again." 
     } 
 }; 
 
@@ -51,7 +31,6 @@ function cambiarIdioma(nuevoIdioma) {
     configuracion.idioma = nuevoIdioma; 
     document.getElementById('lang-es').classList.toggle('active', nuevoIdioma === 'es'); 
     document.getElementById('lang-en').classList.toggle('active', nuevoIdioma === 'en'); 
-    
     const t = textos[nuevoIdioma]; 
     document.getElementById('txt-subtitle').innerText = t.subtitle; 
     document.getElementById('lbl-state').innerText = t.lblState; 
@@ -79,7 +58,6 @@ function cambiarModalidad(salir) {
     configuracion.puedes_salir = salir; 
     document.getElementById('mode-out').classList.toggle('active', salir); 
     document.getElementById('mode-in').classList.toggle('active', !salir); 
-    
     const campoZip = document.getElementById('inp-zip'); 
     if (!salir) { 
         campoZip.style.opacity = '0.4'; 
@@ -112,18 +90,12 @@ function solicitarEscape() {
 
     fetch('/diagnostico-kamizen', { 
         method: 'POST', 
-        headers: { 
-            'Accept': 'application/json',
-            'Content-Type': 'application/json' 
-        }, 
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, 
         body: JSON.stringify(payload) 
     }) 
     .then(response => response.json()) 
     .then(data => { 
-        if (data.error) { 
-            alert(data.error); 
-            return; 
-        } 
+        if (data.error) { alert(data.error); return; } 
 
         document.getElementById('wrapper-form').style.display = 'none'; 
         const panelInteractivo = document.getElementById('wrapper-interactive'); 
@@ -241,30 +213,17 @@ function procesarComando() {
     } 
     else { 
         indiceActual++; 
-        procesarComando();
-    }
-}
-function validarRespuesta(indiceClick, indiceCorrecto, explicacionTexto) {
-    const botones = document.querySelectorAll('.options-list button');
-    botones.forEach(b => b.disabled = true);
-    const expBox = document.getElementById('box-explicacion');
+        procesarComando(); 
+    } 
+} 
+
+function validarRespuesta(indiceClick, indiceCorrecto, explicacionTexto) { 
+    const botones = document.querySelectorAll('.options-list button'); 
+    botones.forEach(b => b.disabled = true); 
+
+    const expBox = document.getElementById('box-explicacion'); 
     expBox.innerText = explicacionTexto;
-    expBox.style.display = 'block';
-    if (indiceClick === indiceCorrecto) {
-        botones[indiceClick].classList.add('correct');
-        expBox.style.backgroundColor = '#e8f5e9';
-        expBox.style.color = '#1b5e20';
-        expBox.style.borderLeft = '4px solid var(--secondary)';
-    } else {
-        botones[indiceClick].classList.add('wrong');
-        botones[indiceCorrecto].classList.add('correct');
-        expBox.style.backgroundColor = '#ffebee';
-        expBox.style.color = '#b71c1c';
-        expBox.style.borderLeft = '4px solid var(--accent)';
-    }
-    document.getElementById('btn-next').style.display = 'block';
-}
-function siguienteComando() {
-    indiceActual++;
-    procesarComando();
-}
+    
+    } 
+} 
+
