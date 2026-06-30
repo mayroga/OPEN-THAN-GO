@@ -34,6 +34,12 @@ def cargar_mision_tvid_desde_archivos(categoria_emocional, bolsillo_usuario):
         return random.choice(todas_las_tvid)
     else:
         return None
+        
+@app.route('/')
+def home():
+    # Esto le indica a Python que cuando alguien entre a tu URL principal,
+    # le entregue de inmediato tu archivo visual HTML
+    return app.send_static_file('session.html')
 
 @app.route('/diagnostico-kamizen', methods=['POST'])
 def diagnostico_kamizen():
