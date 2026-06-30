@@ -15,7 +15,7 @@ def cargar_mision_tvid_desde_archivos(categoria_emocional, bolsillo_usuario):
             with open(nombre_archivo, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 # Extraemos todas las misiones (Rango del 1 al 21 completo de OPEN THAN GO)
-                for m in data["missions"]:
+                for m in data.get("missions", []):
                     if m.get("id", 0) >= 1:
                         todas_las_tvid.append(m)
         except Exception as e:
@@ -24,10 +24,10 @@ def cargar_mision_tvid_desde_archivos(categoria_emocional, bolsillo_usuario):
     # Filtramos la lista de las misiones por la emoción detectada y el bolsillo del usuario
     filtradas = [
         m for m in todas_las_tvid 
-        if m["cat"] == categoria_emocional and bolsillo_usuario in m.get("pocket_match", ["cero", "moderado", "libre"])
+        if m.get("cat") == categoria_emocional and bolsillo_usuario in m.get("pocket_match", ["cero", "moderado", "libre"])
     ]
     
-    # Si encuentra coincidencia exacta la regresa; si no, elige una misiones al azar del pozo de 21 misiones
+    # Si encuentra coincidencia exacta la regresa; si no, elige una misión al azar del pozo de 21 misiones
     if filtradas:
         return random.choice(filtradas)
     elif todas_las_tvid:
@@ -44,18 +44,18 @@ def home():
 @app.route('/diagnostico-kamizen', methods=['POST'])
 def diagnostico_kamizen():
     datos = request.json
-    puedes_salir = datos.get('puedes_salir')     # True o False
+    puedes_salir = datos.get('puedes_salir', True)      # True o False
     idioma = datos.get('idioma', 'es')          # 'es' o 'en'
-    zip_code = datos.get('zip_code', '').strip()
-    estado = datos.get('estado', 'FL').strip()
-    bolsillo = datos.get('bolsillo', 'cero')     # 'cero', 'moderado', 'libre'
-    texto_libre = datos.get('texto_libre', '').lower()
+    zip_code = str(datos.get('zip_code', '')).strip()
+    estado = str(datos.get('estado', 'FL')).strip()
+    bolsillo = datos.get('bolsillo', 'cero')      # 'cero', 'moderado', 'libre'
+    texto_libre = str(datos.get('texto_libre', '')).lower()
 
     # 1. Analizador Temático de Palabras Clave para asociar el desahogo a la TVid correcta
     categoria_detectada = "bien" # Por defecto
-    if "error" in texto_libre or "biles" in texto_libre or "cuenta" in texto_libre or "dinero" in texto_libre or "mal" in texto_libre:
+    if any(x in texto_libre for x in ["error", "biles", "cuenta", "dinero", "mal"]):
         categoria_detectada = "mal"
-    elif "aburrid" in texto_libre or "niñ" in texto_libre or "hijo" in texto_libre or "kid" in texto_libre:
+    elif any(x in texto_libre for x in ["aburrid", "niñ", "hijo", "kid"]):
         categoria_detectada = "nino"
 
     # 2. Cargar el objeto estructurado de comandos desde tus JSONs existentes (Rango ID 1-21)
@@ -66,28 +66,26 @@ def diagnostico_kamizen():
 
     # 3. Formateador de Idioma en Espejo (Extrae solo 'es' o 'en' para tu Javascript nativo)
     bloques_processed = []
-    for comando in mision_tvid["b"]:
+    for comando in mision_tvid.get("b", []):
         bloque_clon = comando.copy()
         
-        if "tx" in bloque_clon:
-            bloque_clon["tx"] = bloque_clon["tx"][idioma]
-        if "inf" in bloque_clon:
-            bloque_clon["inf"] = bloque_clon["inf"][idioma]
-        if "story" in bloque_clon:
-            bloque_clon["story"] = bloque_clon["story"][idioma]
-        if "c" in bloque_clon:  # CORRECCIÓN: Traducir la conclusión para evitar undefined
-            bloque_clon["c"] = bloque_clon["c"][idioma]
+        # Traducción protegida: si el idioma falta, intenta con 'es' o deja vacío
+        for campo in ["tx", "inf", "story", "c"]:
+            if campo in bloque_clon and isinstance(bloque_clon[campo], dict):
+                bloque_clon[campo] = bloque_clon[campo].get(idioma, bloque_clon[campo].get('es', ''))
             
-        if bloque_clon["t"] == "d":
-            bloque_clon["q"] = bloque_clon["q"][idioma]
-            bloque_clon["op"] = [op[idioma] for op in bloque_clon["op"]]
-            bloque_clon["ex"] = [ex[idioma] for ex in bloque_clon["ex"]]
+        if bloque_clon.get("t") == "d":
+            if isinstance(bloque_clon.get("q"), dict):
+                bloque_clon["q"] = bloque_clon["q"].get(idioma, bloque_clon["q"].get('es', ''))
+            if "op" in bloque_clon:
+                bloque_clon["op"] = [op.get(idioma, op.get('es', '')) if isinstance(op, dict) else op for op in bloque_clon["op"]]
+            if "ex" in bloque_clon:
+                bloque_clon["ex"] = [ex.get(idioma, ex.get('es', '')) if isinstance(ex, dict) else ex for ex in bloque_clon["ex"]]
             
         bloques_processed.append(bloque_clon)
 
     # 4. BIFURCACIÓN DE ENTORNOS DE ESCAPE
     if not puedes_salir:
-        # CASO CASA: Ejecuta directamente tus comandos interactivamente (Círculo azul, silencios)
         titulo = "Escape de Interiores: OPEN THAN GO" if idioma == 'es' else "Indoor Escape: OPEN THAN GO"
         return jsonify({
             "modalidad": "indoor",
@@ -97,7 +95,6 @@ def diagnostico_kamizen():
             "url_maps": None
         })
     else:
-        # CASO CALLE: Deep Linking Automático y Gratuito usando el ZIP code nacional
         if not zip_code or len(zip_code) != 5:
             zip_code = "33101"
 
@@ -108,13 +105,10 @@ def diagnostico_kamizen():
             tipo_mapa = "nature+reserves+scenic"
 
         query_busqueda = f"{tipo_mapa}+in+{zip_code}+{estado}+USA"
-        
-        # CORRECCIÓN: Enlace de mapas oficial con Deep Linking gratuito
-        url_maps_gratis = f"https://google.com{query_busqueda}"
+        url_maps_gratis = f"https://google.com/search?q={query_busqueda}"
         
         titulo_out = "Plan de Escape Abierto: OPEN THAN GO" if idioma == 'es' else "Open Escape Plan: OPEN THAN GO"
         
-        # Insertamos el bloque guía de conducción al inicio de tus comandos interactivos
         instruccion_viaje = {
             "t": "h",
             "tx": f"Dirígete al área abierta en tu zona postal {zip_code}. Al llegar, ejecuta tu secuencia:" if idioma == 'es' else f"Drive to the open space in your zip code {zip_code}. Upon arrival, start your sequence:"
