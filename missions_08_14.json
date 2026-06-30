@@ -4,20 +4,16 @@
   "ch": 2,
   "rng": "8-14",
   "ui": {
-    "fw": ["AWARENESS", "SAFETY", "CALM", "ACTION", "TRUTH", "CONTROL", "HELP", "FOCUS", "GOOD", "WISDOM", "WONDER", "DISCIPLINE", "CARE"]
+    "fw": ["BIEN", "WISDOM", "WONDER", "DISCIPLINE", "CARE", "AFFECTION", "STRENGTH"]
   },
   "rules": [
-    "Awareness>Reaction",
-    "Safety>Impulse",
-    "AskForHelp=Strength",
-    "Distance>Conflict",
-    "Calm=Better Decisions",
-    "Truth=Protection",
-    "Good=Wellbeing",
-    "Mistakes=Wisdom",
-    "Curiosity=Growth",
-    "Responsibility=Future",
-    "SelfCare=Love"
+    "Bien=Bienestar",
+    "Errores=Sabiduría",
+    "Curiosidad=Crecimiento",
+    "Responsabilidad=Futuro",
+    "Autocuidado=Amor",
+    "Afecto=Conexión",
+    "Batallas=Fortaleza"
   ],
   "missions": [
     {
@@ -26,32 +22,29 @@
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
         {"t": "v", "tx": {"en": "MISSION 8: THE CHILDLIKE SMILE", "es": "MISIÓN 8: LA SONRISA INFANTIL"}},
-        {"t": "h", "tx": {"en": "Joy lives inside your true essence", "es": "La alegría vive dentro de tu verdadera esencia"}},
-        {"story": {
-          "en": "True emotion is never lost, it is just covered by bills and routines. Activating a genuine smile rewires your brain and brings back your inner light.",
-          "es": "La verdadera emoción nunca se pierde, solo se cubre con biles y rutinas. Activar una sonrisa genuina reestructura tu cerebro y te devuelve tu luz interior."
-        }},
-        {"t": "breath_auto", "d": 25, "tx": {"en": "Inhale joy... exhale the adult tension", "es": "Inhala alegría... exhala la tensión del adulto"}, "inf": {"en": "This breathing patterns release physical facial and mental blocks.", "es": "Este patrón de respiración libera los bloqueos físicos faciales y mentales."}},
+        {"t": "h", "tx": {"en": "Reconnecting with your true internal joy", "es": "Reconectando con tu verdadera alegría interna"}},
+        {"story": {"en": "The automatic routine turns adults into emotionless zombies who forget how to smile without a commercial reason. Activating a genuine smile from your roots rewires your brain chemistry and breaks the empty weekend loop instantly.", "es": "La rutina automática convierte a los adultos en zombis sin emoción que olvidan cómo sonreír sin un motivo comercial. Activar una sonrisa genuina desde tus raíces reestructura tu química cerebral y rompe el bucle del vacío al instante."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Inhale genuine life... exhale the stress of the bills", "es": "Inhala vida genuina... exhala el estrés de las cuentas"}, "inf": {"en": "Slowing down allows your facial muscles to release chronic urban tension.", "es": "Ralentizar permite a tus músculos faciales liberar la tensión urbana crónica."}},
         {
           "t": "d",
-          "q": {"en": "You notice you are walking around looking like a zombie without emotion. What is your action?", "es": "Notas que estás caminando luciendo como un zombi sin emoción. ¿Cuál es tu acción?"},
+          "q": {"en": "You catch yourself walking around looking like a heavy zombie with zero genuine emotion. What is your tactical move?", "es": "Te descubres caminando luciendo como un zombi pesado con cero emoción genuina. ¿Cuál es tu movimiento táctico?"},
           "op": [
-            {"en": "Wait for a perfect day to be happy", "es": "Esperar a que llegue un día perfecto para ser feliz"},
-            {"en": "Close your eyes, relive a happy childhood memory, and hold a wide smile", "es": "Cerrar los ojos, revivir un recuerdo feliz de tu niñez y sostener una sonrisa amplia"},
-            {"en": "Check social networks to see other people's happiness", "es": "Revisar las redes sociales para ver la felicidad de otras personas"},
-            {"en": "Ignore your feeling and keep going on autopilot", "es": "Ignorar tu sentimiento y seguir en piloto automático"}
+            {"en": "Wait for external success or a miracle to be happy", "es": "Esperar al éxito externo o a un milagro para ser feliz"},
+            {"en": "Close your eyes, relive a happy childhood memory, and hold a wide smile for a minute", "es": "Cerrar los ojos, revivir un recuerdo feliz de tu niñez y sostener una sonrisa amplia por un minuto"},
+            {"en": "Check digital platforms to see other people's filtered happiness", "es": "Revisar plataformas digitales para ver la felicidad filtrada de otras personas"},
+            {"en": "Ignore the feeling and continue on rigid autopilot", "es": "Ignorar el sentimiento y continuar en un piloto automático rígido"}
           ],
           "c": 1,
           "ex": [
-            {"en": "Waiting delays your wellbeing system permanently.", "es": "Esperar retrasa tu sistema de bienestar permanentemente."},
-            {"en": "Accessing childlike joy structures balances your emotions instantly.", "es": "Acceder a las estructuras de alegría infantil equilibra tus emociones al instante."},
-            {"en": "Screens increase digital fatigue and comparison anxiety.", "es": "Las pantallas aumentan la fatiga digital y la ansiedad por comparación."},
-            {"en": "Autopilot keeps you stuck in the monotony loop.", "es": "El piloto automático te mantiene estancado en el bucle de la monotonía."}
+            {"en": "Waiting for circumstances removes your personal power over your life balance.", "es": "Esperar a las circunstancias elimina tu poder personal sobre tu equilibrio de vida."},
+            {"en": "Accessing childlike joy structures balances your subcortical nervous system immediately.", "es": "Acceder a las estructuras de alegría infantil equilibra tu sistema nervioso subcortical de inmediato."},
+            {"en": "Screens increase digital fatigue and comparison barriers inside the household.", "es": "Las pantallas aumentan la fatiga digital y los bloques de comparación dentro del hogar."},
+            {"en": "Autopilot deepens your stagnation and leads to ultimate emotional numbness.", "es": "El piloto automático profundiza tu estancamiento y te lleva al entumecimiento emocional."}
           ]
         },
         {"t": "r", "tx": "+Wonder", "p": 25},
-        {"t": "c", "tx": {"en": "The simple joy of life lives inside of me.", "es": "La simple alegría de la vida vive dentro de mí."}},
-        {"t": "sil", "d": 60, "tx": {"en": "Hold a fixed smile for one minute and breathe", "es": "Sostén una sonrisa fija por un minuto y respira"}, "inf": {"en": "This somatic exercise sends instant safety signals to your brain.", "es": "Este ejercicio somático envía señales instantáneas de seguridad a tu cerebro."}}
+        {"t": "c", "tx": {"en": "La alegría vive dentro de mí.", "es": "La alegría vive dentro de mí."}},
+        {"t": "sil", "d": 60, "tx": {"en": "Cierra los ojos, revive un momento feliz de tu niñez, y sonríe durante un minuto entero.", "es": "Cierra los ojos, revive un momento feliz de tu niñez, y sonríe durante un minuto entero."}, "inf": {"en": "This somatic configuration drops baseline systemic cortisol in seconds.", "es": "Esta configuración somática reduce el cortisol sistémico de base en segundos."}}
       ]
     },
     {
@@ -60,30 +53,29 @@
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
         {"t": "v", "tx": {"en": "MISSION 9: INVENTING A WORLD", "es": "MISIÓN 9: INVENTANDO UN MUNDO"}},
-        {"t": "h", "tx": {"en": "Your imagination is a space free of rules", "es": "Tu imaginación es un espacio libre de reglas"}},
-        {"story": {
-          "en": "When reality is heavy with duties and payments, your imagination can construct an internal oasis of peace. Taking a mental break expands your creative logic.",
-          "es": "Cuando la realidad es pesada con deberes y pagos, tu imaginación puede construir un oasis interno de paz. Tomar un descanso mental expande tu lógica creativa."
-        }},
+        {"t": "h", "tx": {"en": "Constructing an internal space free of system rules", "es": "Construyendo un espacio interno libre de las reglas del sistema"}},
+        {"story": {"en": "When the reality of your city feels flat, gray, and heavy with payments, your imagination can establish a perfect sanctuary of peace. Taking a strategic mental break expands your creative thinking and breaks monotony.", "es": "Cuando la realidad de tu ciudad se siente plana, gris y pesada con los pagos, tu imaginación puede construir un oasis interno de paz. Tomar un descanso mental estratégico expande tu pensamiento creativo y rompe la monotonía."}},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Breathe deeply... lift your eyes to the sky", "es": "Respira profundamente... levanta los ojos al cielo"}, "inf": {"en": "Shifting your gaze upwards reduces automatic survival worry patterns.", "es": "Cambiar tu mirada hacia arriba reduce los patrones automáticos de preocupación por la supervivencia."}},
         {
           "t": "d",
-          "q": {"en": "You are feeling mentally blocked and exhausted. How do you apply this technique?", "es": "Te sientes mentalmente bloqueado y agotado. ¿Cómo aplicas esta técnica?"},
+          "q": {"en": "You are feeling locked down by routine and have no budget to travel. How do you trigger active imagination?", "es": "Te sientes encerrado por la rutina y no tienes presupuesto para viajar. ¿Cómo activas la imaginación activa?"},
           "op": [
-            {"en": "Ruminate on your workload until Monday", "es": "Rumiar tu carga de trabajo hasta el lunes"},
-            {"en": "Imagine a wonderful fantasy landscape with vivid colors and peace", "es": "Imaginar un paisaje fantástico maravilloso con colores vivos y paz"},
-            {"en": "Buy dynamic things online to fill the void", "es": "Comprar cosas dinámicas en línea para llenar el vacío"},
-            {"en": "Complain that life is different in your home country", "es": "Quejarte de que la vida es diferente en tu país de origen"}
+            {"en": "Ruminate on how different things were in your country of origin", "es": "Rumiar sobre lo diferentes que eran las cosas en tu país de origen"},
+            {"en": "Close your eyes, imagine a wonderful place, and describe its colors and sounds mentally", "es": "Cerrar los ojos, imaginar un lugar maravilloso y describir sus colores y sonidos mentalmente"},
+            {"en": "Buy digital items on credit to fill the emptiness", "es": "Comprar artículos digitales a crédito para llenar el vacío"},
+            {"en": "Watch reality television until the weekend ends", "es": "Ver telerrealidad hasta que el fin de semana termine"}
           ],
           "c": 1,
           "ex": [
-            {"en": "Rumination consumes your weekend and destroys well-being.", "es": "La rumiación consume tu fin de semana y destruye el bienestar."},
-            {"en": "Visualizing a perfect space allows your nervous system to fully rest.", "es": "Visualizar un espacio perfecto permite que tu sistema nervioso descanse por completo."},
-            {"en": "Online shopping creates potential debt and financial restrictions.", "es": "Las compras en línea crean deudas potenciales y restricciones financieras."},
-            {"en": "Complaining locks you into stagnation and removes presence.", "es": "Quejarte te encierra en el estancamiento y elimina la presencia."}
+            {"en": "Nostalgic rumination without action deepens current stagnation loops.", "es": "La rumiación nostálgica sin acción profundiza los bucles de estancamiento actuales."},
+            {"en": "Visualizing a custom peaceful space allows your nervous system to fully repair.", "es": "Visualizar un espacio de paz personalizado permite que tu sistema nervioso se repare por completo."},
+            {"en": "Credit spending creates future restriction and triggers underlying panic.", "es": "El gasto a crédito crea restricciones futuras y activa un pánico subyacente."},
+            {"en": "Television maintains passive autopilot and provides no biological well-being.", "es": "La televisión mantiene el piloto automático pasivo y no aporta bienestar biológico."}
           ]
         },
         {"t": "r", "tx": "+Wonder", "p": 25},
-        {"t": "c", "tx": {"en": "My imagination helps me grow beyond any routine.", "es": "Mi imaginación me ayuda a crecer más allá de cualquier rutina."}}
+        {"t": "c", "tx": {"en": "Mi imaginación me ayuda a crecer.", "es": "Mi imaginación me ayuda a crecer."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Imagina un lugar maravilloso. Describe mentalmente sus colores y sonidos. Piensa qué aprenderías allí.", "es": "Imagina un lugar maravilloso. Describe mentalmente sus colores y sonidos. Piensa qué aprenderías allí."}, "inf": {"en": "Imagination activates prefrontal networks, bypassing automatic stress structures.", "es": "La imaginación activa las redes prefrontales, evitando las estructuras de estrés automático."}}
       ]
     },
     {
@@ -92,31 +84,29 @@
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
         {"t": "v", "tx": {"en": "MISSION 10: THE RESPONSIBLE DECISION", "es": "MISIÓN 10: LA DECISIÓN RESPONSABLE"}},
-        {"t": "h", "tx": {"en": "Good decisions build your future step by step", "es": "Las buenas decisiones construyen tu futuro paso a paso"}},
-        {"story": {
-          "en": "The technique of the Father brings order and protection. Making mature, analytical choices removes the chaos caused by impulsiveness and protects those you love.",
-          "es": "La técnica del Padre aporta orden y protección. Tomar decisiones maduras y analíticas elimina el caos causado por la impulsividad y protege a quienes amas."
-        }},
-        {"t": "breath_auto", "d": 20, "tx": {"en": "Inhale discipline... exhale raw impulse", "es": "Inhala disciplina... exhala el impulso puro"}, "inf": {"en": "This breathing pattern stabilizes your analytical focus.", "es": "Este patrón de respiración estabiliza tu enfoque analítico."}},
+        {"t": "h", "tx": {"en": "Order and discipline protect your family structure", "es": "El orden y la disciplina protegen tu estructura familiar"}},
+        {"story": {"en": "The technique of the Father utilizes responsibility, protection, and orientation. When financial anxiety causes chaos, stopping to make a mature, analytical choice removes the fog and secures your future.", "es": "La técnica del Padre utiliza la responsabilidad, protección y orientación. Cuando la ansiedad financiera causa caos, detenerte a tomar una decisión madura y analítica elimina la niebla y asegura tu futuro."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Inhale discipline... exhale raw chaotic impulse", "es": "Inhala disciplina... exhala el impulso caótico puro"}, "inf": {"en": "This breathing pattern stabilizes your strategic analytical systems.", "es": "Este patrón de respiración estabiliza tus sistemas analíticos estratégicos."}},
         {
           "t": "d",
-          "q": {"en": "You have a massive pending decision causing anxiety. What is the most mature path?", "es": "Tienes una decisión pendiente masiva que te causa ansiedad. ¿Cuál es el camino más maduro?"},
+          "q": {"en": "You face a major pending decision that is creating paralysis and family tension. What is the move?", "es": "Enfrentas una decisión importante pendiente que genera parálisis y tensión familiar. ¿Cuál es el movimiento?"},
           "op": [
-            {"en": "Postpone it and hope it solves itself", "es": "Posponerla y esperar que se resuelva sola"},
-            {"en": "Make a quick mental list of outcomes and choose responsibly", "es": "Hacer una lista mental rápida de resultados y elegir responsablemente"},
-            {"en": "Let others decide for you to avoid pressure", "es": "Dejar que otros decidan por ti para evitar la presión"},
-            {"en": "React with anger toward your family structure", "es": "Reaccionar con ira hacia tu estructura familiar"}
+            {"en": "Postpone the parameters and hope the system resolves it", "es": "Posponer los parámetros y esperar que el sistema lo resuelva"},
+            {"en": "Think of a pending decision, map positive and negative consequences, and choose responsibly", "es": "Pensar en una decisión pendiente, mapear consecuencias positivas y negativas, y elegir responsablemente"},
+            {"en": "Let external pressure make the choice for you to evade blame", "es": "Dejar que la presión externa tome la decisión por ti para evadir la culpa"},
+            {"en": "React with frustration toward your children or partner", "es": "Reaccionar con frustración hacia tus hijos o tu pareja"}
           ],
           "c": 1,
           "ex": [
-            {"en": "Postponing increases anxiety and accumulates pressure.", "es": "Posponer aumenta la ansiedad y acumula presión."},
-            {"en": "Analyzing consequences clears the mind and establishes control.", "es": "Analizar las consecuencias aclara la mente y establece el control."},
-            {"en": "Giving your decision power away removes your autonomy.", "es": "Entregar tu poder de decisión te quita la autonomía."},
-            {"en": "Anger creates family conflict and solves no tasks.", "es": "La ira crea conflictos familiares y no resuelve tareas."}
+            {"en": "Delaying decisions accumulates mental noise and deepens anxiety codes.", "es": "Retrasar las decisiones acumula ruido mental y profundiza los códigos de ansiedad."},
+            {"en": "Explicitly mapping out consequences establishes immediate discipline and clarity over reality.", "es": "Mapear explícitamente las consecuencias establece disciplina y claridad inmediatas sobre la realidad."},
+            {"en": "Giving your choice power away deletes your personal strategic autonomy.", "es": "Entregar tu poder de elección elimina tu autonomía estratégica personal."},
+            {"en": "Friction damages your domestic safety and provides no tactical solution.", "es": "La fricción daña tu seguridad doméstica y no aporta ninguna solución táctica."}
           ]
         },
         {"t": "r", "tx": "+Discipline", "p": 25},
-        {"t": "c", "tx": {"en": "The discipline of my choices strengthens my life.", "es": "La disciplina de mis elecciones fortalece mi vida."}}
+        {"t": "c", "tx": {"en": "Las buenas decisiones construyen mi futuro.", "es": "Las buenas decisiones construyen mi futuro."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Piensa en una decisión pendiente. Haz una lista mental de consecuencias positivas y negativas. Elige la opción más responsable.", "es": "Piensa en una decisión pendiente. Haz una lista mental de consecuencias positivas y negativas. Elige la opción más responsable."}, "inf": {"en": "Objective parameter evaluation eliminates survival panic processing in the mind.", "es": "La evaluación objetiva de parámetros elimina el procesamiento del pánico de supervivencia en la mente."}}
       ]
     },
     {
@@ -125,13 +115,123 @@
       "pocket_match": ["cero", "moderado", "libre"],
       "b": [
         {"t": "v", "tx": {"en": "MISSION 11: THE MINUTE OF ORDER", "es": "MISIÓN 11: EL MINUTO DEL ORDEN"}},
-        {"t": "h", "tx": {"en": "External order reflects internal calm", "es": "El orden externo refleja la calma interna"}},
-        {"story": {
-          "en": "When your surrounding environment is cluttered, your brain processes extra stress signals. Taking small, controlled actions of order updates your sense of control.",
-          "es": "Cuando tu entorno cercano está desordenado, tu cerebro procesa señales de estrés extra. Tomar pequeñas acciones controladas de orden actualiza tu sensación de control."
-        }},
+        {"t": "h", "tx": {"en": "External discipline anchors internal peace", "es": "El orden externo ancla la paz interna"}},
+        {"story": {"en": "When your surrounding household space is messy, your brain registers continuous stress signals. Taking an immediate, disciplined micro-action of order breaks your stagnation loop and updates control.", "es": "Cuando tu espacio doméstico cercano está desordenado, tu cerebro registra señales de estrés continuas. Tomar una micro-acción de orden inmediata y disciplinada rompe tu bucle de estancamiento y actualiza el control."}},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Breathe steady... look at your direct surroundings", "es": "Respira constante... mira a tu entorno directo"}, "inf": {"en": "Slowing down your physical speed prepares you for execution.", "es": "Ralentizar tu velocidad física te prepara para la ejecución."}},
         {
           "t": "d",
-          "q": {"en": "Your house or desk is a total mess, adding to your work stress. What do you do?", "es": "Tu casa o escritorio es un desastre total, sumándose a tu estrés laboral. ¿Qué haces?"},
+          "q": {"en": "Your room or kitchen is messy, adding weight to your financial agobio. What is the tactical father choice?", "es": "Tu habitación o cocina está desordenada, agregando peso a tu agobio financiero. ¿Cuál es la opción táctica de padre?"},
           "op": [
-            {"en": "Plan a massive 5-hour cleaning that you will never start", "es": "Planear una limpieza masiva de 5 horas que nunca vas a empezar"},
+            {"en": "Plan a massive cleaning task that you will procrastinate on", "es": "Planear una tarea de limpieza masiva que vas a procrastinar"},
+            {"en": "Stop, select a small physical space, and organize it perfectly for a minute", "es": "Parar, seleccionar un espacio físico pequeño y organizarlo perfectamente por un minuto"},
+            {"en": "Leave the house to escape looking at the mess", "es": "Salir de la casa para escapar de mirar el desorden"},
+            {"en": "Demand that others clean it while you maintain internal anger", "es": "Exigir que otros limpien mientras mantienes una ira interna"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Massive unexecuted plans deepen guilt and increase passive zombie states.", "es": "Los planes masivos no ejecutados profundizan la culpa y aumentan los estados zombis pasivos."},
+            {"en": "One minute of disciplined order secures an immediate cognitive win and internal peace.", "es": "Un minuto de orden disciplinado asegura una victoria cognitiva inmediata y paz interna."},
+            {"en": "Fleeing the space leaves the somatic trigger waiting for your return.", "es": "Huir del espacio deja el detonante somático esperando tu regreso."},
+            {"en": "Demanding compliance creates environment friction and solves no mental blockages.", "es": "Exigir cumplimiento crea fricción ambiental y no resuelve los bloqueos mentales."}
+          ]
+        },
+        {"t": "r", "tx": "+Discipline", "p": 25},
+        {"t": "c", "tx": {"en": "El orden fortalece mi disciplina.", "es": "El orden fortalece mi disciplina."}},
+        {"t": "sil", "d": 30, "tx": {"en": "Ordena un pequeño espacio. Observa cómo te sientes. Respira profundamente.", "es": "Ordena un pequeño espacio. Observa cómo te sientes. Respira profundamente."}, "inf": {"en": "Controlling small domestic boundaries lowers baseline threat alarms in the brain.", "es": "Controlar pequeños límites domésticos reduce las alarmas de amenaza de base en el cerebro."}}
+      ]
+    },
+    {
+      "id": 12,
+      "cat": "padre",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 12: THE THREE-STEP PLAN", "es": "MISIÓN 12: EL PLAN DE TRES PASOS"}},
+        {"t": "h", "tx": {"en": "Breaking giant obstacles into small actionable tasks", "es": "Dividiendo obstáculos gigantes en pequeñas tareas accionables"}},
+        {"story": {"en": "Fatigue of decision makes any life target look like an impossible mountain when you are consumed by bills. Dividing your focus into micro-actions clears your route and ensures progress without panic.", "es": "La fatiga de decisión hace que cualquier meta de vida parezca una montaña imposible cuando estás consumido por los biles. Dividir tu enfoque en micro-acciones aclara tu ruta y asegura el progreso sin pánico."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Inhale strategic clarity... exhale mental overload", "es": "Inhala claridad estratégica... exhala la sobrecarga mental"}, "inf": {"en": "This breathing regulates attention control under complex life parameters.", "es": "Esta respiración regula el control de la atención bajo parámetros complejos de vida."}},
+        {
+          "t": "d",
+          "q": {"en": "You have a goal or problem you keep delaying because it looks too big. What do you execute?", "es": "Tienes una meta o problema que sigues retrasando porque parece demasiado grande. ¿Qué ejecutas?"},
+          "op": [
+            {"en": "Wait inside your house for a surge of ideal motivation", "es": "Esperar dentro de tu casa a que llegue una ola de motivación ideal"},
+            {"en": "Choose a small meta, divide it into three steps, and decide exactly when to start", "es": "Elegir una meta pequeña, dividirla en tres pasos y decidir exactamente cuándo comenzar"},
+            {"en": "Add more targets to your list to look more productive", "es": "Agregar más metas a tu lista para parecer más productivo"},
+            {"en": "Watch continuous video streams to completely forget the task", "es": "Ver transmisiones de video continuas para olvidar por completo la tarea"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Motivation follows disciplined action; waiting reinforces the empty zombie state.", "es": "La motivación sigue a la acción disciplinada; esperar refuerza el estado zombi vacío."},
+            {"en": "Micro-steps bypass your mind's resistance barrier and secure active advancement.", "es": "Los micro-pasos evitan la barrera de resistencia de tu mente y aseguran un avance activo."},
+            {"en": "Overloading your list causes a systemic cognitive crash and deepens paralysis.", "es": "Sobrecargar tu lista causa un colapso cognitivo sistémico y profundiza la parálisis."},
+            {"en": "Passive screens consume your weekend hours and deliver zero life solutions.", "es": "Las pantallas pasivas consumen tus horas de fin de semana y ofrecen cero soluciones de vida."}
+          ]
+        },
+        {"t": "r", "tx": "+Action", "p": 25},
+        {"t": "c", "tx": {"en": "Cada paso me acerca a mis objetivos.", "es": "Cada paso me acerca a mis objetivos."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Elige una meta pequeña. Divide la meta en tres pasos. Decide cuándo empezarás.", "es": "Elige una meta pequeña. Divide la meta en tres pasos. Decide cuándo empezarás."}, "inf": {"en": "Structuring time parameters eliminates decision anxiety structures.", "es": "Estructurar parámetros de tiempo elimina las estructuras de la ansiedad por decisión."}}
+      ]
+    },
+    {
+      "id": 13,
+      "cat": "madre",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 13: THE IMAGINARY EMBRACE", "es": "MISIÓN 13: EL ABRAZO IMAGINARIO"}},
+        {"t": "h", "tx": {"en": "Accessing love and safety inside your own life system", "es": "Accediendo al amor y la seguridad dentro de tu propio sistema de vida"}},
+        {"story": {"en": "The technique of the Madre utilizes love, care, and empathy. When the city feels cold, hostile, or lonely, you possess the capacity to access internal support to repair your biological balance.", "es": "La técnica de la Madre utiliza el amor, el cuidado y la empatía. Cuando la ciudad se siente fría, hostil o solitaria, posees la capacidad de acceder a un apoyo interno para reparar tu equilibrio biológico."}},
+        {"t": "breath_auto", "d": 25, "tx": {"en": "Breathe slowly... close your eyes and relax your chest", "es": "Respira lentamente... cierra los ojos y relaja tu pecho"}, "inf": {"en": "Slowing down your respiration rate triggers immediate autonomic calming.", "es": "Ralentizar tu ritmo respiratorio activa un alivio autonómico inmediato."}},
+        {
+          "t": "d",
+          "q": {"en": "You feel an intense loneliness or emptiness inside your US household today. What is the move?", "es": "Sientes una intensa soledad o vacío dentro de tu hogar en EE. UU. hoy. ¿Cuál es el movimiento?"},
+          "op": [
+            {"en": "Suffer in isolated silence, thinking nobody understand your struggle", "es": "Sufrir en silencio aislado, pensando que nadie entiende tu lucha"},
+            {"en": "Close your eyes, imagine an unconditional loving embrace, and breathe slowly", "es": "Cerrar los ojos, imaginar que alguien te abraza con amor y respirar lentamente"},
+            {"en": "Get angry at your family structure due to your inner tension", "es": "Enojarte con tu estructura familiar debido a tu tensión interna"},
+            {"en": "Work extra hours to forcefully block out the empty feeling", "es": "Trabajar horas extra para bloquear a la fuerza el sentimiento de vacío"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Isolated suffering deepens emotional fatigue and feeds the zombie autopilot.", "es": "El sufrimiento aislado profundiza la fatiga emocional y alimenta al piloto automático zombi."},
+            {"en": "Visualizing affection and care triggers immediate safety chemistry inside your body.", "es": "Visualizar afecto y cuidado activa una química de seguridad inmediata dentro de tu cuerpo."},
+            {"en": "Anger increases threat alarms and distances your primary domestic safe circle.", "es": "La ira aumenta las alarmas de amenaza y aleja a tu círculo de seguridad doméstico principal."},
+            {"en": "Overworking causes physical exhaustion while hiding the real biopsicosocial need.", "es": "Trabajar en exceso causa agotamiento físico mientras oculta la verdadera necesidad biopsicosocial."}
+          ]
+        },
+        {"t": "r", "tx": "+Care", "p": 25},
+        {"t": "c", "tx": {"en": "Acepto el amor y el cuidado en mi vida.", "es": "Acepto el amor y el cuidado en mi vida."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Cierra los ojos. Imagina que alguien te abraza con amor. Respira lentamente.", "es": "Cierra los ojos. Imagina que alguien te abraza con amor. Respira lentamente."}, "inf": {"en": "Affective visualization downregulates hyperactive amygdala defense alerts.", "es": "La visualización afectiva desactiva las alertas de defensa de la amígdala hiperactiva."}}
+      ]
+    },
+    {
+      "id": 14,
+      "cat": "madre",
+      "pocket_match": ["cero", "moderado", "libre"],
+      "b": [
+        {"t": "v", "tx": {"en": "MISSION 14: WORDS OF COMFORT", "es": "MISIÓN 14: PALABRAS DE CONSUELO"}},
+        {"t": "h", "tx": {"en": "Replacing harsh self-judgment with maternal compassion", "es": "Reemplazando el duro juicio propio por compasión maternal"}},
+        {"story": {"en": "We are often our own harshest judges, continuously replaying financial errors or work anxieties. Shifting into a comforting inner voice removes toxic guilt and heals your baseline thoughts.", "es": "A menudo somos nuestros propios jueces más duros, repitiendo continuamente errores financieros o ansiedades laborales. Cambiar a una voz interna de consuelo elimina la culpa tóxica y sana tus pensamientos base."}},
+        {"t": "breath_auto", "d": 20, "tx": {"en": "Inhale patience... exhale the heavy self-guilt", "es": "Inhala paciencia... exhala la pesada culpa propia"}, "inf": {"en": "This slow expansion allows your mind to de-escalate internal friction.", "es": "Esta lenta expansión permite a tu mente reducir la fricción interna."}},
+        {
+          "t": "d",
+          "q": {"en": "You made a financial mistake or feel heavy pressure today. How do you talk to yourself?", "es": "Cometiste un error financiero o sientes una fuerte presión hoy. ¿Cómo te hablas a ti mismo?"},
+          "op": [
+            {"en": "Tell yourself you are failing and need to rush harder", "es": "Decirte a ti mismo que estás fallando y necesitas correr más rápido"},
+            {"en": "Think of a difficulty, speak to yourself like a loving mother, and use 3 supportive phrases", "es": "Pensar en una dificultad, hablarte como una madre amorosa y decirte tres frases de apoyo"},
+            {"en": "Ignore your internal state and seek intense digital distractions", "es": "Ignorar tu estado interno y buscar distracciones digitales intensas"},
+            {"en": "Wait passively for external people to validate your effort", "es": "Esperar pasivamente a que personas externas validen tu esfuerzo"}
+          ],
+          "c": 1,
+          "ex": [
+            {"en": "Harsh internal words feed your anxiety codes and cement the zombie state.", "es": "Las palabras internas duras alimentan tus códigos de ansiedad y cementan el estado zombi."},
+            {"en": "Compassionate internal communication restores confidence and activates biological well-being.", "es": "La comunicación interna compasiva restaura la confianza y activa el bienestar biológico."},
+            {"en": "Digital distractions mask the pressure but do not rebalance your mental parameters.", "es": "Las distracciones digitales enmascaran la presión pero no reequilibran tu parámetros mentales."},
+            {"en": "Surrendering validation power to others removes your own active self-care capability.", "es": "Entregar el poder de validación a otros te quita tu propia capacidad activa de autocuidado."}
+          ]
+        },
+        {"t": "r", "tx": "+Care", "p": 25},
+        {"t": "c", "tx": {"en": "Merezco comprensión y paciencia.", "es": "Merezco comprensión y paciencia."}},
+        {"t": "sil", "d": 40, "tx": {"en": "Piensa en una dificultad que tengas. Háblate como una madre amorosa. Dite tres frases de apoyo.", "es": "Piensa en una dificultad que tengas. Háblate como una madre amorosa. Dite tres frases de apoyo."}, "inf": {"en": "Compassionate inner dialogues change neural activation toward structural recovery.", "es": "Los diálogos internos compasivos cambian la activación neural hacia la recuperación estructural."}}
+      ]
+    }
+  ]
+}
