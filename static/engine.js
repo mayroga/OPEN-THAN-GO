@@ -1,275 +1,108 @@
 /* =========================================================
    OPEN THAN GO ENGINE vFINAL CLEAN
    SINGLE BRAIN + LINEAR FLOW 1 → 27
-   NO FREEZE + NO DOUBLE CONTROL
 ========================================================= */
 
 const state = {
     missions: [],
-    stories: [],
-    i: 0,              // mission index (strict)
-    b: 0,              // block index
-    lang: "en",
+    i: 0,
+    b: 0,
+    lang: "es",
     running: false,
-    speaking: false,
-    timer: null,
-    tLeft: 0,
-    breathTimer: null
+    params: {} // Guarda los datos del formulario
 };
 
-/* =========================
-   INIT
-========================= */
 window.addEventListener("load", async () => {
     await boot();
-    intro();
 });
 
 async function boot() {
-    const [s, m] = await Promise.all([
-        fetch("/api/stories").then(r => r.json()),
-        fetch("/api/missions").then(r => r.json())
-    ]);
-
-    state.stories = (s.stories || []).sort((a,b)=>a.id-b.id);
-    state.missions = (m.missions || []).sort((a,b)=>a.id-b.id);
-
-    state.running = true;
+    try {
+        const response = await fetch("/api/missions");
+        const data = await response.json();
+        state.missions = (data.missions || []).sort((a, b) => a.id - b.id);
+        intro();
+    } catch (e) {
+        document.getElementById("app").innerHTML = "<h1>Error de conexión</h1>";
+    }
 }
 
 /* =========================
-   INTRO
+   UI FORMULARIO (INTRO)
 ========================= */
 function intro() {
     document.getElementById("app").innerHTML = `
-        <div class="card center">
+        <div class="header-app">
+            <div class="lang-bar">
+                <button class="btn-lang ${state.lang === 'es' ? 'active' : ''}" onclick="setLang('es')">ES</button>
+                <button class="btn-lang ${state.lang === 'en' ? 'active' : ''}" onclick="setLang('en')">EN</button>
+            </div>
             <h1>OPEN THAN GO</h1>
-            <p>Linear Emotional System</p>
-            <button onclick="start()">START</button>
+            <p>Tu escape emocional inteligente</p>
         </div>
+        <div class="form-group">
+            <label>Estado</label>
+            <select id="inp-state"><option value="FL">Florida</option><option value="TX">Texas</option><option value="CA">California</option></select>
+        </div>
+        <div class="form-group">
+            <label>ZIP Code</label>
+            <input id="inp-zip" maxlength="5" placeholder="Ej: 33101">
+        </div>
+        <button class="btn-trigger" onclick="startEngine()">GENERAR ESCAPE</button>
     `;
 }
 
-function start() {
-    state.i = 0;
-    state.b = 0;
+function startEngine() {
+    state.params = { state: document.getElementById("inp-state").value, zip: document.getElementById("inp-zip").value };
+    state.running = true;
     render();
 }
 
 /* =========================
-   LANGUAGE
-========================= */
-function setLang(l) {
-    state.lang = l;
-    render();
-}
-
-/* =========================
-   SAFE TEXT
-========================= */
-function T(obj) {
-    if (!obj) return "";
-    if (typeof obj === "string") return obj;
-    return obj[state.lang] || obj.en || "";
-}
-
-/* =========================
-   MAIN RENDER (SINGLE LOOP ONLY)
+   RENDER CENTRAL
 ========================= */
 function render() {
-    if (!state.running) return;
+    if (!state.running) return intro();
 
     const app = document.getElementById("app");
-
     const mission = state.missions[state.i];
     if (!mission) return reset();
 
     const block = mission.b[state.b];
+    if (!block) { nextMission(); return; }
 
-    let html = `
+    app.innerHTML = `
         <div class="topbar">
-            <button onclick="setLang('en')">EN</button>
-            <button onclick="setLang('es')">ES</button>
-            <button onclick="back()">BACK</button>
+            <button onclick="reset()">X</button>
+            <span>Misión ${mission.id}</span>
         </div>
-    `;
-
-    if (!block) {
-        nextMission();
-        return;
-    }
-
-    /* =========================
-       BLOCK TYPES
-    ========================= */
-
-    if (block.t === "v") {
-        html += `<div class="card"><h2>${T(block.tx)}</h2></div>`;
-        speak(T(block.tx), nextBlock);
-    }
-
-    if (block.t === "h") {
-        html += `<div class="card"><h3>${T(block.tx)}</h3></div>`;
-        speak(T(block.tx), nextBlock);
-    }
-
-    if (block.story) {
-        html += `<div class="card"><p>${T(block.story)}</p></div>`;
-        speak(T(block.story), nextBlock);
-    }
-
-    if (block.t === "breath_auto" || block.t === "br") {
-        html += breathUI(block);
-        startBreath(block.d || 25);
-        speak(T(block.tx), () => {});
-    }
-
-    if (block.t === "d") {
-        html += `<div class="card"><h3>${T(block.q)}</h3>`;
-        block.op.forEach((o, idx) => {
-            html += `
-                <div class="answer" onclick="answer(${idx}, ${block.c}, ${encodeURIComponent(JSON.stringify(block.ex))})">
-                    ${T(o)}
-                </div>`;
-        });
-        html += `</div>`;
-    }
-
-    if (block.t === "r") {
-        html += `<div class="card center">+${block.p} XP</div>`;
-        speak(T(block.tx), nextBlock);
-    }
-
-    if (block.t === "c") {
-        html += `<div class="card">${T(block.tx)}</div>`;
-        speak(T(block.tx), nextBlock);
-    }
-
-    if (block.t === "sil") {
-        html += breathUI(block);
-        startTimer(block.d || 30, nextBlock);
-        speak(T(block.tx), () => {});
-    }
-
-    app.innerHTML = html;
-}
-
-/* =========================
-   SAFE SPEECH (NO FREEZE)
-========================= */
-function speak(text, cb) {
-    if (!text) return cb && cb();
-
-    window.speechSynthesis.cancel();
-
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = state.lang === "es" ? "es-ES" : "en-US";
-    u.rate = 0.95;
-
-    u.onend = () => cb && cb();
-    window.speechSynthesis.speak(u);
-}
-
-/* =========================
-   LINEAR NAVIGATION ONLY
-========================= */
-function nextBlock() {
-    state.b++;
-    render();
-}
-
-function nextMission() {
-    state.i++;
-    state.b = 0;
-
-    if (state.i >= state.missions.length) {
-        state.i = 0;
-    }
-    render();
-}
-
-function back() {
-    window.speechSynthesis.cancel();
-
-    if (state.b > 0) state.b--;
-    else if (state.i > 0) {
-        state.i--;
-        state.b = 0;
-    }
-
-    render();
-}
-
-function reset() {
-    state.i = 0;
-    state.b = 0;
-    render();
-}
-
-/* =========================
-   ANSWERS (NO FREEZE)
-========================= */
-function answer(i, correct, ex) {
-    const exp = JSON.parse(decodeURIComponent(ex));
-
-    const ok = i === correct;
-
-    const box = document.createElement("div");
-    box.className = "card";
-    box.innerHTML = `
-        <h3 style="color:${ok ? "lime" : "red"}">
-            ${ok ? "GOOD" : "TRY AGAIN"}
-        </h3>
-        <p>${T(exp[i])}</p>
-        <button onclick="nextBlock()">CONTINUE</button>
-    `;
-
-    document.getElementById("app").appendChild(box);
-
-    speak(T(exp[i]), () => {});
-}
-
-/* =========================
-   TIMER REAL (NON-BLOCKING)
-========================= */
-function startTimer(sec, cb) {
-    clearInterval(state.timer);
-    state.tLeft = sec;
-
-    state.timer = setInterval(() => {
-        state.tLeft--;
-        if (state.tLeft <= 0) {
-            clearInterval(state.timer);
-            cb && cb();
-        }
-    }, 1000);
-}
-
-/* =========================
-   BREATH (REAL NATURAL LOOP)
-========================= */
-function breathUI(block) {
-    return `
-        <div class="card center">
-            <div id="breath" class="breath"></div>
-            <p>${T(block.tx)}</p>
+        <div class="card">
+            ${block.t === 'v' ? `<h2>${T(block.tx)}</h2>` : ''}
+            ${block.story ? `<p>${T(block.story)}</p>` : ''}
+            ${block.t === 'd' ? `
+                <h3>${T(block.q)}</h3>
+                ${block.op.map((o, idx) => `<button class="btn-next-step" onclick="answer(${idx}, ${block.c}, '${encodeURIComponent(JSON.stringify(block.ex))}')">${T(o)}</button>`).join('')}
+            ` : `<button class="btn-next-step" onclick="nextBlock()">CONTINUAR</button>`}
         </div>
     `;
 }
 
-function startBreath(sec) {
-    clearInterval(state.breathTimer);
+function T(obj) {
+    if (typeof obj === "string") return obj;
+    return obj[state.lang] || obj.en || "";
+}
 
-    let inhale = true;
-    const el = document.getElementById("breath");
+function setLang(l) { state.lang = l; render(); }
 
-    if (!el) return;
+function nextBlock() { state.b++; render(); }
 
-    state.breathTimer = setInterval(() => {
-        inhale = !inhale;
-        el.style.transform = inhale ? "scale(1.4)" : "scale(0.9)";
-        el.style.transition = "3s ease-in-out";
-    }, 3000);
+function nextMission() { state.i++; state.b = 0; render(); }
 
-    setTimeout(() => clearInterval(state.breathTimer), sec * 1000);
+function reset() { state.running = false; state.i = 0; state.b = 0; intro(); }
+
+function answer(idx, correct, ex) {
+    const isCorrect = idx === correct;
+    const explanation = JSON.parse(decodeURIComponent(ex));
+    alert(isCorrect ? "¡BIEN!" : "Intenta de nuevo");
+    nextBlock();
 }
