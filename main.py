@@ -1,229 +1,232 @@
 import json
 import random
+import time
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
 # ===============================
-# MEMORIA LIGERA DE SESIÓN (NO PERSONAL)
-# SOLO EVITA REPETICIÓN
+# MEMORY SAFE SESSION STORE (NO PII)
 # ===============================
-session_memory = {}
+SESSION_MEMORY = {}
+LOOP_DURATION = 600  # 10 minutos exactos
 
 
 # ===============================
-# CARGADOR TVID INTELIGENTE
+# LOAD MISSIONS
 # ===============================
-def cargar_mision_tvid_desde_archivos(categoria_emocional, bolsillo_usuario, session_id="anon"):
-
-    archivos_kamizen = [
-        'missions_01_07.json',
-        'missions_08_14.json',
-        'missions_15_21.json'
+def cargar_todas_misiones():
+    archivos = [
+        "missions_01_07.json",
+        "missions_08_14.json",
+        "missions_15_21.json"
     ]
 
-    todas_las_tvid = []
+    misiones = []
 
-    # Cargar todas las misiones
-    for nombre_archivo in archivos_kamizen:
+    for file in archivos:
         try:
-            with open(nombre_archivo, 'r', encoding='utf-8') as f:
+            with open(file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                for m in data.get("missions", []):
-                    todas_las_tvid.append(m)
+                misiones.extend(data.get("missions", []))
         except Exception as e:
-            print(f"Error cargando {nombre_archivo}: {e}")
+            print(f"[ERROR] {file}: {e}")
 
-    # Filtrar por categoría y bolsillo
-    filtradas = [
-        m for m in todas_las_tvid
-        if m.get("cat") == categoria_emocional
-        and bolsillo_usuario in m.get("pocket_match", ["cero", "moderado", "libre"])
-    ]
+    return misiones
 
-    # ===============================
-    # EVITAR REPETICIÓN POR SESIÓN
-    # ===============================
-    usados = session_memory.get(session_id, set())
 
-    nuevas = [m for m in filtradas if m.get("id") not in usados]
-
-    if nuevas:
-        seleccionada = random.choice(nuevas)
-    elif filtradas:
-        # reset si ya se agotaron
-        session_memory[session_id] = set()
-        seleccionada = random.choice(filtradas)
-    else:
-        seleccionada = None
-
-    if seleccionada:
-        session_memory.setdefault(session_id, set()).add(seleccionada.get("id"))
-
-    return seleccionada
+ALL_MISSIONS = cargar_todas_misiones()
 
 
 # ===============================
-# HOME
-# ===============================
-@app.route('/')
-def home():
-    try:
-        return app.send_static_file('session.html')
-    except Exception:
-        with open('session.html', 'r', encoding='utf-8') as f:
-            from flask import render_template_string
-            return render_template_string(f.read())
-
-
-# ===============================
-# DETECTOR EMOCIONAL
+# EMOTIONAL DETECTOR
 # ===============================
 def detectar_categoria(texto):
     texto = texto.lower()
 
-    if any(x in texto for x in ["biles", "dinero", "deuda", "cuenta", "estrés", "mal", "factura"]):
+    if any(x in texto for x in ["deuda", "biles", "dinero", "estrés", "problema", "mal"]):
         return "mal"
 
-    if any(x in texto for x in ["niño", "hijo", "kids", "familia"]):
+    if any(x in texto for x in ["niño", "hijo", "familia"]):
         return "nino"
 
-    if any(x in texto for x in ["solo", "triste", "vacío", "aburrido", "monoton"]):
+    if any(x in texto for x in ["solo", "triste", "vacío", "aburrido"]):
         return "bien"
 
     return "bien"
 
 
 # ===============================
-# MOTOR PRINCIPAL
+# SESSION MANAGER SAFE LOOP
 # ===============================
-@app.route('/diagnostico-kamizen', methods=['POST'])
-def diagnostico_kamizen():
+def get_session(session_id):
+    now = time.time()
 
-    datos = request.json
+    if session_id not in SESSION_MEMORY:
+        SESSION_MEMORY[session_id] = {
+            "start": now,
+            "used": set()
+        }
 
-    puedes_salir = datos.get('puedes_salir', True)
-    idioma = datos.get('idioma', 'es')
+    session = SESSION_MEMORY[session_id]
 
-    zip_code = str(datos.get('zip_code', '')).strip()
-    estado = str(datos.get('estado', 'FL')).strip()
+    # RESET AUTOMÁTICO 10 MIN
+    if now - session["start"] > LOOP_DURATION:
+        session["start"] = now
+        session["used"] = set()
 
-    bolsillo = datos.get('bolsillo', 'cero')
-    texto_libre = str(datos.get('texto_libre', ''))
+    return session
 
-    # ID de sesión (NO es identidad personal)
-    session_id = datos.get("session_id", "anon")
 
-    categoria = detectar_categoria(texto_libre)
+# ===============================
+# FILTER MISSIONS
+# ===============================
+def get_mission(categoria, bolsillo, used_set):
+    pool = [
+        m for m in ALL_MISSIONS
+        if m.get("cat") == categoria
+        and bolsillo in m.get("pocket_match", [])
+        and m.get("id") not in used_set
+    ]
 
-    mision_tvid = cargar_mision_tvid_desde_archivos(
-        categoria,
-        bolsillo,
-        session_id
-    )
+    if not pool:
+        pool = [m for m in ALL_MISSIONS if m.get("id") not in used_set]
 
-    if not mision_tvid:
-        return jsonify({"error": "No hay misiones disponibles"}), 404
+    if not pool:
+        return None
 
-    # ===============================
-    # TRADUCCIÓN DE BLOQUES
-    # ===============================
-    bloques_processed = []
+    mission = random.choice(pool)
+    return mission
 
-    for bloque in mision_tvid.get("b", []):
 
-        b = dict(bloque)
+# ===============================
+# TRANSLATION ENGINE
+# ===============================
+def traducir_bloques(mision, idioma):
+    bloques = []
 
-        # traducción general
-        for campo in ["tx", "inf", "story"]:
-            if campo in b and isinstance(b[campo], dict):
-                b[campo] = b[campo].get(idioma, b[campo].get("es", ""))
+    for b in mision.get("b", []):
+        bloque = json.loads(json.dumps(b))  # deep copy seguro
 
-        # decisión
-        if b.get("t") == "d":
+        def tr(x):
+            if isinstance(x, dict):
+                return x.get(idioma, x.get("es", ""))
+            return x
 
-            if isinstance(b.get("q"), dict):
-                b["q"] = b["q"].get(idioma, b["q"].get("es", ""))
+        for key in ["tx", "inf", "story"]:
+            if key in bloque:
+                bloque[key] = tr(bloque[key])
 
-            if "op" in b:
-                b["op"] = [
+        if bloque.get("t") == "d":
+            if isinstance(bloque.get("q"), dict):
+                bloque["q"] = tr(bloque["q"])
+
+            if "op" in bloque:
+                bloque["op"] = [
                     op.get(idioma, op.get("es", "")) if isinstance(op, dict) else op
-                    for op in b["op"]
+                    for op in bloque["op"]
                 ]
 
-            if "ex" in b:
-                b["ex"] = [
+            if "ex" in bloque:
+                bloque["ex"] = [
                     ex.get(idioma, ex.get("es", "")) if isinstance(ex, dict) else ex
-                    for ex in b["ex"]
+                    for ex in bloque["ex"]
                 ]
 
-        bloques_processed.append(b)
+        bloques.append(bloque)
+
+    return bloques
 
 
-    # ===============================
-    # RAMA INDOOR
-    # ===============================
-    if not puedes_salir:
-
-        titulo = (
-            "Modo Interior: Reconstrucción Emocional"
-            if idioma == "es"
-            else "Indoor Mode: Emotional Reset"
-        )
-
-        return jsonify({
-            "modalidad": "indoor",
-            "titulo": titulo,
-            "lugar": "Tu espacio personal de equilibrio",
-            "bloques_interactivos": bloques_processed,
-            "url_maps": None
-        })
-
-
-    # ===============================
-    # RAMA OUTDOOR
-    # ===============================
-    if not zip_code or len(zip_code) != 5:
-        zip_code = "33101"
-
-    tipo_mapa = "parks"
-
-    if categoria == "nino":
-        tipo_mapa = "parks+playgrounds+family"
-    elif categoria == "mal":
-        tipo_mapa = "nature+quiet+parks+reserves"
-
-    query = f"{tipo_mapa} {zip_code} {estado} USA"
-    url_maps = f"https://www.google.com/maps/search/{query.replace(' ', '+')}"
-
-    titulo_out = (
-        "Plan de Escape Activo"
-        if idioma == "es"
-        else "Active Escape Plan"
-    )
-
-    instruccion = {
-        "t": "h",
-        "tx": (
-            f"Dirígete a {zip_code}. Inicia la secuencia al llegar."
-            if idioma == "es"
-            else f"Go to {zip_code}. Start your sequence upon arrival."
-        )
-    }
-
-    bloques_processed.insert(0, instruccion)
-
+# ===============================
+# HOME
+# ===============================
+@app.route("/")
+def home():
     return jsonify({
-        "modalidad": "outdoor",
-        "titulo": titulo_out,
-        "lugar": f"Zona activa en {zip_code}, {estado}",
-        "bloques_interactivos": bloques_processed,
-        "url_maps": url_maps
+        "status": "SAFE LOOP ENGINE v1 ACTIVE",
+        "loop_duration_seconds": LOOP_DURATION
     })
 
 
 # ===============================
-# RUN
+# MAIN ENGINE ENDPOINT
 # ===============================
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+@app.route("/diagnostico-kamizen", methods=["POST"])
+def diagnostico():
+
+    data = request.json
+
+    session_id = data.get("session_id", str(random.randint(100000, 999999)))
+    idioma = data.get("idioma", "es")
+    bolsillo = data.get("bolsillo", "cero")
+    texto = data.get("texto_libre", "")
+    puedes_salir = data.get("puedes_salir", True)
+
+    categoria = detectar_categoria(texto)
+
+    session = get_session(session_id)
+
+    mission = get_mission(categoria, bolsillo, session["used"])
+
+    if not mission:
+        return jsonify({
+            "error": "No missions available"
+        })
+
+    session["used"].add(mission["id"])
+
+    bloques = traducir_bloques(mission, idioma)
+
+    # ===============================
+    # OUTDOOR MODE
+    # ===============================
+    if puedes_salir:
+
+        zip_code = str(data.get("zip_code", "33101"))
+        estado = str(data.get("estado", "FL"))
+
+        tipo = "parks"
+
+        if categoria == "nino":
+            tipo = "parks+playgrounds+family"
+        elif categoria == "mal":
+            tipo = "quiet+nature+parks"
+
+        query = f"{tipo} {zip_code} {estado} USA"
+        url_maps = "https://www.google.com/maps/search/" + query.replace(" ", "+")
+
+        bloques.insert(0, {
+            "t": "h",
+            "tx": f"Go to {zip_code}. Start your 10-minute reset loop when you arrive."
+        })
+
+        return jsonify({
+            "mode": "outdoor",
+            "session_id": session_id,
+            "title": "Active Escape Plan",
+            "location": f"{zip_code}, {estado}",
+            "loop_seconds": LOOP_DURATION,
+            "bloques": bloques,
+            "maps": url_maps,
+            "reset_in": max(0, LOOP_DURATION - (time.time() - session["start"]))
+        })
+
+    # ===============================
+    # INDOOR MODE
+    # ===============================
+    return jsonify({
+        "mode": "indoor",
+        "session_id": session_id,
+        "title": "Indoor Reset Mode",
+        "loop_seconds": LOOP_DURATION,
+        "bloques": bloques,
+        "reset_in": max(0, LOOP_DURATION - (time.time() - session["start"]))
+    })
+
+
+# ===============================
+# RUN SERVER
+# ===============================
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
