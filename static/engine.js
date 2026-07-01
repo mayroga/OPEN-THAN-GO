@@ -1,281 +1,268 @@
-// ===============================
-// SAFE LOOP ENGINE vFINAL
-// CLIENT ONLY (NO LOGIC DECISION)
-// ===============================
+/* =========================================================
+   OPEN THAN GO ENGINE vFINAL CLEAN
+   SINGLE BRAIN • NO FREEZE • REAL FLOW • 10 MIN LOOP
+========================================================= */
 
-let sessionId = null;
-let mission = null;
-let state = null;
+let state = {
+    missions: [],
+    stories: [],
+    currentIndex: 0,
+    currentBlock: 0,
+    lang: "es",
+    pocket: "cero",
+    mode: "outdoor",
+    speaking: false,
 
-let stepIndex = 1;
-let maxSteps = 27;
+    // TIMER MASTER
+    sessionActive: false,
+    sessionTime: 600, // 10 min
+    timer: null,
 
-let timer = null;
-let breathingTimer = null;
-let secondsLeft = 600;
+    // BREATH
+    breathTimer: null,
+    breathState: "inhale"
+};
 
-let currentLanguage = "es";
-let bolsillo = "cero";
-let canGo = true;
+/* =========================
+   INIT
+========================= */
+window.addEventListener("load", async () => {
+    await loadData();
+    renderForm();
+});
 
-// ===============================
-// UI ELEMENTS
-// ===============================
-const form = document.getElementById("wrapper-form");
-const interactive = document.getElementById("wrapper-interactive");
-
-const titleEl = document.getElementById("interactive-title");
-const locationEl = document.getElementById("interactive-location");
-const stepContent = document.getElementById("step-content");
-
-const btnNext = document.getElementById("btn-next");
-const btnMaps = document.getElementById("btn-maps-action");
-
-// ===============================
-// LANGUAGE
-// ===============================
-function cambiarIdioma(lang) {
-    currentLanguage = lang;
-
-    document.getElementById("lang-es").classList.remove("active");
-    document.getElementById("lang-en").classList.remove("active");
-
-    document.getElementById("lang-" + lang).classList.add("active");
-}
-
-// ===============================
-// BOLSILLO
-// ===============================
-function cambiarBolsillo(v) {
-    bolsillo = v;
-}
-
-// ===============================
-// MODALIDAD
-// ===============================
-let salirCasa = true;
-
-function cambiarModalidad(v) {
-    salirCasa = v;
-}
-
-// ===============================
-// START
-// ===============================
-async function solicitarEscape() {
-
-    const payload = {
-        session_id: sessionId,
-        texto_libre: document.getElementById("inp-text").value,
-        zip_code: document.getElementById("inp-zip").value,
-        estado: document.getElementById("inp-state").value,
-        bolsillo: bolsillo,
-        idioma: currentLanguage,
-        action: "next"
-    };
-
-    const res = await fetch("/safe-loop", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload)
-    });
-
+/* =========================
+   LOAD DATA
+========================= */
+async function loadData() {
+    const res = await fetch("/api/missions");
     const data = await res.json();
-
-    sessionId = data.session_id;
-    mission = data.mission;
-    state = data.state;
-    maxSteps = data.max_steps;
-
-    renderScreen(data);
+    state.missions = data.missions || [];
 }
 
-// ===============================
-// RENDER
-// ===============================
-function renderScreen(data) {
+/* =========================
+   UI FORM
+========================= */
+function renderForm() {
+    document.getElementById("wrapper-form").style.display = "block";
+    document.getElementById("wrapper-interactive").style.display = "none";
+}
 
-    form.style.display = "none";
-    interactive.style.display = "block";
+/* =========================
+   START FLOW
+========================= */
+function solicitarEscape() {
+    state.lang = getLang();
+    state.pocket = getPocket();
+    state.mode = getMode();
 
-    titleEl.innerText = mission.title;
-    locationEl.innerText = `Step ${state.step} / ${maxSteps} | Emotion: ${state.emotion}`;
+    startSession();
+}
 
-    stepContent.innerHTML = "";
+/* =========================
+   SESSION START (ONLY ONE LOOP)
+========================= */
+function startSession() {
+    state.sessionActive = true;
+    state.sessionTime = 600;
 
-    // RESET UI
-    stopTimers();
+    document.getElementById("wrapper-form").style.display = "none";
+    document.getElementById("wrapper-interactive").style.display = "block";
 
-    // BREATHING
-    startBreathing(mission.breathing);
+    startTimer();
+    startFlow();
+}
 
-    // TIMER 10 MIN
-    startTimer(mission.loop_duration_seconds);
+/* =========================
+   MASTER TIMER (10 MIN EXACT)
+========================= */
+function startTimer() {
+    clearInterval(state.timer);
 
-    // CONTENT
-    stepContent.innerHTML = `
-        <div class="screen-story">
-            ${mission.instruction}
-        </div>
+    state.timer = setInterval(() => {
+        state.sessionTime--;
+
+        if (state.sessionTime <= 0) {
+            finishSession();
+        }
+    }, 1000);
+}
+
+function finishSession() {
+    clearInterval(state.timer);
+    clearInterval(state.breathTimer);
+
+    state.sessionActive = false;
+
+    document.getElementById("wrapper-interactive").innerHTML = `
+        <div class="screen-title">SESSION COMPLETE</div>
+        <p>Respiración, enfoque y control finalizados.</p>
+        <button onclick="location.reload()">RESTART</button>
     `;
+}
 
-    btnNext.style.display = "block";
+/* =========================
+   FLOW ENGINE (SEQUENTIAL 1→N LOOP)
+========================= */
+function startFlow() {
+    state.currentIndex = 0;
+    nextStep();
+}
 
-    if (data.url_maps) {
-        btnMaps.style.display = "block";
-        btnMaps.href = data.url_maps;
-    } else {
-        btnMaps.style.display = "none";
+function nextStep() {
+    const mission = state.missions[state.currentIndex];
+
+    if (!mission) {
+        state.currentIndex = 0;
+        return nextStep();
     }
 
-    speak(mission.instruction);
+    renderMission(mission);
 }
 
-// ===============================
-// NEXT STEP
-// ===============================
-async function siguienteComando() {
+/* =========================
+   RENDER MISSION
+========================= */
+function renderMission(mission) {
+    let html = `
+        <div class="screen-title">
+            STEP ${mission.id}
+        </div>
 
-    const res = await fetch("/safe-loop", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            session_id: sessionId,
-            texto_libre: "",
-            action: "next"
-        })
+        <div class="screen-story">
+            ${mission.t?.[state.lang] || mission.t?.es || ""}
+        </div>
+    `;
+
+    document.getElementById("interactive-title").innerHTML = "";
+    document.getElementById("interactive-location").innerHTML = "";
+
+    document.getElementById("step-content").innerHTML = html;
+
+    speak(mission.t?.[state.lang] || mission.t?.es || "", () => {
+        runMission(mission);
+    });
+}
+
+/* =========================
+   EXECUTE MISSION LOGIC
+========================= */
+function runMission(mission) {
+
+    // BREATH STEP
+    if (mission.type === "breath") {
+        startBreathing();
+        setTimeout(() => nextMission(), 8000);
+        return;
+    }
+
+    // SILENCE STEP
+    if (mission.type === "silence") {
+        setTimeout(() => nextMission(), 5000);
+        return;
+    }
+
+    // DECISION STEP
+    if (mission.type === "decision") {
+        renderDecision(mission);
+        return;
+    }
+
+    // DEFAULT STEP
+    setTimeout(() => nextMission(), 2000);
+}
+
+/* =========================
+   BREATHING REAL (NATURAL FLOW)
+========================= */
+function startBreathing() {
+    clearInterval(state.breathTimer);
+
+    const circle = document.getElementById("breathCircle");
+    if (!circle) return;
+
+    let inhale = true;
+
+    state.breathTimer = setInterval(() => {
+        if (!state.sessionActive) return;
+
+        if (inhale) {
+            circle.style.transform = "scale(1.4)";
+            circle.innerText = "INHALE";
+        } else {
+            circle.style.transform = "scale(0.8)";
+            circle.innerText = "EXHALE";
+        }
+
+        inhale = !inhale;
+
+    }, 3000);
+}
+
+/* =========================
+   DECISION BLOCK
+========================= */
+function renderDecision(mission) {
+    let html = `<div class="screen-story">${mission.q?.[state.lang] || ""}</div>`;
+
+    mission.op.forEach((op, i) => {
+        html += `
+            <button onclick="selectOption(${i})">${op[state.lang] || op.es}</button>
+        `;
     });
 
-    const data = await res.json();
-
-    mission = data.mission;
-    state = data.state;
-
-    renderScreen(data);
+    document.getElementById("step-content").innerHTML = html;
 }
 
-// ===============================
-// BREATHING ENGINE (REALISTIC)
-// ===============================
-function startBreathing(cfg) {
-
-    const circle = createBreathCircle();
-
-    let inhale = cfg?.inhale || 4;
-    let hold = cfg?.hold || 2;
-    let exhale = cfg?.exhale || 6;
-
-    let phase = "inhale";
-    let time = inhale;
-
-    breathingTimer = setInterval(() => {
-
-        if (phase === "inhale") {
-            circle.style.transform = "scale(1.4)";
-            time--;
-
-            if (time <= 0) {
-                phase = "hold";
-                time = hold;
-            }
-
-        } else if (phase === "hold") {
-            circle.style.transform = "scale(1.4)";
-            time--;
-
-            if (time <= 0) {
-                phase = "exhale";
-                time = exhale;
-            }
-
-        } else if (phase === "exhale") {
-            circle.style.transform = "scale(0.8)";
-            time--;
-
-            if (time <= 0) {
-                phase = "inhale";
-                time = inhale;
-            }
-        }
-
-    }, 1000);
+function selectOption(i) {
+    nextMission();
 }
 
-// ===============================
-// TIMER 10 MIN EXACT
-// ===============================
-function startTimer(seconds) {
+/* =========================
+   NAVIGATION SEQUENTIAL ONLY
+========================= */
+function nextMission() {
+    state.currentIndex++;
 
-    secondsLeft = seconds || 600;
+    if (state.currentIndex >= state.missions.length) {
+        state.currentIndex = 0;
+    }
 
-    timer = setInterval(() => {
-
-        secondsLeft--;
-
-        if (secondsLeft <= 0) {
-            clearInterval(timer);
-            clearInterval(breathingTimer);
-
-            finishLoop();
-        }
-
-    }, 1000);
+    nextStep();
 }
 
-// ===============================
-// END LOOP
-// ===============================
-function finishLoop() {
+/* =========================
+   SPEECH ENGINE
+========================= */
+function speak(text, cb) {
+    if (!text) {
+        cb && cb();
+        return;
+    }
 
-    stepContent.innerHTML = `
-        <div class="screen-title">
-            LOOP COMPLETED
-        </div>
-        <button onclick="solicitarEscape()" class="btn-trigger">
-            RESTART 10 MIN LOOP
-        </button>
-    `;
+    window.speechSynthesis.cancel();
+
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = state.lang === "es" ? "es-ES" : "en-US";
+    msg.rate = 0.95;
+
+    msg.onend = () => cb && cb();
+
+    window.speechSynthesis.speak(msg);
 }
 
-// ===============================
-// STOP TIMERS
-// ===============================
-function stopTimers() {
-    if (timer) clearInterval(timer);
-    if (breathingTimer) clearInterval(breathingTimer);
+/* =========================
+   HELPERS
+========================= */
+function getLang() {
+    const es = document.getElementById("lang-es").classList.contains("active");
+    return es ? "es" : "en";
 }
 
-// ===============================
-// SPEECH (VOICE GUIDE)
-// ===============================
-function speak(text) {
-
-    if (!("speechSynthesis" in window)) return;
-
-    let msg = new SpeechSynthesisUtterance(text);
-    msg.lang = currentLanguage === "es" ? "es-ES" : "en-US";
-    msg.rate = 1;
-
-    speechSynthesis.cancel();
-    speechSynthesis.speak(msg);
+function getPocket() {
+    return "cero";
 }
 
-// ===============================
-// BREATH CIRCLE CREATOR
-// ===============================
-function createBreathCircle() {
-
-    let old = document.querySelector(".breath-circle");
-    if (old) old.remove();
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "wrapper-circle";
-
-    const circle = document.createElement("div");
-    circle.className = "breath-circle";
-
-    wrapper.appendChild(circle);
-    stepContent.appendChild(wrapper);
-
-    return circle;
+function getMode() {
+    return true;
 }
