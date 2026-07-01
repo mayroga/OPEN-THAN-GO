@@ -1,10 +1,8 @@
 import json
 import random
 import time
-from flask import Flask, request, jsonify
-
-app = Flask(__name__, static_folder="static")
-
+from fastapi import FastAPI
+app = FastAPI()
 # ===============================
 # LOOP CONFIG
 # ===============================
