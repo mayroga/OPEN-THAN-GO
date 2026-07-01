@@ -1,178 +1,95 @@
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+import os
 import json
-import uuid
-from flask import Flask, request, jsonify
 
-app = Flask(__name__)
+app = FastAPI(title="OPEN THAN GO CORE")
 
-# ===============================
-# CONFIG
-# ===============================
-MAX_STEPS = 27
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
 
-# memoria simple en RAM (puedes migrar luego a Redis)
-SESSIONS = {}
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+# =========================
+# CACHE
+# =========================
+CACHE = {
+    "missions": None
+}
 
-# ===============================
-# EMOTION DETECTOR
-# ===============================
-def detectar_emocion(texto: str) -> str:
-    texto = (texto or "").lower()
+# =========================
+# LOAD JSON SAFE
+# =========================
+def load_json(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return None
 
-    if any(x in texto for x in ["dinero", "deuda", "biles", "cuenta", "trabajo"]):
-        return "mal"
+# =========================
+# MISSIONS ORDERED (1 → N LOOP)
+# =========================
+def load_missions():
+    if CACHE["missions"]:
+        return CACHE["missions"]
 
-    if any(x in texto for x in ["familia", "hijo", "niño", "pareja"]):
-        return "conexion"
+    files = sorted([
+        f for f in os.listdir(BASE_DIR)
+        if f.startswith("missions_") and f.endswith(".json")
+    ])
 
-    if any(x in texto for x in ["solo", "triste", "vacío", "aburrido"]):
-        return "bien"
+    all_missions = []
 
-    return "bien"
+    for file in files:
+        data = load_json(os.path.join(BASE_DIR, file))
+        if not data:
+            continue
 
+        missions = data.get("missions", []) if isinstance(data, dict) else data
 
-# ===============================
-# SESSION HANDLER
-# ===============================
-def get_session(session_id):
-    if session_id not in SESSIONS:
-        SESSIONS[session_id] = {
-            "step": 1,
-            "emotion": "bien"
-        }
-    return SESSIONS[session_id]
+        for m in missions:
+            if isinstance(m, dict) and "id" in m:
+                all_missions.append(m)
 
+    all_missions = sorted(all_missions, key=lambda x: x["id"])
 
-def clamp_step(step):
-    if step > MAX_STEPS:
-        return 1
-    if step < 1:
-        return MAX_STEPS
-    return step
-
-
-# ===============================
-# EMOTION-BASED JUMP SYSTEM
-# ===============================
-def emotion_jump(step, emotion):
-    """
-    Saltos inteligentes sin romper el loop 1–27
-    """
-    if emotion == "mal":
-        return step + 2
-    if emotion == "conexion":
-        return step + 1
-    return step + 1
-
-
-# ===============================
-# MAIN ENGINE ENDPOINT
-# ===============================
-@app.route('/safe-loop', methods=['POST'])
-def safe_loop():
-
-    data = request.json or {}
-
-    session_id = data.get("session_id") or str(uuid.uuid4())
-    texto = data.get("texto_libre", "")
-    action = data.get("action", "next")  # next | back | skip
-
-    state = get_session(session_id)
-
-    # ===============================
-    # UPDATE EMOTION
-    # ===============================
-    emotion = detectar_emocion(texto)
-    state["emotion"] = emotion
-
-    # ===============================
-    # STEP CONTROL
-    # ===============================
-    if action == "next":
-        state["step"] += 1
-
-    elif action == "back":
-        state["step"] -= 1
-
-    elif action == "skip":
-        state["step"] = emotion_jump(state["step"], emotion)
-
-    # wrap loop
-    state["step"] = clamp_step(state["step"])
-
-    # ===============================
-    # LOAD MISSION (TVID SYSTEM)
-    # ===============================
-    mission = {
-        "id": state["step"],
-        "title": f"MISIÓN {state['step']}",
-        "emotion": emotion,
-
-        # sincronizado con engine.js
-        "loop_duration_seconds": 600,
-
-        "breathing": {
-            "inhale": 4,
-            "hold": 2,
-            "exhale": 6
-        },
-
-        "instruction": build_instruction(state["step"], emotion),
-
-        "allow_back": True,
-        "allow_skip": True
+    CACHE["missions"] = {
+        "missions": all_missions,
+        "total": len(all_missions)
     }
 
-    return jsonify({
-        "session_id": session_id,
-        "state": state,
-        "mission": mission,
-        "max_steps": MAX_STEPS
-    })
+    return CACHE["missions"]
 
-
-# ===============================
-# TVID INSTRUCTION MAPPER
-# (aquí conectas tus JSON reales después)
-# ===============================
-def build_instruction(step, emotion):
-
-    base = {
-        "es": {
-            "mal": "Respira y enfócate en resolver un paso pequeño hoy.",
-            "bien": "Observa tu estado y mantén equilibrio interno.",
-            "conexion": "Conecta con alguien importante hoy."
-        },
-        "en": {
-            "mal": "Breathe and focus on solving one small step today.",
-            "bien": "Observe your state and maintain internal balance.",
-            "conexion": "Connect with someone important today."
-        }
-    }
-
-    if emotion == "mal":
-        return base["es"]["mal"]
-
-    if emotion == "conexion":
-        return base["es"]["conexion"]
-
-    return base["es"]["bien"]
-
-
-# ===============================
-# HEALTH CHECK
-# ===============================
-@app.route('/')
+# =========================
+# ROUTES
+# =========================
+@app.get("/")
 def home():
-    return jsonify({
-        "status": "SAFE LOOP ENGINE ACTIVE",
-        "steps": f"1-{MAX_STEPS}",
-        "mode": "sequential + emotional jumps"
-    })
+    return FileResponse(os.path.join(STATIC_DIR, "session.html"))
 
+@app.get("/api/missions")
+def missions():
+    return load_missions()
 
-# ===============================
+@app.get("/api/missions/{mission_id}")
+def mission_by_id(mission_id: int):
+    data = load_missions()["missions"]
+
+    for m in data:
+        if m["id"] == mission_id:
+            return m
+
+    raise HTTPException(status_code=404, detail="Not found")
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+# =========================
 # RUN
-# ===============================
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+# =========================
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
