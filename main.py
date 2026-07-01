@@ -1,222 +1,129 @@
+# OPEN THAN GO SYSTEM - Main Backend Engine
+# Company: May Roga LLC
+# File: main.py
+
+from flask import Flask, request, jsonify
 import json
+import sqlite3
 import random
-import time
-from fastapi import FastAPI
-app = FastAPI()
-# ===============================
-# LOOP CONFIG
-# ===============================
-LOOP_DURATION = 600  # 10 minutos exactos
-SESSION_MEMORY = {}
+import os
 
+app = Flask(__name__, static_folder='static')
 
-# ===============================
-# LOAD MISSIONS ONCE (EVITA FREEZES)
-# ===============================
-def cargar_misiones():
-    archivos = [
-        "missions_01_07.json",
-        "missions_08_14.json",
-        "missions_15_21.json"
-    ]
-
-    data_total = []
-
-    for file in archivos:
-        try:
-            with open(file, "r", encoding="utf-8") as f:
+def cargar_mision_por_bloque(decision, pocket_tier):
+    """
+    Carga y selecciona la misión adecuada dividida en bloques de 7.
+    - Casa: Bloque 1 (Misiones 1-7) -> Archivo: 'missions_01_07.json'
+    - Salir: Bloque 2 (8-14) o Bloque 3 (15-21) -> 'missions_08_14.json' / 'missions_15_21.json'
+    """
+    try:
+        if decision == "casa":
+            with open('missions_01_07.json', 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                data_total.extend(data.get("missions", []))
-        except Exception as e:
-            print(f"[ERROR] {file}: {e}")
-
-    return data_total
-
-
-ALL_MISSIONS = cargar_misiones()
-
-
-# ===============================
-# DETECTOR EMOCIONAL
-# ===============================
-def detectar_categoria(texto):
-    texto = texto.lower()
-
-    if any(x in texto for x in ["deuda", "dinero", "biles", "estrés", "problema", "mal"]):
-        return "mal"
-
-    if any(x in texto for x in ["niño", "hijo", "familia"]):
-        return "nino"
-
-    return "bien"
-
-
-# ===============================
-# SESSION SAFE LOOP
-# ===============================
-def get_session(session_id):
-    now = time.time()
-
-    if session_id not in SESSION_MEMORY:
-        SESSION_MEMORY[session_id] = {
-            "start": now,
-            "used": set()
-        }
-
-    session = SESSION_MEMORY[session_id]
-
-    # RESET AUTOMÁTICO 10 MIN
-    if now - session["start"] > LOOP_DURATION:
-        session["start"] = now
-        session["used"] = set()
-
-    return session
-
-
-# ===============================
-# GET RANDOM MISSION SIN REPETIR
-# ===============================
-def get_mission(categoria, bolsillo, used):
-    pool = [
-        m for m in ALL_MISSIONS
-        if m.get("cat") == categoria
-        and bolsillo in m.get("pocket_match", [])
-        and m.get("id") not in used
-    ]
-
-    if not pool:
-        pool = [m for m in ALL_MISSIONS if m.get("id") not in used]
-
-    if not pool:
+            # Para casa, tomamos cualquier misión del bloque 1
+            return random.choice(data['missions'])
+        
+        else:
+            # Para salidas, elegimos al azar entre el Bloque 2 o el Bloque 3 para romper la monotonía
+            archivo_elegido = random.choice(['missions_08_14.json', 'missions_15_21.json'])
+            
+            if not os.path.exists(archivo_elegido):
+                # Fallback de seguridad al Bloque 1 si los otros archivos aún no están creados
+                archivo_elegido = 'missions_01_07.json'
+                
+            with open(archivo_elegido, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                
+            # Filtramos las misiones del bloque que hagan match con el presupuesto del cliente ('cero', 'moderado', 'libre')
+            misiones_filtradas = [
+                m for m in data['missions'] 
+                if pocket_tier in m.get('pocket_match', [])
+            ]
+            
+            # Si no hay match estricto, devolvemos una al azar del bloque para no romper el flujo
+            return random.choice(misiones_filtradas) if misiones_filtradas else random.choice(data['missions'])
+            
+    except Exception as e:
+        print(f"Error cargando catálogo de misiones: {str(e)}")
         return None
 
-    return random.choice(pool)
-
-
-# ===============================
-# TRADUCCIÓN SEGURA TVID
-# ===============================
-def traducir(mision, idioma):
-    bloques = []
-
-    for b in mision.get("b", []):
-
-        bloque = json.loads(json.dumps(b))
-
-        def t(x):
-            if isinstance(x, dict):
-                return x.get(idioma, x.get("es", ""))
-            return x
-
-        for k in ["tx", "inf", "story"]:
-            if k in bloque:
-                bloque[k] = t(bloque[k])
-
-        if bloque.get("t") == "d":
-            if isinstance(bloque.get("q"), dict):
-                bloque["q"] = t(bloque["q"])
-
-            if "op" in bloque:
-                bloque["op"] = [
-                    o.get(idioma, o.get("es", "")) if isinstance(o, dict) else o
-                    for o in bloque["op"]
-                ]
-
-            if "ex" in bloque:
-                bloque["ex"] = [
-                    e.get(idioma, e.get("es", "")) if isinstance(e, dict) else e
-                    for e in bloque["ex"]
-                ]
-
-        bloques.append(bloque)
-
-    return bloques
-
-
-# ===============================
-# ROOT → FRONTEND (ESTO ERA EL ERROR)
-# ===============================
-@app.route("/")
-def home():
-    return app.send_static_file("session.html")
-
-
-# ===============================
-# ENGINE ENDPOINT
-# ===============================
-@app.route("/diagnostico-kamizen", methods=["POST"])
-def diagnostico():
-
+@app.route('/api/open-than-go', methods=['POST'])
+def procesar_sistema_bienestar():
     data = request.json
-
-    session_id = data.get("session_id", str(random.randint(100000, 999999)))
-    idioma = data.get("idioma", "es")
-    bolsillo = data.get("bolsillo", "cero")
-    texto = data.get("texto_libre", "")
-    puedes_salir = data.get("puedes_salir", True)
-
-    categoria = detectar_categoria(texto)
-
-    session = get_session(session_id)
-
-    mission = get_mission(categoria, bolsillo, session["used"])
-
-    if not mission:
-        return jsonify({"error": "No missions available"})
-
-    session["used"].add(mission["id"])
-
-    bloques = traducir(mission, idioma)
-
-    # ===============================
-    # OUTDOOR MODE
-    # ===============================
-    if puedes_salir:
-
-        zip_code = str(data.get("zip_code", "33101"))
-        estado = str(data.get("estado", "FL"))
-
-        tipo = "parks"
-
-        if categoria == "nino":
-            tipo = "parks+playgrounds+family"
-        elif categoria == "mal":
-            tipo = "quiet+nature+parks"
-
-        query = f"{tipo} {zip_code} {estado} USA"
-        url_maps = "https://www.google.com/maps/search/" + query.replace(" ", "+")
-
-        bloques.insert(0, {
-            "t": "h",
-            "tx": f"Go to {zip_code}. Start your 10-minute reset loop when you arrive."
-        })
-
+    decision = data.get('decision') # "casa" o "salir"
+    lang = data.get('lang', 'es')   # "es" o "en"
+    
+    # ----------------------------------------------------
+    # MODALIDAD A: EL CLIENTE SE QUEDA EN CASA (Terapia de 10 min oculta)
+    # ----------------------------------------------------
+    if decision == "casa":
+        # Forzar filtro de bolsillo general ya que no gasta en casa
+        mision_casa = cargar_mision_por_bloque("casa", "cero")
+        
+        if not mision_casa:
+            return jsonify({"status": "error", "message": "Error al inicializar el protocolo doméstico."}), 500
+            
         return jsonify({
-            "mode": "outdoor",
-            "session_id": session_id,
-            "title": "Active Escape Plan",
-            "location": f"{zip_code}, {estado}",
-            "loop_seconds": LOOP_DURATION,
-            "bloques": bloques,
-            "maps": url_maps,
-            "reset_in": max(0, LOOP_DURATION - (time.time() - session["start"]))
+            "status": "success",
+            "tipo": "Casa",
+            "mision": mision_casa
         })
+        
+    # ----------------------------------------------------
+    # MODALIDAD B: EL CLIENTE DECIDE SALIR (Romper el modo Zombi)
+    # ----------------------------------------------------
+    zip_code = data.get('zip_code')
+    estado = data.get('estado')
+    region = data.get('region')
+    pocket = data.get('budget_level') # "cero", "minimo", "moderado", "libre"
+    
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    try:
+        # Consulta elástica multinivel para evitar que el usuario se quede sin opciones:
+        # Intenta emparejar por código postal, si no, escala a región o estado entero, respetando el bolsillo.
+        cursor.execute('''
+            SELECT * FROM destinations 
+            WHERE (zip_code = ? OR region = ? OR estado = ?) AND budget_tier = ?
+        ''', (zip_code, region, estado, pocket))
+        
+        lugares_validos = cursor.fetchall()
+        
+        if not lugares_validos:
+            return jsonify({
+                "status": "error", 
+                "message": "No encontramos destinos con ese presupuesto exacto en tu zona hoy. Intenta cambiar el rango de bolsillo."
+            }), 404
+            
+        # Selección forzada de UN solo destino (Cero parálisis por análisis)
+        lugar_seleccionado = random.choice(lugares_validos)
+        
+        # Cargar misión de salida (Bloques 2 o 3: Misiones 8 a 21)
+        mision_salida = cargar_mision_por_bloque("salir", pocket)
+        
+        if not mision_salida:
+            return jsonify({"status": "error", "message": "Error al inicializar el protocolo de exploración."}), 500
+            
+        return jsonify({
+            "status": "success",
+            "tipo": "Salida",
+            "lugar": {
+                "name": lugar_seleccionado['name'],
+                "address": lugar_seleccionado['address'],
+                "region": lugar_seleccionado['region'],
+                "gps_link": lugar_seleccionado['gps_link']
+            },
+            "mision": mision_salida
+        })
+        
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+    finally:
+        conn.close()
 
-    # ===============================
-    # INDOOR MODE
-    # ===============================
-    return jsonify({
-        "mode": "indoor",
-        "session_id": session_id,
-        "title": "Indoor Reset Mode",
-        "loop_seconds": LOOP_DURATION,
-        "bloques": bloques,
-        "reset_in": max(0, LOOP_DURATION - (time.time() - session["start"]))
-    })
-
-
-# ===============================
-# RUN SERVER
-# ===============================
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+if __name__ == '__main__':
+    # Configuración lista para producción en Render o ejecución local
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
