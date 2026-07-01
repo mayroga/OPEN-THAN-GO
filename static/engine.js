@@ -1,287 +1,295 @@
+(() => {
+"use strict";
+
 // ===============================
-// SAFE LOOP ENGINE v5 TOTAL FIX
-// ONE BRAIN ONLY - CLIENT CONTROLLED
+// SAFE LOOP ENGINE v6 (STABLE UI + REAL BREATH + NO FREEZE)
+// SINGLE FLOW CONTROLLER
 // ===============================
 
 let state = {
     lang: "es",
-    stepIndex: 0,
     bloques: [],
-    modalidad: "outdoor",
-    voice: null,
-    speaking: false,
-    breathingInterval: null,
-    silenceTimer: null,
-    silenceActive: false,
-    countdown: 0,
+    index: 0,
+    used: new Set(),
+
+    loopDuration: 600000,
     loopStart: 0,
-    loopDuration: 600000, // 10 min exact
-    usedIndexes: new Set(),
-    breathingState: 0
+
+    breathing: null,
+    silence: null,
+
+    speaking: false
 };
 
 // ===============================
-// INIT VOICE
+// INIT
 // ===============================
-function initVoice(lang) {
-    const voices = speechSynthesis.getVoices();
-    state.voice = voices.find(v => v.lang.includes(lang)) || voices[0];
+window.addEventListener("load", () => {
+    window.speechSynthesis.onvoiceschanged = () => {};
+});
+
+// ===============================
+// HELPERS
+// ===============================
+function el(id) {
+    return document.getElementById(id);
+}
+
+function safeText(v) {
+    if (!v) return "";
+    if (typeof v === "string") return v;
+    return v.es || v.en || "";
 }
 
 // ===============================
-// TEXT SPEAK
+// VOICE
 // ===============================
 function speak(text) {
     if (!text) return;
+
     window.speechSynthesis.cancel();
+
     const u = new SpeechSynthesisUtterance(text);
     u.lang = state.lang;
-    u.voice = state.voice;
-    state.speaking = true;
+
     u.onend = () => state.speaking = false;
+
+    state.speaking = true;
     window.speechSynthesis.speak(u);
 }
 
 // ===============================
-// LOAD SESSION
+// START FLOW
 // ===============================
 async function solicitarEscape() {
 
     const payload = {
-        estado: document.getElementById("inp-state").value,
-        zip_code: document.getElementById("inp-zip").value,
+        estado: el("inp-state").value,
+        zip_code: el("inp-zip").value,
         bolsillo: getBolsillo(),
         puedes_salir: getModalidad(),
-        texto_libre: document.getElementById("inp-text").value,
+        texto_libre: el("inp-text").value,
         idioma: state.lang
     };
 
     const res = await fetch("/diagnostico-kamizen", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
     });
 
     const data = await res.json();
 
-    state.bloques = data.bloques_interactivos || [];
-    state.modalidad = data.modalidad;
+    state.bloques = data.bloques_interactivos || data.blocks || [];
 
-    document.getElementById("wrapper-form").style.display = "none";
-    document.getElementById("wrapper-interactive").style.display = "block";
+    el("wrapper-form").style.display = "none";
+    el("wrapper-interactive").style.display = "block";
 
-    document.getElementById("interactive-title").innerText = data.titulo;
+    el("interactive-title").innerText = data.titulo || data.title || "";
+    el("interactive-location").innerText = data.lugar || data.location || "";
 
-    if (data.lugar) {
-        document.getElementById("interactive-location").innerText = data.lugar;
-    }
-
-    if (data.url_maps) {
-        const mapBtn = document.getElementById("btn-maps-action");
-        mapBtn.href = data.url_maps;
-        mapBtn.style.display = "block";
+    if (data.url_maps || data.map) {
+        const btn = el("btn-maps-action");
+        btn.href = data.url_maps || data.map;
+        btn.style.display = "block";
     }
 
     state.loopStart = Date.now();
+
     startLoop();
-    renderStep();
+    nextStep();
 }
 
 // ===============================
-// LOOP CONTROL 10 MIN EXACT
+// LOOP CONTROL (10 MIN EXACT)
 // ===============================
 function startLoop() {
-    clearInterval(state.silenceTimer);
+    clearTimeout(state.loopTimeout);
 
-    setTimeout(() => {
+    state.loopTimeout = setTimeout(() => {
         endLoop();
     }, state.loopDuration);
 }
 
-// ===============================
 function endLoop() {
-    speak("Ejercicio terminado. Puedes reiniciar cuando quieras.");
-    resetEngine();
+    speak(state.lang === "es"
+        ? "Ejercicio terminado. Puedes reiniciar cuando quieras."
+        : "Session completed. You may restart anytime."
+    );
+
+    reset();
 }
 
 // ===============================
-function resetEngine() {
-    state.stepIndex = 0;
-    state.usedIndexes.clear();
-    state.breathingState = 0;
+// RESET
+// ===============================
+function reset() {
+    state.index = 0;
+    state.used.clear();
+    clearInterval(state.breathing);
+    clearInterval(state.silence);
 }
 
 // ===============================
-// STEP RENDER
+// STEP ENGINE (NO FREEZE SAFE)
 // ===============================
-function renderStep() {
+function nextStep() {
 
     if (!state.bloques.length) return;
 
-    let block = getNextBlock();
-
-    if (!block) {
-        endLoop();
-        return;
-    }
-
-    showBlock(block);
-}
-
-// ===============================
-// SECUENCIA SIN REPETICIÓN
-// ===============================
-function getNextBlock() {
-
-    if (state.usedIndexes.size >= state.bloques.length) {
-        state.usedIndexes.clear();
+    if (state.used.size >= state.bloques.length) {
+        state.used.clear();
     }
 
     let available = state.bloques
         .map((_, i) => i)
-        .filter(i => !state.usedIndexes.has(i));
+        .filter(i => !state.used.has(i));
 
     let idx = available[Math.floor(Math.random() * available.length)];
 
-    state.usedIndexes.add(idx);
-    state.stepIndex = idx;
+    state.used.add(idx);
+    state.index = idx;
 
-    return state.bloques[idx];
+    render(state.bloques[idx]);
 }
 
 // ===============================
-// SHOW BLOCK
+// RENDER BLOCK
 // ===============================
-function showBlock(block) {
+function render(block) {
 
-    const container = document.getElementById("step-content");
+    const container = el("step-content");
     container.innerHTML = "";
-
-    if (block.tx) {
-        speak(typeof block.tx === "string" ? block.tx : block.tx.es || block.tx.en);
-    }
 
     // TEXT
     if (block.tx) {
+        const t = safeText(block.tx);
         const div = document.createElement("div");
-        div.innerText = typeof block.tx === "string" ? block.tx : (block.tx.es || block.tx.en);
+        div.innerText = t;
         container.appendChild(div);
+        speak(t);
     }
 
     // QUESTION
     if (block.q) {
         const q = document.createElement("h3");
-        q.innerText = block.q.es || block.q.en;
+        q.innerText = safeText(block.q);
         container.appendChild(q);
     }
 
-    // OPTIONS
-    if (block.op) {
+    // OPTIONS (FIXED CLICK ISSUE)
+    if (block.op && Array.isArray(block.op)) {
+
         block.op.forEach((o, i) => {
-            const b = document.createElement("button");
-            b.innerText = o.es || o.en || o;
-            b.onclick = () => handleOption(i, block);
-            container.appendChild(b);
+            const btn = document.createElement("button");
+
+            btn.innerText = safeText(o);
+            btn.style.display = "block";
+            btn.style.width = "100%";
+            btn.style.margin = "6px 0";
+            btn.style.padding = "12px";
+
+            btn.onclick = () => {
+                speak(state.lang === "es" ? "Continuando" : "Continuing");
+                nextStep();
+            };
+
+            container.appendChild(btn);
         });
     }
 
-    // BREATHING FIX ANIMATED
+    // BREATHING FIX (REAL SMOOTH ANIMATION)
     if (block.t === "breath_auto") {
         startBreathing(block.d || 20);
     }
 
-    // SILENCE TIMER FIX
+    // SILENCE TIMER (FIXED)
     if (block.t === "sil") {
         startSilence(block.d || 30);
     }
 
-    document.getElementById("btn-next").style.display = "block";
+    el("btn-next").style.display = "block";
 }
 
 // ===============================
-// OPTION HANDLER
-// ===============================
-function handleOption(i, block) {
-    speak("Continuando");
-
-    renderStep();
-}
-
-// ===============================
-// BREATHING FIX ANIMATED
+// BREATHING (REAL PULSE SMOOTH)
 // ===============================
 function startBreathing(seconds) {
 
-    const circle = document.createElement("div");
-    circle.className = "breath-circle";
+    clearInterval(state.breathing);
 
-    const wrapper = document.querySelector(".wrapper-circle") || document.getElementById("step-content");
-    wrapper.appendChild(circle);
+    const container = el("step-content");
+
+    let circle = document.createElement("div");
+    circle.className = "breath-circle";
+    circle.style.transition = "transform 4s ease-in-out";
+    circle.style.margin = "20px auto";
+
+    container.appendChild(circle);
 
     let inhale = true;
-    let t = 0;
+    let count = 0;
 
-    clearInterval(state.breathingInterval);
-
-    state.breathingInterval = setInterval(() => {
-
-        t++;
+    state.breathing = setInterval(() => {
 
         if (inhale) {
-            circle.style.transform = "scale(1.6)";
-            circle.innerText = "IN";
+            circle.style.transform = "scale(1.8)";
+            circle.innerText = state.lang === "es" ? "INHALA" : "IN";
         } else {
             circle.style.transform = "scale(1)";
-            circle.innerText = "OUT";
+            circle.innerText = state.lang === "es" ? "EXHALA" : "OUT";
         }
 
         inhale = !inhale;
+        count++;
 
-        if (t >= seconds * 2) {
-            clearInterval(state.breathingInterval);
+        if (count >= seconds * 2) {
+            clearInterval(state.breathing);
         }
 
-    }, 1000);
+    }, 2000);
 }
 
 // ===============================
-// SILENCE TIMER FIX
+// SILENCE TIMER (REAL COUNTDOWN FIX)
 // ===============================
 function startSilence(seconds) {
 
-    state.silenceActive = true;
-    state.countdown = seconds;
+    clearInterval(state.silence);
 
-    const container = document.getElementById("step-content");
+    const container = el("step-content");
 
-    const timer = document.createElement("div");
-    timer.id = "silence-timer";
+    let timer = document.createElement("div");
+    timer.style.fontSize = "20px";
+    timer.style.marginTop = "10px";
+
     container.appendChild(timer);
 
-    clearInterval(state.silenceTimer);
+    let t = seconds;
 
-    state.silenceTimer = setInterval(() => {
+    timer.innerText = `⏳ ${t}`;
 
-        state.countdown--;
+    state.silence = setInterval(() => {
 
-        timer.innerText = "Silencio: " + state.countdown + "s";
+        t--;
+        timer.innerText = `⏳ ${t}`;
 
-        if (state.countdown <= 0) {
-            clearInterval(state.silenceTimer);
-            state.silenceActive = false;
-            renderStep();
+        if (t <= 0) {
+            clearInterval(state.silence);
+            nextStep();
         }
 
     }, 1000);
 }
 
 // ===============================
-// UI HELPERS
+// UI STATE
 // ===============================
 function cambiarIdioma(l) {
     state.lang = l;
-    document.getElementById("lang-es").classList.toggle("active", l === "es");
-    document.getElementById("lang-en").classList.toggle("active", l === "en");
+
+    el("lang-es").classList.toggle("active", l === "es");
+    el("lang-en").classList.toggle("active", l === "en");
 }
 
 function cambiarBolsillo(v) {
@@ -301,8 +309,19 @@ function getModalidad() {
 }
 
 // ===============================
-// NEXT STEP
+// NEXT BUTTON
 // ===============================
 function siguienteComando() {
-    renderStep();
+    nextStep();
 }
+
+// ===============================
+// EXPORT GLOBAL
+// ===============================
+window.solicitarEscape = solicitarEscape;
+window.siguienteComando = siguienteComando;
+window.cambiarIdioma = cambiarIdioma;
+window.cambiarBolsillo = cambiarBolsillo;
+window.cambiarModalidad = cambiarModalidad;
+
+})();
