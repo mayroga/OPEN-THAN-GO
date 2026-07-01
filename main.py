@@ -1,95 +1,146 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import json
 
-app = FastAPI(title="OPEN THAN GO CORE")
+app = FastAPI(title="OPEN THAN GO SYSTEM")
 
+# =========================================================
+# 🔒 CORS (EVITA BLOQUEOS FRONTEND / FREEZES)
+# =========================================================
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# =========================================================
+# 📁 PATHS
+# =========================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# =========================
-# CACHE
-# =========================
-CACHE = {
-    "missions": None
-}
 
-# =========================
-# LOAD JSON SAFE
-# =========================
-def load_json(path):
+# =========================================================
+# 🧠 LOAD JSON (SOURCE OF TRUTH - NO LOGIC HERE)
+# =========================================================
+def load_json(file_path):
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             return json.load(f)
-    except:
+    except Exception as e:
+        print("JSON ERROR:", file_path, e)
         return None
 
-# =========================
-# MISSIONS ORDERED (1 → N LOOP)
-# =========================
-def load_missions():
-    if CACHE["missions"]:
-        return CACHE["missions"]
 
-    files = sorted([
-        f for f in os.listdir(BASE_DIR)
-        if f.startswith("missions_") and f.endswith(".json")
-    ])
+def load_system():
+    path = os.path.join(BASE_DIR, "system.json")  # tu JSON principal
+    return load_json(path)
 
-    all_missions = []
 
-    for file in files:
-        data = load_json(os.path.join(BASE_DIR, file))
-        if not data:
-            continue
+SYSTEM = load_system()
 
-        missions = data.get("missions", []) if isinstance(data, dict) else data
 
-        for m in missions:
-            if isinstance(m, dict) and "id" in m:
-                all_missions.append(m)
+# =========================================================
+# 🎯 MISSIONS (STRICT ORDER 1 → N, NO RANDOM, NO SKIP)
+# =========================================================
+def get_missions():
+    if not SYSTEM:
+        return {"missions": [], "total": 0}
 
-    all_missions = sorted(all_missions, key=lambda x: x["id"])
+    missions = SYSTEM.get("missions", [])
 
-    CACHE["missions"] = {
-        "missions": all_missions,
-        "total": len(all_missions)
+    # FILTRO + ORDEN ABSOLUTO
+    missions = sorted(
+        [m for m in missions if isinstance(m, dict) and "id" in m],
+        key=lambda x: x["id"]
+    )
+
+    return {
+        "missions": missions,
+        "total": len(missions),
+        "range": SYSTEM.get("rng", "1-N")
     }
 
-    return CACHE["missions"]
 
-# =========================
-# ROUTES
-# =========================
+# =========================================================
+# 📖 STORIES (SI EXISTEN EN JSON)
+# =========================================================
+def get_stories():
+    if not SYSTEM:
+        return {"stories": [], "total": 0}
+
+    stories = SYSTEM.get("stories", [])
+
+    if isinstance(stories, dict):
+        stories = stories.get("stories", [])
+
+    stories = sorted(
+        [s for s in stories if isinstance(s, dict) and "id" in s],
+        key=lambda x: x["id"]
+    )
+
+    return {
+        "stories": stories,
+        "total": len(stories)
+    }
+
+
+# =========================================================
+# 🌐 FRONTEND
+# =========================================================
 @app.get("/")
 def home():
     return FileResponse(os.path.join(STATIC_DIR, "session.html"))
 
-@app.get("/api/missions")
-def missions():
-    return load_missions()
 
+@app.get("/session")
+def session():
+    return FileResponse(os.path.join(STATIC_DIR, "session.html"))
+
+
+# =========================================================
+# 📡 API - MISSIONS (SOURCE OF TRUTH)
+# =========================================================
+@app.get("/api/missions")
+def api_missions():
+    return get_missions()
+
+
+# =========================================================
+# 📡 API - STORIES
+# =========================================================
+@app.get("/api/stories")
+def api_stories():
+    return get_stories()
+
+
+# =========================================================
+# 🎯 GET SINGLE MISSION (DIRECT ACCESS)
+# =========================================================
 @app.get("/api/missions/{mission_id}")
 def mission_by_id(mission_id: int):
-    data = load_missions()["missions"]
+    data = get_missions()["missions"]
 
     for m in data:
         if m["id"] == mission_id:
             return m
 
-    raise HTTPException(status_code=404, detail="Not found")
+    raise HTTPException(status_code=404, detail="Mission not found")
 
+
+# =========================================================
+# 🧪 HEALTH CHECK
+# =========================================================
 @app.get("/health")
 def health():
-    return {"status": "ok"}
-
-# =========================
-# RUN
-# =========================
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    return {
+        "status": "ok",
+        "system": SYSTEM.get("sys") if SYSTEM else None
+    }
