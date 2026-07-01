@@ -3,61 +3,58 @@ import random
 import time
 from flask import Flask, request, jsonify
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static")
 
 # ===============================
-# MEMORY SAFE SESSION STORE (NO PII)
+# LOOP CONFIG
 # ===============================
-SESSION_MEMORY = {}
 LOOP_DURATION = 600  # 10 minutos exactos
+SESSION_MEMORY = {}
 
 
 # ===============================
-# LOAD MISSIONS
+# LOAD MISSIONS ONCE (EVITA FREEZES)
 # ===============================
-def cargar_todas_misiones():
+def cargar_misiones():
     archivos = [
         "missions_01_07.json",
         "missions_08_14.json",
         "missions_15_21.json"
     ]
 
-    misiones = []
+    data_total = []
 
     for file in archivos:
         try:
             with open(file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                misiones.extend(data.get("missions", []))
+                data_total.extend(data.get("missions", []))
         except Exception as e:
             print(f"[ERROR] {file}: {e}")
 
-    return misiones
+    return data_total
 
 
-ALL_MISSIONS = cargar_todas_misiones()
+ALL_MISSIONS = cargar_misiones()
 
 
 # ===============================
-# EMOTIONAL DETECTOR
+# DETECTOR EMOCIONAL
 # ===============================
 def detectar_categoria(texto):
     texto = texto.lower()
 
-    if any(x in texto for x in ["deuda", "biles", "dinero", "estrés", "problema", "mal"]):
+    if any(x in texto for x in ["deuda", "dinero", "biles", "estrés", "problema", "mal"]):
         return "mal"
 
     if any(x in texto for x in ["niño", "hijo", "familia"]):
         return "nino"
 
-    if any(x in texto for x in ["solo", "triste", "vacío", "aburrido"]):
-        return "bien"
-
     return "bien"
 
 
 # ===============================
-# SESSION MANAGER SAFE LOOP
+# SESSION SAFE LOOP
 # ===============================
 def get_session(session_id):
     now = time.time()
@@ -79,58 +76,58 @@ def get_session(session_id):
 
 
 # ===============================
-# FILTER MISSIONS
+# GET RANDOM MISSION SIN REPETIR
 # ===============================
-def get_mission(categoria, bolsillo, used_set):
+def get_mission(categoria, bolsillo, used):
     pool = [
         m for m in ALL_MISSIONS
         if m.get("cat") == categoria
         and bolsillo in m.get("pocket_match", [])
-        and m.get("id") not in used_set
+        and m.get("id") not in used
     ]
 
     if not pool:
-        pool = [m for m in ALL_MISSIONS if m.get("id") not in used_set]
+        pool = [m for m in ALL_MISSIONS if m.get("id") not in used]
 
     if not pool:
         return None
 
-    mission = random.choice(pool)
-    return mission
+    return random.choice(pool)
 
 
 # ===============================
-# TRANSLATION ENGINE
+# TRADUCCIÓN SEGURA TVID
 # ===============================
-def traducir_bloques(mision, idioma):
+def traducir(mision, idioma):
     bloques = []
 
     for b in mision.get("b", []):
-        bloque = json.loads(json.dumps(b))  # deep copy seguro
 
-        def tr(x):
+        bloque = json.loads(json.dumps(b))
+
+        def t(x):
             if isinstance(x, dict):
                 return x.get(idioma, x.get("es", ""))
             return x
 
-        for key in ["tx", "inf", "story"]:
-            if key in bloque:
-                bloque[key] = tr(bloque[key])
+        for k in ["tx", "inf", "story"]:
+            if k in bloque:
+                bloque[k] = t(bloque[k])
 
         if bloque.get("t") == "d":
             if isinstance(bloque.get("q"), dict):
-                bloque["q"] = tr(bloque["q"])
+                bloque["q"] = t(bloque["q"])
 
             if "op" in bloque:
                 bloque["op"] = [
-                    op.get(idioma, op.get("es", "")) if isinstance(op, dict) else op
-                    for op in bloque["op"]
+                    o.get(idioma, o.get("es", "")) if isinstance(o, dict) else o
+                    for o in bloque["op"]
                 ]
 
             if "ex" in bloque:
                 bloque["ex"] = [
-                    ex.get(idioma, ex.get("es", "")) if isinstance(ex, dict) else ex
-                    for ex in bloque["ex"]
+                    e.get(idioma, e.get("es", "")) if isinstance(e, dict) else e
+                    for e in bloque["ex"]
                 ]
 
         bloques.append(bloque)
@@ -139,18 +136,15 @@ def traducir_bloques(mision, idioma):
 
 
 # ===============================
-# HOME
+# ROOT → FRONTEND (ESTO ERA EL ERROR)
 # ===============================
 @app.route("/")
 def home():
-    return jsonify({
-        "status": "SAFE LOOP ENGINE v1 ACTIVE",
-        "loop_duration_seconds": LOOP_DURATION
-    })
+    return app.send_static_file("session.html")
 
 
 # ===============================
-# MAIN ENGINE ENDPOINT
+# ENGINE ENDPOINT
 # ===============================
 @app.route("/diagnostico-kamizen", methods=["POST"])
 def diagnostico():
@@ -170,13 +164,11 @@ def diagnostico():
     mission = get_mission(categoria, bolsillo, session["used"])
 
     if not mission:
-        return jsonify({
-            "error": "No missions available"
-        })
+        return jsonify({"error": "No missions available"})
 
     session["used"].add(mission["id"])
 
-    bloques = traducir_bloques(mission, idioma)
+    bloques = traducir(mission, idioma)
 
     # ===============================
     # OUTDOOR MODE
