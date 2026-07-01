@@ -60,7 +60,6 @@ function cambiarIdioma(lang) {
     document.getElementById('lang-es').classList.toggle('active', lang === 'es');
     document.getElementById('lang-en').classList.toggle('active', lang === 'en');
     
-    // Cambiar textos del formulario dinámicamente
     document.getElementById('txt-subtitle').innerText = traducciones[lang].subtitle;
     document.getElementById('lbl-state').innerText = traducciones[lang].state;
     document.getElementById('lbl-region').innerText = traducciones[lang].region;
@@ -91,7 +90,6 @@ function cambiarModalidad(esSalir) {
     document.getElementById('m-salir').classList.toggle('active', esSalir === true);
     document.getElementById('m-casa').classList.toggle('active', esSalir === false);
     
-    // Ocultar selectores geográficos si se queda en casa para simplificar la UX
     const displayGeografia = esSalir ? 'block' : 'none';
     document.getElementById('inp-state').parentElement.style.display = displayGeografia;
     document.getElementById('inp-region').parentElement.style.display = displayGeografia;
@@ -99,7 +97,7 @@ function cambiarModalidad(esSalir) {
 }
 
 // ----------------------------------------------------
-// PETICIÓN ASÍNCRONA AL BACKEND (MAIN.PY)
+// PETICIÓN ASÍNCRONA AL BACKEND
 // ----------------------------------------------------
 async function solicitarEscape() {
     const payload = {
@@ -112,7 +110,6 @@ async function solicitarEscape() {
         desahogo: document.getElementById('inp-text').value.trim()
     };
 
-    // Control de pantallas (Mostrar Loader)
     document.getElementById('wrapper-form').style.display = 'none';
     document.getElementById('wrapper-loader').style.display = 'flex';
     document.getElementById('wrapper-interactive').style.display = 'none';
@@ -126,30 +123,26 @@ async function solicitarEscape() {
 
         const data = await respuesta.json();
 
-        // Pausa intencional de 1.8 segundos para bajar las revoluciones mentales del usuario
         setTimeout(() => {
             document.getElementById('wrapper-loader').style.display = 'none';
 
-            if (data.status === 'success') {
-                // Inicializar variables del juego / terapia oculta
+            if (data.status === 'success' && data.mision && data.mision.b) {
                 pasosMisionGlobal = data.mision.b;
                 datosLugarGlobal = data.lugar || null;
-                tipoEscapeGlobal = data.tipo; // "Casa" o "Salida"
+                tipoEscapeGlobal = data.tipo;
                 indicePasoActual = 0;
 
-                // Configurar cabeceras de la sección interactiva
                 document.getElementById('interactive-title').innerText = "OPEN THAN GO";
                 document.getElementById('interactive-subtitle').innerText = 
-                    tipoEscapeGlobal === "Casa" ? traducciones[idiomaActual].txt_tipo_casa : traducciones[idiomaActual].txt_tipo_salida;
+                    tipoEscapeGlobal === "Casa" ? traducciones[idiomaActual].tipo_casa : traducciones[idiomaActual].tipo_salida;
 
                 document.getElementById('wrapper-interactive').style.display = 'block';
                 
-                // Si es salida, inyectamos la tarjeta del lugar de inmediato
                 const areaLugar = document.getElementById('interactive-location');
                 if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
                     areaLugar.innerHTML = `
                         <div class="card-lugar">
-                            <h3>📍 Destino Asignado: ${datosLugarGlobal.name}</h3>
+                            <h3>📍 ${datosLugarGlobal.name}</h3>
                             <p>${datosLugarGlobal.address}</p>
                         </div>
                     `;
@@ -158,44 +151,39 @@ async function solicitarEscape() {
                     areaLugar.style.display = 'none';
                 }
 
-                // Arrancar el procesador secuencial de pasos
                 procesarPasoMision();
             } else {
-                alert(data.message);
+                alert(data.message || "Error en el servidor.");
                 document.getElementById('wrapper-form').style.display = 'block';
             }
         }, 1800);
 
     } catch (error) {
         console.error("Error del sistema:", error);
-        alert("Error de conexión con Open Than Go Server.");
+        alert("Error de conexión con el servidor.");
         document.getElementById('wrapper-form').style.display = 'block';
         document.getElementById('wrapper-loader').style.display = 'none';
     }
 }
 
 // ----------------------------------------------------
-// MOTOR DE PROCESAMIENTO SECUENCIAL (PASO A PASO)
+// MOTOR DE PROCESAMIENTO PASO A PASO
 // ----------------------------------------------------
 function procesarPasoMision() {
-    clearInterval(intervaloRespiracion); // Limpiar cualquier reloj previo
+    clearInterval(intervaloRespiracion);
     
     const contenedorPasos = document.getElementById('step-content');
     const botonContinuar = document.getElementById('btn-next');
     const botonGps = document.getElementById('btn-maps-action');
     
-    // Ocultar controles por defecto hasta evaluar el tipo de paso
     botonContinuar.style.display = 'none';
     botonGps.style.display = 'none';
 
-    // Validación: Si terminamos todos los bloques de la misión
     if (indicePasoActual >= pasosMisionGlobal.length) {
         if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
-            // Fin de la misión en exteriores: habilitar GPS definitivo
             botonGps.href = datosLugarGlobal.gps_link;
             botonGps.style.display = 'block';
         } else {
-            // Fin de la misión en casa: recargar para permitir otra sesión
             location.reload();
         }
         return;
@@ -203,15 +191,13 @@ function procesarPasoMision() {
 
     const paso = pasosMisionGlobal[indicePasoActual];
 
-    // EVALUACIÓN DE ETIQUETA DINÁMICA DE TU JSON
-    
-    // 1. Cabeceras decorativas sueltas (v o h)
+    // 1. Cabeceras sueltas (v o h)
     if (paso.t === "v" || paso.t === "h") {
         contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0;">${paso.tx[idiomaActual]}</h3>`;
         botonContinuar.style.display = 'block';
     }
     
-    // 2. Bloque de Narrativa Contextual (story)
+    // 2. Narrativa Contextual (story)
     else if (paso.story) {
         contenedorPasos.innerHTML = `
             <div class="screen-story">
@@ -221,32 +207,33 @@ function procesarPasoMision() {
         botonContinuar.style.display = 'block';
     }
     
-    // 3. Bloque de Regulación Biológica (breath_auto)
+    // 3. Regulación Biológica (breath_auto)
     else if (paso.t === "breath_auto") {
         let tiempoRestante = paso.d;
         contenedorPasos.innerHTML = `
             <div class="wrapper-circle">
                 <div class="breath-circle" id="circulo-pulso">${tiempoRestante}s</div>
-                function evaluarRespuestaTrivia(indiceSeleccionado, indiceCorrecto, explicacionTexto) {
-    const contenedorFeedback = document.getElementById('box-feedback');
-    if (!contenedorFeedback) return;
-
-    // Deshabilitar el resto de opciones para evitar doble clic
-    const botones = document.querySelectorAll('.btn-opcion');
-    botones.forEach(btn => btn.disabled = true);
-
-    const esCorrecto = indiceSeleccionado === indiceCorrecto;
-    contenedorFeedback.className = esCorrecto ? "feedback-box fb-correcto" : "feedback-box fb-incorrecto";
+                <p style="font-weight:600; margin-top:15px; font-size:15px;">${paso.tx[idiomaActual]}</p>
+                <p class="breath-inf">${paso.inf[idiomaActual]}</p>
+            </div>
+        `;
+        
+        intervaloRespiracion = setInterval(() => {
+            tiempoRestante--;
+            const circulo = document.getElementById('circulo-pulso');
+            if (circulo) circulo.innerText = `${tiempoRestante}s`;
+            
+            if (tiempoRestante <= 0) {
+                clearInterval(intervaloRespiracion);
+                botonContinuar.style.display = 'block';
+            }
+        }, 1000);
+    }
     
-    const prefijo = esCorrecto ? traducciones[idiomaActual].txt_correcto : traducciones[idiomaActual].txt_incorrecto;
-    contenedorFeedback.innerHTML = prefijo + explicacionTexto;
-
-    // Habilitar el botón de continuar una vez que el usuario procesó la retroalimentación
-    document.getElementById('btn-next').style.display = 'block';
-}
-
-function siguienteComando() {
-    indicePasoActual++;
-    procesarPasoMision();
-}
-
+    // 4. Cuestionario Conductual (t = "d")
+    else if (paso.t === "d") {
+        let opcionesHtml = "";
+        paso.op.forEach((opcion, index) => {
+            opcionesHtml += `
+                <button class="btn-opcion" onclick="evaluarRespuestaTrivia(${index}, ${paso.c}, '${paso.ex[index][idiomaActual].replace(/'/g, "\\'")}')">
+                    ${opcion[idiomaActual]}
