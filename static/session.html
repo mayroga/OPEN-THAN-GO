@@ -4,27 +4,287 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OPEN THAN GO</title>
+
     <style>
-        :root { --primary: #1e3a1e; --secondary: #2e7d32; --accent: #d84315; --light: #f1f8e9; }
-        body { font-family: sans-serif; background-color: var(--light); padding: 20px; display: flex; justify-content: center; }
-        .container-app { background: white; max-width: 480px; width: 100%; padding: 20px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); }
-        .header-app { text-align: center; margin-bottom: 15px; }
-        .lang-bar { display: flex; gap: 8px; margin-bottom: 15px; }
-        .btn-lang { flex: 1; padding: 8px; border: none; border-radius: 20px; background: #eee; cursor: pointer; }
-        .btn-lang.active { background: var(--primary); color: white; }
-        .form-group { margin-bottom: 16px; }
-        select, input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; }
-        .btn-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .btn-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        .btn-choice { padding: 12px; border-radius: 10px; border: none; background: #eee; cursor: pointer; }
-        .btn-choice.active { background: var(--secondary); color: white; }
-        .btn-trigger { width: 100%; padding: 16px; border: none; border-radius: 10px; background: var(--accent); color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        :root {
+            --primary: #1e3a1e;
+            --secondary: #2e7d32;
+            --accent: #d84315;
+            --light: #f1f8e9;
+            --dark: #111111;
+            --white: #ffffff;
+            --gray: #eeeeee;
+            --blue-circle: #00bcd4;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--light);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container-app {
+            background: var(--white);
+            max-width: 480px;
+            width: 100%;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+
+        .header-app {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .header-app h1 {
+            color: var(--primary);
+            margin: 0;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .header-app p {
+            font-size: 13px;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .lang-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .btn-lang {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 20px;
+            background: var(--gray);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .btn-lang.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: var(--primary);
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            font-size: 14px;
+        }
+
+        textarea {
+            height: 90px;
+            resize: none;
+        }
+
+        .btn-grid-2, .btn-grid-3 {
+            display: grid;
+            gap: 8px;
+        }
+
+        .btn-grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .btn-grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .btn-choice {
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: var(--gray);
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .btn-choice.active {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-trigger {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            background: var(--accent);
+            color: white;
+            font-weight: bold;
+        }
+
+        .interactive-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .screen-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .screen-story {
+            background: #f9f9f9;
+            padding: 14px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .wrapper-circle {
+            display: flex;
+            justify-content: center;
+            height: 160px;
+        }
+
+        .breath-circle {
+            width: 90px;
+            height: 90px;
+            background: var(--blue-circle);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-next-step {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-maps-route {
+            display: none;
+            width: 100%;
+            text-align: center;
+            padding: 14px;
+            background: #4285f4;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container-app" id="app">
+<div class="container-app">
+
+    <!-- FORMULARIO -->
+    <div id="wrapper-form">
+
+        <div class="lang-bar">
+            <button class="btn-lang active" id="lang-es" onclick="cambiarIdioma('es')">ES</button>
+            <button class="btn-lang" id="lang-en" onclick="cambiarIdioma('en')">EN</button>
+        </div>
+
+        <div class="header-app">
+            <h1>OPEN THAN GO</h1>
+            <p id="txt-subtitle">Tu escape emocional inteligente</p>
+        </div>
+
+        <div class="form-group">
+            <label>Estado</label>
+            <select id="inp-state">
+                <option value="FL">Florida</option>
+                <option value="TX">Texas</option>
+                <option value="CA">California</option>
+                <option value="NY">New York</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>ZIP Code</label>
+            <input id="inp-zip" maxlength="5" placeholder="Ej: 33101">
+        </div>
+
+        <div class="form-group">
+            <label>Presupuesto</label>
+            <div class="btn-grid-3">
+                <button class="btn-choice active" onclick="cambiarBolsillo('cero')">$0</button>
+                <button class="btn-choice" onclick="cambiarBolsillo('moderado')">Medio</button>
+                <button class="btn-choice" onclick="cambiarBolsillo('libre')">Libre</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>¿Salir o casa?</label>
+            <div class="btn-grid-2">
+                <button class="btn-choice active" onclick="cambiarModalidad(true)">Salir</button>
+                <button class="btn-choice" onclick="cambiarModalidad(false)">Casa</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Desahogo</label>
+            <textarea id="inp-text" placeholder="Escribe cómo te sientes..."></textarea>
+        </div>
+
+        <button class="btn-trigger" onclick="solicitarEscape()">
+            GENERAR ESCAPE
+        </button>
+
     </div>
+
+    <!-- INTERACTIVO -->
+    <div id="wrapper-interactive" class="interactive-screen">
+
+        <h2 id="interactive-title" class="screen-title"></h2>
+        <div id="interactive-location"></div>
+
+        <div id="step-content"></div>
+
+        <button id="btn-next" class="btn-next-step" onclick="siguienteComando()" style="display:none;">
+            CONTINUAR
+        </button>
+
+        <a id="btn-maps-action" class="btn-maps-route" target="_blank">
+            ABRIR MAPA
+        </a>
+
+    </div>
+
+</div>
 
 <script src="/static/engine.js"></script>
 </body>
