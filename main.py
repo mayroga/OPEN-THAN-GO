@@ -6,9 +6,9 @@ app = Flask(__name__, static_folder="static")
 
 
 # ===============================
-# LOAD MISSIONS (SAFE)
+# LOAD DATA
 # ===============================
-def load_all_missions():
+def load_missions():
     files = [
         "missions_01_07.json",
         "missions_08_14.json",
@@ -22,39 +22,52 @@ def load_all_missions():
             with open(f, "r", encoding="utf-8") as file:
                 data = json.load(file)
                 all_missions.extend(data.get("missions", []))
-        except Exception as e:
-            print(f"[ERROR] {f}: {e}")
+        except:
+            pass
 
     return all_missions
 
 
-ALL_MISSIONS = load_all_missions()
+ALL = load_missions()
 
 
 # ===============================
-# DETECTOR SIMPLE
+# CATEGORY DETECTOR (MEJORADO)
 # ===============================
-def detectar_categoria(texto: str):
-    texto = (texto or "").lower()
+def detectar_categoria(texto):
+    t = (texto or "").lower()
 
-    if any(k in texto for k in ["biles", "dinero", "deuda", "cuenta", "estrés", "problema", "mal"]):
-        return "mal"
+    if any(x in t for x in ["deuda", "dinero", "biles", "trabajo", "jefe", "estrés"]):
+        return "stress_financiero"
 
-    if any(k in texto for k in ["niño", "hijo", "familia", "kids"]):
-        return "nino"
+    if any(x in t for x in ["familia", "hijo", "pareja"]):
+        return "familia"
 
-    return "bien"
+    if any(x in t for x in ["solo", "aburrido", "vacío"]):
+        return "emocional"
+
+    return "equilibrio"
 
 
 # ===============================
-# FILTER MISSIONS (NO RANDOM LOGIC HERE)
+# DESTINATION ENGINE (REAL LIFE MAP LOGIC)
 # ===============================
-def filtrar_misiones(categoria, bolsillo):
-    return [
-        m for m in ALL_MISSIONS
-        if m.get("cat") == categoria
-        and bolsillo in m.get("pocket_match", ["cero", "moderado", "libre"])
-    ]
+def generar_tipo_destino(categoria, bolsillo):
+    base = ["parks", "nature", "quiet"]
+
+    if categoria == "stress_financiero":
+        base = ["cheap_cafes", "libraries", "community_centers", "walkable_areas"]
+
+    if categoria == "familia":
+        base = ["family_places", "museums", "zoos", "aquariums", "parks"]
+
+    if categoria == "emocional":
+        base = ["beach", "waterfront", "open_spaces", "sunset_points"]
+
+    if bolsillo == "libre":
+        base += ["restaurants", "mall", "entertainment", "cinema", "urban_centers"]
+
+    return " OR ".join(base)
 
 
 # ===============================
@@ -66,105 +79,80 @@ def home():
 
 
 # ===============================
-# API MAIN
+# API
 # ===============================
 @app.route("/diagnostico-kamizen", methods=["POST"])
-def diagnostico_kamizen():
+def api():
 
     data = request.get_json(force=True)
 
     idioma = data.get("idioma", "es")
     bolsillo = data.get("bolsillo", "cero")
     texto = data.get("texto_libre", "")
-    puede_salir = data.get("puedes_salir", True)
+    salir = data.get("puedes_salir", True)
 
-    estado = (data.get("estado", "FL") or "FL").strip()
-    zip_code = (data.get("zip_code", "33101") or "33101").strip()
+    estado = data.get("estado", "FL")
+    zip_code = data.get("zip_code", "33101")
 
     categoria = detectar_categoria(texto)
 
-    missions = filtrar_misiones(categoria, bolsillo)
+    # ===============================
+    # MISSIONS RANDOM PER CATEGORY
+    # ===============================
+    missions = [m for m in ALL if m.get("cat")]
 
     if not missions:
-        return jsonify({"error": "NO_MISSIONS_AVAILABLE"})
+        return jsonify({"error": "no_data"})
 
-    # ===============================
-    # SELECCIÓN SIMPLE (ENGINE MANDA EL LOOP)
-    # ===============================
     mission = random.choice(missions)
 
     bloques = mission.get("b", [])
 
-    # ===============================
-    # TRANSLATE SAFE ONLY
-    # ===============================
     processed = []
 
     for b in bloques:
         block = dict(b)
 
-        # translate dict fields
-        for key in ["tx", "inf", "story"]:
-            if isinstance(block.get(key), dict):
-                block[key] = block[key].get(idioma, block[key].get("es", ""))
+        for k in ["tx", "inf", "story"]:
+            if isinstance(block.get(k), dict):
+                block[k] = block[k].get(idioma, block[k].get("es", ""))
 
-        # question
         if isinstance(block.get("q"), dict):
-            block["q"] = block["q"].get(idioma, block["q"].get("es", ""))
-
-        # options
-        if isinstance(block.get("op"), list):
-            new_ops = []
-            for op in block["op"]:
-                if isinstance(op, dict):
-                    new_ops.append(op.get(idioma, op.get("es", "")))
-                else:
-                    new_ops.append(op)
-            block["op"] = new_ops
-
-        # explanations
-        if isinstance(block.get("ex"), list):
-            new_ex = []
-            for ex in block["ex"]:
-                if isinstance(ex, dict):
-                    new_ex.append(ex.get(idioma, ex.get("es", "")))
-                else:
-                    new_ex.append(ex)
-            block["ex"] = new_ex
+            block["q"] = block["q"].get(idioma, "")
 
         processed.append(block)
 
     # ===============================
-    # MAP LOGIC SIMPLE (NO PARK LOCK)
+    # REAL DESTINATION SYSTEM
     # ===============================
-    tipo = "parks"
+    tipo_lugares = generar_tipo_destino(categoria, bolsillo)
 
-    if categoria == "nino":
-        tipo = "parks+playgrounds"
-    elif categoria == "mal":
-        tipo = "quiet+nature+safe+areas"
-
-    query = f"{tipo} {zip_code} {estado} USA"
-    url_maps = f"https://www.google.com/maps/search/{query.replace(' ', '+')}"
+    url = f"https://www.google.com/maps/search/{tipo_lugares}+{zip_code}+{estado}".replace(" ", "+")
 
     # ===============================
-    # MODE RESPONSE
+    # RESPONSE
     # ===============================
-    if not puede_salir:
+    if not salir:
         return jsonify({
-            "modalidad": "indoor",
-            "titulo": "Modo Interior",
-            "lugar": "Espacio personal",
-            "bloques_interactivos": processed,
-            "url_maps": None
+            "mode": "indoor",
+            "title": "Inner Reset Mode",
+            "blocks": processed,
+            "map": None,
+            "meta": {
+                "loop": 600
+            }
         })
 
     return jsonify({
-        "modalidad": "outdoor",
-        "titulo": "Active Escape Plan",
-        "lugar": f"Zona activa en {zip_code}, {estado}",
-        "bloques_interactivos": processed,
-        "url_maps": url_maps
+        "mode": "outdoor",
+        "title": "Active Guidance Mode",
+        "location": f"{zip_code}, {estado}",
+        "blocks": processed,
+        "map": url,
+        "meta": {
+            "loop": 600,
+            "system": "decision_engine_v2"
+        }
     })
 
 
