@@ -1,8 +1,7 @@
-// OPEN THAN GO SYSTEM - Frontend Voice & Somatic Engine
+// OPEN THAN GO SYSTEM - Frontend Engine con Diagnóstico de Errores Activo
 // Company: May Roga LLC
 // File: static/engine.js
 
-// Variables de estado global de la sesión interactiva
 let idiomaActual = 'es';
 let presupuestoActual = 'cero';
 let modalidadSalir = true; 
@@ -35,23 +34,41 @@ const traducciones = {
     }
 };
 
-// ----------------------------------------------------
-// MOTOR DE AUDIO (SÍNTESIS DE VOZ NATIIVA)
-// ----------------------------------------------------
-function hablarTexto(texto) {
-    window.speechSynthesis.cancel();
-    if (!texto) return;
+// Muestra los errores directamente en la pantalla del celular para saber qué falla
+function mostrarErrorEnPantalla(titulo, detalle) {
+    document.getElementById('wrapper-loader').style.display = 'none';
+    document.getElementById('wrapper-form').style.display = 'block';
     
-    const lectura = new SpeechSynthesisUtterance(texto);
-    lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US'; 
-    lectura.rate = 0.95; 
-    lectura.pitch = 1.0; 
-    window.speechSynthesis.speak(lectura);
+    let cajaError = document.getElementById('error-diagnostico');
+    if (!cajaError) {
+        cajaError = document.createElement('div');
+        cajaError.id = 'error-diagnostico';
+        cajaError.style.background = '#ffebee';
+        cajaError.style.color = '#c62828';
+        cajaError.style.padding = '15px';
+        cajaError.style.borderRadius = '10px';
+        cajaError.style.marginTop = '15px';
+        cajaError.style.border = '2px solid #ef5350';
+        cajaError.style.fontSize = '13px';
+        cajaError.style.textAlign = 'left';
+        document.getElementById('wrapper-form').appendChild(cajaError);
+    }
+    cajaError.innerHTML = `<strong>🚨 ERROR DE DIAGNÓSTICO:</strong><br>${titulo}<br><br><small style="color:#555;">Detalle técnico: ${detalle}</small>`;
 }
 
-// ----------------------------------------------------
-// INTERFAZ DE USUARIO Y CONFIGURACIÓN
-// ----------------------------------------------------
+function hablarTexto(texto) {
+    try {
+        window.speechSynthesis.cancel();
+        if (!texto) return;
+        const lectura = new SpeechSynthesisUtterance(texto);
+        lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US'; 
+        lectura.rate = 0.95; 
+        window.speechSynthesis.speak(lectura);
+    } catch(e) {
+        console.error("Falla en motor de voz:", e);
+    }
+}
+
 function cambiarIdioma(lang) {
     idiomaActual = lang;
     document.getElementById('lang-es').classList.toggle('active', lang === 'es');
@@ -91,11 +108,7 @@ function cambiarModalidad(esSalir) {
     document.getElementById('inp-zip').parentElement.style.display = displayGeografia;
 }
 
-// ----------------------------------------------------
-// PETICIÓN ASÍNCRONA UNIFICADA AL BACKEND
-// ----------------------------------------------------
 async function solicitarEscape() {
-    // UNIFICACIÓN DE VARIABLES: Sincronizado al 100% con main.py
     const payload = {
         decision: modalidadSalir ? "salir" : "casa",
         lang: idiomaActual,
@@ -110,12 +123,22 @@ async function solicitarEscape() {
     document.getElementById('wrapper-loader').style.display = 'flex';
     document.getElementById('wrapper-interactive').style.display = 'none';
 
+    // Limpiar errores previos si los hubiera
+    const errorPrevio = document.getElementById('error-diagnostico');
+    if (errorPrevio) errorPrevio.remove();
+
     try {
         const respuesta = await fetch('/api/open-than-go', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
+
+        // Capturar errores directos del servidor Render (404, 500, etc)
+        if (!respuesta.ok) {
+            mostrarErrorEnPantalla(`El servidor Render respondió con código de error ${respuesta.status}`, "Verifica los logs en el panel de Render.com para ver por qué se cayó Python.");
+            return;
+        }
 
         const data = await respuesta.json();
 
@@ -149,75 +172,45 @@ async function solicitarEscape() {
 
                 procesarPasoMision();
             } else {
-                alert(data.message || "Error al sincronizar con el servidor.");
-                document.getElementById('wrapper-form').style.display = 'block';
+                mostrarErrorEnPantalla("El servidor procesó la ruta pero el JSON de misiones está incompleto.", data.message || "Falta la propiedad 'mision' o 'b' en la respuesta del backend.");
             }
         }, 1200);
 
     } catch (error) {
-        console.error("Error crítico de comunicación:", error);
-        alert("Error de conexión. Reconectando con Open Than Go...");
-        document.getElementById('wrapper-form').style.display = 'block';
-        document.getElementById('wrapper-loader').style.display = 'none';
+        mostrarErrorEnPantalla("No hay comunicación física entre el Frontend de la app y tu servidor en Render.", error.message);
     }
 }
 
-// ----------------------------------------------------
-// PROCESADOR SECUENCIAL AUTOMÁTICO DE PASOS
-// ----------------------------------------------------
 function procesarPasoMision() {
-    clearInterval(intervaloRespiracion);
-    window.speechSynthesis.cancel();
-    
-    const botonContinuar = document.getElementById('btn-next');
-    const botonGps = document.getElementById('btn-maps-action');
-    
-    botonContinuar.style.display = 'none';
-    botonGps.style.display = 'none';
+    try {
+        clearInterval(intervaloRespiracion);
+        window.speechSynthesis.cancel();
+        
+        const botonContinuar = document.getElementById('btn-next');
+        const botonGps = document.getElementById('btn-maps-action');
+        
+        botonContinuar.style.display = 'none';
+        botonGps.style.display = 'none';
 
-    // BLINDAJE DE CONTENEDOR: Crea dinámicamente el lienzo de texto si no existe en el HTML
-    let contenedorPasos = document.getElementById('step-content');
-    if (!contenedorPasos) {
-        contenedorPasos = document.createElement('div');
-        contenedorPasos.id = 'step-content';
-        const wrapperInteractive = document.getElementById('wrapper-interactive');
-        wrapperInteractive.insertBefore(contenedorPasos, botonContinuar);
-    }
-
-    if (indicePasoActual >= pasosMisionGlobal.length) {
-        if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
-            botonGps.href = datosLugarGlobal.gps_link;
-            botonGps.style.display = 'block';
-        } else {
-            location.reload();
+        let contenedorPasos = document.getElementById('step-content');
+        if (!contenedorPasos) {
+            contenedorPasos = document.createElement('div');
+            contenedorPasos.id = 'step-content';
+            const wrapperInteractive = document.getElementById('wrapper-interactive');
+            wrapperInteractive.insertBefore(contenedorPasos, botonContinuar);
         }
-        return;
-    }
 
-    const paso = pasosMisionGlobal[indicePasoActual];
+        if (indicePasoActual >= pasosMisionGlobal.length) {
+            if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
+                botonGps.href = datosLugarGlobal.gps_link;
+                botonGps.style.display = 'block';
+            } else {
+                location.reload();
+            }
+            return;
+        }
 
-    // Evaluar etiquetas de tus archivos JSON
-    if (paso.t === "v" || paso.t === "h") {
-        contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0;">${paso.tx[idiomaActual]}</h3>`;
-        hablarTexto(paso.tx[idiomaActual]);
-        botonContinuar.style.display = 'block';
-    }
-    
-    else if (paso.story) {
-        contenedorPasos.innerHTML = `
-            <div class="screen-story">
-                <p>${paso.story[idiomaActual]}</p>
-            </div>
-        `;
-        hablarTexto(paso.story[idiomaActual]);
-        botonContinuar.style.display = 'block';
-    }
-    
-    else if (paso.t === "breath_auto") {
-        let tiempoRestante = paso.d;
-        contenedorPasos.innerHTML = `
-            <div class="wrapper-circle">
-                <div class="breath-circle animar-respiracion" id="circulo-pulso">${tiempoRestante}s</div>
-                <div class="txt-instruccion-pulmon" id="txt-pulmon-accion">---</div>
-                }
+        const paso = pasosMisionGlobal[indicePasoActual];
 
+        if (paso.t === "v" || paso.t === "h") {
+            contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0;">${paso.tx[idiomaActual]}</h3>`;
