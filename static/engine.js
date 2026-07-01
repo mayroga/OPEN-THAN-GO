@@ -1,295 +1,130 @@
-// ===============================
-// SAFE LOOP ENGINE v1
-// OPEN THAN GO SYSTEM
-// ===============================
+// Open Than Go Engine - UX Dinámica y Manejo de Bloques de Misiones
 
-let state = {
-    session_id: null,
-    bloques: [],
-    index: 0,
-    timer: null,
-    breathTimer: null,
-    silenceTimer: null,
-    loopEnd: 0,
-    running: false,
-    maps: null,
-    idioma: "es"
-};
+async function ejecutarOpenThanGo() {
+    // 1. Capturar Variables Básicas de la Interfaz
+    const decision = document.querySelector('input[name="destino_inicial"]:checked')?.value; // "casa" o "salir"
+    const current_lang = document.getElementById("select-lang").value || "es";
+    
+    // Contenedores de Pantalla
+    const pantallaCarga = document.getElementById("loader-pantalla");
+    const contenedorResultado = document.getElementById("contenedor-prescripcion");
+    
+    pantallaCarga.style.display = "flex";
+    contenedorResultado.style.display = "none";
 
-const circle = () => document.querySelector(".breath-circle");
-const stepContent = () => document.getElementById("step-content");
-const title = () => document.getElementById("interactive-title");
-const locationBox = () => document.getElementById("interactive-location");
-const btnNext = () => document.getElementById("btn-next");
-const mapsBtn = () => document.getElementById("btn-maps-action");
+    let payload = { decision: decision, lang: current_lang };
 
-// ===============================
-// INIT REQUEST
-// ===============================
-async function solicitarEscape() {
-
-    const data = {
-        session_id: Date.now().toString(),
-        estado: document.getElementById("inp-state").value,
-        zip_code: document.getElementById("inp-zip").value,
-        bolsillo: getBolsillo(),
-        puedes_salir: getModalidad(),
-        texto_libre: document.getElementById("inp-text").value,
-        idioma: state.idioma
-    };
-
-    const res = await fetch("/diagnostico-kamizen", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
-    });
-
-    const json = await res.json();
-
-    if (json.error) {
-        alert("No hay misiones disponibles");
-        return;
+    // Si decide salir, agregamos los filtros geográficos y económicos
+    if (decision === "salir") {
+        payload.zip_code = document.getElementById("input-zip").value;
+        payload.estado = document.getElementById("select-estado").value;
+        payload.region = document.getElementById("select-region").value;
+        payload.budget_level = document.querySelector('input[name="pocket_match"]:checked')?.value; // "cero", "moderado", "libre"
     }
 
-    startEngine(json);
+    try {
+        const respuesta = await fetch('/api/open-than-go', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await respuesta.json();
+
+        setTimeout(() => {
+            pantallaCarga.style.display = "none";
+            
+            if (data.status === "success") {
+                renderizarEstructuraMision(data, current_lang);
+                contenedorResultado.style.display = "block";
+                contenedorResultado.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert(data.message);
+            }
+        }, 1500); // 1.5 segundos para bajar la ansiedad del usuario
+
+    } catch (error) {
+        pantallaCarga.style.display = "none";
+        console.error("Error en Open Than Go System:", error);
+    }
 }
 
-// ===============================
-// START ENGINE
-// ===============================
-function startEngine(data) {
-
-    state.session_id = data.session_id;
-    state.bloques = data.bloques;
-    state.index = 0;
-    state.maps = data.maps || null;
-    state.running = true;
-
-    state.loopEnd = Date.now() + (data.loop_seconds * 1000);
-
-    document.getElementById("wrapper-form").style.display = "none";
-    document.getElementById("wrapper-interactive").style.display = "block";
-
-    title().innerText = data.title || "OPEN THAN GO";
-
-    if (data.location) {
-        locationBox().innerText = data.location;
-    }
-
-    if (state.maps) {
-        mapsBtn().style.display = "block";
-        mapsBtn().href = state.maps;
-    }
-
-    renderStep();
-
-    startLoopTimer();
-    startBreathing();
-}
-
-// ===============================
-// STEP ENGINE
-// ===============================
-function renderStep() {
-
-    if (!state.bloques[state.index]) {
-        finishLoop();
-        return;
-    }
-
-    const b = state.bloques[state.index];
-
-    let html = "";
-
-    if (b.t === "v") {
-        html = `<h3>${b.tx}</h3>`;
-    }
-
-    if (b.t === "h") {
-        html = `<div class="screen-story">${b.tx}</div>`;
-    }
-
-    if (b.t === "story") {
-        html = `<div class="screen-story">${b.tx}</div>`;
-    }
-
-    if (b.t === "breath_auto") {
-        startBreathingCycle(b.d || 5);
-        html = `<p>${b.tx}</p>`;
-    }
-
-    if (b.t === "d") {
-        html = `
-            <div class="screen-story">
-                <p><b>${b.q}</b></p>
-                ${b.op.map((o, i) =>
-                    `<button class="btn-choice" onclick="selectOption(${i})">${o}</button>`
-                ).join("")}
+function renderizarEstructuraMision(data, lang) {
+    // Renderizar Ubicación (Solo si es una salida exterior)
+    const areaLugar = document.getElementById("modulo-lugar");
+    if (data.tipo === "Salida") {
+        areaLugar.innerHTML = `
+            <div class="card-lugar">
+                <h3>📍 Tu Destino de Cambio: ${data.lugar.name}</h3>
+                <p><strong>Ubicación:</strong> ${data.lugar.address} (${data.lugar.region})</p>
+                <button onclick="window.open('${data.lugar.gps_link}', '_blank')" class="btn-gps">Abrir GPS Gratis</button>
             </div>
         `;
+        areaLugar.style.display = "block";
+    } else {
+        areaLugar.style.display = "none";
     }
 
-    if (b.t === "sil") {
-        startSilenceTimer(b.d || 10);
-        html = `<p><b>SILENCE CHALLENGE</b></p><p>${b.tx}</p>`;
+    // Procesar e Inyectar los Bloques Internos (b) de la Misión de manera Humana
+    const pasos = data.mision.b;
+    let htmlPasos = "";
+
+    pasos.forEach(paso => {
+        if (paso.story) {
+            htmlPasos += `<div class="bloque-historia"><p>${paso.story[lang]}</p></div>`;
+        }
+        if (paso.t === "breath_auto") {
+            htmlPasos += `
+                <div class="bloque-respiracion">
+                    <span class="cronometro">⏱️ ${paso.d}s</span>
+                    <p><strong>${paso.tx[lang]}</strong></p>
+                    <small>${paso.inf[lang]}</small>
+                </div>
+            `;
+        }
+        if (paso.t === "d") {
+            // El Cuestionario de Opción Múltiple (Terapia de Decisión Conductual)
+            let opcionesHtml = "";
+            paso.op.forEach((opcion, index) => {
+                opcionesHtml += `
+                    <button class="btn-opcion" onclick="validarRespuestaMision(${index}, ${paso.c}, '${paso.ex[index][lang]}')">
+                        ${opcion[lang]}
+                    </button>
+                `;
+            });
+            htmlPasos += `
+                <div class="bloque-decision">
+                    <h4>🤔 Desafío Mental:</h4>
+                    <p class="pregunta">${paso.q[lang]}</p>
+                    <div class="contenedor-opciones">${opcionesHtml}</div>
+                    <div id="feedback-decision" class="feedback-oculto"></div>
+                </div>
+            `;
+        }
+        if (paso.t === "c") {
+            htmlPasos += `<div class="bloque-compromiso"><blockquote>"${paso.tx[lang]}"</blockquote></div>`;
+        }
+        if (paso.t === "sil") {
+            htmlPasos += `
+                <div class="bloque-ejercicio-final">
+                    <h4>⚡ Ejercicio Práctico en el Sitio (${paso.d} segundos):</h4>
+                    <p>${paso.tx[lang]}</p>
+                    <small>💡 Beneficio: ${paso.inf[lang]}</small>
+                </div>
+            `;
+        }
+    });
+
+    document.getElementById("area-pasos-mision").innerHTML = htmlPasos;
+}
+
+function validarRespuestaMision(seleccionado, correcto, explicacion) {
+    const feedbackDiv = document.getElementById("feedback-decision");
+    feedbackDiv.className = "feedback-visible";
+    
+    if (seleccionado === correcto) {
+        feedbackDiv.innerHTML = `<p class="txt-correcto"><strong>¡Excelente elección!</strong> <br>${explicacion}</p>`;
+    } else {
+        feedbackDiv.innerHTML = `<p class="txt-incorrecto"><strong>Analiza esto:</strong> <br>${explicacion}</p>`;
     }
-
-    stepContent().innerHTML = html;
-
-    btnNext().style.display = "block";
-}
-
-// ===============================
-// NEXT STEP
-// ===============================
-function siguienteComando() {
-    state.index++;
-    renderStep();
-}
-
-// ===============================
-// BREATHING ENGINE (REAL ANIMATION)
-// ===============================
-function startBreathing() {
-
-    const c = circle();
-    if (!c) return;
-
-    let grow = true;
-    let size = 90;
-
-    clearInterval(state.breathTimer);
-
-    state.breathTimer = setInterval(() => {
-
-        if (!state.running) return;
-
-        if (grow) {
-            size += 1;
-            if (size >= 130) grow = false;
-        } else {
-            size -= 1;
-            if (size <= 80) grow = true;
-        }
-
-        c.style.width = size + "px";
-        c.style.height = size + "px";
-
-    }, 50);
-}
-
-// ===============================
-// BREATH CYCLE CONTROLLED
-// ===============================
-function startBreathingCycle(seconds) {
-
-    const c = circle();
-    if (!c) return;
-
-    let t = seconds * 2;
-    let size = 90;
-
-    clearInterval(state.breathTimer);
-
-    state.breathTimer = setInterval(() => {
-
-        if (!state.running) return;
-
-        size = size === 90 ? 120 : 90;
-
-        c.style.width = size + "px";
-        c.style.height = size + "px";
-
-        t--;
-
-        if (t <= 0) {
-            clearInterval(state.breathTimer);
-            startBreathing();
-        }
-
-    }, 1000);
-}
-
-// ===============================
-// SILENCE TIMER (CRITICAL)
-// ===============================
-function startSilenceTimer(seconds) {
-
-    let remaining = seconds;
-
-    clearInterval(state.silenceTimer);
-
-    state.silenceTimer = setInterval(() => {
-
-        if (!state.running) return;
-
-        remaining--;
-
-        if (remaining <= 0) {
-            clearInterval(state.silenceTimer);
-            siguienteComando();
-        }
-
-    }, 1000);
-}
-
-// ===============================
-// MAIN LOOP TIMER 10 MIN
-// ===============================
-function startLoopTimer() {
-
-    clearInterval(state.timer);
-
-    state.timer = setInterval(() => {
-
-        const left = state.loopEnd - Date.now();
-
-        if (left <= 0) {
-            finishLoop();
-        }
-
-    }, 1000);
-}
-
-// ===============================
-// FINISH LOOP
-// ===============================
-function finishLoop() {
-
-    state.running = false;
-
-    clearInterval(state.timer);
-    clearInterval(state.breathTimer);
-    clearInterval(state.silenceTimer);
-
-    stepContent().innerHTML = `
-        <div class="screen-story">
-            <h3>LOOP COMPLETED</h3>
-            <p>You can restart your 10-minute reset cycle.</p>
-        </div>
-    `;
-
-    btnNext().style.display = "none";
-}
-
-// ===============================
-// UI HELPERS
-// ===============================
-function getBolsillo() {
-    return document.querySelector(".btn-choice.active")?.textContent === "$0"
-        ? "cero"
-        : "moderado";
-}
-
-function getModalidad() {
-    return true;
-}
-
-function cambiarIdioma(l) {
-    state.idioma = l;
-}
-
-// placeholder for option click
-function selectOption(i) {
-    siguienteComando();
 }
