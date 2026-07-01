@@ -1,280 +1,308 @@
 // ===============================
-// SAFE LOOP ENGINE v3 CLIENT
-// OPEN THAN GO - MAY ROGA LLC
+// SAFE LOOP ENGINE v5 TOTAL FIX
+// ONE BRAIN ONLY - CLIENT CONTROLLED
 // ===============================
 
-let currentBlocks = [];
-let currentStep = 0;
-let engineState = null;
-
-let timer = null;
-let sessionSeconds = 600; // 10 minutes
-let remaining = sessionSeconds;
-
-let breathingInterval = null;
-let isRunning = false;
+let state = {
+    lang: "es",
+    stepIndex: 0,
+    bloques: [],
+    modalidad: "outdoor",
+    voice: null,
+    speaking: false,
+    breathingInterval: null,
+    silenceTimer: null,
+    silenceActive: false,
+    countdown: 0,
+    loopStart: 0,
+    loopDuration: 600000, // 10 min exact
+    usedIndexes: new Set(),
+    breathingState: 0
+};
 
 // ===============================
-// INIT REQUEST
+// INIT VOICE
+// ===============================
+function initVoice(lang) {
+    const voices = speechSynthesis.getVoices();
+    state.voice = voices.find(v => v.lang.includes(lang)) || voices[0];
+}
+
+// ===============================
+// TEXT SPEAK
+// ===============================
+function speak(text) {
+    if (!text) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = state.lang;
+    u.voice = state.voice;
+    state.speaking = true;
+    u.onend = () => state.speaking = false;
+    window.speechSynthesis.speak(u);
+}
+
+// ===============================
+// LOAD SESSION
 // ===============================
 async function solicitarEscape() {
 
     const payload = {
         estado: document.getElementById("inp-state").value,
         zip_code: document.getElementById("inp-zip").value,
-        bolsillo: selectedPocket,
+        bolsillo: getBolsillo(),
+        puedes_salir: getModalidad(),
         texto_libre: document.getElementById("inp-text").value,
-        puedes_salir: selectedMode,
-        idioma: currentLang
+        idioma: state.lang
     };
 
-    const res = await fetch("/safe-loop-engine", {
+    const res = await fetch("/diagnostico-kamizen", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload)
     });
 
     const data = await res.json();
 
-    if (!data.blocks) {
-        alert("No data received");
-        return;
-    }
-
-    startEngine(data);
-}
-
-
-// ===============================
-// START ENGINE
-// ===============================
-function startEngine(data) {
-
-    currentBlocks = data.blocks || [];
-    currentStep = 0;
-    engineState = data.engine || {};
-
-    isRunning = true;
+    state.bloques = data.bloques_interactivos || [];
+    state.modalidad = data.modalidad;
 
     document.getElementById("wrapper-form").style.display = "none";
     document.getElementById("wrapper-interactive").style.display = "block";
 
-    document.getElementById("interactive-title").innerText = data.title || "OPEN THAN GO";
+    document.getElementById("interactive-title").innerText = data.titulo;
 
-    if (data.location) {
-        document.getElementById("interactive-location").innerText = data.location;
+    if (data.lugar) {
+        document.getElementById("interactive-location").innerText = data.lugar;
     }
 
-    if (data.map_url) {
+    if (data.url_maps) {
         const mapBtn = document.getElementById("btn-maps-action");
+        mapBtn.href = data.url_maps;
         mapBtn.style.display = "block";
-        mapBtn.href = data.map_url;
     }
 
+    state.loopStart = Date.now();
     startLoop();
-    startBreathing();
-    startTimer();
     renderStep();
 }
 
-
 // ===============================
-// LOOP CONTROL
+// LOOP CONTROL 10 MIN EXACT
 // ===============================
 function startLoop() {
-    renderStep();
+    clearInterval(state.silenceTimer);
+
+    setTimeout(() => {
+        endLoop();
+    }, state.loopDuration);
 }
 
+// ===============================
+function endLoop() {
+    speak("Ejercicio terminado. Puedes reiniciar cuando quieras.");
+    resetEngine();
+}
+
+// ===============================
+function resetEngine() {
+    state.stepIndex = 0;
+    state.usedIndexes.clear();
+    state.breathingState = 0;
+}
+
+// ===============================
+// STEP RENDER
+// ===============================
 function renderStep() {
 
-    if (!isRunning) return;
+    if (!state.bloques.length) return;
 
-    const container = document.getElementById("step-content");
-    const btnNext = document.getElementById("btn-next");
-
-    const block = currentBlocks[currentStep];
+    let block = getNextBlock();
 
     if (!block) {
-        finishSession();
+        endLoop();
         return;
     }
 
-    container.innerHTML = "";
+    showBlock(block);
+}
 
-    // TEXT BLOCK
-    if (block.tx) {
-        const div = document.createElement("div");
-        div.className = "screen-story";
-        div.innerText = block.tx;
-        container.appendChild(div);
+// ===============================
+// SECUENCIA SIN REPETICIÓN
+// ===============================
+function getNextBlock() {
 
-        speak(block.tx);
+    if (state.usedIndexes.size >= state.bloques.length) {
+        state.usedIndexes.clear();
     }
 
-    // QUESTION BLOCK
-    if (block.t === "d") {
-        const q = document.createElement("div");
-        q.className = "screen-story";
-        q.innerText = block.q;
+    let available = state.bloques
+        .map((_, i) => i)
+        .filter(i => !state.usedIndexes.has(i));
+
+    let idx = available[Math.floor(Math.random() * available.length)];
+
+    state.usedIndexes.add(idx);
+    state.stepIndex = idx;
+
+    return state.bloques[idx];
+}
+
+// ===============================
+// SHOW BLOCK
+// ===============================
+function showBlock(block) {
+
+    const container = document.getElementById("step-content");
+    container.innerHTML = "";
+
+    if (block.tx) {
+        speak(typeof block.tx === "string" ? block.tx : block.tx.es || block.tx.en);
+    }
+
+    // TEXT
+    if (block.tx) {
+        const div = document.createElement("div");
+        div.innerText = typeof block.tx === "string" ? block.tx : (block.tx.es || block.tx.en);
+        container.appendChild(div);
+    }
+
+    // QUESTION
+    if (block.q) {
+        const q = document.createElement("h3");
+        q.innerText = block.q.es || block.q.en;
         container.appendChild(q);
+    }
 
-        block.op.forEach((opt, index) => {
-            const btn = document.createElement("button");
-            btn.className = "btn-choice";
-            btn.innerText = opt;
-
-            btn.onclick = () => selectOption(index);
-
-            container.appendChild(btn);
+    // OPTIONS
+    if (block.op) {
+        block.op.forEach((o, i) => {
+            const b = document.createElement("button");
+            b.innerText = o.es || o.en || o;
+            b.onclick = () => handleOption(i, block);
+            container.appendChild(b);
         });
     }
 
-    btnNext.style.display = "block";
+    // BREATHING FIX ANIMATED
+    if (block.t === "breath_auto") {
+        startBreathing(block.d || 20);
+    }
+
+    // SILENCE TIMER FIX
+    if (block.t === "sil") {
+        startSilence(block.d || 30);
+    }
+
+    document.getElementById("btn-next").style.display = "block";
 }
 
-
 // ===============================
-// NEXT STEP
+// OPTION HANDLER
 // ===============================
-function siguienteComando() {
-
-    if (!isRunning) return;
-
-    currentStep++;
-
-    if (currentStep >= currentBlocks.length) {
-        finishSession();
-        return;
-    }
+function handleOption(i, block) {
+    speak("Continuando");
 
     renderStep();
 }
 
-
 // ===============================
-// OPTION SELECT (NO FREEZE)
+// BREATHING FIX ANIMATED
 // ===============================
-function selectOption(index) {
+function startBreathing(seconds) {
 
-    const block = currentBlocks[currentStep];
+    const circle = document.createElement("div");
+    circle.className = "breath-circle";
 
-    if (!block || !block.op) return;
+    const wrapper = document.querySelector(".wrapper-circle") || document.getElementById("step-content");
+    wrapper.appendChild(circle);
 
-    const selected = block.op[index];
+    let inhale = true;
+    let t = 0;
 
-    speak(selected);
+    clearInterval(state.breathingInterval);
 
-    setTimeout(() => {
-        siguienteComando();
-    }, 800);
-}
+    state.breathingInterval = setInterval(() => {
 
+        t++;
 
-// ===============================
-// TIMER 10 MINUTES SAFE LOOP
-// ===============================
-function startTimer() {
+        if (inhale) {
+            circle.style.transform = "scale(1.6)";
+            circle.innerText = "IN";
+        } else {
+            circle.style.transform = "scale(1)";
+            circle.innerText = "OUT";
+        }
 
-    remaining = sessionSeconds;
+        inhale = !inhale;
 
-    timer = setInterval(() => {
-
-        remaining--;
-
-        if (remaining <= 0) {
-            finishSession();
+        if (t >= seconds * 2) {
+            clearInterval(state.breathingInterval);
         }
 
     }, 1000);
 }
 
-
 // ===============================
-// BREATHING ANIMATION (FIXED)
+// SILENCE TIMER FIX
 // ===============================
-function startBreathing() {
+function startSilence(seconds) {
 
-    const circle = document.querySelector(".breath-circle");
+    state.silenceActive = true;
+    state.countdown = seconds;
 
-    if (!circle) return;
+    const container = document.getElementById("step-content");
 
-    let inhale = true;
+    const timer = document.createElement("div");
+    timer.id = "silence-timer";
+    container.appendChild(timer);
 
-    breathingInterval = setInterval(() => {
+    clearInterval(state.silenceTimer);
 
-        if (!isRunning) return;
+    state.silenceTimer = setInterval(() => {
 
-        if (inhale) {
-            circle.style.transform = "scale(1.6)";
-            circle.innerText = "INHALE";
-        } else {
-            circle.style.transform = "scale(1.0)";
-            circle.innerText = "EXHALE";
+        state.countdown--;
+
+        timer.innerText = "Silencio: " + state.countdown + "s";
+
+        if (state.countdown <= 0) {
+            clearInterval(state.silenceTimer);
+            state.silenceActive = false;
+            renderStep();
         }
 
-        inhale = !inhale;
-
-    }, 3000);
+    }, 1000);
 }
 
-
 // ===============================
-// VOICE ENGINE (TTS)
+// UI HELPERS
 // ===============================
-function speak(text) {
-
-    if (!text) return;
-
-    try {
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = currentLang === "es" ? "es-ES" : "en-US";
-        msg.rate = 1;
-
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(msg);
-    } catch (e) {
-        console.log("Voice error", e);
-    }
-}
-
-
-// ===============================
-// FINISH SESSION SAFE RESET
-// ===============================
-function finishSession() {
-
-    isRunning = false;
-
-    clearInterval(timer);
-    clearInterval(breathingInterval);
-
-    document.getElementById("step-content").innerHTML = `
-        <div class="screen-story">
-            Sesión completada. Puedes reiniciar el ciclo.
-        </div>
-    `;
-
-    const btn = document.getElementById("btn-next");
-    btn.innerText = "REINICIAR";
-    btn.onclick = () => location.reload();
-}
-
-
-// ===============================
-// GLOBAL CONTROL FLAGS
-// ===============================
-let selectedPocket = "cero";
-let selectedMode = true;
-let currentLang = "es";
-
-function cambiarIdioma(lang) {
-    currentLang = lang;
+function cambiarIdioma(l) {
+    state.lang = l;
+    document.getElementById("lang-es").classList.toggle("active", l === "es");
+    document.getElementById("lang-en").classList.toggle("active", l === "en");
 }
 
 function cambiarBolsillo(v) {
-    selectedPocket = v;
+    window._bolsillo = v;
+}
+
+function getBolsillo() {
+    return window._bolsillo || "cero";
 }
 
 function cambiarModalidad(v) {
-    selectedMode = v;
+    window._modalidad = v;
+}
+
+function getModalidad() {
+    return window._modalidad ?? true;
+}
+
+// ===============================
+// NEXT STEP
+// ===============================
+function siguienteComando() {
+    renderStep();
 }
