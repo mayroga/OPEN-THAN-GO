@@ -1,313 +1,269 @@
-let configuracion = {
-    idioma: 'es',
-    puedes_salir: true,
-    bolsillo: 'cero',
-    modo: null, // HOME / OUTSIDE
+let estado = {
+    datos: null,
+    indice: 0,
+    bloque: 0,
+    ejecutando: false,
+    timerSesion: null,
+    tiempoRestante: 600, // 10 minutos exactos
+    intervalo: null,
+    respiracion: null,
+    usados: new Set()
 };
 
-let comandosMision = [];
-let indiceActual = 0;
-let intervaloRespiracion = null;
-let cuentaRegresiva = null;
-
-/* =========================
-   TEXTO UI
-========================= */
-const textos = {
-    es: {
-        subtitle: "Tu botón de escape inmediato para romper la monotonía urbana.",
-        lblState: "Estado / State:",
-        lblZip: "ZIP Code (5 dígitos):",
-        lblPocket: "¿Cuál es tu presupuesto real para hoy?",
-        pocketCero: "GASTO $0 HOY",
-        pocketMod: "MODERADO",
-        pocketLibre: "LIBRE",
-        lblMode: "¿Puedes o quieres salir de casa hoy?",
-        btnOut: "🟢 SÍ, SALIR",
-        btnIn: "🏠 EN CASA",
-        lblText: "Desahógate aquí:",
-        placeholder: "Escribe cómo te sientes...",
-        btnSubmit: "SÁCAME DE LA MONOTONÍA",
-        alertZip: "ZIP inválido",
-        alertError: "Error de conexión",
-        btnMaps: "🗺️ ABRIR MAPA"
-    },
-    en: {
-        subtitle: "Your instant escape from urban monotony.",
-        lblState: "State:",
-        lblZip: "ZIP (5 digits):",
-        lblPocket: "Budget today:",
-        pocketCero: "$0",
-        pocketMod: "Moderate",
-        pocketLibre: "Free",
-        lblMode: "Can you leave home today?",
-        btnOut: "YES, GO OUT",
-        btnIn: "STAY HOME",
-        lblText: "Vent here:",
-        placeholder: "Write how you feel...",
-        btnSubmit: "BREAK MONOTONY",
-        alertZip: "Invalid ZIP",
-        alertError: "Connection error",
-        btnMaps: "OPEN MAP"
-    }
+const ui = {
+    titulo: document.getElementById("titulo"),
+    subtitulo: document.getElementById("subtitulo"),
+    contenedor: document.getElementById("contenedor"),
+    circulo: document.getElementById("circulo"),
+    timer: document.getElementById("timer")
 };
 
-/* =========================
-   IDIOMA
-========================= */
-function cambiarIdioma(lang) {
-    configuracion.idioma = lang;
+//
+// ===============================
+// INICIO DE SESION
+// ===============================
+//
+function iniciarSesion(datos) {
+    estado.datos = datos;
+    estado.indice = 0;
+    estado.bloque = 0;
+    estado.usados.clear();
 
-    const t = textos[lang];
-
-    document.getElementById('txt-subtitle').innerText = t.subtitle;
-    document.getElementById('lbl-state').innerText = t.lblState;
-    document.getElementById('lbl-zip').innerText = t.lblZip;
-    document.getElementById('lbl-pocket').innerText = t.lblPocket;
-
-    document.getElementById('pocket-cero').innerText = t.pocketCero;
-    document.getElementById('pocket-mod').innerText = t.pocketMod;
-    document.getElementById('pocket-libre').innerText = t.pocketLibre;
-
-    document.getElementById('lbl-mode').innerText = t.lblMode;
-    document.getElementById('mode-out').innerText = t.btnOut;
-    document.getElementById('mode-in').innerText = t.btnIn;
-
-    document.getElementById('lbl-text').innerText = t.lblText;
-    document.getElementById('inp-text').placeholder = t.placeholder;
-    document.getElementById('btn-submit').innerText = t.btnSubmit;
+    iniciarTimerGlobal();
+    ejecutarSiguienteBloque();
 }
 
-/* =========================
-   BOLSILLO
-========================= */
-function cambiarBolsillo(tipo) {
-    configuracion.bolsillo = tipo;
+//
+// ===============================
+// TIMER GLOBAL 10 MINUTOS
+// ===============================
+//
+function iniciarTimerGlobal() {
+    clearInterval(estado.timerSesion);
 
-    document.querySelectorAll('.pocket').forEach(b => b.classList.remove('active'));
-    document.getElementById(`pocket-${tipo}`).classList.add('active');
+    estado.tiempoRestante = 600;
+
+    estado.timerSesion = setInterval(() => {
+        estado.tiempoRestante--;
+
+        actualizarTimerUI();
+
+        if (estado.tiempoRestante <= 0) {
+            finalizarSesion();
+        }
+    }, 1000);
 }
 
-/* =========================
-   MODO CASA / EXTERIOR
-========================= */
-function cambiarModalidad(salir) {
-    configuracion.puedes_salir = salir;
+function actualizarTimerUI() {
+    const min = Math.floor(estado.tiempoRestante / 60);
+    const sec = estado.tiempoRestante % 60;
 
-    document.getElementById('mode-out').classList.toggle('active', salir);
-    document.getElementById('mode-in').classList.toggle('active', !salir);
-
-    const zip = document.getElementById('inp-zip');
-
-    zip.disabled = !salir;
-    zip.style.opacity = salir ? "1" : "0.4";
-
-    configuracion.modo = salir ? "OUTSIDE" : "HOME";
+    ui.timer.innerText = `${min}:${sec < 10 ? "0" : ""}${sec}`;
 }
 
-/* =========================
-   VOZ (MASCULINA GUIADA)
-========================= */
-function speak(text) {
-    if (!window.speechSynthesis) return;
+function finalizarSesion() {
+    clearInterval(estado.timerSesion);
+    clearInterval(estado.intervalo);
+    cancelarRespiracion();
 
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = configuracion.idioma === 'es' ? 'es-ES' : 'en-US';
-    msg.rate = 0.95;
-    msg.pitch = 0.7; // más masculino
-    msg.volume = 1;
-
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(msg);
+    ui.contenedor.innerHTML = `
+        <div class="end-screen">
+            <h2>Sesión completada</h2>
+            <button onclick="reiniciarSesion()">Reiniciar</button>
+        </div>
+    `;
 }
 
-/* =========================
-   ENVÍO AL BACKEND
-========================= */
-function solicitarEscape() {
+function reiniciarSesion() {
+    location.reload();
+}
 
-    const estado = document.getElementById('inp-state').value;
-    const zip = document.getElementById('inp-zip').value.trim();
-    const texto = document.getElementById('inp-text').value.trim();
+//
+// ===============================
+// LOOP PRINCIPAL DE BLOQUES
+// ===============================
+//
+function ejecutarSiguienteBloque() {
+    if (!estado.datos) return;
 
-    const t = textos[configuracion.idioma];
+    const bloques = estado.datos.bloques_interactivos;
 
-    if (configuracion.puedes_salir && zip.length !== 5) {
-        alert(t.alertZip);
-        return;
+    if (estado.bloque >= bloques.length) {
+        estado.indice++;
+        estado.bloque = 0;
+
+        if (estado.indice >= bloques.length) {
+            estado.indice = 0;
+        }
     }
 
-    const payload = {
-        puedes_salir: configuracion.puedes_salir,
-        idioma: configuracion.idioma,
-        zip_code: zip,
-        estado,
-        bolsillo: configuracion.bolsillo,
-        texto_libre: texto
-    };
+    const bloque = bloques[estado.bloque];
+    estado.bloque++;
 
-    fetch('/diagnostico-kamizen', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(r => r.json())
-    .then(data => {
+    procesarBloque(bloque);
+}
 
-        document.getElementById('wrapper-form').style.display = 'none';
-        document.getElementById('wrapper-interactive').style.display = 'block';
+//
+// ===============================
+// MOTOR DE BLOQUES
+// ===============================
+//
+function procesarBloque(bloque) {
 
-        document.getElementById('interactive-title').innerText = data.titulo;
-        document.getElementById('interactive-location').innerText = data.lugar;
+    switch (bloque.t) {
 
-        comandosMision = data.bloques_interactivos || [];
-        indiceActual = 0;
+        case "v":
+            mostrarTitulo(bloque.tx);
+            setTimeout(ejecutarSiguienteBloque, 2000);
+            break;
 
-        // MAPA SOLO OUTSIDE
-        const btnMaps = document.getElementById('btn-maps-action');
-        if (data.modalidad === 'outdoor' && data.url_maps) {
-            btnMaps.href = data.url_maps;
-            btnMaps.style.display = 'block';
+        case "h":
+            mostrarSubtitulo(bloque.tx);
+            setTimeout(ejecutarSiguienteBloque, 4000);
+            break;
+
+        case "story":
+            mostrarTexto(bloque);
+            setTimeout(ejecutarSiguienteBloque, 6000);
+            break;
+
+        case "breath_auto":
+            iniciarRespiracion(bloque.d);
+            setTimeout(() => {
+                cancelarRespiracion();
+                ejecutarSiguienteBloque();
+            }, bloque.d * 1000);
+            break;
+
+        case "d":
+            mostrarDecision(bloque);
+            break;
+
+        case "r":
+            mostrarRecompensa(bloque);
+            setTimeout(ejecutarSiguienteBloque, 2000);
+            break;
+
+        case "c":
+            mostrarConfirmacion(bloque);
+            setTimeout(ejecutarSiguienteBloque, 2000);
+            break;
+
+        case "sil":
+            iniciarSilencio(bloque);
+            break;
+
+        default:
+            ejecutarSiguienteBloque();
+    }
+}
+
+//
+// ===============================
+// UI HELPERS
+// ===============================
+//
+function mostrarTitulo(texto) {
+    ui.titulo.innerText = texto;
+}
+
+function mostrarSubtitulo(texto) {
+    ui.subtitulo.innerText = texto;
+}
+
+function mostrarTexto(bloque) {
+    ui.contenedor.innerHTML = `<p>${bloque.tx || ""}</p>`;
+}
+
+//
+// ===============================
+// RESPIRACION REAL ANIMADA
+// ===============================
+//
+function iniciarRespiracion(duracion) {
+    let expandiendo = true;
+    let escala = 1;
+
+    clearInterval(estado.intervalo);
+
+    estado.intervalo = setInterval(() => {
+
+        if (expandiendo) {
+            escala += 0.01;
+            if (escala >= 1.4) expandiendo = false;
         } else {
-            btnMaps.style.display = 'none';
+            escala -= 0.01;
+            if (escala <= 1) expandiendo = true;
         }
 
-        procesarComando();
+        ui.circulo.style.transform = `scale(${escala})`;
 
-        // VOZ INICIAL
-        speak(data.titulo);
-
-    })
-    .catch(() => alert(t.alertError));
+    }, 16); // ~60fps
 }
 
-/* =========================
-   MOTOR DE EJECUCIÓN
-========================= */
-function procesarComando() {
-
-    clearInterval(intervaloRespiracion);
-    clearInterval(cuentaRegresiva);
-
-    const box = document.getElementById('step-content');
-    const next = document.getElementById('btn-next');
-
-    box.innerHTML = "";
-    next.style.display = "none";
-
-    if (indiceActual >= comandosMision.length) {
-        box.innerHTML = "✔ Misión completada";
-        speak(configuracion.idioma === 'es' ? "Misión completada" : "Mission completed");
-        return;
-    }
-
-    const c = comandosMision[indiceActual];
-
-    /* =========================
-       STORY / TEXTO SIMPLE
-    ========================= */
-    if (c.t === 'v' || c.t === 'h' || c.t === 'c' || c.story) {
-        const txt = c.tx || c.story || c.c || "";
-
-        box.innerHTML = `<div class="screen-story">${txt}</div>`;
-        next.style.display = "block";
-
-        speak(typeof txt === "string" ? txt : JSON.stringify(txt));
-        return;
-    }
-
-    /* =========================
-       BREATH MODE
-    ========================= */
-    if (c.t === 'breath_auto') {
-
-        let sec = c.d;
-
-        box.innerHTML = `
-            <div class="screen-story">${c.tx}</div>
-            <div class="breath-circle" id="circle">INHALA</div>
-            <div>${sec}s</div>
-        `;
-
-        const circle = document.getElementById('circle');
-
-        intervaloRespiracion = setInterval(() => {
-            circle.innerText = (circle.innerText === "INHALA") ? "EXHALA" : "INHALA";
-            speak(circle.innerText);
-        }, 4000);
-
-        cuentaRegresiva = setInterval(() => {
-            sec--;
-            if (sec <= 0) {
-                clearInterval(intervaloRespiracion);
-                clearInterval(cuentaRegresiva);
-                next.style.display = "block";
-                speak("listo");
-            }
-        }, 1000);
-
-        return;
-    }
-
-    /* =========================
-       SILENCE MODE
-    ========================= */
-    if (c.t === 'sil') {
-
-        let sec = c.d;
-
-        box.innerHTML = `<div>${c.tx}</div><div>${sec}s</div>`;
-
-        cuentaRegresiva = setInterval(() => {
-            sec--;
-            if (sec <= 0) {
-                clearInterval(cuentaRegresiva);
-                next.style.display = "block";
-                speak("continuamos");
-            }
-        }, 1000);
-
-        return;
-    }
-
-    /* =========================
-       DECISION MODE
-    ========================= */
-    if (c.t === 'd') {
-
-        let html = "";
-
-        c.op.forEach((op, i) => {
-            html += `<button onclick="validar(${i},${c.c},'${c.ex[i]}')">${op}</button>`;
-        });
-
-        box.innerHTML = `<div>${c.q}</div>${html}<div id="exp"></div>`;
-        return;
-    }
-
-    indiceActual++;
-    procesarComando();
+function cancelarRespiracion() {
+    clearInterval(estado.intervalo);
+    ui.circulo.style.transform = "scale(1)";
 }
 
-/* =========================
-   RESPUESTA DECISIÓN
-========================= */
-function validar(i, correct, exp) {
+//
+// ===============================
+// DECISIONES
+// ===============================
+//
+function mostrarDecision(bloque) {
+    let html = `<h3>${bloque.q}</h3>`;
 
-    const buttons = document.querySelectorAll('button');
-    buttons.forEach(b => b.disabled = true);
+    bloque.op.forEach((op, index) => {
+        html += `<button onclick="responder(${index}, ${bloque.c})">${op}</button>`;
+    });
 
-    document.getElementById('exp').innerText = exp;
-
-    speak(exp);
-
-    document.getElementById('btn-next').style.display = "block";
+    ui.contenedor.innerHTML = html;
 }
 
-/* =========================
-   NEXT
-========================= */
-function siguienteComando() {
-    indiceActual++;
-    procesarComando();
+function responder(index, correcta) {
+
+    if (index === correcta) {
+        ui.contenedor.innerHTML += `<p>✔ Correcto</p>`;
+    } else {
+        ui.contenedor.innerHTML += `<p>✖ Ajuste necesario</p>`;
+    }
+
+    setTimeout(ejecutarSiguienteBloque, 1500);
+}
+
+//
+// ===============================
+// SILENCIO CRONOMETRADO
+// ===============================
+//
+function iniciarSilencio(bloque) {
+
+    let tiempo = bloque.d;
+    ui.contenedor.innerHTML = `<h3>Silencio activo</h3><div id="silencioTimer">${tiempo}</div>`;
+
+    const intervalo = setInterval(() => {
+
+        tiempo--;
+        document.getElementById("silencioTimer").innerText = tiempo;
+
+        if (tiempo <= 0) {
+            clearInterval(intervalo);
+            ejecutarSiguienteBloque();
+        }
+
+    }, 1000);
+}
+
+//
+// ===============================
+// RECOMPENSAS / CONFIRMACION
+// ===============================
+//
+function mostrarRecompensa(bloque) {
+    ui.contenedor.innerHTML = `<p>${bloque.tx}</p>`;
+}
+
+function mostrarConfirmacion(bloque) {
+    ui.contenedor.innerHTML = `<p>${bloque.tx}</p>`;
 }
