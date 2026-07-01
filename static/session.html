@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OPEN THAN GO</title>
+
     <style>
         :root {
             --primary: #1e3a1e;
@@ -15,18 +16,22 @@
             --gray: #eeeeee;
             --blue-circle: #00bcd4;
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--light);
-            color: var(--dark);
             margin: 0;
             padding: 10px;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
             min-height: 100vh;
         }
+
         .container-app {
             background: var(--white);
             max-width: 480px;
@@ -34,126 +39,251 @@
             padding: 20px;
             border-radius: 16px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-            margin: 10px auto;
         }
-        .header-app { text-align: center; margin-bottom: 20px; }
-        .header-app h1 { color: var(--primary); margin: 0 0 8px 0; font-size: 26px; font-weight: 800; }
-        .header-app p { margin: 0; color: #555; font-size: 13px; line-height: 1.4; }
-        .lang-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
-        .btn-lang { background: var(--gray); border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: bold; flex: 1; max-width: 120px; text-align: center; }
-        .btn-lang.active { background: var(--primary); color: var(--white); }
-        .form-group { margin-bottom: 18px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: var(--primary); }
-        .form-group select, .form-group input, .form-group textarea {
-            width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 10px; font-size: 14px; background-color: #fafafa; font-family: inherit;
+
+        .header-app {
+            text-align: center;
+            margin-bottom: 15px;
         }
-        .form-group textarea { height: 90px; resize: none; }
-        .btn-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-        .btn-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        .btn-choice { background: var(--gray); border: none; padding: 14px 4px; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 11px; text-align: center; line-height: 1.2; }
-        .btn-choice.active { background: var(--secondary); color: var(--white); }
+
+        .header-app h1 {
+            color: var(--primary);
+            margin: 0;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .header-app p {
+            font-size: 13px;
+            color: #555;
+            margin-top: 5px;
+        }
+
+        .lang-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .btn-lang {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 20px;
+            background: var(--gray);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .btn-lang.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: var(--primary);
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            font-size: 14px;
+        }
+
+        textarea {
+            height: 90px;
+            resize: none;
+        }
+
+        .btn-grid-2, .btn-grid-3 {
+            display: grid;
+            gap: 8px;
+        }
+
+        .btn-grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .btn-grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .btn-choice {
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: var(--gray);
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .btn-choice.active {
+            background: var(--secondary);
+            color: white;
+        }
+
         .btn-trigger {
-            width: 100%; background: var(--accent); color: var(--white); border: none; padding: 16px; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(216,67,21,0.2);
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            background: var(--accent);
+            color: white;
+            font-weight: bold;
         }
-        
-        /* PANTALLA INTERACTIVA PASO A PASO */
+
         .interactive-screen {
             display: none;
             text-align: center;
-            padding: 10px 5px;
         }
-        .screen-title { color: var(--primary); font-size: 20px; font-weight: 800; margin-bottom: 15px; }
-        .screen-story { font-size: 14px; line-height: 1.6; color: #333; margin-bottom: 20px; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 10px; border-left: 4px solid var(--secondary); }
-        
-        /* EL CÍRCULO RESPIRATORIO AZUL DE MAY ROGA LLC */
-        .wrapper-circle { display: flex; justify-content: center; align-items: center; height: 180px; margin: 20px 0; }
+
+        .screen-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .screen-story {
+            background: #f9f9f9;
+            padding: 14px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .wrapper-circle {
+            display: flex;
+            justify-content: center;
+            height: 160px;
+        }
+
         .breath-circle {
-            width: 90px; height: 80px; background-color: var(--blue-circle); border-radius: 50%;
-            display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 13px;
-            box-shadow: 0 0 25px rgba(0,188,212,0.5); transform: scale(1.0); transition: transform 4s ease-in-out;
+            width: 90px;
+            height: 90px;
+            background: var(--blue-circle);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
         }
-        .breath-circle.expand { transform: scale(1.6); }
-        .breath-circle.contract { transform: scale(1.0); }
-        .timer-display { font-size: 34px; font-weight: 800; color: var(--primary); margin: 15px 0; }
-        
-        /* CUESTIONARIOS TÁCTILES */
-        .options-list { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; }
-        .btn-option-interactive {
-            width: 100%; text-align: left; padding: 14px; border: 1px solid #ddd; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+
+        .btn-next-step {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            margin-top: 10px;
         }
-        .btn-option-interactive.correct { background-color: #c8e6c9; border-color: var(--secondary); color: #1b5e20; }
-        .btn-option-interactive.wrong { background-color: #ffcdd2; border-color: #e53935; color: #b71c1c; }
-        .explanation-box { display: none; margin-top: 15px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.4; text-align: left; }
-        
-        .btn-next-step { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 15px; }
-        .btn-maps-route { display: none; text-align: center; background: #4285f4; color: white; text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 14px; margin-top: 20px; box-shadow: 0 4px 10px rgba(66,133,244,0.3); }
+
+        .btn-maps-route {
+            display: none;
+            width: 100%;
+            text-align: center;
+            padding: 14px;
+            background: #4285f4;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
     </style>
 </head>
+
 <body>
 
 <div class="container-app">
-    <!-- CAPA 1: FORMULARIO DE DIAGNÓSTICO -->
+
+    <!-- FORMULARIO -->
     <div id="wrapper-form">
+
         <div class="lang-bar">
-            <button class="btn-lang active" id="lang-es" onclick="cambiarIdioma('es')">Español 🇪🇸</button>
-            <button class="btn-lang" id="lang-en" onclick="cambiarIdioma('en')">English 🇺🇸</button>
+            <button class="btn-lang active" id="lang-es" onclick="cambiarIdioma('es')">ES</button>
+            <button class="btn-lang" id="lang-en" onclick="cambiarIdioma('en')">EN</button>
         </div>
 
         <div class="header-app">
             <h1>OPEN THAN GO</h1>
-            <p id="txt-subtitle">Tu botón de escape inmediato para romper la monotonía urbana.</p>
+            <p id="txt-subtitle">Tu escape emocional inteligente</p>
         </div>
 
         <div class="form-group">
-            <label id="lbl-state">Estado / State:</label>
+            <label>Estado</label>
             <select id="inp-state">
-                <option value="FL">Florida (Miami, Orlando, Tampa, Lehigh Acres...)</option>
-                <option value="TX">Texas (Houston, Dallas...)</option>
-                <option value="CA">California (Los Angeles...)</option>
+                <option value="FL">Florida</option>
+                <option value="TX">Texas</option>
+                <option value="CA">California</option>
                 <option value="NY">New York</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label id="lbl-zip">ZIP Code (5 dígitos):</label>
-            <input type="tel" id="inp-zip" placeholder="Ej: 33936" maxlength="5">
+            <label>ZIP Code</label>
+            <input id="inp-zip" maxlength="5" placeholder="Ej: 33101">
         </div>
 
         <div class="form-group">
-            <label id="lbl-pocket">¿Cuál es tu presupuesto real para hoy?</label>
+            <label>Presupuesto</label>
             <div class="btn-grid-3">
-                <button class="btn-choice active" id="pocket-cero" onclick="cambiarBolsillo('cero')">GASTO $0 HOY</button>
-                <button class="btn-choice" id="pocket-mod" onclick="cambiarBolsillo('moderado')">MODERADO</button>
-                <button class="btn-choice" id="pocket-libre" onclick="cambiarBolsillo('libre')">LIBRE</button>
+                <button class="btn-choice active" onclick="cambiarBolsillo('cero')">$0</button>
+                <button class="btn-choice" onclick="cambiarBolsillo('moderado')">Medio</button>
+                <button class="btn-choice" onclick="cambiarBolsillo('libre')">Libre</button>
             </div>
         </div>
 
         <div class="form-group">
-            <label id="lbl-mode">¿Puedes o quieres salir de casa hoy?</label>
+            <label>¿Salir o casa?</label>
             <div class="btn-grid-2">
-                <button class="btn-choice active" id="mode-out" onclick="cambiarModalidad(true)">🟢 SÍ, SALIR</button>
-                <button class="btn-choice" id="mode-in" onclick="cambiarModalidad(false)">🏠 EN CASA</button>
+                <button class="btn-choice active" onclick="cambiarModalidad(true)">Salir</button>
+                <button class="btn-choice" onclick="cambiarModalidad(false)">Casa</button>
             </div>
         </div>
 
         <div class="form-group">
-            <label id="lbl-text">Desahógate aquí (Escribe libremente lo que traigas en la mente):</label>
-            <textarea id="inp-text" placeholder="Escribe si estás cansado de la rutina, preocupado por biles o el trabajo, solo, o con niños aburridos..."></textarea>
+            <label>Desahogo</label>
+            <textarea id="inp-text" placeholder="Escribe cómo te sientes..."></textarea>
         </div>
 
-        <button class="btn-trigger" id="btn-submit" onclick="solicitarEscape()">SÁCAME DE LA MONOTONÍA</button>
+        <button class="btn-trigger" onclick="solicitarEscape()">
+            GENERAR ESCAPE
+        </button>
+
     </div>
 
-    <!-- CAPA 2: MOTOR INTERACTIVO PASO A PASO -->
+    <!-- INTERACTIVO -->
     <div id="wrapper-interactive" class="interactive-screen">
+
         <h2 id="interactive-title" class="screen-title"></h2>
         <div id="interactive-location"></div>
-        
+
         <div id="step-content"></div>
-        
-        <button id="btn-next" class="btn-next-step" onclick="siguienteComando()" style="display:none;">CONTINUAR / NEXT</button>
-        <a id="btn-maps-action" href="#" target="_blank" class="btn-maps-route">🗺️ ABRIR RUTA EN MI MAPA GRATIS</a>
+
+        <button id="btn-next" class="btn-next-step" onclick="siguienteComando()" style="display:none;">
+            CONTINUAR
+        </button>
+
+        <a id="btn-maps-action" class="btn-maps-route" target="_blank">
+            ABRIR MAPA
+        </a>
+
     </div>
+
 </div>
 
 <script src="/static/engine.js"></script>
