@@ -1,268 +1,221 @@
-/* =========================================================
-   OPEN THAN GO ENGINE vFINAL CLEAN
-   SINGLE BRAIN • NO FREEZE • REAL FLOW • 10 MIN LOOP
-========================================================= */
-
 let state = {
     missions: [],
-    stories: [],
-    currentIndex: 0,
-    currentBlock: 0,
+    i: 0,
+    b: 0,
     lang: "es",
-    pocket: "cero",
-    mode: "outdoor",
-    speaking: false,
-
-    // TIMER MASTER
-    sessionActive: false,
-    sessionTime: 600, // 10 min
     timer: null,
-
-    // BREATH
-    breathTimer: null,
-    breathState: "inhale"
+    timeLeft: 600,
+    running: false,
+    locked: false
 };
 
-/* =========================
-   INIT
-========================= */
-window.addEventListener("load", async () => {
-    await loadData();
-    renderForm();
-});
+window.onload = async () => {
+    await boot();
+};
 
-/* =========================
-   LOAD DATA
-========================= */
-async function loadData() {
+async function boot() {
     const res = await fetch("/api/missions");
     const data = await res.json();
+
     state.missions = data.missions || [];
-}
-
-/* =========================
-   UI FORM
-========================= */
-function renderForm() {
-    document.getElementById("wrapper-form").style.display = "block";
-    document.getElementById("wrapper-interactive").style.display = "none";
-}
-
-/* =========================
-   START FLOW
-========================= */
-function solicitarEscape() {
-    state.lang = getLang();
-    state.pocket = getPocket();
-    state.mode = getMode();
-
     startSession();
 }
 
-/* =========================
-   SESSION START (ONLY ONE LOOP)
-========================= */
 function startSession() {
-    state.sessionActive = true;
-    state.sessionTime = 600;
+    state.i = 0;
+    state.b = 0;
+    state.timeLeft = 600;
+    state.running = true;
 
-    document.getElementById("wrapper-form").style.display = "none";
-    document.getElementById("wrapper-interactive").style.display = "block";
-
-    startTimer();
-    startFlow();
+    startGlobalTimer();
+    render();
 }
 
-/* =========================
-   MASTER TIMER (10 MIN EXACT)
-========================= */
-function startTimer() {
+/* ================= TIMER 10 MIN ================= */
+function startGlobalTimer() {
     clearInterval(state.timer);
 
     state.timer = setInterval(() => {
-        state.sessionTime--;
+        state.timeLeft--;
 
-        if (state.sessionTime <= 0) {
-            finishSession();
+        if (state.timeLeft <= 0) {
+            endSession();
         }
     }, 1000);
 }
 
-function finishSession() {
+function endSession() {
     clearInterval(state.timer);
-    clearInterval(state.breathTimer);
+    speechSynthesis.cancel();
 
-    state.sessionActive = false;
-
-    document.getElementById("wrapper-interactive").innerHTML = `
-        <div class="screen-title">SESSION COMPLETE</div>
-        <p>Respiración, enfoque y control finalizados.</p>
-        <button onclick="location.reload()">RESTART</button>
-    `;
+    document.getElementById("app").innerHTML =
+        `<div class="card">
+            <h2>SESSION COMPLETE</h2>
+            <button onclick="location.reload()">RESTART</button>
+        </div>`;
 }
 
-/* =========================
-   FLOW ENGINE (SEQUENTIAL 1→N LOOP)
-========================= */
-function startFlow() {
-    state.currentIndex = 0;
-    nextStep();
-}
+/* ================= FLOW CONTROL ================= */
+function next() {
+    if (state.locked) return;
 
-function nextStep() {
-    const mission = state.missions[state.currentIndex];
+    const m = state.missions[state.i];
+    if (!m) return endSession();
 
-    if (!mission) {
-        state.currentIndex = 0;
-        return nextStep();
+    state.b++;
+
+    if (state.b >= m.b.length) {
+        state.i++;
+        state.b = 0;
+
+        if (state.i >= state.missions.length) {
+            state.i = 0; // LOOP 1-21
+        }
     }
 
-    renderMission(mission);
+    render();
 }
 
-/* =========================
-   RENDER MISSION
-========================= */
-function renderMission(mission) {
-    let html = `
-        <div class="screen-title">
-            STEP ${mission.id}
+function back() {
+    if (state.locked) return;
+
+    if (state.b > 0) {
+        state.b--;
+    } else if (state.i > 0) {
+        state.i--;
+        state.b = state.missions[state.i].b.length - 1;
+    }
+
+    render();
+}
+
+/* ================= RENDER ENGINE ================= */
+function render() {
+    const app = document.getElementById("app");
+    const m = state.missions[state.i];
+    if (!m) return;
+
+    const b = m.b[state.b];
+    if (!b) return next();
+
+    let html = `<div class="card">`;
+
+    /* HEADER */
+    html += `
+        <div style="display:flex;gap:10px;margin-bottom:10px;">
+            <button onclick="back()">BACK</button>
+            <button onclick="next()">CONTINUE</button>
         </div>
-
-        <div class="screen-story">
-            ${mission.t?.[state.lang] || mission.t?.es || ""}
-        </div>
     `;
 
-    document.getElementById("interactive-title").innerHTML = "";
-    document.getElementById("interactive-location").innerHTML = "";
+    /* ================= BLOCK TYPES ================= */
 
-    document.getElementById("step-content").innerHTML = html;
+    // TITLE / HEADER
+    if (b.t === "v" || b.t === "h") {
+        html += `<h2>${b.tx?.[state.lang] || ""}</h2>`;
+        speak(b.tx?.[state.lang]);
+    }
 
-    speak(mission.t?.[state.lang] || mission.t?.es || "", () => {
-        runMission(mission);
-    });
+    // STORY
+    if (b.story) {
+        html += `<p>${b.story?.[state.lang]}</p>`;
+        speak(b.story?.[state.lang]);
+    }
+
+    // BREATH (REAL VISUAL LOOP)
+    if (b.t === "breath_auto") {
+        html += `
+            <div class="breath-circle" id="breath">BREATH</div>
+            <p>${b.tx?.[state.lang] || ""}</p>
+        `;
+        startBreath(b.d || 25);
+        speak(b.tx?.[state.lang]);
+    }
+
+    // SILENCE TIMER BLOCK
+    if (b.t === "sil") {
+        html += `<h3>${b.tx?.[state.lang]}</h3>`;
+        startSilence(b.d || 30);
+        speak(b.tx?.[state.lang]);
+    }
+
+    // QUESTION BLOCK
+    if (b.t === "d") {
+        html += `<h3>${b.q?.[state.lang]}</h3>`;
+
+        b.op.forEach((o, i) => {
+            html += `
+                <div class="answer" onclick="answer(${i}, ${b.c})">
+                    ${o[state.lang] || o}
+                </div>
+            `;
+        });
+    }
+
+    // REWARD
+    if (b.t === "r") {
+        html += `<h2>${b.tx}</h2>`;
+        speak("Reward earned");
+    }
+
+    // CONFIRMATION
+    if (b.t === "c") {
+        html += `<p>${b.tx?.[state.lang]}</p>`;
+        speak(b.tx?.[state.lang]);
+    }
+
+    html += `</div>`;
+
+    app.innerHTML = html;
 }
 
-/* =========================
-   EXECUTE MISSION LOGIC
-========================= */
-function runMission(mission) {
-
-    // BREATH STEP
-    if (mission.type === "breath") {
-        startBreathing();
-        setTimeout(() => nextMission(), 8000);
-        return;
+/* ================= ANSWER ================= */
+function answer(i, correct) {
+    if (i === correct) {
+        speak("Correct");
+    } else {
+        speak("Incorrect");
     }
 
-    // SILENCE STEP
-    if (mission.type === "silence") {
-        setTimeout(() => nextMission(), 5000);
-        return;
-    }
-
-    // DECISION STEP
-    if (mission.type === "decision") {
-        renderDecision(mission);
-        return;
-    }
-
-    // DEFAULT STEP
-    setTimeout(() => nextMission(), 2000);
+    setTimeout(next, 800);
 }
 
-/* =========================
-   BREATHING REAL (NATURAL FLOW)
-========================= */
-function startBreathing() {
-    clearInterval(state.breathTimer);
-
-    const circle = document.getElementById("breathCircle");
-    if (!circle) return;
+/* ================= BREATH SYSTEM ================= */
+function startBreath(seconds) {
+    const el = document.getElementById("breath");
+    if (!el) return;
 
     let inhale = true;
 
-    state.breathTimer = setInterval(() => {
-        if (!state.sessionActive) return;
+    const interval = setInterval(() => {
+        if (!el) return clearInterval(interval);
 
-        if (inhale) {
-            circle.style.transform = "scale(1.4)";
-            circle.innerText = "INHALE";
-        } else {
-            circle.style.transform = "scale(0.8)";
-            circle.innerText = "EXHALE";
-        }
+        el.style.transition = "all 4s ease";
+        el.style.transform = inhale ? "scale(1.4)" : "scale(0.8)";
+        el.innerText = inhale ? "INHALE" : "EXHALE";
 
         inhale = !inhale;
+    }, 4000);
 
-    }, 3000);
+    setTimeout(() => clearInterval(interval), seconds * 1000);
 }
 
-/* =========================
-   DECISION BLOCK
-========================= */
-function renderDecision(mission) {
-    let html = `<div class="screen-story">${mission.q?.[state.lang] || ""}</div>`;
-
-    mission.op.forEach((op, i) => {
-        html += `
-            <button onclick="selectOption(${i})">${op[state.lang] || op.es}</button>
-        `;
-    });
-
-    document.getElementById("step-content").innerHTML = html;
+/* ================= SILENCE TIMER ================= */
+function startSilence(seconds) {
+    setTimeout(() => {
+        speak("Silence complete");
+    }, seconds * 1000);
 }
 
-function selectOption(i) {
-    nextMission();
-}
+/* ================= SPEECH ================= */
+function speak(text) {
+    if (!text) return;
 
-/* =========================
-   NAVIGATION SEQUENTIAL ONLY
-========================= */
-function nextMission() {
-    state.currentIndex++;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
 
-    if (state.currentIndex >= state.missions.length) {
-        state.currentIndex = 0;
-    }
+    u.lang = state.lang === "es" ? "es-ES" : "en-US";
+    u.rate = 0.95;
 
-    nextStep();
-}
-
-/* =========================
-   SPEECH ENGINE
-========================= */
-function speak(text, cb) {
-    if (!text) {
-        cb && cb();
-        return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = state.lang === "es" ? "es-ES" : "en-US";
-    msg.rate = 0.95;
-
-    msg.onend = () => cb && cb();
-
-    window.speechSynthesis.speak(msg);
-}
-
-/* =========================
-   HELPERS
-========================= */
-function getLang() {
-    const es = document.getElementById("lang-es").classList.contains("active");
-    return es ? "es" : "en";
-}
-
-function getPocket() {
-    return "cero";
-}
-
-function getMode() {
-    return true;
+    speechSynthesis.speak(u);
 }
