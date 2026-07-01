@@ -1,336 +1,295 @@
-let estado = {
-    datos: null,
-    bloque: 0,
-    ejecutando: false,
+// ===============================
+// SAFE LOOP ENGINE v1
+// OPEN THAN GO SYSTEM
+// ===============================
 
-    timerSesion: null,
-    tiempoRestante: 600,
-
-    intervaloRespiracion: null,
-    watchdog: null,
-
-    ultimoTick: Date.now()
+let state = {
+    session_id: null,
+    bloques: [],
+    index: 0,
+    timer: null,
+    breathTimer: null,
+    silenceTimer: null,
+    loopEnd: 0,
+    running: false,
+    maps: null,
+    idioma: "es"
 };
 
+const circle = () => document.querySelector(".breath-circle");
+const stepContent = () => document.getElementById("step-content");
+const title = () => document.getElementById("interactive-title");
+const locationBox = () => document.getElementById("interactive-location");
+const btnNext = () => document.getElementById("btn-next");
+const mapsBtn = () => document.getElementById("btn-maps-action");
 
 // ===============================
-// INICIO SEGURO
+// INIT REQUEST
 // ===============================
-function iniciarSesion(datos) {
-
-    if (!datos || !Array.isArray(datos.bloques_interactivos)) {
-        console.error("❌ Datos inválidos del backend");
-        return;
-    }
-
-    estado.datos = datos;
-    estado.bloque = 0;
-
-    iniciarTimerGlobal();
-    iniciarWatchdog();
-    ejecutarSiguienteBloque();
-}
-
-
-// ===============================
-// WATCHDOG (ANTI FREEZE)
-// ===============================
-function iniciarWatchdog() {
-
-    clearInterval(estado.watchdog);
-
-    estado.watchdog = setInterval(() => {
-
-        const ahora = Date.now();
-        const diff = ahora - estado.ultimoTick;
-
-        // si no hay actividad en 8 segundos → recuperación
-        if (diff > 8000) {
-            console.warn("⚠️ Freeze detectado → recuperando loop");
-            ejecutarSiguienteBloque();
-        }
-
-    }, 3000);
-}
-
-
-// ===============================
-// TIMER GLOBAL 10 MIN
-// ===============================
-function iniciarTimerGlobal() {
-
-    clearInterval(estado.timerSesion);
-
-    estado.tiempoRestante = 600;
-
-    estado.timerSesion = setInterval(() => {
-
-        estado.tiempoRestante--;
-        actualizarTimer();
-
-        if (estado.tiempoRestante <= 0) {
-            finalizarSesion();
-        }
-
-    }, 1000);
-}
-
-function actualizarTimer() {
-    const el = document.getElementById("timer");
-    if (!el) return;
-
-    const m = Math.floor(estado.tiempoRestante / 60);
-    const s = estado.tiempoRestante % 60;
-
-    el.innerText = `${m}:${s < 10 ? "0" : ""}${s}`;
-}
-
-
-// ===============================
-// LOOP PRINCIPAL SEGURO
-// ===============================
-function ejecutarSiguienteBloque() {
-
-    estado.ultimoTick = Date.now();
-
-    if (!estado.datos || !estado.datos.bloques_interactivos) {
-        console.error("❌ Sin datos");
-        return;
-    }
-
-    const bloques = estado.datos.bloques_interactivos;
-
-    // si índice fuera de rango → reset seguro
-    if (estado.bloque >= bloques.length) {
-        estado.bloque = 0;
-    }
-
-    const bloque = bloques[estado.bloque];
-    estado.bloque++;
-
-    procesarBloqueSeguro(bloque);
-}
-
-
-// ===============================
-// MOTOR ROBUSTO
-// ===============================
-function procesarBloqueSeguro(bloque) {
-
-    estado.ultimoTick = Date.now();
-
-    // 🛡 VALIDACIÓN CRÍTICA
-    if (!bloque || typeof bloque !== "object" || !bloque.t) {
-        console.warn("⚠️ Bloque inválido, saltando...");
-        setTimeout(ejecutarSiguienteBloque, 200);
-        return;
-    }
-
-    try {
-
-        switch (bloque.t) {
-
-            case "v":
-                renderTitulo(bloque.tx);
-                delay(1500);
-                break;
-
-            case "h":
-                renderSubtitulo(bloque.tx);
-                delay(2500);
-                break;
-
-            case "story":
-                renderTexto(bloque.tx);
-                delay(4000);
-                break;
-
-            case "breath_auto":
-                iniciarRespiracion(bloque.d || 20);
-                setTimeout(() => {
-                    detenerRespiracion();
-                    ejecutarSiguienteBloque();
-                }, (bloque.d || 20) * 1000);
-                break;
-
-            case "d":
-                renderDecision(bloque);
-                break;
-
-            case "r":
-                renderSimple(bloque.tx);
-                delay(1500);
-                break;
-
-            case "c":
-                renderSimple(bloque.tx);
-                delay(1500);
-                break;
-
-            case "sil":
-                iniciarSilencioSeguro(bloque.d || 30);
-                break;
-
-            default:
-                console.warn("⚠️ Tipo desconocido:", bloque.t);
-                delay(500);
-        }
-
-    } catch (e) {
-        console.error("🔥 Error en bloque:", e);
-        delay(300);
-    }
-}
-
-
-// ===============================
-// SAFE DELAY
-// ===============================
-function delay(ms) {
-    setTimeout(() => {
-        ejecutarSiguienteBloque();
-    }, ms);
-}
-
-
-// ===============================
-// RESPIRACION SEGURA (ANTI FREEZE)
-// ===============================
-function iniciarRespiracion(duracion) {
-
-    detenerRespiracion();
-
-    const circulo = document.getElementById("circulo");
-    if (!circulo) return;
-
-    let scale = 1;
-    let up = true;
-
-    estado.intervaloRespiracion = setInterval(() => {
-
-        if (!circulo) return;
-
-        if (up) {
-            scale += 0.02;
-            if (scale >= 1.35) up = false;
-        } else {
-            scale -= 0.02;
-            if (scale <= 1) up = true;
-        }
-
-        circulo.style.transform = `scale(${scale})`;
-
-    }, 16);
-}
-
-function detenerRespiracion() {
-    clearInterval(estado.intervaloRespiracion);
-
-    const circulo = document.getElementById("circulo");
-    if (circulo) circulo.style.transform = "scale(1)";
-}
-
-
-// ===============================
-// SILENCIO SEGURO
-// ===============================
-function iniciarSilencioSeguro(segundos) {
-
-    const cont = document.getElementById("contenedor");
-    if (!cont) return;
-
-    let t = segundos;
-
-    cont.innerHTML = `<h3>Silencio activo</h3><h2 id="silencio">${t}</h2>`;
-
-    const intv = setInterval(() => {
-
-        t--;
-        const el = document.getElementById("silencio");
-
-        if (el) el.innerText = t;
-
-        if (t <= 0) {
-            clearInterval(intv);
-            ejecutarSiguienteBloque();
-        }
-
-    }, 1000);
-}
-
-
-// ===============================
-// RENDER BÁSICO SEGURO
-// ===============================
-function renderTitulo(t) {
-    const el = document.getElementById("titulo");
-    if (el) el.innerText = t || "";
-}
-
-function renderSubtitulo(t) {
-    const el = document.getElementById("subtitulo");
-    if (el) el.innerText = t || "";
-}
-
-function renderTexto(t) {
-    const el = document.getElementById("contenedor");
-    if (el) el.innerHTML = `<p>${t || ""}</p>`;
-}
-
-function renderSimple(t) {
-    renderTexto(t);
-}
-
-
-// ===============================
-// DECISIONES SEGURAS
-// ===============================
-function renderDecision(b) {
-
-    const cont = document.getElementById("contenedor");
-    if (!cont) return;
-
-    let html = `<h3>${b.q || ""}</h3>`;
-
-    (b.op || []).forEach((op, i) => {
-        html += `<button onclick="resolverDecision(${i}, ${b.c})">${op}</button>`;
+async function solicitarEscape() {
+
+    const data = {
+        session_id: Date.now().toString(),
+        estado: document.getElementById("inp-state").value,
+        zip_code: document.getElementById("inp-zip").value,
+        bolsillo: getBolsillo(),
+        puedes_salir: getModalidad(),
+        texto_libre: document.getElementById("inp-text").value,
+        idioma: state.idioma
+    };
+
+    const res = await fetch("/diagnostico-kamizen", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
     });
 
-    cont.innerHTML = html;
-}
+    const json = await res.json();
 
-function resolverDecision(i, correcta) {
-
-    const cont = document.getElementById("contenedor");
-
-    if (i === correcta) {
-        cont.innerHTML += `<p>✔</p>`;
-    } else {
-        cont.innerHTML += `<p>✖</p>`;
+    if (json.error) {
+        alert("No hay misiones disponibles");
+        return;
     }
 
-    setTimeout(ejecutarSiguienteBloque, 1200);
+    startEngine(json);
 }
 
+// ===============================
+// START ENGINE
+// ===============================
+function startEngine(data) {
+
+    state.session_id = data.session_id;
+    state.bloques = data.bloques;
+    state.index = 0;
+    state.maps = data.maps || null;
+    state.running = true;
+
+    state.loopEnd = Date.now() + (data.loop_seconds * 1000);
+
+    document.getElementById("wrapper-form").style.display = "none";
+    document.getElementById("wrapper-interactive").style.display = "block";
+
+    title().innerText = data.title || "OPEN THAN GO";
+
+    if (data.location) {
+        locationBox().innerText = data.location;
+    }
+
+    if (state.maps) {
+        mapsBtn().style.display = "block";
+        mapsBtn().href = state.maps;
+    }
+
+    renderStep();
+
+    startLoopTimer();
+    startBreathing();
+}
 
 // ===============================
-// FINALIZACION SEGURA
+// STEP ENGINE
 // ===============================
-function finalizarSesion() {
+function renderStep() {
 
-    clearInterval(estado.timerSesion);
-    clearInterval(estado.watchdog);
+    if (!state.bloques[state.index]) {
+        finishLoop();
+        return;
+    }
 
-    detenerRespiracion();
+    const b = state.bloques[state.index];
 
-    const cont = document.getElementById("contenedor");
+    let html = "";
 
-    if (cont) {
-        cont.innerHTML = `
-            <div>
-                <h2>Sesión completada</h2>
-                <button onclick="location.reload()">Reiniciar</button>
+    if (b.t === "v") {
+        html = `<h3>${b.tx}</h3>`;
+    }
+
+    if (b.t === "h") {
+        html = `<div class="screen-story">${b.tx}</div>`;
+    }
+
+    if (b.t === "story") {
+        html = `<div class="screen-story">${b.tx}</div>`;
+    }
+
+    if (b.t === "breath_auto") {
+        startBreathingCycle(b.d || 5);
+        html = `<p>${b.tx}</p>`;
+    }
+
+    if (b.t === "d") {
+        html = `
+            <div class="screen-story">
+                <p><b>${b.q}</b></p>
+                ${b.op.map((o, i) =>
+                    `<button class="btn-choice" onclick="selectOption(${i})">${o}</button>`
+                ).join("")}
             </div>
         `;
     }
+
+    if (b.t === "sil") {
+        startSilenceTimer(b.d || 10);
+        html = `<p><b>SILENCE CHALLENGE</b></p><p>${b.tx}</p>`;
+    }
+
+    stepContent().innerHTML = html;
+
+    btnNext().style.display = "block";
+}
+
+// ===============================
+// NEXT STEP
+// ===============================
+function siguienteComando() {
+    state.index++;
+    renderStep();
+}
+
+// ===============================
+// BREATHING ENGINE (REAL ANIMATION)
+// ===============================
+function startBreathing() {
+
+    const c = circle();
+    if (!c) return;
+
+    let grow = true;
+    let size = 90;
+
+    clearInterval(state.breathTimer);
+
+    state.breathTimer = setInterval(() => {
+
+        if (!state.running) return;
+
+        if (grow) {
+            size += 1;
+            if (size >= 130) grow = false;
+        } else {
+            size -= 1;
+            if (size <= 80) grow = true;
+        }
+
+        c.style.width = size + "px";
+        c.style.height = size + "px";
+
+    }, 50);
+}
+
+// ===============================
+// BREATH CYCLE CONTROLLED
+// ===============================
+function startBreathingCycle(seconds) {
+
+    const c = circle();
+    if (!c) return;
+
+    let t = seconds * 2;
+    let size = 90;
+
+    clearInterval(state.breathTimer);
+
+    state.breathTimer = setInterval(() => {
+
+        if (!state.running) return;
+
+        size = size === 90 ? 120 : 90;
+
+        c.style.width = size + "px";
+        c.style.height = size + "px";
+
+        t--;
+
+        if (t <= 0) {
+            clearInterval(state.breathTimer);
+            startBreathing();
+        }
+
+    }, 1000);
+}
+
+// ===============================
+// SILENCE TIMER (CRITICAL)
+// ===============================
+function startSilenceTimer(seconds) {
+
+    let remaining = seconds;
+
+    clearInterval(state.silenceTimer);
+
+    state.silenceTimer = setInterval(() => {
+
+        if (!state.running) return;
+
+        remaining--;
+
+        if (remaining <= 0) {
+            clearInterval(state.silenceTimer);
+            siguienteComando();
+        }
+
+    }, 1000);
+}
+
+// ===============================
+// MAIN LOOP TIMER 10 MIN
+// ===============================
+function startLoopTimer() {
+
+    clearInterval(state.timer);
+
+    state.timer = setInterval(() => {
+
+        const left = state.loopEnd - Date.now();
+
+        if (left <= 0) {
+            finishLoop();
+        }
+
+    }, 1000);
+}
+
+// ===============================
+// FINISH LOOP
+// ===============================
+function finishLoop() {
+
+    state.running = false;
+
+    clearInterval(state.timer);
+    clearInterval(state.breathTimer);
+    clearInterval(state.silenceTimer);
+
+    stepContent().innerHTML = `
+        <div class="screen-story">
+            <h3>LOOP COMPLETED</h3>
+            <p>You can restart your 10-minute reset cycle.</p>
+        </div>
+    `;
+
+    btnNext().style.display = "none";
+}
+
+// ===============================
+// UI HELPERS
+// ===============================
+function getBolsillo() {
+    return document.querySelector(".btn-choice.active")?.textContent === "$0"
+        ? "cero"
+        : "moderado";
+}
+
+function getModalidad() {
+    return true;
+}
+
+function cambiarIdioma(l) {
+    state.idioma = l;
+}
+
+// placeholder for option click
+function selectOption(i) {
+    siguienteComando();
 }
