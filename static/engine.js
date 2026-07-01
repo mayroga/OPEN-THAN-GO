@@ -1,65 +1,295 @@
-let configuracion = {
-    idioma: 'es',
-    puedes_salir: true,
-    bolsillo: 'cero'
+// ===============================
+// SAFE LOOP ENGINE v1
+// OPEN THAN GO SYSTEM
+// ===============================
+
+let state = {
+    session_id: null,
+    bloques: [],
+    index: 0,
+    timer: null,
+    breathTimer: null,
+    silenceTimer: null,
+    loopEnd: 0,
+    running: false,
+    maps: null,
+    idioma: "es"
 };
-let comandosMision = [];
-let indiceActual = 0;
-let intervaloRespiracion = null;
-let cuentaRegresiva = null;
 
-// ... (El objeto 'textos' se mantiene igual)
+const circle = () => document.querySelector(".breath-circle");
+const stepContent = () => document.getElementById("step-content");
+const title = () => document.getElementById("interactive-title");
+const locationBox = () => document.getElementById("interactive-location");
+const btnNext = () => document.getElementById("btn-next");
+const mapsBtn = () => document.getElementById("btn-maps-action");
 
-function cambiarIdioma(nuevoIdioma) {
-    configuracion.idioma = nuevoIdioma;
-    // ... (Tu lógica de cambio de idioma)
-}
+// ===============================
+// INIT REQUEST
+// ===============================
+async function solicitarEscape() {
 
-// ... (Funciones cambiarBolsillo y cambiarModalidad igual)
+    const data = {
+        session_id: Date.now().toString(),
+        estado: document.getElementById("inp-state").value,
+        zip_code: document.getElementById("inp-zip").value,
+        bolsillo: getBolsillo(),
+        puedes_salir: getModalidad(),
+        texto_libre: document.getElementById("inp-text").value,
+        idioma: state.idioma
+    };
 
-function solicitarEscape() {
-    // ... (Tu lógica de fetch y manejo de datos)
-}
+    const res = await fetch("/diagnostico-kamizen", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
 
-// ÚNICA DEFINICIÓN DE LA FUNCIÓN PROCESARCOMANDO
-function procesarComando() {
-    clearInterval(intervaloRespiracion);
-    clearInterval(cuentaRegresiva);
-    const cajaContenedora = document.getElementById('step-content');
-    const btnSiguiente = document.getElementById('btn-next');
-   
-    cajaContenedora.innerHTML = "";
-    btnSiguiente.style.display = 'none';
+    const json = await res.json();
 
-    if (indiceActual >= comandosMision.length) {
-        cajaContenedora.innerHTML = `<div class='screen-story' style='text-align:center; font-weight:bold;'>¡Misión Completada! / Mission Accomplished!</div>`;
+    if (json.error) {
+        alert("No hay misiones disponibles");
         return;
     }
 
-    const c = comandosMision[indiceActual];
+    startEngine(json);
+}
 
-    // Lógica para tipos de pantalla
-    if (c.t === 'v' || c.t === 'h' || c.story || c.t === 'c') {
-        cajaContenedora.innerHTML = `<div class='screen-story'>${c.tx || c.story || c.c || ""}</div>`;
-        btnSiguiente.style.display = 'block';
+// ===============================
+// START ENGINE
+// ===============================
+function startEngine(data) {
+
+    state.session_id = data.session_id;
+    state.bloques = data.bloques;
+    state.index = 0;
+    state.maps = data.maps || null;
+    state.running = true;
+
+    state.loopEnd = Date.now() + (data.loop_seconds * 1000);
+
+    document.getElementById("wrapper-form").style.display = "none";
+    document.getElementById("wrapper-interactive").style.display = "block";
+
+    title().innerText = data.title || "OPEN THAN GO";
+
+    if (data.location) {
+        locationBox().innerText = data.location;
     }
-    else if (c.t === 'breath_auto') {
-        cajaContenedora.innerHTML = `<div class='screen-story'><b>${c.tx}</b></div><div class='wrapper-circle'><div id='circle-azul' class='breath-circle'>INHALA</div></div><div id='timer-breath' class='timer-display'>${c.d}s</div>`;
-        // ... (Aquí va tu lógica de intervalos de respiración)
+
+    if (state.maps) {
+        mapsBtn().style.display = "block";
+        mapsBtn().href = state.maps;
     }
-    else if (c.t === 'sil') {
-        cajaContenedora.innerHTML = `<div class='screen-story'><b>${c.tx}</b></div><div id='timer-silence' class='timer-display'>${c.d}s</div>`;
-        // ... (Aquí va tu lógica de intervalos de silencio)
+
+    renderStep();
+
+    startLoopTimer();
+    startBreathing();
+}
+
+// ===============================
+// STEP ENGINE
+// ===============================
+function renderStep() {
+
+    if (!state.bloques[state.index]) {
+        finishLoop();
+        return;
     }
-    else if (c.t === 'd') {
-        let opcionesHtml = "";
-        c.op.forEach((opcion, idx) => {
-            opcionesHtml += `<button class='btn-option-interactive' onclick='validarRespuesta(${idx}, ${c.c}, "${c.ex[idx].replace(/"/g, '&quot;')}")'>${opcion}</button>`;
-        });
-        cajaContenedora.innerHTML = `<div class='screen-title'>${c.q}</div><div class='options-list'>${opcionesHtml}</div><div id='box-explicacion' class='explanation-box'></div>`;
+
+    const b = state.bloques[state.index];
+
+    let html = "";
+
+    if (b.t === "v") {
+        html = `<h3>${b.tx}</h3>`;
     }
-    else {
-        indiceActual++;
-        procesarComando();
+
+    if (b.t === "h") {
+        html = `<div class="screen-story">${b.tx}</div>`;
     }
+
+    if (b.t === "story") {
+        html = `<div class="screen-story">${b.tx}</div>`;
+    }
+
+    if (b.t === "breath_auto") {
+        startBreathingCycle(b.d || 5);
+        html = `<p>${b.tx}</p>`;
+    }
+
+    if (b.t === "d") {
+        html = `
+            <div class="screen-story">
+                <p><b>${b.q}</b></p>
+                ${b.op.map((o, i) =>
+                    `<button class="btn-choice" onclick="selectOption(${i})">${o}</button>`
+                ).join("")}
+            </div>
+        `;
+    }
+
+    if (b.t === "sil") {
+        startSilenceTimer(b.d || 10);
+        html = `<p><b>SILENCE CHALLENGE</b></p><p>${b.tx}</p>`;
+    }
+
+    stepContent().innerHTML = html;
+
+    btnNext().style.display = "block";
+}
+
+// ===============================
+// NEXT STEP
+// ===============================
+function siguienteComando() {
+    state.index++;
+    renderStep();
+}
+
+// ===============================
+// BREATHING ENGINE (REAL ANIMATION)
+// ===============================
+function startBreathing() {
+
+    const c = circle();
+    if (!c) return;
+
+    let grow = true;
+    let size = 90;
+
+    clearInterval(state.breathTimer);
+
+    state.breathTimer = setInterval(() => {
+
+        if (!state.running) return;
+
+        if (grow) {
+            size += 1;
+            if (size >= 130) grow = false;
+        } else {
+            size -= 1;
+            if (size <= 80) grow = true;
+        }
+
+        c.style.width = size + "px";
+        c.style.height = size + "px";
+
+    }, 50);
+}
+
+// ===============================
+// BREATH CYCLE CONTROLLED
+// ===============================
+function startBreathingCycle(seconds) {
+
+    const c = circle();
+    if (!c) return;
+
+    let t = seconds * 2;
+    let size = 90;
+
+    clearInterval(state.breathTimer);
+
+    state.breathTimer = setInterval(() => {
+
+        if (!state.running) return;
+
+        size = size === 90 ? 120 : 90;
+
+        c.style.width = size + "px";
+        c.style.height = size + "px";
+
+        t--;
+
+        if (t <= 0) {
+            clearInterval(state.breathTimer);
+            startBreathing();
+        }
+
+    }, 1000);
+}
+
+// ===============================
+// SILENCE TIMER (CRITICAL)
+// ===============================
+function startSilenceTimer(seconds) {
+
+    let remaining = seconds;
+
+    clearInterval(state.silenceTimer);
+
+    state.silenceTimer = setInterval(() => {
+
+        if (!state.running) return;
+
+        remaining--;
+
+        if (remaining <= 0) {
+            clearInterval(state.silenceTimer);
+            siguienteComando();
+        }
+
+    }, 1000);
+}
+
+// ===============================
+// MAIN LOOP TIMER 10 MIN
+// ===============================
+function startLoopTimer() {
+
+    clearInterval(state.timer);
+
+    state.timer = setInterval(() => {
+
+        const left = state.loopEnd - Date.now();
+
+        if (left <= 0) {
+            finishLoop();
+        }
+
+    }, 1000);
+}
+
+// ===============================
+// FINISH LOOP
+// ===============================
+function finishLoop() {
+
+    state.running = false;
+
+    clearInterval(state.timer);
+    clearInterval(state.breathTimer);
+    clearInterval(state.silenceTimer);
+
+    stepContent().innerHTML = `
+        <div class="screen-story">
+            <h3>LOOP COMPLETED</h3>
+            <p>You can restart your 10-minute reset cycle.</p>
+        </div>
+    `;
+
+    btnNext().style.display = "none";
+}
+
+// ===============================
+// UI HELPERS
+// ===============================
+function getBolsillo() {
+    return document.querySelector(".btn-choice.active")?.textContent === "$0"
+        ? "cero"
+        : "moderado";
+}
+
+function getModalidad() {
+    return true;
+}
+
+function cambiarIdioma(l) {
+    state.idioma = l;
+}
+
+// placeholder for option click
+function selectOption(i) {
+    siguienteComando();
 }
