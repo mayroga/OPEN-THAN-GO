@@ -1,269 +1,65 @@
-let estado = {
-    datos: null,
-    indice: 0,
-    bloque: 0,
-    ejecutando: false,
-    timerSesion: null,
-    tiempoRestante: 600, // 10 minutos exactos
-    intervalo: null,
-    respiracion: null,
-    usados: new Set()
+let configuracion = {
+    idioma: 'es',
+    puedes_salir: true,
+    bolsillo: 'cero'
 };
+let comandosMision = [];
+let indiceActual = 0;
+let intervaloRespiracion = null;
+let cuentaRegresiva = null;
 
-const ui = {
-    titulo: document.getElementById("titulo"),
-    subtitulo: document.getElementById("subtitulo"),
-    contenedor: document.getElementById("contenedor"),
-    circulo: document.getElementById("circulo"),
-    timer: document.getElementById("timer")
-};
+// ... (El objeto 'textos' se mantiene igual)
 
-//
-// ===============================
-// INICIO DE SESION
-// ===============================
-//
-function iniciarSesion(datos) {
-    estado.datos = datos;
-    estado.indice = 0;
-    estado.bloque = 0;
-    estado.usados.clear();
-
-    iniciarTimerGlobal();
-    ejecutarSiguienteBloque();
+function cambiarIdioma(nuevoIdioma) {
+    configuracion.idioma = nuevoIdioma;
+    // ... (Tu lógica de cambio de idioma)
 }
 
-//
-// ===============================
-// TIMER GLOBAL 10 MINUTOS
-// ===============================
-//
-function iniciarTimerGlobal() {
-    clearInterval(estado.timerSesion);
+// ... (Funciones cambiarBolsillo y cambiarModalidad igual)
 
-    estado.tiempoRestante = 600;
-
-    estado.timerSesion = setInterval(() => {
-        estado.tiempoRestante--;
-
-        actualizarTimerUI();
-
-        if (estado.tiempoRestante <= 0) {
-            finalizarSesion();
-        }
-    }, 1000);
+function solicitarEscape() {
+    // ... (Tu lógica de fetch y manejo de datos)
 }
 
-function actualizarTimerUI() {
-    const min = Math.floor(estado.tiempoRestante / 60);
-    const sec = estado.tiempoRestante % 60;
+// ÚNICA DEFINICIÓN DE LA FUNCIÓN PROCESARCOMANDO
+function procesarComando() {
+    clearInterval(intervaloRespiracion);
+    clearInterval(cuentaRegresiva);
+    const cajaContenedora = document.getElementById('step-content');
+    const btnSiguiente = document.getElementById('btn-next');
+   
+    cajaContenedora.innerHTML = "";
+    btnSiguiente.style.display = 'none';
 
-    ui.timer.innerText = `${min}:${sec < 10 ? "0" : ""}${sec}`;
-}
-
-function finalizarSesion() {
-    clearInterval(estado.timerSesion);
-    clearInterval(estado.intervalo);
-    cancelarRespiracion();
-
-    ui.contenedor.innerHTML = `
-        <div class="end-screen">
-            <h2>Sesión completada</h2>
-            <button onclick="reiniciarSesion()">Reiniciar</button>
-        </div>
-    `;
-}
-
-function reiniciarSesion() {
-    location.reload();
-}
-
-//
-// ===============================
-// LOOP PRINCIPAL DE BLOQUES
-// ===============================
-//
-function ejecutarSiguienteBloque() {
-    if (!estado.datos) return;
-
-    const bloques = estado.datos.bloques_interactivos;
-
-    if (estado.bloque >= bloques.length) {
-        estado.indice++;
-        estado.bloque = 0;
-
-        if (estado.indice >= bloques.length) {
-            estado.indice = 0;
-        }
+    if (indiceActual >= comandosMision.length) {
+        cajaContenedora.innerHTML = `<div class='screen-story' style='text-align:center; font-weight:bold;'>¡Misión Completada! / Mission Accomplished!</div>`;
+        return;
     }
 
-    const bloque = bloques[estado.bloque];
-    estado.bloque++;
+    const c = comandosMision[indiceActual];
 
-    procesarBloque(bloque);
-}
-
-//
-// ===============================
-// MOTOR DE BLOQUES
-// ===============================
-//
-function procesarBloque(bloque) {
-
-    switch (bloque.t) {
-
-        case "v":
-            mostrarTitulo(bloque.tx);
-            setTimeout(ejecutarSiguienteBloque, 2000);
-            break;
-
-        case "h":
-            mostrarSubtitulo(bloque.tx);
-            setTimeout(ejecutarSiguienteBloque, 4000);
-            break;
-
-        case "story":
-            mostrarTexto(bloque);
-            setTimeout(ejecutarSiguienteBloque, 6000);
-            break;
-
-        case "breath_auto":
-            iniciarRespiracion(bloque.d);
-            setTimeout(() => {
-                cancelarRespiracion();
-                ejecutarSiguienteBloque();
-            }, bloque.d * 1000);
-            break;
-
-        case "d":
-            mostrarDecision(bloque);
-            break;
-
-        case "r":
-            mostrarRecompensa(bloque);
-            setTimeout(ejecutarSiguienteBloque, 2000);
-            break;
-
-        case "c":
-            mostrarConfirmacion(bloque);
-            setTimeout(ejecutarSiguienteBloque, 2000);
-            break;
-
-        case "sil":
-            iniciarSilencio(bloque);
-            break;
-
-        default:
-            ejecutarSiguienteBloque();
+    // Lógica para tipos de pantalla
+    if (c.t === 'v' || c.t === 'h' || c.story || c.t === 'c') {
+        cajaContenedora.innerHTML = `<div class='screen-story'>${c.tx || c.story || c.c || ""}</div>`;
+        btnSiguiente.style.display = 'block';
     }
-}
-
-//
-// ===============================
-// UI HELPERS
-// ===============================
-//
-function mostrarTitulo(texto) {
-    ui.titulo.innerText = texto;
-}
-
-function mostrarSubtitulo(texto) {
-    ui.subtitulo.innerText = texto;
-}
-
-function mostrarTexto(bloque) {
-    ui.contenedor.innerHTML = `<p>${bloque.tx || ""}</p>`;
-}
-
-//
-// ===============================
-// RESPIRACION REAL ANIMADA
-// ===============================
-//
-function iniciarRespiracion(duracion) {
-    let expandiendo = true;
-    let escala = 1;
-
-    clearInterval(estado.intervalo);
-
-    estado.intervalo = setInterval(() => {
-
-        if (expandiendo) {
-            escala += 0.01;
-            if (escala >= 1.4) expandiendo = false;
-        } else {
-            escala -= 0.01;
-            if (escala <= 1) expandiendo = true;
-        }
-
-        ui.circulo.style.transform = `scale(${escala})`;
-
-    }, 16); // ~60fps
-}
-
-function cancelarRespiracion() {
-    clearInterval(estado.intervalo);
-    ui.circulo.style.transform = "scale(1)";
-}
-
-//
-// ===============================
-// DECISIONES
-// ===============================
-//
-function mostrarDecision(bloque) {
-    let html = `<h3>${bloque.q}</h3>`;
-
-    bloque.op.forEach((op, index) => {
-        html += `<button onclick="responder(${index}, ${bloque.c})">${op}</button>`;
-    });
-
-    ui.contenedor.innerHTML = html;
-}
-
-function responder(index, correcta) {
-
-    if (index === correcta) {
-        ui.contenedor.innerHTML += `<p>✔ Correcto</p>`;
-    } else {
-        ui.contenedor.innerHTML += `<p>✖ Ajuste necesario</p>`;
+    else if (c.t === 'breath_auto') {
+        cajaContenedora.innerHTML = `<div class='screen-story'><b>${c.tx}</b></div><div class='wrapper-circle'><div id='circle-azul' class='breath-circle'>INHALA</div></div><div id='timer-breath' class='timer-display'>${c.d}s</div>`;
+        // ... (Aquí va tu lógica de intervalos de respiración)
     }
-
-    setTimeout(ejecutarSiguienteBloque, 1500);
-}
-
-//
-// ===============================
-// SILENCIO CRONOMETRADO
-// ===============================
-//
-function iniciarSilencio(bloque) {
-
-    let tiempo = bloque.d;
-    ui.contenedor.innerHTML = `<h3>Silencio activo</h3><div id="silencioTimer">${tiempo}</div>`;
-
-    const intervalo = setInterval(() => {
-
-        tiempo--;
-        document.getElementById("silencioTimer").innerText = tiempo;
-
-        if (tiempo <= 0) {
-            clearInterval(intervalo);
-            ejecutarSiguienteBloque();
-        }
-
-    }, 1000);
-}
-
-//
-// ===============================
-// RECOMPENSAS / CONFIRMACION
-// ===============================
-//
-function mostrarRecompensa(bloque) {
-    ui.contenedor.innerHTML = `<p>${bloque.tx}</p>`;
-}
-
-function mostrarConfirmacion(bloque) {
-    ui.contenedor.innerHTML = `<p>${bloque.tx}</p>`;
+    else if (c.t === 'sil') {
+        cajaContenedora.innerHTML = `<div class='screen-story'><b>${c.tx}</b></div><div id='timer-silence' class='timer-display'>${c.d}s</div>`;
+        // ... (Aquí va tu lógica de intervalos de silencio)
+    }
+    else if (c.t === 'd') {
+        let opcionesHtml = "";
+        c.op.forEach((opcion, idx) => {
+            opcionesHtml += `<button class='btn-option-interactive' onclick='validarRespuesta(${idx}, ${c.c}, "${c.ex[idx].replace(/"/g, '&quot;')}")'>${opcion}</button>`;
+        });
+        cajaContenedora.innerHTML = `<div class='screen-title'>${c.q}</div><div class='options-list'>${opcionesHtml}</div><div id='box-explicacion' class='explanation-box'></div>`;
+    }
+    else {
+        indiceActual++;
+        procesarComando();
+    }
 }
