@@ -1,327 +1,281 @@
-(() => {
-"use strict";
-
 // ===============================
-// SAFE LOOP ENGINE v6 (STABLE UI + REAL BREATH + NO FREEZE)
-// SINGLE FLOW CONTROLLER
+// SAFE LOOP ENGINE vFINAL
+// CLIENT ONLY (NO LOGIC DECISION)
 // ===============================
 
-let state = {
-    lang: "es",
-    bloques: [],
-    index: 0,
-    used: new Set(),
+let sessionId = null;
+let mission = null;
+let state = null;
 
-    loopDuration: 600000,
-    loopStart: 0,
+let stepIndex = 1;
+let maxSteps = 27;
 
-    breathing: null,
-    silence: null,
+let timer = null;
+let breathingTimer = null;
+let secondsLeft = 600;
 
-    speaking: false
-};
-
-// ===============================
-// INIT
-// ===============================
-window.addEventListener("load", () => {
-    window.speechSynthesis.onvoiceschanged = () => {};
-});
+let currentLanguage = "es";
+let bolsillo = "cero";
+let canGo = true;
 
 // ===============================
-// HELPERS
+// UI ELEMENTS
 // ===============================
-function el(id) {
-    return document.getElementById(id);
-}
+const form = document.getElementById("wrapper-form");
+const interactive = document.getElementById("wrapper-interactive");
 
-function safeText(v) {
-    if (!v) return "";
-    if (typeof v === "string") return v;
-    return v.es || v.en || "";
-}
+const titleEl = document.getElementById("interactive-title");
+const locationEl = document.getElementById("interactive-location");
+const stepContent = document.getElementById("step-content");
+
+const btnNext = document.getElementById("btn-next");
+const btnMaps = document.getElementById("btn-maps-action");
 
 // ===============================
-// VOICE
+// LANGUAGE
 // ===============================
-function speak(text) {
-    if (!text) return;
+function cambiarIdioma(lang) {
+    currentLanguage = lang;
 
-    window.speechSynthesis.cancel();
+    document.getElementById("lang-es").classList.remove("active");
+    document.getElementById("lang-en").classList.remove("active");
 
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = state.lang;
-
-    u.onend = () => state.speaking = false;
-
-    state.speaking = true;
-    window.speechSynthesis.speak(u);
+    document.getElementById("lang-" + lang).classList.add("active");
 }
 
 // ===============================
-// START FLOW
+// BOLSILLO
+// ===============================
+function cambiarBolsillo(v) {
+    bolsillo = v;
+}
+
+// ===============================
+// MODALIDAD
+// ===============================
+let salirCasa = true;
+
+function cambiarModalidad(v) {
+    salirCasa = v;
+}
+
+// ===============================
+// START
 // ===============================
 async function solicitarEscape() {
 
     const payload = {
-        estado: el("inp-state").value,
-        zip_code: el("inp-zip").value,
-        bolsillo: getBolsillo(),
-        puedes_salir: getModalidad(),
-        texto_libre: el("inp-text").value,
-        idioma: state.lang
+        session_id: sessionId,
+        texto_libre: document.getElementById("inp-text").value,
+        zip_code: document.getElementById("inp-zip").value,
+        estado: document.getElementById("inp-state").value,
+        bolsillo: bolsillo,
+        idioma: currentLanguage,
+        action: "next"
     };
 
-    const res = await fetch("/diagnostico-kamizen", {
+    const res = await fetch("/safe-loop", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload)
     });
 
     const data = await res.json();
 
-    state.bloques = data.bloques_interactivos || data.blocks || [];
+    sessionId = data.session_id;
+    mission = data.mission;
+    state = data.state;
+    maxSteps = data.max_steps;
 
-    el("wrapper-form").style.display = "none";
-    el("wrapper-interactive").style.display = "block";
-
-    el("interactive-title").innerText = data.titulo || data.title || "";
-    el("interactive-location").innerText = data.lugar || data.location || "";
-
-    if (data.url_maps || data.map) {
-        const btn = el("btn-maps-action");
-        btn.href = data.url_maps || data.map;
-        btn.style.display = "block";
-    }
-
-    state.loopStart = Date.now();
-
-    startLoop();
-    nextStep();
+    renderScreen(data);
 }
 
 // ===============================
-// LOOP CONTROL (10 MIN EXACT)
+// RENDER
 // ===============================
-function startLoop() {
-    clearTimeout(state.loopTimeout);
+function renderScreen(data) {
 
-    state.loopTimeout = setTimeout(() => {
-        endLoop();
-    }, state.loopDuration);
-}
+    form.style.display = "none";
+    interactive.style.display = "block";
 
-function endLoop() {
-    speak(state.lang === "es"
-        ? "Ejercicio terminado. Puedes reiniciar cuando quieras."
-        : "Session completed. You may restart anytime."
-    );
+    titleEl.innerText = mission.title;
+    locationEl.innerText = `Step ${state.step} / ${maxSteps} | Emotion: ${state.emotion}`;
 
-    reset();
-}
+    stepContent.innerHTML = "";
 
-// ===============================
-// RESET
-// ===============================
-function reset() {
-    state.index = 0;
-    state.used.clear();
-    clearInterval(state.breathing);
-    clearInterval(state.silence);
-}
+    // RESET UI
+    stopTimers();
 
-// ===============================
-// STEP ENGINE (NO FREEZE SAFE)
-// ===============================
-function nextStep() {
+    // BREATHING
+    startBreathing(mission.breathing);
 
-    if (!state.bloques.length) return;
+    // TIMER 10 MIN
+    startTimer(mission.loop_duration_seconds);
 
-    if (state.used.size >= state.bloques.length) {
-        state.used.clear();
+    // CONTENT
+    stepContent.innerHTML = `
+        <div class="screen-story">
+            ${mission.instruction}
+        </div>
+    `;
+
+    btnNext.style.display = "block";
+
+    if (data.url_maps) {
+        btnMaps.style.display = "block";
+        btnMaps.href = data.url_maps;
+    } else {
+        btnMaps.style.display = "none";
     }
 
-    let available = state.bloques
-        .map((_, i) => i)
-        .filter(i => !state.used.has(i));
-
-    let idx = available[Math.floor(Math.random() * available.length)];
-
-    state.used.add(idx);
-    state.index = idx;
-
-    render(state.bloques[idx]);
+    speak(mission.instruction);
 }
 
 // ===============================
-// RENDER BLOCK
+// NEXT STEP
 // ===============================
-function render(block) {
+async function siguienteComando() {
 
-    const container = el("step-content");
-    container.innerHTML = "";
+    const res = await fetch("/safe-loop", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            session_id: sessionId,
+            texto_libre: "",
+            action: "next"
+        })
+    });
 
-    // TEXT
-    if (block.tx) {
-        const t = safeText(block.tx);
-        const div = document.createElement("div");
-        div.innerText = t;
-        container.appendChild(div);
-        speak(t);
-    }
+    const data = await res.json();
 
-    // QUESTION
-    if (block.q) {
-        const q = document.createElement("h3");
-        q.innerText = safeText(block.q);
-        container.appendChild(q);
-    }
+    mission = data.mission;
+    state = data.state;
 
-    // OPTIONS (FIXED CLICK ISSUE)
-    if (block.op && Array.isArray(block.op)) {
-
-        block.op.forEach((o, i) => {
-            const btn = document.createElement("button");
-
-            btn.innerText = safeText(o);
-            btn.style.display = "block";
-            btn.style.width = "100%";
-            btn.style.margin = "6px 0";
-            btn.style.padding = "12px";
-
-            btn.onclick = () => {
-                speak(state.lang === "es" ? "Continuando" : "Continuing");
-                nextStep();
-            };
-
-            container.appendChild(btn);
-        });
-    }
-
-    // BREATHING FIX (REAL SMOOTH ANIMATION)
-    if (block.t === "breath_auto") {
-        startBreathing(block.d || 20);
-    }
-
-    // SILENCE TIMER (FIXED)
-    if (block.t === "sil") {
-        startSilence(block.d || 30);
-    }
-
-    el("btn-next").style.display = "block";
+    renderScreen(data);
 }
 
 // ===============================
-// BREATHING (REAL PULSE SMOOTH)
+// BREATHING ENGINE (REALISTIC)
 // ===============================
-function startBreathing(seconds) {
+function startBreathing(cfg) {
 
-    clearInterval(state.breathing);
+    const circle = createBreathCircle();
 
-    const container = el("step-content");
+    let inhale = cfg?.inhale || 4;
+    let hold = cfg?.hold || 2;
+    let exhale = cfg?.exhale || 6;
 
-    let circle = document.createElement("div");
-    circle.className = "breath-circle";
-    circle.style.transition = "transform 4s ease-in-out";
-    circle.style.margin = "20px auto";
+    let phase = "inhale";
+    let time = inhale;
 
-    container.appendChild(circle);
+    breathingTimer = setInterval(() => {
 
-    let inhale = true;
-    let count = 0;
+        if (phase === "inhale") {
+            circle.style.transform = "scale(1.4)";
+            time--;
 
-    state.breathing = setInterval(() => {
+            if (time <= 0) {
+                phase = "hold";
+                time = hold;
+            }
 
-        if (inhale) {
-            circle.style.transform = "scale(1.8)";
-            circle.innerText = state.lang === "es" ? "INHALA" : "IN";
-        } else {
-            circle.style.transform = "scale(1)";
-            circle.innerText = state.lang === "es" ? "EXHALA" : "OUT";
-        }
+        } else if (phase === "hold") {
+            circle.style.transform = "scale(1.4)";
+            time--;
 
-        inhale = !inhale;
-        count++;
+            if (time <= 0) {
+                phase = "exhale";
+                time = exhale;
+            }
 
-        if (count >= seconds * 2) {
-            clearInterval(state.breathing);
-        }
+        } else if (phase === "exhale") {
+            circle.style.transform = "scale(0.8)";
+            time--;
 
-    }, 2000);
-}
-
-// ===============================
-// SILENCE TIMER (REAL COUNTDOWN FIX)
-// ===============================
-function startSilence(seconds) {
-
-    clearInterval(state.silence);
-
-    const container = el("step-content");
-
-    let timer = document.createElement("div");
-    timer.style.fontSize = "20px";
-    timer.style.marginTop = "10px";
-
-    container.appendChild(timer);
-
-    let t = seconds;
-
-    timer.innerText = `⏳ ${t}`;
-
-    state.silence = setInterval(() => {
-
-        t--;
-        timer.innerText = `⏳ ${t}`;
-
-        if (t <= 0) {
-            clearInterval(state.silence);
-            nextStep();
+            if (time <= 0) {
+                phase = "inhale";
+                time = inhale;
+            }
         }
 
     }, 1000);
 }
 
 // ===============================
-// UI STATE
+// TIMER 10 MIN EXACT
 // ===============================
-function cambiarIdioma(l) {
-    state.lang = l;
+function startTimer(seconds) {
 
-    el("lang-es").classList.toggle("active", l === "es");
-    el("lang-en").classList.toggle("active", l === "en");
-}
+    secondsLeft = seconds || 600;
 
-function cambiarBolsillo(v) {
-    window._bolsillo = v;
-}
+    timer = setInterval(() => {
 
-function getBolsillo() {
-    return window._bolsillo || "cero";
-}
+        secondsLeft--;
 
-function cambiarModalidad(v) {
-    window._modalidad = v;
-}
+        if (secondsLeft <= 0) {
+            clearInterval(timer);
+            clearInterval(breathingTimer);
 
-function getModalidad() {
-    return window._modalidad ?? true;
+            finishLoop();
+        }
+
+    }, 1000);
 }
 
 // ===============================
-// NEXT BUTTON
+// END LOOP
 // ===============================
-function siguienteComando() {
-    nextStep();
+function finishLoop() {
+
+    stepContent.innerHTML = `
+        <div class="screen-title">
+            LOOP COMPLETED
+        </div>
+        <button onclick="solicitarEscape()" class="btn-trigger">
+            RESTART 10 MIN LOOP
+        </button>
+    `;
 }
 
 // ===============================
-// EXPORT GLOBAL
+// STOP TIMERS
 // ===============================
-window.solicitarEscape = solicitarEscape;
-window.siguienteComando = siguienteComando;
-window.cambiarIdioma = cambiarIdioma;
-window.cambiarBolsillo = cambiarBolsillo;
-window.cambiarModalidad = cambiarModalidad;
+function stopTimers() {
+    if (timer) clearInterval(timer);
+    if (breathingTimer) clearInterval(breathingTimer);
+}
 
-})();
+// ===============================
+// SPEECH (VOICE GUIDE)
+// ===============================
+function speak(text) {
+
+    if (!("speechSynthesis" in window)) return;
+
+    let msg = new SpeechSynthesisUtterance(text);
+    msg.lang = currentLanguage === "es" ? "es-ES" : "en-US";
+    msg.rate = 1;
+
+    speechSynthesis.cancel();
+    speechSynthesis.speak(msg);
+}
+
+// ===============================
+// BREATH CIRCLE CREATOR
+// ===============================
+function createBreathCircle() {
+
+    let old = document.querySelector(".breath-circle");
+    if (old) old.remove();
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "wrapper-circle";
+
+    const circle = document.createElement("div");
+    circle.className = "breath-circle";
+
+    wrapper.appendChild(circle);
+    stepContent.appendChild(wrapper);
+
+    return circle;
+}
