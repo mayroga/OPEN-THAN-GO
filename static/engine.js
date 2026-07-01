@@ -1,9 +1,9 @@
-// OPEN THAN GO SYSTEM - Frontend Engine con Diagnóstico de Errores Activo
+// OPEN THAN GO SYSTEM - Frontend Voice & Somatic Engine
 // Company: May Roga LLC
 // File: static/engine.js
 
 let idiomaActual = 'es';
-let presupuestoActual = 'cero';
+let presupuestoActual = 'cero'; // Variable unificada para el presupuesto
 let modalidadSalir = true; 
 let pasosMisionGlobal = [];
 let indicePasoActual = 0;
@@ -34,7 +34,6 @@ const traducciones = {
     }
 };
 
-// Muestra los errores directamente en la pantalla del celular para saber qué falla
 function mostrarErrorEnPantalla(titulo, detalle) {
     document.getElementById('wrapper-loader').style.display = 'none';
     document.getElementById('wrapper-form').style.display = 'block';
@@ -50,7 +49,6 @@ function mostrarErrorEnPantalla(titulo, detalle) {
         cajaError.style.marginTop = '15px';
         cajaError.style.border = '2px solid #ef5350';
         cajaError.style.fontSize = '13px';
-        cajaError.style.textAlign = 'left';
         document.getElementById('wrapper-form').appendChild(cajaError);
     }
     cajaError.innerHTML = `<strong>🚨 ERROR DE DIAGNÓSTICO:</strong><br>${titulo}<br><br><small style="color:#555;">Detalle técnico: ${detalle}</small>`;
@@ -88,8 +86,9 @@ function cambiarIdioma(lang) {
     document.getElementById('btn-maps-action').innerText = traducciones[lang].btn_gps;
 }
 
+// CORRECCIÓN DE ASIGNACIÓN: Sincroniza con el presupuesto exacto que espera main.py
 function cambiarBolsillo(opcion) {
-    presupuestoActual = opcion;
+    presupuestoActual = opcion; // Cambia la variable global ('cero', 'minimo', 'moderado', 'libre')
     const ids = ['b-cero', 'b-minimo', 'b-moderado', 'b-libre'];
     ids.forEach(id => {
         const elemento = document.getElementById(id);
@@ -112,7 +111,7 @@ async function solicitarEscape() {
     const payload = {
         decision: modalidadSalir ? "salir" : "casa",
         lang: idiomaActual,
-        budget_level: presupuestoActual,
+        budget_level: presupuestoActual, // Se envía 'cero', 'minimo', etc. corregido
         zip_code: document.getElementById('inp-zip').value.trim(),
         estado: document.getElementById('inp-state').value,
         region: document.getElementById('inp-region').value,
@@ -123,7 +122,6 @@ async function solicitarEscape() {
     document.getElementById('wrapper-loader').style.display = 'flex';
     document.getElementById('wrapper-interactive').style.display = 'none';
 
-    // Limpiar errores previos si los hubiera
     const errorPrevio = document.getElementById('error-diagnostico');
     if (errorPrevio) errorPrevio.remove();
 
@@ -134,9 +132,8 @@ async function solicitarEscape() {
             body: JSON.stringify(payload)
         });
 
-        // Capturar errores directos del servidor Render (404, 500, etc)
         if (!respuesta.ok) {
-            mostrarErrorEnPantalla(`El servidor Render respondió con código de error ${respuesta.status}`, "Verifica los logs en el panel de Render.com para ver por qué se cayó Python.");
+            mostrarErrorEnPantalla(`El servidor respondió con código ${respuesta.status}`, "Revisa los archivos JSON de misiones en la raíz de tu GitHub.");
             return;
         }
 
@@ -172,12 +169,12 @@ async function solicitarEscape() {
 
                 procesarPasoMision();
             } else {
-                mostrarErrorEnPantalla("El servidor procesó la ruta pero el JSON de misiones está incompleto.", data.message || "Falta la propiedad 'mision' o 'b' en la respuesta del backend.");
+                mostrarErrorEnPantalla("El backend respondió pero la estructura del JSON no es correcta.", data.message || "Verifica las misiones en tus archivos JSON.");
             }
         }, 1200);
 
     } catch (error) {
-        mostrarErrorEnPantalla("No hay comunicación física entre el Frontend de la app y tu servidor en Render.", error.message);
+        mostrarErrorEnPantalla("Error de red intentando conectar con Render.", error.message);
     }
 }
 
@@ -214,3 +211,6 @@ function procesarPasoMision() {
 
         if (paso.t === "v" || paso.t === "h") {
             contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0;">${paso.tx[idiomaActual]}</h3>`;
+            hablarTexto(paso.tx[idiomaActual]);
+            botonContinuar.style.display = 'block';
+        }
