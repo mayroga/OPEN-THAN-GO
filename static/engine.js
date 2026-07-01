@@ -1,59 +1,56 @@
-// OPEN THAN GO SYSTEM - Frontend Engine
+// OPEN THAN GO SYSTEM - Frontend Voice & Somatic Engine
 // Company: May Roga LLC
 // File: static/engine.js
 
 // Variables de estado global de la sesión interactiva
 let idiomaActual = 'es';
 let presupuestoActual = 'cero';
-let modalidadSalir = true; // true = Salir, false = Casa
+let modalidadSalir = true; 
 let pasosMisionGlobal = [];
 let indicePasoActual = 0;
 let datosLugarGlobal = null;
 let tipoEscapeGlobal = "";
 let intervaloRespiracion = null;
 
-// Diccionario de traducción básico para la interfaz estática
 const traducciones = {
     es: {
         subtitle: "Tu escape emocional inteligente",
-        state: "Estado",
-        region: "Región / Condado",
-        zip: "ZIP Code",
-        budget: "Presupuesto Disponible",
-        mode: "¿Salir o quedarte en casa?",
-        desahogo: "Desahogo Opcional (Filtro Emocional)",
-        placeholder_text: "Escribe libremente cómo te sientes hoy...",
-        btn_trigger: "GENERAR ESCAPE",
-        loader: "Calculando tu vector de escape ideal...",
-        btn_continue: "CONTINUAR",
-        btn_gps: "ABRIR MAPA EN GPS",
-        tipo_casa: "Protocolo Doméstico Activado",
-        tipo_salida: "Protocolo de Exploración Abierto",
-        txt_correcto: "<strong>¡Excelente elección!</strong><br>",
-        txt_incorrecto: "<strong>Analiza esto con calma:</strong><br>"
+        state: "Estado", region: "Región / Condado", zip: "ZIP Code", budget: "Presupuesto Disponible",
+        mode: "¿Salir o quedarte en casa?", desahogo: "Desahogo Opcional (Filtro Emocional)",
+        placeholder_text: "Escribe libremente cómo te sientes hoy...", btn_trigger: "GENERAR ESCAPE",
+        loader: "Calculando tu vector de escape ideal...", btn_continue: "CONTINUAR", btn_gps: "ABRIR MAPA EN GPS",
+        tipo_casa: "Protocolo Doméstico Activado", tipo_salida: "Protocolo de Exploración Abierto",
+        txt_correcto: "<strong>¡Excelente elección!</strong><br>", txt_incorrecto: "<strong>Analiza esto con calma:</strong><br>",
+        inspira: "Inhala / Inspira", expira: "Exhala / Expira"
     },
     en: {
         subtitle: "Your intelligent emotional escape",
-        state: "State",
-        region: "Region / County",
-        zip: "ZIP Code",
-        budget: "Available Budget",
-        mode: "Go out or stay at home?",
-        desahogo: "Optional Venting (Emotional Filter)",
-        placeholder_text: "Write freely about how you feel today...",
-        btn_trigger: "GENERATE ESCAPE",
-        loader: "Calculating your ideal escape vector...",
-        btn_continue: "CONTINUE",
-        btn_gps: "OPEN MAP IN GPS",
-        tipo_casa: "Domestic Protocol Activated",
-        tipo_salida: "Exploration Protocol Opened",
-        txt_correcto: "<strong>Excellent choice!</strong><br>",
-        txt_incorrecto: "<strong>Analyze this calmly:</strong><br>"
+        state: "State", region: "Region / County", zip: "ZIP Code", budget: "Available Budget",
+        mode: "Go out or stay at home?", desahogo: "Optional Venting (Emotional Filter)",
+        placeholder_text: "Write freely about how you feel today...", btn_trigger: "GENERATE ESCAPE",
+        loader: "Calculating your ideal escape vector...", btn_continue: "CONTINUE", btn_gps: "OPEN MAP IN GPS",
+        tipo_casa: "Domestic Protocol Activated", tipo_salida: "Exploration Protocol Opened",
+        txt_correcto: "<strong>Excellent choice!</strong><br>", txt_incorrecto: "<strong>Analyze this calmly:</strong><br>",
+        inspira: "Inhale", expira: "Exhale"
     }
 };
 
 // ----------------------------------------------------
-// MANEJO DE INTERFAZ Y CAPTURA DE CONFIGURACIÓN
+// MOTOR DE AUDIO (SÍNTESIS DE VOZ NATIIVA)
+// ----------------------------------------------------
+function hablarTexto(texto) {
+    window.speechSynthesis.cancel();
+    if (!texto) return;
+    
+    const lectura = new SpeechSynthesisUtterance(texto);
+    lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US'; 
+    lectura.rate = 0.95; 
+    lectura.pitch = 1.0; 
+    window.speechSynthesis.speak(lectura);
+}
+
+// ----------------------------------------------------
+// INTERFAZ DE USUARIO Y CONFIGURACIÓN
 // ----------------------------------------------------
 function cambiarIdioma(lang) {
     idiomaActual = lang;
@@ -79,9 +76,7 @@ function cambiarBolsillo(opcion) {
     const ids = ['b-cero', 'b-minimo', 'b-moderado', 'b-libre'];
     ids.forEach(id => {
         const elemento = document.getElementById(id);
-        if (elemento) {
-            elemento.classList.toggle('active', id === `b-${opcion}`);
-        }
+        if (elemento) elemento.classList.toggle('active', id === `b-${opcion}`);
     });
 }
 
@@ -97,9 +92,10 @@ function cambiarModalidad(esSalir) {
 }
 
 // ----------------------------------------------------
-// PETICIÓN ASÍNCRONA AL BACKEND
+// PETICIÓN ASÍNCRONA UNIFICADA AL BACKEND
 // ----------------------------------------------------
 async function solicitarEscape() {
+    // UNIFICACIÓN DE VARIABLES: Sincronizado al 100% con main.py
     const payload = {
         decision: modalidadSalir ? "salir" : "casa",
         lang: idiomaActual,
@@ -153,31 +149,40 @@ async function solicitarEscape() {
 
                 procesarPasoMision();
             } else {
-                alert(data.message || "Error en el servidor.");
+                alert(data.message || "Error al sincronizar con el servidor.");
                 document.getElementById('wrapper-form').style.display = 'block';
             }
-        }, 1800);
+        }, 1200);
 
     } catch (error) {
-        console.error("Error del sistema:", error);
-        alert("Error de conexión con el servidor.");
+        console.error("Error crítico de comunicación:", error);
+        alert("Error de conexión. Reconectando con Open Than Go...");
         document.getElementById('wrapper-form').style.display = 'block';
         document.getElementById('wrapper-loader').style.display = 'none';
     }
 }
 
 // ----------------------------------------------------
-// MOTOR DE PROCESAMIENTO PASO A PASO
+// PROCESADOR SECUENCIAL AUTOMÁTICO DE PASOS
 // ----------------------------------------------------
 function procesarPasoMision() {
     clearInterval(intervaloRespiracion);
+    window.speechSynthesis.cancel();
     
-    const contenedorPasos = document.getElementById('step-content');
     const botonContinuar = document.getElementById('btn-next');
     const botonGps = document.getElementById('btn-maps-action');
     
     botonContinuar.style.display = 'none';
     botonGps.style.display = 'none';
+
+    // BLINDAJE DE CONTENEDOR: Crea dinámicamente el lienzo de texto si no existe en el HTML
+    let contenedorPasos = document.getElementById('step-content');
+    if (!contenedorPasos) {
+        contenedorPasos = document.createElement('div');
+        contenedorPasos.id = 'step-content';
+        const wrapperInteractive = document.getElementById('wrapper-interactive');
+        wrapperInteractive.insertBefore(contenedorPasos, botonContinuar);
+    }
 
     if (indicePasoActual >= pasosMisionGlobal.length) {
         if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
@@ -191,49 +196,28 @@ function procesarPasoMision() {
 
     const paso = pasosMisionGlobal[indicePasoActual];
 
-    // 1. Cabeceras sueltas (v o h)
+    // Evaluar etiquetas de tus archivos JSON
     if (paso.t === "v" || paso.t === "h") {
         contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0;">${paso.tx[idiomaActual]}</h3>`;
+        hablarTexto(paso.tx[idiomaActual]);
         botonContinuar.style.display = 'block';
     }
     
-    // 2. Narrativa Contextual (story)
     else if (paso.story) {
         contenedorPasos.innerHTML = `
             <div class="screen-story">
                 <p>${paso.story[idiomaActual]}</p>
             </div>
         `;
+        hablarTexto(paso.story[idiomaActual]);
         botonContinuar.style.display = 'block';
     }
     
-    // 3. Regulación Biológica (breath_auto)
     else if (paso.t === "breath_auto") {
         let tiempoRestante = paso.d;
         contenedorPasos.innerHTML = `
             <div class="wrapper-circle">
-                <div class="breath-circle" id="circulo-pulso">${tiempoRestante}s</div>
-                <p style="font-weight:600; margin-top:15px; font-size:15px;">${paso.tx[idiomaActual]}</p>
-                <p class="breath-inf">${paso.inf[idiomaActual]}</p>
-            </div>
-        `;
-        
-        intervaloRespiracion = setInterval(() => {
-            tiempoRestante--;
-            const circulo = document.getElementById('circulo-pulso');
-            if (circulo) circulo.innerText = `${tiempoRestante}s`;
-            
-            if (tiempoRestante <= 0) {
-                clearInterval(intervaloRespiracion);
-                botonContinuar.style.display = 'block';
-            }
-        }, 1000);
-    }
-    
-    // 4. Cuestionario Conductual (t = "d")
-    else if (paso.t === "d") {
-        let opcionesHtml = "";
-        paso.op.forEach((opcion, index) => {
-            opcionesHtml += `
-                <button class="btn-opcion" onclick="evaluarRespuestaTrivia(${index}, ${paso.c}, '${paso.ex[index][idiomaActual].replace(/'/g, "\\'")}')">
-                    ${opcion[idiomaActual]}
+                <div class="breath-circle animar-respiracion" id="circulo-pulso">${tiempoRestante}s</div>
+                <div class="txt-instruccion-pulmon" id="txt-pulmon-accion">---</div>
+                }
+
