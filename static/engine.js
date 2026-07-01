@@ -1,295 +1,280 @@
 // ===============================
-// SAFE LOOP ENGINE v1
-// OPEN THAN GO SYSTEM
+// SAFE LOOP ENGINE v3 CLIENT
+// OPEN THAN GO - MAY ROGA LLC
 // ===============================
 
-let state = {
-    session_id: null,
-    bloques: [],
-    index: 0,
-    timer: null,
-    breathTimer: null,
-    silenceTimer: null,
-    loopEnd: 0,
-    running: false,
-    maps: null,
-    idioma: "es"
-};
+let currentBlocks = [];
+let currentStep = 0;
+let engineState = null;
 
-const circle = () => document.querySelector(".breath-circle");
-const stepContent = () => document.getElementById("step-content");
-const title = () => document.getElementById("interactive-title");
-const locationBox = () => document.getElementById("interactive-location");
-const btnNext = () => document.getElementById("btn-next");
-const mapsBtn = () => document.getElementById("btn-maps-action");
+let timer = null;
+let sessionSeconds = 600; // 10 minutes
+let remaining = sessionSeconds;
+
+let breathingInterval = null;
+let isRunning = false;
 
 // ===============================
 // INIT REQUEST
 // ===============================
 async function solicitarEscape() {
 
-    const data = {
-        session_id: Date.now().toString(),
+    const payload = {
         estado: document.getElementById("inp-state").value,
         zip_code: document.getElementById("inp-zip").value,
-        bolsillo: getBolsillo(),
-        puedes_salir: getModalidad(),
+        bolsillo: selectedPocket,
         texto_libre: document.getElementById("inp-text").value,
-        idioma: state.idioma
+        puedes_salir: selectedMode,
+        idioma: currentLang
     };
 
-    const res = await fetch("/diagnostico-kamizen", {
+    const res = await fetch("/safe-loop-engine", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
     });
 
-    const json = await res.json();
+    const data = await res.json();
 
-    if (json.error) {
-        alert("No hay misiones disponibles");
+    if (!data.blocks) {
+        alert("No data received");
         return;
     }
 
-    startEngine(json);
+    startEngine(data);
 }
+
 
 // ===============================
 // START ENGINE
 // ===============================
 function startEngine(data) {
 
-    state.session_id = data.session_id;
-    state.bloques = data.bloques;
-    state.index = 0;
-    state.maps = data.maps || null;
-    state.running = true;
+    currentBlocks = data.blocks || [];
+    currentStep = 0;
+    engineState = data.engine || {};
 
-    state.loopEnd = Date.now() + (data.loop_seconds * 1000);
+    isRunning = true;
 
     document.getElementById("wrapper-form").style.display = "none";
     document.getElementById("wrapper-interactive").style.display = "block";
 
-    title().innerText = data.title || "OPEN THAN GO";
+    document.getElementById("interactive-title").innerText = data.title || "OPEN THAN GO";
 
     if (data.location) {
-        locationBox().innerText = data.location;
+        document.getElementById("interactive-location").innerText = data.location;
     }
 
-    if (state.maps) {
-        mapsBtn().style.display = "block";
-        mapsBtn().href = state.maps;
+    if (data.map_url) {
+        const mapBtn = document.getElementById("btn-maps-action");
+        mapBtn.style.display = "block";
+        mapBtn.href = data.map_url;
     }
 
-    renderStep();
-
-    startLoopTimer();
+    startLoop();
     startBreathing();
+    startTimer();
+    renderStep();
 }
 
+
 // ===============================
-// STEP ENGINE
+// LOOP CONTROL
 // ===============================
+function startLoop() {
+    renderStep();
+}
+
 function renderStep() {
 
-    if (!state.bloques[state.index]) {
-        finishLoop();
+    if (!isRunning) return;
+
+    const container = document.getElementById("step-content");
+    const btnNext = document.getElementById("btn-next");
+
+    const block = currentBlocks[currentStep];
+
+    if (!block) {
+        finishSession();
         return;
     }
 
-    const b = state.bloques[state.index];
+    container.innerHTML = "";
 
-    let html = "";
+    // TEXT BLOCK
+    if (block.tx) {
+        const div = document.createElement("div");
+        div.className = "screen-story";
+        div.innerText = block.tx;
+        container.appendChild(div);
 
-    if (b.t === "v") {
-        html = `<h3>${b.tx}</h3>`;
+        speak(block.tx);
     }
 
-    if (b.t === "h") {
-        html = `<div class="screen-story">${b.tx}</div>`;
+    // QUESTION BLOCK
+    if (block.t === "d") {
+        const q = document.createElement("div");
+        q.className = "screen-story";
+        q.innerText = block.q;
+        container.appendChild(q);
+
+        block.op.forEach((opt, index) => {
+            const btn = document.createElement("button");
+            btn.className = "btn-choice";
+            btn.innerText = opt;
+
+            btn.onclick = () => selectOption(index);
+
+            container.appendChild(btn);
+        });
     }
 
-    if (b.t === "story") {
-        html = `<div class="screen-story">${b.tx}</div>`;
-    }
-
-    if (b.t === "breath_auto") {
-        startBreathingCycle(b.d || 5);
-        html = `<p>${b.tx}</p>`;
-    }
-
-    if (b.t === "d") {
-        html = `
-            <div class="screen-story">
-                <p><b>${b.q}</b></p>
-                ${b.op.map((o, i) =>
-                    `<button class="btn-choice" onclick="selectOption(${i})">${o}</button>`
-                ).join("")}
-            </div>
-        `;
-    }
-
-    if (b.t === "sil") {
-        startSilenceTimer(b.d || 10);
-        html = `<p><b>SILENCE CHALLENGE</b></p><p>${b.tx}</p>`;
-    }
-
-    stepContent().innerHTML = html;
-
-    btnNext().style.display = "block";
+    btnNext.style.display = "block";
 }
+
 
 // ===============================
 // NEXT STEP
 // ===============================
 function siguienteComando() {
-    state.index++;
+
+    if (!isRunning) return;
+
+    currentStep++;
+
+    if (currentStep >= currentBlocks.length) {
+        finishSession();
+        return;
+    }
+
     renderStep();
 }
 
+
 // ===============================
-// BREATHING ENGINE (REAL ANIMATION)
+// OPTION SELECT (NO FREEZE)
 // ===============================
-function startBreathing() {
+function selectOption(index) {
 
-    const c = circle();
-    if (!c) return;
+    const block = currentBlocks[currentStep];
 
-    let grow = true;
-    let size = 90;
+    if (!block || !block.op) return;
 
-    clearInterval(state.breathTimer);
+    const selected = block.op[index];
 
-    state.breathTimer = setInterval(() => {
+    speak(selected);
 
-        if (!state.running) return;
-
-        if (grow) {
-            size += 1;
-            if (size >= 130) grow = false;
-        } else {
-            size -= 1;
-            if (size <= 80) grow = true;
-        }
-
-        c.style.width = size + "px";
-        c.style.height = size + "px";
-
-    }, 50);
+    setTimeout(() => {
+        siguienteComando();
+    }, 800);
 }
 
-// ===============================
-// BREATH CYCLE CONTROLLED
-// ===============================
-function startBreathingCycle(seconds) {
-
-    const c = circle();
-    if (!c) return;
-
-    let t = seconds * 2;
-    let size = 90;
-
-    clearInterval(state.breathTimer);
-
-    state.breathTimer = setInterval(() => {
-
-        if (!state.running) return;
-
-        size = size === 90 ? 120 : 90;
-
-        c.style.width = size + "px";
-        c.style.height = size + "px";
-
-        t--;
-
-        if (t <= 0) {
-            clearInterval(state.breathTimer);
-            startBreathing();
-        }
-
-    }, 1000);
-}
 
 // ===============================
-// SILENCE TIMER (CRITICAL)
+// TIMER 10 MINUTES SAFE LOOP
 // ===============================
-function startSilenceTimer(seconds) {
+function startTimer() {
 
-    let remaining = seconds;
+    remaining = sessionSeconds;
 
-    clearInterval(state.silenceTimer);
-
-    state.silenceTimer = setInterval(() => {
-
-        if (!state.running) return;
+    timer = setInterval(() => {
 
         remaining--;
 
         if (remaining <= 0) {
-            clearInterval(state.silenceTimer);
-            siguienteComando();
+            finishSession();
         }
 
     }, 1000);
 }
 
+
 // ===============================
-// MAIN LOOP TIMER 10 MIN
+// BREATHING ANIMATION (FIXED)
 // ===============================
-function startLoopTimer() {
+function startBreathing() {
 
-    clearInterval(state.timer);
+    const circle = document.querySelector(".breath-circle");
 
-    state.timer = setInterval(() => {
+    if (!circle) return;
 
-        const left = state.loopEnd - Date.now();
+    let inhale = true;
 
-        if (left <= 0) {
-            finishLoop();
+    breathingInterval = setInterval(() => {
+
+        if (!isRunning) return;
+
+        if (inhale) {
+            circle.style.transform = "scale(1.6)";
+            circle.innerText = "INHALE";
+        } else {
+            circle.style.transform = "scale(1.0)";
+            circle.innerText = "EXHALE";
         }
 
-    }, 1000);
+        inhale = !inhale;
+
+    }, 3000);
 }
 
+
 // ===============================
-// FINISH LOOP
+// VOICE ENGINE (TTS)
 // ===============================
-function finishLoop() {
+function speak(text) {
 
-    state.running = false;
+    if (!text) return;
 
-    clearInterval(state.timer);
-    clearInterval(state.breathTimer);
-    clearInterval(state.silenceTimer);
+    try {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = currentLang === "es" ? "es-ES" : "en-US";
+        msg.rate = 1;
 
-    stepContent().innerHTML = `
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(msg);
+    } catch (e) {
+        console.log("Voice error", e);
+    }
+}
+
+
+// ===============================
+// FINISH SESSION SAFE RESET
+// ===============================
+function finishSession() {
+
+    isRunning = false;
+
+    clearInterval(timer);
+    clearInterval(breathingInterval);
+
+    document.getElementById("step-content").innerHTML = `
         <div class="screen-story">
-            <h3>LOOP COMPLETED</h3>
-            <p>You can restart your 10-minute reset cycle.</p>
+            Sesión completada. Puedes reiniciar el ciclo.
         </div>
     `;
 
-    btnNext().style.display = "none";
+    const btn = document.getElementById("btn-next");
+    btn.innerText = "REINICIAR";
+    btn.onclick = () => location.reload();
 }
+
 
 // ===============================
-// UI HELPERS
+// GLOBAL CONTROL FLAGS
 // ===============================
-function getBolsillo() {
-    return document.querySelector(".btn-choice.active")?.textContent === "$0"
-        ? "cero"
-        : "moderado";
+let selectedPocket = "cero";
+let selectedMode = true;
+let currentLang = "es";
+
+function cambiarIdioma(lang) {
+    currentLang = lang;
 }
 
-function getModalidad() {
-    return true;
+function cambiarBolsillo(v) {
+    selectedPocket = v;
 }
 
-function cambiarIdioma(l) {
-    state.idioma = l;
-}
-
-// placeholder for option click
-function selectOption(i) {
-    siguienteComando();
+function cambiarModalidad(v) {
+    selectedMode = v;
 }
