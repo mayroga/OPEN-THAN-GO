@@ -1,102 +1,169 @@
-let configuracion = { idioma: 'es', puedes_salir: true, bolsillo: 'cero' };
+let configuracion = {
+    idioma: 'es',
+    puedes_salir: true,
+    bolsillo: 'cero',
+    modo: null, // HOME / OUTSIDE
+};
+
 let comandosMision = [];
 let indiceActual = 0;
 let intervaloRespiracion = null;
 let cuentaRegresiva = null;
+
+/* =========================
+   TEXTO UI
+========================= */
 const textos = {
     es: {
         subtitle: "Tu botón de escape inmediato para romper la monotonía urbana.",
-        lblState: "Estado / State:", lblZip: "ZIP Code (5 dígitos):", lblPocket: "¿Cuál es tu presupuesto real para hoy?",
-        pocketCero: "GASTO $0 HOY", pocketMod: "MODERADO", pocketLibre: "LIBRE",
-        lblMode: "¿Puedes o quieres salir de casa hoy?", btnOut: "🟢 SÍ, SALIR", btnIn: "🏠 EN CASA",
-        lblText: "Desahógate aquí (Escribe libremente lo que traigas en la mente):",
-        placeholder: "Escribe si estás cansado de la rutina, preocupado por biles o el trabajo, solo, o con niños aburridos...",
-        btnSubmit: "SÁCAME DE LA MONOTONÍA", alertZip: "Por favor, ingresa un código postal (ZIP Code) válido de 5 dígitos.",
-        alertError: "Ocurrió un inconveniente al conectar con el servidor de OPEN THAN GO. Inténtalo de nuevo.",
-        btnMaps: "🗺️ ABRIR RUTA EN MI MAPA GRATIS"
+        lblState: "Estado / State:",
+        lblZip: "ZIP Code (5 dígitos):",
+        lblPocket: "¿Cuál es tu presupuesto real para hoy?",
+        pocketCero: "GASTO $0 HOY",
+        pocketMod: "MODERADO",
+        pocketLibre: "LIBRE",
+        lblMode: "¿Puedes o quieres salir de casa hoy?",
+        btnOut: "🟢 SÍ, SALIR",
+        btnIn: "🏠 EN CASA",
+        lblText: "Desahógate aquí:",
+        placeholder: "Escribe cómo te sientes...",
+        btnSubmit: "SÁCAME DE LA MONOTONÍA",
+        alertZip: "ZIP inválido",
+        alertError: "Error de conexión",
+        btnMaps: "🗺️ ABRIR MAPA"
     },
     en: {
-        subtitle: "Your instant escape button to break free from urban monotony.",
-        lblState: "State / Estado:", lblZip: "ZIP Code (5 digits):", lblPocket: "What is your real budget for today?",
-        pocketCero: "$0 SPENDING", pocketMod: "MODERATE", pocketLibre: "FREE BUDGET",
-        lblMode: "Can you or do you want to leave the house today?", btnOut: "🟢 YES, GO OUT", btnIn: "🏠 STAY HOME",
-        lblText: "Vent here (Write freely whatever is on your mind):",
-        placeholder: "Write if you are tired of the routine, worried about bills or work, alone, or with bored kids...",
-        btnSubmit: "BREAK THE MONOTONY", alertZip: "Please enter a valid 5-digit ZIP Code.",
-        alertError: "An issue occurred while connecting to the OPEN THAN GO server. Please try again.",
-        btnMaps: "🗺️ OPEN ROUTE IN MY MAP FOR FREE"
+        subtitle: "Your instant escape from urban monotony.",
+        lblState: "State:",
+        lblZip: "ZIP (5 digits):",
+        lblPocket: "Budget today:",
+        pocketCero: "$0",
+        pocketMod: "Moderate",
+        pocketLibre: "Free",
+        lblMode: "Can you leave home today?",
+        btnOut: "YES, GO OUT",
+        btnIn: "STAY HOME",
+        lblText: "Vent here:",
+        placeholder: "Write how you feel...",
+        btnSubmit: "BREAK MONOTONY",
+        alertZip: "Invalid ZIP",
+        alertError: "Connection error",
+        btnMaps: "OPEN MAP"
     }
 };
-function cambiarIdioma(nuevoIdioma) {
-    configuracion.idioma = nuevoIdioma;
-    document.getElementById('lang-es').classList.toggle('active', nuevoIdioma === 'es');
-    document.getElementById('lang-en').classList.toggle('active', nuevoIdioma === 'en');
-    const t = textos[nuevoIdioma];
+
+/* =========================
+   IDIOMA
+========================= */
+function cambiarIdioma(lang) {
+    configuracion.idioma = lang;
+
+    const t = textos[lang];
+
     document.getElementById('txt-subtitle').innerText = t.subtitle;
     document.getElementById('lbl-state').innerText = t.lblState;
     document.getElementById('lbl-zip').innerText = t.lblZip;
     document.getElementById('lbl-pocket').innerText = t.lblPocket;
+
     document.getElementById('pocket-cero').innerText = t.pocketCero;
     document.getElementById('pocket-mod').innerText = t.pocketMod;
     document.getElementById('pocket-libre').innerText = t.pocketLibre;
+
     document.getElementById('lbl-mode').innerText = t.lblMode;
     document.getElementById('mode-out').innerText = t.btnOut;
     document.getElementById('mode-in').innerText = t.btnIn;
+
     document.getElementById('lbl-text').innerText = t.lblText;
     document.getElementById('inp-text').placeholder = t.placeholder;
     document.getElementById('btn-submit').innerText = t.btnSubmit;
 }
-function cambiarBolsillo(tipoBolsillo) {
-    configuracion.bolsillo = tipoBolsillo;
-    document.getElementById('pocket-cero').classList.toggle('active', tipoBolsillo === 'cero');
-    document.getElementById('pocket-mod').classList.toggle('active', tipoBolsillo === 'moderado');
-    document.getElementById('pocket-libre').classList.toggle('active', tipoBolsillo === 'libre');
+
+/* =========================
+   BOLSILLO
+========================= */
+function cambiarBolsillo(tipo) {
+    configuracion.bolsillo = tipo;
+
+    document.querySelectorAll('.pocket').forEach(b => b.classList.remove('active'));
+    document.getElementById(`pocket-${tipo}`).classList.add('active');
 }
+
+/* =========================
+   MODO CASA / EXTERIOR
+========================= */
 function cambiarModalidad(salir) {
     configuracion.puedes_salir = salir;
+
     document.getElementById('mode-out').classList.toggle('active', salir);
     document.getElementById('mode-in').classList.toggle('active', !salir);
-    const campoZip = document.getElementById('inp-zip');
-    if (!salir) {
-        campoZip.style.opacity = '0.4';
-        campoZip.disabled = true;
-    } else {
-        campoZip.style.opacity = '1';
-        campoZip.disabled = false;
-    }
+
+    const zip = document.getElementById('inp-zip');
+
+    zip.disabled = !salir;
+    zip.style.opacity = salir ? "1" : "0.4";
+
+    configuracion.modo = salir ? "OUTSIDE" : "HOME";
 }
+
+/* =========================
+   VOZ (MASCULINA GUIADA)
+========================= */
+function speak(text) {
+    if (!window.speechSynthesis) return;
+
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = configuracion.idioma === 'es' ? 'es-ES' : 'en-US';
+    msg.rate = 0.95;
+    msg.pitch = 0.7; // más masculino
+    msg.volume = 1;
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(msg);
+}
+
+/* =========================
+   ENVÍO AL BACKEND
+========================= */
 function solicitarEscape() {
+
     const estado = document.getElementById('inp-state').value;
     const zip = document.getElementById('inp-zip').value.trim();
-    const textoLibre = document.getElementById('inp-text').value.trim();
+    const texto = document.getElementById('inp-text').value.trim();
+
     const t = textos[configuracion.idioma];
-    if (configuracion.puedes_salir && (zip.length !== 5 || isNaN(zip))) {
+
+    if (configuracion.puedes_salir && zip.length !== 5) {
         alert(t.alertZip);
         return;
     }
+
     const payload = {
         puedes_salir: configuracion.puedes_salir,
         idioma: configuracion.idioma,
         zip_code: zip,
-        estado: estado,
+        estado,
         bolsillo: configuracion.bolsillo,
-        texto_libre: textoLibre
+        texto_libre: texto
     };
+
     fetch('/diagnostico-kamizen', {
         method: 'POST',
-        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
-        if (data.error) { alert(data.error); return; }
+
         document.getElementById('wrapper-form').style.display = 'none';
-        const panelInteractivo = document.getElementById('wrapper-interactive');
-        panelInteractivo.style.display = 'block';
+        document.getElementById('wrapper-interactive').style.display = 'block';
+
         document.getElementById('interactive-title').innerText = data.titulo;
         document.getElementById('interactive-location').innerText = data.lugar;
+
         comandosMision = data.bloques_interactivos || [];
         indiceActual = 0;
+
+        // MAPA SOLO OUTSIDE
         const btnMaps = document.getElementById('btn-maps-action');
         if (data.modalidad === 'outdoor' && data.url_maps) {
             btnMaps.href = data.url_maps;
@@ -104,103 +171,143 @@ function solicitarEscape() {
         } else {
             btnMaps.style.display = 'none';
         }
+
         procesarComando();
+
+        // VOZ INICIAL
+        speak(data.titulo);
+
     })
-    .catch(error => {
-        console.error(error);
-        alert(t.alertError);
-    });
+    .catch(() => alert(t.alertError));
 }
+
+/* =========================
+   MOTOR DE EJECUCIÓN
+========================= */
 function procesarComando() {
+
     clearInterval(intervaloRespiracion);
     clearInterval(cuentaRegresiva);
-    const cajaContenedora = document.getElementById('step-content');
-    const btnSiguiente = document.getElementById('btn-next');
-    cajaContenedora.innerHTML = "";
-    btnSiguiente.style.display = 'none';
+
+    const box = document.getElementById('step-content');
+    const next = document.getElementById('btn-next');
+
+    box.innerHTML = "";
+    next.style.display = "none";
+
     if (indiceActual >= comandosMision.length) {
-        cajaContenedora.innerHTML = `<div class='screen-story' style='text-align:center; font-weight:bold;'>¡Misión Completada! / Mission Accomplished!</div>`;
+        box.innerHTML = "✔ Misión completada";
+        speak(configuracion.idioma === 'es' ? "Misión completada" : "Mission completed");
         return;
     }
+
     const c = comandosMision[indiceActual];
 
-    if (c.t === 'v' || c.t === 'h' || c.story || c.t === 'c') {
-        cajaContenedora.innerHTML = `<div class='screen-story'>${c.tx || c.story || c.c || ""}</div>`;
-        btnSiguiente.style.display = 'block';
-    } 
-    else if (c.t === 'breath_auto') {
-        cajaContenedora.innerHTML = `<div class='screen-story'><b>${c.tx}</b><br><small style='color:var(--secondary);'>${c.inf || ''}</small></div><div class='wrapper-circle'><div id='circle-azul' class='breath-circle'>INHALA</div></div><div id='timer-breath' class='timer-display'>${c.d}s</div>`;
-        let segundos = c.d;
-        const circulo = document.getElementById('circle-azul');
-        const contador = document.getElementById('timer-breath');
-        let modoExpansion = true;
-        circulo.classList.add('expand');
+    /* =========================
+       STORY / TEXTO SIMPLE
+    ========================= */
+    if (c.t === 'v' || c.t === 'h' || c.t === 'c' || c.story) {
+        const txt = c.tx || c.story || c.c || "";
+
+        box.innerHTML = `<div class="screen-story">${txt}</div>`;
+        next.style.display = "block";
+
+        speak(typeof txt === "string" ? txt : JSON.stringify(txt));
+        return;
+    }
+
+    /* =========================
+       BREATH MODE
+    ========================= */
+    if (c.t === 'breath_auto') {
+
+        let sec = c.d;
+
+        box.innerHTML = `
+            <div class="screen-story">${c.tx}</div>
+            <div class="breath-circle" id="circle">INHALA</div>
+            <div>${sec}s</div>
+        `;
+
+        const circle = document.getElementById('circle');
+
         intervaloRespiracion = setInterval(() => {
-            modoExpansion = !modoExpansion;
-            if (modoExpansion) {
-                circulo.className = 'breath-circle expand';
-                circulo.innerText = configuracion.idioma === 'es' ? "INHALA" : "BREATHE IN";
-            } else {
-                circulo.className = 'breath-circle contract';
-                circulo.innerText = configuracion.idioma === 'es' ? "EXHALA" : "BREATHE OUT";
-            }
+            circle.innerText = (circle.innerText === "INHALA") ? "EXHALA" : "INHALA";
+            speak(circle.innerText);
         }, 4000);
-        cuentaRegresiva = setInterval(() => {
-            segundos--;
-            contador.innerText = `${segundos}s`;
-            if (segundos <= 0) {
-                clearInterval(intervaloRespiracion);
-                clearInterval(cuentaRegresiva);
-                btnSiguiente.style.display = 'block';
-            }
-        }, 1000);
-    } 
-    else if (c.t === 'sil') {
-        cajaContenedora.innerHTML = `<div class='screen-story'><b>${c.tx}</b><br><small style='color:var(--accent);'>${c.inf || ''}</small></div><div id='timer-silence' class='timer-display'>${c.d}s</div>`;
-        let segundos = c.d;
-        const contador = document.getElementById('timer-silence');
 
         cuentaRegresiva = setInterval(() => {
-            segundos--;
-            contador.innerText = `${segundos}s`;
-            if (segundos <= 0) {
+            sec--;
+            if (sec <= 0) {
+                clearInterval(intervaloRespiracion);
                 clearInterval(cuentaRegresiva);
-                btnSiguiente.style.display = 'block';
+                next.style.display = "block";
+                speak("listo");
             }
         }, 1000);
-    } 
-    else if (c.t === 'd') {
-        let opcionesHtml = "";
-        c.op.forEach((opcion, idx) => {
-            opcionesHtml += `<button class='btn-option-interactive' onclick='validarRespuesta(${idx}, ${c.c}, "${c.ex[idx].replace(/"/g, '&quot;')}")'>${opcion}</button>`;
+
+        return;
+    }
+
+    /* =========================
+       SILENCE MODE
+    ========================= */
+    if (c.t === 'sil') {
+
+        let sec = c.d;
+
+        box.innerHTML = `<div>${c.tx}</div><div>${sec}s</div>`;
+
+        cuentaRegresiva = setInterval(() => {
+            sec--;
+            if (sec <= 0) {
+                clearInterval(cuentaRegresiva);
+                next.style.display = "block";
+                speak("continuamos");
+            }
+        }, 1000);
+
+        return;
+    }
+
+    /* =========================
+       DECISION MODE
+    ========================= */
+    if (c.t === 'd') {
+
+        let html = "";
+
+        c.op.forEach((op, i) => {
+            html += `<button onclick="validar(${i},${c.c},'${c.ex[i]}')">${op}</button>`;
         });
-        cajaContenedora.innerHTML = `<div class='screen-title'>${c.q}</div><div class='options-list'>${opcionesHtml}</div><div id='box-explicacion' class='explanation-box'></div>`;
-    } 
-    else {
-        indiceActual++;
-        procesarComando();
+
+        box.innerHTML = `<div>${c.q}</div>${html}<div id="exp"></div>`;
+        return;
     }
+
+    indiceActual++;
+    procesarComando();
 }
-function validarRespuesta(indiceClick, indiceCorrecto, explicacionTexto) {
-    const botones = document.querySelectorAll('.options-list button');
-    botones.forEach(b => b.disabled = true);
-    const expBox = document.getElementById('box-explicacion');
-    expBox.innerText = explicacionTexto;
-    expBox.style.display = 'block';
-    if (indiceClick === indiceCorrecto) {
-        botones[indiceClick].classList.add('correct');
-        expBox.style.backgroundColor = '#e8f5e9';
-        expBox.style.color = '#1b5e20';
-        expBox.style.borderLeft = '4px solid var(--secondary)';
-    } else {
-        botones[indiceClick].classList.add('wrong');
-        botones[indiceCorrecto].classList.add('correct');
-        expBox.style.backgroundColor = '#ffebee';
-        expBox.style.color = '#b71c1c';
-        expBox.style.borderLeft = '4px solid var(--accent)';
-    }
-    document.getElementById('btn-next').style.display = 'block';
+
+/* =========================
+   RESPUESTA DECISIÓN
+========================= */
+function validar(i, correct, exp) {
+
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(b => b.disabled = true);
+
+    document.getElementById('exp').innerText = exp;
+
+    speak(exp);
+
+    document.getElementById('btn-next').style.display = "block";
 }
-function siguienteComando() {indiceActual++;procesarComando();                            
-}
+
+/* =========================
+   NEXT
+========================= */
+function siguienteComando() {
+    indiceActual++;
+    procesarComando();
 }
