@@ -1,221 +1,275 @@
-let state = {
+/* =========================================================
+   OPEN THAN GO ENGINE vFINAL CLEAN
+   SINGLE BRAIN + LINEAR FLOW 1 → 27
+   NO FREEZE + NO DOUBLE CONTROL
+========================================================= */
+
+const state = {
     missions: [],
-    i: 0,
-    b: 0,
-    lang: "es",
-    timer: null,
-    timeLeft: 600,
+    stories: [],
+    i: 0,              // mission index (strict)
+    b: 0,              // block index
+    lang: "en",
     running: false,
-    locked: false
+    speaking: false,
+    timer: null,
+    tLeft: 0,
+    breathTimer: null
 };
 
-window.onload = async () => {
+/* =========================
+   INIT
+========================= */
+window.addEventListener("load", async () => {
     await boot();
-};
+    intro();
+});
 
 async function boot() {
-    const res = await fetch("/api/missions");
-    const data = await res.json();
+    const [s, m] = await Promise.all([
+        fetch("/api/stories").then(r => r.json()),
+        fetch("/api/missions").then(r => r.json())
+    ]);
 
-    state.missions = data.missions || [];
-    startSession();
+    state.stories = (s.stories || []).sort((a,b)=>a.id-b.id);
+    state.missions = (m.missions || []).sort((a,b)=>a.id-b.id);
+
+    state.running = true;
 }
 
-function startSession() {
+/* =========================
+   INTRO
+========================= */
+function intro() {
+    document.getElementById("app").innerHTML = `
+        <div class="card center">
+            <h1>OPEN THAN GO</h1>
+            <p>Linear Emotional System</p>
+            <button onclick="start()">START</button>
+        </div>
+    `;
+}
+
+function start() {
     state.i = 0;
     state.b = 0;
-    state.timeLeft = 600;
-    state.running = true;
-
-    startGlobalTimer();
     render();
 }
 
-/* ================= TIMER 10 MIN ================= */
-function startGlobalTimer() {
-    clearInterval(state.timer);
-
-    state.timer = setInterval(() => {
-        state.timeLeft--;
-
-        if (state.timeLeft <= 0) {
-            endSession();
-        }
-    }, 1000);
-}
-
-function endSession() {
-    clearInterval(state.timer);
-    speechSynthesis.cancel();
-
-    document.getElementById("app").innerHTML =
-        `<div class="card">
-            <h2>SESSION COMPLETE</h2>
-            <button onclick="location.reload()">RESTART</button>
-        </div>`;
-}
-
-/* ================= FLOW CONTROL ================= */
-function next() {
-    if (state.locked) return;
-
-    const m = state.missions[state.i];
-    if (!m) return endSession();
-
-    state.b++;
-
-    if (state.b >= m.b.length) {
-        state.i++;
-        state.b = 0;
-
-        if (state.i >= state.missions.length) {
-            state.i = 0; // LOOP 1-21
-        }
-    }
-
+/* =========================
+   LANGUAGE
+========================= */
+function setLang(l) {
+    state.lang = l;
     render();
 }
 
-function back() {
-    if (state.locked) return;
-
-    if (state.b > 0) {
-        state.b--;
-    } else if (state.i > 0) {
-        state.i--;
-        state.b = state.missions[state.i].b.length - 1;
-    }
-
-    render();
+/* =========================
+   SAFE TEXT
+========================= */
+function T(obj) {
+    if (!obj) return "";
+    if (typeof obj === "string") return obj;
+    return obj[state.lang] || obj.en || "";
 }
 
-/* ================= RENDER ENGINE ================= */
+/* =========================
+   MAIN RENDER (SINGLE LOOP ONLY)
+========================= */
 function render() {
+    if (!state.running) return;
+
     const app = document.getElementById("app");
-    const m = state.missions[state.i];
-    if (!m) return;
 
-    const b = m.b[state.b];
-    if (!b) return next();
+    const mission = state.missions[state.i];
+    if (!mission) return reset();
 
-    let html = `<div class="card">`;
+    const block = mission.b[state.b];
 
-    /* HEADER */
-    html += `
-        <div style="display:flex;gap:10px;margin-bottom:10px;">
+    let html = `
+        <div class="topbar">
+            <button onclick="setLang('en')">EN</button>
+            <button onclick="setLang('es')">ES</button>
             <button onclick="back()">BACK</button>
-            <button onclick="next()">CONTINUE</button>
         </div>
     `;
 
-    /* ================= BLOCK TYPES ================= */
-
-    // TITLE / HEADER
-    if (b.t === "v" || b.t === "h") {
-        html += `<h2>${b.tx?.[state.lang] || ""}</h2>`;
-        speak(b.tx?.[state.lang]);
+    if (!block) {
+        nextMission();
+        return;
     }
 
-    // STORY
-    if (b.story) {
-        html += `<p>${b.story?.[state.lang]}</p>`;
-        speak(b.story?.[state.lang]);
+    /* =========================
+       BLOCK TYPES
+    ========================= */
+
+    if (block.t === "v") {
+        html += `<div class="card"><h2>${T(block.tx)}</h2></div>`;
+        speak(T(block.tx), nextBlock);
     }
 
-    // BREATH (REAL VISUAL LOOP)
-    if (b.t === "breath_auto") {
-        html += `
-            <div class="breath-circle" id="breath">BREATH</div>
-            <p>${b.tx?.[state.lang] || ""}</p>
-        `;
-        startBreath(b.d || 25);
-        speak(b.tx?.[state.lang]);
+    if (block.t === "h") {
+        html += `<div class="card"><h3>${T(block.tx)}</h3></div>`;
+        speak(T(block.tx), nextBlock);
     }
 
-    // SILENCE TIMER BLOCK
-    if (b.t === "sil") {
-        html += `<h3>${b.tx?.[state.lang]}</h3>`;
-        startSilence(b.d || 30);
-        speak(b.tx?.[state.lang]);
+    if (block.story) {
+        html += `<div class="card"><p>${T(block.story)}</p></div>`;
+        speak(T(block.story), nextBlock);
     }
 
-    // QUESTION BLOCK
-    if (b.t === "d") {
-        html += `<h3>${b.q?.[state.lang]}</h3>`;
+    if (block.t === "breath_auto" || block.t === "br") {
+        html += breathUI(block);
+        startBreath(block.d || 25);
+        speak(T(block.tx), () => {});
+    }
 
-        b.op.forEach((o, i) => {
+    if (block.t === "d") {
+        html += `<div class="card"><h3>${T(block.q)}</h3>`;
+        block.op.forEach((o, idx) => {
             html += `
-                <div class="answer" onclick="answer(${i}, ${b.c})">
-                    ${o[state.lang] || o}
-                </div>
-            `;
+                <div class="answer" onclick="answer(${idx}, ${block.c}, ${encodeURIComponent(JSON.stringify(block.ex))})">
+                    ${T(o)}
+                </div>`;
         });
+        html += `</div>`;
     }
 
-    // REWARD
-    if (b.t === "r") {
-        html += `<h2>${b.tx}</h2>`;
-        speak("Reward earned");
+    if (block.t === "r") {
+        html += `<div class="card center">+${block.p} XP</div>`;
+        speak(T(block.tx), nextBlock);
     }
 
-    // CONFIRMATION
-    if (b.t === "c") {
-        html += `<p>${b.tx?.[state.lang]}</p>`;
-        speak(b.tx?.[state.lang]);
+    if (block.t === "c") {
+        html += `<div class="card">${T(block.tx)}</div>`;
+        speak(T(block.tx), nextBlock);
     }
 
-    html += `</div>`;
+    if (block.t === "sil") {
+        html += breathUI(block);
+        startTimer(block.d || 30, nextBlock);
+        speak(T(block.tx), () => {});
+    }
 
     app.innerHTML = html;
 }
 
-/* ================= ANSWER ================= */
-function answer(i, correct) {
-    if (i === correct) {
-        speak("Correct");
-    } else {
-        speak("Incorrect");
-    }
+/* =========================
+   SAFE SPEECH (NO FREEZE)
+========================= */
+function speak(text, cb) {
+    if (!text) return cb && cb();
 
-    setTimeout(next, 800);
-}
+    window.speechSynthesis.cancel();
 
-/* ================= BREATH SYSTEM ================= */
-function startBreath(seconds) {
-    const el = document.getElementById("breath");
-    if (!el) return;
-
-    let inhale = true;
-
-    const interval = setInterval(() => {
-        if (!el) return clearInterval(interval);
-
-        el.style.transition = "all 4s ease";
-        el.style.transform = inhale ? "scale(1.4)" : "scale(0.8)";
-        el.innerText = inhale ? "INHALE" : "EXHALE";
-
-        inhale = !inhale;
-    }, 4000);
-
-    setTimeout(() => clearInterval(interval), seconds * 1000);
-}
-
-/* ================= SILENCE TIMER ================= */
-function startSilence(seconds) {
-    setTimeout(() => {
-        speak("Silence complete");
-    }, seconds * 1000);
-}
-
-/* ================= SPEECH ================= */
-function speak(text) {
-    if (!text) return;
-
-    speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-
     u.lang = state.lang === "es" ? "es-ES" : "en-US";
     u.rate = 0.95;
 
-    speechSynthesis.speak(u);
+    u.onend = () => cb && cb();
+    window.speechSynthesis.speak(u);
+}
+
+/* =========================
+   LINEAR NAVIGATION ONLY
+========================= */
+function nextBlock() {
+    state.b++;
+    render();
+}
+
+function nextMission() {
+    state.i++;
+    state.b = 0;
+
+    if (state.i >= state.missions.length) {
+        state.i = 0;
+    }
+    render();
+}
+
+function back() {
+    window.speechSynthesis.cancel();
+
+    if (state.b > 0) state.b--;
+    else if (state.i > 0) {
+        state.i--;
+        state.b = 0;
+    }
+
+    render();
+}
+
+function reset() {
+    state.i = 0;
+    state.b = 0;
+    render();
+}
+
+/* =========================
+   ANSWERS (NO FREEZE)
+========================= */
+function answer(i, correct, ex) {
+    const exp = JSON.parse(decodeURIComponent(ex));
+
+    const ok = i === correct;
+
+    const box = document.createElement("div");
+    box.className = "card";
+    box.innerHTML = `
+        <h3 style="color:${ok ? "lime" : "red"}">
+            ${ok ? "GOOD" : "TRY AGAIN"}
+        </h3>
+        <p>${T(exp[i])}</p>
+        <button onclick="nextBlock()">CONTINUE</button>
+    `;
+
+    document.getElementById("app").appendChild(box);
+
+    speak(T(exp[i]), () => {});
+}
+
+/* =========================
+   TIMER REAL (NON-BLOCKING)
+========================= */
+function startTimer(sec, cb) {
+    clearInterval(state.timer);
+    state.tLeft = sec;
+
+    state.timer = setInterval(() => {
+        state.tLeft--;
+        if (state.tLeft <= 0) {
+            clearInterval(state.timer);
+            cb && cb();
+        }
+    }, 1000);
+}
+
+/* =========================
+   BREATH (REAL NATURAL LOOP)
+========================= */
+function breathUI(block) {
+    return `
+        <div class="card center">
+            <div id="breath" class="breath"></div>
+            <p>${T(block.tx)}</p>
+        </div>
+    `;
+}
+
+function startBreath(sec) {
+    clearInterval(state.breathTimer);
+
+    let inhale = true;
+    const el = document.getElementById("breath");
+
+    if (!el) return;
+
+    state.breathTimer = setInterval(() => {
+        inhale = !inhale;
+        el.style.transform = inhale ? "scale(1.4)" : "scale(0.9)";
+        el.style.transition = "3s ease-in-out";
+    }, 3000);
+
+    setTimeout(() => clearInterval(state.breathTimer), sec * 1000);
 }
