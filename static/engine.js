@@ -1,60 +1,58 @@
-/* =========================================================
-   ENGINE: SISTEMA DE ACTIVACIÓN DE BIENESTAR (TVid)
-   MOTOR: COMUNICACIÓN CON MAIN.PY
-========================================================= */
+const state = { lang: 'es', salir: true };
 
-const app = document.getElementById('app');
-
-// Función inicial: Presenta el centro de activación
-async function iniciarApp() {
-    app.innerHTML = `
-        <h1>CENTRO DE ACTIVACIÓN</h1>
-        <p>Selecciona tu estado actual para recibir un protocolo de bienestar inmediato:</p>
-        <button class="btn-action" onclick="solicitarProtocolo(true)">NECESITO ESCAPAR (Salir)</button>
-        <button class="btn-action btn-secondary" onclick="solicitarProtocolo(false)">SISTEMA DE CASA (10 min)</button>
+function renderForm() {
+    document.getElementById('app').innerHTML = `
+        <div class="lang-bar">
+            <button class="btn-lang ${state.lang==='es'?'active':''}" onclick="setLang('es')">ES</button>
+            <button class="btn-lang ${state.lang==='en'?'active':''}" onclick="setLang('en')">EN</button>
+        </div>
+        <div class="header-app">
+            <h1>OPEN THAN GO</h1>
+            <p>Tu escape emocional inteligente</p>
+        </div>
+        <div class="form-group">
+            <label>Estado</label>
+            <select id="inp-state"><option>Florida</option><option>Texas</option><option>California</option></select>
+        </div>
+        <div class="form-group">
+            <label>ZIP Code</label><input id="inp-zip" placeholder="Ej: 33101">
+        </div>
+        <div class="form-group">
+            <label>Presupuesto</label>
+            <div class="btn-grid-3">
+                <button class="btn-choice active">$0</button><button class="btn-choice">Medio</button><button class="btn-choice">Libre</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>¿Salir o casa?</label>
+            <div class="btn-grid-2">
+                <button class="btn-choice ${state.salir?'active':''}" onclick="setSalir(true)">Salir</button>
+                <button class="btn-choice ${!state.salir?'active':''}" onclick="setSalir(false)">Casa</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Desahogo</label><textarea id="inp-text" placeholder="Escribe cómo te sientes..."></textarea>
+        </div>
+        <button class="btn-trigger" onclick="ejecutarProtocolo()">GENERAR ESCAPE</button>
     `;
 }
 
-// Función que solicita el protocolo al motor en Python (main.py)
-async function solicitarProtocolo(salir) {
-    try {
-        const res = await fetch(`/api/get-protocol?salir=${salir}`);
-        const data = await res.json();
-        
-        if (data.modo === 'casa') {
-            renderCasa(data.protocolos);
-        } else {
-            renderSalida(data.protocolo);
-        }
-    } catch (error) {
-        app.innerHTML = `<h1>Error de Sistema</h1><p>Intenta nuevamente.</p><button class="btn-action" onclick="iniciarApp()">Volver</button>`;
+function setLang(l) { state.lang = l; renderForm(); }
+function setSalir(s) { state.salir = s; renderForm(); }
+
+async function ejecutarProtocolo() {
+    const res = await fetch(`/api/get-protocol?salir=${state.salir}`);
+    const data = await res.json();
+    
+    let html = `<h2>Tu Protocolo de Activación</h2>`;
+    if (data.modo === 'casa') {
+        html += `<p>Fase 1: ${data.protocolos[0].nombre} (${data.protocolos[0].accion})</p>
+                 <p>Fase 2: ${data.protocolos[1].nombre} (${data.protocolos[1].accion})</p>`;
+    } else {
+        html += `<p>Misión: ${data.protocolo.nombre} <br> Acción: ${data.protocolo.accion}</p>`;
     }
+    html += `<button class="btn-trigger" onclick="renderForm()">NUEVA MISIÓN</button>`;
+    document.getElementById('app').innerHTML = html;
 }
 
-// Renderizado para modo Casa: Divide en 2 fases de 5 minutos
-function renderCasa(protocolos) {
-    app.innerHTML = `
-        <h2>PROTOCOLO DE 10 MINUTOS</h2>
-        <div id="protocol-display">
-            <p><strong>Fase 1 (5 min):</strong><br>${protocolos[0].nombre}<br><em>Acción: ${protocolos[0].accion}</em></p>
-            <p><strong>Fase 2 (5 min):</strong><br>${protocolos[1].nombre}<br><em>Acción: ${protocolos[1].accion}</em></p>
-        </div>
-        <button class="btn-action" onclick="iniciarApp()">Misión Cumplida</button>
-    `;
-}
-
-// Renderizado para modo Salida: Misión de entorno
-function renderSalida(protocolo) {
-    app.innerHTML = `
-        <h2>PROTOCOLO DE SALIDA</h2>
-        <div id="protocol-display">
-            <p><strong>Tu Misión:</strong><br>${protocolo.nombre}</p>
-            <p><strong>Acción de Activación:</strong><br>${protocolo.accion}</p>
-        </div>
-        <p><small>Al terminar, regresa para documentar tu bienestar.</small></p>
-        <button class="btn-action" onclick="iniciarApp()">Finalizar</button>
-    `;
-}
-
-// Inicializar al cargar
-iniciarApp();
+renderForm();
