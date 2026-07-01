@@ -1,163 +1,178 @@
 import json
-import random
-from flask import Flask, request, jsonify, send_from_directory
+import uuid
+from flask import Flask, request, jsonify
 
-app = Flask(__name__, static_folder="static")
+app = Flask(__name__)
+
+# ===============================
+# CONFIG
+# ===============================
+MAX_STEPS = 27
+
+# memoria simple en RAM (puedes migrar luego a Redis)
+SESSIONS = {}
 
 
 # ===============================
-# LOAD DATA
+# EMOTION DETECTOR
 # ===============================
-def load_missions():
-    files = [
-        "missions_01_07.json",
-        "missions_08_14.json",
-        "missions_15_21.json"
-    ]
+def detectar_emocion(texto: str) -> str:
+    texto = (texto or "").lower()
 
-    all_missions = []
+    if any(x in texto for x in ["dinero", "deuda", "biles", "cuenta", "trabajo"]):
+        return "mal"
 
-    for f in files:
-        try:
-            with open(f, "r", encoding="utf-8") as file:
-                data = json.load(file)
-                all_missions.extend(data.get("missions", []))
-        except:
-            pass
+    if any(x in texto for x in ["familia", "hijo", "niño", "pareja"]):
+        return "conexion"
 
-    return all_missions
+    if any(x in texto for x in ["solo", "triste", "vacío", "aburrido"]):
+        return "bien"
 
-
-ALL = load_missions()
+    return "bien"
 
 
 # ===============================
-# CATEGORY DETECTOR (MEJORADO)
+# SESSION HANDLER
 # ===============================
-def detectar_categoria(texto):
-    t = (texto or "").lower()
-
-    if any(x in t for x in ["deuda", "dinero", "biles", "trabajo", "jefe", "estrés"]):
-        return "stress_financiero"
-
-    if any(x in t for x in ["familia", "hijo", "pareja"]):
-        return "familia"
-
-    if any(x in t for x in ["solo", "aburrido", "vacío"]):
-        return "emocional"
-
-    return "equilibrio"
+def get_session(session_id):
+    if session_id not in SESSIONS:
+        SESSIONS[session_id] = {
+            "step": 1,
+            "emotion": "bien"
+        }
+    return SESSIONS[session_id]
 
 
-# ===============================
-# DESTINATION ENGINE (REAL LIFE MAP LOGIC)
-# ===============================
-def generar_tipo_destino(categoria, bolsillo):
-    base = ["parks", "nature", "quiet"]
-
-    if categoria == "stress_financiero":
-        base = ["cheap_cafes", "libraries", "community_centers", "walkable_areas"]
-
-    if categoria == "familia":
-        base = ["family_places", "museums", "zoos", "aquariums", "parks"]
-
-    if categoria == "emocional":
-        base = ["beach", "waterfront", "open_spaces", "sunset_points"]
-
-    if bolsillo == "libre":
-        base += ["restaurants", "mall", "entertainment", "cinema", "urban_centers"]
-
-    return " OR ".join(base)
+def clamp_step(step):
+    if step > MAX_STEPS:
+        return 1
+    if step < 1:
+        return MAX_STEPS
+    return step
 
 
 # ===============================
-# HOME
+# EMOTION-BASED JUMP SYSTEM
 # ===============================
-@app.route("/")
-def home():
-    return send_from_directory(app.static_folder, "session.html")
+def emotion_jump(step, emotion):
+    """
+    Saltos inteligentes sin romper el loop 1–27
+    """
+    if emotion == "mal":
+        return step + 2
+    if emotion == "conexion":
+        return step + 1
+    return step + 1
 
 
 # ===============================
-# API
+# MAIN ENGINE ENDPOINT
 # ===============================
-@app.route("/diagnostico-kamizen", methods=["POST"])
-def api():
+@app.route('/safe-loop', methods=['POST'])
+def safe_loop():
 
-    data = request.get_json(force=True)
+    data = request.json or {}
 
-    idioma = data.get("idioma", "es")
-    bolsillo = data.get("bolsillo", "cero")
+    session_id = data.get("session_id") or str(uuid.uuid4())
     texto = data.get("texto_libre", "")
-    salir = data.get("puedes_salir", True)
+    action = data.get("action", "next")  # next | back | skip
 
-    estado = data.get("estado", "FL")
-    zip_code = data.get("zip_code", "33101")
-
-    categoria = detectar_categoria(texto)
+    state = get_session(session_id)
 
     # ===============================
-    # MISSIONS RANDOM PER CATEGORY
+    # UPDATE EMOTION
     # ===============================
-    missions = [m for m in ALL if m.get("cat")]
-
-    if not missions:
-        return jsonify({"error": "no_data"})
-
-    mission = random.choice(missions)
-
-    bloques = mission.get("b", [])
-
-    processed = []
-
-    for b in bloques:
-        block = dict(b)
-
-        for k in ["tx", "inf", "story"]:
-            if isinstance(block.get(k), dict):
-                block[k] = block[k].get(idioma, block[k].get("es", ""))
-
-        if isinstance(block.get("q"), dict):
-            block["q"] = block["q"].get(idioma, "")
-
-        processed.append(block)
+    emotion = detectar_emocion(texto)
+    state["emotion"] = emotion
 
     # ===============================
-    # REAL DESTINATION SYSTEM
+    # STEP CONTROL
     # ===============================
-    tipo_lugares = generar_tipo_destino(categoria, bolsillo)
+    if action == "next":
+        state["step"] += 1
 
-    url = f"https://www.google.com/maps/search/{tipo_lugares}+{zip_code}+{estado}".replace(" ", "+")
+    elif action == "back":
+        state["step"] -= 1
+
+    elif action == "skip":
+        state["step"] = emotion_jump(state["step"], emotion)
+
+    # wrap loop
+    state["step"] = clamp_step(state["step"])
 
     # ===============================
-    # RESPONSE
+    # LOAD MISSION (TVID SYSTEM)
     # ===============================
-    if not salir:
-        return jsonify({
-            "mode": "indoor",
-            "title": "Inner Reset Mode",
-            "blocks": processed,
-            "map": None,
-            "meta": {
-                "loop": 600
-            }
-        })
+    mission = {
+        "id": state["step"],
+        "title": f"MISIÓN {state['step']}",
+        "emotion": emotion,
+
+        # sincronizado con engine.js
+        "loop_duration_seconds": 600,
+
+        "breathing": {
+            "inhale": 4,
+            "hold": 2,
+            "exhale": 6
+        },
+
+        "instruction": build_instruction(state["step"], emotion),
+
+        "allow_back": True,
+        "allow_skip": True
+    }
 
     return jsonify({
-        "mode": "outdoor",
-        "title": "Active Guidance Mode",
-        "location": f"{zip_code}, {estado}",
-        "blocks": processed,
-        "map": url,
-        "meta": {
-            "loop": 600,
-            "system": "decision_engine_v2"
+        "session_id": session_id,
+        "state": state,
+        "mission": mission,
+        "max_steps": MAX_STEPS
+    })
+
+
+# ===============================
+# TVID INSTRUCTION MAPPER
+# (aquí conectas tus JSON reales después)
+# ===============================
+def build_instruction(step, emotion):
+
+    base = {
+        "es": {
+            "mal": "Respira y enfócate en resolver un paso pequeño hoy.",
+            "bien": "Observa tu estado y mantén equilibrio interno.",
+            "conexion": "Conecta con alguien importante hoy."
+        },
+        "en": {
+            "mal": "Breathe and focus on solving one small step today.",
+            "bien": "Observe your state and maintain internal balance.",
+            "conexion": "Connect with someone important today."
         }
+    }
+
+    if emotion == "mal":
+        return base["es"]["mal"]
+
+    if emotion == "conexion":
+        return base["es"]["conexion"]
+
+    return base["es"]["bien"]
+
+
+# ===============================
+# HEALTH CHECK
+# ===============================
+@app.route('/')
+def home():
+    return jsonify({
+        "status": "SAFE LOOP ENGINE ACTIVE",
+        "steps": f"1-{MAX_STEPS}",
+        "mode": "sequential + emotional jumps"
     })
 
 
 # ===============================
 # RUN
 # ===============================
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
