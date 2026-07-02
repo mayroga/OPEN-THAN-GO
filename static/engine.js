@@ -1,4 +1,4 @@
-// OPEN THAN GO SYSTEM - Frontend Engine v4 FINAL (FIXED)
+// OPEN THAN GO SYSTEM - Frontend Engine v4 FINAL (FIXED + BIOPSYCHOSOCIAL FLOW)
 // Company: May Roga LLC
 
 let idiomaActual = "es";
@@ -18,7 +18,7 @@ function get(id) {
 }
 
 // ------------------------------
-// TITLE GLOBAL FIX
+// GLOBAL TITLE (STATE AWARE)
 // ------------------------------
 function setTitle(type, emotion = "neutral") {
     const el = get("interactive-title");
@@ -29,10 +29,14 @@ function setTitle(type, emotion = "neutral") {
         return;
     }
 
-    if (emotion === "stress") el.innerText = "OPEN ◉ THAN GO";
-    else if (emotion === "monotony") el.innerText = "OPEN — THAN GO";
-    else if (emotion === "low") el.innerText = "OPEN ○ THAN GO";
-    else el.innerText = type === "Salida" ? "OPEN ◎ THAN GO" : "OPEN ◯ THAN GO";
+    const map = {
+        stress: "OPEN ◉ THAN GO",
+        monotony: "OPEN — THAN GO",
+        low: "OPEN ○ THAN GO",
+        neutral: "OPEN ◎ THAN GO"
+    };
+
+    el.innerText = map[emotion] || map.neutral;
 }
 
 // ------------------------------
@@ -44,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ------------------------------
-// MODOS
+// MODES
 // ------------------------------
 function cambiarModalidad(esSalir) {
     modalidadSalir = esSalir;
@@ -56,7 +60,7 @@ function cambiarModalidad(esSalir) {
 }
 
 // ------------------------------
-// PRESUPUESTO
+// BUDGET
 // ------------------------------
 function cambiarBolsillo(opcion) {
     presupuestoActual = opcion;
@@ -68,10 +72,11 @@ function cambiarBolsillo(opcion) {
 }
 
 // ------------------------------
-// LANGUAGE SAFE
+// LANGUAGE
 // ------------------------------
 function cambiarIdioma(lang) {
     idiomaActual = lang;
+
     get("lang-es")?.classList.toggle("active", lang === "es");
     get("lang-en")?.classList.toggle("active", lang === "en");
 }
@@ -98,44 +103,62 @@ async function solicitarEscape() {
     get("wrapper-loader").style.display = "flex";
     get("wrapper-interactive").style.display = "none";
 
-    const res = await fetch("/api/open-than-go", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload)
-    });
+    try {
 
-    const data = await res.json();
+        const res = await fetch("/api/open-than-go", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload)
+        });
 
-    get("wrapper-loader").style.display = "none";
-    get("wrapper-interactive").style.display = "block";
+        const data = await res.json();
 
-    // 🔥 FIX CRÍTICO: backend manda "mision" no "mission"
-    pasosMisionGlobal = data.mision?.b || [];
-    datosLugarGlobal = data.lugar || null;
-    tipoEscapeGlobal = data.tipo || "Salida";
+        get("wrapper-loader").style.display = "none";
+        get("wrapper-interactive").style.display = "block";
 
-    indicePasoActual = 0;
+        pasosMisionGlobal = data.mision?.b || [];
+        datosLugarGlobal = data.lugar || null;
+        tipoEscapeGlobal = data.tipo || "Salida";
 
-    setTitle(data.tipo, detectEmotion(payload.desahogo));
+        indicePasoActual = 0;
 
-    render();
+        setTitle(
+            data.tipo,
+            detectEmotion(payload.desahogo)
+        );
+
+        render();
+
+    } catch (e) {
+        console.error(e);
+        alert("Error de conexión");
+        get("wrapper-form").style.display = "block";
+    }
 }
 
 // ------------------------------
-// EMOTION FIX (IMPORTANTE PARA TU BUG FL/INDIANAPOLIS)
+// EMOTION ENGINE (BIOSOCIAL SIGNAL)
 // ------------------------------
 function detectEmotion(text = "") {
     text = text.toLowerCase();
 
-    if (text.includes("estres") || text.includes("trabajo")) return "stress";
-    if (text.includes("aburrido") || text.includes("rutina")) return "monotony";
-    if (text.includes("cansado") || text.includes("energia")) return "low";
+    if (text.includes("estres") || text.includes("trabajo") || text.includes("biles")) {
+        return "stress";
+    }
+
+    if (text.includes("aburrido") || text.includes("rutina") || text.includes("siempre lo mismo")) {
+        return "monotony";
+    }
+
+    if (text.includes("cansado") || text.includes("sin energia") || text.includes("agotado")) {
+        return "low";
+    }
 
     return "neutral";
 }
 
 // ------------------------------
-// RENDER CORE
+// CORE RENDER ENGINE (CRITICAL FIX)
 // ------------------------------
 function render() {
 
@@ -144,16 +167,19 @@ function render() {
     if (indicePasoActual >= pasosMisionGlobal.length) {
 
         if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
+
             get("btn-maps-action").style.display = "block";
             get("btn-maps-action").href = datosLugarGlobal.gps_link || "#";
 
             cont.innerHTML = `
-                <div>
+                <div class="fade">
                     <h3>Tu destino</h3>
-                    <p>${datosLugarGlobal.name}</p>
+                    <p><strong>${datosLugarGlobal.name}</strong></p>
                     <p>${datosLugarGlobal.address}</p>
                 </div>
             `;
+        } else {
+            cont.innerHTML = `<h3>Sesión completada</h3>`;
         }
 
         return;
@@ -161,18 +187,181 @@ function render() {
 
     const paso = pasosMisionGlobal[indicePasoActual];
 
-    const text = paso?.story?.es || paso?.tx || "";
+    if (!paso) return;
 
-    cont.innerHTML = `<div>${text}</div>`;
+    // ------------------------------
+    // BIOPSYCHOSOCIAL INTERPRETER
+    // ------------------------------
+    let output = "";
 
-    if ("speechSynthesis" in window) {
-        speechSynthesis.cancel();
-        speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+    switch (paso.t) {
+
+        case "v":
+            output = `<h2>${t(paso.tx)}</h2>`;
+            break;
+
+        case "h":
+            output = `<h4>${t(paso.tx)}</h4>`;
+            break;
+
+        case "story":
+            output = `<p class="story">${t(paso.story)}</p>`;
+            break;
+
+        case "breath_auto":
+            iniciarRespiracion(paso.d || 10);
+            return;
+
+        case "d":
+            renderDecision(paso);
+            return;
+
+        case "r":
+            output = `<div class="reward">${t(paso.tx)} ${paso.p || ""}</div>`;
+            break;
+
+        case "c":
+            output = `<div class="affirmation">"${t(paso.tx)}"</div>`;
+            break;
+
+        case "sil":
+            iniciarSilencio(paso);
+            return;
+
+        default:
+            output = `<div>${t(paso.tx || paso)}</div>`;
     }
+
+    cont.innerHTML = `<div class="fade">${output}</div>`;
+
+    speak(output);
 
     get("btn-next").style.display = "block";
     get("btn-next").onclick = () => {
         indicePasoActual++;
         render();
     };
+}
+
+// ------------------------------
+// SPEECH SAFE
+// ------------------------------
+function speak(text) {
+    if (!("speechSynthesis" in window)) return;
+
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(stripHtml(text));
+    speechSynthesis.speak(u);
+}
+
+// ------------------------------
+// DECISION ENGINE (CRITICAL PSYCHOLOGICAL FLOW)
+// ------------------------------
+function renderDecision(paso) {
+
+    const cont = get("step-content");
+
+    cont.innerHTML = `
+        <div class="decision-box">
+            <h3>${t(paso.q)}</h3>
+            ${paso.op.map((o, i) => `
+                <button onclick="resolveDecision(${i}, ${paso.c})">
+                    ${t(o)}
+                </button>
+            `).join("")}
+        </div>
+    `;
+}
+
+// ------------------------------
+// DECISION RESOLUTION (COGNITIVE IMPACT)
+// ------------------------------
+function resolveDecision(i, correct) {
+
+    const paso = pasosMisionGlobal[indicePasoActual];
+    const exp = paso.ex?.[i];
+
+    const cont = get("step-content");
+
+    cont.innerHTML = `
+        <div class="fade">
+            ${t(exp || "Procesando experiencia...")}
+        </div>
+    `;
+
+    speak(t(exp));
+
+    setTimeout(() => {
+        indicePasoActual++;
+        render();
+    }, 3500);
+}
+
+// ------------------------------
+// SILENCE MODULE (BIO RESET)
+// ------------------------------
+function iniciarSilencio(paso) {
+
+    const cont = get("step-content");
+
+    let t = paso.d || 30;
+
+    cont.innerHTML = `
+        <div class="silence">
+            <p>${t(paso.tx)}</p>
+            <h2 id="sil-count">${t}</h2>
+        </div>
+    `;
+
+    const interval = setInterval(() => {
+
+        t--;
+        const el = document.getElementById("sil-count");
+        if (el) el.innerText = t;
+
+        if (t <= 0) {
+            clearInterval(interval);
+            indicePasoActual++;
+            render();
+        }
+
+    }, 1000);
+}
+
+// ------------------------------
+// BREATHING (UNCHANGED CORE)
+// ------------------------------
+function iniciarRespiracion(segundos) {
+
+    const cont = get("step-content");
+    let s = segundos;
+
+    cont.innerHTML = `
+        <div class="breath-ui">
+            <h2>Respira</h2>
+            <div id="breathTime"></div>
+        </div>
+    `;
+
+    const interval = setInterval(() => {
+
+        get("breathTime").innerText = s + "s";
+        s--;
+
+        if (s <= 0) {
+            clearInterval(interval);
+            indicePasoActual++;
+            render();
+        }
+
+    }, 1000);
+}
+
+// ------------------------------
+// UTILS
+// ------------------------------
+function stripHtml(html) {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    return div.innerText;
 }
