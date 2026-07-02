@@ -28,7 +28,11 @@ def load_json(path):
     if not os.path.exists(path):
         return {"missions": []}
     with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+        try:
+            data = json.load(f)
+            return data if isinstance(data, dict) else {"missions": []}
+        except:
+            return {"missions": []}
 
 MISSIONS = [
     load_json(os.path.join(BASE_DIR, "missions_01_07.json")),
@@ -40,7 +44,6 @@ MISSIONS = [
 # EMOTION ENGINE
 # ----------------------------
 def analyze_emotion(text, mode):
-
     t = (text or "").lower()
 
     stress = any(w in t for w in ["estres", "trabajo", "presion", "ansiedad"])
@@ -60,7 +63,7 @@ def analyze_emotion(text, mode):
     return "OUT_BALANCE"
 
 # ----------------------------
-# PRESUPUESTO REAL USA RANGE
+# PRESUPUESTO RANGE USA
 # ----------------------------
 def budget_range(level):
     return {
@@ -71,7 +74,7 @@ def budget_range(level):
     }.get(level, (0, 40))
 
 # ----------------------------
-# 3 OPCIONES USA (STATE SAFE + ZIP READY)
+# 3 LUGARES GENERICOS USA (SAFE)
 # ----------------------------
 def generate_places(state, zip_code, budget_level):
 
@@ -94,25 +97,25 @@ def generate_places(state, zip_code, budget_level):
         {
             "name": f"{p} - {state} {zip_code}".strip(),
             "cost": f"${min_b} - ${max_b}",
-            "why": "equilibrio emocional + experiencia guiada",
-
-            # 🔥 MAPA REAL USA (STATE + ZIP + QUERY)
+            "why": "equilibrio emocional + exploración guiada",
             "map": f"https://www.google.com/maps/search/?api=1&query={p}+{state}+{zip_code}+USA"
         }
         for p in picks
     ]
 
 # ----------------------------
-# SAFE MISSION PICK
+# MISSIONS SAFE
 # ----------------------------
 def get_mission():
-
     pool = random.choice(MISSIONS).get("missions", [])
 
     if not pool:
         return {
             "b": [
-                {"story": {"es": "Respira. Estás aquí ahora.", "en": "You are here now."}}
+                {"story": {
+                    "es": "Respira. Estás aquí ahora.",
+                    "en": "You are here now."
+                }}
             ]
         }
 
@@ -124,11 +127,12 @@ def get_mission():
 @app.route("/api/open-than-go", methods=["POST"])
 def router():
 
-    data = request.get_json(force=True)
+    data = request.get_json(force=True) or {}
 
     mode = data.get("decision", "salir")
     budget = data.get("budget_level", "cero")
     text = data.get("desahogo", "")
+
     state = (data.get("estado") or "FL").upper()
     zip_code = (data.get("zip_code") or "").strip()
 
@@ -137,7 +141,6 @@ def router():
         state = "FL"
 
     emotion = analyze_emotion(text, mode)
-
     mission = get_mission()
 
     # ---------------- CASA FLOW ----------------
@@ -147,7 +150,7 @@ def router():
             "type": "HOME",
             "emotion": emotion,
             "title": "OPEN ◯ THAN GO",
-            "mission": mission,
+            "mision": mission,   # 🔥 FIX: frontend usa "mision"
             "ui": {
                 "mode": "casa",
                 "breathing": "deep",
@@ -161,7 +164,7 @@ def router():
 
     return jsonify({
         "status": "success",
-        "type": "OUT",
+        "type": "Salida",
         "emotion": emotion,
         "title": "OPEN ◎ THAN GO",
 
@@ -169,7 +172,12 @@ def router():
 
         "recommendations": places,
 
-        "mission": mission,
+        "mision": mission,   # 🔥 FIX CONSISTENTE
+
+        "lugar": {
+            "state": state,
+            "zip": zip_code
+        },
 
         "ui": {
             "mode": "salir",
@@ -188,4 +196,8 @@ def home():
 
 # ----------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000)),
+        debug=True
+    )
