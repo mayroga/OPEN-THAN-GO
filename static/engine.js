@@ -1,319 +1,417 @@
-// OPEN THAN GO SYSTEM - Frontend Engine (FIXED VERSION)
-// Company: May Roga LLC
+/* ======================================================
+   OPEN THAN GO PRO ENGINE v3
+   FULL ORCHESTRATION SYSTEM (ONBOARDING + MISSIONS + HOME RESET)
+   May Roga LLC
+====================================================== */
 
-let idiomaActual = 'es';
-let presupuestoActual = 'cero';
-let modalidadSalir = true;
+class OpenThanGoEngine {
+    constructor() {
 
-let pasosMisionGlobal = [];
-let indicePasoActual = 0;
-let datosLugarGlobal = null;
-let tipoEscapeGlobal = "";
-let intervaloRespiracion = null;
+        this.state = {
+            lang: "es",
+            mode: null, // home | out
+            pocket: "cero",
 
-// ------------------------------
-// TRADUCCIONES
-// ------------------------------
-const traducciones = {
-    es: {
-        subtitle: "Tu escape emocional inteligente",
-        state: "Estado",
-        region: "Región / Condado",
-        zip: "ZIP Code",
-        budget: "Presupuesto Disponible",
-        mode: "¿Salir o quedarte en casa?",
-        desahogo: "Desahogo Opcional (Filtro Emocional)",
-        placeholder_text: "Escribe libremente cómo te sientes hoy...",
-        btn_trigger: "GENERAR ESCAPE",
-        loader: "Calculando tu vector de escape ideal...",
-        btn_continue: "CONTINUAR",
-        btn_gps: "ABRIR MAPA EN GPS",
-        tipo_casa: "Protocolo Doméstico Activado",
-        tipo_salida: "Protocolo de Exploración Abierto",
-        txt_correcto: "<strong>¡Excelente elección!</strong><br>",
-        txt_incorrecto: "<strong>Analiza esto con calma:</strong><br>",
-        inspira: "Inhala",
-        expira: "Exhala"
-    },
-    en: {
-        subtitle: "Your intelligent emotional escape",
-        state: "State",
-        region: "Region / County",
-        zip: "ZIP Code",
-        budget: "Available Budget",
-        mode: "Go out or stay at home?",
-        desahogo: "Optional Emotional Venting",
-        placeholder_text: "Write freely about how you feel today...",
-        btn_trigger: "GENERATE ESCAPE",
-        loader: "Calculating your escape vector...",
-        btn_continue: "CONTINUE",
-        btn_gps: "OPEN MAP",
-        tipo_casa: "Domestic Protocol Activated",
-        tipo_salida: "Exploration Protocol Opened",
-        txt_correcto: "<strong>Excellent choice!</strong><br>",
-        txt_incorrecto: "<strong>Think about this:</strong><br>",
-        inspira: "Inhale",
-        expira: "Exhale"
-    }
-};
+            started: false,
+            onboarding: true,
+            step: 0,
 
-// ------------------------------
-// SAFE GET (EVITA CRASHES)
-// ------------------------------
-function get(id) {
-    return document.getElementById(id);
-}
+            timeLeft: 600,
+            timer: null,
+            breathing: null,
 
-// ------------------------------
-// INICIO SEGURO
-// ------------------------------
-document.addEventListener("DOMContentLoaded", () => {
+            missions: null,
+            activeMission: null,
+            missionIndex: 0,
 
-    const btn = get("btn-start");
+            userProfile: {
+                feeling: "",
+                goal: "",
+                need: ""
+            }
+        };
 
-    if (btn) {
-        btn.addEventListener("click", solicitarEscape);
-    } else {
-        console.error("Botón btn-start no encontrado");
+        this.circle = document.getElementById("breathingCircle"); // opcional
+        this.textBox = document.getElementById("step-content");
+
+        this.init();
     }
 
-});
-
-// ------------------------------
-// IDIOMA
-// ------------------------------
-function cambiarIdioma(lang) {
-    idiomaActual = lang;
-
-    const esBtn = get('lang-es');
-    const enBtn = get('lang-en');
-
-    if (esBtn && enBtn) {
-        esBtn.classList.toggle('active', lang === 'es');
-        enBtn.classList.toggle('active', lang === 'en');
+    /* =========================
+       INIT
+    ========================= */
+    init() {
+        this.loadMissions();
+        this.startOnboarding();
     }
 
-    const map = {
-        'txt-subtitle': 'subtitle',
-        'lbl-state': 'state',
-        'lbl-region': 'region',
-        'lbl-zip': 'zip',
-        'lbl-budget': 'budget',
-        'lbl-mode': 'mode',
-        'lbl-desahogo': 'desahogo',
-        'inp-text': 'placeholder_text'
-    };
-
-    Object.keys(map).forEach(id => {
-        const el = get(id);
-        if (!el) return;
-
-        if (id === 'inp-text') {
-            el.placeholder = traducciones[lang][map[id]];
-        } else {
-            el.innerText = traducciones[lang][map[id]];
+    /* =========================
+       MISSIONS LOAD
+    ========================= */
+    async loadMissions() {
+        try {
+            const res = await fetch("/static/missions_15_21.json");
+            this.state.missions = await res.json();
+        } catch (e) {
+            console.error("Mission load error:", e);
         }
-    });
-
-    const loader = get("txt-loader");
-    if (loader) loader.innerText = traducciones[lang].loader;
-}
-
-// ------------------------------
-// PRESUPUESTO
-// ------------------------------
-function cambiarBolsillo(opcion) {
-    presupuestoActual = opcion;
-
-    ["cero", "minimo", "moderado", "libre"].forEach(v => {
-        const el = get(`b-${v}`);
-        if (el) el.classList.toggle("active", v === opcion);
-    });
-}
-
-// ------------------------------
-// MODALIDAD
-// ------------------------------
-function cambiarModalidad(esSalir) {
-    modalidadSalir = esSalir;
-
-    const salir = get("m-salir");
-    const casa = get("m-casa");
-
-    if (salir && casa) {
-        salir.classList.toggle("active", esSalir);
-        casa.classList.toggle("active", !esSalir);
     }
-}
 
-// ------------------------------
-// MAIN CALL
-// ------------------------------
-async function solicitarEscape() {
+    /* =========================
+       LANGUAGE
+    ========================= */
+    setLang(lang) {
+        this.state.lang = lang;
 
-    const payload = {
-        decision: modalidadSalir ? "salir" : "casa",
-        lang: idiomaActual,
-        budget_level: presupuestoActual,
-        zip_code: get("inp-zip")?.value || "",
-        estado: get("inp-state")?.value || "",
-        region: get("inp-region")?.value || "",
-        desahogo: get("inp-text")?.value || ""
-    };
+        const esBtn = document.getElementById("lang-es");
+        const enBtn = document.getElementById("lang-en");
 
-    // UI states
-    if (get("wrapper-form")) get("wrapper-form").style.display = "none";
-    if (get("wrapper-loader")) get("wrapper-loader").style.display = "flex";
-    if (get("wrapper-interactive")) get("wrapper-interactive").style.display = "none";
-
-    try {
-        const res = await fetch("/api/open-than-go", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || data.status !== "success") {
-            throw new Error(data.message || "Error backend");
+        if (esBtn && enBtn) {
+            esBtn.classList.toggle("active", lang === "es");
+            enBtn.classList.toggle("active", lang === "en");
         }
+    }
+
+    t(es, en) {
+        return this.state.lang === "es" ? es : en;
+    }
+
+    /* =========================
+       ONBOARDING (CLAVE NUEVA)
+    ========================= */
+    startOnboarding() {
+        this.state.onboarding = true;
+        this.state.step = 1;
+        this.askFeeling();
+    }
+
+    askFeeling() {
+        this.renderText(
+            this.t(
+                "¿Cómo te sientes realmente hoy?",
+                "How do you really feel today?"
+            )
+        );
+    }
+
+    askGoal() {
+        this.renderText(
+            this.t(
+                "¿Qué quieres lograr hoy?",
+                "What do you want to achieve today?"
+            )
+        );
+    }
+
+    askNeed() {
+        this.renderText(
+            this.t(
+                "¿Qué necesitas ahora mismo?",
+                "What do you need right now?"
+            )
+        );
+    }
+
+    saveAnswer(value) {
+        if (this.state.step === 1) this.state.userProfile.feeling = value;
+        if (this.state.step === 2) this.state.userProfile.goal = value;
+        if (this.state.step === 3) this.state.userProfile.need = value;
+
+        this.state.step++;
+
+        if (this.state.step === 2) this.askGoal();
+        else if (this.state.step === 3) this.askNeed();
+        else this.askMode();
+    }
+
+    /* =========================
+       MODE SELECTION
+    ========================= */
+    askMode() {
+        this.state.onboarding = false;
+
+        this.renderText(
+            this.t(
+                "¿Qué deseas ahora? SALIR o QUEDARTE EN CASA",
+                "What do you want now? GO OUT or STAY HOME"
+            )
+        );
+    }
+
+    setMode(mode) {
+        this.state.mode = mode;
+
+        if (mode === "home") this.startHomeMode();
+        if (mode === "out") this.startOutMode();
+    }
+
+    /* =========================
+       HOME MODE (10 MIN RESET)
+    ========================= */
+    startHomeMode() {
+
+        this.state.timeLeft = 600;
+
+        this.renderText(
+            this.t(
+                "Modo CASA activado. Iniciamos un reinicio guiado de 10 minutos.",
+                "HOME mode activated. Starting 10-minute guided reset."
+            )
+        );
+
+        this.startBreathing();
+        this.startTimer();
+        this.startSilentPhase();
+    }
+
+    startSilentPhase() {
+        this.renderText(
+            this.t(
+                "Primeros 5 minutos: solo respira. No tienes que hacer nada más.",
+                "First 5 minutes: just breathe. You don’t need to do anything else."
+            )
+        );
+    }
+
+    /* =========================
+       OUT MODE → MISSIONS
+    ========================= */
+    startOutMode() {
+
+        const data = this.state.missions;
+
+        if (!data) {
+            this.renderText("Loading missions...");
+            return;
+        }
+
+        const pool = data.missions;
+        this.state.activeMission = pool[Math.floor(Math.random() * pool.length)];
+        this.state.missionIndex = 0;
+
+        this.renderMissionIntro();
+    }
+
+    /* =========================
+       MISSION ENGINE
+    ========================= */
+    renderMissionIntro() {
+        const m = this.state.activeMission;
+
+        const txt = m.b[0].tx[this.state.lang];
+        this.renderText(txt);
+        this.speak(txt);
 
         setTimeout(() => {
-
-            if (get("wrapper-loader")) get("wrapper-loader").style.display = "none";
-            if (get("wrapper-interactive")) get("wrapper-interactive").style.display = "block";
-
-            pasosMisionGlobal = data.mision?.b || [];
-            datosLugarGlobal = data.lugar || null;
-            tipoEscapeGlobal = data.tipo || "";
-
-            indicePasoActual = 0;
-
-            procesarPasoMision();
-
-        }, 800);
-
-    } catch (e) {
-        console.error(e);
-
-        if (get("wrapper-loader")) get("wrapper-loader").style.display = "none";
-        if (get("wrapper-form")) get("wrapper-form").style.display = "block";
-
-        alert("Error conectando con el sistema");
+            this.renderMissionStep(1);
+        }, 1800);
     }
-}
 
-// ------------------------------
-// MOTOR DE PASOS
-// ------------------------------
-function procesarPasoMision() {
+    renderMissionStep(index) {
 
-    clearInterval(intervaloRespiracion);
-    window.speechSynthesis.cancel();
+        const m = this.state.activeMission;
+        const step = m.b[index];
 
-    const cont = get("step-content");
+        if (!step) return this.finishMission();
 
-    const btnNext = ensureButtonNext();
-    const btnMap = ensureMapButton();
+        this.state.missionIndex = index;
 
-    if (indicePasoActual >= pasosMisionGlobal.length) {
-
-        if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
-            btnMap.href = datosLugarGlobal.gps_link;
-            btnMap.style.display = "block";
-        } else {
-            btnNext.innerText = "FINALIZAR";
-            btnNext.style.display = "block";
-            btnNext.onclick = () => location.reload();
+        if (step.t === "v" || step.t === "h" || step.story) {
+            this.renderText(step.tx?.[this.state.lang] || step.story?.[this.state.lang]);
         }
 
-        return;
+        if (step.t === "breath_auto") {
+            this.runBreathing(step.d);
+        }
+
+        if (step.t === "d") {
+            this.renderDecision(step);
+        }
+
+        if (step.t === "sil") {
+            this.renderText(step.tx[this.state.lang]);
+
+            setTimeout(() => {
+                this.renderMissionStep(index + 1);
+            }, step.d * 1000);
+        }
+
+        if (step.t === "r") {
+            this.renderText("+" + step.tx);
+        }
+
+        if (step.t === "c") {
+            this.speak(step.tx[this.state.lang]);
+        }
     }
 
-    const paso = pasosMisionGlobal[indicePasoActual];
+    /* =========================
+       DECISION ENGINE
+    ========================= */
+    renderDecision(step) {
 
-    btnNext.onclick = () => {
-        indicePasoActual++;
-        procesarPasoMision();
-    };
+        let html = `<p>${step.q[this.state.lang]}</p>`;
 
-    if (!cont) return;
+        step.op.forEach((op, i) => {
+            html += `
+                <button onclick="OPEN_THAN_GO.chooseOption(${i})"
+                    style="width:100%;margin:5px;padding:12px;border-radius:8px;">
+                    ${op[this.state.lang]}
+                </button>
+            `;
+        });
 
-    // TEXTO SIMPLE
-    if (paso.t === "v" || paso.t === "h") {
-        cont.innerHTML = `<h3>${paso.tx?.[idiomaActual] || ""}</h3>`;
-        btnNext.style.display = "block";
-        return;
+        this.renderText(html);
     }
 
-    // HISTORIA
-    if (paso.story) {
-        cont.innerHTML = `<div>${paso.story?.[idiomaActual] || ""}</div>`;
-        btnNext.style.display = "block";
-        return;
+    chooseOption(i) {
+
+        const step = this.state.activeMission.b[this.state.missionIndex];
+
+        const feedback = step.ex[i];
+
+        this.renderText(feedback[this.state.lang]);
+
+        setTimeout(() => {
+            this.renderMissionStep(this.state.missionIndex + 1);
+        }, 1800);
     }
 
-    // RESPIRACIÓN
-    if (paso.t === "breath_auto") {
+    /* =========================
+       BREATHING SYSTEM
+    ========================= */
+    startBreathing() {
 
-        let s = paso.d || 10;
+        let inhale = true;
 
-        cont.innerHTML = `<h2>${traducciones[idiomaActual].inspira}</h2><div>${s}</div>`;
+        this.state.breathing = setInterval(() => {
 
-        intervaloRespiracion = setInterval(() => {
-            s--;
+            if (!this.circle) return;
 
-            cont.innerHTML = `<h2>${
-                s % 2 === 0
-                    ? traducciones[idiomaActual].inspira
-                    : traducciones[idiomaActual].expira
-            }</h2><div>${s}</div>`;
+            this.circle.style.transition = "all 24s ease";
 
-            if (s <= 0) {
-                clearInterval(intervaloRespiracion);
-                indicePasoActual++;
-                procesarPasoMision();
+            if (inhale) {
+                this.circle.style.transform = "scale(1.4)";
+                this.speak(this.t("Inhala", "Inhale"));
+            } else {
+                this.circle.style.transform = "scale(0.8)";
+                this.speak(this.t("Exhala", "Exhale"));
             }
+
+            inhale = !inhale;
+
+        }, 24000);
+    }
+
+    runBreathing(seconds) {
+
+        let cycles = Math.floor(seconds / 24);
+        let count = 0;
+        let inhale = true;
+
+        const interval = setInterval(() => {
+
+            if (count >= cycles) {
+                clearInterval(interval);
+                this.renderMissionStep(this.state.missionIndex + 1);
+                return;
+            }
+
+            if (this.circle) {
+                this.circle.style.transform = inhale ? "scale(1.4)" : "scale(0.8)";
+            }
+
+            inhale = !inhale;
+            count++;
+
+        }, 24000);
+    }
+
+    /* =========================
+       TIMER HOME MODE
+    ========================= */
+    startTimer() {
+
+        clearInterval(this.state.timer);
+
+        this.state.timer = setInterval(() => {
+
+            this.state.timeLeft--;
+
+            if (this.state.timeLeft === 300) {
+                this.renderText(
+                    this.t(
+                        "Te quedan 5 minutos. Respira. Estás haciendo algo bueno por ti.",
+                        "5 minutes left. Keep breathing. You are doing something good for yourself."
+                    )
+                );
+            }
+
+            if (this.state.timeLeft <= 0) {
+                this.endSession();
+            }
+
         }, 1000);
-
-        return;
     }
 
-    // DEFAULT
-    indicePasoActual++;
-    procesarPasoMision();
-}
+    /* =========================
+       END HOME SESSION (IMPORTANTE)
+    ========================= */
+    endSession() {
 
-// ------------------------------
-// BOTONES PROTEGIDOS
-// ------------------------------
-function ensureButtonNext() {
-    let b = get("btn-next");
+        clearInterval(this.state.timer);
+        clearInterval(this.state.breathing);
 
-    if (!b) {
-        b = document.createElement("button");
-        b.id = "btn-next";
-        b.className = "btn-next-step";
-        b.style.display = "none";
-        b.innerText = "CONTINUAR";
-        get("wrapper-interactive")?.appendChild(b);
+        if (this.circle) this.circle.style.transform = "scale(1)";
+
+        this.renderText(
+            this.t(
+                "Por hoy terminamos. Tu sistema ha sido estabilizado. Puedes volver cuando quieras.",
+                "We are done for today. Your system has stabilized. You can return anytime."
+            )
+        );
+
+        this.state.started = false;
     }
 
-    return b;
-}
+    /* =========================
+       FINISH MISSION
+    ========================= */
+    finishMission() {
 
-function ensureMapButton() {
-    let b = get("btn-maps-action");
-
-    if (!b) {
-        b = document.createElement("a");
-        b.id = "btn-maps-action";
-        b.className = "btn-maps-route";
-        b.target = "_blank";
-        b.innerText = "MAPA";
-        get("wrapper-interactive")?.appendChild(b);
+        this.renderText(
+            this.t(
+                "Misión completada. Has cambiado tu estado interno.",
+                "Mission completed. You have changed your internal state."
+            )
+        );
     }
 
-    return b;
+    /* =========================
+       UI
+    ========================= */
+    renderText(text) {
+        if (this.textBox) this.textBox.innerHTML = text;
+    }
+
+    speak(text) {
+
+        if (!window.speechSynthesis) return;
+
+        const u = new SpeechSynthesisUtterance(text);
+
+        u.lang = this.state.lang === "es" ? "es-ES" : "en-US";
+        u.rate = 0.95;
+        u.pitch = 0.85; // más masculino
+
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+    }
 }
+
+/* =========================
+   GLOBAL
+========================= */
+window.addEventListener("DOMContentLoaded", () => {
+    window.OPEN_THAN_GO = new OpenThanGoEngine();
+});
