@@ -182,35 +182,278 @@ function procesarPasoMision() {
     try {
         clearInterval(intervaloRespiracion);
         window.speechSynthesis.cancel();
-        
+
         const botonContinuar = document.getElementById('btn-next');
         const botonGps = document.getElementById('btn-maps-action');
-        
+
         botonContinuar.style.display = 'none';
         botonGps.style.display = 'none';
 
         let contenedorPasos = document.getElementById('step-content');
+
         if (!contenedorPasos) {
             contenedorPasos = document.createElement('div');
             contenedorPasos.id = 'step-content';
-            const wrapperInteractive = document.getElementById('wrapper-interactive');
-            wrapperInteractive.insertBefore(contenedorPasos, botonContinuar);
+            document.getElementById('wrapper-interactive')
+                .insertBefore(
+                    contenedorPasos,
+                    botonContinuar
+                );
         }
 
         if (indicePasoActual >= pasosMisionGlobal.length) {
+
             if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
                 botonGps.href = datosLugarGlobal.gps_link;
                 botonGps.style.display = 'block';
             } else {
-                location.reload();
+                botonContinuar.innerText = "FINALIZAR";
+                botonContinuar.style.display = 'block';
+                botonContinuar.onclick = () => {
+                    location.reload();
+                };
             }
+
             return;
         }
 
         const paso = pasosMisionGlobal[indicePasoActual];
 
+        botonContinuar.onclick = () => {
+            indicePasoActual++;
+            procesarPasoMision();
+        };
+
+        // --------------------------
+        // TITULOS
+        // --------------------------
+
         if (paso.t === "v" || paso.t === "h") {
-            contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0;">${paso.tx[idiomaActual]}</h3>`;
+
+            contenedorPasos.innerHTML =
+                `<h3 style="color:var(--secondary);margin:20px 0;">
+                    ${paso.tx[idiomaActual]}
+                </h3>`;
+
             hablarTexto(paso.tx[idiomaActual]);
+
             botonContinuar.style.display = 'block';
+            return;
         }
+
+        // --------------------------
+        // HISTORIA
+        // --------------------------
+
+        if (paso.story) {
+
+            contenedorPasos.innerHTML =
+                `<div class="card-lugar">
+                    ${paso.story[idiomaActual]}
+                </div>`;
+
+            hablarTexto(paso.story[idiomaActual]);
+
+            botonContinuar.style.display = 'block';
+            return;
+        }
+
+        // --------------------------
+        // RESPIRACION
+        // --------------------------
+
+        if (paso.t === "breath_auto") {
+
+            let segundos = paso.d || 20;
+            let inhalar = true;
+
+            contenedorPasos.innerHTML = `
+                <div style="font-size:28px;margin-top:30px;">
+                    ${traducciones[idiomaActual].inspira}
+                </div>
+                <div id="contador-resp"
+                     style="font-size:50px;font-weight:bold;margin-top:20px;">
+                    ${segundos}
+                </div>
+            `;
+
+            hablarTexto(paso.tx[idiomaActual]);
+
+            intervaloRespiracion = setInterval(() => {
+
+                segundos--;
+
+                const contador =
+                    document.getElementById('contador-resp');
+
+                if (contador) {
+                    contador.innerText = segundos;
+                }
+
+                if (segundos <= 0) {
+                    clearInterval(intervaloRespiracion);
+                    indicePasoActual++;
+                    procesarPasoMision();
+                    return;
+                }
+
+                inhalar = !inhalar;
+
+                const texto =
+                    inhalar
+                        ? traducciones[idiomaActual].inspira
+                        : traducciones[idiomaActual].expira;
+
+                contenedorPasos.innerHTML = `
+                    <div style="font-size:28px;margin-top:30px;">
+                        ${texto}
+                    </div>
+                    <div id="contador-resp"
+                         style="font-size:50px;font-weight:bold;margin-top:20px;">
+                        ${segundos}
+                    </div>
+                `;
+
+            }, 1000);
+
+            return;
+        }
+
+        // --------------------------
+        // PREGUNTA
+        // --------------------------
+
+        if (paso.t === "d") {
+
+            let html =
+                `<h3>${paso.q[idiomaActual]}</h3><br>`;
+
+            paso.op.forEach((op, i) => {
+
+                html += `
+                    <button
+                        class="btn-choice"
+                        style="width:100%;margin-bottom:10px;"
+                        onclick="responderPregunta(${i})">
+                        ${op[idiomaActual]}
+                    </button>
+                `;
+            });
+
+            contenedorPasos.innerHTML = html;
+
+            window.responderPregunta = function (i) {
+
+                const correcto = i === paso.c;
+
+                contenedorPasos.innerHTML = `
+                    <div class="card-lugar">
+                        ${
+                            correcto
+                                ? traducciones[idiomaActual].txt_correcto
+                                : traducciones[idiomaActual].txt_incorrecto
+                        }
+                        ${paso.ex[i][idiomaActual]}
+                    </div>
+                `;
+
+                botonContinuar.style.display = 'block';
+            };
+
+            return;
+        }
+
+        // --------------------------
+        // RECOMPENSA
+        // --------------------------
+
+        if (paso.t === "r") {
+
+            contenedorPasos.innerHTML = `
+                <div style="
+                    font-size:35px;
+                    color:#00c853;
+                    text-align:center;
+                    margin-top:40px;">
+                    ${paso.tx}
+                    <br><br>
+                    +${paso.p || 0} pts
+                </div>
+            `;
+
+            botonContinuar.style.display = 'block';
+            return;
+        }
+
+        // --------------------------
+        // FRASE
+        // --------------------------
+
+        if (paso.t === "c") {
+
+            contenedorPasos.innerHTML = `
+                <h2 style="margin-top:40px;">
+                    ${paso.tx[idiomaActual]}
+                </h2>
+            `;
+
+            hablarTexto(paso.tx[idiomaActual]);
+
+            botonContinuar.style.display = 'block';
+            return;
+        }
+
+        // --------------------------
+        // SILENCIO / MEDITACION
+        // --------------------------
+
+        if (paso.t === "sil") {
+
+            let segundos = paso.d || 30;
+
+            contenedorPasos.innerHTML = `
+                <h3>${paso.tx[idiomaActual]}</h3>
+                <div id="contador-sil"
+                     style="
+                        font-size:60px;
+                        margin-top:25px;
+                        font-weight:bold;">
+                    ${segundos}
+                </div>
+            `;
+
+            hablarTexto(paso.tx[idiomaActual]);
+
+            intervaloRespiracion = setInterval(() => {
+
+                segundos--;
+
+                const contador =
+                    document.getElementById('contador-sil');
+
+                if (contador) {
+                    contador.innerText = segundos;
+                }
+
+                if (segundos <= 0) {
+                    clearInterval(intervaloRespiracion);
+                    indicePasoActual++;
+                    procesarPasoMision();
+                }
+
+            }, 1000);
+
+            return;
+        }
+
+        // Paso desconocido
+        indicePasoActual++;
+        procesarPasoMision();
+
+    } catch (e) {
+        mostrarErrorEnPantalla(
+            "Fallo procesando misión.",
+            e.message
+        );
+    }
+}
