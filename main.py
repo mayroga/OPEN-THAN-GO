@@ -94,9 +94,12 @@ def generate_places(state, budget_level):
     return [
         {
             "name": f"{opt} - {state}",
+            # 🔥 FIX IMPORTANTE: MAPA USA REAL POR ESTADO
+            "map": f"https://www.google.com/maps/search/?api=1&query={opt}+{state}+USA",
+
             "cost": f"${min_b} - ${max_b}",
-            "map": f"https://www.google.com/maps/search/?api=1&query={opt}+{state}",
-            "why": "equilibrio emocional + desconexión mental"
+
+            "why": "equilibrio emocional + exploración guiada"
         }
         for opt in options
     ]
@@ -126,13 +129,13 @@ def router():
     state = data.get("estado", "FL").upper()
     zip_code = data.get("zip_code", "")
 
-    # validación USA completa
-    if state not in US_STATES:
-        state = "FL"
+    # VALIDACIÓN REAL 50 ESTADOS
+if state not in US_STATES:
+    state = "FL"
 
-    emotion = analyze_emotion(text, mode)
+zip_code = data.get("zip_code", "").strip()
 
-    mission = get_mission()
+emotion = analyze_emotion(text, mode)
 
     # ---------------- CASA ----------------
     if mode == "casa":
