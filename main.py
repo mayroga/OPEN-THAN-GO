@@ -1,283 +1,163 @@
-# OPEN THAN GO SYSTEM - Backend Engine v5 PRO
+# OPEN THAN GO SYSTEM - EMOTION ROUTER v1
 # May Roga LLC
 
 from flask import Flask, request, jsonify, send_from_directory
-import json
 import random
 import os
+import json
 
 app = Flask(__name__, static_folder="static")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-MISSIONS_FILES = [
-    "missions_01_07.json",
-    "missions_08_14.json",
-    "missions_15_21.json"
+# ----------------------------
+# LOAD MISSIONS
+# ----------------------------
+def load_json(path):
+    if not os.path.exists(path):
+        return {"missions": []}
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+MISSIONS = [
+    load_json(os.path.join(BASE_DIR, "missions_01_07.json")),
+    load_json(os.path.join(BASE_DIR, "missions_08_14.json")),
+    load_json(os.path.join(BASE_DIR, "missions_15_21.json"))
 ]
 
-DATASETS = []
+# ----------------------------
+# EMOTION ANALYZER (CORE)
+# ----------------------------
+def analyze_emotion(text, decision):
+    text = (text or "").lower()
+
+    stress_words = ["trabajo", "estres", "cansado", "ansiedad", "presión"]
+    monotony_words = ["aburrido", "igual", "rutina", "nada cambia"]
+    low_energy_words = ["sin energia", "agotado", "fatiga"]
+
+    score = {
+        "stress": any(w in text for w in stress_words),
+        "monotony": any(w in text for w in monotony_words),
+        "low_energy": any(w in text for w in low_energy_words),
+        "control_desire": "decidir" in text or "elige" in text
+    }
+
+    if decision == "casa":
+        return "home_low_intensity" if score["low_energy"] else "home_balance"
+
+    if score["stress"]:
+        return "out_structured"
+    if score["monotony"]:
+        return "out_exploration"
+    if score["control_desire"]:
+        return "out_directive"
+
+    return "out_balance"
 
 
-# =========================
-# LOAD SYSTEM
-# =========================
-def load_json(path):
-    try:
-        full = os.path.join(BASE_DIR, path)
-        if not os.path.exists(full):
-            return {"missions": []}
-
-        with open(full, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        return data if "missions" in data else {"missions": []}
-
-    except Exception as e:
-        print("LOAD ERROR:", e)
-        return {"missions": []}
-
-
-for f in MISSIONS_FILES:
-    DATASETS.append(load_json(f))
-
-
-# =========================
-# FALLBACK
-# =========================
-def fallback(es, en):
+# ----------------------------
+# BUDGET ENGINE (REAL RANGES)
+# ----------------------------
+def budget_range(level):
     return {
-        "id": 0,
-        "cat": "fallback",
-        "pocket_match": ["cero", "moderado", "libre"],
-        "b": [
-            {"story": {"es": es, "en": en}}
-        ]
+        "cero": (0, 40),
+        "minimo": (20, 60),
+        "moderado": (40, 70),
+        "libre": (70, 1000000)
+    }.get(level, (0, 40))
+
+
+# ----------------------------
+# LOCATION SUGGESTION ENGINE
+# ----------------------------
+def generate_options(budget_level, mood, location_label):
+    min_b, max_b = budget_range(budget_level)
+
+    base = {
+        "cero": ["playa pública", "parque natural", "sendero caminata"],
+        "minimo": ["cafetería tranquila", "parque con vista", "mercado local"],
+        "moderado": ["restaurante casual", "cine", "centro recreativo"],
+        "libre": ["experiencia premium", "restaurante top", "hotel lounge"]
     }
 
+    pool = base.get(budget_level, base["cero"])
 
-# =========================
-# LOCATION ENGINE (MEJORADO)
-# =========================
-def resolver_ubicacion(zip_code, region, estado):
-
-    zip_code = (zip_code or "").strip()
-
-    if zip_code:
-        prefix = zip_code[:2]
-
-        if prefix in ["33", "34"]:
-            estado = "FL"
-        elif prefix in ["75", "76", "77", "78", "79"]:
-            estado = "TX"
-        elif prefix in ["90", "91", "92", "93", "94", "95"]:
-            estado = "CA"
-
-    # normalización inteligente
-    region_map = {
-        "FL": "South Florida",
-        "TX": "Central Texas",
-        "CA": "Southern California"
-    }
-
-    if not region:
-        region = region_map.get(estado, "USA")
-
-    return f"{region} {estado}".strip(), estado, region
+    # ALWAYS 3 OPTIONS (IMPORTANT)
+    return random.sample(pool, k=min(3, len(pool)))
 
 
-# =========================
-# EMOTION ANALYZER (NUEVO)
-# =========================
-def analizar_emocion(texto):
-    texto = (texto or "").lower()
+# ----------------------------
+# MISSION PICKER
+# ----------------------------
+def get_mission(mode, budget):
+    pool = random.choice(MISSIONS).get("missions", [])
 
-    if any(w in texto for w in ["ansiedad", "stress", "money", "biles", "deuda"]):
-        return "mal"
-    if any(w in texto for w in ["feliz", "bien", "love", "tranquilo"]):
-        return "bien"
-    if any(w in texto for w in ["aburrido", "vacío", "nada"]):
-        return "nino"
-
-    return "neutral"
-
-
-# =========================
-# POCKET BOOST (INTENSIDAD)
-# =========================
-def ajustar_pool(pool, pocket):
-    return [
-        m for m in pool
-        if pocket in (m.get("pocket_match") or [])
-    ]
-
-
-# =========================
-# MISSION ENGINE PRO
-# =========================
-def cargar_mision(decision, pocket, emotion):
-
-    try:
-        pool = []
-
-        # CASA MODE
-        if decision == "casa":
-            pool = DATASETS[0].get("missions", [])
-
-            if not pool:
-                return fallback("Sistema doméstico no disponible.", "Home system not available.")
-
-        else:
-            # mezcla inteligente de datasets
-            candidates = random.choice(DATASETS)
-            pool = candidates.get("missions", [])
-
-            if not pool:
-                pool = DATASETS[0].get("missions", [])
-
-        # FILTRO POR INTENSIDAD
-        filtered = ajustar_pool(pool, pocket)
-
-        if not filtered:
-            filtered = pool
-
-        # AJUSTE POR EMOCIÓN
-        emotion_filtered = [
-            m for m in filtered
-            if m.get("cat") in [emotion, "bien", "mal", "nino"]
-        ]
-
-        if emotion_filtered:
-            return random.choice(emotion_filtered)
-
-        return random.choice(filtered)
-
-    except Exception as e:
-        print("MISSION ERROR:", e)
-        return fallback("Error interno del sistema.", str(e))
-
-
-# =========================
-# MAIN API
-# =========================
-@app.route("/api/open-than-go", methods=["POST"])
-def open_than_go():
-
-    try:
-        data = request.get_json(silent=True) or {}
-
-        decision = data.get("decision", "salir")
-        pocket = data.get("budget_level", "cero")
-
-        zip_code = data.get("zip_code", "")
-        region = data.get("region", "")
-        estado = data.get("estado", "FL")
-
-        desahogo = data.get("desahogo", "")
-        lang = data.get("lang", "es")
-
-        emotion = analizar_emocion(desahogo)
-
-        onboarding = [
-            "¿Qué emoción domina tu día?",
-            "¿Prefieres calma o acción?",
-            "¿Tu energía está baja o alta?",
-            "¿Quieres escapar o resolver?",
-            "¿Qué necesitas ahora?"
-        ]
-
-        # =========================
-        # CASA MODE
-        # =========================
-        if decision == "casa":
-
-            mision = cargar_mision("casa", pocket, emotion)
-
-            return jsonify({
-                "status": "success",
-                "tipo": "Casa",
-                "mode": "home",
-                "emotion": emotion,
-                "onboarding": onboarding,
-                "mision": mision,
-                "ui": {
-                    "voice": {"es": "male", "en": "male"},
-                    "breathing": {"duration_ms": 25000},
-                    "timer": {"duration_sec": 600}
-                }
-            })
-
-        # =========================
-        # OUT MODE
-        # =========================
-        ubicacion, estado, region = resolver_ubicacion(zip_code, region, estado)
-
-        categorias = {
-            "cero": ["parques", "playas"],
-            "minimo": ["cafes", "mercados"],
-            "moderado": ["restaurantes", "centros"],
-            "libre": ["hoteles", "experiencias premium"]
+    if not pool:
+        return {
+            "b": [{"story": {"es": "Sistema en ajuste emocional.", "en": "System adjusting."}}]
         }
 
-        termino = random.choice(categorias.get(pocket, ["parques"]))
+    return random.choice(pool)
 
-        if any(w in desahogo.lower() for w in ["trabajo", "job"]):
-            termino = "empleo agencias"
 
-        query = f"{termino} en {ubicacion}".replace(" ", "+")
-        gps_link = f"https://www.google.com/maps/search/?api=1&query={query}"
+# ----------------------------
+# API EMOTION ROUTE
+# ----------------------------
+@app.route("/api/open-than-go", methods=["POST"])
+def route_emotion():
 
-        mision = cargar_mision("salir", pocket, emotion)
+    data = request.get_json(force=True)
 
+    decision = data.get("decision", "salir")
+    budget = data.get("budget_level", "cero")
+    text = data.get("desahogo", "")
+    lang = data.get("lang", "es")
+
+    emotion_mode = analyze_emotion(text, decision)
+
+    # HOME FLOW (simple + calm)
+    if decision == "casa":
         return jsonify({
             "status": "success",
-            "tipo": "Salida",
-            "mode": "out",
-            "emotion": emotion,
-
-            "lugar": {
-                "name": f"Exploración de {termino}",
-                "gps_link": gps_link,
-                "region": region,
-                "estado": estado,
-                "zip": zip_code
-            },
-
-            "onboarding": onboarding,
-            "mision": mision,
-
+            "type": "HOME",
+            "emotion_mode": emotion_mode,
+            "mission": get_mission("home", budget),
             "ui": {
-                "voice": {"es": "male", "en": "male"},
-                "breathing": {"duration_ms": 25000},
-                "timer": {"duration_sec": 600}
+                "breathing": "simple_circle",
+                "voice": True,
+                "guidance_level": "soft"
             }
         })
 
-    except Exception as e:
-        print("API ERROR:", e)
+    # OUT FLOW (directive + 3 options ALWAYS)
+    options = generate_options(budget, emotion_mode, "user_location")
 
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
+    mission = get_mission("out", budget)
+
+    return jsonify({
+        "status": "success",
+        "type": "OUT",
+        "emotion_mode": emotion_mode,
+
+        "recommendations": options,
+
+        "mission": mission,
+
+        "ui": {
+            "breathing": "light_intro_only",
+            "voice": True,
+            "guidance_level": "directive"
+        }
+    })
 
 
-# =========================
-# FRONTEND
-# =========================
+# ----------------------------
+# FRONT
+# ----------------------------
 @app.route("/")
-def index():
+def home():
     return send_from_directory(app.static_folder, "session.html")
 
 
-# =========================
-# RUN
-# =========================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-
-    app.run(
-        host="0.0.0.0",
-        port=port,
-        debug=True
-    )
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
