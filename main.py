@@ -1,4 +1,4 @@
-```python
+```pytho
 # OPEN THAN GO SYSTEM - Main Backend Engine
 # Company: May Roga LLC
 # File: main.py
@@ -292,5 +292,4 @@ if __name__ == "__main__":
         port=port,
         debug=True
     )
-```
 
