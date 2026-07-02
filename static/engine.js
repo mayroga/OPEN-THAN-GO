@@ -1,6 +1,6 @@
 /* ======================================================
-   OPEN THAN GO PRO ENGINE v3
-   FULL ORCHESTRATION SYSTEM (ONBOARDING + MISSIONS + HOME RESET)
+   OPEN THAN GO PRO ENGINE v2 - STABLE FIXED VERSION
+   (Performance + Sync + Voice Control + Mission Flow)
    May Roga LLC
 ====================================================== */
 
@@ -9,29 +9,22 @@ class OpenThanGoEngine {
 
         this.state = {
             lang: "es",
-            mode: null, // home | out
+            mode: null,
             pocket: "cero",
 
             started: false,
-            onboarding: true,
-            step: 0,
 
             timeLeft: 600,
             timer: null,
-            breathing: null,
+            breathingTimer: null,
 
             missions: null,
             activeMission: null,
             missionIndex: 0,
 
-            userProfile: {
-                feeling: "",
-                goal: "",
-                need: ""
-            }
+            voiceBusy: false
         };
 
-        this.circle = document.getElementById("breathingCircle"); // opcional
         this.textBox = document.getElementById("step-content");
 
         this.init();
@@ -42,11 +35,10 @@ class OpenThanGoEngine {
     ========================= */
     init() {
         this.loadMissions();
-        this.startOnboarding();
     }
 
     /* =========================
-       MISSIONS LOAD
+       LOAD MISSIONS
     ========================= */
     async loadMissions() {
         try {
@@ -58,91 +50,55 @@ class OpenThanGoEngine {
     }
 
     /* =========================
-       LANGUAGE
+       LANGUAGE SAFE TEXT
     ========================= */
-    setLang(lang) {
-        this.state.lang = lang;
-
-        const esBtn = document.getElementById("lang-es");
-        const enBtn = document.getElementById("lang-en");
-
-        if (esBtn && enBtn) {
-            esBtn.classList.toggle("active", lang === "es");
-            enBtn.classList.toggle("active", lang === "en");
-        }
-    }
-
     t(es, en) {
         return this.state.lang === "es" ? es : en;
     }
 
     /* =========================
-       ONBOARDING (CLAVE NUEVA)
+       RENDER SAFE
     ========================= */
-    startOnboarding() {
-        this.state.onboarding = true;
-        this.state.step = 1;
-        this.askFeeling();
-    }
-
-    askFeeling() {
-        this.renderText(
-            this.t(
-                "¿Cómo te sientes realmente hoy?",
-                "How do you really feel today?"
-            )
-        );
-    }
-
-    askGoal() {
-        this.renderText(
-            this.t(
-                "¿Qué quieres lograr hoy?",
-                "What do you want to achieve today?"
-            )
-        );
-    }
-
-    askNeed() {
-        this.renderText(
-            this.t(
-                "¿Qué necesitas ahora mismo?",
-                "What do you need right now?"
-            )
-        );
-    }
-
-    saveAnswer(value) {
-        if (this.state.step === 1) this.state.userProfile.feeling = value;
-        if (this.state.step === 2) this.state.userProfile.goal = value;
-        if (this.state.step === 3) this.state.userProfile.need = value;
-
-        this.state.step++;
-
-        if (this.state.step === 2) this.askGoal();
-        else if (this.state.step === 3) this.askNeed();
-        else this.askMode();
+    renderText(html) {
+        if (!this.textBox) return;
+        this.textBox.innerHTML = html;
     }
 
     /* =========================
-       MODE SELECTION
+       SPEECH CONTROL (NO STACK)
     ========================= */
-    askMode() {
-        this.state.onboarding = false;
+    speak(text) {
+        if (!window.speechSynthesis) return;
 
-        this.renderText(
-            this.t(
-                "¿Qué deseas ahora? SALIR o QUEDARTE EN CASA",
-                "What do you want now? GO OUT or STAY HOME"
-            )
-        );
+        if (this.state.voiceBusy) return;
+
+        this.state.voiceBusy = true;
+
+        speechSynthesis.cancel();
+
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = this.state.lang === "es" ? "es-ES" : "en-US";
+        u.rate = 0.95;
+        u.pitch = 0.9;
+
+        u.onend = () => {
+            this.state.voiceBusy = false;
+        };
+
+        speechSynthesis.speak(u);
     }
 
-    setMode(mode) {
+    /* =========================
+       START FLOW
+    ========================= */
+    startFlow(mode) {
         this.state.mode = mode;
 
-        if (mode === "home") this.startHomeMode();
-        if (mode === "out") this.startOutMode();
+        if (mode === "home") {
+            this.startHomeMode();
+        } else {
+            this.startOutMode();
+        }
     }
 
     /* =========================
@@ -154,86 +110,81 @@ class OpenThanGoEngine {
 
         this.renderText(
             this.t(
-                "Modo CASA activado. Iniciamos un reinicio guiado de 10 minutos.",
-                "HOME mode activated. Starting 10-minute guided reset."
+                "Modo casa activado. Iniciando sesión guiada de 10 minutos.",
+                "Home mode activated. Starting 10-minute guided session."
             )
         );
 
-        this.startBreathing();
         this.startTimer();
-        this.startSilentPhase();
-    }
-
-    startSilentPhase() {
-        this.renderText(
-            this.t(
-                "Primeros 5 minutos: solo respira. No tienes que hacer nada más.",
-                "First 5 minutes: just breathe. You don’t need to do anything else."
-            )
-        );
+        this.startBreathing();
     }
 
     /* =========================
-       OUT MODE → MISSIONS
+       OUT MODE (MISSIONS)
     ========================= */
     startOutMode() {
 
         const data = this.state.missions;
 
-        if (!data) {
+        if (!data || !data.missions) {
             this.renderText("Loading missions...");
             return;
         }
 
         const pool = data.missions;
-        this.state.activeMission = pool[Math.floor(Math.random() * pool.length)];
+
+        this.state.activeMission =
+            pool[Math.floor(Math.random() * pool.length)];
+
         this.state.missionIndex = 0;
 
-        this.renderMissionIntro();
+        this.renderMissionStep(0);
     }
 
     /* =========================
-       MISSION ENGINE
+       MISSION STEP ENGINE
     ========================= */
-    renderMissionIntro() {
-        const m = this.state.activeMission;
-
-        const txt = m.b[0].tx[this.state.lang];
-        this.renderText(txt);
-        this.speak(txt);
-
-        setTimeout(() => {
-            this.renderMissionStep(1);
-        }, 1800);
-    }
-
     renderMissionStep(index) {
 
         const m = this.state.activeMission;
-        const step = m.b[index];
-
-        if (!step) return this.finishMission();
+        if (!m || !m.b[index]) {
+            this.finishMission();
+            return;
+        }
 
         this.state.missionIndex = index;
+        const step = m.b[index];
 
-        if (step.t === "v" || step.t === "h" || step.story) {
-            this.renderText(step.tx?.[this.state.lang] || step.story?.[this.state.lang]);
+        if (step.v || step.t === "v") {
+            this.renderText(step.tx?.[this.state.lang]);
+            this.speak(step.tx?.[this.state.lang]);
+        }
+
+        if (step.h) {
+            this.renderText(step.tx?.[this.state.lang]);
+        }
+
+        if (step.story) {
+            this.renderText(step.story[this.state.lang]);
         }
 
         if (step.t === "breath_auto") {
-            this.runBreathing(step.d);
+            this.runBreathing(step.d || 24);
         }
 
         if (step.t === "d") {
             this.renderDecision(step);
+            return;
         }
 
         if (step.t === "sil") {
-            this.renderText(step.tx[this.state.lang]);
+            this.renderText(step.tx?.[this.state.lang]);
 
             setTimeout(() => {
                 this.renderMissionStep(index + 1);
-            }, step.d * 1000);
+            }, (step.d || 10) * 1000);
+
+            return;
         }
 
         if (step.t === "r") {
@@ -241,12 +192,16 @@ class OpenThanGoEngine {
         }
 
         if (step.t === "c") {
-            this.speak(step.tx[this.state.lang]);
+            this.speak(step.tx?.[this.state.lang]);
         }
+
+        setTimeout(() => {
+            this.renderMissionStep(index + 1);
+        }, 1500);
     }
 
     /* =========================
-       DECISION ENGINE
+       DECISION SYSTEM
     ========================= */
     renderDecision(step) {
 
@@ -255,7 +210,7 @@ class OpenThanGoEngine {
         step.op.forEach((op, i) => {
             html += `
                 <button onclick="OPEN_THAN_GO.chooseOption(${i})"
-                    style="width:100%;margin:5px;padding:12px;border-radius:8px;">
+                style="width:100%;padding:10px;margin:5px;">
                     ${op[this.state.lang]}
                 </button>
             `;
@@ -274,27 +229,23 @@ class OpenThanGoEngine {
 
         setTimeout(() => {
             this.renderMissionStep(this.state.missionIndex + 1);
-        }, 1800);
+        }, 1500);
     }
 
     /* =========================
-       BREATHING SYSTEM
+       BREATHING (STABLE)
     ========================= */
     startBreathing() {
 
+        clearInterval(this.state.breathingTimer);
+
         let inhale = true;
 
-        this.state.breathing = setInterval(() => {
-
-            if (!this.circle) return;
-
-            this.circle.style.transition = "all 24s ease";
+        this.state.breathingTimer = setInterval(() => {
 
             if (inhale) {
-                this.circle.style.transform = "scale(1.4)";
                 this.speak(this.t("Inhala", "Inhale"));
             } else {
-                this.circle.style.transform = "scale(0.8)";
                 this.speak(this.t("Exhala", "Exhale"));
             }
 
@@ -305,24 +256,28 @@ class OpenThanGoEngine {
 
     runBreathing(seconds) {
 
+        clearInterval(this.state.breathingTimer);
+
         let cycles = Math.floor(seconds / 24);
         let count = 0;
         let inhale = true;
 
-        const interval = setInterval(() => {
+        this.state.breathingTimer = setInterval(() => {
 
             if (count >= cycles) {
-                clearInterval(interval);
+                clearInterval(this.state.breathingTimer);
                 this.renderMissionStep(this.state.missionIndex + 1);
                 return;
             }
 
-            if (this.circle) {
-                this.circle.style.transform = inhale ? "scale(1.4)" : "scale(0.8)";
+            if (inhale) {
+                this.speak(this.t("Inhala", "Inhale"));
+            } else {
+                this.speak(this.t("Exhala", "Exhale"));
+                count++;
             }
 
             inhale = !inhale;
-            count++;
 
         }, 24000);
     }
@@ -338,15 +293,6 @@ class OpenThanGoEngine {
 
             this.state.timeLeft--;
 
-            if (this.state.timeLeft === 300) {
-                this.renderText(
-                    this.t(
-                        "Te quedan 5 minutos. Respira. Estás haciendo algo bueno por ti.",
-                        "5 minutes left. Keep breathing. You are doing something good for yourself."
-                    )
-                );
-            }
-
             if (this.state.timeLeft <= 0) {
                 this.endSession();
             }
@@ -355,19 +301,19 @@ class OpenThanGoEngine {
     }
 
     /* =========================
-       END HOME SESSION (IMPORTANTE)
+       END SESSION
     ========================= */
     endSession() {
 
         clearInterval(this.state.timer);
-        clearInterval(this.state.breathing);
+        clearInterval(this.state.breathingTimer);
 
-        if (this.circle) this.circle.style.transform = "scale(1)";
+        speechSynthesis.cancel();
 
         this.renderText(
             this.t(
-                "Por hoy terminamos. Tu sistema ha sido estabilizado. Puedes volver cuando quieras.",
-                "We are done for today. Your system has stabilized. You can return anytime."
+                "Por hoy terminamos. Puedes reiniciar cuando quieras.",
+                "We are done for today. You can restart anytime."
             )
         );
 
@@ -382,36 +328,13 @@ class OpenThanGoEngine {
         this.renderText(
             this.t(
                 "Misión completada. Has cambiado tu estado interno.",
-                "Mission completed. You have changed your internal state."
+                "Mission completed. Your internal state has shifted."
             )
         );
     }
-
-    /* =========================
-       UI
-    ========================= */
-    renderText(text) {
-        if (this.textBox) this.textBox.innerHTML = text;
-    }
-
-    speak(text) {
-
-        if (!window.speechSynthesis) return;
-
-        const u = new SpeechSynthesisUtterance(text);
-
-        u.lang = this.state.lang === "es" ? "es-ES" : "en-US";
-        u.rate = 0.95;
-        u.pitch = 0.85; // más masculino
-
-        speechSynthesis.cancel();
-        speechSynthesis.speak(u);
-    }
 }
 
-/* =========================
-   GLOBAL
-========================= */
+/* ========================= */
 window.addEventListener("DOMContentLoaded", () => {
     window.OPEN_THAN_GO = new OpenThanGoEngine();
 });
