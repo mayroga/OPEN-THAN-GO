@@ -1,4 +1,4 @@
-# OPEN THAN GO SYSTEM - EMOTION ROUTER v2 (USA FULL)
+# OPEN THAN GO SYSTEM - EMOTION ROUTER v3 (USA FULL 50 STATES SAFE)
 # May Roga LLC
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -11,7 +11,7 @@ app = Flask(__name__, static_folder="static")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ----------------------------
-# 50 ESTADOS USA (FULL COVER)
+# 50 ESTADOS USA (VALIDACIÓN REAL)
 # ----------------------------
 US_STATES = [
     "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
@@ -22,7 +22,7 @@ US_STATES = [
 ]
 
 # ----------------------------
-# LOAD MISSIONS
+# LOAD MISSIONS SAFE
 # ----------------------------
 def load_json(path):
     if not os.path.exists(path):
@@ -37,13 +37,14 @@ MISSIONS = [
 ]
 
 # ----------------------------
-# EMOTION ENGINE (CORE)
+# EMOTION ENGINE
 # ----------------------------
 def analyze_emotion(text, mode):
+
     t = (text or "").lower()
 
     stress = any(w in t for w in ["estres", "trabajo", "presion", "ansiedad"])
-    monotony = any(w in t for w in ["aburrido", "rutina", "igual", "siempre"])
+    monotony = any(w in t for w in ["aburrido", "rutina", "igual", "monotono"])
     low = any(w in t for w in ["cansado", "sin energia", "agotado"])
 
     if mode == "casa":
@@ -59,7 +60,7 @@ def analyze_emotion(text, mode):
     return "OUT_BALANCE"
 
 # ----------------------------
-# PRESUPUESTO REAL RANGE
+# PRESUPUESTO REAL USA RANGE
 # ----------------------------
 def budget_range(level):
     return {
@@ -70,53 +71,55 @@ def budget_range(level):
     }.get(level, (0, 40))
 
 # ----------------------------
-# 3 LUGARES INTELIGENTES USA
-# (GENÉRICO POR ESTADO + ZIP)
+# 3 OPCIONES USA (STATE SAFE + ZIP READY)
 # ----------------------------
-def generate_places(state, budget_level):
+def generate_places(state, zip_code, budget_level):
 
     min_b, max_b = budget_range(budget_level)
 
-    base_places = [
+    base = [
         "parque natural público",
         "playa accesible",
         "sendero caminata",
         "lago comunitario",
-        "downtown walk zone",
-        "botanical garden",
         "river walk",
-        "urban park plaza"
+        "botanical garden",
+        "urban park",
+        "downtown walk zone"
     ]
 
-    # siempre 3 opciones (clave UX)
-    options = random.sample(base_places, 3)
+    picks = random.sample(base, 3)
 
     return [
         {
-            "name": f"{opt} - {state}",
-            # 🔥 FIX IMPORTANTE: MAPA USA REAL POR ESTADO
-            "map": f"https://www.google.com/maps/search/?api=1&query={opt}+{state}+USA",
-
+            "name": f"{p} - {state} {zip_code}".strip(),
             "cost": f"${min_b} - ${max_b}",
+            "why": "equilibrio emocional + experiencia guiada",
 
-            "why": "equilibrio emocional + exploración guiada"
+            # 🔥 MAPA REAL USA (STATE + ZIP + QUERY)
+            "map": f"https://www.google.com/maps/search/?api=1&query={p}+{state}+{zip_code}+USA"
         }
-        for opt in options
+        for p in picks
     ]
 
 # ----------------------------
-# MISSIONS SAFE
+# SAFE MISSION PICK
 # ----------------------------
 def get_mission():
+
     pool = random.choice(MISSIONS).get("missions", [])
+
     if not pool:
         return {
-            "b": [{"story": {"es": "Respira. Estás en movimiento.", "en": "You are moving forward."}}]
+            "b": [
+                {"story": {"es": "Respira. Estás aquí ahora.", "en": "You are here now."}}
+            ]
         }
+
     return random.choice(pool)
 
 # ----------------------------
-# ROUTE EMOTION
+# API ROUTE
 # ----------------------------
 @app.route("/api/open-than-go", methods=["POST"])
 def router():
@@ -126,18 +129,18 @@ def router():
     mode = data.get("decision", "salir")
     budget = data.get("budget_level", "cero")
     text = data.get("desahogo", "")
-    state = data.get("estado", "FL").upper()
-    zip_code = data.get("zip_code", "")
+    state = (data.get("estado") or "FL").upper()
+    zip_code = (data.get("zip_code") or "").strip()
 
-    # VALIDACIÓN REAL 50 ESTADOS
-if state not in US_STATES:
-    state = "FL"
+    # ---------------- VALIDACIÓN 50 STATES ----------------
+    if state not in US_STATES:
+        state = "FL"
 
-zip_code = data.get("zip_code", "").strip()
+    emotion = analyze_emotion(text, mode)
 
-emotion = analyze_emotion(text, mode)
+    mission = get_mission()
 
-    # ---------------- CASA ----------------
+    # ---------------- CASA FLOW ----------------
     if mode == "casa":
         return jsonify({
             "status": "success",
@@ -153,8 +156,8 @@ emotion = analyze_emotion(text, mode)
             }
         })
 
-    # ---------------- SALIR ----------------
-    places = generate_places(state, budget)
+    # ---------------- SALIR FLOW ----------------
+    places = generate_places(state, zip_code, budget)
 
     return jsonify({
         "status": "success",
