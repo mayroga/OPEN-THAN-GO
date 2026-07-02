@@ -1,4 +1,4 @@
-// OPEN THAN GO SYSTEM - Frontend Engine v6 (STABLE + UX FIX)
+// OPEN THAN GO SYSTEM - Frontend Engine v6.5 (FUSED STABLE CORE)
 // May Roga LLC
 
 let idiomaActual = "es";
@@ -20,135 +20,80 @@ let tiempoRestante = 0;
 const get = (id) => document.getElementById(id);
 
 // ----------------------------------------------------
-// VOZ CONTROL (SIN ESPANGLISH)
+// VOZ (FUSIONADO - SIN ESPANGLISH)
 // ----------------------------------------------------
 function hablar(texto) {
-    try {
-        window.speechSynthesis.cancel();
+    if (!("speechSynthesis" in window)) return;
+    if (!texto) return;
 
-        const u = new SpeechSynthesisUtterance(texto);
-        u.lang = idiomaActual === "es" ? "es-ES" : "en-US";
+    window.speechSynthesis.cancel();
 
-        // voz masculina si existe
-        const voices = speechSynthesis.getVoices();
-        const match = voices.find(v =>
-            v.lang.startsWith(u.lang) && v.name.toLowerCase().includes("male")
-        );
+    const u = new SpeechSynthesisUtterance(texto);
+    const voices = speechSynthesis.getVoices();
 
-        if (match) u.voice = match;
+    let voice = null;
 
-        window.speechSynthesis.speak(u);
-    } catch (e) {
-        console.warn("Voice error:", e);
+    if (idiomaActual === "es") {
+        voice =
+            voices.find(v => v.lang.startsWith("es") && v.name.toLowerCase().includes("male")) ||
+            voices.find(v => v.lang.startsWith("es"));
     }
+
+    if (idiomaActual === "en") {
+        voice =
+            voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("male")) ||
+            voices.find(v => v.lang.startsWith("en"));
+    }
+
+    if (voice) u.voice = voice;
+
+    u.lang = idiomaActual === "es" ? "es-ES" : "en-US";
+    u.rate = 0.95;
+    u.pitch = 1;
+
+    window.speechSynthesis.speak(u);
 }
 
 // ----------------------------------------------------
-// TRADUCCIÓN UI (NO ESPANGLISH)
+// UI TEXTS (SIN ESPANGLISH)
 // ----------------------------------------------------
 const UI = {
     es: {
         subtitle: "Tu escape emocional inteligente",
-        state: "Estado",
-        region: "Región",
-        zip: "ZIP",
-        budget: "Presupuesto",
-        mode: "Modo",
-        desahogo: "Cómo te sientes...",
-        btn: "GENERAR ESCAPE",
-        loader: "Procesando tu estado emocional...",
+        breath_intro: "Vamos a hacer una respiración guiada para ayudarte a calmar tu mente.",
+        house_intro: "Has elegido quedarte en casa. Sesión de 10 minutos guiada.",
+        exit_intro: "Te guiaremos a un lugar recomendado según tu estado emocional.",
         inhale: "Inhala",
-        exhale: "Exhala",
-        breath_intro:
-            "Vamos a hacer una respiración guiada para ayudarte a calmar tu mente. Inhala y exhala lentamente.",
-        house_intro:
-            "Has elegido quedarte en casa. Este modo está diseñado para bajar estrés en 10 minutos guiados.",
-        exit_intro:
-            "Te guiaremos a un lugar recomendado según tu estado emocional actual."
+        exhale: "Exhala"
     },
     en: {
         subtitle: "Your intelligent emotional escape",
-        state: "State",
-        region: "Region",
-        zip: "ZIP",
-        budget: "Budget",
-        mode: "Mode",
-        desahogo: "How do you feel...",
-        btn: "GENERATE ESCAPE",
-        loader: "Processing your emotional state...",
+        breath_intro: "We will guide you through breathing to calm your mind.",
+        house_intro: "You chose to stay home. 10-minute guided session.",
+        exit_intro: "We will guide you to a recommended place.",
         inhale: "Inhale",
-        exhale: "Exhale",
-        breath_intro:
-            "We will guide you through a breathing exercise to calm your mind. Inhale and exhale slowly.",
-        house_intro:
-            "You chose to stay home. This mode is designed to reduce stress in a 10-minute guided session.",
-        exit_intro:
-            "We will guide you to a recommended place based on your emotional state."
+        exhale: "Exhale"
     }
 };
 
 // ----------------------------------------------------
-// IDIOMA GLOBAL (UI + VOZ)
+// IDIOMA
 // ----------------------------------------------------
 function cambiarIdioma(lang) {
     idiomaActual = lang;
 
-    const esBtn = get("lang-es");
-    const enBtn = get("lang-en");
-
-    if (esBtn && enBtn) {
-        esBtn.classList.toggle("active", lang === "es");
-        enBtn.classList.toggle("active", lang === "en");
-    }
-
-    const map = {
-        "txt-subtitle": "subtitle",
-        "lbl-state": "state",
-        "lbl-region": "region",
-        "lbl-zip": "zip"
-    };
-
-    Object.keys(map).forEach(id => {
-        const el = get(id);
-        if (el) el.innerText = UI[lang][map[id]];
-    });
-
-    const input = get("inp-text");
-    if (input) input.placeholder = UI[lang].desahogo;
+    get("lang-es")?.classList.toggle("active", lang === "es");
+    get("lang-en")?.classList.toggle("active", lang === "en");
 
     const loader = get("txt-loader");
-    if (loader) loader.innerText = UI[lang].loader;
+    if (loader) loader.innerText =
+        lang === "es"
+            ? "Procesando..."
+            : "Processing...";
 }
 
 // ----------------------------------------------------
-// PRESUPUESTO
-// ----------------------------------------------------
-function cambiarBolsillo(opcion) {
-    presupuestoActual = opcion;
-
-    ["cero", "minimo", "moderado", "libre"].forEach(v => {
-        const el = get(`b-${v}`);
-        if (el) el.classList.toggle("active", v === opcion);
-    });
-}
-
-// ----------------------------------------------------
-// MODALIDAD
-// ----------------------------------------------------
-function cambiarModalidad(esSalir) {
-    modalidadSalir = esSalir;
-
-    const salir = get("m-salir");
-    const casa = get("m-casa");
-
-    if (salir && casa) {
-        salir.classList.toggle("active", esSalir);
-        casa.classList.toggle("active", !esSalir);
-    }
-}
-
-// ----------------------------------------------------
-// REGIONES DINÁMICAS (FIX CRÍTICO)
+// REGIONES (FIX CRÍTICO MANTENIDO)
 // ----------------------------------------------------
 const regionesPorEstado = {
     FL: ["South Florida", "Central Florida", "North Florida"],
@@ -212,7 +157,8 @@ async function solicitarEscape() {
         });
 
         const data = await res.json();
-        if (!data || data.status !== "success") throw new Error("API error");
+
+        if (!data || data.status !== "success") throw new Error();
 
         setTimeout(() => {
 
@@ -227,41 +173,36 @@ async function solicitarEscape() {
 
             iniciarFlujo();
 
-        }, 700);
+        }, 500);
 
     } catch (e) {
-        console.error(e);
-        get("wrapper-loader").style.display = "none";
         get("wrapper-form").style.display = "block";
         alert("Connection error");
     }
 }
 
 // ----------------------------------------------------
-// FLUJO PRINCIPAL (CONTROLADO)
+// FLUJO
 // ----------------------------------------------------
 function iniciarFlujo() {
 
-    limpiarTodo();
-
-    const cont = get("step-content");
+    limpiar();
 
     if (tipoEscapeGlobal === "Casa") {
         hablar(UI[idiomaActual].house_intro);
         iniciarTimerCasa();
-        mostrarRespiracion();
     } else {
         hablar(UI[idiomaActual].exit_intro);
-        mostrarRespiracion();
     }
 
+    iniciarRespiracion();
     siguientePaso();
 }
 
 // ----------------------------------------------------
-// RESPIRACIÓN (1 SOLO CÍRCULO)
+// RESPIRACIÓN (MEJORADA - 1 SOLO CÍRCULO)
 // ----------------------------------------------------
-function mostrarRespiracion() {
+function iniciarRespiracion() {
 
     const circle = get("breathingCircle");
     if (!circle) return;
@@ -282,7 +223,7 @@ function mostrarRespiracion() {
 }
 
 // ----------------------------------------------------
-// TIMER CASA 10 MIN EXACTOS
+// TIMER CASA (10 MIN EXACTOS)
 // ----------------------------------------------------
 function iniciarTimerCasa() {
 
@@ -295,16 +236,16 @@ function iniciarTimerCasa() {
 
     intervaloTimer = setInterval(() => {
 
-        let min = Math.floor(tiempoRestante / 60);
-        let sec = tiempoRestante % 60;
+        let m = Math.floor(tiempoRestante / 60);
+        let s = tiempoRestante % 60;
 
-        timer.innerText = `${min}:${sec < 10 ? "0" : ""}${sec}`;
+        timer.innerText = `${m}:${s.toString().padStart(2, "0")}`;
 
         tiempoRestante--;
 
         if (tiempoRestante <= 0) {
             clearInterval(intervaloTimer);
-            finalizarSesion();
+            finalizar();
         }
 
     }, 1000);
@@ -319,7 +260,7 @@ function siguientePaso() {
     const btn = get("btn-next");
 
     if (indicePasoActual >= pasosMisionGlobal.length) {
-        finalizarSesion();
+        finalizar();
         return;
     }
 
@@ -338,36 +279,30 @@ function siguientePaso() {
 // ----------------------------------------------------
 // FINAL
 // ----------------------------------------------------
-function finalizarSesion() {
+function finalizar() {
 
-    limpiarTodo();
+    limpiar();
 
     const cont = get("step-content");
 
     cont.innerHTML = `
-        <div class="card-box">
-            <h3>${idiomaActual === "es" ? "Sesión finalizada" : "Session completed"}</h3>
-        </div>
-
-        <div id="end-screen" class="end-buttons">
-            <button class="btn-secondary" onclick="location.reload()">
-                ${idiomaActual === "es" ? "Comenzar de nuevo" : "Restart"}
-            </button>
-        </div>
+        <h2>${idiomaActual === "es" ? "Sesión finalizada" : "Session completed"}</h2>
+        <button onclick="location.reload()">
+            ${idiomaActual === "es" ? "Reiniciar" : "Restart"}
+        </button>
     `;
 
     hablar(idiomaActual === "es"
-        ? "Sesión finalizada. Gracias."
-        : "Session completed. Thank you."
+        ? "Sesión finalizada"
+        : "Session completed"
     );
 }
 
 // ----------------------------------------------------
-// CLEAN STATE
+// CLEAN
 // ----------------------------------------------------
-function limpiarTodo() {
+function limpiar() {
     clearInterval(intervaloRespiracion);
     clearInterval(intervaloTimer);
-
     window.speechSynthesis.cancel();
 }
