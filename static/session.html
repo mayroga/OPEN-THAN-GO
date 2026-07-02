@@ -2,14 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OPEN THAN GO</title>
 
 <style>
-:root {
+:root{
     --primary:#162a1a;
-    --secondary:#2e7d32;
-    --accent:#ff5a2c;
+    --salir:#ff5a2c;
+    --casa:#2e7d32;
     --bg:#f4f7f4;
     --card:#ffffff;
     --blue:#7cc7ff;
@@ -17,214 +17,103 @@
     --text:#1b1b1b;
 }
 
-/* RESET */
-* { box-sizing:border-box; }
-
-body {
+body{
     margin:0;
-    font-family:Arial, sans-serif;
+    font-family:Arial;
     background:var(--bg);
     display:flex;
     justify-content:center;
 }
 
-/* APP CONTAINER */
-.container-app {
+.container-app{
     width:100%;
     max-width:520px;
-    min-height:100vh;
     background:var(--card);
-    padding:18px;
+    min-height:100vh;
+    padding:16px;
 }
 
-/* HEADER (OPEN THAN GO FEELING) */
-.header-app {
+/* ================= TITLE ================= */
+#interactive-title{
     text-align:center;
-    margin-bottom:10px;
-}
-
-.header-app h1 {
-    margin:0;
-    color:var(--primary);
-    letter-spacing:1px;
-    transition:all 0.6s ease;
-}
-
-.header-app p {
-    margin:5px 0;
-    font-size:14px;
-    color:#555;
-}
-
-/* LANGUAGE */
-.lang-bar {
-    display:flex;
-    gap:10px;
-    margin-bottom:10px;
-}
-
-.btn-lang {
-    flex:1;
-    padding:8px;
-    border:none;
-    border-radius:20px;
-    background:#eaeaea;
-    cursor:pointer;
-}
-
-.btn-lang.active {
-    background:var(--primary);
-    color:white;
-}
-
-/* FORM */
-.form-group { margin-bottom:12px; }
-
-label {
-    font-size:13px;
-    color:#444;
-}
-
-input, select, textarea {
-    width:100%;
-    padding:10px;
-    margin-top:5px;
-    border-radius:10px;
-    border:1px solid #ddd;
-    outline:none;
-}
-
-textarea { min-height:70px; resize:none; }
-
-/* CHOICE BUTTONS */
-.btn-choice {
-    width:100%;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    margin:3px 0;
-    background:#eee;
-    cursor:pointer;
-}
-
-.btn-choice.active {
-    background:var(--secondary);
-    color:white;
-}
-
-/* MAIN ACTION */
-.btn-trigger {
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    background:var(--accent);
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-/* LOADER */
-.loader-screen {
-    display:none;
-    text-align:center;
-    padding:50px 20px;
-}
-
-.spinner {
-    width:42px;
-    height:42px;
-    border:4px solid #ddd;
-    border-top:4px solid var(--secondary);
-    border-radius:50%;
-    margin:auto;
-    animation:spin 1s linear infinite;
-}
-
-@keyframes spin {
-    100% { transform:rotate(360deg); }
-}
-
-/* INTERACTIVE AREA */
-.interactive-screen {
-    display:none;
-    padding-top:10px;
-}
-
-/* BREATHING (CASA MODE CORE) */
-.breath-container {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    margin:20px 0;
-}
-
-#breathingCircle {
-    width:110px;
-    height:110px;
-    border-radius:50%;
-    background:radial-gradient(circle, var(--blue), var(--silver));
-    box-shadow:0 0 30px rgba(120,200,255,0.6);
-    transform:scale(1);
-    transition:transform 2.2s ease-in-out;
-}
-
-#breathLabel {
-    margin-top:10px;
-    font-weight:bold;
-    color:var(--primary);
-}
-
-#breathTime {
-    font-size:13px;
-    color:#666;
-}
-
-/* TIMER (CASA RESET SUPPORT) */
-#timer {
-    text-align:center;
-    font-size:20px;
+    font-size:22px;
     font-weight:bold;
     margin:10px 0;
+    transition:0.5s;
+}
+
+/* ================= MODE BADGE ================= */
+.mode-badge{
+    text-align:center;
+    font-size:12px;
+    padding:6px;
+    border-radius:20px;
+    margin-bottom:10px;
+}
+
+/* CASA / SALIR LOOK */
+.mode-casa{ background:#e8f5e9; color:var(--casa); }
+.mode-salir{ background:#fff3e0; color:var(--salir); }
+
+/* ================= FORM ================= */
+.form-group{ margin-bottom:10px; }
+
+input,select,textarea{
+    width:100%;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #ddd;
+}
+
+/* ================= BUTTONS ================= */
+.btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    margin-top:5px;
+}
+
+.btn-primary{ background:var(--salir); color:white; }
+.btn-casa{ background:var(--casa); color:white; }
+
+/* ================= CARDS ================= */
+.card{
+    background:#fafafa;
+    padding:12px;
+    border-radius:12px;
+    margin-top:10px;
+    border-left:4px solid var(--primary);
+}
+
+.price{
+    font-weight:bold;
     color:var(--primary);
 }
 
-/* CONTENT (MISSION FEED) */
-#step-content {
-    margin-top:10px;
+/* ================= RECOMMENDATIONS ================= */
+.place-card{
+    background:white;
     padding:12px;
+    margin-top:10px;
     border-radius:12px;
-    background:#fafafa;
-    font-size:15px;
-    line-height:1.5;
-    color:var(--text);
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
 }
 
-/* NAV BUTTONS */
-.btn-next-step {
-    width:100%;
-    padding:14px;
-    margin-top:10px;
-    border:none;
-    border-radius:10px;
-    background:var(--primary);
-    color:white;
-    font-weight:bold;
+.place-card h3{
+    margin:0;
+    font-size:16px;
+}
+
+.place-actions{
+    margin-top:8px;
+}
+
+/* ================= LOADER ================= */
+.loader{
     display:none;
-    cursor:pointer;
-}
-
-.btn-maps-route {
-    width:100%;
-    padding:14px;
-    margin-top:10px;
-    border-radius:10px;
-    background:#4285f4;
-    color:white;
     text-align:center;
-    display:none;
-    text-decoration:none;
-    font-weight:bold;
+    padding:40px;
 }
 </style>
 </head>
@@ -233,100 +122,156 @@ textarea { min-height:70px; resize:none; }
 
 <div class="container-app">
 
-<!-- ================= FORM ================= -->
-<div id="wrapper-form">
+<!-- TITLE -->
+<h1 id="interactive-title">OPEN THAN GO</h1>
 
-    <div class="lang-bar">
-        <button id="lang-es" class="btn-lang active">ES</button>
-        <button id="lang-en" class="btn-lang">EN</button>
-    </div>
+<div id="mode-badge" class="mode-badge mode-salir">
+Modo: Salir
+</div>
 
-    <div class="header-app">
-        <h1 id="app-title">OPEN THAN GO</h1>
-        <p>Tu escape emocional inteligente</p>
+<!-- FORM -->
+<div id="form">
+
+    <div class="form-group">
+        <label>Estado (USA)</label>
+        <input id="inp-state" placeholder="FL, TX, CA, NY...">
     </div>
 
     <div class="form-group">
-        <label>Estado (USA 50 estados)</label>
-        <select id="inp-state">
-            <option value="FL">Florida</option>
-            <option value="TX">Texas</option>
-            <option value="CA">California</option>
-            <option value="NY">New York</option>
-            <option value="IL">Illinois</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>Región</label>
-        <select id="inp-region"></select>
-    </div>
-
-    <div class="form-group">
-        <label>ZIP</label>
-        <input id="inp-zip" placeholder="Ej: 33101">
+        <label>ZIP Code</label>
+        <input id="inp-zip">
     </div>
 
     <div class="form-group">
         <label>Presupuesto</label>
-
-        <button class="btn-choice active" id="b-cero">0 - 40 USD</button>
-        <button class="btn-choice" id="b-minimo">20 - 60 USD</button>
-        <button class="btn-choice" id="b-moderado">40 - 70 USD</button>
-        <button class="btn-choice" id="b-libre">Sin límite</button>
-    </div>
-
-    <div class="form-group">
-        <label>Modo de vida</label>
-
-        <button class="btn-choice active" id="m-salir">Salir</button>
-        <button class="btn-choice" id="m-casa">Casa</button>
+        <select id="inp-budget">
+            <option value="cero">$0 - $40</option>
+            <option value="minimo">$20 - $60</option>
+            <option value="moderado">$40 - $70</option>
+            <option value="libre">Sin límite</option>
+        </select>
     </div>
 
     <div class="form-group">
         <textarea id="inp-text" placeholder="¿Cómo te sientes hoy?"></textarea>
     </div>
 
-    <button id="btn-start" class="btn-trigger">
-        GENERAR ESCAPE
+    <button class="btn btn-primary" onclick="setMode('salir')">
+        SALIR
     </button>
 
+    <button class="btn btn-casa" onclick="setMode('casa')">
+        CASA (RESET)
+    </button>
+
+    <button class="btn btn-primary" onclick="start()">
+        GENERAR OPEN THAN GO
+    </button>
 </div>
 
-<!-- ================= LOADER ================= -->
-<div id="wrapper-loader" class="loader-screen">
-    <div class="spinner"></div>
-    <p>Creando tu experiencia emocional...</p>
+<!-- LOADER -->
+<div id="loader" class="loader">
+    <p>Creando tu experiencia...</p>
 </div>
 
-<!-- ================= INTERACTIVE ================= -->
-<div id="wrapper-interactive" class="interactive-screen">
-
-    <!-- BREATHING -->
-    <div class="breath-container">
-        <div id="breathingCircle"></div>
-        <div id="breathLabel"></div>
-        <div id="breathTime"></div>
-    </div>
-
-    <!-- TIMER -->
-    <div id="timer"></div>
-
-    <!-- MISSION -->
-    <div id="step-content"></div>
-
-    <!-- ACTIONS -->
-    <button id="btn-next" class="btn-next-step">CONTINUAR</button>
-
-    <a id="btn-maps-action" class="btn-maps-route" target="_blank">
-        ABRIR RUTA
-    </a>
-
-</div>
+<!-- RESULT -->
+<div id="result"></div>
 
 </div>
 
 <script src="/static/engine.js"></script>
+
+<script>
+function setMode(m){
+    state.mode = m;
+
+    const badge = document.getElementById("mode-badge");
+
+    if(m === "casa"){
+        badge.innerText = "Modo: Casa (Reset emocional)";
+        badge.className = "mode-badge mode-casa";
+    } else {
+        badge.innerText = "Modo: Salir (Exploración)";
+        badge.className = "mode-badge mode-salir";
+    }
+
+    updateTitle();
+}
+
+async function start(){
+
+    document.getElementById("form").style.display="none";
+    document.getElementById("loader").style.display="block";
+
+    const payload = {
+        decision: state.mode,
+        estado: document.getElementById("inp-state").value,
+        zip_code: document.getElementById("inp-zip").value,
+        budget_level: document.getElementById("inp-budget").value,
+        desahogo: document.getElementById("inp-text").value
+    };
+
+    const res = await fetch("/api/open-than-go",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    document.getElementById("loader").style.display="none";
+
+    render(data);
+}
+
+function render(data){
+
+    const result = document.getElementById("result");
+
+    // TITLE EMOTION
+    document.getElementById("interactive-title").innerText = data.title;
+
+    let html = "";
+
+    // CASA FLOW
+    if(data.type === "HOME"){
+        html += `
+            <div class="card">
+                <h3>Modo Casa</h3>
+                <p>Respiración + Reset mental</p>
+                <p>Duración: 10 min</p>
+            </div>
+        `;
+    }
+
+    // SALIR FLOW (3 LUGARES)
+    if(data.type === "OUT"){
+
+        html += `<h3>Tu opciones de hoy</h3>`;
+
+        data.recommendations.forEach(p => {
+
+            html += `
+            <div class="place-card">
+                <h3>${p.name}</h3>
+                <p class="price">💵 ${p.cost}</p>
+                <p>${p.why}</p>
+
+                <div class="place-actions">
+                    <a class="btn btn-primary"
+                    href="${p.map}"
+                    target="_blank">
+                    IR AQUÍ
+                    </a>
+                </div>
+            </div>
+            `;
+        });
+    }
+
+    result.innerHTML = html;
+}
+</script>
 
 </body>
 </html>
