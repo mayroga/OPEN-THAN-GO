@@ -1,78 +1,65 @@
-// OPEN THAN GO SYSTEM - Frontend Engine v3 (OPTIMIZED + ENHANCED)
+// OPEN THAN GO SYSTEM - Frontend Engine v3 (STABLE + FIXED)
 // Company: May Roga LLC
 
-let idiomaActual = "es";
-let presupuestoActual = "cero";
+let idiomaActual = 'es';
+let presupuestoActual = 'cero';
 let modalidadSalir = true;
 
 let pasosMisionGlobal = [];
 let indicePasoActual = 0;
 let datosLugarGlobal = null;
 let tipoEscapeGlobal = "";
+
 let intervaloRespiracion = null;
-let timerCasa = null;
-
-// ------------------------------
-// UTILS (FAST + SAFE)
-// ------------------------------
-const $ = (id) => document.getElementById(id);
-
-const speak = (text) => {
-    try {
-        if (!("speechSynthesis" in window)) return;
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = idiomaActual === "es" ? "es-ES" : "en-US";
-        u.rate = 1;
-        window.speechSynthesis.speak(u);
-    } catch (e) {}
-};
-
-const show = (id, mode = "block") => {
-    const el = $(id);
-    if (el) el.style.display = mode;
-};
-
-const hide = (id) => {
-    const el = $(id);
-    if (el) el.style.display = "none";
-};
 
 // ------------------------------
 // TRADUCCIONES
 // ------------------------------
-const t = {
+const traducciones = {
     es: {
-        inhale: "Inhala",
-        exhale: "Exhala",
-        continue: "CONTINUAR",
-        finish: "FINALIZAR",
-        restart: "REINICIAR",
-        exit: "SALIR",
-        loading: "Calculando...",
-        intro_q1: "¿Qué necesitas ahora mismo?",
-        intro_q2: "¿Quieres calma, energía o desconexión?",
-        intro_q3: "¿Nivel de estrés (1-10)?"
+        subtitle: "Tu escape emocional inteligente",
+        state: "Estado",
+        region: "Región / Condado",
+        zip: "ZIP Code",
+        budget: "Presupuesto Disponible",
+        mode: "¿Salir o quedarte en casa?",
+        desahogo: "Desahogo Opcional",
+        placeholder_text: "Escribe cómo te sientes...",
+        btn_trigger: "GENERAR ESCAPE",
+        loader: "Calculando...",
+        btn_continue: "CONTINUAR",
+        btn_gps: "ABRIR MAPA",
+        inspira: "Inhala",
+        expira: "Exhala"
     },
     en: {
-        inhale: "Inhale",
-        exhale: "Exhale",
-        continue: "CONTINUE",
-        finish: "FINISH",
-        restart: "RESTART",
-        exit: "EXIT",
-        loading: "Calculating...",
-        intro_q1: "What do you need right now?",
-        intro_q2: "Calm, energy or disconnection?",
-        intro_q3: "Stress level (1-10)?"
+        subtitle: "Your intelligent emotional escape",
+        state: "State",
+        region: "Region",
+        zip: "ZIP Code",
+        budget: "Budget",
+        mode: "Go out or stay home?",
+        desahogo: "Optional emotional input",
+        placeholder_text: "Write how you feel...",
+        btn_trigger: "GENERATE ESCAPE",
+        loader: "Calculating...",
+        btn_continue: "CONTINUE",
+        btn_gps: "OPEN MAP",
+        inspira: "Inhale",
+        expira: "Exhale"
     }
 };
+
+// ------------------------------
+// SAFE GET
+// ------------------------------
+const get = (id) => document.getElementById(id);
 
 // ------------------------------
 // INIT
 // ------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-    const btn = $("btn-start");
+    const btn = get("btn-start");
     if (btn) btn.onclick = solicitarEscape;
 });
 
@@ -81,6 +68,30 @@ document.addEventListener("DOMContentLoaded", () => {
 // ------------------------------
 function cambiarIdioma(lang) {
     idiomaActual = lang;
+
+    const esBtn = get("lang-es");
+    const enBtn = get("lang-en");
+
+    if (esBtn && enBtn) {
+        esBtn.classList.toggle("active", lang === "es");
+        enBtn.classList.toggle("active", lang === "en");
+    }
+
+    const map = {
+        "txt-subtitle": "subtitle",
+        "lbl-state": "state",
+        "lbl-region": "region",
+        "lbl-zip": "zip"
+    };
+
+    Object.keys(map).forEach(id => {
+        const el = get(id);
+        if (!el) return;
+        el.innerText = traducciones[lang][map[id]];
+    });
+
+    const loader = get("txt-loader");
+    if (loader) loader.innerText = traducciones[lang].loader;
 }
 
 // ------------------------------
@@ -88,6 +99,11 @@ function cambiarIdioma(lang) {
 // ------------------------------
 function cambiarBolsillo(opcion) {
     presupuestoActual = opcion;
+
+    ["cero", "minimo", "moderado", "libre"].forEach(v => {
+        const el = get(`b-${v}`);
+        if (el) el.classList.toggle("active", v === opcion);
+    });
 }
 
 // ------------------------------
@@ -95,52 +111,14 @@ function cambiarBolsillo(opcion) {
 // ------------------------------
 function cambiarModalidad(esSalir) {
     modalidadSalir = esSalir;
-}
 
-// ------------------------------
-// ZIP PRIORITY FIX (STATE CONSISTENCY)
-// ------------------------------
-function resolverUbicacion() {
-    const zip = $("inp-zip")?.value?.trim();
-    const state = $("inp-state")?.value?.trim();
-    const region = $("inp-region")?.value?.trim();
+    const s = get("m-salir");
+    const c = get("m-casa");
 
-    // ZIP always wins
-    if (zip) return { zip_code: zip, region: "", estado: state };
-
-    return { zip_code: "", region, estado: state };
-}
-
-// ------------------------------
-// INTRO QUESTIONS (NEW FEATURE)
-// ------------------------------
-function mostrarIntroPreguntas() {
-    return new Promise((resolve) => {
-        const cont = $("step-content");
-        if (!cont) return resolve();
-
-        let i = 0;
-        const qs = [
-            t[idiomaActual].intro_q1,
-            t[idiomaActual].intro_q2,
-            t[idiomaActual].intro_q3
-        ];
-
-        cont.innerHTML = `<h3>${qs[i]}</h3><input id="intro_input" style="width:100%;padding:10px;margin-top:10px;">`;
-
-        const next = document.createElement("button");
-        next.innerText = "OK";
-        next.style.width = "100%";
-        next.onclick = () => {
-            i++;
-            const val = $("intro_input")?.value || "";
-            if (i >= qs.length) return resolve(val);
-            cont.innerHTML = `<h3>${qs[i]}</h3><input id="intro_input" style="width:100%;padding:10px;margin-top:10px;">`;
-            cont.appendChild(next);
-        };
-
-        cont.appendChild(next);
-    });
+    if (s && c) {
+        s.classList.toggle("active", esSalir);
+        c.classList.toggle("active", !esSalir);
+    }
 }
 
 // ------------------------------
@@ -148,24 +126,31 @@ function mostrarIntroPreguntas() {
 // ------------------------------
 async function solicitarEscape() {
 
-    // INTRO FLOW (lightweight, non-blocking UX)
-    await mostrarIntroPreguntas();
+    const zip = (get("inp-zip")?.value || "").trim();
+    const estado = (get("inp-state")?.value || "FL").trim();
+    const region = (get("inp-region")?.value || "").trim();
 
-    const loc = resolverUbicacion();
+    // 🔥 FIX CRÍTICO: coherencia ubicación
+    let ubicacionFinal = estado;
+
+    if (zip.length === 5) {
+        ubicacionFinal = zip;
+    } else if (region && region !== estado) {
+        ubicacionFinal = `${region}, ${estado}`;
+    }
 
     const payload = {
         decision: modalidadSalir ? "salir" : "casa",
-        lang: idiomaActual,
         budget_level: presupuestoActual,
-        zip_code: loc.zip_code,
-        estado: loc.estado,
-        region: loc.region,
-        desahogo: $("inp-text")?.value || ""
+        zip_code: zip,
+        estado,
+        region,
+        ubicacion_final: ubicacionFinal,
+        desahogo: (get("inp-text")?.value || "").trim()
     };
 
-    hide("wrapper-form");
-    show("wrapper-loader", "flex");
-    hide("wrapper-interactive");
+    // UI
+    toggleView("loading");
 
     try {
         const res = await fetch("/api/open-than-go", {
@@ -175,172 +160,166 @@ async function solicitarEscape() {
         });
 
         const data = await res.json();
-        if (!res.ok || data.status !== "success") throw new Error();
+
+        if (!res.ok || data.status !== "success") {
+            throw new Error(data.message || "Error backend");
+        }
+
+        pasosMisionGlobal = data.mision?.b || [];
+        datosLugarGlobal = data.lugar || null;
+        tipoEscapeGlobal = data.tipo || "";
+
+        indicePasoActual = 0;
 
         setTimeout(() => {
-            hide("wrapper-loader");
-            show("wrapper-interactive");
-
-            pasosMisionGlobal = data.mision?.b || [];
-            datosLugarGlobal = data.lugar || null;
-            tipoEscapeGlobal = data.tipo || "";
-
-            indicePasoActual = 0;
-
+            toggleView("app");
             procesarPaso();
         }, 600);
 
     } catch (e) {
-        hide("wrapper-loader");
-        show("wrapper-form");
+        console.error(e);
+        toggleView("form");
+        alert("Error de conexión");
     }
 }
 
 // ------------------------------
-// BREATHING CIRCLE (24–26s, SMOOTH)
+// VIEW CONTROL (EVITA CONGELAMIENTOS)
 // ------------------------------
-function breathingCycle(duration = 25000) {
-    const circle = $("breathingCircle");
-    if (!circle) return;
+function toggleView(state) {
 
-    let start = Date.now();
+    const form = get("wrapper-form");
+    const load = get("wrapper-loader");
+    const app = get("wrapper-interactive");
 
-    intervaloRespiracion = setInterval(() => {
-        let t = (Date.now() - start) / duration;
+    if (!form || !load || !app) return;
 
-        let scale = 1 + Math.sin(t * Math.PI * 2) * 0.3;
+    form.style.display = "none";
+    load.style.display = "none";
+    app.style.display = "none";
 
-        circle.style.transform = `scale(${scale})`;
-        circle.style.background = `rgba(120,200,255,${0.4 + scale / 3})`;
-
-        if (t >= 1) {
-            clearInterval(intervaloRespiracion);
-        }
-    }, 50);
+    if (state === "form") form.style.display = "block";
+    if (state === "loading") load.style.display = "flex";
+    if (state === "app") app.style.display = "block";
 }
 
 // ------------------------------
-// TIMER CASA (10 MIN)
-// ------------------------------
-function startCasaTimer() {
-    let time = 600;
-    const cont = $("step-content");
-
-    timerCasa = setInterval(() => {
-        let min = Math.floor(time / 60);
-        let sec = time % 60;
-
-        if (cont) {
-            cont.innerHTML = `<h2>${min}:${sec.toString().padStart(2, "0")}</h2>`;
-        }
-
-        if (time <= 0) {
-            clearInterval(timerCasa);
-            endScreen();
-        }
-
-        time--;
-    }, 1000);
-}
-
-// ------------------------------
-// END SCREEN
-// ------------------------------
-function endScreen() {
-    const cont = $("step-content");
-    if (!cont) return;
-
-    cont.innerHTML = `
-        <h2>${tipoEscapeGlobal === "Casa" ? "Sesión finalizada" : "Experiencia completada"}</h2>
-        <button onclick="location.reload()">${t[idiomaActual].restart}</button>
-        <button onclick="window.close?.()">${t[idiomaActual].exit}</button>
-    `;
-}
-
-// ------------------------------
-// ENGINE FLOW
+// MOTOR
 // ------------------------------
 function procesarPaso() {
 
     clearInterval(intervaloRespiracion);
-    window.speechSynthesis.cancel();
 
-    const cont = $("step-content");
-    const btn = $("btn-next");
-    const map = $("btn-maps-action");
+    const cont = get("step-content");
+    const btn = ensureNextButton();
+    const map = ensureMapButton();
 
     if (!cont) return;
 
     if (indicePasoActual >= pasosMisionGlobal.length) {
 
+        cont.innerHTML = "<h3>✔ Finalizado</h3>";
+
         if (tipoEscapeGlobal === "Salida" && datosLugarGlobal?.gps_link) {
             map.href = datosLugarGlobal.gps_link;
-            show("btn-maps-action");
+            map.style.display = "block";
         } else {
-            endScreen();
+            btn.innerText = "REINICIAR";
+            btn.onclick = () => location.reload();
+            btn.style.display = "block";
         }
         return;
     }
 
     const paso = pasosMisionGlobal[indicePasoActual];
 
-    const nextStep = () => {
+    btn.style.display = "block";
+    btn.innerText = "CONTINUAR";
+
+    btn.onclick = () => {
         indicePasoActual++;
         procesarPaso();
     };
 
-    if (btn) {
-        btn.onclick = nextStep;
-        btn.innerText = t[idiomaActual].continue;
-        show("btn-next");
-    }
-
     // STORY
     if (paso.story) {
-        cont.innerHTML = `<div>${paso.story[idiomaActual] || ""}</div>`;
-        speak(paso.story[idiomaActual] || "");
+        cont.innerHTML = `<div>${paso.story?.[idiomaActual] || ""}</div>`;
         return;
     }
 
-    // BREATHING STEP
+    // TEXTO
+    if (paso.t === "v" || paso.t === "h") {
+        cont.innerHTML = `<h3>${paso.tx?.[idiomaActual] || ""}</h3>`;
+        return;
+    }
+
+    // RESPIRACIÓN (FIX VISUAL)
     if (paso.t === "breath_auto") {
+
+        let t = paso.d || 24;
+
         cont.innerHTML = `
-            <h2>${t[idiomaActual].inhale} / ${t[idiomaActual].exhale}</h2>
-            <div id="breathingCircle"></div>
+            <div class="breath-circle"></div>
+            <h2 id="breath-text">${traducciones[idiomaActual].inspira}</h2>
+            <div>${t}s</div>
         `;
-        breathingCycle(25000);
-        speak("Respiración guiada");
-        return;
-    }
 
-    // SILENCE CHALLENGE
-    if (paso.t === "silence") {
-        cont.innerHTML = `<h2>🤫 00:10</h2>`;
-        let s = 10;
+        const circle = cont.querySelector(".breath-circle");
+        const text = cont.querySelector("#breath-text");
 
-        const int = setInterval(() => {
-            cont.innerHTML = `<h2>🤫 00:${s.toString().padStart(2,"0")}</h2>`;
-            s--;
-            if (s < 0) {
-                clearInterval(int);
-                nextStep();
+        intervaloRespiracion = setInterval(() => {
+
+            t--;
+
+            if (circle) {
+                circle.style.transform = `scale(${1 + Math.sin(t) * 0.2})`;
             }
+
+            if (text) {
+                text.innerText = (t % 2 === 0)
+                    ? traducciones[idiomaActual].inspira
+                    : traducciones[idiomaActual].expira;
+            }
+
+            cont.querySelector("div:last-child").innerText = t + "s";
+
+            if (t <= 0) {
+                clearInterval(intervaloRespiracion);
+                indicePasoActual++;
+                procesarPaso();
+            }
+
         }, 1000);
 
         return;
     }
 
-    // DEFAULT TEXT
-    cont.innerHTML = `<h3>${paso.tx?.[idiomaActual] || ""}</h3>`;
-    speak(paso.tx?.[idiomaActual] || "");
+    indicePasoActual++;
+    procesarPaso();
 }
 
 // ------------------------------
-// EXPORT GLOBAL
+// BOTONES
 // ------------------------------
-window.OPEN_THAN_GO = {
-    solicitarEscape,
-    cambiarIdioma,
-    cambiarBolsillo,
-    cambiarModalidad
-};
+function ensureNextButton() {
+    let b = get("btn-next");
+    if (!b) {
+        b = document.createElement("button");
+        b.id = "btn-next";
+        b.className = "btn-next-step";
+        get("wrapper-interactive")?.appendChild(b);
+    }
+    return b;
+}
+
+function ensureMapButton() {
+    let b = get("btn-maps-action");
+    if (!b) {
+        b = document.createElement("a");
+        b.id = "btn-maps-action";
+        b.className = "btn-maps-route";
+        b.target = "_blank";
+        get("wrapper-interactive")?.appendChild(b);
+    }
+    return b;
+}
