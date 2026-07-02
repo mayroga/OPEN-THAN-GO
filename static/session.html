@@ -1,343 +1,332 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OPEN THAN GO</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>OPEN THAN GO</title>
 
-    <style>
-        :root {
-            --primary: #1e3a1e;
-            --secondary: #2e7d32;
-            --accent: #d84315;
-            --light: #f1f8e9;
-            --gray: #eeeeee;
-            --white: #ffffff;
-            --blue: #6ec6ff;
-            --silver: #cfd8dc;
-        }
+<style>
+:root {
+    --primary:#162a1a;
+    --secondary:#2e7d32;
+    --accent:#ff5a2c;
+    --bg:#f4f7f4;
+    --card:#ffffff;
+    --blue:#7cc7ff;
+    --silver:#cfd8dc;
+    --text:#1b1b1b;
+}
 
-        * { box-sizing: border-box; }
+/* RESET */
+* { box-sizing:border-box; }
 
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 12px;
-            background: var(--light);
-            display: flex;
-            justify-content: center;
-        }
+body {
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:var(--bg);
+    display:flex;
+    justify-content:center;
+}
 
-        .container-app {
-            width: 100%;
-            max-width: 520px;
-            background: var(--white);
-            padding: 20px;
-            border-radius: 18px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-        }
+/* APP CONTAINER */
+.container-app {
+    width:100%;
+    max-width:520px;
+    min-height:100vh;
+    background:var(--card);
+    padding:18px;
+}
 
-        /* ================= TITLE ================= */
-        .header-app {
-            text-align: center;
-            margin-bottom: 10px;
-        }
+/* HEADER (OPEN THAN GO FEELING) */
+.header-app {
+    text-align:center;
+    margin-bottom:10px;
+}
 
-        #app-title {
-            font-size: 26px;
-            font-weight: bold;
-            transition: all 0.6s ease;
-            letter-spacing: 1px;
-        }
+.header-app h1 {
+    margin:0;
+    color:var(--primary);
+    letter-spacing:1px;
+    transition:all 0.6s ease;
+}
 
-        .subtitle {
-            font-size: 13px;
-            opacity: 0.7;
-        }
+.header-app p {
+    margin:5px 0;
+    font-size:14px;
+    color:#555;
+}
 
-        /* ================= BUTTONS ================= */
-        .btn-choice {
-            padding: 10px;
-            border: none;
-            background: var(--gray);
-            border-radius: 10px;
-            cursor: pointer;
-            margin: 3px;
-        }
+/* LANGUAGE */
+.lang-bar {
+    display:flex;
+    gap:10px;
+    margin-bottom:10px;
+}
 
-        .btn-choice.active {
-            background: var(--secondary);
-            color: white;
-        }
+.btn-lang {
+    flex:1;
+    padding:8px;
+    border:none;
+    border-radius:20px;
+    background:#eaeaea;
+    cursor:pointer;
+}
 
-        .btn-trigger {
-            width: 100%;
-            padding: 14px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+.btn-lang.active {
+    background:var(--primary);
+    color:white;
+}
 
-        .btn-next-step {
-            width: 100%;
-            padding: 14px;
-            margin-top: 10px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            display: none;
-        }
+/* FORM */
+.form-group { margin-bottom:12px; }
 
-        .btn-maps-route {
-            display: none;
-            width: 100%;
-            padding: 14px;
-            margin-top: 10px;
-            background: #4285f4;
-            color: white;
-            text-align: center;
-            border-radius: 12px;
-            text-decoration: none;
-        }
+label {
+    font-size:13px;
+    color:#444;
+}
 
-        /* ================= WRAPPERS ================= */
-        .loader-screen, .interactive-screen {
-            display: none;
-            text-align: center;
-        }
+input, select, textarea {
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    border-radius:10px;
+    border:1px solid #ddd;
+    outline:none;
+}
 
-        .spinner {
-            width: 42px;
-            height: 42px;
-            border: 4px solid #ccc;
-            border-top: 4px solid var(--secondary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: auto;
-        }
+textarea { min-height:70px; resize:none; }
 
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
+/* CHOICE BUTTONS */
+.btn-choice {
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:10px;
+    margin:3px 0;
+    background:#eee;
+    cursor:pointer;
+}
 
-        /* ================= BREATH ================= */
-        #breathingCircle {
-            width: 100px;
-            height: 100px;
-            margin: 20px auto;
-            border-radius: 50%;
-            background: radial-gradient(circle, var(--blue), var(--silver));
-            box-shadow: 0 0 25px rgba(120,200,255,0.6);
-            transition: transform 2.5s ease-in-out;
-        }
+.btn-choice.active {
+    background:var(--secondary);
+    color:white;
+}
 
-        /* ================= TIMER ================= */
-        #timer {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--primary);
-            margin-top: 10px;
-        }
+/* MAIN ACTION */
+.btn-trigger {
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:var(--accent);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
 
-        /* ================= INPUTS ================= */
-        textarea, input, select {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-        }
+/* LOADER */
+.loader-screen {
+    display:none;
+    text-align:center;
+    padding:50px 20px;
+}
 
-        .form-group {
-            margin-bottom: 12px;
-        }
+.spinner {
+    width:42px;
+    height:42px;
+    border:4px solid #ddd;
+    border-top:4px solid var(--secondary);
+    border-radius:50%;
+    margin:auto;
+    animation:spin 1s linear infinite;
+}
 
-        /* ================= LAYOUT ================= */
-        .lang-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+@keyframes spin {
+    100% { transform:rotate(360deg); }
+}
 
-        .btn-lang {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 20px;
-            background: var(--gray);
-        }
+/* INTERACTIVE AREA */
+.interactive-screen {
+    display:none;
+    padding-top:10px;
+}
 
-        .btn-lang.active {
-            background: var(--primary);
-            color: white;
-        }
+/* BREATHING (CASA MODE CORE) */
+.breath-container {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin:20px 0;
+}
 
-        /* ================= EXPERIENCE PANEL ================= */
-        #step-content {
-            margin-top: 15px;
-            font-size: 16px;
-            line-height: 1.5;
-            min-height: 80px;
-        }
+#breathingCircle {
+    width:110px;
+    height:110px;
+    border-radius:50%;
+    background:radial-gradient(circle, var(--blue), var(--silver));
+    box-shadow:0 0 30px rgba(120,200,255,0.6);
+    transform:scale(1);
+    transition:transform 2.2s ease-in-out;
+}
 
-        /* ================= MODE INDICATOR ================= */
-        .mode-indicator {
-            font-size: 12px;
-            opacity: 0.6;
-            margin-top: -5px;
-        }
-    </style>
+#breathLabel {
+    margin-top:10px;
+    font-weight:bold;
+    color:var(--primary);
+}
+
+#breathTime {
+    font-size:13px;
+    color:#666;
+}
+
+/* TIMER (CASA RESET SUPPORT) */
+#timer {
+    text-align:center;
+    font-size:20px;
+    font-weight:bold;
+    margin:10px 0;
+    color:var(--primary);
+}
+
+/* CONTENT (MISSION FEED) */
+#step-content {
+    margin-top:10px;
+    padding:12px;
+    border-radius:12px;
+    background:#fafafa;
+    font-size:15px;
+    line-height:1.5;
+    color:var(--text);
+}
+
+/* NAV BUTTONS */
+.btn-next-step {
+    width:100%;
+    padding:14px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    background:var(--primary);
+    color:white;
+    font-weight:bold;
+    display:none;
+    cursor:pointer;
+}
+
+.btn-maps-route {
+    width:100%;
+    padding:14px;
+    margin-top:10px;
+    border-radius:10px;
+    background:#4285f4;
+    color:white;
+    text-align:center;
+    display:none;
+    text-decoration:none;
+    font-weight:bold;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container-app">
 
-    <!-- ================= HEADER ================= -->
+<!-- ================= FORM ================= -->
+<div id="wrapper-form">
+
+    <div class="lang-bar">
+        <button id="lang-es" class="btn-lang active">ES</button>
+        <button id="lang-en" class="btn-lang">EN</button>
+    </div>
+
     <div class="header-app">
-
-        <!-- 🔥 IMPORTANTE: ESTE ES EL TÍTULO DINÁMICO -->
-        <div id="app-title">OPEN THAN GO</div>
-
-        <div class="subtitle" id="txt-subtitle">
-            Tu escape emocional inteligente
-        </div>
-
-        <div class="mode-indicator" id="mode-indicator"></div>
+        <h1 id="app-title">OPEN THAN GO</h1>
+        <p>Tu escape emocional inteligente</p>
     </div>
 
-    <!-- ================= FORM ================= -->
-    <div id="wrapper-form">
-
-        <div class="lang-bar">
-            <button id="lang-es" class="btn-lang active" onclick="cambiarIdioma('es')">ES</button>
-            <button id="lang-en" class="btn-lang" onclick="cambiarIdioma('en')">EN</button>
-        </div>
-
-        <div class="form-group">
-            <label>Estado</label>
-            <select id="inp-state">
-                <option value="FL">Florida</option>
-                <option value="TX">Texas</option>
-                <option value="CA">California</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Región</label>
-            <select id="inp-region"></select>
-        </div>
-
-        <div class="form-group">
-            <label>ZIP</label>
-            <input id="inp-zip" placeholder="33101">
-        </div>
-
-        <div class="form-group">
-            <label>Presupuesto</label><br>
-            <button class="btn-choice active" id="b-cero" onclick="cambiarBolsillo('cero')">$0</button>
-            <button class="btn-choice" id="b-minimo" onclick="cambiarBolsillo('minimo')">Mín</button>
-            <button class="btn-choice" id="b-moderado" onclick="cambiarBolsillo('moderado')">Med</button>
-            <button class="btn-choice" id="b-libre" onclick="cambiarBolsillo('libre')">Libre</button>
-        </div>
-
-        <div class="form-group">
-            <label>Modo de decisión</label><br>
-            <button class="btn-choice active" id="m-salir" onclick="cambiarModalidad(true)">SALIR</button>
-            <button class="btn-choice" id="m-casa" onclick="cambiarModalidad(false)">CASA</button>
-        </div>
-
-        <div class="form-group">
-            <textarea id="inp-text" placeholder="¿Cómo te sientes hoy?"></textarea>
-        </div>
-
-        <button id="btn-start" class="btn-trigger">
-            GENERAR EXPERIENCIA
-        </button>
+    <div class="form-group">
+        <label>Estado (USA 50 estados)</label>
+        <select id="inp-state">
+            <option value="FL">Florida</option>
+            <option value="TX">Texas</option>
+            <option value="CA">California</option>
+            <option value="NY">New York</option>
+            <option value="IL">Illinois</option>
+        </select>
     </div>
 
-    <!-- ================= LOADER ================= -->
-    <div id="wrapper-loader" class="loader-screen">
-        <div class="spinner"></div>
-        <p>Analizando estado emocional...</p>
+    <div class="form-group">
+        <label>Región</label>
+        <select id="inp-region"></select>
     </div>
 
-    <!-- ================= INTERACTIVE ================= -->
-    <div id="wrapper-interactive" class="interactive-screen">
+    <div class="form-group">
+        <label>ZIP</label>
+        <input id="inp-zip" placeholder="Ej: 33101">
+    </div>
 
+    <div class="form-group">
+        <label>Presupuesto</label>
+
+        <button class="btn-choice active" id="b-cero">0 - 40 USD</button>
+        <button class="btn-choice" id="b-minimo">20 - 60 USD</button>
+        <button class="btn-choice" id="b-moderado">40 - 70 USD</button>
+        <button class="btn-choice" id="b-libre">Sin límite</button>
+    </div>
+
+    <div class="form-group">
+        <label>Modo de vida</label>
+
+        <button class="btn-choice active" id="m-salir">Salir</button>
+        <button class="btn-choice" id="m-casa">Casa</button>
+    </div>
+
+    <div class="form-group">
+        <textarea id="inp-text" placeholder="¿Cómo te sientes hoy?"></textarea>
+    </div>
+
+    <button id="btn-start" class="btn-trigger">
+        GENERAR ESCAPE
+    </button>
+
+</div>
+
+<!-- ================= LOADER ================= -->
+<div id="wrapper-loader" class="loader-screen">
+    <div class="spinner"></div>
+    <p>Creando tu experiencia emocional...</p>
+</div>
+
+<!-- ================= INTERACTIVE ================= -->
+<div id="wrapper-interactive" class="interactive-screen">
+
+    <!-- BREATHING -->
+    <div class="breath-container">
         <div id="breathingCircle"></div>
-        <div id="timer"></div>
-
-        <div id="step-content"></div>
-
-        <button id="btn-next" class="btn-next-step">CONTINUAR</button>
-
-        <a id="btn-maps-action" class="btn-maps-route" target="_blank">
-            ABRIR MAPA
-        </a>
-
+        <div id="breathLabel"></div>
+        <div id="breathTime"></div>
     </div>
+
+    <!-- TIMER -->
+    <div id="timer"></div>
+
+    <!-- MISSION -->
+    <div id="step-content"></div>
+
+    <!-- ACTIONS -->
+    <button id="btn-next" class="btn-next-step">CONTINUAR</button>
+
+    <a id="btn-maps-action" class="btn-maps-route" target="_blank">
+        ABRIR RUTA
+    </a>
+
+</div>
 
 </div>
 
 <script src="/static/engine.js"></script>
-
-<script>
-function $(id){ return document.getElementById(id); }
-
-/* =========================
-   TITLE STATE MACHINE VISUAL
-   ========================= */
-let state = {
-    mode: "salir",
-    emotion: {
-        stress: false,
-        monotony: false,
-        lowEnergy: false
-    }
-};
-
-function updateTitle() {
-
-    const el = $("app-title");
-    if (!el) return;
-
-    let base = "OPEN THAN GO";
-
-    if (state.emotion.stress) base = "OPEN ◉ THAN GO";
-    if (state.emotion.monotony) base = "OPEN — THAN GO";
-    if (state.emotion.lowEnergy) base = "OPEN ○ THAN GO";
-
-    if (state.mode === "casa") base = "OPEN ◯ THAN GO";
-    if (state.mode === "salir") base = "OPEN ◎ THAN GO";
-
-    el.innerText = base;
-    animateTitle(el);
-}
-
-function animateTitle(el) {
-
-    el.style.transition = "all 0.6s ease";
-
-    if (state.mode === "salir") {
-        el.style.letterSpacing = "2px";
-        el.style.transform = "scale(1.02)";
-    } else {
-        el.style.letterSpacing = "0px";
-        el.style.transform = "scale(0.98)";
-    }
-
-    if (state.emotion.stress) el.style.color = "#d84315";
-    else if (state.emotion.monotony) el.style.color = "#6ec6ff";
-    else el.style.color = "#1e3a1e";
-}
-
-setInterval(updateTitle, 500);
-</script>
 
 </body>
 </html>
