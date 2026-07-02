@@ -1,4 +1,4 @@
-# OPEN THAN GO SYSTEM - Backend Engine v3 (OPTIMIZED + SYNCHRONIZED)
+# OPEN THAN GO SYSTEM - Backend Engine v3 (STABLE + SYNC FIX)
 # Company: May Roga LLC
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -18,7 +18,7 @@ MISSIONS_08 = os.path.join(BASE_DIR, "missions_08_14.json")
 MISSIONS_15 = os.path.join(BASE_DIR, "missions_15_21.json")
 
 # ----------------------------------------------------
-# SAFE JSON LOADER (FAST + STABLE)
+# SAFE JSON
 # ----------------------------------------------------
 def cargar_json(ruta):
     try:
@@ -28,21 +28,20 @@ def cargar_json(ruta):
         with open(ruta, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        return data if isinstance(data, dict) and "missions" in data else {"missions": []}
+        return data if isinstance(data, dict) else {"missions": []}
 
     except Exception as e:
         print("JSON ERROR:", e)
         return {"missions": []}
-
 
 DATA_01 = cargar_json(MISSIONS_01)
 DATA_08 = cargar_json(MISSIONS_08)
 DATA_15 = cargar_json(MISSIONS_15)
 
 # ----------------------------------------------------
-# FALLBACK (NEVER FAILS)
+# FALLBACK (NO CRASH EVER)
 # ----------------------------------------------------
-def fallback_mission(es, en):
+def fallback_mission(es, en=""):
     return {
         "id": 0,
         "cat": "fallback",
@@ -50,60 +49,80 @@ def fallback_mission(es, en):
             {
                 "story": {
                     "es": es,
-                    "en": en
+                    "en": en or es
                 }
             }
         ]
     }
 
 # ----------------------------------------------------
-# ZIP-FIRST LOCATION FIX (CRITICAL IMPROVEMENT)
+# ZIP → STATE FIX (REAL USA LOGIC SIMPLIFIED)
 # ----------------------------------------------------
-def validar_consistencia(zip_code, estado):
+def estado_desde_zip(zip_code, estado_default):
     if not zip_code:
-        return estado
+        return estado_default
 
-    # validación simple por prefijo (aproximado USA)
-    fl = ["33", "34"]
-    tx = ["75", "76", "77", "78", "79"]
-    ca = ["90", "91", "92", "93", "94", "95"]
+    prefix = zip_code[:2]
 
-    if zip_code[:2] in fl:
+    if prefix in ["33", "34"]:
         return "FL"
-    if zip_code[:2] in tx:
+    if prefix in ["75", "76", "77", "78", "79"]:
         return "TX"
-    if zip_code[:2] in ca:
+    if prefix in ["90", "91", "92", "93", "94", "95"]:
         return "CA"
+
+    return estado_default
+
+# ----------------------------------------------------
+# REGIÓN CONSISTENTE (IMPORTANT FIX)
+# ----------------------------------------------------
+REGIONES = {
+    "FL": ["South Florida", "Central Florida", "North Florida"],
+    "TX": ["North Texas", "Central Texas", "South Texas"],
+    "CA": ["Northern California", "Central California", "Southern California"]
+}
+
+def asegurar_region(estado, region):
+    if estado not in REGIONES:
+        return ""
+
+    if region in REGIONES[estado]:
+        return region
+
+    return random.choice(REGIONES[estado])
+
+# ----------------------------------------------------
+# LOCATION RESOLVER (FINAL FIX)
+# ----------------------------------------------------
+def resolver_ubicacion(zip_code, region, estado):
+    estado = estado_desde_zip(zip_code, estado)
+    region = asegurar_region(estado, region)
+
+    if zip_code:
+        return f"{region} {estado} ({zip_code})"
+
+    if region:
+        return f"{region} {estado}"
 
     return estado
 
 # ----------------------------------------------------
-# LOAD MISSION
+# MISSIONS
 # ----------------------------------------------------
 def cargar_mision(decision, pocket):
     try:
-
-        # CASA MODE (10-min logic handled frontend)
         if decision == "casa":
             pool = DATA_01.get("missions", [])
             if not pool:
-                return fallback_mission(
-                    "Sistema doméstico no disponible.",
-                    "Home system not available."
-                )
+                return fallback_mission("Sistema doméstico no disponible.")
             return random.choice(pool)
 
-        # OUTSIDE MODE
         pool = random.choice([DATA_08, DATA_15]).get("missions", [])
-
         if not pool:
             pool = DATA_01.get("missions", [])
 
         if not pool:
-            return fallback_mission(
-                "No hay misiones disponibles.",
-                "No missions available."
-            )
+            return fallback_mission("No hay misiones disponibles.")
 
         filtradas = [
             m for m in pool
@@ -114,10 +133,7 @@ def cargar_mision(decision, pocket):
 
     except Exception as e:
         print("MISSION ERROR:", e)
-        return fallback_mission(
-            "Error interno del sistema.",
-            str(e)
-        )
+        return fallback_mission("Error interno del sistema.")
 
 # ----------------------------------------------------
 # FRONTEND
@@ -127,7 +143,7 @@ def index():
     return send_from_directory(app.static_folder, "session.html")
 
 # ----------------------------------------------------
-# API MAIN
+# API
 # ----------------------------------------------------
 @app.route("/api/open-than-go", methods=["POST"])
 def open_than_go():
@@ -138,14 +154,14 @@ def open_than_go():
         decision = data.get("decision", "salir")
         pocket = data.get("budget_level", "cero")
 
-        zip_code = data.get("zip_code", "")
-        region = data.get("region", "")
-        estado = data.get("estado", "FL")
+        zip_code = (data.get("zip_code") or "").strip()
+        region = (data.get("region") or "").strip()
+        estado = (data.get("estado") or "FL").strip()
 
         desahogo = (data.get("desahogo") or "").lower()
 
         # -------------------------
-        # CASA FLOW
+        # CASA MODE
         # -------------------------
         if decision == "casa":
 
@@ -154,13 +170,16 @@ def open_than_go():
             return jsonify({
                 "status": "success",
                 "tipo": "Casa",
-                "mision": mision,
                 "mode": "home",
-                "duration": 600  # 10 min auto-session
+                "mision": mision,
+                "ui": {
+                    "breathing_duration": 26000,
+                    "auto_end": True
+                }
             })
 
         # -------------------------
-        # LOCATION FIXED (ZIP PRIORITY)
+        # LOCATION FIXED
         # -------------------------
         ubicacion = resolver_ubicacion(zip_code, region, estado)
 
@@ -180,9 +199,9 @@ def open_than_go():
             termino = random.choice(categorias.get(pocket, ["parques"]))
 
         # -------------------------
-        # MAP LINK
+        # MAP LINK SAFE
         # -------------------------
-        query = f"{termino} en {ubicacion}".replace(" ", "+")
+        query = f"{termino} {ubicacion}".replace(" ", "+")
         gps_link = f"https://www.google.com/maps/search/?api=1&query={query}"
 
         # -------------------------
@@ -196,15 +215,15 @@ def open_than_go():
             "mode": "out",
             "lugar": {
                 "name": f"Exploración de {termino}",
-                "address": f"Cerca de {ubicacion}",
+                "address": ubicacion,
                 "region": region,
                 "estado": estado,
-                "zip_used": zip_code,
+                "zip": zip_code,
                 "gps_link": gps_link
             },
             "mision": mision,
             "ui": {
-                "breathing_duration": 25000,
+                "breathing_duration": 26000,
                 "silence_mode": True
             }
         })
