@@ -59,15 +59,22 @@ def fallback_mission(es, en):
 # ----------------------------------------------------
 # ZIP-FIRST LOCATION FIX (CRITICAL IMPROVEMENT)
 # ----------------------------------------------------
-def resolver_ubicacion(zip_code, region, estado):
-    zip_code = (zip_code or "").strip()
-    region = (region or "").strip()
-    estado = (estado or "FL").strip()
+def validar_consistencia(zip_code, estado):
+    if not zip_code:
+        return estado
 
-    if zip_code:
-        return zip_code
-    if region:
-        return f"{region} {estado}"
+    # validación simple por prefijo (aproximado USA)
+    fl = ["33", "34"]
+    tx = ["75", "76", "77", "78", "79"]
+    ca = ["90", "91", "92", "93", "94", "95"]
+
+    if zip_code[:2] in fl:
+        return "FL"
+    if zip_code[:2] in tx:
+        return "TX"
+    if zip_code[:2] in ca:
+        return "CA"
+
     return estado
 
 # ----------------------------------------------------
