@@ -58,28 +58,6 @@
             font-weight: bold;
         }
 
-        .btn-next-step {
-            width: 100%;
-            padding: 14px;
-            margin-top: 10px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-        }
-
-        .btn-maps-route {
-            display: none;
-            width: 100%;
-            padding: 14px;
-            margin-top: 10px;
-            background: #4285f4;
-            color: white;
-            text-align: center;
-            border-radius: 10px;
-            text-decoration: none;
-        }
-
         .loader-screen {
             display: none;
             text-align: center;
@@ -115,6 +93,7 @@
             border: none;
             border-radius: 20px;
             background: var(--gray);
+            cursor: pointer;
         }
 
         .btn-lang.active {
@@ -134,7 +113,6 @@
             margin-bottom: 12px;
         }
 
-        /* 🔵 BREATHING CIRCLE */
         #breathingCircle {
             width: 80px;
             height: 80px;
@@ -154,8 +132,8 @@
     <div id="wrapper-form">
 
         <div class="lang-bar">
-            <button id="lang-es" class="btn-lang active" onclick="cambiarIdioma('es')">ES</button>
-            <button id="lang-en" class="btn-lang" onclick="cambiarIdioma('en')">EN</button>
+            <button id="lang-es" class="btn-lang active">ES</button>
+            <button id="lang-en" class="btn-lang">EN</button>
         </div>
 
         <h2>OPEN THAN GO</h2>
@@ -163,12 +141,21 @@
 
         <div class="form-group">
             <label>Estado</label>
-            <select id="inp-state"></select>
+            <select id="inp-state">
+                <option value="FL">Florida</option>
+                <option value="TX">Texas</option>
+                <option value="CA">California</option>
+            </select>
         </div>
 
         <div class="form-group">
             <label>Región</label>
-            <select id="inp-region"></select>
+            <select id="inp-region">
+                <option value="South Florida">South Florida</option>
+                <option value="Central Florida">Central Florida</option>
+                <option value="North Texas">North Texas</option>
+                <option value="Los Angeles Area">Los Angeles Area</option>
+            </select>
         </div>
 
         <div class="form-group">
@@ -178,6 +165,7 @@
 
         <div class="form-group">
             <label>Presupuesto</label><br>
+
             <button class="btn-choice active" onclick="setPocket('cero')">$0</button>
             <button class="btn-choice" onclick="setPocket('minimo')">Mínimo</button>
             <button class="btn-choice" onclick="setPocket('moderado')">Medio</button>
@@ -186,6 +174,7 @@
 
         <div class="form-group">
             <label>Modo</label><br>
+
             <button class="btn-choice active" onclick="setMode('out')">Salir</button>
             <button class="btn-choice" onclick="setMode('home')">Casa</button>
         </div>
@@ -209,14 +198,7 @@
 
         <div id="breathingCircle"></div>
 
-        <h3 id="interactive-title"></h3>
-        <p id="interactive-subtitle"></p>
-
         <div id="step-content"></div>
-
-        <button id="btn-next" class="btn-next-step">CONTINUAR</button>
-
-        <a id="btn-maps-action" class="btn-maps-route" target="_blank">ABRIR MAPA</a>
 
     </div>
 
@@ -226,48 +208,93 @@
 
 <script>
 
-/* =========================
-   GLOBAL BRIDGE TO ENGINE
-========================= */
-
 let engine = null;
 
+/* =========================
+   INIT BRIDGE
+========================= */
 window.addEventListener("DOMContentLoaded", () => {
     engine = window.OPEN_THAN_GO;
 });
 
-/* LANGUAGE */
-function cambiarIdioma(lang) {
+/* =========================
+   LANGUAGE
+========================= */
+document.getElementById("lang-es").onclick = () => {
     if (!engine) return;
-    engine.state.lang = lang;
+    engine.state.lang = "es";
+};
 
-    document.getElementById("lang-es").classList.toggle("active", lang === "es");
-    document.getElementById("lang-en").classList.toggle("active", lang === "en");
-}
+document.getElementById("lang-en").onclick = () => {
+    if (!engine) return;
+    engine.state.lang = "en";
+};
 
-/* POCKET */
+/* =========================
+   POCKET
+========================= */
 function setPocket(val) {
     if (engine) engine.state.pocket = val;
 }
 
-/* MODE FIX */
+/* =========================
+   MODE
+========================= */
 function setMode(mode) {
-    if (engine) engine.setMode(mode);
+    if (engine) engine.state.mode = mode;
 }
 
-/* ESCAPE START */
+/* =========================
+   VALIDACIÓN ESTADO-REGIÓN
+========================= */
+function validarUbicacion() {
+
+    const estado = document.getElementById("inp-state").value;
+    const region = document.getElementById("inp-region").value;
+
+    const reglas = {
+        "FL": ["South Florida", "Central Florida"],
+        "TX": ["North Texas"],
+        "CA": ["Los Angeles Area"]
+    };
+
+    if (!reglas[estado].includes(region)) {
+        alert("La región no coincide con el estado seleccionado.");
+        return false;
+    }
+
+    return true;
+}
+
+/* =========================
+   START
+========================= */
 function generateEscape() {
+
+    if (!validarUbicacion()) return;
+
+    const estado = document.getElementById("inp-state").value;
+    const region = document.getElementById("inp-region").value;
+    const zip = document.getElementById("inp-zip").value;
+    const text = document.getElementById("inp-text").value;
+
+    if (engine) {
+        engine.state.userInput = { estado, region, zip, text };
+    }
 
     document.getElementById("wrapper-form").style.display = "none";
     document.getElementById("wrapper-loader").style.display = "block";
 
     setTimeout(() => {
+
         document.getElementById("wrapper-loader").style.display = "none";
         document.getElementById("wrapper-interactive").style.display = "block";
 
-        if (engine) engine.startFlow();
+        if (engine) {
+            engine.startFlow(engine.state.mode || "out");
+        }
 
-    }, 2000);
+    }, 1800);
 }
 
 </script>
