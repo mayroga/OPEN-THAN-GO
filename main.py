@@ -1,4 +1,4 @@
-# OPEN THAN GO SYSTEM - Backend Engine v3 (STABLE + SYNC FIX)
+# OPEN THAN GO SYSTEM - Backend Engine v4 (FULL SYNCHRONIZED)
 # Company: May Roga LLC
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -18,7 +18,7 @@ MISSIONS_08 = os.path.join(BASE_DIR, "missions_08_14.json")
 MISSIONS_15 = os.path.join(BASE_DIR, "missions_15_21.json")
 
 # ----------------------------------------------------
-# SAFE JSON
+# SAFE JSON LOADER
 # ----------------------------------------------------
 def cargar_json(ruta):
     try:
@@ -28,20 +28,21 @@ def cargar_json(ruta):
         with open(ruta, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        return data if isinstance(data, dict) else {"missions": []}
+        return data if isinstance(data, dict) and "missions" in data else {"missions": []}
 
     except Exception as e:
         print("JSON ERROR:", e)
         return {"missions": []}
+
 
 DATA_01 = cargar_json(MISSIONS_01)
 DATA_08 = cargar_json(MISSIONS_08)
 DATA_15 = cargar_json(MISSIONS_15)
 
 # ----------------------------------------------------
-# FALLBACK (NO CRASH EVER)
+# FALLBACK
 # ----------------------------------------------------
-def fallback_mission(es, en=""):
+def fallback_mission(es, en):
     return {
         "id": 0,
         "cat": "fallback",
@@ -49,80 +50,67 @@ def fallback_mission(es, en=""):
             {
                 "story": {
                     "es": es,
-                    "en": en or es
+                    "en": en
                 }
             }
         ]
     }
 
 # ----------------------------------------------------
-# ZIP → STATE FIX (REAL USA LOGIC SIMPLIFIED)
-# ----------------------------------------------------
-def estado_desde_zip(zip_code, estado_default):
-    if not zip_code:
-        return estado_default
-
-    prefix = zip_code[:2]
-
-    if prefix in ["33", "34"]:
-        return "FL"
-    if prefix in ["75", "76", "77", "78", "79"]:
-        return "TX"
-    if prefix in ["90", "91", "92", "93", "94", "95"]:
-        return "CA"
-
-    return estado_default
-
-# ----------------------------------------------------
-# REGIÓN CONSISTENTE (IMPORTANT FIX)
-# ----------------------------------------------------
-REGIONES = {
-    "FL": ["South Florida", "Central Florida", "North Florida"],
-    "TX": ["North Texas", "Central Texas", "South Texas"],
-    "CA": ["Northern California", "Central California", "Southern California"]
-}
-
-def asegurar_region(estado, region):
-    if estado not in REGIONES:
-        return ""
-
-    if region in REGIONES[estado]:
-        return region
-
-    return random.choice(REGIONES[estado])
-
-# ----------------------------------------------------
-# LOCATION RESOLVER (FINAL FIX)
+# ZIP → ESTADO FIX (CRÍTICO)
 # ----------------------------------------------------
 def resolver_ubicacion(zip_code, region, estado):
-    estado = estado_desde_zip(zip_code, estado)
-    region = asegurar_region(estado, region)
 
+    zip_code = (zip_code or "").strip()
+
+    # PRIORIDAD ZIP
     if zip_code:
-        return f"{region} {estado} ({zip_code})"
+        prefix = zip_code[:2]
 
-    if region:
-        return f"{region} {estado}"
+        if prefix in ["33", "34"]:
+            estado = "FL"
+        elif prefix in ["75", "76", "77", "78", "79"]:
+            estado = "TX"
+        elif prefix in ["90", "91", "92", "93", "94", "95"]:
+            estado = "CA"
 
-    return estado
+    # NORMALIZACIÓN REGIÓN
+    if estado == "TX" and "Florida" in region:
+        region = "Central Texas"
+
+    if estado == "FL" and "Texas" in region:
+        region = "South Florida"
+
+    if estado == "CA" and region == "":
+        region = "Southern California"
+
+    return f"{region} {estado}".strip(), estado, region
 
 # ----------------------------------------------------
-# MISSIONS
+# MISSION ENGINE
 # ----------------------------------------------------
 def cargar_mision(decision, pocket):
     try:
+
         if decision == "casa":
             pool = DATA_01.get("missions", [])
             if not pool:
-                return fallback_mission("Sistema doméstico no disponible.")
+                return fallback_mission(
+                    "Sistema doméstico no disponible.",
+                    "Home system not available."
+                )
             return random.choice(pool)
 
         pool = random.choice([DATA_08, DATA_15]).get("missions", [])
+
         if not pool:
             pool = DATA_01.get("missions", [])
 
         if not pool:
-            return fallback_mission("No hay misiones disponibles.")
+            return fallback_mission(
+                "No hay misiones disponibles.",
+                "No missions available."
+            )
 
         filtradas = [
             m for m in pool
@@ -133,7 +121,10 @@ def cargar_mision(decision, pocket):
 
     except Exception as e:
         print("MISSION ERROR:", e)
-        return fallback_mission("Error interno del sistema.")
+        return fallback_mission(
+            "Error interno del sistema.",
+            str(e)
+        )
 
 # ----------------------------------------------------
 # FRONTEND
@@ -143,7 +134,7 @@ def index():
     return send_from_directory(app.static_folder, "session.html")
 
 # ----------------------------------------------------
-# API
+# API MAIN
 # ----------------------------------------------------
 @app.route("/api/open-than-go", methods=["POST"])
 def open_than_go():
@@ -154,15 +145,27 @@ def open_than_go():
         decision = data.get("decision", "salir")
         pocket = data.get("budget_level", "cero")
 
-        zip_code = (data.get("zip_code") or "").strip()
-        region = (data.get("region") or "").strip()
-        estado = (data.get("estado") or "FL").strip()
+        zip_code = data.get("zip_code", "")
+        region = data.get("region", "")
+        estado = data.get("estado", "FL")
 
         desahogo = (data.get("desahogo") or "").lower()
+        lang = data.get("lang", "es")
 
-        # -------------------------
-        # CASA MODE
-        # -------------------------
+        # ------------------------------------------------
+        # ONBOARDING QUESTIONS (NUEVO)
+        # ------------------------------------------------
+        onboarding = [
+            "¿Qué emoción domina tu día?",
+            "¿Prefieres calma o acción?",
+            "¿Tienes energía baja, media o alta?",
+            "¿Quieres desconectar o resolver algo?",
+            "¿Qué te haría sentir mejor ahora?"
+        ]
+
+        # ------------------------------------------------
+        # CASA MODE (10 min auto)
+        # ------------------------------------------------
         if decision == "casa":
 
             mision = cargar_mision("casa", "cero")
@@ -171,21 +174,29 @@ def open_than_go():
                 "status": "success",
                 "tipo": "Casa",
                 "mode": "home",
+                "onboarding": onboarding,
                 "mision": mision,
                 "ui": {
-                    "breathing_duration": 26000,
-                    "auto_end": True
+                    "voice": {
+                        "es": "male",
+                        "en": "male",
+                        "enabled": True
+                    },
+                    "breathing": {
+                        "duration_ms": 25000,
+                        "style": "blue_silver_orb"
+                    },
+                    "timer": {
+                        "duration_sec": 600
+                    }
                 }
             })
 
-        # -------------------------
-        # LOCATION FIXED
-        # -------------------------
-        ubicacion = resolver_ubicacion(zip_code, region, estado)
+        # ------------------------------------------------
+        # LOCATION ENGINE
+        # ------------------------------------------------
+        ubicacion, estado, region = resolver_ubicacion(zip_code, region, estado)
 
-        # -------------------------
-        # CATEGORY ENGINE
-        # -------------------------
         categorias = {
             "cero": ["parques publicos", "playas", "senderos"],
             "minimo": ["cafeterias", "mercados locales"],
@@ -194,42 +205,64 @@ def open_than_go():
         }
 
         if any(w in desahogo for w in ["trabajo", "job", "empleo"]):
-            termino = "agencias de empleo y trabajo"
+            termino = "agencias de empleo"
         else:
             termino = random.choice(categorias.get(pocket, ["parques"]))
 
-        # -------------------------
-        # MAP LINK SAFE
-        # -------------------------
-        query = f"{termino} {ubicacion}".replace(" ", "+")
+        query = f"{termino} en {ubicacion}".replace(" ", "+")
         gps_link = f"https://www.google.com/maps/search/?api=1&query={query}"
 
-        # -------------------------
-        # MISSION
-        # -------------------------
+        # ------------------------------------------------
+        # IMAGENES PARA MAPA (FIX UX VISUAL)
+        # ------------------------------------------------
+        image_queries = [
+            f"{termino} exterior",
+            f"{termino} interior",
+            f"{termino} personas",
+            f"{termino} ambiente"
+        ]
+
         mision = cargar_mision("salir", pocket)
 
         return jsonify({
             "status": "success",
             "tipo": "Salida",
             "mode": "out",
+
             "lugar": {
                 "name": f"Exploración de {termino}",
-                "address": ubicacion,
-                "region": region,
+                "address": f"Cerca de {ubicacion}",
                 "estado": estado,
+                "region": region,
                 "zip": zip_code,
-                "gps_link": gps_link
+                "gps_link": gps_link,
+                "image_queries": image_queries
             },
+
+            "onboarding": onboarding,
             "mision": mision,
+
             "ui": {
-                "breathing_duration": 26000,
-                "silence_mode": True
+                "voice": {
+                    "es": "male",
+                    "en": "male",
+                    "enabled": True,
+                    "lock_by_language": True
+                },
+                "breathing": {
+                    "duration_ms": 25000,
+                    "style": "blue_silver_orb",
+                    "animation": "pulse_expand_contract"
+                },
+                "timer": {
+                    "duration_sec": 600
+                }
             }
         })
 
     except Exception as e:
         print("API ERROR:", e)
+
         return jsonify({
             "status": "error",
             "message": str(e)
