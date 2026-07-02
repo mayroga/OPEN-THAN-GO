@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OPEN THAN GO PRO</title>
+    <title>OPEN THAN GO</title>
 
     <style>
         :root {
@@ -18,7 +18,7 @@
         * { box-sizing: border-box; }
 
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 10px;
             background: var(--light);
@@ -34,13 +34,17 @@
             border-radius: 16px;
         }
 
+        .header-app h1 {
+            margin: 0;
+            color: var(--primary);
+        }
+
         .btn-choice {
             padding: 10px;
             border: none;
             background: var(--gray);
             border-radius: 8px;
             cursor: pointer;
-            margin: 2px;
         }
 
         .btn-choice.active {
@@ -56,6 +60,30 @@
             border: none;
             border-radius: 10px;
             font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-next-step {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .btn-maps-route {
+            display: none;
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            background: #4285f4;
+            color: white;
+            text-align: center;
+            border-radius: 10px;
+            text-decoration: none;
         }
 
         .loader-screen {
@@ -66,6 +94,7 @@
 
         .interactive-screen {
             display: none;
+            padding-top: 10px;
         }
 
         .spinner {
@@ -85,6 +114,7 @@
         .lang-bar {
             display: flex;
             gap: 10px;
+            margin-bottom: 10px;
         }
 
         .btn-lang {
@@ -112,15 +142,6 @@
         .form-group {
             margin-bottom: 12px;
         }
-
-        #breathingCircle {
-            width: 80px;
-            height: 80px;
-            margin: 20px auto;
-            border-radius: 50%;
-            background: #4fc3f7;
-            transition: transform 4s ease-in-out;
-        }
     </style>
 </head>
 
@@ -128,19 +149,21 @@
 
 <div class="container-app">
 
-    <!-- FORM -->
+    <!-- FORMULARIO -->
     <div id="wrapper-form">
 
         <div class="lang-bar">
-            <button id="lang-es" class="btn-lang active">ES</button>
-            <button id="lang-en" class="btn-lang">EN</button>
+            <button id="lang-es" class="btn-lang active" onclick="cambiarIdioma('es')">ES</button>
+            <button id="lang-en" class="btn-lang" onclick="cambiarIdioma('en')">EN</button>
         </div>
 
-        <h2>OPEN THAN GO</h2>
-        <p id="txt-subtitle">Tu escape emocional inteligente</p>
+        <div class="header-app">
+            <h1>OPEN THAN GO</h1>
+            <p id="txt-subtitle">Tu escape emocional inteligente</p>
+        </div>
 
         <div class="form-group">
-            <label>Estado</label>
+            <label id="lbl-state">Estado</label>
             <select id="inp-state">
                 <option value="FL">Florida</option>
                 <option value="TX">Texas</option>
@@ -149,39 +172,40 @@
         </div>
 
         <div class="form-group">
-            <label>Región</label>
+            <label id="lbl-region">Región</label>
             <select id="inp-region">
-                <option value="South Florida">South Florida</option>
-                <option value="Central Florida">Central Florida</option>
-                <option value="North Texas">North Texas</option>
-                <option value="Los Angeles Area">Los Angeles Area</option>
+                <option>South Florida</option>
+                <option>Central Florida</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label>ZIP</label>
+            <label id="lbl-zip">ZIP</label>
             <input id="inp-zip" placeholder="33101">
         </div>
 
         <div class="form-group">
-            <label>Presupuesto</label><br>
+            <label>Presupuesto</label>
 
-            <button class="btn-choice active" onclick="setPocket('cero')">$0</button>
-            <button class="btn-choice" onclick="setPocket('minimo')">Mínimo</button>
-            <button class="btn-choice" onclick="setPocket('moderado')">Medio</button>
-            <button class="btn-choice" onclick="setPocket('libre')">Libre</button>
+            <button class="btn-choice active" id="b-cero" onclick="cambiarBolsillo('cero')">$0</button>
+            <button class="btn-choice" id="b-minimo" onclick="cambiarBolsillo('minimo')">Mínimo</button>
+            <button class="btn-choice" id="b-moderado" onclick="cambiarBolsillo('moderado')">Medio</button>
+            <button class="btn-choice" id="b-libre" onclick="cambiarBolsillo('libre')">Libre</button>
         </div>
 
         <div class="form-group">
-            <label>Modo</label><br>
+            <label>Modo</label>
 
-            <button class="btn-choice active" onclick="setMode('out')">Salir</button>
-            <button class="btn-choice" onclick="setMode('home')">Casa</button>
+            <button class="btn-choice active" id="m-salir" onclick="cambiarModalidad(true)">Salir</button>
+            <button class="btn-choice" id="m-casa" onclick="cambiarModalidad(false)">Casa</button>
         </div>
 
-        <textarea id="inp-text" placeholder="Escribe cómo te sientes..."></textarea>
+        <div class="form-group">
+            <textarea id="inp-text" placeholder="Escribe cómo te sientes..."></textarea>
+        </div>
 
-        <button class="btn-trigger" onclick="generateEscape()">
+        <!-- 🔥 BOTÓN CONECTADO -->
+        <button id="btn-start" class="btn-trigger" onclick="solicitarEscape()">
             GENERAR ESCAPE
         </button>
 
@@ -190,114 +214,31 @@
     <!-- LOADER -->
     <div id="wrapper-loader" class="loader-screen">
         <div class="spinner"></div>
-        <p>Calculando experiencia...</p>
+        <p id="txt-loader">Calculando...</p>
     </div>
 
     <!-- INTERACTIVE -->
     <div id="wrapper-interactive" class="interactive-screen">
 
-        <div id="breathingCircle"></div>
+        <h2 id="interactive-title"></h2>
+        <p id="interactive-subtitle"></p>
 
+        <!-- 🔥 IMPORTANTE: CONTENEDOR QUE USA ENGINE -->
         <div id="step-content"></div>
+
+        <!-- BOTONES NECESARIOS PARA ENGINE -->
+        <button id="btn-next" class="btn-next-step">CONTINUAR</button>
+
+        <a id="btn-maps-action" class="btn-maps-route" target="_blank">
+            ABRIR MAPA
+        </a>
 
     </div>
 
 </div>
 
+<!-- 🔥 SCRIPT AL FINAL (CRÍTICO) -->
 <script src="/static/engine.js"></script>
-
-<script>
-
-let engine = null;
-
-/* =========================
-   INIT BRIDGE
-========================= */
-window.addEventListener("DOMContentLoaded", () => {
-    engine = window.OPEN_THAN_GO;
-});
-
-/* =========================
-   LANGUAGE
-========================= */
-document.getElementById("lang-es").onclick = () => {
-    if (!engine) return;
-    engine.state.lang = "es";
-};
-
-document.getElementById("lang-en").onclick = () => {
-    if (!engine) return;
-    engine.state.lang = "en";
-};
-
-/* =========================
-   POCKET
-========================= */
-function setPocket(val) {
-    if (engine) engine.state.pocket = val;
-}
-
-/* =========================
-   MODE
-========================= */
-function setMode(mode) {
-    if (engine) engine.state.mode = mode;
-}
-
-/* =========================
-   VALIDACIÓN ESTADO-REGIÓN
-========================= */
-function validarUbicacion() {
-
-    const estado = document.getElementById("inp-state").value;
-    const region = document.getElementById("inp-region").value;
-
-    const reglas = {
-        "FL": ["South Florida", "Central Florida"],
-        "TX": ["North Texas"],
-        "CA": ["Los Angeles Area"]
-    };
-
-    if (!reglas[estado].includes(region)) {
-        alert("La región no coincide con el estado seleccionado.");
-        return false;
-    }
-
-    return true;
-}
-
-/* =========================
-   START
-========================= */
-function generateEscape() {
-
-    if (!validarUbicacion()) return;
-
-    const estado = document.getElementById("inp-state").value;
-    const region = document.getElementById("inp-region").value;
-    const zip = document.getElementById("inp-zip").value;
-    const text = document.getElementById("inp-text").value;
-
-    if (engine) {
-        engine.state.userInput = { estado, region, zip, text };
-    }
-
-    document.getElementById("wrapper-form").style.display = "none";
-    document.getElementById("wrapper-loader").style.display = "block";
-
-    setTimeout(() => {
-
-        document.getElementById("wrapper-loader").style.display = "none";
-        document.getElementById("wrapper-interactive").style.display = "block";
-
-        if (engine) {
-            engine.startFlow(engine.state.mode || "out");
-        }
-
-    }, 1800);
-}
-
-</script>
 
 </body>
 </html>
