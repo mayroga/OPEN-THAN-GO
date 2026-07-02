@@ -1,8 +1,8 @@
-// OPEN THAN GO SYSTEM - Frontend Engine v3 (STABLE + FIXED)
+// OPEN THAN GO SYSTEM - Frontend Engine v4 FINAL
 // Company: May Roga LLC
 
-let idiomaActual = 'es';
-let presupuestoActual = 'cero';
+let idiomaActual = "es";
+let presupuestoActual = "cero";
 let modalidadSalir = true;
 
 let pasosMisionGlobal = [];
@@ -11,88 +11,60 @@ let datosLugarGlobal = null;
 let tipoEscapeGlobal = "";
 
 let intervaloRespiracion = null;
-
-// ------------------------------
-// TRADUCCIONES
-// ------------------------------
-const traducciones = {
-    es: {
-        subtitle: "Tu escape emocional inteligente",
-        state: "Estado",
-        region: "Región / Condado",
-        zip: "ZIP Code",
-        budget: "Presupuesto Disponible",
-        mode: "¿Salir o quedarte en casa?",
-        desahogo: "Desahogo Opcional",
-        placeholder_text: "Escribe cómo te sientes...",
-        btn_trigger: "GENERAR ESCAPE",
-        loader: "Calculando...",
-        btn_continue: "CONTINUAR",
-        btn_gps: "ABRIR MAPA",
-        inspira: "Inhala",
-        expira: "Exhala"
-    },
-    en: {
-        subtitle: "Your intelligent emotional escape",
-        state: "State",
-        region: "Region",
-        zip: "ZIP Code",
-        budget: "Budget",
-        mode: "Go out or stay home?",
-        desahogo: "Optional emotional input",
-        placeholder_text: "Write how you feel...",
-        btn_trigger: "GENERATE ESCAPE",
-        loader: "Calculating...",
-        btn_continue: "CONTINUE",
-        btn_gps: "OPEN MAP",
-        inspira: "Inhale",
-        expira: "Exhale"
-    }
-};
+let intervaloTimer = null;
+let tiempoRestante = 0;
 
 // ------------------------------
 // SAFE GET
 // ------------------------------
-const get = (id) => document.getElementById(id);
-
-const regionesPorEstado = {
-    FL: ["South Florida", "Central Florida", "North Florida"],
-    TX: ["North Texas", "Central Texas", "South Texas"],
-    CA: ["Northern California", "Central California", "Southern California"]
-};
-
-// ------------------------------
-// REGIONES DINÁMICAS (FIX CRÍTICO)
-// ------------------------------
-function actualizarRegiones() {
-
-    const estado = get("inp-state")?.value || "FL";
-    const regionSelect = get("inp-region");
-
-    if (!regionSelect) return;
-
-    regionSelect.innerHTML = "";
-
-    (regionesPorEstado[estado] || []).forEach(r => {
-        const opt = document.createElement("option");
-        opt.value = r;
-        opt.innerText = r;
-        regionSelect.appendChild(opt);
-    });
+function get(id) {
+    return document.getElementById(id);
 }
 
 // ------------------------------
-// INIT HOOK
+// VOZ CONTROLADA (SIN MEZCLA)
 // ------------------------------
-document.addEventListener("DOMContentLoaded", () => {
+function hablar(texto) {
+    if (!("speechSynthesis" in window)) return;
+    if (!texto) return;
 
-    const state = get("inp-state");
+    const u = new SpeechSynthesisUtterance(texto);
+    const voces = speechSynthesis.getVoices();
 
-    if (state) {
-        state.addEventListener("change", actualizarRegiones);
-        actualizarRegiones();
+    let voice = null;
+
+    if (idiomaActual === "es") {
+        voice =
+            voces.find(v => v.lang === "es-ES") ||
+            voces.find(v => v.lang.startsWith("es"));
     }
-});
+
+    if (idiomaActual === "en") {
+        voice =
+            voces.find(v => v.lang === "en-US") ||
+            voces.find(v => v.lang.startsWith("en"));
+    }
+
+    if (!voice) voice = voces[0];
+
+    u.voice = voice;
+    u.lang = idiomaActual === "es" ? "es-ES" : "en-US";
+    u.rate = 0.95;
+    u.pitch = 1;
+
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+}
+
+// ------------------------------
+// TRADUCCIÓN SEGURA
+// ------------------------------
+function t(p) {
+    if (!p) return "";
+    if (typeof p === "string") return p;
+    return p[idiomaActual] || p.es || p.en || "";
+}
+
 // ------------------------------
 // INIT
 // ------------------------------
@@ -107,29 +79,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function cambiarIdioma(lang) {
     idiomaActual = lang;
 
-    const esBtn = get("lang-es");
-    const enBtn = get("lang-en");
-
-    if (esBtn && enBtn) {
-        esBtn.classList.toggle("active", lang === "es");
-        enBtn.classList.toggle("active", lang === "en");
-    }
-
-    const map = {
-        "txt-subtitle": "subtitle",
-        "lbl-state": "state",
-        "lbl-region": "region",
-        "lbl-zip": "zip"
-    };
-
-    Object.keys(map).forEach(id => {
-        const el = get(id);
-        if (!el) return;
-        el.innerText = traducciones[lang][map[id]];
-    });
-
-    const loader = get("txt-loader");
-    if (loader) loader.innerText = traducciones[lang].loader;
+    get("lang-es")?.classList.toggle("active", lang === "es");
+    get("lang-en")?.classList.toggle("active", lang === "en");
 }
 
 // ------------------------------
@@ -150,45 +101,28 @@ function cambiarBolsillo(opcion) {
 function cambiarModalidad(esSalir) {
     modalidadSalir = esSalir;
 
-    const s = get("m-salir");
-    const c = get("m-casa");
-
-    if (s && c) {
-        s.classList.toggle("active", esSalir);
-        c.classList.toggle("active", !esSalir);
-    }
+    get("m-salir")?.classList.toggle("active", esSalir);
+    get("m-casa")?.classList.toggle("active", !esSalir);
 }
 
 // ------------------------------
-// MAIN CALL
+// MAIN REQUEST
 // ------------------------------
 async function solicitarEscape() {
 
-    const zip = (get("inp-zip")?.value || "").trim();
-    const estado = (get("inp-state")?.value || "FL").trim();
-    const region = (get("inp-region")?.value || "").trim();
-
-    // 🔥 FIX CRÍTICO: coherencia ubicación
-    let ubicacionFinal = estado;
-
-    if (zip.length === 5) {
-        ubicacionFinal = zip;
-    } else if (region && region !== estado) {
-        ubicacionFinal = `${region}, ${estado}`;
-    }
-
     const payload = {
         decision: modalidadSalir ? "salir" : "casa",
+        lang: idiomaActual,
         budget_level: presupuestoActual,
-        zip_code: zip,
-        estado,
-        region,
-        ubicacion_final: ubicacionFinal,
-        desahogo: (get("inp-text")?.value || "").trim()
+        zip_code: get("inp-zip")?.value || "",
+        estado: get("inp-state")?.value || "",
+        region: get("inp-region")?.value || "",
+        desahogo: get("inp-text")?.value || ""
     };
 
-    // UI
-    toggleView("loading");
+    get("wrapper-form").style.display = "none";
+    get("wrapper-loader").style.display = "flex";
+    get("wrapper-interactive").style.display = "none";
 
     try {
         const res = await fetch("/api/open-than-go", {
@@ -199,165 +133,197 @@ async function solicitarEscape() {
 
         const data = await res.json();
 
-        if (!res.ok || data.status !== "success") {
-            throw new Error(data.message || "Error backend");
+        if (!data || data.status !== "success") {
+            throw new Error("backend error");
         }
 
-        pasosMisionGlobal = data.mision?.b || [];
-        datosLugarGlobal = data.lugar || null;
-        tipoEscapeGlobal = data.tipo || "";
-
-        indicePasoActual = 0;
-
         setTimeout(() => {
-            toggleView("app");
-            procesarPaso();
-        }, 600);
+
+            get("wrapper-loader").style.display = "none";
+            get("wrapper-interactive").style.display = "block";
+
+            pasosMisionGlobal = data.mision?.b || [];
+            datosLugarGlobal = data.lugar || null;
+            tipoEscapeGlobal = data.tipo || "";
+
+            indicePasoActual = 0;
+
+            iniciarFlujo();
+
+        }, 500);
 
     } catch (e) {
         console.error(e);
-        toggleView("form");
         alert("Error de conexión");
+        get("wrapper-form").style.display = "block";
     }
 }
 
 // ------------------------------
-// VIEW CONTROL (EVITA CONGELAMIENTOS)
+// FLUJO PRINCIPAL
 // ------------------------------
-function toggleView(state) {
-
-    const form = get("wrapper-form");
-    const load = get("wrapper-loader");
-    const app = get("wrapper-interactive");
-
-    if (!form || !load || !app) return;
-
-    form.style.display = "none";
-    load.style.display = "none";
-    app.style.display = "none";
-
-    if (state === "form") form.style.display = "block";
-    if (state === "loading") load.style.display = "flex";
-    if (state === "app") app.style.display = "block";
-}
-
-// ------------------------------
-// MOTOR
-// ------------------------------
-function procesarPaso() {
+function iniciarFlujo() {
 
     clearInterval(intervaloRespiracion);
+    clearInterval(intervaloTimer);
+    window.speechSynthesis.cancel();
 
     const cont = get("step-content");
-    const btn = ensureNextButton();
-    const map = ensureMapButton();
-
-    if (!cont) return;
+    const btnNext = ensureNext();
+    const btnMap = ensureMap();
 
     if (indicePasoActual >= pasosMisionGlobal.length) {
 
-        cont.innerHTML = "<h3>✔ Finalizado</h3>";
-
-        if (tipoEscapeGlobal === "Salida" && datosLugarGlobal?.gps_link) {
-            map.href = datosLugarGlobal.gps_link;
-            map.style.display = "block";
+        if (tipoEscapeGlobal === "Salida") {
+            btnMap.style.display = "block";
+            btnMap.href = datosLugarGlobal?.gps_link || "#";
         } else {
-            btn.innerText = "REINICIAR";
-            btn.onclick = () => location.reload();
-            btn.style.display = "block";
+            btnNext.innerText = "FINALIZAR";
+            btnNext.style.display = "block";
+            btnNext.onclick = () => location.reload();
         }
         return;
     }
 
     const paso = pasosMisionGlobal[indicePasoActual];
 
-    btn.style.display = "block";
-    btn.innerText = "CONTINUAR";
-
-    btn.onclick = () => {
+    btnNext.onclick = () => {
         indicePasoActual++;
-        procesarPaso();
+        iniciarFlujo();
     };
 
-    // STORY
-    if (paso.story) {
-        cont.innerHTML = `<div>${paso.story?.[idiomaActual] || ""}</div>`;
-        return;
-    }
-
-    // TEXTO
-    if (paso.t === "v" || paso.t === "h") {
-        cont.innerHTML = `<h3>${paso.tx?.[idiomaActual] || ""}</h3>`;
-        return;
-    }
-
-    // RESPIRACIÓN (FIX VISUAL)
+    // ---------------- BREATH ----------------
     if (paso.t === "breath_auto") {
-
-        let t = paso.d || 24;
-
-        cont.innerHTML = `
-            <div class="breath-circle"></div>
-            <h2 id="breath-text">${traducciones[idiomaActual].inspira}</h2>
-            <div>${t}s</div>
-        `;
-
-        const circle = cont.querySelector(".breath-circle");
-        const text = cont.querySelector("#breath-text");
-
-        intervaloRespiracion = setInterval(() => {
-
-            t--;
-
-            if (circle) {
-                circle.style.transform = `scale(${1 + Math.sin(t) * 0.2})`;
-            }
-
-            if (text) {
-                text.innerText = (t % 2 === 0)
-                    ? traducciones[idiomaActual].inspira
-                    : traducciones[idiomaActual].expira;
-            }
-
-            cont.querySelector("div:last-child").innerText = t + "s";
-
-            if (t <= 0) {
-                clearInterval(intervaloRespiracion);
-                indicePasoActual++;
-                procesarPaso();
-            }
-
-        }, 1000);
-
+        iniciarRespiracion(paso.d || 10);
         return;
     }
 
-    indicePasoActual++;
-    procesarPaso();
+    // ---------------- TIMER CASA ----------------
+    if (tipoEscapeGlobal === "Casa") {
+        iniciarTimer(600);
+    }
+
+    const contenido = paso.tx || paso.story || paso;
+    cont.innerHTML = `<div class="fade">${t(contenido)}</div>`;
+    hablar(t(contenido));
+
+    btnNext.style.display = "block";
 }
 
 // ------------------------------
-// BOTONES
+// RESPIRACIÓN (GLOBO AZUL/PLATEADO)
 // ------------------------------
-function ensureNextButton() {
+function iniciarRespiracion(segundos) {
+
+    const cont = get("step-content");
+    let s = segundos;
+
+    cont.innerHTML = `
+        <div class="breath-ui">
+            <canvas id="breathCanvas"></canvas>
+            <h2 id="breathLabel">Inhala</h2>
+            <div id="breathTime"></div>
+        </div>
+    `;
+
+    const canvas = document.getElementById("breathCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = 220;
+    canvas.height = 220;
+
+    let r = 45;
+    let grow = true;
+
+    intervaloRespiracion = setInterval(() => {
+
+        ctx.clearRect(0, 0, 220, 220);
+
+        ctx.beginPath();
+        ctx.arc(110, 110, r, 0, Math.PI * 2);
+
+        ctx.fillStyle = "rgba(180,220,255,0.35)";
+        ctx.strokeStyle = "rgba(200,220,255,0.9)";
+        ctx.lineWidth = 2;
+
+        ctx.fill();
+        ctx.stroke();
+
+        r += grow ? 1.3 : -1.3;
+        if (r > 75) grow = false;
+        if (r < 45) grow = true;
+
+        get("breathLabel").innerText = grow ? "Inhala" : "Exhala";
+        get("breathTime").innerText = s + "s";
+
+        s--;
+
+        if (s <= 0) {
+            clearInterval(intervaloRespiracion);
+            indicePasoActual++;
+            iniciarFlujo();
+        }
+
+    }, 1000);
+}
+
+// ------------------------------
+// TIMER CASA (10 MIN)
+// ------------------------------
+function iniciarTimer(segundos) {
+
+    const cont = get("step-content");
+    let t = segundos;
+
+    cont.innerHTML = `
+        <div class="timer-ui">
+            <h2>Sesión en casa</h2>
+            <div id="clock"></div>
+        </div>
+    `;
+
+    intervaloTimer = setInterval(() => {
+
+        let m = Math.floor(t / 60);
+        let s = t % 60;
+
+        get("clock").innerText = `${m}:${s.toString().padStart(2, "0")}`;
+
+        t--;
+
+        if (t <= 0) {
+            clearInterval(intervaloTimer);
+            get("step-content").innerHTML = "<h2>Sesión completada</h2>";
+        }
+
+    }, 1000);
+}
+
+// ------------------------------
+// BOTONES SAFE
+// ------------------------------
+function ensureNext() {
     let b = get("btn-next");
     if (!b) {
         b = document.createElement("button");
         b.id = "btn-next";
         b.className = "btn-next-step";
-        get("wrapper-interactive")?.appendChild(b);
+        get("wrapper-interactive").appendChild(b);
     }
+    b.style.display = "none";
+    b.innerText = "CONTINUAR";
     return b;
 }
 
-function ensureMapButton() {
+function ensureMap() {
     let b = get("btn-maps-action");
     if (!b) {
         b = document.createElement("a");
         b.id = "btn-maps-action";
         b.className = "btn-maps-route";
-        b.target = "_blank";
-        get("wrapper-interactive")?.appendChild(b);
+        get("wrapper-interactive").appendChild(b);
     }
+    b.style.display = "none";
+    b.innerText = "ABRIR MAPA";
     return b;
 }
