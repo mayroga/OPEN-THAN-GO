@@ -1,6 +1,5 @@
-# OPEN THAN GO SYSTEM - Main Backend Engine
+# OPEN THAN GO SYSTEM - Backend Engine (FIXED VERSION)
 # Company: May Roga LLC
-# File: main.py
 
 from flask import Flask, request, jsonify, send_from_directory
 import json
@@ -10,26 +9,27 @@ import os
 app = Flask(__name__, static_folder="static")
 
 # ----------------------------------------------------
-# RUTAS ABSOLUTAS (IMPORTANTE PARA RENDER)
+# PATHS SEGURAS
 # ----------------------------------------------------
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 MISSIONS_01 = os.path.join(BASE_DIR, "missions_01_07.json")
 MISSIONS_08 = os.path.join(BASE_DIR, "missions_08_14.json")
 MISSIONS_15 = os.path.join(BASE_DIR, "missions_15_21.json")
 
-# ----------------------------------------------------
-# CARGA DE ARCHIVOS AL INICIAR
-# ----------------------------------------------------
 
+# ----------------------------------------------------
+# LOAD JSON SAFE
+# ----------------------------------------------------
 def cargar_json(ruta):
     try:
         if os.path.exists(ruta):
             with open(ruta, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+                if isinstance(data, dict) and "missions" in data:
+                    return data
     except Exception as e:
-        print(f"Error leyendo {ruta}: {e}")
+        print("Error cargando JSON:", e)
 
     return {"missions": []}
 
@@ -38,115 +38,103 @@ DATA_01 = cargar_json(MISSIONS_01)
 DATA_08 = cargar_json(MISSIONS_08)
 DATA_15 = cargar_json(MISSIONS_15)
 
-# ----------------------------------------------------
-# CARGADOR DE MISIONES
-# ----------------------------------------------------
 
-def cargar_mision_por_bloque(decision, pocket_tier):
+# ----------------------------------------------------
+# FALLBACK MISSION (NUNCA FALLA)
+# ----------------------------------------------------
+def fallback_mission(msg_es, msg_en):
+    return {
+        "id": 0,
+        "cat": "fallback",
+        "b": [
+            {
+                "story": {
+                    "es": msg_es,
+                    "en": msg_en
+                }
+            }
+        ]
+    }
+
+
+# ----------------------------------------------------
+# CARGA DE MISIÓN
+# ----------------------------------------------------
+def cargar_mision(decision, pocket):
 
     try:
 
-        # ----------------------------------
-        # PROTOCOLO CASA
-        # ----------------------------------
-
+        # CASA
         if decision == "casa":
+            pool = DATA_01.get("missions", [])
+            if not pool:
+                return fallback_mission(
+                    "Falta el archivo de misiones domésticas.",
+                    "Missing home missions file."
+                )
+            return random.choice(pool)
 
-            if not DATA_01["missions"]:
-                return {
-                    "id": 1,
-                    "cat": "bien",
-                    "b": [
-                        {
-                            "story": {
-                                "es": "Falta el archivo missions_01_07.json en el servidor.",
-                                "en": "Missing missions_01_07.json file."
-                            }
-                        }
-                    ]
-                }
+        # SALIDA
+        pool = random.choice([DATA_08, DATA_15]).get("missions", [])
 
-            return random.choice(DATA_01["missions"])
+        if not pool:
+            pool = DATA_01.get("missions", [])
 
-        # ----------------------------------
-        # PROTOCOLO SALIDA
-        # ----------------------------------
+        if not pool:
+            return fallback_mission(
+                "No hay misiones disponibles en el sistema.",
+                "No missions available in system."
+            )
 
-        bloque = random.choice([DATA_08, DATA_15])
-
-        if not bloque["missions"]:
-            bloque = DATA_01
-
-        if not bloque["missions"]:
-            return {
-                "id": 1,
-                "cat": "bien",
-                "b": [
-                    {
-                        "story": {
-                            "es": "Sube tus archivos de misiones a GitHub.",
-                            "en": "Upload your mission files to GitHub."
-                        }
-                    }
-                ]
-            }
-
-        misiones_filtradas = [
-            m for m in bloque["missions"]
-            if pocket_tier in m.get("pocket_match", [])
+        # filtro por bolsillo
+        filtradas = [
+            m for m in pool
+            if pocket in m.get("pocket_match", [])
         ]
 
-        if misiones_filtradas:
-            return random.choice(misiones_filtradas)
-
-        return random.choice(bloque["missions"])
+        return random.choice(filtradas) if filtradas else random.choice(pool)
 
     except Exception as e:
-        print(f"Error cargando misión: {e}")
-        return None
+        print("ERROR cargar_mision:", e)
+        return fallback_mission(
+            "Error interno generando misión.",
+            str(e)
+        )
 
 
 # ----------------------------------------------------
 # FRONTEND
 # ----------------------------------------------------
-
 @app.route("/")
 def index():
-    return send_from_directory(
-        app.static_folder,
-        "session.html"
-    )
+    return send_from_directory(app.static_folder, "session.html")
 
 
 # ----------------------------------------------------
 # API PRINCIPAL
 # ----------------------------------------------------
-
 @app.route("/api/open-than-go", methods=["POST"])
-def procesar_sistema_bienestar():
+def open_than_go():
 
     try:
-
         data = request.get_json(silent=True) or {}
 
         decision = data.get("decision", "salir")
+        pocket = data.get("budget_level", "cero")
 
-        # ==================================
-        # PROTOCOLO CASA
-        # ==================================
+        # limpiar strings
+        zip_code = (data.get("zip_code") or "").strip()
+        region = (data.get("region") or "").strip()
+        estado = (data.get("estado") or "FL").strip()
 
+        desahogo = (data.get("desahogo") or "").lower()
+
+        # ---------------------------
+        # CASO CASA
+        # ---------------------------
         if decision == "casa":
 
-            mision = cargar_mision_por_bloque(
-                "casa",
-                "cero"
-            )
-
-            if not mision:
-                return jsonify({
-                    "status": "error",
-                    "message": "No se pudo generar la misión."
-                }), 500
+            mision = cargar_mision("casa", "cero")
 
             return jsonify({
                 "status": "success",
@@ -154,124 +142,59 @@ def procesar_sistema_bienestar():
                 "mision": mision
             })
 
-        # ==================================
-        # DATOS DEL USUARIO
-        # ==================================
+        # ---------------------------
+        # UBICACIÓN
+        # ---------------------------
+        if zip_code:
+            ubicacion = zip_code
+        elif region:
+            ubicacion = f"{region} {estado}"
+        else:
+            ubicacion = estado
 
-        zip_code = data.get("zip_code", "").strip()
-        region = data.get("region", "").strip()
-        estado = data.get("estado", "FL").strip()
-        pocket = data.get("budget_level", "cero")
-        desahogo = data.get("desahogo", "").lower()
-
-        # ==================================
+        # ---------------------------
         # CATEGORÍAS
-        # ==================================
-
-        categorias_por_bolsillo = {
-            "cero": [
-                "parques naturales publicos",
-                "playas publicas",
-                "senderos para caminar",
-                "miradores gratis"
-            ],
-            "minimo": [
-                "cafeterias economicas",
-                "mercados locales al aire libre",
-                "zonas de recreacion comunitarias"
-            ],
-            "moderado": [
-                "restaurantes familiares",
-                "centros de diversion",
-                "pistas de baile",
-                "centros recreativos"
-            ],
-            "libre": [
-                "hoteles resorts",
-                "discotecas club",
-                "restaurantes premium",
-                "centros de entretenimiento"
-            ]
+        # ---------------------------
+        categorias = {
+            "cero": ["parques publicos", "playas", "senderos"],
+            "minimo": ["cafeterias", "mercados locales"],
+            "moderado": ["restaurantes", "centros recreativos"],
+            "libre": ["hoteles", "clubs", "restaurantes premium"]
         }
 
-        # ==================================
-        # FILTRO DE EMPLEO
-        # ==================================
-
-        palabras_empleo = [
-            "trabajo",
-            "empleo",
-            "job",
-            "company",
-            "compañia",
-            "compañía"
-        ]
-
-        if any(p in desahogo for p in palabras_empleo):
-            termino_busqueda = (
-                "compañias agencias de trabajo y empleo"
-            )
+        # ---------------------------
+        # DETECCIÓN SIMPLE
+        # ---------------------------
+        if any(w in desahogo for w in ["trabajo", "job", "empleo"]):
+            termino = "agencias de empleo y trabajo"
         else:
-            termino_busqueda = random.choice(
-                categorias_por_bolsillo.get(
-                    pocket,
-                    ["parques"]
-                )
-            )
+            termino = random.choice(categorias.get(pocket, ["parques"]))
 
-        # ==================================
-        # UBICACIÓN
-        # ==================================
+        # ---------------------------
+        # MAPA
+        # ---------------------------
+        query = f"{termino} en {ubicacion}".replace(" ", "+")
+        gps_link = f"https://www.google.com/maps/search/?api=1&query={query}"
 
-        if zip_code:
-            ubicacion_destino = zip_code
-        elif region:
-            ubicacion_destino = f"{region} {estado}"
-        else:
-            ubicacion_destino = estado
-
-        # ==================================
-        # GOOGLE MAPS
-        # ==================================
-
-        query_mapa = (
-            f"{termino_busqueda} en {ubicacion_destino}"
-            .replace(" ", "+")
-        )
-
-        link_google_maps_vivo = (
-            f"https://www.google.com/maps/search/?api=1&query={query_mapa}"
-        )
-
-        # ==================================
+        # ---------------------------
         # MISIÓN
-        # ==================================
-
-        mision = cargar_mision_por_bloque(
-            "salir",
-            pocket
-        )
-
-        if not mision:
-            return jsonify({
-                "status": "error",
-                "message": "No se pudo generar la misión."
-            }), 500
+        # ---------------------------
+        mision = cargar_mision("salir", pocket)
 
         return jsonify({
             "status": "success",
             "tipo": "Salida",
             "lugar": {
-                "name": f"Exploración de {termino_busqueda.title()}",
-                "address": f"Cerca de tu área ({ubicacion_destino})",
+                "name": f"Exploración de {termino}",
+                "address": f"Cerca de {ubicacion}",
                 "region": region,
-                "gps_link": link_google_maps_vivo
+                "gps_link": gps_link
             },
             "mision": mision
         })
 
     except Exception as e:
-        print(f"ERROR API: {e}")
+        print("ERROR API:", e)
 
         return jsonify({
             "status": "error",
@@ -280,9 +203,8 @@ def procesar_sistema_bienestar():
 
 
 # ----------------------------------------------------
-# INICIO
+# RUN
 # ----------------------------------------------------
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
 
@@ -291,4 +213,3 @@ if __name__ == "__main__":
         port=port,
         debug=True
     )
-
