@@ -1,4 +1,4 @@
-```pytho
+```python
 # OPEN THAN GO SYSTEM - Main Backend Engine
 # Company: May Roga LLC
 # File: main.py
