@@ -1,196 +1,179 @@
-// OPEN THAN GO SYSTEM - EMOTIONAL STATE MACHINE v2
+// OPEN THAN GO SYSTEM - EMOTION STATE MACHINE v1
 // May Roga LLC
 
-// ------------------------------
-// GLOBAL STATE
-// ------------------------------
-let state = {
+// ----------------------------
+// GLOBAL STATE (CEREBRO DEL SISTEMA)
+// ----------------------------
+const state = {
     lang: "es",
-    pocket: "cero",
-    mode: "salir", // salir | casa
-
-    stepIndex: 0,
-    mission: [],
-    place: null,
-    escapeType: "",
-
+    mode: "salir", // casa | salir
+    budget: "cero",
     emotion: {
         stress: false,
         monotony: false,
-        lowEnergy: false,
-        desireToBeGuided: false
+        lowEnergy: false
     },
-
-    timers: {
-        breath: null,
-        session: null
-    }
+    step: 0,
+    steps: [],
+    location: null,
+    recommendations: [],
+    speaking: false
 };
 
-// ------------------------------
-// SAFE GET
-// ------------------------------
-const $ = (id) => document.getElementById(id);
-
-// ------------------------------
-// INIT
-// ------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-    $("btn-start").onclick = startFlow;
-});
-
-// ------------------------------
-// EMOTION PARSER
-// ------------------------------
-function parseEmotion(text) {
-    if (!text) return;
-
-    const t = text.toLowerCase();
-
-    state.emotion.stress = ["estres", "trabajo", "ansiedad", "presión"].some(w => t.includes(w));
-    state.emotion.monotony = ["aburrido", "rutina", "igual", "monotonía"].some(w => t.includes(w));
-    state.emotion.lowEnergy = ["cansado", "agotado", "sin energia", "fatiga"].some(w => t.includes(w));
-    state.emotion.desireToBeGuided = ["decidir", "elige", "no quiero pensar", "guíame"].some(w => t.includes(w));
+// ----------------------------
+// HELPERS
+// ----------------------------
+function $(id) {
+    return document.getElementById(id);
 }
 
-// ------------------------------
-// TITLE SYSTEM (VIVO)
-// ------------------------------
+// ----------------------------
+// VOZ NATURAL
+// ----------------------------
+function speak(text) {
+    if (!("speechSynthesis" in window)) return;
+    if (!text) return;
+
+    const u = new SpeechSynthesisUtterance(text);
+    const voices = speechSynthesis.getVoices();
+
+    let voice =
+        state.lang === "es"
+            ? voices.find(v => v.lang?.startsWith("es")) || voices[0]
+            : voices.find(v => v.lang?.startsWith("en")) || voices[0];
+
+    u.voice = voice;
+    u.lang = state.lang === "es" ? "es-ES" : "en-US";
+    u.rate = 0.95;
+    u.pitch = 1;
+
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+}
+
+// ----------------------------
+// SAFE TEXT
+// ----------------------------
+function t(v) {
+    if (!v) return "";
+    if (typeof v === "string") return v;
+    return v[state.lang] || v.es || v.en || "";
+}
+
+// ----------------------------
+// TITLE STATE ENGINE (OPEN THAN GO FEELING)
+// ----------------------------
 function updateTitle() {
 
-    const el = $("app-title");
+    const el = $("app-title") || document.querySelector("h1");
     if (!el) return;
 
     let base = "OPEN THAN GO";
 
-    // ESTADO EMOCIONAL
-    if (state.emotion.stress) {
-        base = "OPEN ◉ THAN GO";
-    }
+    if (state.emotion.stress) base = "OPEN ◉ THAN GO";
+    if (state.emotion.monotony) base = "OPEN — THAN GO";
+    if (state.emotion.lowEnergy) base = "OPEN ○ THAN GO";
 
-    if (state.emotion.monotony) {
-        base = "OPEN — THAN GO";
-    }
-
-    if (state.emotion.lowEnergy) {
-        base = "OPEN ○ THAN GO";
-    }
-
-    // MODO CASA = INTERIOR (RECOGIMIENTO / REGULACIÓN)
-    if (state.mode === "casa") {
-        base = "OPEN ◯ THAN GO";
-    }
-
-    // MODO SALIR = EXPANSIÓN / DECISIÓN EXTERNA
-    if (state.mode === "salir") {
-        base = "OPEN ◎ THAN GO";
-    }
+    if (state.mode === "casa") base = "OPEN ◯ THAN GO";
+    if (state.mode === "salir") base = "OPEN ◎ THAN GO";
 
     el.innerText = base;
-
     animateTitle(el);
 }
 
-// ------------------------------
+// ----------------------------
 // TITLE ANIMATION (SENSACIÓN VIVA)
-// ------------------------------
+// ----------------------------
 function animateTitle(el) {
 
     el.style.transition = "all 0.6s ease";
 
-    // expansión vs interior
     if (state.mode === "salir") {
+        el.style.transform = "scale(1.03)";
         el.style.letterSpacing = "2px";
-        el.style.transform = "scale(1.02)";
     } else {
-        el.style.letterSpacing = "0px";
         el.style.transform = "scale(0.98)";
+        el.style.letterSpacing = "0px";
     }
 
-    // color emocional
-    if (state.emotion.stress) {
-        el.style.color = "#d84315";
-    } else if (state.emotion.monotony) {
-        el.style.color = "#6ec6ff";
-    } else if (state.emotion.lowEnergy) {
-        el.style.color = "#90a4ae";
-    } else {
-        el.style.color = "#1e3a1e";
-    }
+    if (state.emotion.stress) el.style.color = "#d84315";
+    else if (state.emotion.monotony) el.style.color = "#6ec6ff";
+    else el.style.color = "#1e3a1e";
 }
 
-// ------------------------------
-// MODE CONTROL (SIGNIFICADO REAL)
-// ------------------------------
-function setMode(isOut) {
+// ----------------------------
+// INIT
+// ----------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    $("btn-start").onclick = requestEmotionRoute;
+    updateTitle();
+});
 
+// ----------------------------
+// UI CONTROLS
+// ----------------------------
+function changeLang(lang) {
+    state.lang = lang;
+    $("lang-es")?.classList.toggle("active", lang === "es");
+    $("lang-en")?.classList.toggle("active", lang === "en");
+}
+
+function setBudget(v) {
+    state.budget = v;
+
+    ["cero", "minimo", "moderado", "libre"].forEach(x => {
+        $("b-" + x)?.classList.toggle("active", x === v);
+    });
+}
+
+function setMode(isOut) {
     state.mode = isOut ? "salir" : "casa";
 
     $("m-salir")?.classList.toggle("active", isOut);
     $("m-casa")?.classList.toggle("active", !isOut);
 
-    // SIGNIFICADO PROFUNDO:
-
-    // CASA:
-    // - reducción de estímulo
-    // - respiración + regulación
-    // - no decisiones externas
-    // - reordenamiento interno
-
-    // SALIR:
-    // - expansión cognitiva
-    // - decisiones guiadas
-    // - 3 opciones externas siempre
-    // - movimiento + acción
-
     updateTitle();
 }
 
-// ------------------------------
-// POCKET CONTROL
-// ------------------------------
-function setPocket(p) {
-    state.pocket = p;
+// ----------------------------
+// EMOTION PARSER (FRONT LAYER)
+// ----------------------------
+function parseEmotion(text) {
+    const t = (text || "").toLowerCase();
 
-    ["cero", "minimo", "moderado", "libre"].forEach(v => {
-        $("b-" + v)?.classList.toggle("active", v === p);
-    });
+    state.emotion.stress =
+        t.includes("trabajo") || t.includes("estres") || t.includes("ansiedad");
+
+    state.emotion.monotony =
+        t.includes("aburrido") || t.includes("rutina") || t.includes("igual");
+
+    state.emotion.lowEnergy =
+        t.includes("cansado") || t.includes("agotado") || t.includes("sin energia");
 }
 
-// ------------------------------
-// LANGUAGE
-// ------------------------------
-function setLang(l) {
-    state.lang = l;
-
-    $("lang-es")?.classList.toggle("active", l === "es");
-    $("lang-en")?.classList.toggle("active", l === "en");
-}
-
-// ------------------------------
-// MAIN START
-// ------------------------------
-async function startFlow() {
+// ----------------------------
+// MAIN REQUEST (EMOTION ROUTER CALL)
+// ----------------------------
+async function requestEmotionRoute() {
 
     const payload = {
         decision: state.mode,
+        budget_level: state.budget,
         lang: state.lang,
-        budget_level: state.pocket,
+        desahogo: $("inp-text")?.value || "",
         zip_code: $("inp-zip")?.value || "",
         estado: $("inp-state")?.value || "",
-        region: $("inp-region")?.value || "",
-        desahogo: $("inp-text")?.value || ""
+        region: $("inp-region")?.value || ""
     };
 
     parseEmotion(payload.desahogo);
+    updateTitle();
 
     $("wrapper-form").style.display = "none";
     $("wrapper-loader").style.display = "flex";
-    $("wrapper-interactive").style.display = "none";
-
-    updateTitle();
 
     try {
+
         const res = await fetch("/api/open-than-go", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -199,21 +182,19 @@ async function startFlow() {
 
         const data = await res.json();
 
-        if (!data || data.status !== "success") throw new Error("backend error");
+        if (!data || data.status !== "success") throw new Error("API error");
 
         setTimeout(() => {
 
             $("wrapper-loader").style.display = "none";
             $("wrapper-interactive").style.display = "block";
 
-            state.mission = data.mission?.b || [];
-            state.place = data.place || null;
-            state.escapeType = data.type || "";
+            state.steps = data.mission?.b || [];
+            state.recommendations = data.recommendations || [];
+            state.location = data.lugar || null;
+            state.step = 0;
 
-            state.stepIndex = 0;
-
-            updateTitle();
-            runState();
+            runFlow();
 
         }, 400);
 
@@ -224,89 +205,83 @@ async function startFlow() {
     }
 }
 
-// ------------------------------
-// STATE ENGINE CORE
-// ------------------------------
-function runState() {
+// ----------------------------
+// FLOW ENGINE (CASA vs SALIR)
+// ----------------------------
+function runFlow() {
 
-    clearTimers();
     speechSynthesis.cancel();
 
     const container = $("step-content");
-    const nextBtn = ensureNext();
-    const mapBtn = ensureMap();
+    const btnNext = ensureNext();
 
-    updateTitle();
+    // END
+    if (state.step >= state.steps.length) {
 
-    if (state.stepIndex >= state.mission.length) {
-        handleEnd(nextBtn, mapBtn);
+        if (state.mode === "salir") {
+            showExitOptions();
+        } else {
+            btnNext.innerText = "FINALIZAR";
+            btnNext.style.display = "block";
+            btnNext.onclick = () => location.reload();
+        }
         return;
     }
 
-    const step = state.mission[state.stepIndex];
+    const step = state.steps[state.step];
 
-    nextBtn.onclick = () => {
-        state.stepIndex++;
-        runState();
+    btnNext.onclick = () => {
+        state.step++;
+        runFlow();
     };
 
-    if (step.t === "breath_auto") {
-        runBreathing(step.d || 10);
-        return;
-    }
-
+    // CASA MODE = simple + respiración
     if (state.mode === "casa") {
-        runHomeMode();
+        if (step.t === "breath_auto") {
+            startBreathing(step.d || 10);
+            return;
+        }
     }
 
-    const content = step.tx || step.story || step;
-    container.innerHTML = `<div class="fade">${t(content)}</div>`;
+    const text = step.tx || step.story || step;
 
-    speak(t(content));
+    container.innerHTML = `<div>${t(text)}</div>`;
+    speak(t(text));
 
-    nextBtn.style.display = "block";
+    btnNext.style.display = "block";
+    updateTitle();
 }
 
-// ------------------------------
-// HOME MODE (REGULACIÓN INTERNA)
-// ------------------------------
-function runHomeMode() {
-    if (!state.timers.session) {
-        state.timers.session = setInterval(() => {
-            // espacio futuro: micro-instrucciones de regulación
-        }, 10000);
-    }
-}
+// ----------------------------
+// BREATHING (CASA RESET)
+// ----------------------------
+function startBreathing(seconds) {
 
-// ------------------------------
-// BREATH STATE
-// ------------------------------
-function runBreathing(seconds) {
-
-    const c = $("step-content");
+    const container = $("step-content");
     let s = seconds;
 
-    c.innerHTML = `
-        <div class="breath-ui">
-            <div id="breathCircle"></div>
-            <h2 id="breathText">Inhala</h2>
-            <div id="breathTime"></div>
+    container.innerHTML = `
+        <div style="text-align:center;">
+            <div id="breathingCircle"></div>
+            <h3 id="breathText">Inhala</h3>
+            <p id="breathTime"></p>
         </div>
     `;
 
-    const circle = $("breathCircle");
-
     let grow = true;
-    let scale = 1;
+    let r = 1;
 
-    state.timers.breath = setInterval(() => {
+    const interval = setInterval(() => {
 
-        scale += grow ? 0.03 : -0.03;
+        const circle = $("breathingCircle");
 
-        if (scale > 1.4) grow = false;
-        if (scale < 0.9) grow = true;
+        if (circle) {
+            r += grow ? 0.02 : -0.02;
+            if (r > 1.3) grow = false;
+            if (r < 0.9) grow = true;
 
-        circle.style.transform = `scale(${scale})`;
+            circle.style.transform = `scale(${r})`;
+        }
 
         $("breathText").innerText = grow ? "Inhala" : "Exhala";
         $("breathTime").innerText = s + "s";
@@ -314,33 +289,50 @@ function runBreathing(seconds) {
         s--;
 
         if (s <= 0) {
-            clearInterval(state.timers.breath);
-            state.stepIndex++;
-            runState();
+            clearInterval(interval);
+            state.step++;
+            runFlow();
         }
 
     }, 1000);
 }
 
-// ------------------------------
-// END STATE
-// ------------------------------
-function handleEnd(nextBtn, mapBtn) {
+// ----------------------------
+// EXIT MODE (SALIR = GUIADO)
+// ----------------------------
+function showExitOptions() {
 
-    if (state.escapeType === "Salida") {
-        mapBtn.style.display = "block";
-        mapBtn.href = state.place?.gps_link || "#";
-        return;
+    const container = $("step-content");
+    container.innerHTML = "";
+
+    const list = state.recommendations || [];
+
+    let html = `<h3>Tu ruta recomendada</h3>`;
+
+    list.slice(0, 3).forEach(r => {
+        html += `
+            <div class="card-box">
+                <strong>${r}</strong>
+            </div>
+        `;
+    });
+
+    if (state.location?.gps_link) {
+        html += `
+            <a href="${state.location.gps_link}" target="_blank" class="btn-maps-route" style="display:block">
+                ABRIR RUTA
+            </a>
+        `;
     }
 
-    nextBtn.style.display = "block";
-    nextBtn.innerText = "FINALIZAR";
-    nextBtn.onclick = () => location.reload();
+    container.innerHTML = html;
+
+    updateTitle();
 }
 
-// ------------------------------
-// HELPERS
-// ------------------------------
+// ----------------------------
+// SAFE BUTTONS
+// ----------------------------
 function ensureNext() {
     let b = $("btn-next");
     if (!b) {
@@ -349,25 +341,5 @@ function ensureNext() {
         b.className = "btn-next-step";
         $("wrapper-interactive").appendChild(b);
     }
-    b.style.display = "none";
-    b.innerText = "CONTINUAR";
     return b;
-}
-
-function ensureMap() {
-    let b = $("btn-maps-action");
-    if (!b) {
-        b = document.createElement("a");
-        b.id = "btn-maps-action";
-        b.className = "btn-maps-route";
-        $("wrapper-interactive").appendChild(b);
-    }
-    b.style.display = "none";
-    b.innerText = "ABRIR MAPA";
-    return b;
-}
-
-function clearTimers() {
-    if (state.timers.breath) clearInterval(state.timers.breath);
-    if (state.timers.session) clearInterval(state.timers.session);
 }
