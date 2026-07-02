@@ -1,7 +1,5 @@
-# ======================================================
-# OPEN THAN GO SYSTEM - Backend Engine PRO v2
-# May Roga LLC
-# ======================================================
+# OPEN THAN GO SYSTEM - Backend Engine (FIXED VERSION)
+# Company: May Roga LLC
 
 from flask import Flask, request, jsonify, send_from_directory
 import json
@@ -28,10 +26,10 @@ def cargar_json(ruta):
         if os.path.exists(ruta):
             with open(ruta, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                if isinstance(data, dict):
+                if isinstance(data, dict) and "missions" in data:
                     return data
     except Exception as e:
-        print("JSON ERROR:", ruta, e)
+        print("Error cargando JSON:", e)
 
     return {"missions": []}
 
@@ -42,81 +40,62 @@ DATA_15 = cargar_json(MISSIONS_15)
 
 
 # ----------------------------------------------------
-# FALLBACK MISSION (SAFE MODE)
+# FALLBACK MISSION (NUNCA FALLA)
 # ----------------------------------------------------
-def fallback_mission(es, en):
+def fallback_mission(msg_es, msg_en):
     return {
         "id": 0,
         "cat": "fallback",
-        "pocket_match": ["cero", "minimo", "moderado", "libre"],
         "b": [
             {
-                "t": "v",
-                "tx": {"es": es, "en": en}
+                "story": {
+                    "es": msg_es,
+                    "en": msg_en
+                }
             }
         ]
     }
 
 
 # ----------------------------------------------------
-# NORMALIZAR POCKET
-# ----------------------------------------------------
-def normalize_pocket(pocket):
-    valid = ["cero", "minimo", "moderado", "libre"]
-    return pocket if pocket in valid else "cero"
-
-
-# ----------------------------------------------------
-# CARGA INTELIGENTE DE MISIÓN
+# CARGA DE MISIÓN
 # ----------------------------------------------------
 def cargar_mision(decision, pocket):
 
     try:
-        pocket = normalize_pocket(pocket)
 
-        # -------------------------
-        # CASA MODE
-        # -------------------------
+        # CASA
         if decision == "casa":
             pool = DATA_01.get("missions", [])
             if not pool:
                 return fallback_mission(
-                    "No hay misiones domésticas disponibles.",
-                    "No home missions available."
+                    "Falta el archivo de misiones domésticas.",
+                    "Missing home missions file."
                 )
+            return random.choice(pool)
 
-            candidatas = [
-                m for m in pool
-                if pocket in m.get("pocket_match", ["cero"])
-            ]
-
-            return random.choice(candidatas or pool)
-
-        # -------------------------
-        # OUT MODE (SALIR)
-        # -------------------------
-        pool = []
-        for dataset in [DATA_08, DATA_15]:
-            pool.extend(dataset.get("missions", []))
+        # SALIDA
+        pool = random.choice([DATA_08, DATA_15]).get("missions", [])
 
         if not pool:
             pool = DATA_01.get("missions", [])
 
         if not pool:
             return fallback_mission(
-                "Sistema sin misiones disponibles.",
+                "No hay misiones disponibles en el sistema.",
                 "No missions available in system."
             )
 
-        candidatas = [
+        # filtro por bolsillo
+        filtradas = [
             m for m in pool
-            if pocket in m.get("pocket_match", ["cero"])
+            if pocket in m.get("pocket_match", [])
         ]
 
-        return random.choice(candidatas or pool)
+        return random.choice(filtradas) if filtradas else random.choice(pool)
 
     except Exception as e:
-        print("cargar_mision ERROR:", e)
+        print("ERROR cargar_mision:", e)
         return fallback_mission(
             "Error interno generando misión.",
             str(e)
@@ -140,103 +119,91 @@ def open_than_go():
     try:
         data = request.get_json(silent=True) or {}
 
-        decision = (data.get("decision") or "salir").lower()
-        pocket = (data.get("budget_level") or "cero").lower()
+        decision = data.get("decision", "salir")
+        pocket = data.get("budget_level", "cero")
 
+        # limpiar strings
         zip_code = (data.get("zip_code") or "").strip()
         region = (data.get("region") or "").strip()
         estado = (data.get("estado") or "FL").strip()
 
-        feeling = (data.get("feeling") or "").lower()
+        desahogo = (data.get("desahogo") or "").lower()
 
-        # ------------------------------------------------
-        # CASA MODE
-        # ------------------------------------------------
+        # ---------------------------
+        # CASO CASA
+        # ---------------------------
         if decision == "casa":
 
-            mision = cargar_mision("casa", pocket)
+            mision = cargar_mision("casa", "cero")
 
             return jsonify({
                 "status": "success",
-                "mode": "home",
-                "mood": "calma",
-                "mision": mision,
-                "ui": {
-                    "timer": 600,
-                    "breathing": True,
-                    "auto_end": True
-                }
+                "tipo": "Casa",
+                "mision": mision
             })
 
-        # ------------------------------------------------
-        # UBICACIÓN INTELIGENTE
-        # ------------------------------------------------
+        # ---------------------------
+        # UBICACIÓN
+        # ---------------------------
         if zip_code:
             ubicacion = zip_code
         elif region:
-            ubicacion = f"{region}, {estado}"
+            ubicacion = f"{region} {estado}"
         else:
             ubicacion = estado
 
-        # ------------------------------------------------
-        # INTENCIÓN SIMPLE (FUTURO IA AQUÍ)
-        # ------------------------------------------------
+        # ---------------------------
+        # CATEGORÍAS
+        # ---------------------------
         categorias = {
-            "cero": ["parques naturales", "playas tranquilas", "senderos"],
-            "minimo": ["cafeterías locales", "mercados pequeños"],
+            "cero": ["parques publicos", "playas", "senderos"],
+            "minimo": ["cafeterias", "mercados locales"],
             "moderado": ["restaurantes", "centros recreativos"],
-            "libre": ["hoteles", "clubs", "experiencias premium"]
+            "libre": ["hoteles", "clubs", "restaurantes premium"]
         }
 
-        if any(w in feeling for w in ["estres", "trabajo", "job"]):
-            termino = "centros de relajación"
-        elif any(w in feeling for w in ["aburrido", "empty", "solo"]):
-            termino = "lugares para reconectar"
+        # ---------------------------
+        # DETECCIÓN SIMPLE
+        # ---------------------------
+        if any(w in desahogo for w in ["trabajo", "job", "empleo"]):
+            termino = "agencias de empleo y trabajo"
         else:
             termino = random.choice(categorias.get(pocket, ["parques"]))
 
-        # ------------------------------------------------
-        # GOOGLE MAPS LINK
-        # ------------------------------------------------
+        # ---------------------------
+        # MAPA
+        # ---------------------------
         query = f"{termino} en {ubicacion}".replace(" ", "+")
         gps_link = f"https://www.google.com/maps/search/?api=1&query={query}"
 
-        # ------------------------------------------------
+        # ---------------------------
         # MISIÓN
-        # ------------------------------------------------
+        # ---------------------------
         mision = cargar_mision("salir", pocket)
 
         return jsonify({
             "status": "success",
-            "mode": "out",
-            "location": {
-                "label": termino,
-                "address": ubicacion,
+            "tipo": "Salida",
+            "lugar": {
+                "name": f"Exploración de {termino}",
+                "address": f"Cerca de {ubicacion}",
+                "region": region,
                 "gps_link": gps_link
             },
-            "mision": mision,
-            "ui": {
-                "maps_enabled": True,
-                "breathing": True,
-                "mission_mode": True
-            }
+            "mision": mision
         })
 
     except Exception as e:
-        print("API ERROR:", e)
+        print("ERROR API:", e)
 
         return jsonify({
             "status": "error",
-            "message": str(e),
-            "fallback": fallback_mission(
-                "Error del sistema, reinicia la sesión.",
-                "System error, restart session."
-            )
+            "message": str(e)
         }), 500
 
 
 # ----------------------------------------------------
-# RUN SERVER
+# RUN
 # ----------------------------------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
