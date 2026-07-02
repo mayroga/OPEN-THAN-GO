@@ -1,5 +1,4 @@
-/* ================= OPEN THAN GO SESSION v7 ================= */
-
+<!-- ================= OPEN THAN GO SESSION v7 FIXED ================= -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,7 +13,6 @@
     --casa:#2e7d32;
     --bg:#f4f7f4;
     --card:#ffffff;
-    --text:#1b1b1b;
 }
 
 /* GLOBAL */
@@ -34,16 +32,15 @@ body{
     padding:16px;
 }
 
-/* ================= TITLE (EMOTION CORE) ================= */
+/* TITLE */
 #interactive-title{
     text-align:center;
     font-size:24px;
     font-weight:800;
     margin:10px 0;
-    transition:0.5s ease;
 }
 
-/* CASA / SALIR BADGE */
+/* MODE */
 .mode-badge{
     text-align:center;
     font-size:12px;
@@ -55,7 +52,7 @@ body{
 .mode-casa{ background:#e8f5e9; color:var(--casa); }
 .mode-salir{ background:#fff3e0; color:var(--salir); }
 
-/* ================= FORM ================= */
+/* FORM */
 .form-group{ margin-bottom:10px; }
 
 input,select,textarea{
@@ -65,7 +62,7 @@ input,select,textarea{
     border:1px solid #ddd;
 }
 
-/* ================= BUTTONS ================= */
+/* BUTTONS */
 .btn{
     width:100%;
     padding:12px;
@@ -78,16 +75,15 @@ input,select,textarea{
 .btn-primary{ background:var(--salir); color:white; }
 .btn-casa{ background:var(--casa); color:white; }
 
-/* ================= CARDS ================= */
+/* CARDS */
 .card{
     background:#fafafa;
     padding:14px;
     border-radius:12px;
     margin-top:10px;
-    border-left:4px solid var(--primary);
 }
 
-/* ================= PLACES ================= */
+/* PLACES */
 .place-card{
     background:white;
     padding:14px;
@@ -96,17 +92,12 @@ input,select,textarea{
     box-shadow:0 2px 8px rgba(0,0,0,0.06);
 }
 
-.place-card h3{
-    margin:0;
-    font-size:16px;
-}
-
 .price{
     font-weight:bold;
     color:var(--primary);
 }
 
-/* ================= LOADER ================= */
+/* LOADER */
 .loader{
     display:none;
     text-align:center;
@@ -120,7 +111,7 @@ input,select,textarea{
 <div class="container-app">
 
 <!-- TITLE -->
-<h1 id="interactive-title">OPEN THAN GO</h1>
+<h1 id="interactive-title">OPEN ◯ THAN GO</h1>
 
 <!-- MODE -->
 <div id="mode-badge" class="mode-badge mode-salir">
@@ -132,7 +123,7 @@ Modo: Salir
 
     <div class="form-group">
         <label>Estado (USA - 50 STATES)</label>
-        <input id="inp-state" placeholder="FL, TX, CA, NY, IL, GA, WA...">
+        <input id="inp-state" placeholder="FL, TX, CA, NY...">
     </div>
 
     <div class="form-group">
@@ -143,15 +134,15 @@ Modo: Salir
     <div class="form-group">
         <label>Presupuesto</label>
         <select id="inp-budget">
-            <option value="cero">$0 - $40 (Base USA)</option>
+            <option value="cero">$0 - $40</option>
             <option value="minimo">$20 - $60</option>
             <option value="moderado">$40 - $70</option>
-            <option value="libre">Sin límite</option>
+            <option value="libre">Libre</option>
         </select>
     </div>
 
     <div class="form-group">
-        <textarea id="inp-text" placeholder="¿Cómo te sientes hoy? (estrés, rutina, cansancio, calma...)"></textarea>
+        <textarea id="inp-text" placeholder="¿Cómo te sientes hoy?"></textarea>
     </div>
 
     <button class="btn btn-primary" onclick="setMode('salir')">
@@ -178,9 +169,12 @@ Modo: Salir
 
 </div>
 
-<script src="/static/engine.js"></script>
-
 <script>
+
+/* ================= GLOBAL STATE ================= */
+const state = {
+    mode: "salir"
+};
 
 /* ================= MODE CONTROL ================= */
 function setMode(m){
@@ -192,12 +186,12 @@ function setMode(m){
     if(m === "casa"){
         badge.innerText = "Modo: Casa (Reset emocional)";
         badge.className = "mode-badge mode-casa";
+        document.getElementById("interactive-title").innerText = "OPEN ◯ THAN GO";
     } else {
         badge.innerText = "Modo: Salir (Exploración terapéutica)";
         badge.className = "mode-badge mode-salir";
+        document.getElementById("interactive-title").innerText = "OPEN ◎ THAN GO";
     }
-
-    updateTitle();
 }
 
 /* ================= START ================= */
@@ -227,19 +221,15 @@ async function start(){
     render(data);
 }
 
-/* ================= RENDER ================= */
+/* ================= RENDER ENGINE (FIXED BIO FLOW) ================= */
 function render(data){
 
     const result = document.getElementById("result");
 
-    /* TITLE LIVE EMOTION */
-    document.getElementById("interactive-title").innerText =
-        document.getElementById("interactive-title").innerText;
-
     let html = "";
 
     /* ================= CASA FLOW ================= */
-    if(data.type === "HOME"){
+    if(data.type === "Casa" || data.type === "HOME"){
 
         html += `
         <div class="card">
@@ -247,21 +237,21 @@ function render(data){
 
             <h3>Modo Casa (Reset emocional)</h3>
 
-            <p>🧠 Limpieza mental guiada</p>
-            <p>🫁 Respiración activa 10 min</p>
-            <p>🎯 Objetivo: bajar estrés y claridad mental</p>
+            <p>🫁 Respiración guiada</p>
+            <p>🧠 Limpieza mental</p>
+            <p>⏳ 10 minutos de reinicio interno</p>
 
-            <p><b>Estado detectado:</b> descanso + reinicio interno</p>
+            <p><b>Estado emocional:</b> ${data.emotion || "neutral"}</p>
         </div>
         `;
     }
 
     /* ================= SALIR FLOW ================= */
-    if(data.type === "OUT"){
+    if(data.type === "Salida"){
 
-        html += `<h3>Tu guía de hoy (USA - 50 estados)</h3>`;
+        html += `<h3>Tu guía emocional de hoy</h3>`;
 
-        data.recommendations.forEach(p => {
+        (data.recommendations || []).forEach(p => {
 
             html += `
             <div class="place-card">
@@ -273,9 +263,9 @@ function render(data){
                 <p>${p.why}</p>
 
                 <a class="btn btn-primary"
-                   href="${p.map}"
+                   href="${p.gps_link || p.map}"
                    target="_blank">
-                   IR AQUÍ (GPS REAL)
+                   IR AHORA (GPS)
                 </a>
 
             </div>
@@ -283,8 +273,29 @@ function render(data){
         });
     }
 
+    /* ================= MISION BIOPSYCHOSOCIAL ================= */
+    if(data.mision?.b){
+
+        html += `<div class="card"><h3>Tu misión interna</h3>`;
+
+        data.mision.b.forEach(step => {
+
+            if(step.story){
+                html += `<p>${step.story.es}</p>`;
+            }
+
+            if(step.tx){
+                html += `<p>${step.tx.es}</p>`;
+            }
+
+        });
+
+        html += `</div>`;
+    }
+
     result.innerHTML = html;
 }
+
 </script>
 
 </body>
