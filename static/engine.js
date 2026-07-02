@@ -55,6 +55,44 @@ const traducciones = {
 // ------------------------------
 const get = (id) => document.getElementById(id);
 
+const regionesPorEstado = {
+    FL: ["South Florida", "Central Florida", "North Florida"],
+    TX: ["North Texas", "Central Texas", "South Texas"],
+    CA: ["Northern California", "Central California", "Southern California"]
+};
+
+// ------------------------------
+// REGIONES DINÁMICAS (FIX CRÍTICO)
+// ------------------------------
+function actualizarRegiones() {
+
+    const estado = get("inp-state")?.value || "FL";
+    const regionSelect = get("inp-region");
+
+    if (!regionSelect) return;
+
+    regionSelect.innerHTML = "";
+
+    (regionesPorEstado[estado] || []).forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = r;
+        opt.innerText = r;
+        regionSelect.appendChild(opt);
+    });
+}
+
+// ------------------------------
+// INIT HOOK
+// ------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+
+    const state = get("inp-state");
+
+    if (state) {
+        state.addEventListener("change", actualizarRegiones);
+        actualizarRegiones();
+    }
+});
 // ------------------------------
 // INIT
 // ------------------------------
