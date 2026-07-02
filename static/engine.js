@@ -1,12 +1,21 @@
 // OPEN THAN GO SYSTEM - ENGINE v5 (EMOTION CORE)
 
 let state = {
-    mode: "salir",
-    emotion: {
-        stress: false,
-        monotony: false,
-        lowEnergy: false
-    }
+    function syncEmotion(text){
+
+    const t = (text || "").toLowerCase();
+
+    state.emotion.stress =
+        t.includes("estres") || t.includes("trabajo");
+
+    state.emotion.monotony =
+        t.includes("aburrido") || t.includes("rutina");
+
+    state.emotion.lowEnergy =
+        t.includes("cansado") || t.includes("energia");
+
+    updateTitle();
+}
 };
 
 let idiomaActual = "es";
@@ -122,6 +131,7 @@ async function start() {
     });
 
     const data = await res.json();
+    syncEmotion(payload.desahogo);
 
     $("wrapper-loader").style.display = "none";
     $("wrapper-interactive").style.display = "block";
