@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OPEN THAN GO</title>
+    <title>OPEN THAN GO PRO</title>
 
     <style>
         :root {
@@ -18,7 +18,7 @@
         * { box-sizing: border-box; }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: Arial;
             margin: 0;
             padding: 10px;
             background: var(--light);
@@ -34,17 +34,13 @@
             border-radius: 16px;
         }
 
-        .header-app h1 {
-            margin: 0;
-            color: var(--primary);
-        }
-
         .btn-choice {
             padding: 10px;
             border: none;
             background: var(--gray);
             border-radius: 8px;
             cursor: pointer;
+            margin: 2px;
         }
 
         .btn-choice.active {
@@ -60,7 +56,6 @@
             border: none;
             border-radius: 10px;
             font-weight: bold;
-            cursor: pointer;
         }
 
         .btn-next-step {
@@ -71,7 +66,6 @@
             color: white;
             border: none;
             border-radius: 10px;
-            display: none;
         }
 
         .btn-maps-route {
@@ -94,7 +88,6 @@
 
         .interactive-screen {
             display: none;
-            padding-top: 10px;
         }
 
         .spinner {
@@ -114,7 +107,6 @@
         .lang-bar {
             display: flex;
             gap: 10px;
-            margin-bottom: 10px;
         }
 
         .btn-lang {
@@ -123,7 +115,6 @@
             border: none;
             border-radius: 20px;
             background: var(--gray);
-            cursor: pointer;
         }
 
         .btn-lang.active {
@@ -142,6 +133,16 @@
         .form-group {
             margin-bottom: 12px;
         }
+
+        /* 🔵 BREATHING CIRCLE */
+        #breathingCircle {
+            width: 80px;
+            height: 80px;
+            margin: 20px auto;
+            border-radius: 50%;
+            background: #4fc3f7;
+            transition: transform 4s ease-in-out;
+        }
     </style>
 </head>
 
@@ -149,7 +150,7 @@
 
 <div class="container-app">
 
-    <!-- FORMULARIO -->
+    <!-- FORM -->
     <div id="wrapper-form">
 
         <div class="lang-bar">
@@ -157,55 +158,41 @@
             <button id="lang-en" class="btn-lang" onclick="cambiarIdioma('en')">EN</button>
         </div>
 
-        <div class="header-app">
-            <h1>OPEN THAN GO</h1>
-            <p id="txt-subtitle">Tu escape emocional inteligente</p>
+        <h2>OPEN THAN GO</h2>
+        <p id="txt-subtitle">Tu escape emocional inteligente</p>
+
+        <div class="form-group">
+            <label>Estado</label>
+            <select id="inp-state"></select>
         </div>
 
         <div class="form-group">
-            <label id="lbl-state">Estado</label>
-            <select id="inp-state">
-                <option value="FL">Florida</option>
-                <option value="TX">Texas</option>
-                <option value="CA">California</option>
-            </select>
+            <label>Región</label>
+            <select id="inp-region"></select>
         </div>
 
         <div class="form-group">
-            <label id="lbl-region">Región</label>
-            <select id="inp-region">
-                <option>South Florida</option>
-                <option>Central Florida</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label id="lbl-zip">ZIP</label>
+            <label>ZIP</label>
             <input id="inp-zip" placeholder="33101">
         </div>
 
         <div class="form-group">
-            <label>Presupuesto</label>
-
-            <button class="btn-choice active" id="b-cero" onclick="cambiarBolsillo('cero')">$0</button>
-            <button class="btn-choice" id="b-minimo" onclick="cambiarBolsillo('minimo')">Mínimo</button>
-            <button class="btn-choice" id="b-moderado" onclick="cambiarBolsillo('moderado')">Medio</button>
-            <button class="btn-choice" id="b-libre" onclick="cambiarBolsillo('libre')">Libre</button>
+            <label>Presupuesto</label><br>
+            <button class="btn-choice active" onclick="setPocket('cero')">$0</button>
+            <button class="btn-choice" onclick="setPocket('minimo')">Mínimo</button>
+            <button class="btn-choice" onclick="setPocket('moderado')">Medio</button>
+            <button class="btn-choice" onclick="setPocket('libre')">Libre</button>
         </div>
 
         <div class="form-group">
-            <label>Modo</label>
-
-            <button class="btn-choice active" id="m-salir" onclick="cambiarModalidad(true)">Salir</button>
-            <button class="btn-choice" id="m-casa" onclick="cambiarModalidad(false)">Casa</button>
+            <label>Modo</label><br>
+            <button class="btn-choice active" onclick="setMode('out')">Salir</button>
+            <button class="btn-choice" onclick="setMode('home')">Casa</button>
         </div>
 
-        <div class="form-group">
-            <textarea id="inp-text" placeholder="Escribe cómo te sientes..."></textarea>
-        </div>
+        <textarea id="inp-text" placeholder="Escribe cómo te sientes..."></textarea>
 
-        <!-- 🔥 BOTÓN CONECTADO -->
-        <button id="btn-start" class="btn-trigger" onclick="solicitarEscape()">
+        <button class="btn-trigger" onclick="generateEscape()">
             GENERAR ESCAPE
         </button>
 
@@ -214,31 +201,76 @@
     <!-- LOADER -->
     <div id="wrapper-loader" class="loader-screen">
         <div class="spinner"></div>
-        <p id="txt-loader">Calculando...</p>
+        <p>Calculando experiencia...</p>
     </div>
 
     <!-- INTERACTIVE -->
     <div id="wrapper-interactive" class="interactive-screen">
 
-        <h2 id="interactive-title"></h2>
+        <div id="breathingCircle"></div>
+
+        <h3 id="interactive-title"></h3>
         <p id="interactive-subtitle"></p>
 
-        <!-- 🔥 IMPORTANTE: CONTENEDOR QUE USA ENGINE -->
         <div id="step-content"></div>
 
-        <!-- BOTONES NECESARIOS PARA ENGINE -->
         <button id="btn-next" class="btn-next-step">CONTINUAR</button>
 
-        <a id="btn-maps-action" class="btn-maps-route" target="_blank">
-            ABRIR MAPA
-        </a>
+        <a id="btn-maps-action" class="btn-maps-route" target="_blank">ABRIR MAPA</a>
 
     </div>
 
 </div>
 
-<!-- 🔥 SCRIPT AL FINAL (CRÍTICO) -->
 <script src="/static/engine.js"></script>
+
+<script>
+
+/* =========================
+   GLOBAL BRIDGE TO ENGINE
+========================= */
+
+let engine = null;
+
+window.addEventListener("DOMContentLoaded", () => {
+    engine = window.OPEN_THAN_GO;
+});
+
+/* LANGUAGE */
+function cambiarIdioma(lang) {
+    if (!engine) return;
+    engine.state.lang = lang;
+
+    document.getElementById("lang-es").classList.toggle("active", lang === "es");
+    document.getElementById("lang-en").classList.toggle("active", lang === "en");
+}
+
+/* POCKET */
+function setPocket(val) {
+    if (engine) engine.state.pocket = val;
+}
+
+/* MODE FIX */
+function setMode(mode) {
+    if (engine) engine.setMode(mode);
+}
+
+/* ESCAPE START */
+function generateEscape() {
+
+    document.getElementById("wrapper-form").style.display = "none";
+    document.getElementById("wrapper-loader").style.display = "block";
+
+    setTimeout(() => {
+        document.getElementById("wrapper-loader").style.display = "none";
+        document.getElementById("wrapper-interactive").style.display = "block";
+
+        if (engine) engine.startFlow();
+
+    }, 2000);
+}
+
+</script>
 
 </body>
 </html>
