@@ -1,5 +1,5 @@
-// OPEN THAN GO SYSTEM - Frontend Engine v6.5 (FUSED STABLE CORE)
-// May Roga LLC
+// OPEN THAN GO SYSTEM - Frontend Engine v4 FINAL
+// Company: May Roga LLC
 
 let idiomaActual = "es";
 let presupuestoActual = "cero";
@@ -14,126 +14,100 @@ let intervaloRespiracion = null;
 let intervaloTimer = null;
 let tiempoRestante = 0;
 
-// ----------------------------------------------------
+// ------------------------------
 // SAFE GET
-// ----------------------------------------------------
-const get = (id) => document.getElementById(id);
+// ------------------------------
+function get(id) {
+    return document.getElementById(id);
+}
 
-// ----------------------------------------------------
-// VOZ (FUSIONADO - SIN ESPANGLISH)
-// ----------------------------------------------------
+// ------------------------------
+// VOZ CONTROLADA (SIN MEZCLA)
+// ------------------------------
 function hablar(texto) {
     if (!("speechSynthesis" in window)) return;
     if (!texto) return;
 
-    window.speechSynthesis.cancel();
-
     const u = new SpeechSynthesisUtterance(texto);
-    const voices = speechSynthesis.getVoices();
+    const voces = speechSynthesis.getVoices();
 
     let voice = null;
 
     if (idiomaActual === "es") {
         voice =
-            voices.find(v => v.lang.startsWith("es") && v.name.toLowerCase().includes("male")) ||
-            voices.find(v => v.lang.startsWith("es"));
+            voces.find(v => v.lang === "es-ES") ||
+            voces.find(v => v.lang.startsWith("es"));
     }
 
     if (idiomaActual === "en") {
         voice =
-            voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("male")) ||
-            voices.find(v => v.lang.startsWith("en"));
+            voces.find(v => v.lang === "en-US") ||
+            voces.find(v => v.lang.startsWith("en"));
     }
 
-    if (voice) u.voice = voice;
+    if (!voice) voice = voces[0];
 
+    u.voice = voice;
     u.lang = idiomaActual === "es" ? "es-ES" : "en-US";
     u.rate = 0.95;
     u.pitch = 1;
 
-    window.speechSynthesis.speak(u);
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
 }
 
-// ----------------------------------------------------
-// UI TEXTS (SIN ESPANGLISH)
-// ----------------------------------------------------
-const UI = {
-    es: {
-        subtitle: "Tu escape emocional inteligente",
-        breath_intro: "Vamos a hacer una respiración guiada para ayudarte a calmar tu mente.",
-        house_intro: "Has elegido quedarte en casa. Sesión de 10 minutos guiada.",
-        exit_intro: "Te guiaremos a un lugar recomendado según tu estado emocional.",
-        inhale: "Inhala",
-        exhale: "Exhala"
-    },
-    en: {
-        subtitle: "Your intelligent emotional escape",
-        breath_intro: "We will guide you through breathing to calm your mind.",
-        house_intro: "You chose to stay home. 10-minute guided session.",
-        exit_intro: "We will guide you to a recommended place.",
-        inhale: "Inhale",
-        exhale: "Exhale"
-    }
-};
+// ------------------------------
+// TRADUCCIÓN SEGURA
+// ------------------------------
+function t(p) {
+    if (!p) return "";
+    if (typeof p === "string") return p;
+    return p[idiomaActual] || p.es || p.en || "";
+}
 
-// ----------------------------------------------------
+// ------------------------------
+// INIT
+// ------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = get("btn-start");
+    if (btn) btn.onclick = solicitarEscape;
+});
+
+// ------------------------------
 // IDIOMA
-// ----------------------------------------------------
+// ------------------------------
 function cambiarIdioma(lang) {
     idiomaActual = lang;
 
     get("lang-es")?.classList.toggle("active", lang === "es");
     get("lang-en")?.classList.toggle("active", lang === "en");
-
-    const loader = get("txt-loader");
-    if (loader) loader.innerText =
-        lang === "es"
-            ? "Procesando..."
-            : "Processing...";
 }
 
-// ----------------------------------------------------
-// REGIONES (FIX CRÍTICO MANTENIDO)
-// ----------------------------------------------------
-const regionesPorEstado = {
-    FL: ["South Florida", "Central Florida", "North Florida"],
-    TX: ["North Texas", "Central Texas", "South Texas"],
-    CA: ["Northern California", "Central California", "Southern California"]
-};
+// ------------------------------
+// PRESUPUESTO
+// ------------------------------
+function cambiarBolsillo(opcion) {
+    presupuestoActual = opcion;
 
-function actualizarRegiones() {
-    const estado = get("inp-state")?.value || "FL";
-    const regionSelect = get("inp-region");
-
-    if (!regionSelect) return;
-
-    regionSelect.innerHTML = "";
-
-    (regionesPorEstado[estado] || []).forEach(r => {
-        const opt = document.createElement("option");
-        opt.value = r;
-        opt.innerText = r;
-        regionSelect.appendChild(opt);
+    ["cero", "minimo", "moderado", "libre"].forEach(v => {
+        const el = get(`b-${v}`);
+        if (el) el.classList.toggle("active", v === opcion);
     });
 }
 
-// ----------------------------------------------------
-// INIT
-// ----------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
-    const state = get("inp-state");
-    if (state) {
-        state.onchange = actualizarRegiones;
-        actualizarRegiones();
-    }
+// ------------------------------
+// MODALIDAD
+// ------------------------------
+function cambiarModalidad(esSalir) {
+    modalidadSalir = esSalir;
 
-    const btn = get("btn-start");
-    if (btn) btn.onclick = solicitarEscape;
-});
+    get("m-salir")?.classList.toggle("active", esSalir);
+    get("m-casa")?.classList.toggle("active", !esSalir);
+}
 
-// ----------------------------------------------------
-// MAIN CALL
-// ----------------------------------------------------
+// ------------------------------
+// MAIN REQUEST
+// ------------------------------
 async function solicitarEscape() {
 
     const payload = {
@@ -148,6 +122,7 @@ async function solicitarEscape() {
 
     get("wrapper-form").style.display = "none";
     get("wrapper-loader").style.display = "flex";
+    get("wrapper-interactive").style.display = "none";
 
     try {
         const res = await fetch("/api/open-than-go", {
@@ -158,7 +133,9 @@ async function solicitarEscape() {
 
         const data = await res.json();
 
-        if (!data || data.status !== "success") throw new Error();
+        if (!data || data.status !== "success") {
+            throw new Error("backend error");
+        }
 
         setTimeout(() => {
 
@@ -176,133 +153,177 @@ async function solicitarEscape() {
         }, 500);
 
     } catch (e) {
+        console.error(e);
+        alert("Error de conexión");
         get("wrapper-form").style.display = "block";
-        alert("Connection error");
     }
 }
 
-// ----------------------------------------------------
-// FLUJO
-// ----------------------------------------------------
+// ------------------------------
+// FLUJO PRINCIPAL
+// ------------------------------
 function iniciarFlujo() {
 
-    limpiar();
-
-    if (tipoEscapeGlobal === "Casa") {
-        hablar(UI[idiomaActual].house_intro);
-        iniciarTimerCasa();
-    } else {
-        hablar(UI[idiomaActual].exit_intro);
-    }
-
-    iniciarRespiracion();
-    siguientePaso();
-}
-
-// ----------------------------------------------------
-// RESPIRACIÓN (MEJORADA - 1 SOLO CÍRCULO)
-// ----------------------------------------------------
-function iniciarRespiracion() {
-
-    const circle = get("breathingCircle");
-    if (!circle) return;
-
     clearInterval(intervaloRespiracion);
-
-    let expand = false;
-
-    hablar(UI[idiomaActual].breath_intro);
-
-    intervaloRespiracion = setInterval(() => {
-        expand = !expand;
-
-        circle.style.transform = expand ? "scale(1.6)" : "scale(1)";
-        circle.style.opacity = expand ? "0.9" : "0.6";
-
-    }, 2500);
-}
-
-// ----------------------------------------------------
-// TIMER CASA (10 MIN EXACTOS)
-// ----------------------------------------------------
-function iniciarTimerCasa() {
-
-    const timer = get("timer");
-    if (!timer) return;
-
-    tiempoRestante = 600;
-
     clearInterval(intervaloTimer);
-
-    intervaloTimer = setInterval(() => {
-
-        let m = Math.floor(tiempoRestante / 60);
-        let s = tiempoRestante % 60;
-
-        timer.innerText = `${m}:${s.toString().padStart(2, "0")}`;
-
-        tiempoRestante--;
-
-        if (tiempoRestante <= 0) {
-            clearInterval(intervaloTimer);
-            finalizar();
-        }
-
-    }, 1000);
-}
-
-// ----------------------------------------------------
-// PASOS
-// ----------------------------------------------------
-function siguientePaso() {
+    window.speechSynthesis.cancel();
 
     const cont = get("step-content");
-    const btn = get("btn-next");
+    const btnNext = ensureNext();
+    const btnMap = ensureMap();
 
     if (indicePasoActual >= pasosMisionGlobal.length) {
-        finalizar();
+
+        if (tipoEscapeGlobal === "Salida") {
+            btnMap.style.display = "block";
+            btnMap.href = datosLugarGlobal?.gps_link || "#";
+        } else {
+            btnNext.innerText = "FINALIZAR";
+            btnNext.style.display = "block";
+            btnNext.onclick = () => location.reload();
+        }
         return;
     }
 
     const paso = pasosMisionGlobal[indicePasoActual];
 
-    cont.innerHTML = paso.story?.[idiomaActual] || "";
-
-    btn.style.display = "block";
-
-    btn.onclick = () => {
+    btnNext.onclick = () => {
         indicePasoActual++;
-        siguientePaso();
+        iniciarFlujo();
     };
+
+    // ---------------- BREATH ----------------
+    if (paso.t === "breath_auto") {
+        iniciarRespiracion(paso.d || 10);
+        return;
+    }
+
+    // ---------------- TIMER CASA ----------------
+    if (tipoEscapeGlobal === "Casa") {
+        iniciarTimer(600);
+    }
+
+    const contenido = paso.tx || paso.story || paso;
+    cont.innerHTML = `<div class="fade">${t(contenido)}</div>`;
+    hablar(t(contenido));
+
+    btnNext.style.display = "block";
 }
 
-// ----------------------------------------------------
-// FINAL
-// ----------------------------------------------------
-function finalizar() {
-
-    limpiar();
+// ------------------------------
+// RESPIRACIÓN (GLOBO AZUL/PLATEADO)
+// ------------------------------
+function iniciarRespiracion(segundos) {
 
     const cont = get("step-content");
+    let s = segundos;
 
     cont.innerHTML = `
-        <h2>${idiomaActual === "es" ? "Sesión finalizada" : "Session completed"}</h2>
-        <button onclick="location.reload()">
-            ${idiomaActual === "es" ? "Reiniciar" : "Restart"}
-        </button>
+        <div class="breath-ui">
+            <canvas id="breathCanvas"></canvas>
+            <h2 id="breathLabel">Inhala</h2>
+            <div id="breathTime"></div>
+        </div>
     `;
 
-    hablar(idiomaActual === "es"
-        ? "Sesión finalizada"
-        : "Session completed"
-    );
+    const canvas = document.getElementById("breathCanvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = 220;
+    canvas.height = 220;
+
+    let r = 45;
+    let grow = true;
+
+    intervaloRespiracion = setInterval(() => {
+
+        ctx.clearRect(0, 0, 220, 220);
+
+        ctx.beginPath();
+        ctx.arc(110, 110, r, 0, Math.PI * 2);
+
+        ctx.fillStyle = "rgba(180,220,255,0.35)";
+        ctx.strokeStyle = "rgba(200,220,255,0.9)";
+        ctx.lineWidth = 2;
+
+        ctx.fill();
+        ctx.stroke();
+
+        r += grow ? 1.3 : -1.3;
+        if (r > 75) grow = false;
+        if (r < 45) grow = true;
+
+        get("breathLabel").innerText = grow ? "Inhala" : "Exhala";
+        get("breathTime").innerText = s + "s";
+
+        s--;
+
+        if (s <= 0) {
+            clearInterval(intervaloRespiracion);
+            indicePasoActual++;
+            iniciarFlujo();
+        }
+
+    }, 1000);
 }
 
-// ----------------------------------------------------
-// CLEAN
-// ----------------------------------------------------
-function limpiar() {
-    clearInterval(intervaloRespiracion);
-    clearInterval(intervaloTimer);
-    window.speechSynthesis.cancel();
+// ------------------------------
+// TIMER CASA (10 MIN)
+// ------------------------------
+function iniciarTimer(segundos) {
+
+    const cont = get("step-content");
+    let t = segundos;
+
+    cont.innerHTML = `
+        <div class="timer-ui">
+            <h2>Sesión en casa</h2>
+            <div id="clock"></div>
+        </div>
+    `;
+
+    intervaloTimer = setInterval(() => {
+
+        let m = Math.floor(t / 60);
+        let s = t % 60;
+
+        get("clock").innerText = `${m}:${s.toString().padStart(2, "0")}`;
+
+        t--;
+
+        if (t <= 0) {
+            clearInterval(intervaloTimer);
+            get("step-content").innerHTML = "<h2>Sesión completada</h2>";
+        }
+
+    }, 1000);
+}
+
+// ------------------------------
+// BOTONES SAFE
+// ------------------------------
+function ensureNext() {
+    let b = get("btn-next");
+    if (!b) {
+        b = document.createElement("button");
+        b.id = "btn-next";
+        b.className = "btn-next-step";
+        get("wrapper-interactive").appendChild(b);
+    }
+    b.style.display = "none";
+    b.innerText = "CONTINUAR";
+    return b;
+}
+
+function ensureMap() {
+    let b = get("btn-maps-action");
+    if (!b) {
+        b = document.createElement("a");
+        b.id = "btn-maps-action";
+        b.className = "btn-maps-route";
+        get("wrapper-interactive").appendChild(b);
+    }
+    b.style.display = "none";
+    b.innerText = "ABRIR MAPA";
+    return b;
 }
