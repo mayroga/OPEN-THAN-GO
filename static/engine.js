@@ -153,7 +153,11 @@ async function solicitarEscape() {
                     tipoEscapeGlobal === "Casa" ? traducciones[idiomaActual].tipo_casa : traducciones[idiomaActual].tipo_salida;
 
                 document.getElementById('wrapper-interactive').style.display = 'block';
-                
+                document.getElementById('btn-start')
+        .addEventListener(
+            'click',
+            generarEscape
+        );
                 const areaLugar = document.getElementById('interactive-location');
                 if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
                     areaLugar.innerHTML = `
