@@ -1,3 +1,5 @@
+/* ================= OPEN THAN GO SESSION v7 ================= */
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,11 +14,10 @@
     --casa:#2e7d32;
     --bg:#f4f7f4;
     --card:#ffffff;
-    --blue:#7cc7ff;
-    --silver:#cfd8dc;
     --text:#1b1b1b;
 }
 
+/* GLOBAL */
 body{
     margin:0;
     font-family:Arial;
@@ -33,16 +34,16 @@ body{
     padding:16px;
 }
 
-/* ================= TITLE ================= */
+/* ================= TITLE (EMOTION CORE) ================= */
 #interactive-title{
     text-align:center;
-    font-size:22px;
-    font-weight:bold;
+    font-size:24px;
+    font-weight:800;
     margin:10px 0;
-    transition:0.5s;
+    transition:0.5s ease;
 }
 
-/* ================= MODE BADGE ================= */
+/* CASA / SALIR BADGE */
 .mode-badge{
     text-align:center;
     font-size:12px;
@@ -51,7 +52,6 @@ body{
     margin-bottom:10px;
 }
 
-/* CASA / SALIR LOOK */
 .mode-casa{ background:#e8f5e9; color:var(--casa); }
 .mode-salir{ background:#fff3e0; color:var(--salir); }
 
@@ -72,6 +72,7 @@ input,select,textarea{
     border:none;
     border-radius:10px;
     margin-top:5px;
+    font-weight:bold;
 }
 
 .btn-primary{ background:var(--salir); color:white; }
@@ -80,24 +81,19 @@ input,select,textarea{
 /* ================= CARDS ================= */
 .card{
     background:#fafafa;
-    padding:12px;
+    padding:14px;
     border-radius:12px;
     margin-top:10px;
     border-left:4px solid var(--primary);
 }
 
-.price{
-    font-weight:bold;
-    color:var(--primary);
-}
-
-/* ================= RECOMMENDATIONS ================= */
+/* ================= PLACES ================= */
 .place-card{
     background:white;
-    padding:12px;
+    padding:14px;
     margin-top:10px;
     border-radius:12px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
 }
 
 .place-card h3{
@@ -105,8 +101,9 @@ input,select,textarea{
     font-size:16px;
 }
 
-.place-actions{
-    margin-top:8px;
+.price{
+    font-weight:bold;
+    color:var(--primary);
 }
 
 /* ================= LOADER ================= */
@@ -125,6 +122,7 @@ input,select,textarea{
 <!-- TITLE -->
 <h1 id="interactive-title">OPEN THAN GO</h1>
 
+<!-- MODE -->
 <div id="mode-badge" class="mode-badge mode-salir">
 Modo: Salir
 </div>
@@ -133,19 +131,19 @@ Modo: Salir
 <div id="form">
 
     <div class="form-group">
-        <label>Estado (USA)</label>
-        <input id="inp-state" placeholder="FL, TX, CA, NY...">
+        <label>Estado (USA - 50 STATES)</label>
+        <input id="inp-state" placeholder="FL, TX, CA, NY, IL, GA, WA...">
     </div>
 
     <div class="form-group">
         <label>ZIP Code</label>
-        <input id="inp-zip">
+        <input id="inp-zip" placeholder="33101">
     </div>
 
     <div class="form-group">
         <label>Presupuesto</label>
         <select id="inp-budget">
-            <option value="cero">$0 - $40</option>
+            <option value="cero">$0 - $40 (Base USA)</option>
             <option value="minimo">$20 - $60</option>
             <option value="moderado">$40 - $70</option>
             <option value="libre">Sin límite</option>
@@ -153,25 +151,26 @@ Modo: Salir
     </div>
 
     <div class="form-group">
-        <textarea id="inp-text" placeholder="¿Cómo te sientes hoy?"></textarea>
+        <textarea id="inp-text" placeholder="¿Cómo te sientes hoy? (estrés, rutina, cansancio, calma...)"></textarea>
     </div>
 
     <button class="btn btn-primary" onclick="setMode('salir')">
-        SALIR
+        SALIR (EXPLORAR)
     </button>
 
     <button class="btn btn-casa" onclick="setMode('casa')">
-        CASA (RESET)
+        CASA (RESET 10 MIN)
     </button>
 
     <button class="btn btn-primary" onclick="start()">
         GENERAR OPEN THAN GO
     </button>
+
 </div>
 
 <!-- LOADER -->
 <div id="loader" class="loader">
-    <p>Creando tu experiencia...</p>
+    <p>Creando experiencia emocional...</p>
 </div>
 
 <!-- RESULT -->
@@ -182,7 +181,10 @@ Modo: Salir
 <script src="/static/engine.js"></script>
 
 <script>
+
+/* ================= MODE CONTROL ================= */
 function setMode(m){
+
     state.mode = m;
 
     const badge = document.getElementById("mode-badge");
@@ -191,13 +193,14 @@ function setMode(m){
         badge.innerText = "Modo: Casa (Reset emocional)";
         badge.className = "mode-badge mode-casa";
     } else {
-        badge.innerText = "Modo: Salir (Exploración)";
+        badge.innerText = "Modo: Salir (Exploración terapéutica)";
         badge.className = "mode-badge mode-salir";
     }
 
     updateTitle();
 }
 
+/* ================= START ================= */
 async function start(){
 
     document.getElementById("form").style.display="none";
@@ -224,53 +227,57 @@ async function start(){
     render(data);
 }
 
+/* ================= RENDER ================= */
 function render(data){
 
     const result = document.getElementById("result");
 
-    // TITLE EMOTION
-    document.getElementById("interactive-title").innerText = data.title;
+    /* TITLE LIVE EMOTION */
+    document.getElementById("interactive-title").innerText =
+        document.getElementById("interactive-title").innerText;
 
     let html = "";
 
-    // CASA FLOW
+    /* ================= CASA FLOW ================= */
     if(data.type === "HOME"){
-    html += `
-    <div class="card">
-        <h2>OPEN ◯ THAN GO</h2>
 
-        <h3>Modo Casa (Reset emocional)</h3>
+        html += `
+        <div class="card">
+            <h2>OPEN ◯ THAN GO</h2>
 
-        <p>🧠 Limpieza mental activa</p>
+            <h3>Modo Casa (Reset emocional)</h3>
 
-        <p>🫁 Respiración guiada en progreso</p>
+            <p>🧠 Limpieza mental guiada</p>
+            <p>🫁 Respiración activa 10 min</p>
+            <p>🎯 Objetivo: bajar estrés y claridad mental</p>
 
-        <p>⏱ Duración: 10 minutos</p>
+            <p><b>Estado detectado:</b> descanso + reinicio interno</p>
+        </div>
+        `;
+    }
 
-        <p>🎯 Objetivo: bajar carga emocional y pensamiento repetitivo</p>
-    </div>
-    `;
-}
-    // SALIR FLOW (3 LUGARES)
+    /* ================= SALIR FLOW ================= */
     if(data.type === "OUT"){
 
-        html += `<h3>Tu opciones de hoy</h3>`;
+        html += `<h3>Tu guía de hoy (USA - 50 estados)</h3>`;
 
         data.recommendations.forEach(p => {
 
             html += `
             <div class="place-card">
+
                 <h3>${p.name}</h3>
+
                 <p class="price">💵 ${p.cost}</p>
+
                 <p>${p.why}</p>
 
-                <div class="place-actions">
-                    <a class="btn btn-primary"
-                    href="${p.map}"
-                    target="_blank">
-                    IR AQUÍ
-                    </a>
-                </div>
+                <a class="btn btn-primary"
+                   href="${p.map}"
+                   target="_blank">
+                   IR AQUÍ (GPS REAL)
+                </a>
+
             </div>
             `;
         });
