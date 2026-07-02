@@ -1,4 +1,4 @@
-# OPEN THAN GO SYSTEM - EMOTION ROUTER v3 (USA FULL 50 STATES SAFE)
+# OPEN THAN GO SYSTEM - EMOTION ROUTER v3.1 (BIOPSYCHOSOCIAL CORE FIXED)
 # May Roga LLC
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -13,26 +13,27 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # ----------------------------
 # 50 ESTADOS USA (VALIDACIÓN REAL)
 # ----------------------------
-US_STATES = [
+US_STATES = {
     "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
     "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
     "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
     "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
     "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
-]
+}
 
 # ----------------------------
-# LOAD MISSIONS SAFE
+# SAFE JSON LOADER
 # ----------------------------
 def load_json(path):
     if not os.path.exists(path):
         return {"missions": []}
-    with open(path, "r", encoding="utf-8") as f:
-        try:
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
             return data if isinstance(data, dict) else {"missions": []}
-        except:
-            return {"missions": []}
+    except:
+        return {"missions": []}
 
 MISSIONS = [
     load_json(os.path.join(BASE_DIR, "missions_01_07.json")),
@@ -41,18 +42,28 @@ MISSIONS = [
 ]
 
 # ----------------------------
-# EMOTION ENGINE
+# EMOTION ENGINE (BIO SIGNAL v1)
 # ----------------------------
 def analyze_emotion(text, mode):
     t = (text or "").lower()
 
-    stress = any(w in t for w in ["estres", "trabajo", "presion", "ansiedad"])
-    monotony = any(w in t for w in ["aburrido", "rutina", "igual", "monotono"])
-    low = any(w in t for w in ["cansado", "sin energia", "agotado"])
+    stress_words = ["estres", "trabajo", "presion", "ansiedad", "biles"]
+    monotony_words = ["aburrido", "rutina", "igual", "monotono"]
+    low_words = ["cansado", "sin energia", "agotado", "fatiga"]
 
+    stress = any(w in t for w in stress_words)
+    monotony = any(w in t for w in monotony_words)
+    low = any(w in t for w in low_words)
+
+    # CASA MODE (regulación interna)
     if mode == "casa":
-        return "HOME_LOW" if low else "HOME_BALANCE"
+        if low:
+            return "HOME_LOW"
+        if stress:
+            return "HOME_STRESS"
+        return "HOME_BALANCE"
 
+    # SALIR MODE (acción externa)
     if stress:
         return "OUT_STRUCTURE"
     if monotony:
@@ -63,48 +74,48 @@ def analyze_emotion(text, mode):
     return "OUT_BALANCE"
 
 # ----------------------------
-# PRESUPUESTO RANGE USA
+# BUDGET SYSTEM (USA REALISTIC RANGE)
 # ----------------------------
 def budget_range(level):
     return {
         "cero": (0, 40),
         "minimo": (20, 60),
-        "moderado": (40, 70),
+        "moderado": (40, 90),
         "libre": (70, 999999)
     }.get(level, (0, 40))
 
 # ----------------------------
-# 3 LUGARES GENERICOS USA (SAFE)
+# GENERADOR DE LUGARES (NO TURÍSTICO GENÉRICO → CONTEXTO TERAPÉUTICO)
 # ----------------------------
 def generate_places(state, zip_code, budget_level):
 
     min_b, max_b = budget_range(budget_level)
 
-    base = [
-        "parque natural público",
-        "playa accesible",
-        "sendero caminata",
-        "lago comunitario",
-        "river walk",
+    base_places = [
+        "public nature park",
+        "community beach access",
+        "walking trail",
+        "urban green zone",
+        "lakefront area",
         "botanical garden",
-        "urban park",
-        "downtown walk zone"
+        "riverwalk path",
+        "quiet downtown zone"
     ]
 
-    picks = random.sample(base, 3)
+    picks = random.sample(base_places, 3)
 
     return [
         {
-            "name": f"{p} - {state} {zip_code}".strip(),
+            "name": f"{p} - {state}",
             "cost": f"${min_b} - ${max_b}",
-            "why": "equilibrio emocional + exploración guiada",
-            "map": f"https://www.google.com/maps/search/?api=1&query={p}+{state}+{zip_code}+USA"
+            "why": "biopsychosocial reset + guided emotional reset",
+            "gps_link": f"https://www.google.com/maps/search/?api=1&query={p}+{state}+{zip_code}+USA"
         }
         for p in picks
     ]
 
 # ----------------------------
-# MISSIONS SAFE
+# MISSIONS ENGINE (FIX: CONSISTENTE + SAFE)
 # ----------------------------
 def get_mission():
     pool = random.choice(MISSIONS).get("missions", [])
@@ -112,17 +123,19 @@ def get_mission():
     if not pool:
         return {
             "b": [
-                {"story": {
-                    "es": "Respira. Estás aquí ahora.",
-                    "en": "You are here now."
-                }}
+                {
+                    "story": {
+                        "es": "Respira. Estás aquí. No tienes que resolver todo ahora.",
+                        "en": "Breathe. You are here. You don't need to fix everything now."
+                    }
+                }
             ]
         }
 
     return random.choice(pool)
 
 # ----------------------------
-# API ROUTE
+# ROUTE API
 # ----------------------------
 @app.route("/api/open-than-go", methods=["POST"])
 def router():
@@ -136,21 +149,25 @@ def router():
     state = (data.get("estado") or "FL").upper()
     zip_code = (data.get("zip_code") or "").strip()
 
-    # ---------------- VALIDACIÓN 50 STATES ----------------
+    # ----------------------------
+    # VALIDACIÓN ESTADOS USA
+    # ----------------------------
     if state not in US_STATES:
         state = "FL"
 
     emotion = analyze_emotion(text, mode)
     mission = get_mission()
 
-    # ---------------- CASA FLOW ----------------
+    # ----------------------------
+    # CASA FLOW (INTERVENCIÓN INTERNA)
+    # ----------------------------
     if mode == "casa":
         return jsonify({
             "status": "success",
-            "type": "HOME",
+            "type": "Casa",
             "emotion": emotion,
             "title": "OPEN ◯ THAN GO",
-            "mision": mission,   # 🔥 FIX: frontend usa "mision"
+            "mision": mission,
             "ui": {
                 "mode": "casa",
                 "breathing": "deep",
@@ -159,7 +176,9 @@ def router():
             }
         })
 
-    # ---------------- SALIR FLOW ----------------
+    # ----------------------------
+    # SALIR FLOW (INTERVENCIÓN EXTERNA)
+    # ----------------------------
     places = generate_places(state, zip_code, budget)
 
     return jsonify({
@@ -170,9 +189,10 @@ def router():
 
         "budget_range": budget_range(budget),
 
-        "recommendations": places,
+        # FIX CRÍTICO: FRONTEND ESPERA ESTO
+        "mision": mission,
 
-        "mision": mission,   # 🔥 FIX CONSISTENTE
+        "recommendations": places,
 
         "lugar": {
             "state": state,
@@ -188,7 +208,7 @@ def router():
     })
 
 # ----------------------------
-# FRONT
+# FRONTEND
 # ----------------------------
 @app.route("/")
 def home():
