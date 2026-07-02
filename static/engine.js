@@ -1,4 +1,4 @@
-// OPEN THAN GO SYSTEM - EMOTIONAL STATE MACHINE v1
+// OPEN THAN GO SYSTEM - EMOTIONAL STATE MACHINE v2
 // May Roga LLC
 
 // ------------------------------
@@ -28,55 +28,9 @@ let state = {
 };
 
 // ------------------------------
-// SAFE DOM
+// SAFE GET
 // ------------------------------
 const $ = (id) => document.getElementById(id);
-
-// ------------------------------
-// EMOTION PARSER (CLIENT SIDE MIRROR)
-// ------------------------------
-function parseEmotion(text) {
-    if (!text) return;
-
-    const t = text.toLowerCase();
-
-    state.emotion.stress = ["estres", "trabajo", "ansiedad", "presión"].some(w => t.includes(w));
-    state.emotion.monotony = ["aburrido", "rutina", "igual"].some(w => t.includes(w));
-    state.emotion.lowEnergy = ["cansado", "agotado", "sin energia"].some(w => t.includes(w));
-    state.emotion.desireToBeGuided = ["decidir", "elige", "no quiero pensar"].some(w => t.includes(w));
-}
-
-// ------------------------------
-// SPEECH (GUIDED VOICE)
-// ------------------------------
-function speak(text) {
-    if (!("speechSynthesis" in window)) return;
-
-    const u = new SpeechSynthesisUtterance(text);
-    const voices = speechSynthesis.getVoices();
-
-    let voice =
-        state.lang === "es"
-            ? voices.find(v => v.lang?.startsWith("es"))
-            : voices.find(v => v.lang?.startsWith("en"));
-
-    u.voice = voice || voices[0];
-    u.lang = state.lang === "es" ? "es-ES" : "en-US";
-    u.rate = state.emotion.stress ? 0.9 : 0.95;
-    u.pitch = 1;
-
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
-}
-
-// ------------------------------
-// TEXT SAFE
-// ------------------------------
-function t(p) {
-    if (!p) return "";
-    if (typeof p === "string") return p;
-    return p[state.lang] || p.es || p.en || "";
-}
 
 // ------------------------------
 // INIT
@@ -86,29 +40,135 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ------------------------------
-// UPDATE SETTINGS
+// EMOTION PARSER
 // ------------------------------
-function setLang(l) {
-    state.lang = l;
-    $("lang-es")?.classList.toggle("active", l === "es");
-    $("lang-en")?.classList.toggle("active", l === "en");
+function parseEmotion(text) {
+    if (!text) return;
+
+    const t = text.toLowerCase();
+
+    state.emotion.stress = ["estres", "trabajo", "ansiedad", "presión"].some(w => t.includes(w));
+    state.emotion.monotony = ["aburrido", "rutina", "igual", "monotonía"].some(w => t.includes(w));
+    state.emotion.lowEnergy = ["cansado", "agotado", "sin energia", "fatiga"].some(w => t.includes(w));
+    state.emotion.desireToBeGuided = ["decidir", "elige", "no quiero pensar", "guíame"].some(w => t.includes(w));
 }
 
+// ------------------------------
+// TITLE SYSTEM (VIVO)
+// ------------------------------
+function updateTitle() {
+
+    const el = $("app-title");
+    if (!el) return;
+
+    let base = "OPEN THAN GO";
+
+    // ESTADO EMOCIONAL
+    if (state.emotion.stress) {
+        base = "OPEN ◉ THAN GO";
+    }
+
+    if (state.emotion.monotony) {
+        base = "OPEN — THAN GO";
+    }
+
+    if (state.emotion.lowEnergy) {
+        base = "OPEN ○ THAN GO";
+    }
+
+    // MODO CASA = INTERIOR (RECOGIMIENTO / REGULACIÓN)
+    if (state.mode === "casa") {
+        base = "OPEN ◯ THAN GO";
+    }
+
+    // MODO SALIR = EXPANSIÓN / DECISIÓN EXTERNA
+    if (state.mode === "salir") {
+        base = "OPEN ◎ THAN GO";
+    }
+
+    el.innerText = base;
+
+    animateTitle(el);
+}
+
+// ------------------------------
+// TITLE ANIMATION (SENSACIÓN VIVA)
+// ------------------------------
+function animateTitle(el) {
+
+    el.style.transition = "all 0.6s ease";
+
+    // expansión vs interior
+    if (state.mode === "salir") {
+        el.style.letterSpacing = "2px";
+        el.style.transform = "scale(1.02)";
+    } else {
+        el.style.letterSpacing = "0px";
+        el.style.transform = "scale(0.98)";
+    }
+
+    // color emocional
+    if (state.emotion.stress) {
+        el.style.color = "#d84315";
+    } else if (state.emotion.monotony) {
+        el.style.color = "#6ec6ff";
+    } else if (state.emotion.lowEnergy) {
+        el.style.color = "#90a4ae";
+    } else {
+        el.style.color = "#1e3a1e";
+    }
+}
+
+// ------------------------------
+// MODE CONTROL (SIGNIFICADO REAL)
+// ------------------------------
+function setMode(isOut) {
+
+    state.mode = isOut ? "salir" : "casa";
+
+    $("m-salir")?.classList.toggle("active", isOut);
+    $("m-casa")?.classList.toggle("active", !isOut);
+
+    // SIGNIFICADO PROFUNDO:
+
+    // CASA:
+    // - reducción de estímulo
+    // - respiración + regulación
+    // - no decisiones externas
+    // - reordenamiento interno
+
+    // SALIR:
+    // - expansión cognitiva
+    // - decisiones guiadas
+    // - 3 opciones externas siempre
+    // - movimiento + acción
+
+    updateTitle();
+}
+
+// ------------------------------
+// POCKET CONTROL
+// ------------------------------
 function setPocket(p) {
     state.pocket = p;
+
     ["cero", "minimo", "moderado", "libre"].forEach(v => {
         $("b-" + v)?.classList.toggle("active", v === p);
     });
 }
 
-function setMode(isOut) {
-    state.mode = isOut ? "salir" : "casa";
-    $("m-salir")?.classList.toggle("active", isOut);
-    $("m-casa")?.classList.toggle("active", !isOut);
+// ------------------------------
+// LANGUAGE
+// ------------------------------
+function setLang(l) {
+    state.lang = l;
+
+    $("lang-es")?.classList.toggle("active", l === "es");
+    $("lang-en")?.classList.toggle("active", l === "en");
 }
 
 // ------------------------------
-// MAIN REQUEST
+// MAIN START
 // ------------------------------
 async function startFlow() {
 
@@ -128,6 +188,8 @@ async function startFlow() {
     $("wrapper-loader").style.display = "flex";
     $("wrapper-interactive").style.display = "none";
 
+    updateTitle();
+
     try {
         const res = await fetch("/api/open-than-go", {
             method: "POST",
@@ -136,6 +198,7 @@ async function startFlow() {
         });
 
         const data = await res.json();
+
         if (!data || data.status !== "success") throw new Error("backend error");
 
         setTimeout(() => {
@@ -149,6 +212,7 @@ async function startFlow() {
 
             state.stepIndex = 0;
 
+            updateTitle();
             runState();
 
         }, 400);
@@ -161,18 +225,19 @@ async function startFlow() {
 }
 
 // ------------------------------
-// STATE MACHINE CORE
+// STATE ENGINE CORE
 // ------------------------------
 function runState() {
 
-    clearAllTimers();
+    clearTimers();
     speechSynthesis.cancel();
 
     const container = $("step-content");
     const nextBtn = ensureNext();
     const mapBtn = ensureMap();
 
-    // END
+    updateTitle();
+
     if (state.stepIndex >= state.mission.length) {
         handleEnd(nextBtn, mapBtn);
         return;
@@ -185,42 +250,36 @@ function runState() {
         runState();
     };
 
-    // -------------------------
-    // BREATH STATE
-    // -------------------------
     if (step.t === "breath_auto") {
         runBreathing(step.d || 10);
         return;
     }
 
-    // -------------------------
-    // HOME MODE = SIMPLE LOOP
-    // -------------------------
     if (state.mode === "casa") {
-        runHomeSession();
+        runHomeMode();
     }
 
-    const content = t(step.tx || step.story || step);
-    container.innerHTML = `<div class="fade">${content}</div>`;
+    const content = step.tx || step.story || step;
+    container.innerHTML = `<div class="fade">${t(content)}</div>`;
 
-    speak(content);
+    speak(t(content));
 
     nextBtn.style.display = "block";
 }
 
 // ------------------------------
-// HOME FLOW (LOW LOAD)
+// HOME MODE (REGULACIÓN INTERNA)
 // ------------------------------
-function runHomeSession() {
+function runHomeMode() {
     if (!state.timers.session) {
         state.timers.session = setInterval(() => {
-            // passive grounding loop (future extension)
+            // espacio futuro: micro-instrucciones de regulación
         }, 10000);
     }
 }
 
 // ------------------------------
-// BREATH STATE (ADAPTIVE)
+// BREATH STATE
 // ------------------------------
 function runBreathing(seconds) {
 
@@ -243,6 +302,7 @@ function runBreathing(seconds) {
     state.timers.breath = setInterval(() => {
 
         scale += grow ? 0.03 : -0.03;
+
         if (scale > 1.4) grow = false;
         if (scale < 0.9) grow = true;
 
@@ -307,7 +367,7 @@ function ensureMap() {
     return b;
 }
 
-function clearAllTimers() {
+function clearTimers() {
     if (state.timers.breath) clearInterval(state.timers.breath);
     if (state.timers.session) clearInterval(state.timers.session);
 }
