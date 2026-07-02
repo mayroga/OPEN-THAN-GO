@@ -1,254 +1,178 @@
-// OPEN THAN GO SYSTEM - ENGINE v6 (USA 50 STATES READY)
-// May Roga LLC
-
-let state = {
-    mode: "salir",
-    emotion: {
-        stress: false,
-        monotony: false,
-        lowEnergy: false
-    }
-};
+// OPEN THAN GO SYSTEM - Frontend Engine v4 FINAL (FIXED)
+// Company: May Roga LLC
 
 let idiomaActual = "es";
 let presupuestoActual = "cero";
+let modalidadSalir = true;
 
-let pasos = [];
-let index = 0;
-let lugar = null;
+let pasosMisionGlobal = [];
+let indicePasoActual = 0;
+let datosLugarGlobal = null;
+let tipoEscapeGlobal = "";
 
-// ------------------ SAFE GET ------------------
-function $(id) {
+// ------------------------------
+// SAFE GET
+// ------------------------------
+function get(id) {
     return document.getElementById(id);
 }
 
-// ------------------ EMOTION SYNC ------------------
-function syncEmotion(text) {
-    const t = (text || "").toLowerCase();
-
-    state.emotion.stress =
-        t.includes("estres") || t.includes("trabajo") || t.includes("presion");
-
-    state.emotion.monotony =
-        t.includes("aburrido") || t.includes("rutina") || t.includes("igual");
-
-    state.emotion.lowEnergy =
-        t.includes("cansado") || t.includes("sin energia") || t.includes("agotado");
-
-    updateTitle();
-}
-
-// ------------------ TITLE EMOTION CORE ------------------
-function updateTitle() {
-    const el = $("interactive-title") || $("txt-subtitle");
+// ------------------------------
+// TITLE GLOBAL FIX
+// ------------------------------
+function setTitle(type, emotion = "neutral") {
+    const el = get("interactive-title");
     if (!el) return;
 
-    let base = "OPEN THAN GO";
-
-    if (state.emotion.stress) base = "OPEN ◉ THAN GO";
-    else if (state.emotion.monotony) base = "OPEN — THAN GO";
-    else if (state.emotion.lowEnergy) base = "OPEN ○ THAN GO";
-
-    if (state.mode === "casa") base = "OPEN ◯ THAN GO";
-    if (state.mode === "salir") base = "OPEN ◎ THAN GO";
-
-    el.innerText = base;
-    animateTitle(el);
-}
-
-// ------------------ TITLE ANIMATION ------------------
-function animateTitle(el) {
-    el.style.transition = "all 0.6s ease";
-
-    if (state.mode === "salir") {
-        el.style.transform = "scale(1.03)";
-        el.style.letterSpacing = "2px";
-    } else {
-        el.style.transform = "scale(0.98)";
-        el.style.letterSpacing = "0px";
+    if (tipoEscapeGlobal === "Casa") {
+        el.innerText = "OPEN ◯ THAN GO";
+        return;
     }
 
-    if (state.emotion.stress) el.style.color = "#d84315";
-    else if (state.emotion.monotony) el.style.color = "#6ec6ff";
-    else el.style.color = "#1e3a1e";
+    if (emotion === "stress") el.innerText = "OPEN ◉ THAN GO";
+    else if (emotion === "monotony") el.innerText = "OPEN — THAN GO";
+    else if (emotion === "low") el.innerText = "OPEN ○ THAN GO";
+    else el.innerText = type === "Salida" ? "OPEN ◎ THAN GO" : "OPEN ◯ THAN GO";
 }
 
-// ------------------ BREATHING (CASA VS SALIR) ------------------
-function breathingCycle() {
-    const circle = $("breathingCircle");
-    const label = $("breathLabel");
-
-    if (!circle) return;
-
-    let inhale = true;
-
-    setInterval(() => {
-
-        // CASA = terapia real
-        if (state.mode === "casa") {
-            circle.style.transform = inhale ? "scale(1.4)" : "scale(0.85)";
-            label.innerText = inhale ? "Inhala" : "Exhala";
-        }
-
-        // SALIR = micro-calma
-        else {
-            circle.style.transform = "scale(1.08)";
-            label.innerText = "Observa y suelta";
-        }
-
-        inhale = !inhale;
-
-    }, 2000);
-}
-
-// ------------------ BUDGET VISUAL ------------------
-function showBudget(level) {
-    const map = {
-        cero: "$0 - $40 (Base USA Low Cost)",
-        minimo: "$20 - $60",
-        moderado: "$40 - $70",
-        libre: "Sin límite"
-    };
-    return map[level] || "$0 - $40";
-}
-
-// ------------------ GOOGLE MAP FIX (USA REAL + ZIP + STATE) ------------------
-function buildMap(place, stateCode, zip) {
-
-    let query = "";
-
-    if (place) query += place + " ";
-    if (stateCode) query += stateCode + " USA ";
-    if (zip) query += zip;
-
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-}
-
-// ------------------ INIT ------------------
+// ------------------------------
+// INIT
+// ------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-
-    $("btn-start").onclick = start;
-
-    // default mode sync
-    window.cambiarModalidad = function(isOut) {
-        state.mode = isOut ? "salir" : "casa";
-        updateTitle();
-    };
-
-    breathingCycle();
-    updateTitle();
+    const btn = get("btn-start");
+    if (btn) btn.onclick = solicitarEscape;
 });
 
-// ------------------ START FLOW ------------------
-async function start() {
+// ------------------------------
+// MODOS
+// ------------------------------
+function cambiarModalidad(esSalir) {
+    modalidadSalir = esSalir;
+
+    get("m-salir")?.classList.toggle("active", esSalir);
+    get("m-casa")?.classList.toggle("active", !esSalir);
+
+    setTitle(esSalir ? "Salida" : "Casa");
+}
+
+// ------------------------------
+// PRESUPUESTO
+// ------------------------------
+function cambiarBolsillo(opcion) {
+    presupuestoActual = opcion;
+
+    ["cero", "minimo", "moderado", "libre"].forEach(v => {
+        const el = get(`b-${v}`);
+        if (el) el.classList.toggle("active", v === opcion);
+    });
+}
+
+// ------------------------------
+// LANGUAGE SAFE
+// ------------------------------
+function cambiarIdioma(lang) {
+    idiomaActual = lang;
+    get("lang-es")?.classList.toggle("active", lang === "es");
+    get("lang-en")?.classList.toggle("active", lang === "en");
+}
+
+// ------------------------------
+// MAIN REQUEST
+// ------------------------------
+async function solicitarEscape() {
+
+    const estadoRaw = (get("inp-state")?.value || "FL").toUpperCase();
+    const zip = (get("inp-zip")?.value || "").trim();
 
     const payload = {
-        decision: state.mode,
+        decision: modalidadSalir ? "salir" : "casa",
+        lang: idiomaActual,
         budget_level: presupuestoActual,
-        desahogo: $("inp-text").value,
-        zip_code: $("inp-zip").value,
-        estado: $("inp-state").value,
-        region: $("inp-region").value
+        zip_code: zip,
+        estado: estadoRaw,
+        region: get("inp-region")?.value || "",
+        desahogo: get("inp-text")?.value || ""
     };
 
-    $("wrapper-form").style.display = "none";
-    $("wrapper-loader").style.display = "block";
+    get("wrapper-form").style.display = "none";
+    get("wrapper-loader").style.display = "flex";
+    get("wrapper-interactive").style.display = "none";
 
     const res = await fetch("/api/open-than-go", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify(payload)
     });
 
     const data = await res.json();
 
-    syncEmotion(payload.desahogo);
+    get("wrapper-loader").style.display = "none";
+    get("wrapper-interactive").style.display = "block";
 
-    $("wrapper-loader").style.display = "none";
-    $("wrapper-interactive").style.display = "block";
+    // 🔥 FIX CRÍTICO: backend manda "mision" no "mission"
+    pasosMisionGlobal = data.mision?.b || [];
+    datosLugarGlobal = data.lugar || null;
+    tipoEscapeGlobal = data.tipo || "Salida";
 
-    pasos = data.mission?.b || [];
+    indicePasoActual = 0;
 
-    // FIX: ahora usa recommendations reales del backend
-    lugar = data.recommendations || null;
-
-    index = 0;
+    setTitle(data.tipo, detectEmotion(payload.desahogo));
 
     render();
 }
 
-// ------------------ RENDER FLOW ------------------
+// ------------------------------
+// EMOTION FIX (IMPORTANTE PARA TU BUG FL/INDIANAPOLIS)
+// ------------------------------
+function detectEmotion(text = "") {
+    text = text.toLowerCase();
+
+    if (text.includes("estres") || text.includes("trabajo")) return "stress";
+    if (text.includes("aburrido") || text.includes("rutina")) return "monotony";
+    if (text.includes("cansado") || text.includes("energia")) return "low";
+
+    return "neutral";
+}
+
+// ------------------------------
+// RENDER CORE
+// ------------------------------
 function render() {
 
-    updateTitle();
+    const cont = get("step-content");
 
-    const btn = $("btn-next");
-    const mapBtn = $("btn-maps-action");
+    if (indicePasoActual >= pasosMisionGlobal.length) {
 
-    // ---------------- CASA MODE ----------------
-    if (state.mode === "casa") {
+        if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
+            get("btn-maps-action").style.display = "block";
+            get("btn-maps-action").href = datosLugarGlobal.gps_link || "#";
 
-        $("step-content").innerHTML = `
-            <h3>Modo Casa (Reset emocional)</h3>
-            <p>Respiración + enfoque mental</p>
-            <p>Duración: 10 min</p>
-        `;
-
-        btn.style.display = "block";
-        btn.innerText = "INICIAR RESPIRACIÓN";
-
-        btn.onclick = () => {
-            $("breathingCircle").scrollIntoView({ behavior: "smooth" });
-        };
-
-        return;
-    }
-
-    // ---------------- SALIR MODE ----------------
-    if (index >= pasos.length) {
-
-        const zip = $("inp-zip").value;
-        const st = $("inp-state").value;
-
-        if (lugar && Array.isArray(lugar)) {
-
-            // FIX USA: SIEMPRE 3 OPCIONES REALES
-            $("step-content").innerHTML = lugar.map((l, i) => `
-                <div style="margin-bottom:12px;">
-                    <h3>${l}</h3>
-                    <p>💵 ${showBudget(presupuestoActual)}</p>
-                    <button onclick="window.open('${buildMap(l, st, zip)}','_blank')">
-                        IR AQUÍ
-                    </button>
+            cont.innerHTML = `
+                <div>
+                    <h3>Tu destino</h3>
+                    <p>${datosLugarGlobal.name}</p>
+                    <p>${datosLugarGlobal.address}</p>
                 </div>
-            `).join("");
-
-            btn.style.display = "none";
+            `;
         }
 
         return;
     }
 
-    const step = pasos[index];
+    const paso = pasosMisionGlobal[indicePasoActual];
 
-    $("step-content").innerHTML =
-        step.story?.es || step.tx || "..."
+    const text = paso?.story?.es || paso?.tx || "";
 
-    speak(step.story?.es || "");
+    cont.innerHTML = `<div>${text}</div>`;
 
-    btn.style.display = "block";
-    btn.innerText = "CONTINUAR";
+    if ("speechSynthesis" in window) {
+        speechSynthesis.cancel();
+        speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+    }
 
-    btn.onclick = () => {
-        index++;
+    get("btn-next").style.display = "block";
+    get("btn-next").onclick = () => {
+        indicePasoActual++;
         render();
     };
-}
-
-// ------------------ SPEAK ------------------
-function speak(text) {
-    if (!("speechSynthesis" in window)) return;
-    const u = new SpeechSynthesisUtterance(text || "");
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
 }
