@@ -142,6 +142,32 @@
         .form-group {
             margin-bottom: 12px;
         }
+
+        /* 🔵 BREATHING + UX ENHANCEMENTS */
+        #breathingCircle {
+            width: 90px;
+            height: 90px;
+            margin: 20px auto;
+            border-radius: 50%;
+            background: rgba(120, 200, 255, 0.6);
+            transition: transform 0.4s ease, background 0.4s ease;
+        }
+
+        .end-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: #333;
+            color: white;
+        }
     </style>
 </head>
 
@@ -204,8 +230,7 @@
             <textarea id="inp-text" placeholder="Escribe cómo te sientes..."></textarea>
         </div>
 
-        <!-- 🔥 BOTÓN CONECTADO -->
-        <button id="btn-start" class="btn-trigger" onclick="solicitarEscape()">
+        <button id="btn-start" class="btn-trigger">
             GENERAR ESCAPE
         </button>
 
@@ -223,21 +248,21 @@
         <h2 id="interactive-title"></h2>
         <p id="interactive-subtitle"></p>
 
-        <!-- 🔥 IMPORTANTE: CONTENEDOR QUE USA ENGINE -->
         <div id="step-content"></div>
 
-        <!-- BOTONES NECESARIOS PARA ENGINE -->
         <button id="btn-next" class="btn-next-step">CONTINUAR</button>
 
         <a id="btn-maps-action" class="btn-maps-route" target="_blank">
             ABRIR MAPA
         </a>
 
+        <!-- END SCREEN AREA (used by engine) -->
+        <div id="end-screen" class="end-buttons"></div>
+
     </div>
 
 </div>
 
-<!-- 🔥 SCRIPT AL FINAL (CRÍTICO) -->
 <script src="/static/engine.js"></script>
 
 </body>
