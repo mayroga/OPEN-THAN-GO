@@ -1,463 +1,319 @@
-// OPEN THAN GO SYSTEM - Frontend Voice & Somatic Engine
+// OPEN THAN GO SYSTEM - Frontend Engine (FIXED VERSION)
 // Company: May Roga LLC
-// File: static/engine.js
 
 let idiomaActual = 'es';
-let presupuestoActual = 'cero'; // Variable unificada para el presupuesto
-let modalidadSalir = true; 
+let presupuestoActual = 'cero';
+let modalidadSalir = true;
+
 let pasosMisionGlobal = [];
 let indicePasoActual = 0;
 let datosLugarGlobal = null;
 let tipoEscapeGlobal = "";
 let intervaloRespiracion = null;
 
+// ------------------------------
+// TRADUCCIONES
+// ------------------------------
 const traducciones = {
     es: {
         subtitle: "Tu escape emocional inteligente",
-        state: "Estado", region: "Región / Condado", zip: "ZIP Code", budget: "Presupuesto Disponible",
-        mode: "¿Salir o quedarte en casa?", desahogo: "Desahogo Opcional (Filtro Emocional)",
-        placeholder_text: "Escribe libremente cómo te sientes hoy...", btn_trigger: "GENERAR ESCAPE",
-        loader: "Calculando tu vector de escape ideal...", btn_continue: "CONTINUAR", btn_gps: "ABRIR MAPA EN GPS",
-        tipo_casa: "Protocolo Doméstico Activado", tipo_salida: "Protocolo de Exploración Abierto",
-        txt_correcto: "<strong>¡Excelente elección!</strong><br>", txt_incorrecto: "<strong>Analiza esto con calma:</strong><br>",
-        inspira: "Inhala / Inspira", expira: "Exhala / Expira"
+        state: "Estado",
+        region: "Región / Condado",
+        zip: "ZIP Code",
+        budget: "Presupuesto Disponible",
+        mode: "¿Salir o quedarte en casa?",
+        desahogo: "Desahogo Opcional (Filtro Emocional)",
+        placeholder_text: "Escribe libremente cómo te sientes hoy...",
+        btn_trigger: "GENERAR ESCAPE",
+        loader: "Calculando tu vector de escape ideal...",
+        btn_continue: "CONTINUAR",
+        btn_gps: "ABRIR MAPA EN GPS",
+        tipo_casa: "Protocolo Doméstico Activado",
+        tipo_salida: "Protocolo de Exploración Abierto",
+        txt_correcto: "<strong>¡Excelente elección!</strong><br>",
+        txt_incorrecto: "<strong>Analiza esto con calma:</strong><br>",
+        inspira: "Inhala",
+        expira: "Exhala"
     },
     en: {
         subtitle: "Your intelligent emotional escape",
-        state: "State", region: "Region / County", zip: "ZIP Code", budget: "Available Budget",
-        mode: "Go out or stay at home?", desahogo: "Optional Venting (Emotional Filter)",
-        placeholder_text: "Write freely about how you feel today...", btn_trigger: "GENERATE ESCAPE",
-        loader: "Calculating your ideal escape vector...", btn_continue: "CONTINUE", btn_gps: "OPEN MAP IN GPS",
-        tipo_casa: "Domestic Protocol Activated", tipo_salida: "Exploration Protocol Opened",
-        txt_correcto: "<strong>Excellent choice!</strong><br>", txt_incorrecto: "<strong>Analyze this calmly:</strong><br>",
-        inspira: "Inhale", expira: "Exhale"
+        state: "State",
+        region: "Region / County",
+        zip: "ZIP Code",
+        budget: "Available Budget",
+        mode: "Go out or stay at home?",
+        desahogo: "Optional Emotional Venting",
+        placeholder_text: "Write freely about how you feel today...",
+        btn_trigger: "GENERATE ESCAPE",
+        loader: "Calculating your escape vector...",
+        btn_continue: "CONTINUE",
+        btn_gps: "OPEN MAP",
+        tipo_casa: "Domestic Protocol Activated",
+        tipo_salida: "Exploration Protocol Opened",
+        txt_correcto: "<strong>Excellent choice!</strong><br>",
+        txt_incorrecto: "<strong>Think about this:</strong><br>",
+        inspira: "Inhale",
+        expira: "Exhale"
     }
 };
 
-function mostrarErrorEnPantalla(titulo, detalle) {
-    document.getElementById('wrapper-loader').style.display = 'none';
-    document.getElementById('wrapper-form').style.display = 'block';
-    
-    let cajaError = document.getElementById('error-diagnostico');
-    if (!cajaError) {
-        cajaError = document.createElement('div');
-        cajaError.id = 'error-diagnostico';
-        cajaError.style.background = '#ffebee';
-        cajaError.style.color = '#c62828';
-        cajaError.style.padding = '15px';
-        cajaError.style.borderRadius = '10px';
-        cajaError.style.marginTop = '15px';
-        cajaError.style.border = '2px solid #ef5350';
-        cajaError.style.fontSize = '13px';
-        document.getElementById('wrapper-form').appendChild(cajaError);
-    }
-    cajaError.innerHTML = `<strong>🚨 ERROR DE DIAGNÓSTICO:</strong><br>${titulo}<br><br><small style="color:#555;">Detalle técnico: ${detalle}</small>`;
+// ------------------------------
+// SAFE GET (EVITA CRASHES)
+// ------------------------------
+function get(id) {
+    return document.getElementById(id);
 }
 
-function hablarTexto(texto) {
-    try {
-        window.speechSynthesis.cancel();
-        if (!texto) return;
-        const lectura = new SpeechSynthesisUtterance(texto);
-        lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US'; 
-        lectura.rate = 0.95; 
-        window.speechSynthesis.speak(lectura);
-    } catch(e) {
-        console.error("Falla en motor de voz:", e);
-    }
-}
+// ------------------------------
+// INICIO SEGURO
+// ------------------------------
+document.addEventListener("DOMContentLoaded", () => {
 
+    const btn = get("btn-start");
+
+    if (btn) {
+        btn.addEventListener("click", solicitarEscape);
+    } else {
+        console.error("Botón btn-start no encontrado");
+    }
+
+});
+
+// ------------------------------
+// IDIOMA
+// ------------------------------
 function cambiarIdioma(lang) {
     idiomaActual = lang;
-    document.getElementById('lang-es').classList.toggle('active', lang === 'es');
-    document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-    
-    document.getElementById('txt-subtitle').innerText = traducciones[lang].subtitle;
-    document.getElementById('lbl-state').innerText = traducciones[lang].state;
-    document.getElementById('lbl-region').innerText = traducciones[lang].region;
-    document.getElementById('lbl-zip').innerText = traducciones[lang].zip;
-    document.getElementById('lbl-budget').innerText = traducciones[lang].budget;
-    document.getElementById('lbl-mode').innerText = traducciones[lang].mode;
-    document.getElementById('lbl-desahogo').innerText = traducciones[lang].desahogo;
-    document.getElementById('inp-text').placeholder = traducciones[lang].placeholder_text;
-    document.getElementById('btn-main-trigger').innerText = traducciones[lang].btn_trigger;
-    document.getElementById('txt-loader').innerText = traducciones[lang].loader;
-    document.getElementById('btn-next').innerText = traducciones[lang].btn_continue;
-    document.getElementById('btn-maps-action').innerText = traducciones[lang].btn_gps;
+
+    const esBtn = get('lang-es');
+    const enBtn = get('lang-en');
+
+    if (esBtn && enBtn) {
+        esBtn.classList.toggle('active', lang === 'es');
+        enBtn.classList.toggle('active', lang === 'en');
+    }
+
+    const map = {
+        'txt-subtitle': 'subtitle',
+        'lbl-state': 'state',
+        'lbl-region': 'region',
+        'lbl-zip': 'zip',
+        'lbl-budget': 'budget',
+        'lbl-mode': 'mode',
+        'lbl-desahogo': 'desahogo',
+        'inp-text': 'placeholder_text'
+    };
+
+    Object.keys(map).forEach(id => {
+        const el = get(id);
+        if (!el) return;
+
+        if (id === 'inp-text') {
+            el.placeholder = traducciones[lang][map[id]];
+        } else {
+            el.innerText = traducciones[lang][map[id]];
+        }
+    });
+
+    const loader = get("txt-loader");
+    if (loader) loader.innerText = traducciones[lang].loader;
 }
 
-// CORRECCIÓN DE ASIGNACIÓN: Sincroniza con el presupuesto exacto que espera main.py
+// ------------------------------
+// PRESUPUESTO
+// ------------------------------
 function cambiarBolsillo(opcion) {
-    presupuestoActual = opcion; // Cambia la variable global ('cero', 'minimo', 'moderado', 'libre')
-    const ids = ['b-cero', 'b-minimo', 'b-moderado', 'b-libre'];
-    ids.forEach(id => {
-        const elemento = document.getElementById(id);
-        if (elemento) elemento.classList.toggle('active', id === `b-${opcion}`);
+    presupuestoActual = opcion;
+
+    ["cero", "minimo", "moderado", "libre"].forEach(v => {
+        const el = get(`b-${v}`);
+        if (el) el.classList.toggle("active", v === opcion);
     });
 }
 
+// ------------------------------
+// MODALIDAD
+// ------------------------------
 function cambiarModalidad(esSalir) {
     modalidadSalir = esSalir;
-    document.getElementById('m-salir').classList.toggle('active', esSalir === true);
-    document.getElementById('m-casa').classList.toggle('active', esSalir === false);
-    
-    const displayGeografia = esSalir ? 'block' : 'none';
-    document.getElementById('inp-state').parentElement.style.display = displayGeografia;
-    document.getElementById('inp-region').parentElement.style.display = displayGeografia;
-    document.getElementById('inp-zip').parentElement.style.display = displayGeografia;
+
+    const salir = get("m-salir");
+    const casa = get("m-casa");
+
+    if (salir && casa) {
+        salir.classList.toggle("active", esSalir);
+        casa.classList.toggle("active", !esSalir);
+    }
 }
 
+// ------------------------------
+// MAIN CALL
+// ------------------------------
 async function solicitarEscape() {
+
     const payload = {
         decision: modalidadSalir ? "salir" : "casa",
         lang: idiomaActual,
-        budget_level: presupuestoActual, // Se envía 'cero', 'minimo', etc. corregido
-        zip_code: document.getElementById('inp-zip').value.trim(),
-        estado: document.getElementById('inp-state').value,
-        region: document.getElementById('inp-region').value,
-        desahogo: document.getElementById('inp-text').value.trim()
+        budget_level: presupuestoActual,
+        zip_code: get("inp-zip")?.value || "",
+        estado: get("inp-state")?.value || "",
+        region: get("inp-region")?.value || "",
+        desahogo: get("inp-text")?.value || ""
     };
 
-    document.getElementById('wrapper-form').style.display = 'none';
-    document.getElementById('wrapper-loader').style.display = 'flex';
-    document.getElementById('wrapper-interactive').style.display = 'none';
-
-    const errorPrevio = document.getElementById('error-diagnostico');
-    if (errorPrevio) errorPrevio.remove();
+    // UI states
+    if (get("wrapper-form")) get("wrapper-form").style.display = "none";
+    if (get("wrapper-loader")) get("wrapper-loader").style.display = "flex";
+    if (get("wrapper-interactive")) get("wrapper-interactive").style.display = "none";
 
     try {
-        const respuesta = await fetch('/api/open-than-go', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        const res = await fetch("/api/open-than-go", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
-        if (!respuesta.ok) {
-            mostrarErrorEnPantalla(`El servidor respondió con código ${respuesta.status}`, "Revisa los archivos JSON de misiones en la raíz de tu GitHub.");
-            return;
+        const data = await res.json();
+
+        if (!res.ok || data.status !== "success") {
+            throw new Error(data.message || "Error backend");
         }
 
-        const data = await respuesta.json();
-
         setTimeout(() => {
-            document.getElementById('wrapper-loader').style.display = 'none';
 
-            if (data.status === 'success' && data.mision && data.mision.b) {
-                pasosMisionGlobal = data.mision.b;
-                datosLugarGlobal = data.lugar || null;
-                tipoEscapeGlobal = data.tipo;
-                indicePasoActual = 0;
+            if (get("wrapper-loader")) get("wrapper-loader").style.display = "none";
+            if (get("wrapper-interactive")) get("wrapper-interactive").style.display = "block";
 
-                document.getElementById('interactive-title').innerText = "OPEN THAN GO";
-                document.getElementById('interactive-subtitle').innerText = 
-                    tipoEscapeGlobal === "Casa" ? traducciones[idiomaActual].tipo_casa : traducciones[idiomaActual].tipo_salida;
+            pasosMisionGlobal = data.mision?.b || [];
+            datosLugarGlobal = data.lugar || null;
+            tipoEscapeGlobal = data.tipo || "";
 
-                document.getElementById('wrapper-interactive').style.display = 'block';
-                document.getElementById('btn-start')
-        .addEventListener(
-            'click',
-            generarEscape
-        );
-                const areaLugar = document.getElementById('interactive-location');
-                if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
-                    areaLugar.innerHTML = `
-                        <div class="card-lugar">
-                            <h3>📍 ${datosLugarGlobal.name}</h3>
-                            <p>${datosLugarGlobal.address}</p>
-                        </div>
-                    `;
-                    areaLugar.style.display = 'block';
-                } else {
-                    areaLugar.style.display = 'none';
-                }
+            indicePasoActual = 0;
 
-                procesarPasoMision();
-            } else {
-                mostrarErrorEnPantalla("El backend respondió pero la estructura del JSON no es correcta.", data.message || "Verifica las misiones en tus archivos JSON.");
-            }
-        }, 1200);
+            procesarPasoMision();
 
-    } catch (error) {
-        mostrarErrorEnPantalla("Error de red intentando conectar con Render.", error.message);
+        }, 800);
+
+    } catch (e) {
+        console.error(e);
+
+        if (get("wrapper-loader")) get("wrapper-loader").style.display = "none";
+        if (get("wrapper-form")) get("wrapper-form").style.display = "block";
+
+        alert("Error conectando con el sistema");
     }
 }
 
+// ------------------------------
+// MOTOR DE PASOS
+// ------------------------------
 function procesarPasoMision() {
-    try {
-        clearInterval(intervaloRespiracion);
-        window.speechSynthesis.cancel();
 
-        const botonContinuar = document.getElementById('btn-next');
-        const botonGps = document.getElementById('btn-maps-action');
+    clearInterval(intervaloRespiracion);
+    window.speechSynthesis.cancel();
 
-        botonContinuar.style.display = 'none';
-        botonGps.style.display = 'none';
+    const cont = get("step-content");
 
-        let contenedorPasos = document.getElementById('step-content');
+    const btnNext = ensureButtonNext();
+    const btnMap = ensureMapButton();
 
-        if (!contenedorPasos) {
-            contenedorPasos = document.createElement('div');
-            contenedorPasos.id = 'step-content';
-            document.getElementById('wrapper-interactive')
-                .insertBefore(
-                    contenedorPasos,
-                    botonContinuar
-                );
+    if (indicePasoActual >= pasosMisionGlobal.length) {
+
+        if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
+            btnMap.href = datosLugarGlobal.gps_link;
+            btnMap.style.display = "block";
+        } else {
+            btnNext.innerText = "FINALIZAR";
+            btnNext.style.display = "block";
+            btnNext.onclick = () => location.reload();
         }
 
-        if (indicePasoActual >= pasosMisionGlobal.length) {
+        return;
+    }
 
-            if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
-                botonGps.href = datosLugarGlobal.gps_link;
-                botonGps.style.display = 'block';
-            } else {
-                botonContinuar.innerText = "FINALIZAR";
-                botonContinuar.style.display = 'block';
-                botonContinuar.onclick = () => {
-                    location.reload();
-                };
-            }
+    const paso = pasosMisionGlobal[indicePasoActual];
 
-            return;
-        }
-
-        const paso = pasosMisionGlobal[indicePasoActual];
-
-        botonContinuar.onclick = () => {
-            indicePasoActual++;
-            procesarPasoMision();
-        };
-
-        // --------------------------
-        // TITULOS
-        // --------------------------
-
-        if (paso.t === "v" || paso.t === "h") {
-
-            contenedorPasos.innerHTML =
-                `<h3 style="color:var(--secondary);margin:20px 0;">
-                    ${paso.tx[idiomaActual]}
-                </h3>`;
-
-            hablarTexto(paso.tx[idiomaActual]);
-
-            botonContinuar.style.display = 'block';
-            return;
-        }
-
-        // --------------------------
-        // HISTORIA
-        // --------------------------
-
-        if (paso.story) {
-
-            contenedorPasos.innerHTML =
-                `<div class="card-lugar">
-                    ${paso.story[idiomaActual]}
-                </div>`;
-
-            hablarTexto(paso.story[idiomaActual]);
-
-            botonContinuar.style.display = 'block';
-            return;
-        }
-
-        // --------------------------
-        // RESPIRACION
-        // --------------------------
-
-        if (paso.t === "breath_auto") {
-
-            let segundos = paso.d || 20;
-            let inhalar = true;
-
-            contenedorPasos.innerHTML = `
-                <div style="font-size:28px;margin-top:30px;">
-                    ${traducciones[idiomaActual].inspira}
-                </div>
-                <div id="contador-resp"
-                     style="font-size:50px;font-weight:bold;margin-top:20px;">
-                    ${segundos}
-                </div>
-            `;
-
-            hablarTexto(paso.tx[idiomaActual]);
-
-            intervaloRespiracion = setInterval(() => {
-
-                segundos--;
-
-                const contador =
-                    document.getElementById('contador-resp');
-
-                if (contador) {
-                    contador.innerText = segundos;
-                }
-
-                if (segundos <= 0) {
-                    clearInterval(intervaloRespiracion);
-                    indicePasoActual++;
-                    procesarPasoMision();
-                    return;
-                }
-
-                inhalar = !inhalar;
-
-                const texto =
-                    inhalar
-                        ? traducciones[idiomaActual].inspira
-                        : traducciones[idiomaActual].expira;
-
-                contenedorPasos.innerHTML = `
-                    <div style="font-size:28px;margin-top:30px;">
-                        ${texto}
-                    </div>
-                    <div id="contador-resp"
-                         style="font-size:50px;font-weight:bold;margin-top:20px;">
-                        ${segundos}
-                    </div>
-                `;
-
-            }, 1000);
-
-            return;
-        }
-
-        // --------------------------
-        // PREGUNTA
-        // --------------------------
-
-        if (paso.t === "d") {
-
-            let html =
-                `<h3>${paso.q[idiomaActual]}</h3><br>`;
-
-            paso.op.forEach((op, i) => {
-
-                html += `
-                    <button
-                        class="btn-choice"
-                        style="width:100%;margin-bottom:10px;"
-                        onclick="responderPregunta(${i})">
-                        ${op[idiomaActual]}
-                    </button>
-                `;
-            });
-
-            contenedorPasos.innerHTML = html;
-
-            window.responderPregunta = function (i) {
-
-                const correcto = i === paso.c;
-
-                contenedorPasos.innerHTML = `
-                    <div class="card-lugar">
-                        ${
-                            correcto
-                                ? traducciones[idiomaActual].txt_correcto
-                                : traducciones[idiomaActual].txt_incorrecto
-                        }
-                        ${paso.ex[i][idiomaActual]}
-                    </div>
-                `;
-
-                botonContinuar.style.display = 'block';
-            };
-
-            return;
-        }
-
-        // --------------------------
-        // RECOMPENSA
-        // --------------------------
-
-        if (paso.t === "r") {
-
-            contenedorPasos.innerHTML = `
-                <div style="
-                    font-size:35px;
-                    color:#00c853;
-                    text-align:center;
-                    margin-top:40px;">
-                    ${paso.tx}
-                    <br><br>
-                    +${paso.p || 0} pts
-                </div>
-            `;
-
-            botonContinuar.style.display = 'block';
-            return;
-        }
-
-        // --------------------------
-        // FRASE
-        // --------------------------
-
-        if (paso.t === "c") {
-
-            contenedorPasos.innerHTML = `
-                <h2 style="margin-top:40px;">
-                    ${paso.tx[idiomaActual]}
-                </h2>
-            `;
-
-            hablarTexto(paso.tx[idiomaActual]);
-
-            botonContinuar.style.display = 'block';
-            return;
-        }
-
-        // --------------------------
-        // SILENCIO / MEDITACION
-        // --------------------------
-
-        if (paso.t === "sil") {
-
-            let segundos = paso.d || 30;
-
-            contenedorPasos.innerHTML = `
-                <h3>${paso.tx[idiomaActual]}</h3>
-                <div id="contador-sil"
-                     style="
-                        font-size:60px;
-                        margin-top:25px;
-                        font-weight:bold;">
-                    ${segundos}
-                </div>
-            `;
-
-            hablarTexto(paso.tx[idiomaActual]);
-
-            intervaloRespiracion = setInterval(() => {
-
-                segundos--;
-
-                const contador =
-                    document.getElementById('contador-sil');
-
-                if (contador) {
-                    contador.innerText = segundos;
-                }
-
-                if (segundos <= 0) {
-                    clearInterval(intervaloRespiracion);
-                    indicePasoActual++;
-                    procesarPasoMision();
-                }
-
-            }, 1000);
-
-            return;
-        }
-
-        // Paso desconocido
+    btnNext.onclick = () => {
         indicePasoActual++;
         procesarPasoMision();
+    };
 
-    } catch (e) {
-        mostrarErrorEnPantalla(
-            "Fallo procesando misión.",
-            e.message
-        );
+    if (!cont) return;
+
+    // TEXTO SIMPLE
+    if (paso.t === "v" || paso.t === "h") {
+        cont.innerHTML = `<h3>${paso.tx?.[idiomaActual] || ""}</h3>`;
+        btnNext.style.display = "block";
+        return;
     }
+
+    // HISTORIA
+    if (paso.story) {
+        cont.innerHTML = `<div>${paso.story?.[idiomaActual] || ""}</div>`;
+        btnNext.style.display = "block";
+        return;
+    }
+
+    // RESPIRACIÓN
+    if (paso.t === "breath_auto") {
+
+        let s = paso.d || 10;
+
+        cont.innerHTML = `<h2>${traducciones[idiomaActual].inspira}</h2><div>${s}</div>`;
+
+        intervaloRespiracion = setInterval(() => {
+            s--;
+
+            cont.innerHTML = `<h2>${
+                s % 2 === 0
+                    ? traducciones[idiomaActual].inspira
+                    : traducciones[idiomaActual].expira
+            }</h2><div>${s}</div>`;
+
+            if (s <= 0) {
+                clearInterval(intervaloRespiracion);
+                indicePasoActual++;
+                procesarPasoMision();
+            }
+        }, 1000);
+
+        return;
+    }
+
+    // DEFAULT
+    indicePasoActual++;
+    procesarPasoMision();
+}
+
+// ------------------------------
+// BOTONES PROTEGIDOS
+// ------------------------------
+function ensureButtonNext() {
+    let b = get("btn-next");
+
+    if (!b) {
+        b = document.createElement("button");
+        b.id = "btn-next";
+        b.className = "btn-next-step";
+        b.style.display = "none";
+        b.innerText = "CONTINUAR";
+        get("wrapper-interactive")?.appendChild(b);
+    }
+
+    return b;
+}
+
+function ensureMapButton() {
+    let b = get("btn-maps-action");
+
+    if (!b) {
+        b = document.createElement("a");
+        b.id = "btn-maps-action";
+        b.className = "btn-maps-route";
+        b.target = "_blank";
+        b.innerText = "MAPA";
+        get("wrapper-interactive")?.appendChild(b);
+    }
+
+    return b;
 }
