@@ -1,4 +1,4 @@
-# OPEN THAN GO SYSTEM - Backend Engine v4 (FULL SYNCHRONIZED)
+# OPEN THAN GO SYSTEM - Backend Engine v5 (STABLE + UX SYNC)
 # Company: May Roga LLC
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -40,7 +40,7 @@ DATA_08 = cargar_json(MISSIONS_08)
 DATA_15 = cargar_json(MISSIONS_15)
 
 # ----------------------------------------------------
-# FALLBACK
+# FALLBACK SAFE
 # ----------------------------------------------------
 def fallback_mission(es, en):
     return {
@@ -57,13 +57,15 @@ def fallback_mission(es, en):
     }
 
 # ----------------------------------------------------
-# ZIP → ESTADO FIX (CRÍTICO)
+# LOCATION ENGINE (FIXED + CLEAN)
 # ----------------------------------------------------
 def resolver_ubicacion(zip_code, region, estado):
 
     zip_code = (zip_code or "").strip()
+    region = (region or "").strip()
+    estado = (estado or "FL").strip()
 
-    # PRIORIDAD ZIP
+    # ZIP OVERRIDE (prioridad absoluta)
     if zip_code:
         prefix = zip_code[:2]
 
@@ -74,17 +76,17 @@ def resolver_ubicacion(zip_code, region, estado):
         elif prefix in ["90", "91", "92", "93", "94", "95"]:
             estado = "CA"
 
-    # NORMALIZACIÓN REGIÓN
-    if estado == "TX" and "Florida" in region:
-        region = "Central Texas"
+    # NORMALIZACIÓN LIMPIA (SIN CRUCES LÓGICOS)
+    regiones_base = {
+        "FL": "Florida",
+        "TX": "Texas",
+        "CA": "California"
+    }
 
-    if estado == "FL" and "Texas" in region:
-        region = "South Florida"
+    if not region:
+        region = regiones_base.get(estado, "Unknown")
 
-    if estado == "CA" and region == "":
-        region = "Southern California"
-
-    return f"{region} {estado}".strip(), estado, region
+    return f"{region} {estado}", estado, region
 
 # ----------------------------------------------------
 # MISSION ENGINE
@@ -153,18 +155,18 @@ def open_than_go():
         lang = data.get("lang", "es")
 
         # ------------------------------------------------
-        # ONBOARDING QUESTIONS (NUEVO)
+        # ONBOARDING (MEJORADO, MENOS RUIDO)
         # ------------------------------------------------
         onboarding = [
-            "¿Qué emoción domina tu día?",
-            "¿Prefieres calma o acción?",
-            "¿Tienes energía baja, media o alta?",
-            "¿Quieres desconectar o resolver algo?",
-            "¿Qué te haría sentir mejor ahora?"
+            "¿Qué necesitas ahora: calma o movimiento?",
+            "¿Cómo está tu energía hoy?",
+            "¿Quieres pensar o desconectar?",
+            "¿Prefieres estar solo o acompañado?",
+            "¿Qué te aliviaría en este momento?"
         ]
 
         # ------------------------------------------------
-        # CASA MODE (10 min auto)
+        # CASA MODE (10 MIN EXACTOS)
         # ------------------------------------------------
         if decision == "casa":
 
@@ -178,13 +180,14 @@ def open_than_go():
                 "mision": mision,
                 "ui": {
                     "voice": {
+                        "enabled": True,
+                        "lock_by_language": True,
                         "es": "male",
-                        "en": "male",
-                        "enabled": True
+                        "en": "male"
                     },
                     "breathing": {
-                        "duration_ms": 25000,
-                        "style": "blue_silver_orb"
+                        "duration_sec": 600,
+                        "style": "single_orb"
                     },
                     "timer": {
                         "duration_sec": 600
@@ -213,13 +216,13 @@ def open_than_go():
         gps_link = f"https://www.google.com/maps/search/?api=1&query={query}"
 
         # ------------------------------------------------
-        # IMAGENES PARA MAPA (FIX UX VISUAL)
+        # IMAGENES (PARA UX VISUAL REAL)
         # ------------------------------------------------
         image_queries = [
             f"{termino} exterior",
-            f"{termino} interior",
+            f"{termino} ambiente",
             f"{termino} personas",
-            f"{termino} ambiente"
+            f"{termino} interior"
         ]
 
         mision = cargar_mision("salir", pocket)
@@ -244,15 +247,14 @@ def open_than_go():
 
             "ui": {
                 "voice": {
-                    "es": "male",
-                    "en": "male",
                     "enabled": True,
-                    "lock_by_language": True
+                    "lock_by_language": True,
+                    "es": "male",
+                    "en": "male"
                 },
                 "breathing": {
-                    "duration_ms": 25000,
-                    "style": "blue_silver_orb",
-                    "animation": "pulse_expand_contract"
+                    "duration_sec": 600,
+                    "style": "single_orb_pulse"
                 },
                 "timer": {
                     "duration_sec": 600
@@ -262,7 +264,6 @@ def open_than_go():
 
     except Exception as e:
         print("API ERROR:", e)
-
         return jsonify({
             "status": "error",
             "message": str(e)
@@ -273,9 +274,4 @@ def open_than_go():
 # ----------------------------------------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-
-    app.run(
-        host="0.0.0.0",
-        port=port,
-        debug=True
-    )
+    app.run(host="0.0.0.0", port=port, debug=True)
