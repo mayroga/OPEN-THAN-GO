@@ -1,4 +1,4 @@
-# OPEN THAN GO SYSTEM - EMOTION ROUTER v1
+# OPEN THAN GO SYSTEM - BIOPSYCHOSOCIAL EMOTION ROUTER v3
 # May Roga LLC
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -11,18 +11,16 @@ app = Flask(__name__, static_folder="static")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ----------------------------
-# LOAD MISSIONS
+# LOAD MISSIONS (SAFE)
 # ----------------------------
 def load_json(path):
+    if not os.path.exists(path):
+        return {"missions": []}
     try:
-        if not os.path.exists(path):
-            return {"missions": []}
         with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data if isinstance(data, dict) else {"missions": []}
+            return json.load(f)
     except:
         return {"missions": []}
-
 
 MISSIONS = [
     load_json(os.path.join(BASE_DIR, "missions_01_07.json")),
@@ -31,176 +29,142 @@ MISSIONS = [
 ]
 
 # ----------------------------
-# EMOTION ENGINE (CORE)
+# BIOPSYCHOSOCIAL ENGINE
 # ----------------------------
-def analyze_emotion(text, decision):
+def analyze_user(text, decision):
     text = (text or "").lower()
 
-    stress = any(w in text for w in ["trabajo", "estres", "ansiedad", "presion", "cansado"])
-    monotony = any(w in text for w in ["aburrido", "rutina", "igual", "siempre lo mismo"])
-    low_energy = any(w in text for w in ["sin energia", "agotado", "fatiga", "cansancio"])
-    control = any(w in text for w in ["decidir", "elige", "no quiero pensar", "guiame"])
+    profile = {
+        "stress": any(w in text for w in ["estres", "trabajo", "ansiedad", "presion"]),
+        "monotony": any(w in text for w in ["aburrido", "rutina", "igual"]),
+        "low_energy": any(w in text for w in ["cansado", "agotado", "sin energia"]),
+        "economic_pressure": any(w in text for w in ["dinero", "biles", "deuda", "caro"]),
+        "control_need": any(w in text for w in ["decidir", "elige", "no quiero pensar"]),
+        "social_need": any(w in text for w in ["solo", "familia", "hijos", "pareja"])
+    }
 
     if decision == "casa":
-        return "home_low" if low_energy else "home_balance"
+        return "HOME_LOW" if profile["low_energy"] else "HOME_BALANCED"
 
-    if stress:
-        return "out_structure"
-    if monotony:
-        return "out_explore"
-    if control:
-        return "out_directive"
-    if low_energy:
-        return "out_soft"
+    if profile["stress"]:
+        return "OUT_STRUCTURE"
+    if profile["monotony"]:
+        return "OUT_RECONNECTION"
+    if profile["economic_pressure"]:
+        return "OUT_AUSTERITY"
+    if profile["control_need"]:
+        return "OUT_DIRECTIVE"
 
-    return "out_balance"
-
+    return "OUT_BALANCED"
 
 # ----------------------------
-# BUDGET ENGINE (REAL RANGES)
+# BUDGET SYSTEM (REAL RANGES)
 # ----------------------------
 def budget_range(level):
-
     return {
         "cero": (0, 40),
         "minimo": (20, 60),
         "moderado": (40, 70),
-        "libre": (70, 1000000)
+        "libre": (70, 999999)
     }.get(level, (0, 40))
 
-
 # ----------------------------
-# LOCATION OPTIONS ENGINE
+# DESTINATION ENGINE (3 OPTIONS ALWAYS)
 # ----------------------------
-def generate_options(budget_level):
-
-    min_b, max_b = budget_range(budget_level)
-
-    pools = {
+def generate_places(budget_level, emotion):
+    base = {
         "cero": [
-            "playa pública cercana",
-            "parque natural",
-            "sendero caminata tranquilo",
-            "mirador gratuito"
+            "parque público accesible",
+            "playa gratuita",
+            "sendero natural"
         ],
         "minimo": [
             "cafetería tranquila",
-            "parque con vista al agua",
-            "mercado local",
-            "biblioteca o espacio público"
+            "parque con sombra",
+            "biblioteca pública"
         ],
         "moderado": [
             "restaurante casual",
-            "cine",
-            "centro recreativo",
-            "actividad cultural local"
+            "cine local",
+            "centro recreativo"
         ],
         "libre": [
-            "experiencia premium",
-            "restaurante top",
-            "hotel lounge",
-            "evento privado"
+            "rooftop lounge",
+            "hotel experiencia",
+            "restaurante premium"
         ]
     }
 
-    base = pools.get(budget_level, pools["cero"])
+    pool = base.get(budget_level, base["cero"])
 
-    # 🔥 SIEMPRE 3 OPCIONES
-    return random.sample(base, k=3 if len(base) >= 3 else len(base))
-
+    # SIEMPRE 3 OPCIONES (NO ROMPER CARGA MENTAL)
+    return random.sample(pool, k=min(3, len(pool)))
 
 # ----------------------------
-# MISSION ENGINE
+# MISSION ENGINE (SAFE FALLBACK)
 # ----------------------------
-def get_mission(mode, budget):
-    try:
-        pool = random.choice(MISSIONS).get("missions", [])
-
-        if not pool:
-            return {
-                "b": [{
-                    "story": {
-                        "es": "Sistema en ajuste emocional.",
-                        "en": "System adjusting emotional flow."
-                    }
-                }]
-            }
-
-        return random.choice(pool)
-
-    except:
+def get_mission():
+    pool = random.choice(MISSIONS).get("missions", [])
+    if not pool:
         return {
             "b": [{
                 "story": {
-                    "es": "Error de sistema emocional.",
-                    "en": "System emotional error."
+                    "es": "Sistema en equilibrio.",
+                    "en": "System in balance."
                 }
             }]
         }
-
+    return random.choice(pool)
 
 # ----------------------------
-# API EMOTION ROUTER
+# ROUTER API
 # ----------------------------
 @app.route("/api/open-than-go", methods=["POST"])
-def route_emotion():
+def router():
 
-    data = request.get_json(force=True) or {}
+    data = request.get_json(force=True)
 
     decision = data.get("decision", "salir")
     budget = data.get("budget_level", "cero")
     text = data.get("desahogo", "")
     lang = data.get("lang", "es")
 
-    emotion_mode = analyze_emotion(text, decision)
+    emotion = analyze_user(text, decision)
 
-    # ----------------------------
-    # CASA MODE (INTERIOR FLOW)
-    # ----------------------------
+    # ---------------- CASA MODE ----------------
     if decision == "casa":
-
         return jsonify({
             "status": "success",
-            "type": "HOME",
-            "emotion_mode": emotion_mode,
-
-            "mission": get_mission("home", budget),
-
+            "mode": "HOME",
+            "emotion_profile": emotion,
+            "mission": get_mission(),
             "ui": {
-                "mode": "casa",
-                "breathing": "soft_circle",
+                "breathing": "deep_reset_10min",
                 "voice": True,
-                "guidance": "soft",
-                "timer": 600
+                "guidance": "soft_reset"
             }
         })
 
-    # ----------------------------
-    # SALIR MODE (EXTERNAL FLOW)
-    # ----------------------------
-    options = generate_options(budget)
-
-    mission = get_mission("out", budget)
+    # ---------------- SALIR MODE ----------------
+    places = generate_places(budget, emotion)
 
     return jsonify({
         "status": "success",
-        "type": "OUT",
-        "emotion_mode": emotion_mode,
+        "mode": "OUT",
+        "emotion_profile": emotion,
 
-        # 🔥 CLAVE: SIEMPRE 3 OPCIONES
-        "recommendations": options,
+        # 3 OPCIONES CLARAS (NO MÁS)
+        "recommendations": places,
 
-        "mission": mission,
+        # MISIÓN TERAPÉUTICA OCULTA
+        "mission": get_mission(),
 
         "ui": {
-            "mode": "salir",
-            "breathing": "intro_light",
+            "breathing": "light_anchor_20sec",
             "voice": True,
-            "guidance": "directive",
-            "map_enabled": True
+            "guidance": "directive_companion"
         }
     })
-
 
 # ----------------------------
 # FRONTEND
@@ -209,9 +173,8 @@ def route_emotion():
 def home():
     return send_from_directory(app.static_folder, "session.html")
 
-
 # ----------------------------
-# RUN
+# START
 # ----------------------------
 if __name__ == "__main__":
     app.run(
