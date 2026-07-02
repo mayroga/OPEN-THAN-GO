@@ -145,9 +145,7 @@
             margin-bottom: 12px;
         }
 
-        /* ================================
-           🔵 BREATHING ORB (BLUE/SILVER)
-        ================================= */
+        /* ================= BREATHING ORB (SINGLE + REAL PULSE) ================= */
         #breathingCircle {
             width: 95px;
             height: 95px;
@@ -156,23 +154,20 @@
             background: radial-gradient(circle, var(--blue), var(--silver));
             box-shadow: 0 0 25px rgba(120,200,255,0.6);
             transform: scale(1);
-            transition: transform 2.5s ease-in-out, opacity 1s ease;
+            opacity: 0.9;
+            display: none;
         }
 
-        /* ================================
-           TIMER DISPLAY
-        ================================= */
+        /* TIMER REAL */
         #timer {
-            font-size: 20px;
+            font-size: 22px;
             text-align: center;
             margin-top: 10px;
             color: var(--primary);
             font-weight: bold;
+            display: none;
         }
 
-        /* ================================
-           END SCREEN
-        ================================= */
         .end-buttons {
             display: flex;
             flex-direction: column;
@@ -202,7 +197,7 @@
 
 <div class="container-app">
 
-    <!-- ================= FORM ================= -->
+    <!-- FORM -->
     <div id="wrapper-form">
 
         <div class="lang-bar">
@@ -213,6 +208,13 @@
         <div class="header-app">
             <h1>OPEN THAN GO</h1>
             <p id="txt-subtitle">Tu escape emocional inteligente</p>
+        </div>
+
+        <!-- MINI GUIA (NUEVO: preguntas iniciales suaves) -->
+        <div class="card-box">
+            <p id="txt-intro">
+                Antes de empezar: vamos a entender cómo te sientes para guiar mejor tu escape.
+            </p>
         </div>
 
         <div class="form-group">
@@ -260,25 +262,24 @@
 
     </div>
 
-    <!-- ================= LOADER ================= -->
+    <!-- LOADER -->
     <div id="wrapper-loader" class="loader-screen">
         <div class="spinner"></div>
         <p id="txt-loader">Calculando...</p>
     </div>
 
-    <!-- ================= INTERACTIVE ================= -->
+    <!-- INTERACTIVE -->
     <div id="wrapper-interactive" class="interactive-screen">
 
         <h2 id="interactive-title"></h2>
         <p id="interactive-subtitle"></p>
 
-        <!-- BREATHING ORB -->
+        <!-- RESPIRACIÓN REAL -->
         <div id="breathingCircle"></div>
 
-        <!-- TIMER -->
+        <!-- TIMER 10 MIN -->
         <div id="timer"></div>
 
-        <!-- CONTENT -->
         <div id="step-content"></div>
 
         <button id="btn-next" class="btn-next-step">CONTINUAR</button>
@@ -287,7 +288,6 @@
             ABRIR MAPA
         </a>
 
-        <!-- END SCREEN -->
         <div id="end-screen" class="end-buttons"></div>
 
     </div>
