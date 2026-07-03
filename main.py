@@ -25,7 +25,14 @@ BASE_MISIONES = {
         {"titulo": "Fase 3: Orden", "descripcion": "Alinea 3 objetos en tu espacio físico perfectamente."},
         {"titulo": "Fase 1: Conexión", "descripcion": "Apoya las plantas de tus pies firmemente."},
         {"titulo": "Fase 2: Expansión", "descripcion": "Estira tus brazos hacia arriba sin forzar."},
-        {"titulo": "Fase 3: Foco", "descripcion": "Elige una tarea mínima que ignoraste y termínala."}
+        {"titulo": "Fase 3: Foco", "descripcion": "Elige una tarea mínima que ignoraste y termínala."},
+        # Nuevas adiciones:
+        {"titulo": "Fase 1: Postura", "descripcion": "Endereza tu columna. Imagina un hilo tirando de tu coronilla."},
+        {"titulo": "Fase 2: Contacto", "descripcion": "Toca una superficie fría (mesa o pared) y siente su temperatura."},
+        {"titulo": "Fase 3: Ventilación", "descripcion": "Abre una ventana. Deja que el aire nuevo renueve el ambiente."},
+        {"titulo": "Fase 1: Desbloqueo", "descripcion": "Gira tus muñecas y tobillos 10 veces en cada dirección."},
+        {"titulo": "Fase 2: Desapego", "descripcion": "Deja el teléfono boca abajo por 3 minutos. Solo observa."},
+        {"titulo": "Fase 3: Cierre", "descripcion": "Cierra los ojos y agradece una sola cosa que lograste hoy."}
     ],
     "SALIR": {
         "agotado": [
@@ -36,7 +43,12 @@ BASE_MISIONES = {
             {"titulo": "Silencio Absoluto", "porque": "Necesitas aislarte del ruido urbano.", "que_hacer": "Busca un rincón sin gente.", "donde": "Zona de reserva natural.", "gps": "nature+reserve"},
             {"titulo": "Brisa Marina", "porque": "El aire salino y el sonido del mar resetean la fatiga mental.", "que_hacer": "Camina por la orilla y siente la brisa en tu cara.", "donde": "Playa pública o malecón.", "gps": "beach+near+"},
             {"titulo": "Jardín Zen", "porque": "La geometría de la naturaleza organizada calma el caos interior.", "que_hacer": "Camina lentamente observando los detalles de las plantas.", "donde": "Jardín botánico o parque japonés.", "gps": "botanical+garden+near+"},
-            {"titulo": "Refugio bajo las nubes", "porque": "Observar el cielo cambia la perspectiva del tamaño de tus problemas.", "que_hacer": "Acuéstate sobre el césped y mira hacia arriba 10 minutos.", "donde": "Campo abierto o pradera.", "gps": "open+field+park"}
+            {"titulo": "Refugio bajo las nubes", "porque": "Observar el cielo cambia la perspectiva del tamaño de tus problemas.", "que_hacer": "Acuéstate sobre el césped y mira hacia arriba 10 minutos.", "donde": "Campo abierto o pradera.", "gps": "open+field+park"},
+            {"titulo": "Bosque de Sombras", "porque": "La luz filtrada por árboles regula la temperatura corporal y mental.", "que_hacer": "Camina bajo la sombra densa.", "donde": "Sendero arbolado.", "gps": "shaded+walking+trail"},
+            {"titulo": "Observatorio de Aves", "porque": "Enfocarse en movimiento lento externo calma el pulso.", "que_hacer": "Siéntate y observa aves sin moverte.", "donde": "Refugio de vida silvestre.", "gps": "wildlife+refuge+near+"},
+            {"titulo": "Zona de Viento", "porque": "El movimiento del aire dispersa la carga estática mental.", "que_hacer": "Busca un espacio abierto con brisa.", "donde": "Campo o colina abierta.", "gps": "windy+open+space"},
+            {"titulo": "Paso de Piedra", "porque": "Sentir texturas naturales aterriza el sistema nervioso.", "que_hacer": "Camina sobre un sendero de grava o piedra.", "donde": "Parque con senderos de piedra.", "gps": "stone+path+park"},
+            {"titulo": "Refugio de Tarde", "porque": "La luz del atardecer avisa a tu cerebro el final del ciclo de alerta.", "que_hacer": "Observa la transición de luz al atardecer.", "donde": "Punto de puesta de sol.", "gps": "sunset+viewpoint"}
         ],
         "estresado": [
             {"titulo": "Zona de Descarga", "porque": "Necesitas metabolizar el cortisol.", "que_hacer": "Caminata a ritmo acelerado.", "donde": "Pista pública.", "gps": "recreation+centers+near+"},
@@ -46,7 +58,12 @@ BASE_MISIONES = {
             {"titulo": "Descarga de Tensión", "porque": "Tus músculos necesitan alivio.", "que_hacer": "Estira contra una superficie estable.", "donde": "Instalación recreativa.", "gps": "outdoor+gym+near+"},
             {"titulo": "Senderismo de Foco", "porque": "El terreno irregular obliga a tu mente a estar presente.", "que_hacer": "Camina por un sendero con piedras o raíces.", "donde": "Sendero natural o forestal.", "gps": "hiking+trails+near+"},
             {"titulo": "Carga de Peso Propio", "porque": "La tensión requiere una liberación de fuerza física.", "que_hacer": "Haz ejercicios de calistenia usando barras.", "donde": "Parque con zona de barras.", "gps": "outdoor+gym+near+"},
-            {"titulo": "Circuito de Movilidad", "porque": "Desbloquea las articulaciones donde se guarda el estrés.", "que_hacer": "Camina activando el movimiento de tus hombros.", "donde": "Parque lineal o camino peatonal.", "gps": "linear+park+near+"}
+            {"titulo": "Circuito de Movilidad", "porque": "Desbloquea las articulaciones donde se guarda el estrés.", "que_hacer": "Camina activando el movimiento de tus hombros.", "donde": "Parque lineal o camino peatonal.", "gps": "linear+park+near+"},
+            {"titulo": "Escalera de Desahogo", "porque": "El esfuerzo vertical corta el bucle de pensamientos repetitivos.", "que_hacer": "Sube y baja una escalinata de parque.", "donde": "Escaleras públicas.", "gps": "staircase+workout"},
+            {"titulo": "Carrera de Aislamiento", "porque": "El aislamiento físico permite el desahogo sin testigos.", "que_hacer": "Corre en un tramo solitario.", "donde": "Zona deportiva de bajo tráfico.", "gps": "running+path+quiet"},
+            {"titulo": "Circuito de Estiramiento", "porque": "Mantener posiciones de estiramiento alarga la fibra muscular.", "que_hacer": "Sigue una rutina de estiramiento en el césped.", "donde": "Césped de parque abierto.", "gps": "public+park+green+space"},
+            {"titulo": "Boxeo de Sombra", "porque": "El movimiento explosivo y corto libera ira contenida.", "que_hacer": "Ejecuta movimientos de boxeo al aire.", "donde": "Área deportiva abierta.", "gps": "open+recreation+area"},
+            {"titulo": "Caminata de Peso", "porque": "Caminar con una mochila ligera ayuda a centrar tu gravedad.", "que_hacer": "Camina con paso constante y pesado.", "donde": "Sendero pavimentado.", "gps": "paved+walking+path"}
         ],
         "aburrido": [
             {"titulo": "Distrito de Estímulo", "porque": "La monotonía bloquea tu dopamina.", "que_hacer": "Visita zona de arte y gente.", "donde": "Centro histórico.", "gps": "arts+and+entertainment+near+"},
@@ -56,8 +73,12 @@ BASE_MISIONES = {
             {"titulo": "Análisis Arquitectónico", "porque": "Cambiar el foco visual despierta curiosidad.", "que_hacer": "Mira la forma de edificios.", "donde": "Distrito histórico.", "gps": "historical+buildings+near+"},
             {"titulo": "Mercado de Sabores", "porque": "La novedad sensorial despierta el interés por el entorno.", "que_hacer": "Huele los productos y observa los colores de los puestos.", "donde": "Mercado local o feria.", "gps": "farmers+market+near+"},
             {"titulo": "Ruta de Librería", "porque": "Las historias ajenas expanden tu mundo interno.", "que_hacer": "Entra, toca los libros y elige uno al azar.", "donde": "Librería de usados o pública.", "gps": "bookstore+near+"},
-            {"titulo": "Exploración de Contrastes", "porque": "El cambio de zona urbana activa tu atención plena.", "que_hacer": "Cruza de un barrio residencial a uno comercial.", "donde": "Zona de transición urbana.", "gps": "city+center+near+"}
-        ]
+            {"titulo": "Exploración de Contrastes", "porque": "El cambio de zona urbana activa tu atención plena.", "que_hacer": "Cruza de un barrio residencial a uno comercial.", "donde": "Zona de transición urbana.", "gps": "city+center+near+"},
+            {"titulo": "Galería de Ventanales", "porque": "Observar reflejos y espacios altera tu percepción.", "que_hacer": "Camina frente a edificios con grandes vidrieras.", "donde": "Distrito financiero.", "gps": "financial+district+architecture"},
+            {"titulo": "Paseo de Fuentes", "porque": "El sonido y movimiento de fuentes rompe la quietud aburrida.", "que_hacer": "Camina junto a fuentes públicas.", "donde": "Plaza con fuentes.", "gps": "public+fountain+plaza"},
+            {"titulo": "Ruta de Cafés", "porque": "El aroma a café y el movimiento humano activan sentidos.", "que_hacer": "Observa el menú en tres cafeterías distintas.", "donde": "Zona comercial.", "gps": "coffee+shops+near+"},
+            {"titulo": "Museo de Calle", "porque": "La historia expuesta en placas cambia tu foco temporal.", "que_hacer": "Lee las placas conmemorativas del barrio.", "donde": "Zona histórica.", "gps": "historical+markers+near+"},
+            {"titulo": "Búsqueda de Detalles", "porque": "Obligar a tu ojo a buscar detalles pequeños elimina el aburrimiento.", "que_hacer": "Busca una puerta de color específico.", "donde": "Calle residencial.", "gps": "residential+street+walking"}
     }
 }
 
