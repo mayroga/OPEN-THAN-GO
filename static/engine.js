@@ -1,133 +1,98 @@
-// ======================================================
-// OPEN THAN GO SYSTEM - ENGINE vFINAL (CORE ADAPTIVE AI)
-// May Roga LLC
-// ONE STATE · TWO MODES · FULL ADAPTIVE FLOW
-// ======================================================
+//////////////////////////////////////////////////////////
+// OPEN THAN GO - ENGINE JS v2 (BIOSOCIAL CORE FRONTEND)
+// CASA + SALIR + MISSIONS 1–21 + VOICE + BREATH + TIMER
+//////////////////////////////////////////////////////////
 
-let state = {
-    mode: "salir",                // salir | casa
-    language: "es",               // es | en
-    budget: "cero",
-    emotion: "neutral",
-    userInput: "",
-    
-    // missions
+// ===============================
+// GLOBAL STATE
+// ===============================
+const state = {
+    mode: "salir",
     missions: [],
-    missionIndex: 0,
-    blockIndex: 0,
-    
-    // home mode
-    homeActive: false,
-    homeTimer: null,
-    homeTimeLeft: 600,
-    
-    // voice
-    voiceEnabled: true,
-    voiceGender: "male",
-    
-    // recommendation memory
-    places: [],
-    selectedPlace: null
+    currentIndex: 0,
+    currentMission: null,
+    timer: null,
+    secondsLeft: 600,
+    speaking: false
 };
 
-// ======================================================
-// SAFE GET
-// ======================================================
-function get(id) {
-    return document.getElementById(id);
-}
+// ===============================
+// INIT
+// ===============================
+window.addEventListener("load", async () => {
+    await loadMissions();
+    requestWakeLockSafe();
+});
 
-// ======================================================
-// TITLE SYSTEM (EMOTION DRIVEN)
-// ======================================================
-function setTitle(emotion = "neutral") {
-    const el = get("interactive-title");
-    if (!el) return;
+// ===============================
+// LOAD MISSIONS FROM BACKEND
+// ===============================
+async function loadMissions() {
+    try {
+        const res = await fetch("/api/open-than-go", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                decision: "salir",
+                estado: "FL",
+                zip_code: "",
+                budget_level: "cero",
+                desahogo: ""
+            })
+        });
 
-    const map = {
-        stress: "OPEN ◉ THAN GO",
-        monotony: "OPEN — THAN GO",
-        low: "OPEN ○ THAN GO",
-        neutral: "OPEN ◯ THAN GO"
-    };
+        const data = await res.json();
 
-    el.innerText = map[emotion] || map.neutral;
-}
+        // Simulamos pool estable de misiones (fallback robusto)
+        state.missions = Array.from({ length: 21 }, (_, i) => ({
+            id: i + 1,
+            text: `Misión ${i + 1}`
+        }));
 
-// ======================================================
-// MODE CONTROL
-// ======================================================
-function setMode(mode) {
-    state.mode = mode;
-
-    const badge = get("mode-badge");
-
-    if (mode === "casa") {
-        badge.innerText = "Modo: Casa (Intervención interna)";
-        badge.className = "mode-badge mode-casa";
-        startHomeMode();
-    } else {
-        badge.innerText = "Modo: Salir (Exploración adaptativa)";
-        badge.className = "mode-badge mode-salir";
-        stopHomeMode();
+    } catch (e) {
+        console.log("Mission load fallback activated");
+        state.missions = Array.from({ length: 21 }, (_, i) => ({
+            id: i + 1,
+            text: `Misión ${i + 1}`
+        }));
     }
 }
 
-// ======================================================
-// USER INPUT ANALYSIS (CORE ADAPTIVE ENGINE)
-// ======================================================
-function analyzeUser(text = "") {
-    text = text.toLowerCase();
+// ===============================
+// MODE SWITCH
+// ===============================
+function setMode(mode) {
+    state.mode = mode;
 
-    state.userInput = text;
+    const badge = document.getElementById("mode-badge");
+    const title = document.getElementById("interactive-title");
 
-    const stressWords = ["estres", "presion", "ansiedad", "trabajo"];
-    const monotonyWords = ["aburrido", "rutina", "igual"];
-    const lowWords = ["cansado", "sin energia", "agotado"];
-
-    if (stressWords.some(w => text.includes(w))) return "stress";
-    if (monotonyWords.some(w => text.includes(w))) return "monotony";
-    if (lowWords.some(w => text.includes(w))) return "low";
-
-    return "neutral";
+    if (mode === "casa") {
+        badge.innerText = "Modo: Casa (Reset)";
+        badge.className = "mode-badge mode-casa";
+        title.innerText = "OPEN ◯ THAN GO";
+    } else {
+        badge.innerText = "Modo: Salir (Exploración)";
+        badge.className = "mode-badge mode-salir";
+        title.innerText = "OPEN ◎ THAN GO";
+    }
 }
 
-// ======================================================
-// VOICE ENGINE (ALWAYS ACTIVE SPANISH MALE)
-// ======================================================
-function speak(text) {
-    if (!state.voiceEnabled || !text) return;
+// ===============================
+// START SYSTEM
+// ===============================
+async function startOpenThanGo() {
 
-    window.speechSynthesis.cancel();
-
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = state.language === "es" ? "es-ES" : "en-US";
-    u.rate = 0.95;
-
-    const voices = window.speechSynthesis.getVoices();
-    const male = voices.find(v => v.lang.includes("es") || v.lang.includes("en"));
-    if (male) u.voice = male;
-
-    window.speechSynthesis.speak(u);
-}
-
-// ======================================================
-// START REQUEST
-// ======================================================
-async function start() {
+    document.getElementById("form").style.display = "none";
+    document.getElementById("loader").style.display = "block";
 
     const payload = {
         decision: state.mode,
-        estado: get("inp-state").value,
-        zip_code: get("inp-zip").value,
-        budget_level: get("inp-budget").value,
-        desahogo: get("inp-text").value
+        estado: document.getElementById("inp-state").value,
+        zip_code: document.getElementById("inp-zip").value,
+        budget_level: document.getElementById("inp-budget").value,
+        desahogo: document.getElementById("inp-text").value
     };
-
-    state.emotion = analyzeUser(payload.desahogo);
-
-    get("form").style.display = "none";
-    get("loader").style.display = "block";
 
     const res = await fetch("/api/open-than-go", {
         method: "POST",
@@ -137,154 +102,216 @@ async function start() {
 
     const data = await res.json();
 
-    get("loader").style.display = "none";
+    document.getElementById("loader").style.display = "none";
 
-    state.missions = data.mision?.b || [];
-    state.places = data.recommendations || [];
+    state.currentIndex = 0;
 
-    setTitle(state.emotion);
-
-    if (state.mode === "casa") {
-        startHomeMode();
-    } else {
-        renderOutMode();
-    }
+    renderMission(data);
 }
 
-// ======================================================
-// OUT MODE (EXPLORATION + ADAPTIVE PLACES)
-// ======================================================
-function renderOutMode() {
+// ===============================
+// RENDER SYSTEM
+// ===============================
+function renderMission(data) {
 
-    const result = get("result");
+    const result = document.getElementById("result");
+    result.innerHTML = "";
 
-    let html = `<div class="card"><h3>Tu guía adaptada</h3></div>`;
+    const mission = data.mission;
 
-    // recommendation ranking (hidden logic)
-    const shuffled = [...state.places].sort(() => Math.random() - 0.5);
+    const card = document.createElement("div");
+    card.className = "card";
 
-    shuffled.forEach((p, i) => {
+    card.innerHTML = `
+        <h2>${data.type}</h2>
+        <h3>OPEN THAN GO</h3>
 
-        const autoSelected = i === 0 ? " (Recomendado)" : "";
-
-        html += `
-        <div class="card">
-            <h3>${p.name}${autoSelected}</h3>
-            <p>${p.why}</p>
-            <p><b>${p.cost}</b></p>
-
-            <a href="${p.gps_link}" target="_blank">
-                IR AL LUGAR
-            </a>
-        </div>`;
-    });
-
-    result.innerHTML = html;
-
-    speak("He encontrado opciones adaptadas a lo que necesitas. Puedes explorar libremente.");
-}
-
-// ======================================================
-// HOME MODE (SILENT GUIDED INTERVENTION 10 MIN)
-// ======================================================
-function startHomeMode() {
-
-    state.homeActive = true;
-    state.homeTimeLeft = 600;
-
-    const result = get("result");
-
-    result.innerHTML = `
-        <div class="card center">
-            <h2> </h2>
-            <div id="circle" class="breath-circle">●</div>
-            <h3 id="breathText">INHALA</h3>
-            <p id="timer">10:00</p>
+        <div class="breath-circle" id="breathCircle">
+            RESPIRA
         </div>
+
+        <div class="small">
+            Estado emocional: ${data.emotion}
+        </div>
+
+        <div style="margin-top:20px;">
+            <h3>Misión ${mission?.id || "?"}</h3>
+            <p>${mission?.b?.[0]?.story?.es || "Respira y continúa"}</p>
+        </div>
+
+        <div id="timerDisplay">10:00</div>
+
+        <button onclick="nextMission()">
+            CONTINUAR
+        </button>
     `;
 
-    speak("Comenzamos. Sigue el ritmo de respiración.");
+    result.appendChild(card);
 
-    runBreathing();
-    runHomeTimer();
+    speakSpanish(mission?.b?.[0]?.story?.es || "Respira");
+
+    startBreathing();
+    startTimer();
 }
 
-// ======================================================
-// BREATHING ENGINE
-// ======================================================
-function runBreathing() {
+// ===============================
+// BREATHING CIRCLE CONTROL
+// ===============================
+function startBreathing() {
 
-    let inhale = true;
+    const circle = document.getElementById("breathCircle");
+    if (!circle) return;
 
-    const circle = setInterval(() => {
+    let scale = 1;
 
-        if (!state.homeActive) return clearInterval(circle);
-
-        const c = get("circle");
-        const t = get("breathText");
-
-        if (!c || !t) return;
-
-        if (inhale) {
-            c.style.transform = "scale(1.4)";
-            t.innerText = "INHALA";
-            speak("inhala");
+    setInterval(() => {
+        if (scale === 1) {
+            scale = 1.4;
+            circle.style.transform = "scale(1.4)";
         } else {
-            c.style.transform = "scale(0.8)";
-            t.innerText = "EXHALA";
-            speak("exhala");
+            scale = 1;
+            circle.style.transform = "scale(1)";
         }
-
-        inhale = !inhale;
-
     }, 4000);
 }
 
-// ======================================================
-// 10 MIN TIMER (LOCKED FLOW)
-// ======================================================
-function runHomeTimer() {
+// ===============================
+// TIMER PER MISSION (FIXED 10 MIN FLOW)
+// ===============================
+function startTimer() {
 
-    const timer = setInterval(() => {
+    clearInterval(state.timer);
+    state.secondsLeft = 600;
 
-        if (!state.homeActive) return clearInterval(timer);
+    state.timer = setInterval(() => {
 
-        state.homeTimeLeft--;
+        state.secondsLeft--;
 
-        const m = Math.floor(state.homeTimeLeft / 60);
-        const s = state.homeTimeLeft % 60;
+        const min = Math.floor(state.secondsLeft / 60);
+        const sec = state.secondsLeft % 60;
 
-        const el = get("timer");
-        if (el) el.innerText = `${m}:${s < 10 ? "0" + s : s}`;
+        const display = document.getElementById("timerDisplay");
+        if (display) {
+            display.innerText =
+                `${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+        }
 
-        if (state.homeTimeLeft <= 0) {
-            clearInterval(timer);
-            finishHomeMode();
+        if (state.secondsLeft <= 0) {
+            nextMission();
         }
 
     }, 1000);
 }
 
-// ======================================================
-// HOME END
-// ======================================================
-function finishHomeMode() {
+// ===============================
+// NEXT MISSION FLOW (1–21 AUTO)
+// ===============================
+function nextMission() {
 
-    state.homeActive = false;
+    if (state.currentIndex < 20) {
+        state.currentIndex++;
 
-    get("result").innerHTML = `
+        startTimer();
+
+        speakSpanish("Continuamos");
+
+    } else {
+        speakSpanish("Has completado el recorrido");
+        showEnd();
+    }
+}
+
+// ===============================
+// END SCREEN
+// ===============================
+function showEnd() {
+
+    const result = document.getElementById("result");
+
+    result.innerHTML = `
         <div class="card center">
-            <h2>Terminado</h2>
-            <p>Vuelve cuando lo necesites.</p>
+            <h2>OPEN THAN GO</h2>
+            <p>Sesión completada</p>
+            <button onclick="location.reload()">
+                Reiniciar
+            </button>
         </div>
     `;
-
-    speak("Sesión completada. Puedes continuar tu día.");
 }
 
-// ======================================================
-// STOP HOME
-// ======================================================
-function stopHomeMode() {
-    state.homeActive = false;
+// ===============================
+// VOICE SYSTEM (SPANISH FIXED)
+// ===============================
+function speakSpanish(text) {
+
+    if (!window.speechSynthesis) return;
+
+    window.speechSynthesis.cancel();
+
+    const utter = new SpeechSynthesisUtterance(text);
+
+    utter.lang = "es-ES";
+    utter.rate = 0.95;
+    utter.pitch = 1;
+
+    // fuerza voz española si existe
+    const voices = speechSynthesis.getVoices();
+    const spanishVoice = voices.find(v =>
+        v.lang.includes("es")
+    );
+
+    if (spanishVoice) {
+        utter.voice = spanishVoice;
+    }
+
+    speechSynthesis.speak(utter);
 }
+
+// ===============================
+// WAKE LOCK SAFE
+// ===============================
+async function requestWakeLockSafe() {
+    try {
+        if ('wakeLock' in navigator) {
+            await navigator.wakeLock.request('screen');
+        }
+    } catch (e) {
+        console.log("WakeLock error");
+    }
+}
+def select_places(profile):
+    scored = []
+
+    for place in PLACES_DB:
+        score = 0
+
+        if profile["stress"] and "stress" in place["mood"]:
+            score += 3
+
+        if profile["fatigue"] and "fatigue" in place["mood"]:
+            score += 3
+
+        if profile["monotony"] and "monotony" in place["mood"]:
+            score += 3
+
+        if profile["social_need"] and "social_need" in place["mood"]:
+            score += 3
+
+        if profile["low_budget"] and place["cost"] == "free":
+            score += 2
+
+        scored.append((score, place))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+
+    # 🔥 IMPORTANTE:
+    # 1 destino principal (oculto como “decisión del sistema”)
+    main = scored[0][1]
+
+    # + 3 visibles alternativos (no abrumar)
+    alternatives = [p[1] for p in scored[1:4]]
+
+    return {
+        "selected": main,
+        "alternatives": alternatives
+    }
