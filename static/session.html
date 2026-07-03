@@ -11,17 +11,16 @@
             --bg: #f4f6f4; 
         }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 480px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .container { width: 100%; max-width: 480px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 8px solid #333; transition: border-color 0.3s; }
         .lang-bar { display: flex; gap: 10px; margin-bottom: 20px; }
         .btn-lang { flex: 1; padding: 8px; border: none; border-radius: 8px; cursor: pointer; background: #eee; font-weight: bold; }
         .btn-lang.active { background: #333; color: white; }
         .group { display: flex; gap: 10px; margin-bottom: 15px; }
         .group button { flex: 1; padding: 12px; border: 2px solid #eee; border-radius: 10px; background: white; cursor: pointer; font-weight: bold; }
-        .group button.active { border-color: #333; }
+        .group button.active { border-color: #333; background: #f9f9f9; }
         textarea, input { width: 100%; padding: 15px; margin-bottom: 10px; border: 2px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 16px; }
         #btn-start { width: 100%; padding: 18px; background: #000; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; }
         
-        /* Dinamismo */
         .breath-circle { width: 150px; height: 150px; border-radius: 50%; margin: 20px auto; background: radial-gradient(circle, #fff, var(--casa)); animation: respirar 8s infinite ease-in-out; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
         @keyframes respirar { 0%, 100% { transform: scale(0.8); opacity: 0.7; } 50% { transform: scale(1.2); opacity: 1; } }
         
@@ -48,15 +47,14 @@
 
     <div class="group">
         <button id="b-cero" class="active" onclick="cambiarBolsillo('cero')">$0</button>
-        <button id="b-minimo" onclick="cambiarBolsillo('minimo')">$50</button>
-        <button id="b-moderado" onclick="cambiarBolsillo('moderado')">$150</button>
+        <button id="b-minimo" onclick="cambiarBolsillo('minimo')">$10</button>
+        <button id="b-moderado" onclick="cambiarBolsillo('moderado')">$50</button>
         <button id="b-libre" onclick="cambiarBolsillo('libre')">LIBRE</button>
     </div>
 
     <textarea id="inp-text" rows="3" placeholder="¿Qué necesitas soltar hoy?"></textarea>
     <input type="text" id="inp-zip" placeholder="ZIP Code">
     <input type="text" id="inp-state" placeholder="Estado">
-    <input type="text" id="inp-region" placeholder="Ciudad">
     
     <button id="btn-start">ACTIVAR MANDO</button>
 </div>
