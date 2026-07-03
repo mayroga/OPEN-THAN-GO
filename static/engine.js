@@ -184,19 +184,18 @@ function procesarPaoMision() {
             // La voz lee obligatoriamente la guía explicativa completa sin cortarse
             hablarTexto(traducciones[idiomaActual].alerta_35s + " . Tres sugerencias de enfoque: " + datosLugarGlobal.analisis_sugerido);
             
-                let relojSalida = setInterval(() => {
+            // TU SOLUCIÓN: El reloj de 35s prepara el terreno y revela el botón para el clic voluntario
+            let relojSalida = setInterval(() => {
                 cuentaRegresivaSalir--;
                 botonContinuar.innerText = cuentaRegresivaSalir + "s";
+                
                 if(cuentaRegresivaSalir <= 0) {
                     clearInterval(relojSalida);
-                    botonContinuar.style.display = 'none';
+                    botonContinuar.style.display = 'none'; // Oculta el contador viejo
                     
-                    // DESPLIEGUE OBLIGATORIO DE MAPA EN VIVO SIN MARCHA ATRÁS
+                    // Prepara el botón azul con el enlace oficial de Google Maps
                     botonGps.href = datosLugarGlobal.gps_link;
-                    botonGps.style.display = 'block';
-                    
-                    // Corrección definitiva para abrir la app nativa de Google Maps en el celular
-                    window.open(datosLugarGlobal.gps_link, '_blank');
+                    botonGps.style.display = 'block'; // Muestra el botón azul en grande
                 }
             }, 1000);
 
