@@ -1,3 +1,4 @@
+```python
 # OPEN THAN GO SYSTEM - Main Backend Engine
 # Company: May Roga LLC
 # File: main.py
@@ -24,8 +25,7 @@ def cargar_mision_especifica(decision, pocket_tier):
                 "id": 1, "cat": "bien", "pocket_match": ["cero", "moderado", "libre"],
                 "b": [
                     {"t": "v", "tx": {"es": "SISTEMA OPEN THAN GO ACTIVADO", "en": "OPEN THAN GO SYSTEM ACTIVATED"}},
-                    {"story": {"es": "Sincronizando tus vectores de escape emocionales. Presiona continuar.", "en": "Synchronizing your emotional escape vectors. Please press continue."}},
-                    {"t": "breath_auto", "d": 25, "tx": {"es": "Sincroniza tu respiración con el pulso", "en": "Synchronize your breathing with the pulse"}, "inf": {"es": "Regulación biológica.", "en": "Biological regulation."}}
+                    {"story": {"es": "Sincronizando frecuencias emocionales. Presiona continuar.", "en": "Synchronizing emotional frequencies. Press continue."}}
                 ]
             }
 
@@ -61,7 +61,6 @@ def procesar_sistema_bienestar():
     estado = data.get('estado', 'FL').strip()
     region = data.get('region', '').strip()
 
-    # Corrección de llamada interna del cerebro de datos
     mision_seleccionada = cargar_mision_especifica(decision, pocket)
     if not mision_seleccionada:
         return jsonify({"status": "error", "message": "Inicializando bases de datos biosociales..."}), 500
@@ -69,7 +68,6 @@ def procesar_sistema_bienestar():
     if decision == "casa":
         return jsonify({"status": "success", "tipo": "Casa", "mision": mision_seleccionada})
 
-    # Escapes de recreación biosocial por billetera
     categorias_por_bolsillo = {
         "cero": {
             "busqueda": "parques naturales publicos y playas gratis",
@@ -101,7 +99,6 @@ def procesar_sistema_bienestar():
         }
     }
 
-    # FILTRO DE SUPERVIVENCIA: Cambia la ruta a agencias corporativas de empleo inmediato
     palabras_urgentes = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills"]
     if any(p in desahogo_usuario for p in palabras_urgentes):
         termino_busqueda = "compañias de empleo agencias de trabajo staffings"
@@ -129,6 +126,13 @@ def procesar_sistema_bienestar():
         },
         "mision": mision_seleccionada
     })
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
