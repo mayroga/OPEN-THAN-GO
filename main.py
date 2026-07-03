@@ -26,7 +26,6 @@ BASE_MISIONES = {
         {"titulo": "Fase 1: Conexión", "descripcion": "Apoya las plantas de tus pies firmemente."},
         {"titulo": "Fase 2: Expansión", "descripcion": "Estira tus brazos hacia arriba sin forzar."},
         {"titulo": "Fase 3: Foco", "descripcion": "Elige una tarea mínima que ignoraste y termínala."},
-        # Nuevas adiciones:
         {"titulo": "Fase 1: Postura", "descripcion": "Endereza tu columna. Imagina un hilo tirando de tu coronilla."},
         {"titulo": "Fase 2: Contacto", "descripcion": "Toca una superficie fría (mesa o pared) y siente su temperatura."},
         {"titulo": "Fase 3: Ventilación", "descripcion": "Abre una ventana. Deja que el aire nuevo renueve el ambiente."},
@@ -79,6 +78,7 @@ BASE_MISIONES = {
             {"titulo": "Ruta de Cafés", "porque": "El aroma a café y el movimiento humano activan sentidos.", "que_hacer": "Observa el menú en tres cafeterías distintas.", "donde": "Zona comercial.", "gps": "coffee+shops+near+"},
             {"titulo": "Museo de Calle", "porque": "La historia expuesta en placas cambia tu foco temporal.", "que_hacer": "Lee las placas conmemorativas del barrio.", "donde": "Zona histórica.", "gps": "historical+markers+near+"},
             {"titulo": "Búsqueda de Detalles", "porque": "Obligar a tu ojo a buscar detalles pequeños elimina el aburrimiento.", "que_hacer": "Busca una puerta de color específico.", "donde": "Calle residencial.", "gps": "residential+street+walking"}
+        ]
     }
 }
 
