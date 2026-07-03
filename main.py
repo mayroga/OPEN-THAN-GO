@@ -1,174 +1,121 @@
-# OPEN THAN GO SYSTEM - Backend Engine v5 (NO FLASK / ASGI READY)
+# OPEN THAN GO SYSTEM - MAIN BACKEND v6 (ASGI STABLE)
 # Company: May Roga LLC
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, FileResponse
-import json
-import random
+from fastapi import FastAPI
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 import os
+import random
 
 app = FastAPI()
 
+# ------------------------------
+# PATHS
+# ------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
 
-MISSIONS_01 = os.path.join(BASE_DIR, "missions_01_07.json")
-MISSIONS_08 = os.path.join(BASE_DIR, "missions_08_14.json")
-MISSIONS_15 = os.path.join(BASE_DIR, "missions_15_21.json")
+# ------------------------------
+# STATIC FILES (CRÍTICO)
+# ------------------------------
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+# ------------------------------
+# INDEX
+# ------------------------------
+@app.get("/")
+def index():
+    return FileResponse(os.path.join(STATIC_DIR, "session.html"))
 
-# ----------------------------
-# SAFE JSON
-# ----------------------------
-def safe_json(path):
-    try:
-        if not os.path.exists(path):
-            return {"missions": []}
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except:
-        return {"missions": []}
+# ------------------------------
+# SAFE MISSION LOADER (MINIMAL)
+# ------------------------------
+def safe_mission(decision: str, pocket: str):
+    if decision == "casa":
+        return {
+            "b": [
+                {"tx": {"es": "Respira lento y profundo", "en": "Breathe slow and deep"}},
+                {"t": "breath_auto", "d": 10},
+                {"tx": {"es": "Suelta tensión corporal", "en": "Release body tension"}}
+            ]
+        }
 
-
-DATA_01 = safe_json(MISSIONS_01)
-DATA_08 = safe_json(MISSIONS_08)
-DATA_15 = safe_json(MISSIONS_15)
-
-
-# ----------------------------
-# FALLBACK
-# ----------------------------
-def fallback(es, en):
     return {
-        "id": 0,
-        "cat": "fallback",
-        "b": [{"story": {"es": es, "en": en}}]
+        "b": [
+            {"tx": {"es": "Observa tu entorno con calma", "en": "Observe your environment calmly"}},
+            {"t": "breath_auto", "d": 8},
+            {"tx": {"es": "Elige un lugar seguro cercano", "en": "Choose a safe nearby place"}}
+        ]
     }
 
+# ------------------------------
+# LOCATION SIMPLE ENGINE
+# ------------------------------
+def build_location(zip_code: str, estado: str):
 
-# ----------------------------
-# LOCATION ENGINE
-# ----------------------------
-def resolver(zip_code, region, estado):
-    zip_code = (zip_code or "").strip()
+    prefix = (zip_code or "")[:2]
 
-    if zip_code:
-        p = zip_code[:2]
-        if p in ["33", "34"]:
-            estado = "FL"
-        elif p in ["75", "76", "77", "78", "79"]:
-            estado = "TX"
-        elif p in ["90", "91", "92", "93", "94", "95"]:
-            estado = "CA"
+    if prefix in ["33", "34"]:
+        estado = "FL"
+    elif prefix in ["10", "11", "12", "13"]:
+        estado = "NY"
 
-    if not region:
-        region = "General Area"
+    query_map = {
+        "FL": "parks miami",
+        "NY": "parks new york",
+        "TX": "parks texas"
+    }
 
-    return f"{region} {estado}".strip(), estado, region
+    query = query_map.get(estado, "parks near me")
 
+    return {
+        "name": "Exploración local",
+        "estado": estado,
+        "gps_link": f"https://www.google.com/maps/search/?api=1&query={query}"
+    }
 
-# ----------------------------
-# MISSION ENGINE (ORDER SAFE)
-# ----------------------------
-def get_mission(decision, pocket):
-    try:
-        if decision == "casa":
-            pool = DATA_01.get("missions", [])
-        else:
-            pool = random.choice([DATA_08, DATA_15]).get("missions", [])
-
-        if not pool:
-            return fallback("Sistema sin misiones", "No missions available")
-
-        filtered = [m for m in pool if pocket in (m.get("pocket_match") or [])]
-
-        return random.choice(filtered) if filtered else random.choice(pool)
-
-    except:
-        return fallback("Error de sistema", "System error")
-
-
-# ----------------------------
-# FRONT PAGE
-# ----------------------------
-@app.get("/")
-def home():
-    file_path = os.path.join(BASE_DIR, "static/session.html")
-    return FileResponse(file_path)
-
-
-# ----------------------------
-# API CORE
-# ----------------------------
+# ------------------------------
+# API MAIN
+# ------------------------------
 @app.post("/api/open-than-go")
-async def open_than_go(request: Request):
+async def open_than_go(payload: dict):
 
     try:
-        data = await request.json()
+        decision = payload.get("decision", "salir")
+        budget = payload.get("budget_level", "cero")
+        zip_code = payload.get("zip_code", "")
+        estado = payload.get("estado", "FL")
 
-        decision = data.get("decision", "salir")
-        pocket = data.get("budget_level", "cero")
+        mision = safe_mission(decision, budget)
 
-        zip_code = data.get("zip_code", "")
-        region = data.get("region", "")
-        estado = data.get("estado", "FL")
-        desahogo = (data.get("desahogo") or "").lower()
-
-        onboarding = [
-            "¿Qué emoción domina tu día?",
-            "¿Energía baja, media o alta?",
-            "¿Quieres calma o acción?",
-            "¿Qué necesitas ahora?"
-        ]
-
-        # ---------------- CASA (10 MIN OBLIGATORIO) ----------------
         if decision == "casa":
-
-            mission = get_mission("casa", pocket)
 
             return JSONResponse({
                 "status": "success",
                 "tipo": "Casa",
-                "duration_sec": 600,
-                "breathing": True,
-                "voice": True,
-                "onboarding": onboarding,
-                "mision": mission
+                "mision": mision,
+                "lugar": None
             })
 
-        # ---------------- SALIR (1 MIN OBLIGATORIO) ----------------
-        location, estado, region = resolver(zip_code, region, estado)
-
-        if "stress" in desahogo or "ansiedad" in desahogo:
-            place_type = "lugares tranquilos"
-        else:
-            place_type = {
-                "cero": "parques",
-                "minimo": "cafeterias",
-                "moderado": "restaurantes",
-                "libre": "lugares premium"
-            }.get(pocket, "parques")
-
-        gps = f"https://www.google.com/maps/search/{place_type}+en+{location}".replace(" ", "+")
-
-        mission = get_mission("salir", pocket)
+        lugar = build_location(zip_code, estado)
 
         return JSONResponse({
             "status": "success",
             "tipo": "Salida",
-            "duration_sec": 60,
-            "breathing": True,
-            "voice": True,
-            "lugar": {
-                "name": place_type,
-                "zona": location,
-                "gps": gps
-            },
-            "onboarding": onboarding,
-            "mision": mission
+            "mision": mision,
+            "lugar": lugar
         })
 
     except Exception as e:
+
         return JSONResponse({
             "status": "error",
             "message": str(e)
         }, status_code=500)
+
+# ------------------------------
+# HEALTH CHECK
+# ------------------------------
+@app.get("/health")
+def health():
+    return {"status": "ok"}
