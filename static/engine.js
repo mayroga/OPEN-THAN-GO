@@ -1,20 +1,20 @@
 // =========================================================
-// OPEN THAN GO - ENGINE.JS v3 (MISSION EXECUTOR)
-// FRONTEND BRAIN SYSTEM
+// OPEN THAN GO - ENGINE.JS v4 (STABLE CORE)
+// SAFE FLOW - NO FREEZES - NO CRASH ON NULL DATA
 // =========================================================
 
 let currentMission = null;
-let stepIndex = 0;
 let steps = [];
-let timer = null;
-let timeLeft = 600; // 10 min por misión
-let speaking = false;
+let stepIndex = 0;
 
+let timer = null;
+let timeLeft = 600;
 
 // =========================================================
-// INIT
+// START SYSTEM
 // =========================================================
 function startOpenThanGo() {
+
     const payload = collectInput();
 
     showLoader(true);
@@ -26,48 +26,50 @@ function startOpenThanGo() {
     })
     .then(r => r.json())
     .then(data => {
+
         showLoader(false);
+
+        if (!data) return;
+
         loadMission(data.mission, data.ui);
+
     })
     .catch(err => {
         showLoader(false);
-        console.log(err);
+        console.error("API ERROR:", err);
     });
 }
 
-
 // =========================================================
-// COLLECT INPUT
+// INPUT
 // =========================================================
 function collectInput() {
     return {
         decision: window.currentMode || "salir",
-        desahogo: document.getElementById("inp-text").value,
-        estado: document.getElementById("inp-state").value,
-        zip_code: document.getElementById("inp-zip").value,
-        budget_level: document.getElementById("inp-budget").value
+        desahogo: document.getElementById("inp-text")?.value || "",
+        estado: document.getElementById("inp-state")?.value || "FL",
+        zip_code: document.getElementById("inp-zip")?.value || "",
+        budget_level: document.getElementById("inp-budget")?.value || "cero"
     };
 }
-
 
 // =========================================================
 // LOAD MISSION
 // =========================================================
 function loadMission(mission, ui) {
 
-    currentMission = mission;
+    currentMission = mission || {};
+    steps = Array.isArray(currentMission.b) ? currentMission.b : [];
     stepIndex = 0;
-    steps = mission.b || [];
 
     document.getElementById("result").innerHTML = "";
 
-    startTimer();
+    resetTimer();
     nextStep();
 }
 
-
 // =========================================================
-// STEP ENGINE (CORE)
+// SAFE FLOW ENGINE
 // =========================================================
 function nextStep() {
 
@@ -76,20 +78,27 @@ function nextStep() {
         return;
     }
 
-    const step = steps[stepIndex];
-    stepIndex++;
+    const step = steps[stepIndex++];
+    if (!step) {
+        showContinueButton();
+        return;
+    }
 
-    switch(step.t || "story") {
+    switch (step.t || "story") {
 
         case "v":
         case "h":
-            renderText(step.tx.es);
-            speak(step.tx.es);
+            if (step.tx?.es) {
+                renderText(step.tx.es);
+                speak(step.tx.es);
+            }
             break;
 
         case "story":
-            renderText(step.story.es);
-            speak(step.story.es);
+            if (step.story?.es) {
+                renderText(step.story.es);
+                speak(step.story.es);
+            }
             break;
 
         case "breath_auto":
@@ -97,7 +106,11 @@ function nextStep() {
             break;
 
         case "d":
-            renderDecision(step);
+            if (step.q?.es && Array.isArray(step.op)) {
+                renderDecision(step);
+            } else {
+                nextStep();
+            }
             break;
 
         case "sil":
@@ -105,11 +118,12 @@ function nextStep() {
             break;
 
         case "r":
-            renderReward(step);
+            if (step.tx?.es) renderText(step.tx.es);
+            setTimeout(nextStep, 600);
             break;
 
         case "c":
-            renderText("💡 " + step.tx.es);
+            if (step.tx?.es) renderText("💡 " + step.tx.es);
             break;
 
         default:
@@ -118,12 +132,14 @@ function nextStep() {
     }
 }
 
-
 // =========================================================
-// TEXT RENDER
+// TEXT
 // =========================================================
 function renderText(text) {
+    if (!text) return;
+
     const div = document.getElementById("result");
+
     div.innerHTML += `
         <div class="card">
             <p>${text}</p>
@@ -131,12 +147,12 @@ function renderText(text) {
     `;
 }
 
-
 // =========================================================
-// VOICE (SPANISH ONLY FIX)
+// VOICE (SAFE ESPAÑOL)
 // =========================================================
 function speak(text) {
-    if (!window.speechSynthesis) return;
+
+    if (!text || !window.speechSynthesis) return;
 
     const utter = new SpeechSynthesisUtterance(text);
 
@@ -144,23 +160,17 @@ function speak(text) {
     utter.rate = 0.95;
     utter.pitch = 1;
 
-    // FORZAR VOZ ESPAÑOLA SI EXISTE
-    const voices = speechSynthesis.getVoices();
-    const spanishVoice = voices.find(v =>
-        v.lang.includes("es")
-    );
+    const voices = speechSynthesis.getVoices?.() || [];
+    const esVoice = voices.find(v => v.lang?.includes("es"));
 
-    if (spanishVoice) {
-        utter.voice = spanishVoice;
-    }
+    if (esVoice) utter.voice = esVoice;
 
     speechSynthesis.cancel();
     speechSynthesis.speak(utter);
 }
 
-
 // =========================================================
-// BREATHING ENGINE (CIRCLE)
+// BREATHING
 // =========================================================
 function runBreathing(step) {
 
@@ -168,56 +178,46 @@ function runBreathing(step) {
 
     div.innerHTML += `
         <div class="card center">
-            <div class="breath-circle" id="circle">
-                RESPIRA
-            </div>
+            <div id="circle" class="breath-circle">RESPIRA</div>
         </div>
     `;
 
-    let circle = document.getElementById("circle");
+    const circle = document.getElementById("circle");
+
+    let cycles = 5;
+    let i = 0;
     let expand = true;
 
-    let cycles = 6;
-    let i = 0;
+    const interval = setInterval(() => {
 
-    let breathInterval = setInterval(() => {
-
-        if (expand) {
-            circle.style.transform = "scale(1.4)";
-            circle.innerText = "INHALA";
-        } else {
-            circle.style.transform = "scale(1)";
-            circle.innerText = "EXHALA";
-        }
+        circle.style.transform = expand ? "scale(1.3)" : "scale(1)";
+        circle.innerText = expand ? "INHALA" : "EXHALA";
 
         expand = !expand;
-
         i++;
+
         if (i >= cycles * 2) {
-            clearInterval(breathInterval);
+            clearInterval(interval);
             nextStep();
         }
 
     }, 2000);
 }
 
-
 // =========================================================
-// DECISION STEP
+// DECISION
 // =========================================================
 function renderDecision(step) {
 
     const div = document.getElementById("result");
 
-    let html = `
-        <div class="card">
-            <p>${step.q.es}</p>
-    `;
+    let html = `<div class="card"><p>${step.q?.es || ""}</p>`;
 
-    step.op.forEach((op, index) => {
+    (step.op || []).forEach((op, index) => {
+
         html += `
-            <button onclick="selectOption(${index}, ${step.c})">
-                ${op.es}
+            <button onclick="selectOption(${index}, ${step.c || 0})">
+                ${op.es || ""}
             </button>
         `;
     });
@@ -227,60 +227,44 @@ function renderDecision(step) {
     div.innerHTML += html;
 }
 
-
 // =========================================================
 // OPTION SELECT
 // =========================================================
 function selectOption(index, correct) {
 
-    const div = document.getElementById("result");
+    renderText(index === correct ? "✔ Correcto" : "✖ Reflexiona");
 
-    let msg = index === correct
-        ? "✔ Correcto"
-        : "✖ Reflexiona";
-
-    renderText(msg);
-
-    setTimeout(nextStep, 800);
+    setTimeout(nextStep, 700);
 }
 
-
 // =========================================================
-// SILENCE / MINDFUL STEP
+// SILENCE
 // =========================================================
 function runSilence(step) {
 
-    renderText(step.tx.es);
+    if (step.tx?.es) renderText(step.tx.es);
 
-    let div = document.getElementById("result");
+    const seconds = step.d || 20;
+
+    const div = document.getElementById("result");
 
     div.innerHTML += `
         <div class="card center">
-            <p>⏳ ${step.d} segundos de enfoque</p>
+            <p>⏳ ${seconds} segundos</p>
         </div>
     `;
 
-    setTimeout(() => {
-        nextStep();
-    }, step.d * 1000);
+    setTimeout(nextStep, seconds * 1000);
 }
 
-
 // =========================================================
-// REWARD STEP
+// TIMER RESET (FIX REAL)
 // =========================================================
-function renderReward(step) {
-    renderText(step.tx.es);
-    setTimeout(nextStep, 1000);
-}
-
-
-// =========================================================
-// TIMER (10 MIN GLOBAL MISSION)
-// =========================================================
-function startTimer() {
+function resetTimer() {
 
     clearInterval(timer);
+    timer = null;
+
     timeLeft = 600;
 
     timer = setInterval(() => {
@@ -289,15 +273,15 @@ function startTimer() {
 
         if (timeLeft <= 0) {
             clearInterval(timer);
+            timer = null;
             showContinueButton();
         }
 
     }, 1000);
 }
 
-
 // =========================================================
-// CONTINUE BUTTON (MISSION FLOW)
+// CONTINUE FLOW (FIXED)
 // =========================================================
 function showContinueButton() {
 
@@ -305,47 +289,42 @@ function showContinueButton() {
 
     div.innerHTML += `
         <div class="card center">
-            <button onclick="continueMission()">
-                CONTINUAR MISIÓN
-            </button>
+            <button onclick="continueMission()">CONTINUAR</button>
         </div>
     `;
 }
 
-
-// =========================================================
-// CONTINUE FLOW (NEXT MISSION STEP OR NEW MISSION)
-// =========================================================
 function continueMission() {
-    stepIndex++;
-    nextStep();
+
+    clearInterval(timer);
+    timer = null;
+
+    stepIndex = 0;
+    steps = [];
+
+    document.getElementById("result").innerHTML = "";
+
+    startOpenThanGo();
 }
 
-
 // =========================================================
-// MODE CONTROL
+// MODE
 // =========================================================
 function setMode(mode) {
+
     window.currentMode = mode;
 
     const badge = document.getElementById("mode-badge");
 
-    badge.innerText =
-        mode === "casa"
-        ? "Modo: Casa"
-        : "Modo: Salir";
+    if (!badge) return;
 
-    badge.className =
-        mode === "casa"
-        ? "mode-badge mode-casa"
-        : "mode-badge mode-salir";
+    badge.innerText = mode === "casa" ? "Modo Casa" : "Modo Salir";
 }
-
 
 // =========================================================
 // LOADER
 // =========================================================
 function showLoader(show) {
-    document.getElementById("loader").style.display =
-        show ? "block" : "none";
+    const el = document.getElementById("loader");
+    if (el) el.style.display = show ? "block" : "none";
 }
