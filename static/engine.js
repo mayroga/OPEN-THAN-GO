@@ -1,5 +1,5 @@
-// OPEN THAN GO SYSTEM - Frontend Engine v5 FINAL ORCHESTRATOR
-// Company: May Roga LLC
+// OPEN THAN GO SYSTEM - FRONTEND ENGINE v6 STABLE
+// FIX: no freeze / no interval stacking / safe voice queue
 
 let idiomaActual = "es";
 let presupuestoActual = "cero";
@@ -10,91 +10,85 @@ let indicePasoActual = 0;
 let datosLugarGlobal = null;
 let tipoEscapeGlobal = "";
 
-let intervaloRespiracion = null;
-let intervaloTimer = null;
+let breathInterval = null;
+let timerInterval = null;
 
-let flujoTiempoTotal = 0;
-let flujoTiempoRestante = 0;
+let tiempoTotal = 0;
+let tiempoRestante = 0;
 
 let lockAvance = false;
 
-// ------------------------------
-// SAFE GET
-// ------------------------------
-function get(id) {
-    return document.getElementById(id);
-}
+// ---------------- SAFE GET ----------------
+const get = (id) => document.getElementById(id);
 
-// ------------------------------
-// VOZ ORQUESTADA
-// ------------------------------
+// ---------------- VOZ (ANTI FREEZE QUEUE) ----------------
+let voiceQueue = [];
+let speaking = false;
+
 function hablar(texto, delay = 0) {
     if (!("speechSynthesis" in window)) return;
     if (!texto) return;
+
+    voiceQueue.push({ texto, delay });
+
+    if (speaking) return;
+    procesarVoz();
+}
+
+function procesarVoz() {
+    if (voiceQueue.length === 0) {
+        speaking = false;
+        return;
+    }
+
+    speaking = true;
+    const { texto, delay } = voiceQueue.shift();
 
     setTimeout(() => {
         const u = new SpeechSynthesisUtterance(texto);
         const voces = speechSynthesis.getVoices();
 
-        let voice = null;
-
-        if (idiomaActual === "es") {
-            voice =
-                voces.find(v => v.lang === "es-ES") ||
-                voces.find(v => v.lang.startsWith("es"));
-        } else {
-            voice =
-                voces.find(v => v.lang === "en-US") ||
-                voces.find(v => v.lang.startsWith("en"));
-        }
-
-        if (!voice) voice = voces[0];
+        let voice =
+            (idiomaActual === "es"
+                ? voces.find(v => v.lang?.startsWith("es"))
+                : voces.find(v => v.lang?.startsWith("en")))
+            || voces[0];
 
         u.voice = voice;
         u.lang = idiomaActual === "es" ? "es-ES" : "en-US";
-        u.rate = 0.92;
-        u.pitch = 1;
+        u.rate = 0.9;
 
-        speechSynthesis.cancel();
+        u.onend = () => {
+            speaking = false;
+            procesarVoz();
+        };
+
         speechSynthesis.speak(u);
+
     }, delay);
 }
 
-// ------------------------------
-// SAFE TRANSLATE
-// ------------------------------
-function t(p) {
-    if (!p) return "";
-    if (typeof p === "string") return p;
-    return p[idiomaActual] || p.es || p.en || "";
-}
-
-// ------------------------------
-// INIT
-// ------------------------------
+// ---------------- INIT ----------------
 document.addEventListener("DOMContentLoaded", () => {
-    const btn = get("btn-start");
-    if (btn) btn.onclick = solicitarEscape;
+    get("btn-start")?.addEventListener("click", solicitarEscape);
 });
 
-// ------------------------------
-// UI CONTROL
-// ------------------------------
-function mostrarLoader() {
+// ---------------- UI ----------------
+function showLoader() {
     get("wrapper-form").style.display = "none";
     get("wrapper-loader").style.display = "flex";
     get("wrapper-interactive").style.display = "none";
 }
 
-function mostrarFlujo() {
+function showApp() {
     get("wrapper-loader").style.display = "none";
     get("wrapper-interactive").style.display = "block";
 }
 
-// ------------------------------
-// MAIN REQUEST
-// ------------------------------
+// ---------------- FETCH ----------------
 async function solicitarEscape() {
+
+    showLoader();
 
     const payload = {
         decision: modalidadSalir ? "salir" : "casa",
@@ -105,8 +99,6 @@ async function solicitarEscape() {
         desahogo: get("inp-text")?.value || ""
     };
 
-    mostrarLoader();
-
     try {
         const res = await fetch("/api/open-than-go", {
             method: "POST",
@@ -115,135 +107,89 @@ async function solicitarEscape() {
         });
 
         const data = await res.json();
+        if (!data?.mision) throw new Error("bad backend");
 
-        if (!data || data.status !== "success") {
-            throw new Error("backend error");
-        }
+        pasosMisionGlobal = data.mision.b || [];
+        datosLugarGlobal = data.lugar || null;
+        tipoEscapeGlobal = data.tipo || "";
 
-        setTimeout(() => {
+        indicePasoActual = 0;
 
-            pasosMisionGlobal = data.mision?.b || [];
-            datosLugarGlobal = data.lugar || null;
-            tipoEscapeGlobal = data.tipo || "";
+        tiempoTotal = tipoEscapeGlobal === "Casa" ? 600 : 60;
+        tiempoRestante = tiempoTotal;
 
-            indicePasoActual = 0;
-
-            flujoTiempoTotal = tipoEscapeGlobal === "Casa" ? 600 : 60;
-            flujoTiempoRestante = flujoTiempoTotal;
-
-            mostrarFlujo();
-            iniciarFlujo();
-
-        }, 400);
+        showApp();
+        iniciarFlujo();
 
     } catch (e) {
         console.error(e);
-        alert("Error de conexión");
+        alert("Error servidor");
         get("wrapper-form").style.display = "block";
     }
 }
 
-// ------------------------------
-// ORCHESTRATOR FLOW
-// ------------------------------
+// ---------------- FLOW CORE ----------------
 function iniciarFlujo() {
 
-    clearInterval(intervaloRespiracion);
-    clearInterval(intervaloTimer);
-    window.speechSynthesis.cancel();
+    clearInterval(timerInterval);
+    clearInterval(breathInterval);
 
     const cont = get("step-content");
-    const btnNext = ensureNext();
-    const btnMap = ensureMap();
+    const btn = ensureNext();
+    const map = ensureMap();
 
-    // FINAL CONDITION
-    if (flujoTiempoRestante <= 0 || indicePasoActual >= pasosMisionGlobal.length) {
-        finalizarFlujo(btnNext, btnMap);
+    if (tiempoRestante <= 0 || indicePasoActual >= pasosMisionGlobal.length) {
+        finalizar(btn, map);
         return;
     }
 
     const paso = pasosMisionGlobal[indicePasoActual];
 
-    btnNext.onclick = () => {
+    btn.onclick = () => {
         if (lockAvance) return;
         indicePasoActual++;
         iniciarFlujo();
     };
 
-    // BREATH CONTROL
+    // BREATH MODE (ISOLATED)
     if (paso.t === "breath_auto") {
         iniciarRespiracion(paso.d || 10);
         return;
     }
 
-    // TIMER ONLY CASA
-    if (tipoEscapeGlobal === "Casa") {
-        iniciarTimerGlobal();
-    }
+    if (tipoEscapeGlobal === "Casa") iniciarTimer();
 
-    const texto = t(paso.tx || paso.story || paso);
+    const texto = paso.tx?.es || paso.story?.es || "";
 
-    cont.innerHTML = `<div class="fade">${texto}</div>`;
+    cont.innerHTML = `<div>${texto}</div>`;
 
-    hablar(texto, 250);
+    hablar(texto);
 
-    flujoTiempoRestante -= 6;
-
-    btnNext.style.display = "block";
+    tiempoRestante -= 5;
+    btn.style.display = "block";
 }
 
-// ------------------------------
-// FINAL
-// ------------------------------
-function finalizarFlujo(btnNext, btnMap) {
+// ---------------- BREATH SAFE (NO UI BLOCK) ----------------
+function iniciarRespiracion(seg) {
 
     const cont = get("step-content");
-
-    cont.innerHTML = `
-        <div class="fade">
-            <h2>Sesión completada</h2>
-            <p>${
-                tipoEscapeGlobal === "Casa"
-                    ? "Regulación interna completada."
-                    : "Micro-escape externo completado."
-            }</p>
-        </div>
-    `;
-
-    if (tipoEscapeGlobal === "Salida") {
-        btnMap.style.display = "block";
-        btnMap.href = datosLugarGlobal?.gps_link || "#";
-    } else {
-        btnNext.innerText = "REINICIAR";
-        btnNext.style.display = "block";
-        btnNext.onclick = () => location.reload();
-    }
-}
-
-// ------------------------------
-// BREATH ENGINE (VOICE SYNC)
-// ------------------------------
-function iniciarRespiracion(segundos) {
-
-    const cont = get("step-content");
-    let s = segundos;
+    let s = seg;
 
     lockAvance = true;
 
     cont.innerHTML = `
-        <div class="breath-ui">
+        <div>
             <div id="breathingCircle"></div>
             <h2 id="breathLabel">Inhala</h2>
-            <div id="breathTime"></div>
         </div>
     `;
 
     const circle = get("breathingCircle");
 
-    intervaloRespiracion = setInterval(() => {
+    breathInterval = setInterval(() => {
 
         if (s <= 0) {
-            clearInterval(intervaloRespiracion);
+            clearInterval(breathInterval);
             lockAvance = false;
             indicePasoActual++;
             iniciarFlujo();
@@ -253,57 +199,67 @@ function iniciarRespiracion(segundos) {
         const phase = s % 2 === 0 ? "Inhala" : "Exhala";
 
         get("breathLabel").innerText = phase;
-        get("breathTime").innerText = `${s}s`;
 
         if (circle) {
-            circle.style.transform =
-                phase === "Inhala" ? "scale(1.4)" : "scale(0.9)";
+            circle.style.transform = phase === "Inhala"
+                ? "scale(1.3)"
+                : "scale(0.95)";
         }
 
-        if (s % 4 === 0) hablar(phase, 0);
+        if (s % 3 === 0) hablar(phase);
 
         s--;
-        flujoTiempoRestante--;
+        tiempoRestante--;
 
     }, 1000);
 }
 
-// ------------------------------
-// TIMER CASA (10 MIN)
-// ------------------------------
-function iniciarTimerGlobal() {
+// ---------------- TIMER SAFE ----------------
+function iniciarTimer() {
 
-    if (intervaloTimer) return;
+    if (timerInterval) return;
 
     const t = get("timer");
 
-    intervaloTimer = setInterval(() => {
+    timerInterval = setInterval(() => {
 
-        const m = Math.floor(flujoTiempoRestante / 60);
-        const s = flujoTiempoRestante % 60;
-
-        if (t) {
-            t.innerText = `${m}:${s.toString().padStart(2, "0")}`;
+        if (tiempoRestante <= 0) {
+            clearInterval(timerInterval);
+            return;
         }
 
-        flujoTiempoRestante--;
+        const m = Math.floor(tiempoRestante / 60);
+        const s = tiempoRestante % 60;
 
-        if (flujoTiempoRestante <= 0) {
-            clearInterval(intervaloTimer);
-        }
+        if (t) t.innerText = `${m}:${s.toString().padStart(2, "0")}`;
+
+        tiempoRestante--;
 
     }, 1000);
 }
 
-// ------------------------------
-// SAFE BUTTONS
-// ------------------------------
+// ---------------- FINAL ----------------
+function finalizar(btn, map) {
+
+    get("step-content").innerHTML =
+        `<div><h2>Sesión lista</h2></div>`;
+
+    if (tipoEscapeGlobal === "Salida") {
+        map.style.display = "block";
+        map.href = datosLugarGlobal?.gps_link || "#";
+    } else {
+        btn.innerText = "REINICIAR";
+        btn.style.display = "block";
+        btn.onclick = () => location.reload();
+    }
+}
+
+// ---------------- SAFE BUTTONS ----------------
 function ensureNext() {
     let b = get("btn-next");
     if (!b) {
         b = document.createElement("button");
         b.id = "btn-next";
-        b.className = "btn-next-step";
         get("wrapper-interactive").appendChild(b);
     }
     b.innerText = "CONTINUAR";
@@ -316,11 +272,9 @@ function ensureMap() {
     if (!b) {
         b = document.createElement("a");
         b.id = "btn-maps-action";
-        b.className = "btn-maps-route";
-        b.target = "_blank";
         get("wrapper-interactive").appendChild(b);
     }
-    b.innerText = "ABRIR MAPA";
+    b.innerText = "MAPA";
     b.style.display = "none";
     return b;
 }
