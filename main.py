@@ -46,24 +46,37 @@ async def index():
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
     payload = await request.json()
-    modo = payload.get("modo")
-    zip_code = payload.get("zip", "33101")
-    mente = payload.get("mente", "aburrido")
+    
+    # Perfilamiento Dinámico
+    contexto = {
+        "modo": payload.get("modo"),
+        "zip": payload.get("zip", "33101"),
+        "mente": payload.get("mente"),
+        "budget": payload.get("budget"),
+        "perfil": payload.get("perfil")
+    }
 
-    if modo == "CASA":
-        return JSONResponse({
-            "modo": "CASA",
-            "misiones": BASE_MISIONES["CASA"]
-        })
+    if contexto["modo"] == "CASA":
+        return JSONResponse({"modo": "CASA", "misiones": BASE_MISIONES["CASA"]})
+    
     else:
-        info = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
+        # Lógica de emparejamiento (El "Por qué" y "A dónde")
+        info = BASE_MISIONES["SALIR"].get(contexto["mente"])
+        
+        # Ajuste por perfil
+        msg_adicional = ""
+        if contexto["perfil"] == "accesible":
+            msg_adicional = " (Ruta seleccionada con prioridad de accesibilidad)."
+        elif contexto["perfil"] == "familia":
+            msg_adicional = " (Entorno apto para menores)."
+
         return JSONResponse({
             "modo": "SALIR",
             "titulo": info["titulo"],
             "porque": info["porque"],
-            "que_hacer": info["que_hacer"],
+            "que_hacer": info["que_hacer"] + msg_adicional,
             "donde": info["donde"],
-            "gps": f"https://www.google.com/maps/search/?api=1&query={info['gps']}{zip_code}"
+            "gps": f"https://www.google.com/maps/search/?api=1&query={info['gps']}{contexto['zip']}"
         })
 
 if __name__ == "__main__":
