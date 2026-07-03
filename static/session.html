@@ -5,74 +5,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>OPEN THAN GO</title>
     <style>
-        :root { --bg: #000; --panel: #111; --text: #fff; --accent: #fff; }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { width: 90%; max-width: 400px; padding: 20px; }
-        h1 { font-size: 1.5rem; text-align: center; letter-spacing: 0.3em; margin-bottom: 30px; color: #666; }
-        .field { margin-bottom: 20px; }
-        label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2rem; color: #555; margin-bottom: 8px; }
-        input, select { width: 100%; background: var(--panel); border: 1px solid #333; color: var(--text); padding: 15px; border-radius: 0; font-size: 1rem; box-sizing: border-box; }
-        button#btn-mando { width: 100%; background: var(--accent); color: #000; border: none; padding: 18px; font-weight: 800; cursor: pointer; margin-top: 20px; }
-        .hidden { display: none; }
-        #breath-circle { width: 120px; height: 120px; border: 2px solid white; border-radius: 50%; margin: 30px auto; animation: pulse 8s infinite ease-in-out; }
-        @keyframes pulse { 0%, 100% { transform: scale(0.8); opacity: 0.3; } 50% { transform: scale(1.2); opacity: 1; } }
-        #timer { text-align: center; font-size: 2rem; margin-top: 10px; }
-        .mision-card { border: 1px solid #333; padding: 20px; text-align: center; }
-        .mision-card h2 { margin-top: 0; }
-        .mision-card p { font-size: 0.95rem; line-height: 1.6; color: #ccc; }
-        button { background: #333; color: white; border: none; padding: 12px 20px; margin-top: 15px; cursor: pointer; }
+        :root {
+            --primary: #1e3a1e;
+            --secondary: #2e7d32;
+            --accent: #d84315;
+            --light: #f1f8e9;
+            --dark: #111111;
+            --white: #ffffff;
+            --gray: #eeeeee;
+            --blue-circle: #00bcd4;
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--light);
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container-app {
+            background: var(--white);
+            max-width: 480px;
+            width: 100%;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+        .header-app { text-align: center; margin-bottom: 15px; }
+        .header-app h1 { color: var(--primary); margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 0.5px; }
+        .header-app p { font-size: 13px; color: #555; margin-top: 5px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: var(--primary); text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; background: #fafafa; font-size: 14px; color: var(--dark); }
+       
+        .btn-grid-2, .btn-grid-3 { display: grid; gap: 8px; }
+        .btn-grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .btn-grid-3 { grid-template-columns: repeat(3, 1fr); }
+       
+        .btn-choice { padding: 12px 5px; border-radius: 10px; border: none; background: var(--gray); font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; color: var(--dark); }
+        .btn-choice.active { background: var(--secondary); color: white; }
+        .btn-trigger { width: 100%; padding: 16px; border: none; border-radius: 10px; background: var(--accent); color: white; font-weight: bold; font-size: 15px; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(216,67,21,0.2); margin-top: 10px; }
+       
+        /* Modos interactivos */
+        .interactive-screen { display: none; text-align: center; padding: 10px 0; }
+        .loader-screen { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--gray); border-top: 4px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+       
+        .screen-title { font-size: 22px; font-weight: 800; color: var(--primary); margin: 0; }
+        .screen-subtitle { font-size: 14px; color: #666; margin: 0 0 15px 0; }
+        .card-lugar { background: #e8f5e9; border: 1px solid #c8e6c9; padding: 14px; border-radius: 10px; text-align: left; margin-bottom: 15px; }
+        .screen-story { background: #f9f9f9; padding: 16px; border-radius: 10px; border-left: 4px solid var(--secondary); text-align: left; margin-bottom: 15px; font-size: 14px; line-height: 1.4; }
+       
+        .wrapper-circle { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
+        .breath-circle { width: 120px; height: 120px; background: var(--blue-circle); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 16px; }
+        .animar-respiracion { animation: inflarPulmon 8s ease-in-out infinite; }
+        @keyframes inflarPulmon { 0% { transform: scale(0.85); } 50% { transform: scale(1.15); box-shadow: 0 0 40px rgba(0,229,255,0.6); } 100% { transform: scale(0.85); } }
+       
+        .txt-instruccion-pulmon { font-size: 22px; font-weight: bold; color: var(--primary); margin-top: 15px; }
+        .bloque-decision { text-align: left; margin-bottom: 15px; }
+        .btn-opcion { width: 100%; padding: 12px; border: 1px solid #ddd; background: var(--white); border-radius: 8px; text-align: left; font-size: 13px; margin-top: 8px; cursor: pointer; }
+        .feedback-box { display: none; margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 13px; }
+        .fb-correcto { display: block; background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32; }
+        .fb-incorrecto { display: block; background: #ffebee; color: #c62828; border-left: 4px solid #c62828; }
+       
+        .btn-next-step { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-maps-route { display: none; width: 100%; text-align: center; padding: 14px; background: #4285f4; color: white; text-decoration: none; border-radius: 10px; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
+<div class="container-app">
 
-    <div class="container" id="wrapper-form">
-        <h1>OPEN THAN GO</h1>
-        
-        <div class="field">
+    <!-- FORMULARIO MANDATORIO CON TU DISEÑO EXACTO -->
+    <div id="wrapper-form">
+        <div class="header-app">
+            <h1>OPEN THAN GO</h1>
+            <p>Tu escape emocional inteligente</p>
+        </div>
+
+        <!-- 1. Código Postal -->
+        <div class="form-group">
             <label>Código Postal</label>
-            <input type="text" id="inp-zip" placeholder="Ej: 33101">
+            <input id="inp-zip" maxlength="5" placeholder="Ej: 33167">
         </div>
 
-        <div class="field">
+        <!-- Ocultos por defecto pero requeridos por el cerebro elástico del backend -->
+        <div style="display:none;">
+            <select id="inp-state"><option value="FL" selected>Florida</option></select>
+            <select id="inp-region"><option value="South Florida" selected>South Florida</option></select>
+        </div>
+
+        <!-- 2. Modo de Operación -->
+        <div class="form-group">
             <label>Modo de Operación</label>
-            <select id="modo-selector">
-                <option value="CASA">CASA (Estabilización/Misiones)</option>
-                <option value="SALIR">SALIR (Destinos/Acción)</option>
-            </select>
+            <div class="btn-grid-2">
+                <button type="button" class="btn-choice active" id="m-salir" onclick="cambiarModalidad(true)">SALIR (Acción)</button>
+                <button type="button" class="btn-choice" id="m-casa" onclick="cambiarModalidad(false)">CASA (Estabilización)</button>
+            </div>
         </div>
 
-        <div class="field">
+        <!-- 3. Estado Mental (Funciona como el filtro de desahogo emocional de Python) -->
+        <div class="form-group">
             <label>Estado Mental</label>
-            <select id="inp-mente">
-                <option value="agotado">Agotado / Agobiado</option>
-                <option value="estresado">Estresado / Tensión</option>
-                <option value="aburrido">Aburrido / Rutina</option>
+            <select id="inp-text">
+                <option value="Agotado y agobiado por el trabajo cotidianamente">Agotado / Agobiado</option>
+                <option value="Estresado por las cuentas y tension financiera">Estresado / Tensión</option>
+                <option value="Aburrido de la rutina cotidiana urbana">Aburrido / Rutina</option>
+                <option value="Necesito buscar un nuevo empleo o trabajo urgente">Busco Empleo / Trabajo</option>
             </select>
         </div>
-        <!-- Dentro del #wrapper-form, agrega esto antes del botón -->
-<div class="field">
-    <label>Presupuesto</label>
-    <select id="inp-budget">
-        <option value="0">Cero Gastos</option>
-        <option value="1">Moderado</option>
-        <option value="2">Sin Límite</option>
-    </select>
-</div>
-<div class="field">
-    <label>Perfil (Familia/Discapacidad)</label>
-    <select id="inp-perfil">
-        <option value="solo">Solo</option>
-        <option value="familia">Con Niños / Familia</option>
-        <option value="accesible">Requiere Acceso (Discapacidad/Edad)</option>
-    </select>
-</div>
-        <button id="btn-mando">ACTIVAR MANDO</button>
+
+        <!-- 4. Presupuesto -->
+        <div class="form-group">
+            <label>Presupuesto</label>
+            <div class="btn-grid-3">
+                <button type="button" class="btn-choice active" id="b-cero" onclick="cambiarBolsillo('cero')">Cero Gastos</button>
+                <button type="button" class="btn-choice" id="b-moderado" onclick="cambiarBolsillo('minimo')">Moderado</button>
+                <button type="button" class="btn-choice" id="b-libre" onclick="cambiarBolsillo('libre')">Sin Límite</button>
+            </div>
+        </div>
+
+        <!-- Botón de Activación definitivo -->
+        <button class="btn-trigger" onclick="solicitarEscape()">
+            ACTIVAR MANDO
+        </button>
     </div>
 
-    <div class="container hidden" id="wrapper-interactive">
+    <!-- PANTALLA DE CARGA -->
+    <div id="wrapper-loader" class="loader-screen">
+        <div class="spinner"></div>
+        <p id="txt-loader">Sincronizando frecuencias de bienestar...</p>
+    </div>
+
+    <!-- PANTALLA INTERACTIVA PASO A PASO -->
+    <div id="wrapper-interactive" class="interactive-screen">
+        <h2 id="interactive-title" class="screen-title"></h2>
+        <p id="interactive-subtitle" class="screen-subtitle"></p>
+        <div id="interactive-location"></div>
+       
+        <!-- ESTE ERA EL LIENZO QUE LE FALTABA A TU DISEÑO -->
         <div id="step-content"></div>
+
+        <button id="btn-next" class="btn-next-step" onclick="siguienteComando()" style="display:none;">
+            CONTINUAR
+        </button>
+        <a id="btn-maps-action" class="btn-maps-route" target="_blank">
+            ABRIR MAPA EN GPS
+        </a>
     </div>
 
-    <script src="/static/engine.js"></script>
+</div>
+
+<!-- Carga del JavaScript unificado con el diagnóstico interno -->
+<script src="/static/engine.js"></script>
 </body>
 </html>
