@@ -1,59 +1,57 @@
-import json
-import random
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
+from flask import Flask, request, jsonify, send_from_directory
+import os
 
-app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app = Flask(__name__, static_folder="static")
 
-# Carga de base de conocimiento (Los 3 bloques de 7 misiones)
-def get_mission_bank():
-    # El sistema carga los 3 archivos para tener acceso al set completo de 21 misiones
-    bank = []
-    for f in ["missions_01_07.json", "missions_08_14.json", "missions_15_21.json"]:
-        try:
-            with open(f, 'r', encoding='utf-8') as file:
-                data = json.load(file)
-                bank.extend(data["missions"])
-        except: continue
-    return bank
+# Misiones base para el protocolo de alivio
+MISIONES_CASA = [
+    {
+        "titulo": {"es": "REORDENAR TU ENTORNO", "en": "REORDER YOUR ENVIRONMENT"},
+        "descripcion": {"es": "Dedica 10 minutos a ordenar un espacio físico. Tu entorno exterior refleja tu interior.", "en": "Spend 10 minutes tidying a physical space. Your outer environment reflects your inner state."}
+    },
+    {
+        "titulo": {"es": "RESPIRACIÓN CONSCIENTE", "en": "CONSCIOUS BREATHING"},
+        "descripcion": {"es": "Sigue el ciclo visual. Inhala calma, exhala pesadez. 10 minutos para reiniciar tu sistema.", "en": "Follow the visual cycle. Inhale calm, exhale heaviness. 10 minutes to reset your system."}
+    }
+]
 
-@app.get("/")
-def read_root():
-    return FileResponse("static/session.html")
+def obtener_opciones_salida(zip_code, presupuesto):
+    # Lógica de resolución de destinos basada en proximidad y economía
+    return [
+        {"nombre": "Parque local (Entorno Natural)", "gps": f"https://www.google.com/maps/search/?api=1&query=parks+near+{zip_code}"},
+        {"nombre": "Centro de recreación (Ambiente Social)", "gps": f"https://www.google.com/maps/search/?api=1&query=recreation+centers+near+{zip_code}"},
+        {"nombre": "Espacio público de interés", "gps": f"https://www.google.com/maps/search/?api=1&query=public+spaces+near+{zip_code}"}
+    ]
 
-@app.post("/api/open-than-go")
-async def process_intervention(request: Request):
-    data = await request.json()
-    
-    # 1. DIAGNÓSTICO INVISIBLE
-    desahogo = data.get("desahogo", "").lower()
-    presupuesto = data.get("budget", "cero")
-    
-    # Mapeo de perfilamiento
-    perfil = "bien" # default
-    if any(word in desahogo for word in ["dinero", "deuda", "pago", "biles"]):
-        perfil = "mal"
-    elif any(word in desahogo for word in ["hijos", "niños", "jugar"]):
-        perfil = "nino"
-    elif any(word in desahogo for word in ["cansado", "trabajo", "agobio"]):
-        perfil = "mal"
+@app.route("/")
+def index():
+    return send_from_directory(app.static_folder, "session.html")
 
-    # 2. SELECCIÓN TERAPÉUTICA (El algoritmo de azar inteligente)
-    bank = get_mission_bank()
-    # Filtramos por perfil y presupuesto
-    opciones = [m for m in bank if m.get("cat") == perfil]
-    if not opciones: opciones = bank # Fallback de seguridad
-    
-    mision_final = random.choice(opciones)
-    
-    # 3. RESPUESTA DEFINITIVA (Sin rodeos, sin términos médicos)
-    return JSONResponse({
-        "status": "success",
-        "mision": mision_final,
-        "metadata": {
-            "perfil_detectado": perfil,
-            "objetivo": "equilibrio_biopsicosocial"
-        }
-    })
+@app.route("/api/open-than-go", methods=["POST"])
+def open_than_go():
+    try:
+        data = request.get_json() or {}
+        decision = data.get("decision", "salir")
+        zip_code = data.get("zip_code", "33101")
+        presupuesto = data.get("budget_level", "cero")
+        
+        if decision == "casa":
+            # Protocolo de Eco-Terapia con Misión de 10 min
+            return jsonify({
+                "tipo": "Casa",
+                "mision": MISIONES_CASA[0]
+            })
+        else:
+            # Protocolo de Acción Exterior
+            opciones = obtener_opciones_salida(zip_code, presupuesto)
+            return jsonify({
+                "tipo": "Salida",
+                "opciones": opciones
+            })
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
