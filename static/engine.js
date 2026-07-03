@@ -1,330 +1,300 @@
-// =========================================================
-// OPEN THAN GO - ENGINE.JS v4 (STABLE CORE)
-// SAFE FLOW - NO FREEZES - NO CRASH ON NULL DATA
-// =========================================================
+// OPEN THAN GO SYSTEM - Frontend Engine v4 FINAL
+// Company: May Roga LLC
 
-let currentMission = null;
-let steps = [];
-let stepIndex = 0;
+let idiomaActual = "es";
+let presupuestoActual = "cero";
+let modalidadSalir = true;
 
-let timer = null;
-let timeLeft = 600;
+let pasosMisionGlobal = [];
+let indicePasoPaso = 0;
+let datosLugarGlobal = null;
+let tipoEscapeGlobal = "";
 
-// =========================================================
-// START SYSTEM
-// =========================================================
-function startOpenThanGo() {
+let intervaloRespiracion = null;
+let intervaloTimer = null;
+let tiempoRestante = 0;
 
-    const payload = collectInput();
-
-    showLoader(true);
-
-    fetch("/api/open-than-go", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    })
-    .then(r => r.json())
-    .then(data => {
-
-        showLoader(false);
-
-        if (!data) return;
-
-        loadMission(data.mission, data.ui);
-
-    })
-    .catch(err => {
-        showLoader(false);
-        console.error("API ERROR:", err);
-    });
+// ------------------------------
+// SAFE GET
+// ------------------------------
+function get(id) {
+    return document.getElementById(id);
 }
 
-// =========================================================
-// INPUT
-// =========================================================
-function collectInput() {
-    return {
-        decision: window.currentMode || "salir",
-        desahogo: document.getElementById("inp-text")?.value || "",
-        estado: document.getElementById("inp-state")?.value || "FL",
-        zip_code: document.getElementById("inp-zip")?.value || "",
-        budget_level: document.getElementById("inp-budget")?.value || "cero"
-    };
-}
+// ------------------------------
+// VOZ GUIADA (CONTROL SIMPLE)
+// ------------------------------
+function hablar(texto) {
+    if (!("speechSynthesis" in window)) return;
+    if (!texto) return;
 
-// =========================================================
-// LOAD MISSION
-// =========================================================
-function loadMission(mission, ui) {
+    const u = new SpeechSynthesisUtterance(texto);
+    const voces = speechSynthesis.getVoices();
 
-    currentMission = mission || {};
-    steps = Array.isArray(currentMission.b) ? currentMission.b : [];
-    stepIndex = 0;
+    let v =
+        voces.find(x => x.lang === (idiomaActual === "es" ? "es-ES" : "en-US")) ||
+        voces.find(x => x.lang?.startsWith(idiomaActual)) ||
+        voces[0];
 
-    document.getElementById("result").innerHTML = "";
-
-    resetTimer();
-    nextStep();
-}
-
-// =========================================================
-// SAFE FLOW ENGINE
-// =========================================================
-function nextStep() {
-
-    if (!steps || stepIndex >= steps.length) {
-        showContinueButton();
-        return;
-    }
-
-    const step = steps[stepIndex++];
-    if (!step) {
-        showContinueButton();
-        return;
-    }
-
-    switch (step.t || "story") {
-
-        case "v":
-        case "h":
-            if (step.tx?.es) {
-                renderText(step.tx.es);
-                speak(step.tx.es);
-            }
-            break;
-
-        case "story":
-            if (step.story?.es) {
-                renderText(step.story.es);
-                speak(step.story.es);
-            }
-            break;
-
-        case "breath_auto":
-            runBreathing(step);
-            break;
-
-        case "d":
-            if (step.q?.es && Array.isArray(step.op)) {
-                renderDecision(step);
-            } else {
-                nextStep();
-            }
-            break;
-
-        case "sil":
-            runSilence(step);
-            break;
-
-        case "r":
-            if (step.tx?.es) renderText(step.tx.es);
-            setTimeout(nextStep, 600);
-            break;
-
-        case "c":
-            if (step.tx?.es) renderText("💡 " + step.tx.es);
-            break;
-
-        default:
-            nextStep();
-            break;
-    }
-}
-
-// =========================================================
-// TEXT
-// =========================================================
-function renderText(text) {
-    if (!text) return;
-
-    const div = document.getElementById("result");
-
-    div.innerHTML += `
-        <div class="card">
-            <p>${text}</p>
-        </div>
-    `;
-}
-
-// =========================================================
-// VOICE (SAFE ESPAÑOL)
-// =========================================================
-function speak(text) {
-
-    if (!text || !window.speechSynthesis) return;
-
-    const utter = new SpeechSynthesisUtterance(text);
-
-    utter.lang = "es-ES";
-    utter.rate = 0.95;
-    utter.pitch = 1;
-
-    const voices = speechSynthesis.getVoices?.() || [];
-    const esVoice = voices.find(v => v.lang?.includes("es"));
-
-    if (esVoice) utter.voice = esVoice;
+    u.voice = v;
+    u.lang = idiomaActual === "es" ? "es-ES" : "en-US";
+    u.rate = 0.95;
+    u.pitch = 1;
 
     speechSynthesis.cancel();
-    speechSynthesis.speak(utter);
+    speechSynthesis.speak(u);
 }
 
-// =========================================================
-// BREATHING
-// =========================================================
-function runBreathing(step) {
+// ------------------------------
+// TEXT SAFE
+// ------------------------------
+function t(x) {
+    if (!x) return "";
+    if (typeof x === "string") return x;
+    return x[idiomaActual] || x.es || x.en || "";
+}
 
-    const div = document.getElementById("result");
+// ------------------------------
+// INIT
+// ------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+    get("btn-start")?.addEventListener("click", solicitarEscape);
+});
 
-    div.innerHTML += `
-        <div class="card center">
-            <div id="circle" class="breath-circle">RESPIRA</div>
-        </div>
-    `;
+// ------------------------------
+// MODE
+// ------------------------------
+function cambiarModalidad(esSalir) {
+    modalidadSalir = esSalir;
+    get("m-salir")?.classList.toggle("active", esSalir);
+    get("m-casa")?.classList.toggle("active", !esSalir);
+}
 
-    const circle = document.getElementById("circle");
+// ------------------------------
+// BUDGET
+// ------------------------------
+function cambiarBolsillo(v) {
+    presupuestoActual = v;
+    ["cero","minimo","moderado","libre"].forEach(b=>{
+        get(`b-${b}`)?.classList.toggle("active", b===v);
+    });
+}
 
-    let cycles = 5;
-    let i = 0;
-    let expand = true;
+// ------------------------------
+// LANGUAGE
+// ------------------------------
+function cambiarIdioma(l) {
+    idiomaActual = l;
+    get("lang-es")?.classList.toggle("active", l==="es");
+    get("lang-en")?.classList.toggle("active", l==="en");
+}
 
-    const interval = setInterval(() => {
+// ------------------------------
+// MAIN REQUEST
+// ------------------------------
+async function solicitarEscape() {
 
-        circle.style.transform = expand ? "scale(1.3)" : "scale(1)";
-        circle.innerText = expand ? "INHALA" : "EXHALA";
+    const payload = {
+        decision: modalidadSalir ? "salir" : "casa",
+        lang: idiomaActual,
+        budget_level: presupuestoActual,
+        zip_code: get("inp-zip")?.value || "",
+        estado: get("inp-state")?.value || "",
+        region: get("inp-region")?.value || "",
+        desahogo: get("inp-text")?.value || ""
+    };
 
-        expand = !expand;
-        i++;
+    get("wrapper-form").style.display = "none";
+    get("wrapper-loader").style.display = "block";
+    get("wrapper-interactive").style.display = "none";
 
-        if (i >= cycles * 2) {
-            clearInterval(interval);
-            nextStep();
+    try {
+        const r = await fetch("/api/open-than-go", {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify(payload)
+        });
+
+        const data = await r.json();
+
+        if (!data || data.status !== "success") throw new Error("backend fail");
+
+        setTimeout(() => {
+
+            get("wrapper-loader").style.display = "none";
+            get("wrapper-interactive").style.display = "block";
+
+            pasosMisionGlobal = data.mision?.b || [];
+            datosLugarGlobal = data.lugar || null;
+            tipoEscapeGlobal = data.tipo || data.mode || "";
+
+            indicePasoPaso = 0;
+
+            iniciarFlujo();
+
+        }, 400);
+
+    } catch (e) {
+        console.log(e);
+        alert("Error conexión");
+        location.reload();
+    }
+}
+
+// ------------------------------
+// FLOW ENGINE
+// ------------------------------
+function iniciarFlujo() {
+
+    clearInterval(intervaloRespiracion);
+    clearInterval(intervaloTimer);
+    speechSynthesis.cancel();
+
+    const cont = get("step-content");
+    const nextBtn = ensureNext();
+    const mapBtn = ensureMap();
+
+    if (indicePasoPaso >= pasosMisionGlobal.length) {
+
+        if (tipoEscapeGlobal === "Salida") {
+            mapBtn.style.display = "block";
+            mapBtn.href = datosLugarGlobal?.gps_link || "#";
+            return;
         }
 
-    }, 2000);
-}
+        nextBtn.style.display = "block";
+        nextBtn.innerText = "FINALIZAR";
+        nextBtn.onclick = () => location.reload();
+        return;
+    }
 
-// =========================================================
-// DECISION
-// =========================================================
-function renderDecision(step) {
+    const paso = pasosMisionGlobal[indicePasoPaso];
 
-    const div = document.getElementById("result");
+    nextBtn.onclick = () => {
+        indicePasoPaso++;
+        iniciarFlujo();
+    };
 
-    let html = `<div class="card"><p>${step.q?.es || ""}</p>`;
+    // ---------------- BREATH ----------------
+    if (paso.t === "breath_auto") {
+        iniciarRespiracion(paso.d || 10);
+        return;
+    }
 
-    (step.op || []).forEach((op, index) => {
+    // ---------------- TIMER CASA ----------------
+    if (tipoEscapeGlobal === "Casa") {
+        iniciarTimer(600);
+    }
 
-        html += `
-            <button onclick="selectOption(${index}, ${step.c || 0})">
-                ${op.es || ""}
-            </button>
-        `;
-    });
+    const contenido = paso.tx || paso.story || paso;
 
-    html += `</div>`;
-
-    div.innerHTML += html;
-}
-
-// =========================================================
-// OPTION SELECT
-// =========================================================
-function selectOption(index, correct) {
-
-    renderText(index === correct ? "✔ Correcto" : "✖ Reflexiona");
-
-    setTimeout(nextStep, 700);
-}
-
-// =========================================================
-// SILENCE
-// =========================================================
-function runSilence(step) {
-
-    if (step.tx?.es) renderText(step.tx.es);
-
-    const seconds = step.d || 20;
-
-    const div = document.getElementById("result");
-
-    div.innerHTML += `
-        <div class="card center">
-            <p>⏳ ${seconds} segundos</p>
+    cont.innerHTML = `
+        <div class="card-box fade">
+            ${t(contenido)}
         </div>
     `;
 
-    setTimeout(nextStep, seconds * 1000);
+    hablar(t(contenido));
+
+    nextBtn.style.display = "block";
 }
 
-// =========================================================
-// TIMER RESET (FIX REAL)
-// =========================================================
-function resetTimer() {
+// ------------------------------
+// BREATHING GUIDED
+// ------------------------------
+function iniciarRespiracion(seg) {
 
-    clearInterval(timer);
-    timer = null;
+    const cont = get("step-content");
+    cont.innerHTML = `
+        <div class="card center">
+            <div id="breathCircle"></div>
+            <h2 id="breathText">Inhala</h2>
+            <div id="breathTime"></div>
+        </div>
+    `;
 
-    timeLeft = 600;
+    let t = seg;
+    let grow = true;
+    let r = 40;
 
-    timer = setInterval(() => {
+    intervaloRespiracion = setInterval(() => {
 
-        timeLeft--;
+        const circle = get("breathCircle");
 
-        if (timeLeft <= 0) {
-            clearInterval(timer);
-            timer = null;
-            showContinueButton();
+        r += grow ? 2 : -2;
+
+        if (r > 75) grow = false;
+        if (r < 40) grow = true;
+
+        circle.style.transform = `scale(${r/50})`;
+
+        get("breathText").innerText = grow ? "Inhala" : "Exhala";
+        get("breathTime").innerText = t + "s";
+
+        t--;
+
+        if (t <= 0) {
+            clearInterval(intervaloRespiracion);
+            indicePasoPaso++;
+            iniciarFlujo();
         }
 
     }, 1000);
 }
 
-// =========================================================
-// CONTINUE FLOW (FIXED)
-// =========================================================
-function showContinueButton() {
+// ------------------------------
+// TIMER CASA
+// ------------------------------
+function iniciarTimer(seg) {
 
-    const div = document.getElementById("result");
+    const cont = get("step-content");
+    let t = seg;
 
-    div.innerHTML += `
-        <div class="card center">
-            <button onclick="continueMission()">CONTINUAR</button>
-        </div>
-    `;
+    cont.innerHTML = `<div id="timer"></div>`;
+
+    intervaloTimer = setInterval(() => {
+
+        const m = Math.floor(t / 60);
+        const s = t % 60;
+
+        get("timer").innerText = `${m}:${s.toString().padStart(2,"0")}`;
+
+        t--;
+
+        if (t <= 0) {
+            clearInterval(intervaloTimer);
+            get("step-content").innerHTML = "<h2>Sesión completada</h2>";
+        }
+
+    }, 1000);
 }
 
-function continueMission() {
-
-    clearInterval(timer);
-    timer = null;
-
-    stepIndex = 0;
-    steps = [];
-
-    document.getElementById("result").innerHTML = "";
-
-    startOpenThanGo();
+// ------------------------------
+// BUTTONS SAFE
+// ------------------------------
+function ensureNext() {
+    let b = get("btn-next");
+    if (!b) {
+        b = document.createElement("button");
+        b.id = "btn-next";
+        b.className = "btn-next-step";
+        get("wrapper-interactive").appendChild(b);
+    }
+    b.style.display = "none";
+    b.innerText = "CONTINUAR";
+    return b;
 }
 
-// =========================================================
-// MODE
-// =========================================================
-function setMode(mode) {
-
-    window.currentMode = mode;
-
-    const badge = document.getElementById("mode-badge");
-
-    if (!badge) return;
-
-    badge.innerText = mode === "casa" ? "Modo Casa" : "Modo Salir";
-}
-
-// =========================================================
-// LOADER
-// =========================================================
-function showLoader(show) {
-    const el = document.getElementById("loader");
-    if (el) el.style.display = show ? "block" : "none";
+function ensureMap() {
+    let b = get("btn-maps-action");
+    if (!b) {
+        b = document.createElement("a");
+        b.id = "btn-maps-action";
+        b.className = "btn-maps-route";
+        b.target = "_blank";
+        get("wrapper-interactive").appendChild(b);
+    }
+    b.style.display = "none";
+    b.innerText = "ABRIR MAPA";
+    return b;
 }
