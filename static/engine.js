@@ -1,55 +1,27 @@
-// OPEN THAN GO SYSTEM - ENGINE v6 STABLE CORE
-// May Roga LLC
+// OPEN THAN GO BY MAY ROGA LLC - CORE ENGINE DEFINITIVO
+// Protocolo: Intervención Biopsicosocial Encubierta
 
-let state = {
+const state = {
     lang: "es",
-    budget: "cero",
-    mode: "out",
-    stepIndex: 0,
-    steps: [],
-    place: null,
-    type: "",
-    timer: null,
-    breath: null,
-    remaining: 0
+    mission: null,      // Objeto misión recibido del servidor
+    currentStep: 0,     // Índice del paso actual
+    timerInterval: null
 };
 
-// ---------------- DOM HELPERS ----------------
+// Helpers de UI
 const $ = (id) => document.getElementById(id);
-const hide = (el) => { if (el) el.style.display = "none"; };
-const show = (el) => { if (el) el.style.display = "block"; };
+const show = (id) => $(id).style.display = "block";
+const hide = (id) => $(id).style.display = "none";
 
-// ---------------- VOICE ENGINE ----------------
-function speak(text) {
-    if (!text || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-
-    const u = new SpeechSynthesisUtterance(text);
-    const voices = speechSynthesis.getVoices();
-    u.voice = voices.find(v => v.lang.startsWith(state.lang)) || voices[0];
-    u.lang = state.lang === "es" ? "es-ES" : "en-US";
-    u.rate = 0.95;
-
-    setTimeout(() => speechSynthesis.speak(u), 100);
-}
-
-// ---------------- CORE FLOW ----------------
-window.addEventListener("DOMContentLoaded", () => {
-    $("btn-start").onclick = start;
-});
-
-async function start() {
+async function startSession() {
     const payload = {
-        decision: state.mode,
-        lang: state.lang,
-        budget_level: state.budget,
-        zip_code: $("inp-zip")?.value || "",
-        estado: $("inp-state")?.value || "",
-        desahogo: $("inp-text")?.value || ""
+        desahogo: $("inp-text").value,
+        budget: $("inp-budget").value,
+        state: $("inp-state").value
     };
 
-    hide($("wrapper-form"));
-    show($("wrapper-loader"));
+    hide("wrapper-form");
+    show("wrapper-loader");
 
     try {
         const res = await fetch("/api/open-than-go", {
@@ -57,93 +29,89 @@ async function start() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
-
         const data = await res.json();
-        if (data.status !== "success") throw new Error("API Error");
-
-        state.steps = data.mision?.b || [];
-        state.place = data.lugar || null;
-        state.type = data.tipo || "Salida";
-        state.remaining = data.duration || 60;
-        state.stepIndex = 0;
-
-        hide($("wrapper-loader"));
-        show($("wrapper-interactive"));
-        run();
-
+        state.mission = data.mision;
+        state.currentStep = 0;
+        
+        hide("wrapper-loader");
+        show("wrapper-interactive");
+        renderStep();
     } catch (e) {
-        alert("Error de conexión. Intente de nuevo.");
-        show($("wrapper-form"));
-        hide($("wrapper-loader"));
+        alert("El sistema requiere conexión para sincronizar la guía.");
+        show("wrapper-form");
     }
 }
 
-function run() {
-    clearAll();
-    if (state.stepIndex >= state.steps.length) return finish();
-
-    const step = state.steps[state.stepIndex];
+function renderStep() {
+    const steps = state.mission.b;
+    const step = steps[state.currentStep];
     const content = $("step-content");
     
-    // Si es respiración
-    if (step.t === "breath_auto") {
-        breath(step.d);
-    } else {
-        content.innerHTML = `<div>${step.tx}</div>`;
+    // Limpiar UI anterior
+    hide("btn-next");
+    hide("btn-maps-action");
+    content.innerHTML = "";
+
+    // Lógica de Renderizado según tipo
+    if (step.tx) {
+        content.innerHTML = `<p>${step.tx}</p>`;
         speak(step.tx);
-        show($("btn-next"));
     }
 
-    if (state.type === "Casa") timer();
+    // Si es Dilema (d)
+    if (step.t === "d") {
+        step.op.forEach((op, idx) => {
+            const b = document.createElement("button");
+            b.className = "btn btn-secondary";
+            b.innerText = op;
+            b.onclick = () => {
+                content.innerHTML += `<div class="card-box" style="margin-top:10px">${step.ex[idx]}</div>`;
+                show("btn-next");
+            };
+            content.appendChild(b);
+        });
+    } else {
+        show("btn-next");
+    }
+
+    // Si hay mapa o acción final
+    if (step.mapa) {
+        const btnMap = $("btn-maps-action");
+        btnMap.href = step.mapa;
+        show("btn-maps-action");
+    }
 }
 
-// ---------------- TOOLS ----------------
-function breath(seconds) {
-    let t = seconds;
-    let grow = true;
-    let r = 50;
-    const container = $("step-content");
-    
-    container.innerHTML = `<canvas id="breathe" width="200" height="200"></canvas><div id="bt">Inhala</div>`;
-    const ctx = $("breathe").getContext("2d");
+// Control de flujo
+$("btn-next").onclick = () => {
+    state.currentStep++;
+    if (state.currentStep < state.mission.b.length) {
+        renderStep();
+    } else {
+        finishSession();
+    }
+};
 
-    state.breath = setInterval(() => {
-        ctx.clearRect(0, 0, 200, 200);
-        ctx.beginPath();
-        ctx.arc(100, 100, r, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(100, 200, 255, 0.3)";
-        ctx.fill();
-        
-        r += grow ? 1 : -1;
-        if (r > 90 || r < 40) grow = !grow;
-        $("bt").innerText = grow ? "Inhala" : "Exhala";
-        
-        if (--t <= 0) {
-            clearInterval(state.breath);
-            state.stepIndex++;
-            run();
-        }
-    }, 1000);
+// Función de exportación definitiva
+function finishSession() {
+    const content = $("step-content");
+    content.innerHTML = `
+        <h3>Sesión Completada</h3>
+        <p>Tu plan de acción está listo. Mantén este equilibrio.</p>
+        <button class="btn btn-primary" onclick="window.print()">GUARDAR / IMPRIMIR PDF</button>
+    `;
+    hide("btn-next");
 }
 
-function timer() {
-    state.timer = setInterval(() => {
-        if (--state.remaining <= 0) clearInterval(state.timer);
-        $("timer").innerText = Math.floor(state.remaining / 60) + ":" + (state.remaining % 60).toString().padStart(2, '0');
-    }, 1000);
-}
-
-function clearAll() {
-    clearInterval(state.breath);
-    clearInterval(state.timer);
-    hide($("btn-next"));
+// Speaker Engine
+function speak(text) {
     window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = state.lang === "es" ? "es-ES" : "en-US";
+    window.speechSynthesis.speak(u);
 }
 
-function finish() {
-    $("step-content").innerHTML = `<h2>Sesión completada</h2>`;
-    const btn = $("btn-next");
-    show(btn);
-    btn.innerText = "REINICIAR";
-    btn.onclick = () => location.reload();
-}
+// Inicialización
+document.addEventListener("DOMContentLoaded", () => {
+    $("btn-start").onclick = startSession;
+});
