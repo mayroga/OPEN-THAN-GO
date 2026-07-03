@@ -1,4 +1,4 @@
-// OPEN THAN GO SYSTEM - Frontend Engine v5 (ORCHESTRATOR)
+// OPEN THAN GO SYSTEM - Frontend Engine v5 FINAL ORCHESTRATOR
 // Company: May Roga LLC
 
 let idiomaActual = "es";
@@ -57,7 +57,6 @@ function hablar(texto, delay = 0) {
 
         speechSynthesis.cancel();
         speechSynthesis.speak(u);
-
     }, delay);
 }
 
@@ -79,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ------------------------------
-// UI STATE CONTROL
+// UI CONTROL
 // ------------------------------
 function mostrarLoader() {
     get("wrapper-form").style.display = "none";
@@ -103,7 +102,6 @@ async function solicitarEscape() {
         budget_level: presupuestoActual,
         zip_code: get("inp-zip")?.value || "",
         estado: get("inp-state")?.value || "",
-        region: get("inp-region")?.value || "",
         desahogo: get("inp-text")?.value || ""
     };
 
@@ -146,7 +144,7 @@ async function solicitarEscape() {
 }
 
 // ------------------------------
-// FLUJO PRINCIPAL ORQUESTADO
+// ORCHESTRATOR FLOW
 // ------------------------------
 function iniciarFlujo() {
 
@@ -158,9 +156,8 @@ function iniciarFlujo() {
     const btnNext = ensureNext();
     const btnMap = ensureMap();
 
-    // ---------------- FINAL ----------------
+    // FINAL CONDITION
     if (flujoTiempoRestante <= 0 || indicePasoActual >= pasosMisionGlobal.length) {
-
         finalizarFlujo(btnNext, btnMap);
         return;
     }
@@ -173,31 +170,30 @@ function iniciarFlujo() {
         iniciarFlujo();
     };
 
-    // ---------------- BREATH ----------------
+    // BREATH CONTROL
     if (paso.t === "breath_auto") {
         iniciarRespiracion(paso.d || 10);
         return;
     }
 
-    // ---------------- TIMER CASA ----------------
+    // TIMER ONLY CASA
     if (tipoEscapeGlobal === "Casa") {
         iniciarTimerGlobal();
     }
 
-    const contenido = paso.tx || paso.story || paso;
-    const texto = t(contenido);
+    const texto = t(paso.tx || paso.story || paso);
 
     cont.innerHTML = `<div class="fade">${texto}</div>`;
 
-    hablar(texto, 300);
+    hablar(texto, 250);
 
-    flujoTiempoRestante -= 8;
+    flujoTiempoRestante -= 6;
 
     btnNext.style.display = "block";
 }
 
 // ------------------------------
-// FINAL FLOW
+// FINAL
 // ------------------------------
 function finalizarFlujo(btnNext, btnMap) {
 
@@ -206,10 +202,11 @@ function finalizarFlujo(btnNext, btnMap) {
     cont.innerHTML = `
         <div class="fade">
             <h2>Sesión completada</h2>
-            <p>${tipoEscapeGlobal === "Casa"
-                ? "Has completado tu regulación interna."
-                : "Has completado tu micro-escape externo."}
-            </p>
+            <p>${
+                tipoEscapeGlobal === "Casa"
+                    ? "Regulación interna completada."
+                    : "Micro-escape externo completado."
+            }</p>
         </div>
     `;
 
@@ -224,12 +221,14 @@ function finalizarFlujo(btnNext, btnMap) {
 }
 
 // ------------------------------
-// BREATHING ENGINE (SYNC VOICE)
+// BREATH ENGINE (VOICE SYNC)
 // ------------------------------
 function iniciarRespiracion(segundos) {
 
     const cont = get("step-content");
     let s = segundos;
+
+    lockAvance = true;
 
     cont.innerHTML = `
         <div class="breath-ui">
@@ -240,8 +239,6 @@ function iniciarRespiracion(segundos) {
     `;
 
     const circle = get("breathingCircle");
-
-    lockAvance = true;
 
     intervaloRespiracion = setInterval(() => {
 
@@ -260,14 +257,10 @@ function iniciarRespiracion(segundos) {
 
         if (circle) {
             circle.style.transform =
-                phase === "Inhala"
-                    ? "scale(1.4)"
-                    : "scale(0.9)";
+                phase === "Inhala" ? "scale(1.4)" : "scale(0.9)";
         }
 
-        if (s % 4 === 0) {
-            hablar(phase, 0);
-        }
+        if (s % 4 === 0) hablar(phase, 0);
 
         s--;
         flujoTiempoRestante--;
@@ -276,7 +269,7 @@ function iniciarRespiracion(segundos) {
 }
 
 // ------------------------------
-// TIMER GLOBAL CASA (10 MIN CONTROL)
+// TIMER CASA (10 MIN)
 // ------------------------------
 function iniciarTimerGlobal() {
 
@@ -286,8 +279,8 @@ function iniciarTimerGlobal() {
 
     intervaloTimer = setInterval(() => {
 
-        let m = Math.floor(flujoTiempoRestante / 60);
-        let s = flujoTiempoRestante % 60;
+        const m = Math.floor(flujoTiempoRestante / 60);
+        const s = flujoTiempoRestante % 60;
 
         if (t) {
             t.innerText = `${m}:${s.toString().padStart(2, "0")}`;
@@ -303,7 +296,7 @@ function iniciarTimerGlobal() {
 }
 
 // ------------------------------
-// BUTTON SAFE
+// SAFE BUTTONS
 // ------------------------------
 function ensureNext() {
     let b = get("btn-next");
