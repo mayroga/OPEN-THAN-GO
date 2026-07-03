@@ -1,27 +1,60 @@
-// OPEN THAN GO BY MAY ROGA LLC - CORE ENGINE DEFINITIVO
-// Protocolo: Intervención Biopsicosocial Encubierta
+// OPEN THAN GO - ENGINE v5.0 - MAY ROGA
+// Motor de ejecución de protocolos biopsicosociales
 
-const state = {
-    lang: "es",
-    mission: null,      // Objeto misión recibido del servidor
-    currentStep: 0,     // Índice del paso actual
-    timerInterval: null
-};
+let idiomaActual = "es";
+let presupuestoActual = "cero";
+let modalidadSalir = true;
 
-// Helpers de UI
-const $ = (id) => document.getElementById(id);
-const show = (id) => $(id).style.display = "block";
-const hide = (id) => $(id).style.display = "none";
+function get(id) { return document.getElementById(id); }
 
-async function startSession() {
+function hablar(texto) {
+    if (!("speechSynthesis" in window)) return;
+    const u = new SpeechSynthesisUtterance(texto);
+    const voces = window.speechSynthesis.getVoices();
+    const voice = voces.find(v => v.lang.startsWith(idiomaActual)) || voces[0];
+    u.voice = voice;
+    u.lang = idiomaActual === "es" ? "es-ES" : "en-US";
+    u.rate = 0.95;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+}
+
+function t(p) { return p[idiomaActual] || p.es || p.en || p; }
+
+function cambiarIdioma(lang) {
+    idiomaActual = lang;
+    get("lang-es").classList.toggle("active", lang === "es");
+    get("lang-en").classList.toggle("active", lang === "en");
+}
+
+function cambiarBolsillo(opcion) {
+    presupuestoActual = opcion;
+    ["cero", "minimo", "moderado", "libre"].forEach(v => {
+        get(`b-${v}`).classList.toggle("active", v === opcion);
+    });
+}
+
+function cambiarModalidad(esSalir) {
+    modalidadSalir = esSalir;
+    get("m-salir").classList.toggle("active", esSalir);
+    get("m-casa").classList.toggle("active", !esSalir);
+    const wrapper = get("wrapper-form");
+    wrapper.style.borderColor = esSalir ? "#f12711" : "#2a5298";
+}
+
+async function solicitarEscape() {
     const payload = {
-        desahogo: $("inp-text").value,
-        budget: $("inp-budget").value,
-        state: $("inp-state").value
+        decision: modalidadSalir ? "salir" : "casa",
+        lang: idiomaActual,
+        budget_level: presupuestoActual,
+        zip_code: get("inp-zip")?.value || "",
+        estado: get("inp-state")?.value || "",
+        region: get("inp-region")?.value || "",
+        desahogo: get("inp-text")?.value || ""
     };
 
-    hide("wrapper-form");
-    show("wrapper-loader");
+    get("wrapper-form").style.display = "none";
+    get("wrapper-loader").style.display = "flex";
 
     try {
         const res = await fetch("/api/open-than-go", {
@@ -30,88 +63,63 @@ async function startSession() {
             body: JSON.stringify(payload)
         });
         const data = await res.json();
-        state.mission = data.mision;
-        state.currentStep = 0;
         
-        hide("wrapper-loader");
-        show("wrapper-interactive");
-        renderStep();
+        get("wrapper-loader").style.display = "none";
+        get("wrapper-interactive").style.display = "block";
+        
+        if (data.tipo === "Casa") {
+            ejecutarProtocoloCasa(data.mision);
+        } else {
+            ejecutarProtocoloSalida(data.opciones);
+        }
     } catch (e) {
-        alert("El sistema requiere conexión para sincronizar la guía.");
-        show("wrapper-form");
+        get("wrapper-form").style.display = "block";
+        get("wrapper-loader").style.display = "none";
     }
 }
 
-function renderStep() {
-    const steps = state.mission.b;
-    const step = steps[state.currentStep];
-    const content = $("step-content");
-    
-    // Limpiar UI anterior
-    hide("btn-next");
-    hide("btn-maps-action");
-    content.innerHTML = "";
-
-    // Lógica de Renderizado según tipo
-    if (step.tx) {
-        content.innerHTML = `<p>${step.tx}</p>`;
-        speak(step.tx);
-    }
-
-    // Si es Dilema (d)
-    if (step.t === "d") {
-        step.op.forEach((op, idx) => {
-            const b = document.createElement("button");
-            b.className = "btn btn-secondary";
-            b.innerText = op;
-            b.onclick = () => {
-                content.innerHTML += `<div class="card-box" style="margin-top:10px">${step.ex[idx]}</div>`;
-                show("btn-next");
-            };
-            content.appendChild(b);
-        });
-    } else {
-        show("btn-next");
-    }
-
-    // Si hay mapa o acción final
-    if (step.mapa) {
-        const btnMap = $("btn-maps-action");
-        btnMap.href = step.mapa;
-        show("btn-maps-action");
-    }
-}
-
-// Control de flujo
-$("btn-next").onclick = () => {
-    state.currentStep++;
-    if (state.currentStep < state.mission.b.length) {
-        renderStep();
-    } else {
-        finishSession();
-    }
-};
-
-// Función de exportación definitiva
-function finishSession() {
-    const content = $("step-content");
-    content.innerHTML = `
-        <h3>Sesión Completada</h3>
-        <p>Tu plan de acción está listo. Mantén este equilibrio.</p>
-        <button class="btn btn-primary" onclick="window.print()">GUARDAR / IMPRIMIR PDF</button>
+function ejecutarProtocoloCasa(mision) {
+    const cont = get("step-content");
+    cont.innerHTML = `
+        <div class="breath-circle"></div>
+        <div class="mision-card">
+            <h2>${t(mision.titulo)}</h2>
+            <p>${t(mision.descripcion)}</p>
+        </div>
+        <div id="timer">10:00</div>
     `;
-    hide("btn-next");
+    
+    hablar(t(mision.descripcion));
+    
+    let t_restante = 600;
+    const timerDisplay = get("timer");
+    const interval = setInterval(() => {
+        t_restante--;
+        let m = Math.floor(t_restante / 60);
+        let s = t_restante % 60;
+        timerDisplay.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+        if (t_restante <= 0) {
+            clearInterval(interval);
+            location.reload();
+        }
+    }, 1000);
 }
 
-// Speaker Engine
-function speak(text) {
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = state.lang === "es" ? "es-ES" : "en-US";
-    window.speechSynthesis.speak(u);
+function ejecutarProtocoloSalida(opciones) {
+    const cont = get("step-content");
+    cont.innerHTML = `<h2 class="salida-title">TU MANDO EXTERIOR</h2>`;
+    
+    opciones.forEach(opt => {
+        let btn = document.createElement("button");
+        btn.className = "btn-vibrante";
+        btn.innerText = opt.nombre;
+        btn.onclick = () => window.open(opt.gps, "_blank");
+        cont.appendChild(btn);
+    });
+    
+    hablar("El mundo está listo. Selecciona tu ruta.");
 }
 
-// Inicialización
 document.addEventListener("DOMContentLoaded", () => {
-    $("btn-start").onclick = startSession;
+    get("btn-start").onclick = solicitarEscape;
 });
