@@ -116,7 +116,7 @@ async def mando_integral(request: Request):
             "porque": info["porque"],
             "que_hacer": info["que_hacer"] + msg_adicional,
             "donde": info["donde"],
-            "gps": f"https://www.google.com/maps/search/?api=1&query={info['gps']}{contexto['zip']}"
+            "gps": f"https://www.google.com/maps/search/?api=1&query={info['gps'].replace('+', ' ')}+in+zip+{contexto['zip']}"
         })
 
 if __name__ == "__main__":
