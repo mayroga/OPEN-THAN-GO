@@ -1,6 +1,6 @@
 # =========================================================
-# OPEN THAN GO - CORE ENGINE v3 (CLEAN + STABLE)
-# FASTAPI ONLY - READY FOR RENDER
+# OPEN THAN GO - CORE ENGINE v4 (STABLE BACKEND)
+# FASTAPI CLEAN - NO FLOOD - NO FREEZE
 # =========================================================
 
 from fastapi import FastAPI, Request
@@ -20,9 +20,8 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-
 # =========================================================
-# VALID STATES
+# USA STATES VALIDATION
 # =========================================================
 US_STATES = {
     "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
@@ -32,29 +31,22 @@ US_STATES = {
     "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
 }
 
-
 # =========================================================
 # SAFE JSON LOADER
 # =========================================================
 def load_json(path):
-    try:
-        if not os.path.exists(path):
-            return {"missions": []}
-
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        if isinstance(data, dict):
-            return data
-
+    if not os.path.exists(path):
         return {"missions": []}
 
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data if isinstance(data, dict) else {"missions": []}
     except:
         return {"missions": []}
 
-
 # =========================================================
-# LOAD MISSIONS (1–21 SYSTEM)
+# LOAD MISSIONS (1–21 SYSTEM SAFE)
 # =========================================================
 MISSION_FILES = [
     "missions_01_07.json",
@@ -68,26 +60,24 @@ for file in MISSION_FILES:
     path = os.path.join(BASE_DIR, file)
     data = load_json(path)
 
-    for m in data.get("missions", []):
-        if isinstance(m, dict) and "id" in m:
-            MISSIONS.append(m)
+    missions = data.get("missions", [])
 
-MISSIONS = sorted(MISSIONS, key=lambda x: x["id"])
+    if isinstance(missions, list):
+        for m in missions:
+            if isinstance(m, dict) and "id" in m:
+                MISSIONS.append(m)
 
+MISSIONS = sorted(MISSIONS, key=lambda x: x.get("id", 0))
 
 # =========================================================
-# EMOTION ENGINE (SIMPLE BIOSOCIAL DETECTION)
+# EMOTION ENGINE (SAFE SIMPLE)
 # =========================================================
 def analyze_emotion(text, mode):
     t = (text or "").lower()
 
-    stress_words = ["estres", "ansiedad", "presion", "trabajo"]
-    fatigue_words = ["cansado", "agotado", "sin energia"]
-    monotony_words = ["aburrido", "rutina", "igual"]
-
-    stress = any(w in t for w in stress_words)
-    fatigue = any(w in t for w in fatigue_words)
-    monotony = any(w in t for w in monotony_words)
+    stress = any(w in t for w in ["estres", "ansiedad", "presion", "trabajo"])
+    fatigue = any(w in t for w in ["cansado", "agotado", "sin energia"])
+    monotony = any(w in t for w in ["aburrido", "rutina", "igual"])
 
     if mode == "casa":
         if fatigue:
@@ -97,32 +87,16 @@ def analyze_emotion(text, mode):
         return "HOME_BALANCE"
 
     if stress:
-        return "OUT_STRESS"
+        return "OUT_STRUCTURE"
     if monotony:
-        return "OUT_MONOTONY"
+        return "OUT_EXPLORATION"
     if fatigue:
         return "OUT_SLOW"
 
     return "OUT_BALANCE"
 
-
 # =========================================================
-# PROFILE (BIOSOCIAL FILTER READY)
-# =========================================================
-def biopsocial_profile(text, budget):
-    t = (text or "").lower()
-
-    return {
-        "stress": any(w in t for w in ["estres", "ansiedad", "presion"]),
-        "fatigue": any(w in t for w in ["cansado", "agotado"]),
-        "monotony": any(w in t for w in ["aburrido", "rutina"]),
-        "social_need": any(w in t for w in ["solo", "aislado"]),
-        "low_budget": budget in ["cero", "minimo"]
-    }
-
-
-# =========================================================
-# MISSION SELECTOR
+# SAFE MISSION SELECTOR
 # =========================================================
 def get_mission():
     if not MISSIONS:
@@ -131,15 +105,20 @@ def get_mission():
             "b": [
                 {
                     "story": {
-                        "es": "Respira. Estás aquí.",
-                        "en": "Breathe. You are here."
+                        "es": "Respira. Estás aquí. No necesitas resolver todo ahora.",
+                        "en": "Breathe. You are here. You don't need to fix everything now."
                     }
                 }
             ]
         }
 
-    return random.choice(MISSIONS)
+    mission = random.choice(MISSIONS)
 
+    if not isinstance(mission, dict):
+        return {"id": 0, "b": []}
+
+    mission.setdefault("b", [])
+    return mission
 
 # =========================================================
 # ROUTES
@@ -148,19 +127,16 @@ def get_mission():
 def home():
     return FileResponse(os.path.join(STATIC_DIR, "session.html"))
 
-
 @app.get("/session")
 def session():
     return FileResponse(os.path.join(STATIC_DIR, "session.html"))
-
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
-
 # =========================================================
-# MAIN API ENGINE
+# CORE API
 # =========================================================
 @app.post("/api/open-than-go")
 async def open_than_go(request: Request):
@@ -173,11 +149,11 @@ async def open_than_go(request: Request):
     zip_code = data.get("zip_code", "")
     budget = data.get("budget_level", "cero")
 
+    # VALIDATE STATE
     if state not in US_STATES:
         state = "FL"
 
     emotion = analyze_emotion(text, mode)
-    profile = biopsocial_profile(text, budget)
     mission = get_mission()
 
     # =====================================================
@@ -186,15 +162,16 @@ async def open_than_go(request: Request):
     if mode == "casa":
         return {
             "status": "ok",
-            "mode": "casa",
+            "type": "Casa",
+            "title": "OPEN ◯ THAN GO",
             "emotion": emotion,
-            "profile": profile,
             "mission": mission,
             "ui": {
-                "language": "es",
-                "voice": "es-ES",
+                "mode": "casa",
                 "timer": 600,
-                "flow": "breathing_home"
+                "breathing": "guided",
+                "voice": True,
+                "language": "es"
             }
         }
 
@@ -203,17 +180,18 @@ async def open_than_go(request: Request):
     # =====================================================
     return {
         "status": "ok",
-        "mode": "salir",
+        "type": "Salida",
+        "title": "OPEN ◎ THAN GO",
         "emotion": emotion,
-        "profile": profile,
         "mission": mission,
-        "location": {
+        "lugar": {
             "state": state,
             "zip": zip_code
         },
         "ui": {
+            "mode": "salir",
+            "voice": True,
             "language": "es",
-            "voice": "es-ES",
-            "flow": "guided_mission"
+            "guidance": "active"
         }
     }
