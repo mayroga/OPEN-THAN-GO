@@ -1,65 +1,51 @@
-// OPEN THAN GO SYSTEM - Frontend Voice & Somatic Engine
+// OPEN THAN GO SYSTEM - Unified Somatic Voice Engine
 // Company: May Roga LLC
 // File: static/engine.js
 
 let idiomaActual = 'es';
 let presupuestoActual = 'cero';
-let modalidadSalir = true;
+let modalidadSalir = true; 
 let pasosMisionGlobal = [];
 let indicePasoActual = 0;
 let datosLugarGlobal = null;
 let tipoEscapeGlobal = "";
 let intervaloRespiracion = null;
+let temporizadorClinicoCasa = null;
 
 const traducciones = {
     es: {
         subtitle: "Tu escape emocional inteligente",
-        state: "Estado",
-        region: "Región / Condado",
-        zip: "ZIP Code",
-        budget: "Presupuesto Disponible",
-        mode: "¿Salir o quedarte en casa?",
-        desahogo: "Desahogo Opcional (Filtro Emocional)",
-        placeholder_text: "Escribe libremente cómo te sientes hoy...",
-        btn_trigger: "ACTIVAR MANDO",
-        loader: "Sincronizando frecuencias de bienestar...",
-        btn_continue: "CONTINUAR",
-        btn_gps: "ABRIR MAPA EN GPS",
-        tipo_casa: "Protocolo Doméstico Activado",
-        tipo_salida: "Protocolo de Exploración Abierto",
-        txt_correcto: "<strong>¡Excelente elección!</strong><br>",
-        txt_incorrecto: "<strong>Analiza esto con calma:</strong><br>",
-        inspira: "Inhala / Inspira",
-        expira: "Exhala / Expira"
+        state: "Estado", region: "Región / Condado", zip: "ZIP Code", budget: "Presupuesto Disponible",
+        mode: "¿Salir o quedarte en casa?", desahogo: "Desahogo Opcional (Filtro Emocional)",
+        placeholder_text: "Escribe libremente cómo te sientes hoy...", btn_trigger: "ACTIVAR MANDO",
+        loader: "Sincronizando frecuencias de bienestar...", btn_continue: "CONTINUAR", btn_gps: "ABRIR MAPA EN GPS",
+        tipo_casa: "Protocolo Doméstico de 10 Minutos Activado", tipo_salida: "Guía de Exploración Abierta",
+        txt_correcto: "<strong>¡RESPUESTA VERDADERA!</strong><br>", txt_incorrecto: "<strong>ANÁLISIS DE FALLO:</strong><br>",
+        inspira: "Inhala / Inspira", expira: "Exhala / Expira",
+        alerta_35s: "Preparación de campo activa por 35 segundos. Escucha las sugerencias atentamente.",
+        fin_casa: "Protocolo doméstico terminado. El sistema se apaga automáticamente por tu paz."
     },
     en: {
         subtitle: "Your intelligent emotional escape",
-        state: "State",
-        region: "Region / County",
-        zip: "ZIP Code",
-        budget: "Available Budget",
-        mode: "Go out or stay at home?",
-        desahogo: "Optional Venting (Emotional Filter)",
-        placeholder_text: "Write freely about how you feel today...",
-        btn_trigger: "ACTIVAR MANDO",
-        loader: "Synchronizing wellness frequencies...",
-        btn_continue: "CONTINUE",
-        btn_gps: "OPEN MAP IN GPS",
-        tipo_casa: "Domestic Protocol Activated",
-        tipo_salida: "Exploration Protocol Opened",
-        txt_correcto: "<strong>Excellent choice!</strong><br>",
-        txt_incorrecto: "<strong>Analyze this calmly:</strong><br>",
-        inspira: "Inhale",
-        expira: "Exhale"
+        state: "State", region: "Region / County", zip: "ZIP Code", budget: "Available Budget",
+        mode: "Go out or stay at home?", desahogo: "Optional Venting (Emotional Filter)",
+        placeholder_text: "Write freely about how you feel today...", btn_trigger: "ACTIVAR MANDO",
+        loader: "Synchronizing wellness frequencies...", btn_continue: "CONTINUE", btn_gps: "OPEN MAP IN GPS",
+        tipo_casa: "10-Minute Domestic Protocol Activated", tipo_salida: "Exploration Guide Opened",
+        txt_correcto: "<strong>TRUE ANSWER!</strong><br>", txt_incorrecto: "<strong>FAILURE ANALYSIS:</strong><br>",
+        inspira: "Inhale", expira: "Exhale",
+        alerta_35s: "Field preparation active for 35 seconds. Listen to the suggestions carefully.",
+        fin_casa: "Domestic protocol completed. The system automatically shuts down to preserve your peace."
     }
 };
 
 function hablarTexto(texto) {
-    window.speechSynthesis.cancel();
+    window.speechSynthesis.cancel(); 
     if (!texto) return;
     const lectura = new SpeechSynthesisUtterance(texto);
     lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US';
-    lectura.rate = 0.90;
+    lectura.rate = 0.88; 
+    lectura.pitch = 1.0;
     window.speechSynthesis.speak(lectura);
 }
 
@@ -67,8 +53,7 @@ function cambiarIdioma(lang) {
     idiomaActual = lang;
     document.getElementById('lang-es').classList.toggle('active', lang === 'es');
     document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-   
-    // Verificación de protección de elementos del formulario para evitar congelamientos
+    
     if(document.getElementById('txt-subtitle')) document.getElementById('txt-subtitle').innerText = traducciones[lang].subtitle;
     if(document.getElementById('lbl-state')) document.getElementById('lbl-state').innerText = traducciones[lang].state;
     if(document.getElementById('lbl-region')) document.getElementById('lbl-region').innerText = traducciones[lang].region;
@@ -77,11 +62,10 @@ function cambiarIdioma(lang) {
     if(document.getElementById('lbl-mode')) document.getElementById('lbl-mode').innerText = traducciones[lang].mode;
     if(document.getElementById('lbl-desahogo')) document.getElementById('lbl-desahogo').innerText = traducciones[lang].desahogo;
     if(document.getElementById('inp-text')) document.getElementById('inp-text').placeholder = traducciones[lang].placeholder_text;
-   
-    // Sincronización automática del botón disparador según tu HTML actual
+    
     const btnTrigger = document.getElementById('btn-main-trigger') || document.querySelector('.btn-trigger');
     if(btnTrigger) btnTrigger.innerText = traducciones[lang].btn_trigger;
-   
+    
     if(document.getElementById('txt-loader')) document.getElementById('txt-loader').innerText = traducciones[lang].loader;
     if(document.getElementById('btn-next')) document.getElementById('btn-next').innerText = traducciones[lang].btn_continue;
     if(document.getElementById('btn-maps-action')) document.getElementById('btn-maps-action').innerText = traducciones[lang].btn_gps;
@@ -100,7 +84,7 @@ function cambiarModalidad(esSalir) {
     modalidadSalir = esSalir;
     document.getElementById('m-salir').classList.toggle('active', esSalir === true);
     document.getElementById('m-casa').classList.toggle('active', esSalir === false);
-   
+    
     const displayGeografia = esSalir ? 'block' : 'none';
     if(document.getElementById('inp-state')) document.getElementById('inp-state').parentElement.style.display = displayGeografia;
     if(document.getElementById('inp-region')) document.getElementById('inp-region').parentElement.style.display = displayGeografia;
@@ -139,53 +123,83 @@ async function solicitarEscape() {
             indicePasoActual = 0;
 
             document.getElementById('interactive-title').innerText = "OPEN THAN GO";
-            document.getElementById('interactive-subtitle').innerText =
+            document.getElementById('interactive-subtitle').innerText = 
                 tipoEscapeGlobal === "Casa" ? traducciones[idiomaActual].tipo_casa : traducciones[idiomaActual].tipo_salida;
 
             document.getElementById('wrapper-interactive').style.display = 'block';
-           
-            const areaLugar = document.getElementById('interactive-location');
-            if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
-                areaLugar.innerHTML = `
-                    <div class="card-lugar">
-                        <h3>${datosLugarGlobal.name}</h3>
-                        <p>${datosLugarGlobal.address}</p>
-                    </div>
-                `;
-                areaLugar.style.display = 'block';
-            } else {
-                areaLugar.style.display = 'none';
+            
+            // TEMPORIZADOR CLÍNICO DE 10 MINUTOS EN CASA CON APAGADO AUTOMÁTICO
+            if (tipoEscapeGlobal === "Casa") {
+                clearTimeout(temporizadorClinicoCasa);
+                temporizadorClinicoCasa = setTimeout(() => {
+                    hablarTexto(traducciones[idiomaActual].fin_casa);
+                    alert(traducciones[idiomaActual].fin_casa);
+                    destruirMemoriaYReiniciar();
+                }, 600000); // 10 minutos exactos
             }
 
-            procesarPasoMision();
+            procesarPaoMision();
         } else {
-            alert(data.message || "Error al procesar la sesión.");
+            alert(data.message || "Error al sincronizar canales emocionales.");
             document.getElementById('wrapper-form').style.display = 'block';
         }
     } catch (error) {
-        alert("Error de conexión con el servidor.");
+        alert("Error de enlace con el servidor.");
         document.getElementById('wrapper-form').style.display = 'block';
         document.getElementById('wrapper-loader').style.display = 'none';
     }
 }
 
-function procesarPasoMision() {
+// ALINEACIÓN DE NOMBRE DE FUNCIÓN
+function procesarPaoMision() {
     clearInterval(intervaloRespiracion);
     window.speechSynthesis.cancel();
-   
+    
     const contenedorPasos = document.getElementById('step-content');
     const botonContinuar = document.getElementById('btn-next');
     const botonGps = document.getElementById('btn-maps-action');
-   
+    
+    // Se limpia todo rastro de escritura previa para no sobrecargar el hardware
+    contenedorPasos.innerHTML = "";
     botonContinuar.style.display = 'none';
     botonGps.style.display = 'none';
 
+    // CIERRE TOTAL DEL PROCESADOR DE PASOS
     if (indicePasoActual >= pasosMisionGlobal.length) {
         if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
-            botonGps.href = datosLugarGlobal.gps_link;
-            botonGps.style.display = 'block';
+            contenedorPasos.innerHTML = `
+                <div class="card-lugar" style="margin-top:20px;">
+                    <h3 style="color:var(--accent); font-weight:800; text-transform:uppercase;">🧭 Protocolo de Despliegue de Campo</h3>
+                    <p style="font-size:14px; margin:8px 0; line-height:1.4;">${datosLugarGlobal.address}</p>
+                    <hr style="border:0; border-top:1px dashed #ddd; margin:10px 0;">
+                    <p style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:5px;">Sugerencia de Enfoque en tus 3 Puntos Críticos:</p>
+                    <p style="font-size:13px; line-height:1.4; font-style:italic; color:#444;">${datosLugarGlobal.analisis_sugerido}</p>
+                </div>
+            `;
+            
+            // RETENCIÓN ESTRICTA DE 35 SEGUNDOS ANTES DE ABRIR EL MAPA
+            let cuentaRegresivaSalir = 35;
+            botonContinuar.innerText = `${cuentaRegresivaSalir}s`;
+            botonContinuar.disabled = true;
+            botonContinuar.style.display = 'block';
+            
+            // La voz lee obligatoriamente la guía explicativa completa
+            hablarTexto(traducciones[idiomaActual].alerta_35s + " . Tres sugerencias de enfoque: " + datosLugarGlobal.analisis_sugerido);
+            
+            let relojSalida = setInterval(() => {
+                cuentaRegresivaSalir--;
+                botonContinuar.innerText = `${cuentaRegresivaSalir}s`;
+                if(cuentaRegresivaSalir <= 0) {
+                    clearInterval(relojSalida);
+                    botonContinuar.style.display = 'none';
+                    // DESPLIEGUE OBLIGATORIO DE MAPA EN VIVO SIN MARCHA ATRÁS
+                    botonGps.href = datosLugarGlobal.gps_link;
+                    botonGps.style.display = 'block';
+                    window.open(datosLugarGlobal.gps_link, '_blank');
+                }
+            }, 1000);
         } else {
-            location.reload();
+            destruirMemoriaYReiniciar();
         }
         return;
     }
@@ -194,27 +208,26 @@ function procesarPasoMision() {
 
     if (paso.t === "v" || paso.t === "h") {
         let textoLabel = typeof paso.tx === 'object' ? paso.tx[idiomaActual] : paso.tx;
-        contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0; font-size:18px;">${textoLabel}</h3>`;
+        contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0; font-size:18px; font-weight:800;">${textoLabel}</h3>`;
         hablarTexto(textoLabel);
         botonContinuar.style.display = 'block';
     }
-   
+    
     else if (paso.story) {
         contenedorPasos.innerHTML = `<div class="screen-story"><p>${paso.story[idiomaActual]}</p></div>`;
         hablarTexto(paso.story[idiomaActual]);
         botonContinuar.style.display = 'block';
     }
-   
+    
     else if (paso.t === "breath_auto") {
         let tiempoRestante = paso.d;
         contenedorPasos.innerHTML = `
-            <div class="wrapper-circle">
-                <div class="breath-circle animar-respiracion" id="circulo-pulso">${tiempoRestante}s</div>
-                <div class="txt-instruccion-pulmon" id="txt-pulmon-accion">---</div>
-                <p style="font-weight:600; margin-top:15px; font-size:15px;">${paso.tx[idiomaActual]}</p>
-                <p class="breath-inf">${paso.inf[idiomaActual]}</p>
-            </div>
-        `;
+            <div class="wrapper-circle"> 
+                <div class="breath-circle animar-respiracion" id="circulo-pulso">${tiempoRestante}s</div> 
+                <div class="txt-instruccion-pulmon" id="txt-pulmon-accion">---</div> 
+                <p style="font-weight:600; margin-top:15px; font-size:15px; color:var(--primary);">${paso.tx[idiomaActual]}</p> 
+                <p class="breath-inf">${paso.inf[idiomaActual]}</p> 
+            </div>`;
         hablarTexto(paso.tx[idiomaActual]);
 
         intervaloRespiracion = setInterval(() => {
@@ -222,7 +235,7 @@ function procesarPasoMision() {
             const circulo = document.getElementById('circulo-pulso');
             const indicadorTexto = document.getElementById('txt-pulmon-accion');
             if (circulo) circulo.innerText = `${tiempoRestante}s`;
-           
+            
             if (indicadorTexto) {
                 let cicloSegundo = tiempoRestante % 8;
                 if (cicloSegundo >= 4) {
@@ -245,60 +258,78 @@ function procesarPasoMision() {
             }
         }, 1000);
     }
-   
+    
     else if (paso.t === "d") {
         let opcionesHtml = "";
         paso.op.forEach((opcion, index) => {
-            opcionesHtml += `<button class="btn-opcion" onclick="evaluarRespuestaTrivia(${index}, ${paso.c}, '${paso.ex[index][idiomaActual].replace(/'/g, "\\'")}')"> ${opcion[idiomaActual]} </button>`;
+            opcionesHtml += `<button class="btn-opcion" id="opt-${index}" onclick="evaluarTriviaMargenReintento(${index}, ${paso.c}, '${paso.ex[index][idiomaActual].replace(/'/g, "\\'")}')"> ${opcion[idiomaActual]} </button>`;
         });
         contenedorPasos.innerHTML = `
-            <div class="bloque-decision">
-                <p style="font-weight:700; font-size:14px; color:var(--primary); line-height:1.4;">${paso.q[idiomaActual]}</p>
-                <div class="contenedor-opciones">${opcionesHtml}</div>
-                <div id="box-feedback" class="feedback-box"></div>
+            <div class="bloque-decision"> 
+                <p style="font-weight:700; font-size:14px; color:var(--primary); line-height:1.4; margin-bottom:12px;">${paso.q[idiomaActual]}</p> 
+                <div class="contenedor-opciones">${opcionesHtml}</div> 
+                <div id="box-feedback" class="feedback-box"></div> 
             </div>`;
         hablarTexto(paso.q[idiomaActual]);
     }
     else if (paso.t === "r") {
         contenedorPasos.innerHTML = `
-            <div style="margin:25px 0;">
-                <span style="font-size:45px;">💎</span>
-                <h2 style="color:var(--accent); margin:10px 0;">${paso.tx}</h2>
+            <div style="margin:25px 0; text-align:center;"> 
+                <span style="font-size:50px;">💎</span> 
+                <h2 style="color:var(--accent); margin:10px 0; font-weight:800;">${paso.tx}</h2> 
             </div>`;
+        hablarTexto(paso.tx);
         botonContinuar.style.display = 'block';
     }
     else if (paso.t === "c") {
-        contenedorPasos.innerHTML = `<div style="padding:20px; background:#fffde7; border-radius:10px; margin:15px 0; border:1px dashed #fbc02d;"><p style="font-style:italic; font-size:15px; margin:0; font-weight:500;">"${paso.tx[idiomaActual]}"</p></div>`;
+        contenedorPasos.innerHTML = `<div style="padding:20px; background:#fffde7; border-radius:10px; margin:15px 0; border:1px dashed #fbc02d;"><p style="font-style:italic; font-size:15px; margin:0; font-weight:500; line-height:1.4;">"${paso.tx[idiomaActual]}"</p></div>`;
         hablarTexto(paso.tx[idiomaActual]);
         botonContinuar.style.display = 'block';
     }
     else if (paso.t === "sil") {
         contenedorPasos.innerHTML = `
-            <div style="text-align:left; background:#f3e5f5; padding:16px; border-radius:10px; border:1px solid #e1bee7;">
-                <p style="font-size:14px; margin:0 0 10px 0; line-height:1.4;"><strong>Misión:</strong> ${paso.tx[idiomaActual]}</p>
-                <small style="color:#4a148c; display:block; font-weight:600;">💡 Enfoque: ${paso.inf[idiomaActual]}</small>
+            <div style="text-align:left; background:#f3e5f5; padding:16px; border-radius:10px; border:1px solid #e1bee7;"> 
+                <p style="font-size:14px; margin:0 0 10px 0; line-height:1.4;"><strong>Misión Práctica:</strong> ${paso.tx[idiomaActual]}</p> 
+                <small style="color:#4a148c; display:block; font-weight:600;">💡 Enfoque: ${paso.inf[idiomaActual]}</small> 
             </div>`;
-        hablarTexto(paso.tx[idiomaActual] + ". Enfoque mental: " + paso.inf[idiomaActual]);
+        hablarTexto(paso.tx[idiomaActual] + " . Enfoque mental: " + paso.inf[idiomaActual]);
         botonContinuar.style.display = 'block';
     }
 }
 
-function evaluarRespuestaTrivia(indiceSeleccionado, indiceCorrecto, explicacionTexto) {
+// MARGEN DE REINTENTO: Explica fallos con voz, oculta malas opciones y obliga a tocar la correcta
+function evaluarTriviaMargenReintento(indiceSeleccionado, indiceCorrecto, explicacionTexto) {
     const contenedorFeedback = document.getElementById('box-feedback');
     if (!contenedorFeedback) return;
-    const botones = document.querySelectorAll('.btn-opcion');
-    botones.forEach(btn => btn.disabled = true);
-
     const esCorrecto = indiceSeleccionado === indiceCorrecto;
     contenedorFeedback.className = esCorrecto ? "feedback-box fb-correcto" : "feedback-box fb-incorrecto";
-    contenedorFeedback.innerHTML = (esCorrecto ? traducciones[idiomaActual].txt_correcto : traducciones[idiomaActual].txt_incorrecto) + explicacionTexto;
-
+    
+    const prefijo = esCorrecto ? traducciones[idiomaActual].txt_correcto : traducciones[idiomaActual].txt_incorrecto;
+    contenedorFeedback.innerHTML = prefijo + explicacionTexto;
     const textoLimpioExplicacion = explicacionTexto.replace(/<[^>]*>/g, '');
-    hablarTexto((esCorrecto ? "Excelente. " : "Analiza esto. ") + textoLimpioExplicacion);
-    document.getElementById('btn-next').style.display = 'block';
+    
+    if (esCorrecto) {
+        const botones = document.querySelectorAll('.btn-opcion');
+        botones.forEach(btn => btn.disabled = true);
+        hablarTexto((idiomaActual === 'es' ? "Verdadero. " : "True. ") + textoLimpioExplicacion);
+        document.getElementById('btn-next').style.display = 'block'; // Solo avanza si es la verdadera
+    } else {
+        document.getElementById(`opt-${indiceSeleccionado}`).style.opacity = "0.4";
+        document.getElementById(`opt-${indiceSeleccionado}`).style.pointerEvents = "none";
+        hablarTexto((idiomaActual === 'es' ? "Falso. " : "False. ") + textoLimpioExplicacion);
+    }
+}
+
+function destruirMemoriaYReiniciar() {
+    clearTimeout(temporizadorClinicoCasa);
+    clearInterval(intervaloRespiracion);
+    pasosMisionGlobal = [];
+    datosLugarGlobal = null;
+    indicePasoActual = 0;
+    location.reload(); // Borra la caché visual del navegador de forma instantánea
 }
 
 function siguienteComando() {
     indicePasoActual++;
-    procesarPasoMision();
+    procesarPaoMision();
 }
