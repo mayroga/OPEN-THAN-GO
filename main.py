@@ -1,67 +1,64 @@
-# main.py - OPEN THAN GO SYSTEM (STABLE ORCHESTRATOR)
-# FastAPI backend ONLY (NO Flask)
+# main.py - OPEN THAN GO SYSTEM (FINAL STABLE DEPLOY)
+# FastAPI + Static + API + Render Ready
 
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 import random
 
 app = FastAPI()
 
 # ----------------------------
-# CORS (Render / Frontend safe)
+# STATIC FILES (ESTO ARREGLA EL 404)
 # ----------------------------
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ----------------------------
-# SIMULADOR DE LUGARES (SALIR)
+# ROOT -> ABRE FRONTEND
+# ----------------------------
+@app.get("/")
+def root():
+    return FileResponse("static/session.html")
+
+# ----------------------------
+# LUGAR SIMULADO (SALIR)
 # ----------------------------
 def generar_lugar(zip_code, estado, budget, stress=0):
+
     opciones = [
         {
             "name": "Parque tranquilo",
-            "type": "nature",
-            "reason": "Reduce estrés y sobrecarga mental"
+            "reason": "Reduce estrés y ayuda a estabilizar tu mente",
+            "gps_link": "https://maps.google.com"
         },
         {
             "name": "Cafetería silenciosa",
-            "type": "calm",
-            "reason": "Permite regulación emocional sin estímulos fuertes"
+            "reason": "Ambiente seguro para regular emociones",
+            "gps_link": "https://maps.google.com"
         },
         {
-            "name": "Centro comercial ligero",
-            "type": "neutral",
-            "reason": "Distracción controlada sin aislamiento"
-        },
-        {
-            "name": "Caminar 10 minutos en zona segura",
-            "type": "movement",
-            "reason": "Activa sistema nervioso y reduce ansiedad"
+            "name": "Caminar zona segura",
+            "reason": "Movimiento físico regula ansiedad y pensamiento",
+            "gps_link": "https://maps.google.com"
         }
     ]
 
-    # lógica simple adaptativa (estable, sin sobreingeniería)
     if budget == "cero":
-        return opciones[3]
-    if stress and stress > 7:
+        return opciones[2]
+
+    if stress > 7:
         return opciones[0]
 
     return random.choice(opciones)
 
 # ----------------------------
-# MISIONES CASA (simplificado seguro)
+# MISIONES CASA
 # ----------------------------
-def cargar_misiones_home():
+def misiones_casa():
+
     return [
         {
             "id": 1,
-            "title": "Respiración guiada",
             "type": "breath",
             "duration": 120,
             "text": {
@@ -71,22 +68,20 @@ def cargar_misiones_home():
         },
         {
             "id": 2,
-            "title": "Reorden mental",
             "type": "reflection",
             "duration": 180,
             "text": {
-                "es": "Piensa en una cosa que puedes controlar hoy.",
-                "en": "Think of one thing you can control today."
+                "es": "Observa qué puedes controlar hoy.",
+                "en": "Notice what you can control today."
             }
         },
         {
             "id": 3,
-            "title": "Micro-acción",
             "type": "action",
             "duration": 120,
             "text": {
-                "es": "Haz una acción pequeña que mejore tu bienestar ahora.",
-                "en": "Do one small action that improves your wellbeing now."
+                "es": "Haz una pequeña acción para mejorar tu estado.",
+                "en": "Take a small action to improve your state."
             }
         }
     ]
@@ -100,64 +95,39 @@ async def open_than_go(request: Request):
     try:
         data = await request.json()
 
-        mode = data.get("decision", "salir")  # "salir" o "casa"
+        mode = data.get("decision", "salir")
         lang = data.get("lang", "es")
         budget = data.get("budget_level", "cero")
         zip_code = data.get("zip_code", "")
         estado = data.get("estado", "")
         desahogo = data.get("desahogo", "")
 
-        # -------------------------
-        # MODO CASA (ENGINE.JS)
-        # -------------------------
+        # ---------------- CASA ----------------
         if mode == "casa":
 
             return JSONResponse({
                 "status": "success",
                 "mode": "home",
-                "duration": 600,  # 10 minutos
-                "missions": cargar_misiones_home(),
-                "breathing": {
-                    "enabled": True,
-                    "pattern": "4-4-6"
-                },
-                "voice": True
+                "duration": 600,
+                "missions": misiones_casa()
             })
 
-        # -------------------------
-        # MODO SALIR (MAIN LOGIC)
-        # -------------------------
-        stress_level = len(desahogo) % 10  # simulación ligera estable
+        # ---------------- SALIR ----------------
+        stress = min(len(desahogo or "") % 10, 10)
 
-        lugar = generar_lugar(zip_code, estado, budget, stress_level)
+        lugar = generar_lugar(zip_code, estado, budget, stress)
 
         return JSONResponse({
             "status": "success",
             "mode": "out",
-            "duration": 60,  # 1 minuto máximo
+            "duration": 60,
             "place": lugar,
             "why": lugar["reason"],
-            "psych_logic": {
-                "es": "Este lugar fue seleccionado para regular tu estado emocional actual.",
-                "en": "This place was selected to regulate your current emotional state."
-            },
             "action": "go"
         })
 
     except Exception as e:
-
         return JSONResponse({
             "status": "error",
             "message": str(e)
         }, status_code=500)
-
-# ----------------------------
-# HEALTH CHECK
-# ----------------------------
-@app.get("/")
-def root():
-    return {
-        "status": "OPEN THAN GO ACTIVE",
-        "backend": "stable",
-        "modes": ["home", "out"]
-    }
