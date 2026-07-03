@@ -113,7 +113,6 @@ def procesar_sistema_bienestar():
     ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
     query_mapa = f"{termino_busqueda} en {ubicacion_destino}".replace(" ", "+")
     link_google_maps_vivo = f"https://google.com{query_mapa}"
-
     return jsonify({
         "status": "success",
         "tipo": "Salida",
