@@ -1,5 +1,5 @@
-# main.py - OPEN THAN GO SYSTEM (FINAL STABLE DEPLOY)
-# FastAPI + Static + API + Render Ready
+# main.py - OPEN THAN GO SYSTEM (STABLE DEPLOY)
+# FastAPI + Static + API Ready
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
@@ -9,81 +9,37 @@ import random
 app = FastAPI()
 
 # ----------------------------
-# STATIC FILES (ESTO ARREGLA EL 404)
+# STATIC FILES
 # ----------------------------
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ----------------------------
-# ROOT -> ABRE FRONTEND
+# ROOT
 # ----------------------------
 @app.get("/")
 def root():
     return FileResponse("static/session.html")
 
 # ----------------------------
-# LUGAR SIMULADO (SALIR)
+# LÓGICA DE APOYO
 # ----------------------------
-def generar_lugar(zip_code, estado, budget, stress=0):
-
+def generar_lugar(budget, stress):
     opciones = [
-        {
-            "name": "Parque tranquilo",
-            "reason": "Reduce estrés y ayuda a estabilizar tu mente",
-            "gps_link": "https://maps.google.com"
-        },
-        {
-            "name": "Cafetería silenciosa",
-            "reason": "Ambiente seguro para regular emociones",
-            "gps_link": "https://maps.google.com"
-        },
-        {
-            "name": "Caminar zona segura",
-            "reason": "Movimiento físico regula ansiedad y pensamiento",
-            "gps_link": "https://maps.google.com"
-        }
+        {"name": "Parque tranquilo", "reason": "Reduce estrés y ayuda a estabilizar tu mente", "gps_link": "#"},
+        {"name": "Cafetería silenciosa", "reason": "Ambiente seguro para regular emociones", "gps_link": "#"},
+        {"name": "Caminar zona segura", "reason": "Movimiento físico regula ansiedad y pensamiento", "gps_link": "#"}
     ]
-
     if budget == "cero":
         return opciones[2]
-
     if stress > 7:
         return opciones[0]
-
     return random.choice(opciones)
 
-# ----------------------------
-# MISIONES CASA
-# ----------------------------
 def misiones_casa():
-
     return [
-        {
-            "id": 1,
-            "type": "breath",
-            "duration": 120,
-            "text": {
-                "es": "Respira lento. Inhala calma. Exhala tensión.",
-                "en": "Breathe slowly. Inhale calm. Exhale tension."
-            }
-        },
-        {
-            "id": 2,
-            "type": "reflection",
-            "duration": 180,
-            "text": {
-                "es": "Observa qué puedes controlar hoy.",
-                "en": "Notice what you can control today."
-            }
-        },
-        {
-            "id": 3,
-            "type": "action",
-            "duration": 120,
-            "text": {
-                "es": "Haz una pequeña acción para mejorar tu estado.",
-                "en": "Take a small action to improve your state."
-            }
-        }
+        {"tx": "Respira lento. Inhala calma. Exhala tensión.", "t": "breath_auto", "d": 10},
+        {"tx": "Observa qué puedes controlar hoy.", "t": "text"},
+        {"tx": "Haz una pequeña acción para mejorar tu estado.", "t": "text"}
     ]
 
 # ----------------------------
@@ -91,39 +47,32 @@ def misiones_casa():
 # ----------------------------
 @app.post("/api/open-than-go")
 async def open_than_go(request: Request):
-
     try:
         data = await request.json()
-
+        
         mode = data.get("decision", "salir")
-        lang = data.get("lang", "es")
         budget = data.get("budget_level", "cero")
-        zip_code = data.get("zip_code", "")
-        estado = data.get("estado", "")
         desahogo = data.get("desahogo", "")
 
         # ---------------- CASA ----------------
         if mode == "casa":
-
             return JSONResponse({
                 "status": "success",
-                "mode": "home",
-                "duration": 600,
-                "missions": misiones_casa()
+                "tipo": "Casa",
+                "mision": {"b": misiones_casa()},
+                "duration": 600
             })
 
         # ---------------- SALIR ----------------
-        stress = min(len(desahogo or "") % 10, 10)
-
-        lugar = generar_lugar(zip_code, estado, budget, stress)
+        stress = min(len(desahogo or ""), 10)
+        lugar = generar_lugar(budget, stress)
 
         return JSONResponse({
             "status": "success",
-            "mode": "out",
-            "duration": 60,
-            "place": lugar,
-            "why": lugar["reason"],
-            "action": "go"
+            "tipo": "Salida",
+            "lugar": lugar,
+            "mision": {"b": [{"tx": lugar["reason"]}]},
+            "duration": 60
         })
 
     except Exception as e:
