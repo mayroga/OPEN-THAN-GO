@@ -1,8 +1,7 @@
-```python
 # =========================================================
 # OPEN THAN GO SYSTEM
-# Emotion Router v5 - FastAPI Edition
-# Company: May Roga LLC
+# Emotion Router v6 - MISSIONS LOCKED CORE
+# May Roga LLC
 # =========================================================
 
 from fastapi import FastAPI
@@ -25,7 +24,7 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # =========================================================
-# USA STATES
+# USA STATES VALIDATION
 # =========================================================
 
 US_STATES = {
@@ -37,187 +36,95 @@ US_STATES = {
 }
 
 # =========================================================
-# CACHE
+# ONLY 3 MISSION FILES (CORE SYSTEM)
 # =========================================================
 
-CACHE = {
-    "missions": None
-}
+MISSION_FILES = [
+    "missions_01_07.json",
+    "missions_08_14.json",
+    "missions_15_21.json"
+]
 
 # =========================================================
-# LOAD JSON
+# LOAD MISSIONS SAFE
 # =========================================================
 
 def load_json(path):
-
     if not os.path.exists(path):
         return {"missions": []}
 
     try:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
-
-            if isinstance(data, dict):
-                return data
-
-            return {"missions": []}
-
+            return data if isinstance(data, dict) else {"missions": []}
     except:
         return {"missions": []}
 
-# =========================================================
-# LOAD ALL MISSIONS
-# =========================================================
-
-def load_missions():
-
-    if CACHE["missions"] is not None:
-        return CACHE["missions"]
+def load_all_missions():
 
     all_missions = []
 
-    files = sorted([
-        f
-        for f in os.listdir(BASE_DIR)
-        if f.startswith("missions_")
-        and f.endswith(".json")
-    ])
+    for file in MISSION_FILES:
 
-    for file in files:
+        full_path = os.path.join(BASE_DIR, file)
+        data = load_json(full_path)
 
-        data = load_json(
-            os.path.join(BASE_DIR, file)
-        )
-
-        missions = data.get(
-            "missions",
-            []
-        )
+        missions = data.get("missions", [])
 
         for m in missions:
-            if (
-                isinstance(m, dict)
-                and "id" in m
-            ):
+            if isinstance(m, dict) and "id" in m:
                 all_missions.append(m)
 
-    all_missions = sorted(
-        all_missions,
-        key=lambda x: x["id"]
-    )
+    # 🔥 CRITICAL: ORDER FIX 1 → 21
+    all_missions = sorted(all_missions, key=lambda x: x["id"])
 
-    CACHE["missions"] = {
+    return {
         "total": len(all_missions),
         "missions": all_missions
     }
 
+# =========================================================
+# CACHE OPTIONAL (STABILITY)
+# =========================================================
+
+CACHE = {
+    "missions": None
+}
+
+def get_missions_cached():
+    if CACHE["missions"] is None:
+        CACHE["missions"] = load_all_missions()
     return CACHE["missions"]
-
-# =========================================================
-# RANDOM MISSION
-# =========================================================
-
-def get_random_mission():
-
-    missions = load_missions()["missions"]
-
-    if not missions:
-
-        return {
-            "id": 0,
-            "b": [
-                {
-                    "story": {
-                        "es":
-                        "Respira. Estás aquí ahora.",
-                        "en":
-                        "Breathe. You are here now."
-                    }
-                }
-            ]
-        }
-
-    return random.choice(missions)
 
 # =========================================================
 # EMOTION ENGINE
 # =========================================================
 
-def analyze_emotion(
-    text,
-    mode
-):
+def analyze_emotion(text, mode):
 
-    t = (
-        text or ""
-    ).lower()
+    t = (text or "").lower()
 
-    stress_words = [
-        "estres",
-        "estrés",
-        "trabajo",
-        "ansiedad",
-        "presion",
-        "presión"
-    ]
-
-    monotony_words = [
-        "aburrido",
-        "rutina",
-        "monotono",
-        "monótono"
-    ]
-
-    low_words = [
-        "cansado",
-        "agotado",
-        "fatiga",
-        "sin energia",
-        "sin energía"
-    ]
-
-    stress = any(
-        w in t
-        for w in stress_words
-    )
-
-    monotony = any(
-        w in t
-        for w in monotony_words
-    )
-
-    low = any(
-        w in t
-        for w in low_words
-    )
+    stress = any(w in t for w in ["estres", "estrés", "ansiedad", "presion", "presión"])
+    monotony = any(w in t for w in ["aburrido", "rutina", "monotono"])
+    low = any(w in t for w in ["cansado", "agotado", "sin energia"])
 
     if mode == "casa":
-
-        if stress:
-            return "HOME_STRESS"
-
-        if low:
-            return "HOME_LOW"
-
-        return "HOME_BALANCE"
+        return "HOME_STRESS" if stress else "HOME_BALANCE"
 
     if stress:
         return "OUT_STRUCTURE"
-
     if monotony:
         return "OUT_EXPLORATION"
-
     if low:
         return "OUT_SLOW"
 
     return "OUT_BALANCE"
 
 # =========================================================
-# BUDGET
+# BUDGET SYSTEM
 # =========================================================
 
 def budget_range(level):
-
     return {
         "cero": (0, 40),
         "minimo": (20, 60),
@@ -226,72 +133,47 @@ def budget_range(level):
     }.get(level, (0, 40))
 
 # =========================================================
-# PLACES ENGINE
+# PLACE ENGINE (9+ OPTIONS REQUIRED)
 # =========================================================
 
-def generate_places(
-    state,
-    zip_code,
-    budget_level
-):
+def generate_places(state, zip_code, budget_level):
 
-    min_b, max_b = budget_range(
-        budget_level
-    )
+    min_b, max_b = budget_range(budget_level)
 
-    base_places = [
-
-        "public nature park",
-        "community beach access",
-        "walking trail",
+    base = [
+        "public park",
+        "nature trail",
+        "beach access",
+        "riverwalk",
         "botanical garden",
-        "urban green area",
-        "riverwalk path",
-        "lakefront zone",
-        "public garden",
-        "historic district walk",
+        "urban green zone",
+        "downtown walking zone",
+        "lakefront area",
         "community plaza",
-        "scenic overlook",
-        "boardwalk area",
-        "quiet downtown area",
-        "public art district",
-        "waterfront park"
-
+        "quiet street route",
+        "scenic viewpoint",
+        "art district walk",
+        "open mall zone",
+        "waterfront path"
     ]
 
-    random.shuffle(
-        base_places
-    )
+    random.shuffle(base)
 
-    recommendations = []
-
-    for p in base_places:
-
-        recommendations.append({
-
-            "name":
-            f"{p.title()} - {state}",
-
-            "cost":
-            f"${min_b} - ${max_b}",
-
-            "why":
-            "equilibrio emocional + desconexión mental",
-
-            "gps_link":
-            f"https://www.google.com/maps/search/?api=1&query={p}+{state}+{zip_code}+USA"
-
-        })
-
-    return recommendations
+    return [
+        {
+            "name": f"{p} - {state}",
+            "cost": f"${min_b} - ${max_b}",
+            "why": "emotional reset + movement + clarity",
+            "gps_link": f"https://www.google.com/maps/search/?api=1&query={p}+{state}+{zip_code}+USA"
+        }
+        for p in base
+    ]
 
 # =========================================================
 # REQUEST MODEL
 # =========================================================
 
-class OpenThanGoRequest(
-    BaseModel
-):
+class RequestModel(BaseModel):
     decision: str = "salir"
     estado: str = "FL"
     zip_code: str = ""
@@ -299,201 +181,95 @@ class OpenThanGoRequest(
     desahogo: str = ""
 
 # =========================================================
-# FRONT
+# FRONTEND
 # =========================================================
 
 @app.get("/")
 def home():
-    return FileResponse(
-        os.path.join(
-            STATIC_DIR,
-            "session.html"
-        )
-    )
-
-@app.get("/session")
-def session():
-    return FileResponse(
-        os.path.join(
-            STATIC_DIR,
-            "session.html"
-        )
-    )
+    return FileResponse(os.path.join(STATIC_DIR, "session.html"))
 
 # =========================================================
-# MISSIONS API
+# MISSIONS API (FROM 3 FILES ONLY)
 # =========================================================
 
 @app.get("/api/missions")
 def missions():
-    return load_missions()
+    return get_missions_cached()
 
 @app.get("/api/missions/{mission_id}")
-def mission_by_id(
-    mission_id: int
-):
+def mission_by_id(mission_id: int):
 
-    missions = (
-        load_missions()
-        ["missions"]
-    )
+    missions = get_missions_cached()["missions"]
 
     for m in missions:
-        if m["id"] == mission_id:
+        if m.get("id") == mission_id:
             return m
 
     return JSONResponse(
         status_code=404,
-        content={
-            "detail":
-            "Mission not found"
-        }
+        content={"detail": "Mission not found"}
     )
 
 # =========================================================
-# OPEN THAN GO
+# CORE ENGINE
 # =========================================================
 
-@app.post(
-    "/api/open-than-go"
-)
-def open_than_go(
-    payload:
-    OpenThanGoRequest
-):
+@app.post("/api/open-than-go")
+def open_than_go(payload: RequestModel):
 
-    mode = (
-        payload.decision
-        or "salir"
-    ).lower()
-
-    state = (
-        payload.estado
-        or "FL"
-    ).upper()
-
-    zip_code = (
-        payload.zip_code
-        or ""
-    ).strip()
-
-    budget = (
-        payload.budget_level
-        or "cero"
-    )
-
-    text = (
-        payload.desahogo
-        or ""
-    )
-
+    state = payload.estado.upper()
     if state not in US_STATES:
         state = "FL"
 
-    emotion = analyze_emotion(
-        text,
-        mode
+    mode = payload.decision
+    text = payload.desahogo
+
+    emotion = analyze_emotion(text, mode)
+
+    mission = random.choice(
+        get_missions_cached()["missions"]
     )
 
-    mission = get_random_mission()
-
+    # ================= CASA =================
     if mode == "casa":
-
         return {
-
-            "status":
-            "success",
-
-            "type":
-            "Casa",
-
-            "emotion":
-            emotion,
-
-            "title":
-            "OPEN ◯ THAN GO",
-
-            "mision":
-            mission,
-
+            "status": "success",
+            "type": "Casa",
+            "emotion": emotion,
+            "title": "OPEN ◯ THAN GO",
+            "mision": mission,
             "ui": {
-                "mode":
-                "casa",
-
-                "voice":
-                True,
-
-                "timer":
-                600,
-
-                "breathing":
-                True,
-
-                "silent":
-                True
+                "mode": "casa",
+                "voice": True,
+                "timer": 600,
+                "silent": True
             }
         }
 
+    # ================= SALIR =================
     places = generate_places(
         state,
-        zip_code,
-        budget
+        payload.zip_code,
+        payload.budget_level
     )
 
-    suggested = (
-        random.randint(
-            0,
-            len(places)-1
-        )
-        if places
-        else 0
-    )
+    suggested = random.randint(0, len(places)-1)
 
     return {
-
-        "status":
-        "success",
-
-        "type":
-        "Salida",
-
-        "emotion":
-        emotion,
-
-        "title":
-        "OPEN ◎ THAN GO",
-
-        "budget_range":
-        budget_range(
-            budget
-        ),
-
-        "mision":
-        mission,
-
-        "recommendations":
-        places,
-
-        "suggested_index":
-        suggested,
-
+        "status": "success",
+        "type": "Salida",
+        "emotion": emotion,
+        "title": "OPEN ◎ THAN GO",
+        "mision": mission,
+        "recommendations": places,
+        "suggested_index": suggested,
         "lugar": {
-            "state":
-            state,
-
-            "zip":
-            zip_code
+            "state": state,
+            "zip": payload.zip_code
         },
-
         "ui": {
-            "mode":
-            "salir",
-
-            "voice":
-            True,
-
-            "guidance":
-            "directive"
+            "mode": "salir",
+            "voice": True
         }
     }
 
@@ -503,27 +279,17 @@ def open_than_go(
 
 @app.get("/health")
 def health():
-    return {
-        "status": "ok"
-    }
+    return {"status": "ok"}
 
 # =========================================================
 # RUN
 # =========================================================
 
 if __name__ == "__main__":
-
     import uvicorn
-
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=int(
-            os.environ.get(
-                "PORT",
-                8000
-            )
-        ),
+        port=8000,
         reload=True
     )
-```
