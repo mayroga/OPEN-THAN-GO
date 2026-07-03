@@ -1,252 +1,142 @@
-//////////////////////////////////////////////////////////
-// OPEN THAN GO - ENGINE JS v2 (BIOSOCIAL CORE FRONTEND)
-// CASA + SALIR + MISSIONS 1–21 + VOICE + BREATH + TIMER
-//////////////////////////////////////////////////////////
+// =========================================================
+// OPEN THAN GO - ENGINE.JS v3 (MISSION EXECUTOR)
+// FRONTEND BRAIN SYSTEM
+// =========================================================
 
-// ===============================
-// GLOBAL STATE
-// ===============================
-const state = {
-    mode: "salir",
-    missions: [],
-    currentIndex: 0,
-    currentMission: null,
-    timer: null,
-    secondsLeft: 600,
-    speaking: false
-};
+let currentMission = null;
+let stepIndex = 0;
+let steps = [];
+let timer = null;
+let timeLeft = 600; // 10 min por misión
+let speaking = false;
 
-// ===============================
+
+// =========================================================
 // INIT
-// ===============================
-window.addEventListener("load", async () => {
-    await loadMissions();
-    requestWakeLockSafe();
-});
+// =========================================================
+function startOpenThanGo() {
+    const payload = collectInput();
 
-// ===============================
-// LOAD MISSIONS FROM BACKEND
-// ===============================
-async function loadMissions() {
-    try {
-        const res = await fetch("/api/open-than-go", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                decision: "salir",
-                estado: "FL",
-                zip_code: "",
-                budget_level: "cero",
-                desahogo: ""
-            })
-        });
+    showLoader(true);
 
-        const data = await res.json();
-
-        // Simulamos pool estable de misiones (fallback robusto)
-        state.missions = Array.from({ length: 21 }, (_, i) => ({
-            id: i + 1,
-            text: `Misión ${i + 1}`
-        }));
-
-    } catch (e) {
-        console.log("Mission load fallback activated");
-        state.missions = Array.from({ length: 21 }, (_, i) => ({
-            id: i + 1,
-            text: `Misión ${i + 1}`
-        }));
-    }
+    fetch("/api/open-than-go", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+        showLoader(false);
+        loadMission(data.mission, data.ui);
+    })
+    .catch(err => {
+        showLoader(false);
+        console.log(err);
+    });
 }
 
-// ===============================
-// MODE SWITCH
-// ===============================
-function setMode(mode) {
-    state.mode = mode;
 
-    const badge = document.getElementById("mode-badge");
-    const title = document.getElementById("interactive-title");
-
-    if (mode === "casa") {
-        badge.innerText = "Modo: Casa (Reset)";
-        badge.className = "mode-badge mode-casa";
-        title.innerText = "OPEN ◯ THAN GO";
-    } else {
-        badge.innerText = "Modo: Salir (Exploración)";
-        badge.className = "mode-badge mode-salir";
-        title.innerText = "OPEN ◎ THAN GO";
-    }
-}
-
-// ===============================
-// START SYSTEM
-// ===============================
-async function startOpenThanGo() {
-
-    document.getElementById("form").style.display = "none";
-    document.getElementById("loader").style.display = "block";
-
-    const payload = {
-        decision: state.mode,
+// =========================================================
+// COLLECT INPUT
+// =========================================================
+function collectInput() {
+    return {
+        decision: window.currentMode || "salir",
+        desahogo: document.getElementById("inp-text").value,
         estado: document.getElementById("inp-state").value,
         zip_code: document.getElementById("inp-zip").value,
-        budget_level: document.getElementById("inp-budget").value,
-        desahogo: document.getElementById("inp-text").value
+        budget_level: document.getElementById("inp-budget").value
     };
-
-    const res = await fetch("/api/open-than-go", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-
-    document.getElementById("loader").style.display = "none";
-
-    state.currentIndex = 0;
-
-    renderMission(data);
 }
 
-// ===============================
-// RENDER SYSTEM
-// ===============================
-function renderMission(data) {
 
-    const result = document.getElementById("result");
-    result.innerHTML = "";
+// =========================================================
+// LOAD MISSION
+// =========================================================
+function loadMission(mission, ui) {
 
-    const mission = data.mission;
+    currentMission = mission;
+    stepIndex = 0;
+    steps = mission.b || [];
 
-    const card = document.createElement("div");
-    card.className = "card";
+    document.getElementById("result").innerHTML = "";
 
-    card.innerHTML = `
-        <h2>${data.type}</h2>
-        <h3>OPEN THAN GO</h3>
-
-        <div class="breath-circle" id="breathCircle">
-            RESPIRA
-        </div>
-
-        <div class="small">
-            Estado emocional: ${data.emotion}
-        </div>
-
-        <div style="margin-top:20px;">
-            <h3>Misión ${mission?.id || "?"}</h3>
-            <p>${mission?.b?.[0]?.story?.es || "Respira y continúa"}</p>
-        </div>
-
-        <div id="timerDisplay">10:00</div>
-
-        <button onclick="nextMission()">
-            CONTINUAR
-        </button>
-    `;
-
-    result.appendChild(card);
-
-    speakSpanish(mission?.b?.[0]?.story?.es || "Respira");
-
-    startBreathing();
     startTimer();
+    nextStep();
 }
 
-// ===============================
-// BREATHING CIRCLE CONTROL
-// ===============================
-function startBreathing() {
 
-    const circle = document.getElementById("breathCircle");
-    if (!circle) return;
+// =========================================================
+// STEP ENGINE (CORE)
+// =========================================================
+function nextStep() {
 
-    let scale = 1;
+    if (!steps || stepIndex >= steps.length) {
+        showContinueButton();
+        return;
+    }
 
-    setInterval(() => {
-        if (scale === 1) {
-            scale = 1.4;
-            circle.style.transform = "scale(1.4)";
-        } else {
-            scale = 1;
-            circle.style.transform = "scale(1)";
-        }
-    }, 4000);
-}
+    const step = steps[stepIndex];
+    stepIndex++;
 
-// ===============================
-// TIMER PER MISSION (FIXED 10 MIN FLOW)
-// ===============================
-function startTimer() {
+    switch(step.t || "story") {
 
-    clearInterval(state.timer);
-    state.secondsLeft = 600;
+        case "v":
+        case "h":
+            renderText(step.tx.es);
+            speak(step.tx.es);
+            break;
 
-    state.timer = setInterval(() => {
+        case "story":
+            renderText(step.story.es);
+            speak(step.story.es);
+            break;
 
-        state.secondsLeft--;
+        case "breath_auto":
+            runBreathing(step);
+            break;
 
-        const min = Math.floor(state.secondsLeft / 60);
-        const sec = state.secondsLeft % 60;
+        case "d":
+            renderDecision(step);
+            break;
 
-        const display = document.getElementById("timerDisplay");
-        if (display) {
-            display.innerText =
-                `${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
-        }
+        case "sil":
+            runSilence(step);
+            break;
 
-        if (state.secondsLeft <= 0) {
-            nextMission();
-        }
+        case "r":
+            renderReward(step);
+            break;
 
-    }, 1000);
-}
+        case "c":
+            renderText("💡 " + step.tx.es);
+            break;
 
-// ===============================
-// NEXT MISSION FLOW (1–21 AUTO)
-// ===============================
-function nextMission() {
-
-    if (state.currentIndex < 20) {
-        state.currentIndex++;
-
-        startTimer();
-
-        speakSpanish("Continuamos");
-
-    } else {
-        speakSpanish("Has completado el recorrido");
-        showEnd();
+        default:
+            nextStep();
+            break;
     }
 }
 
-// ===============================
-// END SCREEN
-// ===============================
-function showEnd() {
 
-    const result = document.getElementById("result");
-
-    result.innerHTML = `
-        <div class="card center">
-            <h2>OPEN THAN GO</h2>
-            <p>Sesión completada</p>
-            <button onclick="location.reload()">
-                Reiniciar
-            </button>
+// =========================================================
+// TEXT RENDER
+// =========================================================
+function renderText(text) {
+    const div = document.getElementById("result");
+    div.innerHTML += `
+        <div class="card">
+            <p>${text}</p>
         </div>
     `;
 }
 
-// ===============================
-// VOICE SYSTEM (SPANISH FIXED)
-// ===============================
-function speakSpanish(text) {
 
+// =========================================================
+// VOICE (SPANISH ONLY FIX)
+// =========================================================
+function speak(text) {
     if (!window.speechSynthesis) return;
-
-    window.speechSynthesis.cancel();
 
     const utter = new SpeechSynthesisUtterance(text);
 
@@ -254,7 +144,7 @@ function speakSpanish(text) {
     utter.rate = 0.95;
     utter.pitch = 1;
 
-    // fuerza voz española si existe
+    // FORZAR VOZ ESPAÑOLA SI EXISTE
     const voices = speechSynthesis.getVoices();
     const spanishVoice = voices.find(v =>
         v.lang.includes("es")
@@ -264,54 +154,198 @@ function speakSpanish(text) {
         utter.voice = spanishVoice;
     }
 
+    speechSynthesis.cancel();
     speechSynthesis.speak(utter);
 }
 
-// ===============================
-// WAKE LOCK SAFE
-// ===============================
-async function requestWakeLockSafe() {
-    try {
-        if ('wakeLock' in navigator) {
-            await navigator.wakeLock.request('screen');
+
+// =========================================================
+// BREATHING ENGINE (CIRCLE)
+// =========================================================
+function runBreathing(step) {
+
+    const div = document.getElementById("result");
+
+    div.innerHTML += `
+        <div class="card center">
+            <div class="breath-circle" id="circle">
+                RESPIRA
+            </div>
+        </div>
+    `;
+
+    let circle = document.getElementById("circle");
+    let expand = true;
+
+    let cycles = 6;
+    let i = 0;
+
+    let breathInterval = setInterval(() => {
+
+        if (expand) {
+            circle.style.transform = "scale(1.4)";
+            circle.innerText = "INHALA";
+        } else {
+            circle.style.transform = "scale(1)";
+            circle.innerText = "EXHALA";
         }
-    } catch (e) {
-        console.log("WakeLock error");
-    }
+
+        expand = !expand;
+
+        i++;
+        if (i >= cycles * 2) {
+            clearInterval(breathInterval);
+            nextStep();
+        }
+
+    }, 2000);
 }
-def select_places(profile):
-    scored = []
 
-    for place in PLACES_DB:
-        score = 0
 
-        if profile["stress"] and "stress" in place["mood"]:
-            score += 3
+// =========================================================
+// DECISION STEP
+// =========================================================
+function renderDecision(step) {
 
-        if profile["fatigue"] and "fatigue" in place["mood"]:
-            score += 3
+    const div = document.getElementById("result");
 
-        if profile["monotony"] and "monotony" in place["mood"]:
-            score += 3
+    let html = `
+        <div class="card">
+            <p>${step.q.es}</p>
+    `;
 
-        if profile["social_need"] and "social_need" in place["mood"]:
-            score += 3
+    step.op.forEach((op, index) => {
+        html += `
+            <button onclick="selectOption(${index}, ${step.c})">
+                ${op.es}
+            </button>
+        `;
+    });
 
-        if profile["low_budget"] and place["cost"] == "free":
-            score += 2
+    html += `</div>`;
 
-        scored.append((score, place))
+    div.innerHTML += html;
+}
 
-    scored.sort(key=lambda x: x[0], reverse=True)
 
-    # 🔥 IMPORTANTE:
-    # 1 destino principal (oculto como “decisión del sistema”)
-    main = scored[0][1]
+// =========================================================
+// OPTION SELECT
+// =========================================================
+function selectOption(index, correct) {
 
-    # + 3 visibles alternativos (no abrumar)
-    alternatives = [p[1] for p in scored[1:4]]
+    const div = document.getElementById("result");
 
-    return {
-        "selected": main,
-        "alternatives": alternatives
-    }
+    let msg = index === correct
+        ? "✔ Correcto"
+        : "✖ Reflexiona";
+
+    renderText(msg);
+
+    setTimeout(nextStep, 800);
+}
+
+
+// =========================================================
+// SILENCE / MINDFUL STEP
+// =========================================================
+function runSilence(step) {
+
+    renderText(step.tx.es);
+
+    let div = document.getElementById("result");
+
+    div.innerHTML += `
+        <div class="card center">
+            <p>⏳ ${step.d} segundos de enfoque</p>
+        </div>
+    `;
+
+    setTimeout(() => {
+        nextStep();
+    }, step.d * 1000);
+}
+
+
+// =========================================================
+// REWARD STEP
+// =========================================================
+function renderReward(step) {
+    renderText(step.tx.es);
+    setTimeout(nextStep, 1000);
+}
+
+
+// =========================================================
+// TIMER (10 MIN GLOBAL MISSION)
+// =========================================================
+function startTimer() {
+
+    clearInterval(timer);
+    timeLeft = 600;
+
+    timer = setInterval(() => {
+
+        timeLeft--;
+
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            showContinueButton();
+        }
+
+    }, 1000);
+}
+
+
+// =========================================================
+// CONTINUE BUTTON (MISSION FLOW)
+// =========================================================
+function showContinueButton() {
+
+    const div = document.getElementById("result");
+
+    div.innerHTML += `
+        <div class="card center">
+            <button onclick="continueMission()">
+                CONTINUAR MISIÓN
+            </button>
+        </div>
+    `;
+}
+
+
+// =========================================================
+// CONTINUE FLOW (NEXT MISSION STEP OR NEW MISSION)
+// =========================================================
+function continueMission() {
+    stepIndex++;
+    nextStep();
+}
+
+
+// =========================================================
+// MODE CONTROL
+// =========================================================
+function setMode(mode) {
+    window.currentMode = mode;
+
+    const badge = document.getElementById("mode-badge");
+
+    badge.innerText =
+        mode === "casa"
+        ? "Modo: Casa"
+        : "Modo: Salir";
+
+    badge.className =
+        mode === "casa"
+        ? "mode-badge mode-casa"
+        : "mode-badge mode-salir";
+}
+
+
+// =========================================================
+// LOADER
+// =========================================================
+function showLoader(show) {
+    document.getElementById("loader").style.display =
+        show ? "block" : "none";
+}
