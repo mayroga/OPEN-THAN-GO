@@ -1,7 +1,13 @@
-from flask import Flask, request, jsonify, send_from_directory
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+import uvicorn
 import os
 
-app = Flask(__name__, static_folder="static")
+app = FastAPI()
+
+# Montar archivos estáticos para que el motor pueda leer el CSS y JS
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Misiones base para el protocolo de alivio
 MISIONES_CASA = [
@@ -15,43 +21,34 @@ MISIONES_CASA = [
     }
 ]
 
-def obtener_opciones_salida(zip_code, presupuesto):
-    # Lógica de resolución de destinos basada en proximidad y economía
-    return [
-        {"nombre": "Parque local (Entorno Natural)", "gps": f"https://www.google.com/maps/search/?api=1&query=parks+near+{zip_code}"},
-        {"nombre": "Centro de recreación (Ambiente Social)", "gps": f"https://www.google.com/maps/search/?api=1&query=recreation+centers+near+{zip_code}"},
-        {"nombre": "Espacio público de interés", "gps": f"https://www.google.com/maps/search/?api=1&query=public+spaces+near+{zip_code}"}
-    ]
+@app.get("/")
+async def index():
+    return FileResponse('static/session.html')
 
-@app.route("/")
-def index():
-    return send_from_directory(app.static_folder, "session.html")
-
-@app.route("/api/open-than-go", methods=["POST"])
-def open_than_go():
-    try:
-        data = request.get_json() or {}
-        decision = data.get("decision", "salir")
-        zip_code = data.get("zip_code", "33101")
-        presupuesto = data.get("budget_level", "cero")
-        
-        if decision == "casa":
-            # Protocolo de Eco-Terapia con Misión de 10 min
-            return jsonify({
-                "tipo": "Casa",
-                "mision": MISIONES_CASA[0]
-            })
-        else:
-            # Protocolo de Acción Exterior
-            opciones = obtener_opciones_salida(zip_code, presupuesto)
-            return jsonify({
-                "tipo": "Salida",
-                "opciones": opciones
-            })
-
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+@app.post("/api/open-than-go")
+async def open_than_go(request: Request):
+    data = await request.json()
+    decision = data.get("decision", "salir")
+    zip_code = data.get("zip_code", "33101")
+    
+    if decision == "casa":
+        # Retorna protocolo de 10 min
+        return {
+            "tipo": "Casa",
+            "mision": MISIONES_CASA[0]
+        }
+    else:
+        # Retorna protocolo de acción exterior
+        return {
+            "tipo": "Salida",
+            "opciones": [
+                {"nombre": "Parque local (Entorno Natural)", "gps": f"https://www.google.com/maps/search/?api=1&query=parks+near+{zip_code}"},
+                {"nombre": "Centro de recreación (Ambiente Social)", "gps": f"https://www.google.com/maps/search/?api=1&query=recreation+centers+near+{zip_code}"},
+                {"nombre": "Espacio público de interés", "gps": f"https://www.google.com/maps/search/?api=1&query=public+spaces+near+{zip_code}"}
+            ]
+        }
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    # Configuración de puerto para entorno de servidor
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
