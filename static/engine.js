@@ -10,26 +10,37 @@ const KERNEL = {
 
     init() {
         document.getElementById('btn-mando').addEventListener('click', () => this.ejecutar());
+        window.speechSynthesis.getVoices(); // Cargar voces al iniciar
+    },
+
+    hablar(texto) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(texto);
+        msg.lang = 'es-ES';
+        msg.rate = 1.0;
+        msg.pitch = 0.9;
+        const voces = window.speechSynthesis.getVoices();
+        const nombresMasculinos = ['Google español', 'Jorge', 'Daniel', 'Carlos', 'Microsoft Pablo', 'Microsoft Raul', 'Alejandro'];
+        const vozElegida = voces.find(v => nombresMasculinos.some(n => v.name.includes(n)) || v.name.toLowerCase().includes('male'));
+        if (vozElegida) msg.voice = vozElegida;
+        window.speechSynthesis.speak(msg);
     },
 
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
-        
         const payload = {
             zip: document.getElementById('inp-zip').value,
-    mente: document.getElementById('inp-mente').value,
-    modo: document.getElementById('modo-selector').value,
-    budget: document.getElementById('inp-budget').value,
-    perfil: document.getElementById('inp-perfil').value
+            mente: document.getElementById('inp-mente').value,
+            modo: document.getElementById('modo-selector').value,
+            budget: document.getElementById('inp-budget').value,
+            perfil: document.getElementById('inp-perfil').value
         };
-
         const res = await (await fetch("/api/mando-integral", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })).json();
-
         this.procesarRespuesta(res);
     },
 
@@ -37,13 +48,10 @@ const KERNEL = {
         document.getElementById('wrapper-form').classList.add('hidden');
         const container = document.getElementById('wrapper-interactive');
         container.classList.remove('hidden');
-        
-        const content = document.getElementById('step-content');
-        
         if (res.modo === "CASA") {
-            this.iniciarMisiones(res.misiones, content);
+            this.iniciarMisiones(res.misiones, container);
         } else {
-            this.iniciarSalida(res, content);
+            this.iniciarSalida(res, container);
         }
     },
 
@@ -60,6 +68,7 @@ const KERNEL = {
     },
 
     renderMision(mision, container, onContinue) {
+        this.hablar(mision.titulo + ". " + mision.descripcion);
         container.innerHTML = `
             <div class="mision-card">
                 <h3>${mision.titulo}</h3>
@@ -70,22 +79,8 @@ const KERNEL = {
         document.getElementById('btn-next').onclick = onContinue;
     },
 
-    iniciarTemporizador(container) {
-        container.innerHTML = `<div id="breath-circle"></div><div id="timer">10:00</div>`;
-        this.timeLeft = 600;
-        this.timer = setInterval(() => {
-            this.timeLeft--;
-            let m = Math.floor(this.timeLeft / 60);
-            let s = this.timeLeft % 60;
-            document.getElementById('timer').innerText = `${m}:${s.toString().padStart(2, '0')}`;
-            if (this.timeLeft <= 0) {
-                clearInterval(this.timer);
-                location.reload();
-            }
-        }, 1000);
-    },
-
     iniciarSalida(res, container) {
+        this.hablar(res.titulo + ". " + res.porque + ". " + res.que_hacer);
         container.innerHTML = `
             <div class="mision-card">
                 <h2>${res.titulo}</h2>
@@ -95,6 +90,18 @@ const KERNEL = {
                 <button onclick="window.open('${res.gps}')">EJECUTAR RUTA</button>
             </div>
         `;
+    },
+
+    iniciarTemporizador(container) {
+        container.innerHTML = `<div id="breath-circle"></div><div id="timer">10:00</div>`;
+        this.timeLeft = 600;
+        this.timer = setInterval(() => {
+            this.timeLeft--;
+            let m = Math.floor(this.timeLeft / 60);
+            let s = this.timeLeft % 60;
+            document.getElementById('timer').innerText = `${m}:${s.toString().padStart(2, '0')}`;
+            if (this.timeLeft <= 0) { clearInterval(this.timer); location.reload(); }
+        }, 1000);
     }
 };
 
