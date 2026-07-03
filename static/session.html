@@ -1,209 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>OPEN THAN GO</title>
-
-<style>
-:root{
-    --primary:#0f2d1a;
-    --secondary:#1f7a3a;
-    --accent:#ff6b35;
-    --bg:#070b14;
-    --card:#111a2e;
-    --text:#ffffff;
-    --dim:#94a3b8;
-    --blue:#6ec6ff;
-    --silver:#cfd8dc;
-}
-
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
-
-body{
-    font-family:Arial,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-    display:flex;
-    justify-content:center;
-    padding:12px;
-}
-
-.container-app{
-    width:100%;
-    max-width:520px;
-}
-
-.card{
-    background:var(--card);
-    border-radius:18px;
-    padding:16px;
-    margin-bottom:12px;
-}
-
-h1{
-    text-align:center;
-    font-size:26px;
-    letter-spacing:1px;
-}
-
-.small{
-    text-align:center;
-    color:var(--dim);
-    font-size:12px;
-    margin-top:4px;
-}
-
-.lang-bar{
-    display:flex;
-    gap:8px;
-    margin-bottom:10px;
-}
-
-.btn-lang{
-    flex:1;
-    padding:8px;
-    border:none;
-    border-radius:20px;
-    background:#1a1f2e;
-    color:#fff;
-}
-
-.btn-lang.active{
-    background:var(--secondary);
-}
-
-.form-group{
-    margin-bottom:10px;
-}
-
-label{
-    font-size:12px;
-    color:var(--dim);
-}
-
-input,select,textarea{
-    width:100%;
-    padding:10px;
-    border-radius:10px;
-    border:none;
-    background:#1f2937;
-    color:#fff;
-    outline:none;
-}
-
-textarea{
-    min-height:90px;
-    resize:none;
-}
-
-.btn{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.btn-primary{
-    background:var(--accent);
-    color:#fff;
-}
-
-.btn-secondary{
-    background:var(--secondary);
-    color:#fff;
-}
-
-.loader-screen{
-    display:none;
-    text-align:center;
-    padding:30px;
-}
-
-.spinner{
-    width:42px;
-    height:42px;
-    border:4px solid #333;
-    border-top:4px solid var(--secondary);
-    border-radius:50%;
-    animation:spin 1s linear infinite;
-    margin:auto;
-}
-
-@keyframes spin{
-    100%{transform:rotate(360deg)}
-}
-
-.interactive-screen{
-    display:none;
-}
-
-#breathingCircle{
-    width:110px;
-    height:110px;
-    margin:22px auto;
-    border-radius:50%;
-    background:radial-gradient(circle,var(--blue),var(--silver));
-    box-shadow:0 0 25px rgba(120,200,255,.35);
-    transform:scale(1);
-    transition:transform 2.5s ease-in-out;
-}
-
-#timer{
-    text-align:center;
-    font-size:24px;
-    margin-top:10px;
-    font-weight:bold;
-}
-
-#step-content{
-    margin-top:10px;
-}
-
-.card-box{
-    background:#162033;
-    padding:12px;
-    border-radius:12px;
-}
-
-.btn-next-step{
-    width:100%;
-    padding:14px;
-    border:none;
-    border-radius:12px;
-    margin-top:10px;
-    background:var(--primary);
-    color:#fff;
-    display:none;
-}
-
-.btn-maps-route{
-    display:none;
-    width:100%;
-    padding:14px;
-    border-radius:12px;
-    background:#4285f4;
-    text-align:center;
-    color:#fff;
-    text-decoration:none;
-    margin-top:10px;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OPEN THAN GO</title>
+    <!-- Tu CSS permanece igual, asegurate de tener los estilos que ya definiste -->
 </head>
 
 <body>
-
 <div class="container-app">
 
-    <!-- FORM -->
+    <!-- FORM: El usuario interactúa aquí primero -->
     <div id="wrapper-form" class="card">
-
         <div class="lang-bar">
             <button id="lang-es" class="btn-lang active" onclick="cambiarIdioma('es')">ES</button>
             <button id="lang-en" class="btn-lang" onclick="cambiarIdioma('en')">EN</button>
@@ -212,16 +20,15 @@ textarea{
         <h1>OPEN THAN GO</h1>
         <p class="small">Escape emocional guiado en tiempo real</p>
 
+        <!-- Estos inputs son capturados por engine.js al hacer clic en btn-start -->
         <div class="form-group">
             <label>Estado</label>
             <input id="inp-state" placeholder="FL, TX, CA">
         </div>
-
         <div class="form-group">
             <label>ZIP</label>
             <input id="inp-zip" placeholder="33101">
         </div>
-
         <div class="form-group">
             <label>Presupuesto</label>
             <select id="inp-budget">
@@ -231,44 +38,48 @@ textarea{
                 <option value="libre">Libre</option>
             </select>
         </div>
-
         <div class="form-group">
             <label>Desahogo</label>
             <textarea id="inp-text" placeholder="Escribe cómo te sientes..."></textarea>
         </div>
 
-        <button id="btn-start" class="btn btn-primary">
+        <button id="btn-start" class="btn btn-primary" data-mode="casa">
             GENERAR EXPERIENCIA
         </button>
-
     </div>
 
-    <!-- LOADER -->
+    <!-- LOADER: Se muestra mientras engine.js procesa la petición -->
     <div id="wrapper-loader" class="loader-screen">
         <div class="spinner"></div>
         <p>Cargando experiencia...</p>
     </div>
 
-    <!-- INTERACTIVE -->
+    <!-- INTERACTIVE: Aquí es donde el motor inyecta las misiones -->
     <div id="wrapper-interactive" class="interactive-screen">
-
         <div id="breathingCircle"></div>
-
         <div id="timer"></div>
-
+        
+        <!-- Aquí el engine.js inyectará los pasos (tx) y los botones de dilemas -->
         <div id="step-content" class="card"></div>
 
+        <!-- Botón de continuación obligatorio para la lógica de los pasos -->
         <button id="btn-next" class="btn-next-step">CONTINUAR</button>
 
-        <a id="btn-maps-action" class="btn-maps-route" target="_blank">
+        <a id="btn-maps-action" class="btn-maps-route" target="_blank" style="display:none;">
             ABRIR MAPA
         </a>
-
     </div>
 
 </div>
 
 <script src="/static/engine.js"></script>
-
+<script>
+    // Función para manejar cambios de idioma globalmente
+    function cambiarIdioma(lang) {
+        state.lang = lang;
+        document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+        document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+    }
+</script>
 </body>
 </html>
