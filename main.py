@@ -1,27 +1,58 @@
 # =========================================================
-# OPEN THAN GO - CORE ENGINE v4 (STABLE BACKEND)
-# FASTAPI CLEAN - NO FLOOD - NO FREEZE
+# OPEN THAN GO SYSTEM - Backend Engine v4 FINAL STABLE
+# Company: May Roga LLC
 # =========================================================
 
-from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
+from flask import Flask, request, jsonify, send_from_directory
 import os
 import json
 import random
 
-app = FastAPI(title="OPEN THAN GO")
+app = Flask(__name__, static_folder="static")
 
 # =========================================================
 # PATHS
 # =========================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "static")
 
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+MISSIONS_FILES = [
+    "missions_01_07.json",
+    "missions_08_14.json",
+    "missions_15_21.json"
+]
 
 # =========================================================
-# USA STATES VALIDATION
+# SAFE JSON LOADER
+# =========================================================
+def load_json(path):
+    if not os.path.exists(path):
+        return {"missions": []}
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data if isinstance(data, dict) else {"missions": []}
+    except:
+        return {"missions": []}
+
+# =========================================================
+# LOAD MISSIONS
+# =========================================================
+MISSIONS = []
+
+for file in MISSIONS_FILES:
+    path = os.path.join(BASE_DIR, file)
+    data = load_json(path)
+    missions = data.get("missions", [])
+
+    if isinstance(missions, list):
+        for m in missions:
+            if isinstance(m, dict) and "id" in m:
+                MISSIONS.append(m)
+
+MISSIONS = sorted(MISSIONS, key=lambda x: x["id"])
+
+# =========================================================
+# USA STATES
 # =========================================================
 US_STATES = {
     "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
@@ -32,52 +63,18 @@ US_STATES = {
 }
 
 # =========================================================
-# SAFE JSON LOADER
-# =========================================================
-def load_json(path):
-    if not os.path.exists(path):
-        return {"missions": []}
-
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return data if isinstance(data, dict) else {"missions": []}
-    except:
-        return {"missions": []}
-
-# =========================================================
-# LOAD MISSIONS (1–21 SYSTEM SAFE)
-# =========================================================
-MISSION_FILES = [
-    "missions_01_07.json",
-    "missions_08_14.json",
-    "missions_15_21.json"
-]
-
-MISSIONS = []
-
-for file in MISSION_FILES:
-    path = os.path.join(BASE_DIR, file)
-    data = load_json(path)
-
-    missions = data.get("missions", [])
-
-    if isinstance(missions, list):
-        for m in missions:
-            if isinstance(m, dict) and "id" in m:
-                MISSIONS.append(m)
-
-MISSIONS = sorted(MISSIONS, key=lambda x: x.get("id", 0))
-
-# =========================================================
-# EMOTION ENGINE (SAFE SIMPLE)
+# EMOTION ENGINE
 # =========================================================
 def analyze_emotion(text, mode):
     t = (text or "").lower()
 
-    stress = any(w in t for w in ["estres", "ansiedad", "presion", "trabajo"])
-    fatigue = any(w in t for w in ["cansado", "agotado", "sin energia"])
-    monotony = any(w in t for w in ["aburrido", "rutina", "igual"])
+    stress_words = ["estres", "ansiedad", "presion", "trabajo"]
+    fatigue_words = ["cansado", "agotado", "sin energia"]
+    monotony_words = ["aburrido", "rutina", "igual"]
+
+    stress = any(w in t for w in stress_words)
+    fatigue = any(w in t for w in fatigue_words)
+    monotony = any(w in t for w in monotony_words)
 
     if mode == "casa":
         if fatigue:
@@ -96,52 +93,70 @@ def analyze_emotion(text, mode):
     return "OUT_BALANCE"
 
 # =========================================================
-# SAFE MISSION SELECTOR
+# BIO PROFILE
+# =========================================================
+def biopsocial_profile(text, budget):
+    t = (text or "").lower()
+
+    return {
+        "stress": any(w in t for w in ["estres", "ansiedad", "presion"]),
+        "fatigue": any(w in t for w in ["cansado", "agotado", "sin energia"]),
+        "monotony": any(w in t for w in ["aburrido", "rutina", "igual"]),
+        "low_budget": budget in ["cero", "minimo"]
+    }
+
+# =========================================================
+# MISSIONS
 # =========================================================
 def get_mission():
     if not MISSIONS:
         return {
             "id": 0,
-            "b": [
-                {
-                    "story": {
-                        "es": "Respira. Estás aquí. No necesitas resolver todo ahora.",
-                        "en": "Breathe. You are here. You don't need to fix everything now."
-                    }
-                }
-            ]
+            "b": [{"story": {"es": "Respira. Estás aquí.", "en": "Breathe. You are here."}}]
         }
+    return random.choice(MISSIONS)
 
-    mission = random.choice(MISSIONS)
+# =========================================================
+# PLACES SIMPLE ENGINE
+# =========================================================
+PLACES = [
+    {"name": "Beach Walk", "mood": ["stress", "fatigue"]},
+    {"name": "City Park", "mood": ["monotony"]},
+    {"name": "River Path", "mood": ["stress"]},
+    {"name": "Quiet Library Zone", "mood": ["fatigue", "monotony"]},
+]
 
-    if not isinstance(mission, dict):
-        return {"id": 0, "b": []}
+def match_places(profile):
+    scored = []
 
-    mission.setdefault("b", [])
-    return mission
+    for p in PLACES:
+        score = 0
+        for m in p["mood"]:
+            if profile.get(m):
+                score += 2
+        scored.append((score, p))
+
+    scored.sort(reverse=True, key=lambda x: x[0])
+    return [p for _, p in scored]
 
 # =========================================================
 # ROUTES
 # =========================================================
-@app.get("/")
+@app.route("/")
 def home():
-    return FileResponse(os.path.join(STATIC_DIR, "session.html"))
+    return send_from_directory(app.static_folder, "session.html")
 
-@app.get("/session")
-def session():
-    return FileResponse(os.path.join(STATIC_DIR, "session.html"))
-
-@app.get("/health")
+@app.route("/health")
 def health():
     return {"status": "ok"}
 
 # =========================================================
 # CORE API
 # =========================================================
-@app.post("/api/open-than-go")
-async def open_than_go(request: Request):
+@app.route("/api/open-than-go", methods=["POST"])
+def open_than_go():
 
-    data = await request.json()
+    data = request.get_json(silent=True) or {}
 
     mode = data.get("decision", "salir")
     text = data.get("desahogo", "")
@@ -149,49 +164,62 @@ async def open_than_go(request: Request):
     zip_code = data.get("zip_code", "")
     budget = data.get("budget_level", "cero")
 
-    # VALIDATE STATE
     if state not in US_STATES:
         state = "FL"
 
+    profile = biopsocial_profile(text, budget)
     emotion = analyze_emotion(text, mode)
     mission = get_mission()
 
-    # =====================================================
-    # CASA MODE
-    # =====================================================
+    # ================= CASA =================
     if mode == "casa":
-        return {
-            "status": "ok",
+        return jsonify({
+            "status": "success",
             "type": "Casa",
-            "title": "OPEN ◯ THAN GO",
             "emotion": emotion,
             "mission": mission,
             "ui": {
                 "mode": "casa",
-                "timer": 600,
-                "breathing": "guided",
                 "voice": True,
-                "language": "es"
+                "timer": 600,
+                "breathing": True
             }
-        }
+        })
 
-    # =====================================================
-    # SALIR MODE
-    # =====================================================
-    return {
-        "status": "ok",
+    # ================= SALIR =================
+    places = match_places(profile)
+    selected = places[0] if places else None
+
+    return jsonify({
+        "status": "success",
         "type": "Salida",
-        "title": "OPEN ◎ THAN GO",
         "emotion": emotion,
         "mission": mission,
-        "lugar": {
+
+        "selected_place": selected,
+        "all_places": places[:5],
+
+        "location": {
             "state": state,
             "zip": zip_code
         },
+
         "ui": {
             "mode": "salir",
             "voice": True,
-            "language": "es",
             "guidance": "active"
         }
-    }
+    })
+
+# =========================================================
+# RUN
+# =========================================================
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 5000))
+
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        debug=False
+    )
