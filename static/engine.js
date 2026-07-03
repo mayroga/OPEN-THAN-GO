@@ -1,433 +1,290 @@
-// =====================================
-// OPEN THAN GO SYSTEM
-// Frontend Engine Unified v5
-// Company: May Roga LLC
-// =====================================
+// ======================================================
+// OPEN THAN GO SYSTEM - ENGINE vFINAL (CORE ADAPTIVE AI)
+// May Roga LLC
+// ONE STATE · TWO MODES · FULL ADAPTIVE FLOW
+// ======================================================
 
-let appState = {
-    mode: "salir",
+let state = {
+    mode: "salir",                // salir | casa
+    language: "es",               // es | en
+    budget: "cero",
     emotion: "neutral",
+    userInput: "",
+    
+    // missions
     missions: [],
-    currentMission: null,
-    currentBlock: 0,
-    selectedPlace: null,
+    missionIndex: 0,
+    blockIndex: 0,
+    
+    // home mode
+    homeActive: false,
+    homeTimer: null,
+    homeTimeLeft: 600,
+    
+    // voice
+    voiceEnabled: true,
+    voiceGender: "male",
+    
+    // recommendation memory
     places: [],
-    timer: null,
-    timeLeft: 0,
-    sessionStarted: false,
-    speechLocked: false
+    selectedPlace: null
 };
 
-// =====================================
+// ======================================================
 // SAFE GET
-// =====================================
-
-function get(id){
+// ======================================================
+function get(id) {
     return document.getElementById(id);
 }
 
-// =====================================
-// VOICE ENGINE
-// =====================================
+// ======================================================
+// TITLE SYSTEM (EMOTION DRIVEN)
+// ======================================================
+function setTitle(emotion = "neutral") {
+    const el = get("interactive-title");
+    if (!el) return;
 
-function speak(text, callback=null){
-
-    if(!window.speechSynthesis){
-        if(callback) callback();
-        return;
-    }
-
-    speechSynthesis.cancel();
-
-    const speech = new SpeechSynthesisUtterance(text);
-
-    speech.lang = "en-US";
-    speech.rate = 0.92;
-    speech.pitch = 0.85;
-
-    const voices = speechSynthesis.getVoices();
-
-    const male =
-        voices.find(v =>
-            v.lang.startsWith("en") &&
-            (
-                v.name.includes("David") ||
-                v.name.includes("Guy") ||
-                v.name.includes("Male")
-            )
-        );
-
-    if(male){
-        speech.voice = male;
-    }
-
-    speech.onend = () => {
-        if(callback) callback();
+    const map = {
+        stress: "OPEN ◉ THAN GO",
+        monotony: "OPEN — THAN GO",
+        low: "OPEN ○ THAN GO",
+        neutral: "OPEN ◯ THAN GO"
     };
 
-    speechSynthesis.speak(speech);
+    el.innerText = map[emotion] || map.neutral;
 }
 
-// =====================================
-// TITLE ENGINE
-// =====================================
-
-function setTitle(){
-
-    const el = get("interactive-title");
-
-    if(!el) return;
-
-    if(appState.mode==="casa"){
-        el.innerText = "OPEN ◯ THAN GO";
-        return;
-    }
-
-    switch(appState.emotion){
-
-        case "OUT_STRUCTURE":
-            el.innerText = "OPEN ◉ THAN GO";
-            break;
-
-        case "OUT_EXPLORATION":
-            el.innerText = "OPEN — THAN GO";
-            break;
-
-        case "OUT_SLOW":
-            el.innerText = "OPEN ○ THAN GO";
-            break;
-
-        default:
-            el.innerText = "OPEN ◎ THAN GO";
-    }
-}
-
-// =====================================
-// MODE
-// =====================================
-
-function setMode(mode){
-
-    appState.mode = mode;
-
-    setTitle();
+// ======================================================
+// MODE CONTROL
+// ======================================================
+function setMode(mode) {
+    state.mode = mode;
 
     const badge = get("mode-badge");
 
-    if(!badge) return;
-
-    if(mode==="casa"){
-        badge.innerText =
-            "Modo: Casa";
-    }
-    else{
-        badge.innerText =
-            "Modo: Salir";
+    if (mode === "casa") {
+        badge.innerText = "Modo: Casa (Intervención interna)";
+        badge.className = "mode-badge mode-casa";
+        startHomeMode();
+    } else {
+        badge.innerText = "Modo: Salir (Exploración adaptativa)";
+        badge.className = "mode-badge mode-salir";
+        stopHomeMode();
     }
 }
 
-// =====================================
-// START
-// =====================================
+// ======================================================
+// USER INPUT ANALYSIS (CORE ADAPTIVE ENGINE)
+// ======================================================
+function analyzeUser(text = "") {
+    text = text.toLowerCase();
 
-async function startOpenThanGo(){
+    state.userInput = text;
 
-    get("form").style.display = "none";
-    get("loader").style.display = "block";
+    const stressWords = ["estres", "presion", "ansiedad", "trabajo"];
+    const monotonyWords = ["aburrido", "rutina", "igual"];
+    const lowWords = ["cansado", "sin energia", "agotado"];
+
+    if (stressWords.some(w => text.includes(w))) return "stress";
+    if (monotonyWords.some(w => text.includes(w))) return "monotony";
+    if (lowWords.some(w => text.includes(w))) return "low";
+
+    return "neutral";
+}
+
+// ======================================================
+// VOICE ENGINE (ALWAYS ACTIVE SPANISH MALE)
+// ======================================================
+function speak(text) {
+    if (!state.voiceEnabled || !text) return;
+
+    window.speechSynthesis.cancel();
+
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = state.language === "es" ? "es-ES" : "en-US";
+    u.rate = 0.95;
+
+    const voices = window.speechSynthesis.getVoices();
+    const male = voices.find(v => v.lang.includes("es") || v.lang.includes("en"));
+    if (male) u.voice = male;
+
+    window.speechSynthesis.speak(u);
+}
+
+// ======================================================
+// START REQUEST
+// ======================================================
+async function start() {
 
     const payload = {
-        decision: appState.mode,
+        decision: state.mode,
         estado: get("inp-state").value,
         zip_code: get("inp-zip").value,
         budget_level: get("inp-budget").value,
         desahogo: get("inp-text").value
     };
 
-    const res =
-        await fetch(
-            "/api/open-than-go",
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type":"application/json"
-                },
-                body:JSON.stringify(payload)
-            }
-        );
+    state.emotion = analyzeUser(payload.desahogo);
+
+    get("form").style.display = "none";
+    get("loader").style.display = "block";
+
+    const res = await fetch("/api/open-than-go", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(payload)
+    });
 
     const data = await res.json();
 
     get("loader").style.display = "none";
 
-    appState.emotion =
-        data.emotion || "neutral";
+    state.missions = data.mision?.b || [];
+    state.places = data.recommendations || [];
 
-    appState.places =
-        data.recommendations || [];
+    setTitle(state.emotion);
 
-    appState.currentMission =
-        data.mision || null;
-
-    setTitle();
-
-    if(appState.mode==="salir"){
-        renderPlaces(data);
-    }
-    else{
-        startHomeSession(data);
+    if (state.mode === "casa") {
+        startHomeMode();
+    } else {
+        renderOutMode();
     }
 }
 
-// =====================================
-// PLACE ENGINE
-// =====================================
+// ======================================================
+// OUT MODE (EXPLORATION + ADAPTIVE PLACES)
+// ======================================================
+function renderOutMode() {
 
-function renderPlaces(data){
+    const result = get("result");
 
-    const result =
-        get("result");
+    let html = `<div class="card"><h3>Tu guía adaptada</h3></div>`;
 
-    let html = "";
+    // recommendation ranking (hidden logic)
+    const shuffled = [...state.places].sort(() => Math.random() - 0.5);
 
-    let places =
-        data.recommendations || [];
+    shuffled.forEach((p, i) => {
 
-    if(places.length===0){
-        result.innerHTML =
-            "<div class='card'>No places available.</div>";
-        return;
-    }
-
-    const suggested =
-        Math.floor(
-            Math.random() *
-            places.length
-        );
-
-    appState.selectedPlace =
-        places[suggested];
-
-    html += `
-        <div class="card">
-            <h2>
-                Tu opciones de hoy
-            </h2>
-        </div>
-    `;
-
-    places.forEach((p,index)=>{
-
-        const recommended =
-            index===suggested;
+        const autoSelected = i === 0 ? " (Recomendado)" : "";
 
         html += `
-            <div class="place-card">
+        <div class="card">
+            <h3>${p.name}${autoSelected}</h3>
+            <p>${p.why}</p>
+            <p><b>${p.cost}</b></p>
 
-                ${
-                    recommended
-                    ?
-                    `<div>
-                        ⭐ Recomendado para hoy
-                     </div>`
-                    :
-                    ""
-                }
-
-                <h3>${p.name}</h3>
-
-                <p>
-                    💵 ${p.cost}
-                </p>
-
-                <p>
-                    ${p.why}
-                </p>
-
-                <a
-                    class="btn"
-                    href="${p.gps_link}"
-                    target="_blank">
-
-                    IR AQUÍ
-
-                </a>
-
-            </div>
-        `;
+            <a href="${p.gps_link}" target="_blank">
+                IR AL LUGAR
+            </a>
+        </div>`;
     });
 
     result.innerHTML = html;
 
-    speak(
-        "Your options are ready. One destination has been specially selected for today."
-    );
+    speak("He encontrado opciones adaptadas a lo que necesitas. Puedes explorar libremente.");
 }
 
-// =====================================
-// CASA MODE
-// =====================================
+// ======================================================
+// HOME MODE (SILENT GUIDED INTERVENTION 10 MIN)
+// ======================================================
+function startHomeMode() {
 
-function startHomeSession(data){
+    state.homeActive = true;
+    state.homeTimeLeft = 600;
 
-    const result =
-        get("result");
+    const result = get("result");
 
     result.innerHTML = `
         <div class="card center">
-
-            <h2>
-                OPEN ◯ THAN GO
-            </h2>
-
-            <div
-                class="breath-circle"
-                id="breathCircle">
-
-                <span id="breathLabel">
-                    READY
-                </span>
-
-            </div>
-
-            <h1 id="timerDisplay">
-                10:00
-            </h1>
-
+            <h2> </h2>
+            <div id="circle" class="breath-circle">●</div>
+            <h3 id="breathText">INHALA</h3>
+            <p id="timer">10:00</p>
         </div>
     `;
 
-    speak(
-        "Find a comfortable place. Follow the circle."
-    );
+    speak("Comenzamos. Sigue el ritmo de respiración.");
 
-    startCountdown(
-        600,
-        finishHomeSession
-    );
-
-    startGuidedBreathing();
+    runBreathing();
+    runHomeTimer();
 }
 
-// =====================================
-// TIMER
-// =====================================
-
-function startCountdown(seconds, callback){
-
-    clearInterval(
-        appState.timer
-    );
-
-    appState.timeLeft =
-        seconds;
-
-    appState.timer =
-        setInterval(()=>{
-
-            appState.timeLeft--;
-
-            const m =
-                Math.floor(
-                    appState.timeLeft/60
-                );
-
-            const s =
-                appState.timeLeft%60;
-
-            const display =
-                get("timerDisplay");
-
-            if(display){
-                display.innerText =
-                    `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-            }
-
-            if(appState.timeLeft<=0){
-
-                clearInterval(
-                    appState.timer
-                );
-
-                if(callback){
-                    callback();
-                }
-            }
-
-        },1000);
-}
-
-// =====================================
-// BREATH
-// =====================================
-
-function startGuidedBreathing(){
-
-    const circle =
-        get("breathCircle");
-
-    const label =
-        get("breathLabel");
-
-    if(!circle || !label)
-        return;
+// ======================================================
+// BREATHING ENGINE
+// ======================================================
+function runBreathing() {
 
     let inhale = true;
 
-    function step(){
+    const circle = setInterval(() => {
 
-        label.innerText =
-            inhale
-            ? "INHALE"
-            : "EXHALE";
+        if (!state.homeActive) return clearInterval(circle);
 
-        circle.style.transform =
-            inhale
-            ? "scale(1.35)"
-            : "scale(0.85)";
+        const c = get("circle");
+        const t = get("breathText");
+
+        if (!c || !t) return;
+
+        if (inhale) {
+            c.style.transform = "scale(1.4)";
+            t.innerText = "INHALA";
+            speak("inhala");
+        } else {
+            c.style.transform = "scale(0.8)";
+            t.innerText = "EXHALA";
+            speak("exhala");
+        }
 
         inhale = !inhale;
-    }
 
-    step();
-
-    setInterval(()=>{
-        if(appState.timeLeft<=0)
-            return;
-
-        step();
-    },4000);
+    }, 4000);
 }
 
-// =====================================
-// FINISH
-// =====================================
+// ======================================================
+// 10 MIN TIMER (LOCKED FLOW)
+// ======================================================
+function runHomeTimer() {
 
-function finishHomeSession(){
+    const timer = setInterval(() => {
 
-    speechSynthesis.cancel();
+        if (!state.homeActive) return clearInterval(timer);
+
+        state.homeTimeLeft--;
+
+        const m = Math.floor(state.homeTimeLeft / 60);
+        const s = state.homeTimeLeft % 60;
+
+        const el = get("timer");
+        if (el) el.innerText = `${m}:${s < 10 ? "0" + s : s}`;
+
+        if (state.homeTimeLeft <= 0) {
+            clearInterval(timer);
+            finishHomeMode();
+        }
+
+    }, 1000);
+}
+
+// ======================================================
+// HOME END
+// ======================================================
+function finishHomeMode() {
+
+    state.homeActive = false;
 
     get("result").innerHTML = `
         <div class="card center">
-
-            <h2>
-                OPEN THAN GO
-            </h2>
-
-            <p>
-                Session completed.
-            </p>
-
-            <button
-                onclick="location.reload()">
-
-                CONTINUE
-
-            </button>
-
+            <h2>Terminado</h2>
+            <p>Vuelve cuando lo necesites.</p>
         </div>
     `;
 
-    speak(
-        "Session completed. Have a good day."
-    );
+    speak("Sesión completada. Puedes continuar tu día.");
+}
+
+// ======================================================
+// STOP HOME
+// ======================================================
+function stopHomeMode() {
+    state.homeActive = false;
 }
