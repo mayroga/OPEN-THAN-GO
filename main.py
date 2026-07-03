@@ -1,10 +1,10 @@
 # =========================================================
-# OPEN THAN GO - CORE ENGINE v2 (CLEAN + PRODUCTION READY)
-# May Roga LLC
+# OPEN THAN GO - CORE ENGINE v3 (CLEAN STABLE)
+# FASTAPI ONLY - PRODUCTION READY
 # =========================================================
 
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import os
 import json
@@ -20,9 +20,8 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-
 # =========================================================
-# 50 ESTADOS USA (VALIDACIÓN REAL)
+# USA STATES
 # =========================================================
 US_STATES = {
     "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
@@ -32,9 +31,8 @@ US_STATES = {
     "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"
 }
 
-
 # =========================================================
-# SAFE JSON LOADER (MISSIONS 1–21)
+# SAFE JSON LOADER
 # =========================================================
 def load_json(path):
     if not os.path.exists(path):
@@ -46,7 +44,9 @@ def load_json(path):
     except:
         return {"missions": []}
 
-
+# =========================================================
+# MISSIONS 1–21 LOADER
+# =========================================================
 MISSION_FILES = [
     "missions_01_07.json",
     "missions_08_14.json",
@@ -56,178 +56,243 @@ MISSION_FILES = [
 MISSIONS = []
 
 for file in MISSION_FILES:
-    data = load_json(os.path.join(BASE_DIR, file))
-    MISSIONS.extend(data.get("missions", []))
+    path = os.path.join(BASE_DIR, file)
+    data = load_json(path)
 
-MISSIONS = sorted(MISSIONS, key=lambda x: x.get("id", 0))
+    missions = data.get("missions", [])
 
+    if isinstance(missions, list):
+        for m in missions:
+            if isinstance(m, dict) and "id" in m:
+                MISSIONS.append(m)
+
+MISSIONS = sorted(MISSIONS, key=lambda x: x["id"])
 
 # =========================================================
-# EMOTION ENGINE (USER CONTEXT DRIVEN)
+# EMOTION ENGINE
 # =========================================================
-def analyze_emotion(text: str, mode: str):
-
+def analyze_emotion(text, mode):
     t = (text or "").lower()
 
-    stress = any(w in t for w in ["estres", "ansiedad", "trabajo", "presion"])
-    low = any(w in t for w in ["cansado", "agotado", "sin energia"])
-    monotony = any(w in t for w in ["aburrido", "rutina", "igual"])
+    stress_words = ["estres", "ansiedad", "presion", "trabajo"]
+    fatigue_words = ["cansado", "agotado", "sin energia"]
+    monotony_words = ["aburrido", "rutina", "igual"]
+
+    stress = any(w in t for w in stress_words)
+    fatigue = any(w in t for w in fatigue_words)
+    monotony = any(w in t for w in monotony_words)
 
     if mode == "casa":
+        if fatigue:
+            return "HOME_LOW"
         if stress:
             return "HOME_STRESS"
-        if low:
-            return "HOME_LOW"
         return "HOME_BALANCE"
 
     if stress:
         return "OUT_STRUCTURE"
     if monotony:
         return "OUT_EXPLORATION"
-    if low:
+    if fatigue:
         return "OUT_SLOW"
 
     return "OUT_BALANCE"
 
+# =========================================================
+# BIOPSYCHOSOCIAL PROFILE
+# =========================================================
+def biopsocial_profile(text, budget):
+    t = (text or "").lower()
 
-# =========================================================
-# BUDGET SYSTEM
-# =========================================================
-def budget_range(level):
     return {
-        "cero": (0, 40),
-        "minimo": (20, 60),
-        "moderado": (40, 90),
-        "libre": (70, 999999)
-    }.get(level, (0, 40))
-
-
-# =========================================================
-# SMART PLACE GENERATOR (9+ OPTIONS OBLIGATORIO)
-# =========================================================
-def generate_places(state, zip_code, budget, emotion, text):
-
-    min_b, max_b = budget_range(budget)
-
-    base_places = [
-        "quiet park walk",
-        "ocean breeze zone",
-        "urban nature trail",
-        "lake reflection point",
-        "botanical garden path",
-        "community green space",
-        "sunset walking route",
-        "open mall walking space",
-        "river calm zone",
-        "library quiet area",
-        "waterfront path"
-    ]
-
-    # adaptativo (emocional simple ranking)
-    if "stress" in emotion:
-        boost = ["lake reflection point", "botanical garden path", "river calm zone"]
-    elif "low" in emotion:
-        boost = ["sunset walking route", "ocean breeze zone"]
-    else:
-        boost = ["quiet park walk", "urban nature trail"]
-
-    pool = list(set(base_places + boost))
-
-    # mínimo 9 lugares visibles
-    random.shuffle(pool)
-    selected = pool[:10]
-
-    return [
-        {
-            "name": f"{p} - {state}",
-            "cost": f"${min_b} - ${max_b}",
-            "why": "adaptado a tu estado emocional + regulación natural",
-            "gps": f"https://www.google.com/maps/search/?api=1&query={p}+{state}+{zip_code}"
-        }
-        for p in selected
-    ]
-
+        "stress": any(w in t for w in ["estres", "ansiedad", "presion"]),
+        "fatigue": any(w in t for w in ["cansado", "agotado", "sin energia"]),
+        "monotony": any(w in t for w in ["aburrido", "rutina", "igual"]),
+        "social_need": any(w in t for w in ["solo", "aislado"]),
+        "low_budget": budget in ["cero", "minimo"]
+    }
 
 # =========================================================
-# MISSION PICKER
+# PLACES DATABASE (9+ REAL LOGIC POINTS)
+# =========================================================
+PLACES_DB = [
+    {
+        "name": "Matheson Hammock Park",
+        "mood": ["stress", "fatigue"],
+        "cost": "low",
+        "action": "camina lento sin teléfono",
+        "therapy": "reducción de estrés"
+    },
+    {
+        "name": "South Pointe Park",
+        "mood": ["monotony", "stress"],
+        "cost": "low",
+        "action": "observa el mar 10 min",
+        "therapy": "reset mental"
+    },
+    {
+        "name": "Wynwood Walls",
+        "mood": ["monotony"],
+        "cost": "free",
+        "action": "elige 3 colores que te representen",
+        "therapy": "estimulación creativa"
+    },
+    {
+        "name": "Bayfront Park",
+        "mood": ["stress", "fatigue"],
+        "cost": "free",
+        "action": "respira 4-4-6 frente al agua",
+        "therapy": "regulación emocional"
+    },
+    {
+        "name": "Little Havana Walk",
+        "mood": ["social_need", "monotony"],
+        "cost": "low",
+        "action": "habla con alguien mayor",
+        "therapy": "reconexión social"
+    },
+    {
+        "name": "Virginia Key Beach",
+        "mood": ["stress", "fatigue"],
+        "cost": "low",
+        "action": "camina descalzo 5 min",
+        "therapy": "grounding"
+    },
+    {
+        "name": "Brickell Riverwalk",
+        "mood": ["stress"],
+        "cost": "free",
+        "action": "observa sin juicio",
+        "therapy": "desaceleración mental"
+    },
+    {
+        "name": "Vizcaya Gardens",
+        "mood": ["monotony"],
+        "cost": "medium",
+        "action": "imagina la historia del lugar",
+        "therapy": "imaginación guiada"
+    },
+    {
+        "name": "Oleta River State Park",
+        "mood": ["fatigue", "stress"],
+        "cost": "low",
+        "action": "camina en silencio 10 min",
+        "therapy": "desconexión neural"
+    }
+]
+
+# =========================================================
+# MATCH ENGINE (BIOSOCIAL RANKING)
+# =========================================================
+def match_places(profile):
+    scored = []
+
+    for p in PLACES_DB:
+        score = 0
+
+        for mood in p["mood"]:
+            if profile.get(mood):
+                score += 2
+
+        if profile["low_budget"] and p["cost"] == "free":
+            score += 1
+
+        scored.append((score, p))
+
+    scored.sort(reverse=True, key=lambda x: x[0])
+
+    return [p for _, p in scored]
+
+# =========================================================
+# MISSIONS
 # =========================================================
 def get_mission():
     if not MISSIONS:
-        return {
-            "b": [{
-                "story": {
-                    "es": "Respira. No necesitas resolver todo ahora.",
-                    "en": "Breathe. You don't need to fix everything now."
-                }
-            }]
-        }
+        return {"id": 0, "b": [{"story": {"es": "Respira", "en": "Breathe"}}]}
 
     return random.choice(MISSIONS)
 
-
 # =========================================================
-# ROUTE CORE
-# =========================================================
-@app.post("/api/open-than-go")
-async def router(request: Request):
-
-    data = await request.json()
-
-    mode = data.get("decision", "salir")
-    budget = data.get("budget_level", "cero")
-    text = data.get("desahogo", "")
-
-    state = (data.get("estado") or "FL").upper()
-    zip_code = data.get("zip_code", "")
-
-    if state not in US_STATES:
-        state = "FL"
-
-    emotion = analyze_emotion(text, mode)
-    mission = get_mission()
-
-    # ================= CASA MODE =================
-    if mode == "casa":
-
-        return JSONResponse({
-            "status": "success",
-            "type": "Casa",
-            "emotion": emotion,
-            "voice_lang": "es-ES",
-            "mision": mission,
-            "ui": {
-                "mode": "casa",
-                "voice": True,
-                "timer": 600,
-                "breathing": True,
-                "silent_guided": True
-            }
-        })
-
-    # ================= SALIR MODE =================
-    places = generate_places(state, zip_code, budget, emotion, text)
-
-    return JSONResponse({
-        "status": "success",
-        "type": "Salida",
-        "emotion": emotion,
-        "voice_lang": "es-ES",
-
-        "mision": mission,
-
-        "recommendations": places,
-
-        "ui": {
-            "mode": "salir",
-            "voice": True,
-            "guidance": "adaptive"
-        }
-    })
-
-
-# =========================================================
-# FRONT
+# ROUTES
 # =========================================================
 @app.get("/")
 def home():
     return FileResponse(os.path.join(STATIC_DIR, "session.html"))
+
+@app.get("/session")
+def session():
+    return FileResponse(os.path.join(STATIC_DIR, "session.html"))
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+# =========================================================
+# CORE ENGINE
+# =========================================================
+@app.post("/api/open-than-go")
+async def open_than_go(request: Request):
+
+    data = await request.json()
+
+    mode = data.get("decision", "salir")
+    text = data.get("desahogo", "")
+    state = (data.get("estado") or "FL").upper()
+    zip_code = data.get("zip_code", "")
+    budget = data.get("budget_level", "cero")
+
+    if state not in US_STATES:
+        state = "FL"
+
+    profile = biopsocial_profile(text, budget)
+    emotion = analyze_emotion(text, mode)
+    mission = get_mission()
+
+    # =====================================================
+    # CASA MODE
+    # =====================================================
+    if mode == "casa":
+        return {
+            "status": "ok",
+            "type": "Casa",
+            "title": "OPEN ◯ THAN GO",
+            "emotion": emotion,
+            "mission": mission,
+            "ui": {
+                "mode": "casa",
+                "timer": 600,
+                "breathing": "guided",
+                "voice": True,
+                "language": "es"
+            }
+        }
+
+    # =====================================================
+    # SALIR MODE (9+ PLACES + RANKING)
+    # =====================================================
+    ranked = match_places(profile)
+
+    selected = ranked[0] if ranked else None
+
+    return {
+        "status": "ok",
+        "type": "Salida",
+        "title": "OPEN ◎ THAN GO",
+        "emotion": emotion,
+        "mission": mission,
+
+        "selected_place": selected,
+        "all_places": ranked[:9],
+
+        "lugar": {
+            "state": state,
+            "zip": zip_code
+        },
+
+        "ui": {
+            "mode": "salir",
+            "voice": True,
+            "language": "es",
+            "guidance": "active"
+        }
+    }
