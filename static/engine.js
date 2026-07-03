@@ -1,98 +1,72 @@
-// static/engine.js
-// OPEN THAN GO SYSTEM - Frontend Engine v6 (STABLE ORCHESTRATOR UI)
-// Company: May Roga LLC
+// OPEN THAN GO SYSTEM - ENGINE v6 STABLE CORE
+// May Roga LLC
 
-let idiomaActual = "es";
+let state = {
+    lang: "es",
+    budget: "cero",
+    mode: "out",
+    stepIndex: 0,
+    steps: [],
+    place: null,
+    type: "",
+    timer: null,
+    breath: null,
+    remaining: 0,
+    locked: false
+};
 
-let sessionMode = null;
-let missions = [];
-let stepIndex = 0;
+// ---------------- DOM SAFE ----------------
+const $ = (id) => document.getElementById(id);
 
-let totalTime = 0;
-let remainingTime = 0;
+// ---------------- UI ----------------
+function show(el) { if (el) el.style.display = "block"; }
+function hide(el) { if (el) el.style.display = "none"; }
 
-let breathInterval = null;
-let timerInterval = null;
-
-let voiceEnabled = true;
-let lock = false;
-
-// ----------------------------
-// SAFE GET
-// ----------------------------
-function get(id) {
-    return document.getElementById(id);
-}
-
-// ----------------------------
-// SAFE TEXT
-// ----------------------------
-function t(obj) {
-    if (!obj) return "";
-    if (typeof obj === "string") return obj;
-    return obj[idiomaActual] || obj.es || obj.en || "";
-}
-
-// ----------------------------
-// VOICE ENGINE (SAFE)
-// ----------------------------
+// ---------------- VOICE (CONTROL SIMPLE) ----------------
 function speak(text) {
-    if (!voiceEnabled || !("speechSynthesis" in window)) return;
-    if (!text) return;
+    if (!text || !("speechSynthesis" in window)) return;
+
+    window.speechSynthesis.cancel();
 
     const u = new SpeechSynthesisUtterance(text);
     const voices = speechSynthesis.getVoices();
 
     let v =
-        voices.find(v => v.lang.startsWith(idiomaActual)) ||
-        voices[0];
+        state.lang === "es"
+            ? voices.find(x => x.lang?.startsWith("es"))
+            : voices.find(x => x.lang?.startsWith("en"));
 
-    u.voice = v;
-    u.rate = 0.95;
-    u.pitch = 1;
+    u.voice = v || voices[0];
+    u.lang = state.lang === "es" ? "es-ES" : "en-US";
+    u.rate = 0.92;
 
-    speechSynthesis.cancel();
-    speechSynthesis.speak(u);
+    setTimeout(() => speechSynthesis.speak(u), 150);
 }
 
-// ----------------------------
-// UI STATE
-// ----------------------------
-function showLoader() {
-    get("wrapper-form").style.display = "none";
-    get("wrapper-loader").style.display = "flex";
-    get("wrapper-interactive").style.display = "none";
-}
-
-function showApp() {
-    get("wrapper-loader").style.display = "none";
-    get("wrapper-interactive").style.display = "block";
-}
-
-// ----------------------------
-// START
-// ----------------------------
-document.addEventListener("DOMContentLoaded", () => {
-    get("btn-start").onclick = startSession;
+// ---------------- INIT ----------------
+window.addEventListener("DOMContentLoaded", () => {
+    $("btn-start").onclick = start;
 });
 
-// ----------------------------
-// MAIN REQUEST
-// ----------------------------
-async function startSession() {
+// ---------------- START ----------------
+async function start() {
 
     const payload = {
-        decision: document.querySelector("#inp-mode")?.value || "salir",
-        lang: idiomaActual,
-        budget_level: get("inp-budget")?.value || "cero",
-        zip_code: get("inp-zip")?.value || "",
-        estado: get("inp-state")?.value || "",
-        desahogo: get("inp-text")?.value || ""
+        decision: state.mode === "casa" ? "casa" : "salir",
+        lang: state.lang,
+        budget_level: state.budget,
+        zip_code: $("inp-zip").value || "",
+        estado: $("inp-state").value || "",
+        region: $("inp-region")?.value || "",
+        desahogo: $("inp-text").value || ""
     };
 
-    showLoader();
+    hide($("wrapper-form"));
+    show($("wrapper-loader"));
+    hide($("wrapper-interactive"));
 
     try {
+
         const res = await fetch("/api/open-than-go", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -101,223 +75,171 @@ async function startSession() {
 
         const data = await res.json();
 
-        if (data.status !== "success") throw new Error("backend error");
+        if (!data || data.status !== "success") throw new Error("backend");
 
-        sessionMode = data.mode;
+        state.steps = data.mision?.b || [];
+        state.place = data.lugar || null;
+        state.type = data.tipo || "Salida";
 
-        // ---------------- HOME ----------------
-        if (sessionMode === "home") {
-            missions = data.missions || [];
-            totalTime = data.duration || 600;
-            remainingTime = totalTime;
-        }
+        state.stepIndex = 0;
+        state.remaining = state.type === "Casa" ? 600 : 60;
 
-        // ---------------- OUT ----------------
-        if (sessionMode === "out") {
-            missions = [];
-            totalTime = data.duration || 60;
-            remainingTime = totalTime;
+        hide($("wrapper-loader"));
+        show($("wrapper-interactive"));
 
-            renderOut(data);
-        }
-
-        stepIndex = 0;
-        showApp();
-
-        if (sessionMode === "home") {
-            runHome();
-        } else {
-            runOutTimer();
-        }
+        run();
 
     } catch (e) {
         console.error(e);
         alert("Error backend");
-        location.reload();
+        show($("wrapper-form"));
     }
 }
 
-// ----------------------------
-// OUT MODE (SALIR)
-// ----------------------------
-function renderOut(data) {
+// ---------------- MAIN FLOW ----------------
+function run() {
 
-    const cont = get("step-content");
-
-    cont.innerHTML = `
-        <div class="card-box">
-            <h2>${data.place.name}</h2>
-            <p>${data.why}</p>
-            <p>${data.psych_logic?.es || ""}</p>
-        </div>
-    `;
-
-    const mapBtn = get("btn-maps-action");
-    mapBtn.style.display = "block";
-    mapBtn.href = "#";
-}
-
-// ----------------------------
-// HOME MODE (CASA)
-// ----------------------------
-function runHome() {
     clearAll();
 
-    renderStep();
-    runTimerHome();
-}
-
-// ----------------------------
-// STEP RENDER
-// ----------------------------
-function renderStep() {
-
-    const cont = get("step-content");
-    const step = missions[stepIndex];
-
-    if (!step) {
-        finishSession();
+    if (state.stepIndex >= state.steps.length || state.remaining <= 0) {
+        finish();
         return;
     }
 
-    cont.innerHTML = `<div class="card-box">${t(step.text)}</div>`;
-    speak(t(step.text));
+    const step = state.steps[state.stepIndex];
 
-    if (step.type === "breath") {
-        runBreath(step.duration || 60);
+    $("btn-next").style.display = "none";
+    $("btn-next").onclick = () => {
+        state.stepIndex++;
+        run();
+    };
+
+    // BREATH ONLY ONE SYSTEM
+    if (step?.t === "breath_auto") {
+        breath(step.d || 10);
         return;
     }
 
-    setTimeout(() => {
-        stepIndex++;
-        renderStep();
-    }, step.duration * 1000);
+    // TIMER ONLY HOME
+    if (state.type === "Casa") {
+        timer();
+    }
+
+    const text = normalize(step.tx || step.story || step);
+
+    $("step-content").innerHTML = `<div>${text}</div>`;
+    speak(text);
+
+    $("btn-next").style.display = "block";
 }
 
-// ----------------------------
-// BREATH ENGINE (FIXED)
-// ----------------------------
-function runBreath(seconds) {
+// ---------------- BREATH (ONE ONLY CANVAS SYSTEM) ----------------
+function breath(seconds) {
 
-    const cont = get("step-content");
+    const container = $("step-content");
 
-    let s = seconds;
-
-    cont.innerHTML = `
-        <div class="card-box">
-            <div id="breathingCircle"></div>
-            <h2 id="breathText">Inhala</h2>
-            <div id="breathTimer"></div>
-        </div>
+    container.innerHTML = `
+        <canvas id="breathe" width="200" height="200"></canvas>
+        <div id="breathText">Inhala</div>
+        <div id="breathTime"></div>
     `;
 
-    const circle = get("breathingCircle");
+    const c = $("breathe");
+    const ctx = c.getContext("2d");
 
-    lock = true;
+    let t = seconds;
+    let r = 50;
+    let grow = true;
 
-    clearInterval(breathInterval);
+    state.breath = setInterval(() => {
 
-    breathInterval = setInterval(() => {
+        ctx.clearRect(0, 0, 200, 200);
 
-        if (s <= 0) {
-            clearInterval(breathInterval);
-            lock = false;
-            stepIndex++;
-            renderStep();
-            return;
-        }
+        ctx.beginPath();
+        ctx.arc(100, 100, r, 0, Math.PI * 2);
 
-        const inhale = s % 2 === 0;
+        ctx.fillStyle = "rgba(120,200,255,0.25)";
+        ctx.strokeStyle = "rgba(180,220,255,0.9)";
+        ctx.lineWidth = 2;
 
-        get("breathText").innerText = inhale ? "Inhala" : "Exhala";
+        ctx.fill();
+        ctx.stroke();
 
-        if (circle) {
-            circle.style.transform = inhale ? "scale(1.4)" : "scale(1)";
-        }
+        r += grow ? 1.2 : -1.2;
 
-        if (s % 4 === 0) speak(inhale ? "Inhala" : "Exhala");
+        if (r > 80) grow = false;
+        if (r < 50) grow = true;
 
-        get("breathTimer").innerText = s + "s";
+        $("breathText").innerText = grow ? "Inhala" : "Exhala";
+        $("breathTime").innerText = t + "s";
 
-        s--;
-        remainingTime--;
+        if (t % 4 === 0) speak(grow ? "inhala" : "exhala");
 
-    }, 1000);
-}
+        t--;
+        state.remaining--;
 
-// ----------------------------
-// HOME TIMER (10 MIN CONTROL)
-// ----------------------------
-function runTimerHome() {
-
-    const t = get("timer");
-
-    clearInterval(timerInterval);
-
-    timerInterval = setInterval(() => {
-
-        let m = Math.floor(remainingTime / 60);
-        let s = remainingTime % 60;
-
-        if (t) t.innerText = `${m}:${s.toString().padStart(2, "0")}`;
-
-        remainingTime--;
-
-        if (remainingTime <= 0) {
-            clearInterval(timerInterval);
-            finishSession();
+        if (t <= 0) {
+            clearInterval(state.breath);
+            state.stepIndex++;
+            run();
         }
 
     }, 1000);
 }
 
-// ----------------------------
-// OUT TIMER (60s SIMPLE)
-// ----------------------------
-function runOutTimer() {
+// ---------------- TIMER HOME ----------------
+function timer() {
 
-    const t = get("timer");
+    if (state.timer) return;
 
-    const i = setInterval(() => {
+    state.timer = setInterval(() => {
 
-        let s = remainingTime % 60;
+        const m = Math.floor(state.remaining / 60);
+        const s = state.remaining % 60;
 
-        if (t) t.innerText = `0:${s.toString().padStart(2, "0")}`;
+        $("timer").innerText = `${m}:${s.toString().padStart(2, "0")}`;
 
-        remainingTime--;
+        state.remaining--;
 
-        if (remainingTime <= 0) {
-            clearInterval(i);
-            finishSession();
+        if (state.remaining <= 0) {
+            clearInterval(state.timer);
+            state.timer = null;
         }
 
     }, 1000);
 }
 
-// ----------------------------
-// FINISH
-// ----------------------------
-function finishSession() {
+// ---------------- FINISH ----------------
+function finish() {
 
-    const cont = get("step-content");
+    clearAll();
 
-    cont.innerHTML = `
-        <div class="card-box">
-            <h2>Sesión completada</h2>
-        </div>
+    $("step-content").innerHTML = `
+        <h2>Sesión completada</h2>
+        <p>${state.type === "Casa"
+            ? "Regulación interna completada"
+            : "Micro-escape completado"}
+        </p>
     `;
 
-    const btn = get("btn-next");
+    const btn = $("btn-next");
     btn.style.display = "block";
     btn.innerText = "REINICIAR";
     btn.onclick = () => location.reload();
 }
 
-// ----------------------------
-// CLEAN SYSTEM
-// ----------------------------
+// ---------------- CLEAR SAFE ----------------
 function clearAll() {
-    clearInterval(timerInterval);
-    clearInterval(breathInterval);
-    speechSynthesis.cancel();
+    clearInterval(state.breath);
+    clearInterval(state.timer);
+    state.breath = null;
+    state.timer = null;
+    window.speechSynthesis.cancel();
+}
+
+// ---------------- NORMALIZE ----------------
+function normalize(t) {
+    if (!t) return "";
+    if (typeof t === "string") return t;
+    return t[state.lang] || t.es || t.en || "";
 }
