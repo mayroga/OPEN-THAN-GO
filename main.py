@@ -1,35 +1,43 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 import os
-import random
 
 app = FastAPI()
-
-# Montaje de recursos estáticos
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Lógica de Mando: Clasificación de Intención (Modo Escape)
-# Esta estructura permite expansión ilimitada a nivel nacional.
-BASE_DATOS_NACIONAL = [
-    {
-        "tipo": "naturaleza",
-        "titulo": "Reconexión en Parques Nacionales",
-        "mente": ["agotado", "estresado"],
-        "presupuesto": ["cero", "moderado"],
-        "mision": "Camina en silencio durante 20 minutos. Tu única meta es observar el movimiento del viento en las hojas. Suelta la carga del trabajo.",
-        "gps_query": "National+Parks+near+"
-    },
-    {
-        "tipo": "cultural",
-        "titulo": "Exploración de Legado",
-        "mente": ["nostalgico", "aburrido"],
-        "presupuesto": ["moderado", "libre"],
-        "mision": "Busca un rincón histórico o museo local. Tu misión es encontrar un objeto que te recuerde a tu historia familiar.",
-        "gps_query": "Historic+sites+and+museums+near+"
+# Base de datos de alta disponibilidad
+BASE_MISIONES = {
+    "CASA": [
+        {"titulo": "Fase 1: Reconocimiento", "descripcion": "Identifica tu tensión actual sin juzgarla."},
+        {"titulo": "Fase 2: Anclaje", "descripcion": "Inhala en 4 tiempos, mantén en 2, exhala en 6."},
+        {"titulo": "Fase 3: Reset", "descripcion": "Suelta el control. Deja que el sistema te guíe el resto del tiempo."}
+    ],
+    "SALIR": {
+        "agotado": {
+            "titulo": "Refugio Natural",
+            "porque": "Tu sistema nervioso necesita reducir la sobreestimulación visual y auditiva.",
+            "que_hacer": "Camina sin rumbo fijo en una zona verde. Observa los patrones de las hojas.",
+            "donde": "Parque o reserva natural más cercana.",
+            "gps": "nature+parks+near+"
+        },
+        "estresado": {
+            "titulo": "Zona de Descarga Física",
+            "porque": "Necesitas metabolizar el exceso de cortisol acumulado en tus músculos.",
+            "que_hacer": "Realiza una caminata a ritmo acelerado o busca una actividad física recreativa.",
+            "donde": "Centro de recreación o pista pública.",
+            "gps": "recreation+centers+near+"
+        },
+        "aburrido": {
+            "titulo": "Distrito de Estimulación",
+            "porque": "La monotonía bloquea tu dopamina. Necesitas un cambio drástico de ambiente.",
+            "que_hacer": "Visita una galería o zona urbana con alta afluencia de personas y arte.",
+            "donde": "Centro histórico o distrito de artes.",
+            "gps": "arts+and+entertainment+near+"
+        }
     }
-]
+}
 
 @app.get("/")
 async def index():
@@ -37,28 +45,26 @@ async def index():
 
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
-    perfil = await request.json()
-    zip_code = perfil.get("zip", "33101")
-    mente = perfil.get("mente", "agotado")
-    presupuesto = perfil.get("presupuesto", "cero")
+    payload = await request.json()
+    modo = payload.get("modo")
+    zip_code = payload.get("zip", "33101")
+    mente = payload.get("mente", "aburrido")
 
-    # 1. Motor de decisión: Cruza estado mental y bolsillo
-    opciones = [m for m in BASE_DATOS_NACIONAL if mente in m["mente"] and presupuesto in m["presupuesto"]]
-    
-    # 2. Selección del Mando
-    seleccion = random.choice(opciones) if opciones else BASE_DATOS_NACIONAL[0]
-    
-    # 3. Construcción del destino (Integración Nacional)
-    gps_url = f"https://www.google.com/maps/search/?api=1&query={seleccion['gps_query']}{zip_code}"
-
-    # 4. Respuesta de alta precisión
-    return {
-        "titulo_destino": seleccion["titulo"],
-        "proposito_terapeutico": "Reconfiguración de perspectiva y alivio de cortisol.",
-        "mision_activa": seleccion["mision"],
-        "gps_url": gps_url,
-        "requiere_calma": mente in ["agotado", "estresado"]
-    }
+    if modo == "CASA":
+        return JSONResponse({
+            "modo": "CASA",
+            "misiones": BASE_MISIONES["CASA"]
+        })
+    else:
+        info = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
+        return JSONResponse({
+            "modo": "SALIR",
+            "titulo": info["titulo"],
+            "porque": info["porque"],
+            "que_hacer": info["que_hacer"],
+            "donde": info["donde"],
+            "gps": f"https://www.google.com/maps/search/?api=1&query={info['gps']}{zip_code}"
+        })
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
