@@ -18,8 +18,10 @@ const KERNEL = {
         
         const payload = {
             zip: document.getElementById('inp-zip').value,
-            mente: document.getElementById('inp-mente').value,
-            modo: document.getElementById('modo-selector').value
+    mente: document.getElementById('inp-mente').value,
+    modo: document.getElementById('modo-selector').value,
+    budget: document.getElementById('inp-budget').value,
+    perfil: document.getElementById('inp-perfil').value
         };
 
         const res = await (await fetch("/api/mando-integral", {
