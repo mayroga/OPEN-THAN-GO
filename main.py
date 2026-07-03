@@ -1,82 +1,59 @@
-# main.py - OPEN THAN GO SYSTEM (STABLE DEPLOY)
-# FastAPI + Static + API Ready
-
+import json
+import random
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
-import random
 
 app = FastAPI()
-
-# ----------------------------
-# STATIC FILES
-# ----------------------------
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# ----------------------------
-# ROOT
-# ----------------------------
+# Carga de base de conocimiento (Los 3 bloques de 7 misiones)
+def get_mission_bank():
+    # El sistema carga los 3 archivos para tener acceso al set completo de 21 misiones
+    bank = []
+    for f in ["missions_01_07.json", "missions_08_14.json", "missions_15_21.json"]:
+        try:
+            with open(f, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+                bank.extend(data["missions"])
+        except: continue
+    return bank
+
 @app.get("/")
-def root():
+def read_root():
     return FileResponse("static/session.html")
 
-# ----------------------------
-# LÓGICA DE APOYO
-# ----------------------------
-def generar_lugar(budget, stress):
-    opciones = [
-        {"name": "Parque tranquilo", "reason": "Reduce estrés y ayuda a estabilizar tu mente", "gps_link": "#"},
-        {"name": "Cafetería silenciosa", "reason": "Ambiente seguro para regular emociones", "gps_link": "#"},
-        {"name": "Caminar zona segura", "reason": "Movimiento físico regula ansiedad y pensamiento", "gps_link": "#"}
-    ]
-    if budget == "cero":
-        return opciones[2]
-    if stress > 7:
-        return opciones[0]
-    return random.choice(opciones)
-
-def misiones_casa():
-    return [
-        {"tx": "Respira lento. Inhala calma. Exhala tensión.", "t": "breath_auto", "d": 10},
-        {"tx": "Observa qué puedes controlar hoy.", "t": "text"},
-        {"tx": "Haz una pequeña acción para mejorar tu estado.", "t": "text"}
-    ]
-
-# ----------------------------
-# API PRINCIPAL
-# ----------------------------
 @app.post("/api/open-than-go")
-async def open_than_go(request: Request):
-    try:
-        data = await request.json()
-        
-        mode = data.get("decision", "salir")
-        budget = data.get("budget_level", "cero")
-        desahogo = data.get("desahogo", "")
+async def process_intervention(request: Request):
+    data = await request.json()
+    
+    # 1. DIAGNÓSTICO INVISIBLE
+    desahogo = data.get("desahogo", "").lower()
+    presupuesto = data.get("budget", "cero")
+    
+    # Mapeo de perfilamiento
+    perfil = "bien" # default
+    if any(word in desahogo for word in ["dinero", "deuda", "pago", "biles"]):
+        perfil = "mal"
+    elif any(word in desahogo for word in ["hijos", "niños", "jugar"]):
+        perfil = "nino"
+    elif any(word in desahogo for word in ["cansado", "trabajo", "agobio"]):
+        perfil = "mal"
 
-        # ---------------- CASA ----------------
-        if mode == "casa":
-            return JSONResponse({
-                "status": "success",
-                "tipo": "Casa",
-                "mision": {"b": misiones_casa()},
-                "duration": 600
-            })
-
-        # ---------------- SALIR ----------------
-        stress = min(len(desahogo or ""), 10)
-        lugar = generar_lugar(budget, stress)
-
-        return JSONResponse({
-            "status": "success",
-            "tipo": "Salida",
-            "lugar": lugar,
-            "mision": {"b": [{"tx": lugar["reason"]}]},
-            "duration": 60
-        })
-
-    except Exception as e:
-        return JSONResponse({
-            "status": "error",
-            "message": str(e)
-        }, status_code=500)
+    # 2. SELECCIÓN TERAPÉUTICA (El algoritmo de azar inteligente)
+    bank = get_mission_bank()
+    # Filtramos por perfil y presupuesto
+    opciones = [m for m in bank if m.get("cat") == perfil]
+    if not opciones: opciones = bank # Fallback de seguridad
+    
+    mision_final = random.choice(opciones)
+    
+    # 3. RESPUESTA DEFINITIVA (Sin rodeos, sin términos médicos)
+    return JSONResponse({
+        "status": "success",
+        "mision": mision_final,
+        "metadata": {
+            "perfil_detectado": perfil,
+            "objetivo": "equilibrio_biopsicosocial"
+        }
+    })
