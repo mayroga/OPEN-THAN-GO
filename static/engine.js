@@ -10,19 +10,17 @@ const KERNEL = {
 
     init() {
         document.getElementById('btn-mando').addEventListener('click', () => this.ejecutar());
-        window.speechSynthesis.getVoices(); // Cargar voces al iniciar
     },
 
     hablar(texto) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(texto);
+        // Usamos la configuración por defecto del sistema
         msg.lang = 'es-ES';
         msg.rate = 1.0;
-        msg.pitch = 0.9;
-        const voces = window.speechSynthesis.getVoices();
-        const nombresMasculinos = ['Google español', 'Jorge', 'Daniel', 'Carlos', 'Microsoft Pablo', 'Microsoft Raul', 'Alejandro'];
-        const vozElegida = voces.find(v => nombresMasculinos.some(n => v.name.includes(n)) || v.name.toLowerCase().includes('male'));
-        if (vozElegida) msg.voice = vozElegida;
+        msg.pitch = 1.0; 
+        
+        // Al no asignar msg.voice manualmente, el navegador usa la voz preferida del usuario
         window.speechSynthesis.speak(msg);
     },
 
