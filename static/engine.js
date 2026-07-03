@@ -1,4 +1,4 @@
-// OPEN THAN GO SYSTEM - Unified Somatic Voice Engine
+// OPEN THAN GO SYSTEM - Somatic Voice Engine
 // Company: May Roga LLC
 // File: static/engine.js
 
@@ -22,7 +22,7 @@ const traducciones = {
         tipo_casa: "Protocolo Doméstico de 10 Minutos Activado", tipo_salida: "Guía de Exploración Abierta",
         txt_correcto: "<strong>¡RESPUESTA VERDADERA!</strong><br>", txt_incorrecto: "<strong>ANÁLISIS DE FALLO:</strong><br>",
         inspira: "Inhala / Inspira", expira: "Exhala / Expira",
-        alerta_35s: "Preparación de campo activa por 35 segundos. Escucha las sugerencias atentamente.",
+        alerta_35s: "Preparación de campo activa por 35 segundos. Escucha las sugerencias atentamente antes de abrir la ruta.",
         fin_casa: "Protocolo doméstico terminado. El sistema se apaga automáticamente por tu paz."
     },
     en: {
@@ -34,14 +34,16 @@ const traducciones = {
         tipo_casa: "10-Minute Domestic Protocol Activated", tipo_salida: "Exploration Guide Opened",
         txt_correcto: "<strong>TRUE ANSWER!</strong><br>", txt_incorrecto: "<strong>FAILURE ANALYSIS:</strong><br>",
         inspira: "Inhale", expira: "Exhale",
-        alerta_35s: "Field preparation active for 35 seconds. Listen to the suggestions carefully.",
+        alerta_35s: "Field preparation active for 35 seconds. Listen to the suggestions carefully before opening the route.",
         fin_casa: "Domestic protocol completed. The system automatically shuts down to preserve your peace."
     }
 };
 
 function hablarTexto(texto) {
-    window.speechSynthesis.cancel(); 
     if (!texto) return;
+    // Detiene lecturas viejas solo al invocar un NUEVO paso, nunca por segundo
+    window.speechSynthesis.cancel(); 
+    
     const lectura = new SpeechSynthesisUtterance(texto);
     lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US';
     lectura.rate = 0.88; 
@@ -128,14 +130,14 @@ async function solicitarEscape() {
 
             document.getElementById('wrapper-interactive').style.display = 'block';
             
-            // TEMPORIZADOR CLÍNICO DE 10 MINUTOS EN CASA CON APAGADO AUTOMÁTICO
+            // Reloj clínico estricto de 10 minutos en casa para apagarse solo
             if (tipoEscapeGlobal === "Casa") {
                 clearTimeout(temporizadorClinicoCasa);
                 temporizadorClinicoCasa = setTimeout(() => {
                     hablarTexto(traducciones[idiomaActual].fin_casa);
                     alert(traducciones[idiomaActual].fin_casa);
                     destruirMemoriaYReiniciar();
-                }, 600000); // 10 minutos exactos
+                }, 600000); 
             }
 
             procesarPaoMision();
@@ -150,26 +152,23 @@ async function solicitarEscape() {
     }
 }
 
-// ALINEACIÓN DE NOMBRE DE FUNCIÓN
 function procesarPaoMision() {
     clearInterval(intervaloRespiracion);
-    window.speechSynthesis.cancel();
     
     const contenedorPasos = document.getElementById('step-content');
     const botonContinuar = document.getElementById('btn-next');
     const botonGps = document.getElementById('btn-maps-action');
     
-    // Se limpia todo rastro de escritura previa para no sobrecargar el hardware
+    // Limpieza de memoria visual de escritura previa para evitar bloqueos
     contenedorPasos.innerHTML = "";
     botonContinuar.style.display = 'none';
     botonGps.style.display = 'none';
 
-    // CIERRE TOTAL DEL PROCESADOR DE PASOS
     if (indicePasoActual >= pasosMisionGlobal.length) {
         if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
             contenedorPasos.innerHTML = `
                 <div class="card-lugar" style="margin-top:20px;">
-                    <h3 style="color:var(--accent); font-weight:800; text-transform:uppercase;">🧭 Protocolo de Despliegue de Campo</h3>
+                    <h3 style="color:var(--accent); font-weight:800; text-transform:uppercase;">🧭 Protocolo de Despliegue</h3>
                     <p style="font-size:14px; margin:8px 0; line-height:1.4;">${datosLugarGlobal.address}</p>
                     <hr style="border:0; border-top:1px dashed #ddd; margin:10px 0;">
                     <p style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:5px;">Sugerencia de Enfoque en tus 3 Puntos Críticos:</p>
@@ -177,16 +176,16 @@ function procesarPaoMision() {
                 </div>
             `;
             
-            // RETENCIÓN ESTRICTA DE 35 SEGUNDOS ANTES DE ABRIR EL MAPA
             let cuentaRegresivaSalir = 35;
             botonContinuar.innerText = `${cuentaRegresivaSalir}s`;
             botonContinuar.disabled = true;
             botonContinuar.style.display = 'block';
             
-            // La voz lee obligatoriamente la guía explicativa completa
+            // La voz lee obligatoriamente la guía explicativa completa sin cortarse
             hablarTexto(traducciones[idiomaActual].alerta_35s + " . Tres sugerencias de enfoque: " + datosLugarGlobal.analisis_sugerido);
             
             let relojSalida = setInterval(() => {
+                
                 cuentaRegresivaSalir--;
                 botonContinuar.innerText = `${cuentaRegresivaSalir}s`;
                 if(cuentaRegresivaSalir <= 0) {
@@ -228,7 +227,9 @@ function procesarPaoMision() {
                 <p style="font-weight:600; margin-top:15px; font-size:15px; color:var(--primary);">${paso.tx[idiomaActual]}</p> 
                 <p class="breath-inf">${paso.inf[idiomaActual]}</p> 
             </div>`;
-        hablarTexto(paso.tx[idiomaActual]);
+            
+        // CORRECCIÓN CLÍNICA: La voz lee todo el texto continuo de la respiración de corrido sin interrupción
+        hablarTexto(paso.tx[idiomaActual] + " . " + paso.inf[idiomaActual]);
 
         intervaloRespiracion = setInterval(() => {
             tiempoRestante--;
@@ -236,20 +237,15 @@ function procesarPaoMision() {
             const indicadorTexto = document.getElementById('txt-pulmon-accion');
             if (circulo) circulo.innerText = `${tiempoRestante}s`;
             
+            // Control visual del pulmón en pantalla (In/Out) sin invocar SpeechSynthesis interno que corte el audio anterior
             if (indicadorTexto) {
                 let cicloSegundo = tiempoRestante % 8;
                 if (cicloSegundo >= 4) {
-                    if (indicadorTexto.innerText !== traducciones[idiomaActual].inspira) {
-                        indicadorTexto.innerText = traducciones[idiomaActual].inspira;
-                        indicadorTexto.style.color = "#00bcd4";
-                        hablarTexto(traducciones[idiomaActual].inspira);
-                    }
+                    indicadorTexto.innerText = traducciones[idiomaActual].inspira;
+                    indicadorTexto.style.color = "#00bcd4";
                 } else {
-                    if (indicadorTexto.innerText !== traducciones[idiomaActual].expira) {
-                        indicadorTexto.innerText = traducciones[idiomaActual].expira;
-                        indicadorTexto.style.color = "#d84315";
-                        hablarTexto(traducciones[idiomaActual].expira);
-                    }
+                    indicadorTexto.innerText = traducciones[idiomaActual].expira;
+                    indicadorTexto.style.color = "#d84315";
                 }
             }
             if (tiempoRestante <= 0) {
@@ -272,6 +268,7 @@ function procesarPaoMision() {
             </div>`;
         hablarTexto(paso.q[idiomaActual]);
     }
+    
     else if (paso.t === "r") {
         contenedorPasos.innerHTML = `
             <div style="margin:25px 0; text-align:center;"> 
@@ -281,11 +278,13 @@ function procesarPaoMision() {
         hablarTexto(paso.tx);
         botonContinuar.style.display = 'block';
     }
+    
     else if (paso.t === "c") {
         contenedorPasos.innerHTML = `<div style="padding:20px; background:#fffde7; border-radius:10px; margin:15px 0; border:1px dashed #fbc02d;"><p style="font-style:italic; font-size:15px; margin:0; font-weight:500; line-height:1.4;">"${paso.tx[idiomaActual]}"</p></div>`;
         hablarTexto(paso.tx[idiomaActual]);
         botonContinuar.style.display = 'block';
     }
+    
     else if (paso.t === "sil") {
         contenedorPasos.innerHTML = `
             <div style="text-align:left; background:#f3e5f5; padding:16px; border-radius:10px; border:1px solid #e1bee7;"> 
@@ -312,7 +311,7 @@ function evaluarTriviaMargenReintento(indiceSeleccionado, indiceCorrecto, explic
         const botones = document.querySelectorAll('.btn-opcion');
         botones.forEach(btn => btn.disabled = true);
         hablarTexto((idiomaActual === 'es' ? "Verdadero. " : "True. ") + textoLimpioExplicacion);
-        document.getElementById('btn-next').style.display = 'block'; // Solo avanza si es la verdadera
+        document.getElementById('btn-next').style.display = 'block';
     } else {
         document.getElementById(`opt-${indiceSeleccionado}`).style.opacity = "0.4";
         document.getElementById(`opt-${indiceSeleccionado}`).style.pointerEvents = "none";
