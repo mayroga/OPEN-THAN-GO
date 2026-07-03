@@ -1,5 +1,5 @@
-// OPEN THAN GO - ENGINE v5.0 - MAY ROGA
-// Motor de ejecución de protocolos biopsicosociales
+// OPEN THAN GO - ENGINE v5.0 (FASTAPI READY)
+// Motor de mando de MAY ROGA
 
 let idiomaActual = "es";
 let presupuestoActual = "cero";
@@ -10,9 +10,6 @@ function get(id) { return document.getElementById(id); }
 function hablar(texto) {
     if (!("speechSynthesis" in window)) return;
     const u = new SpeechSynthesisUtterance(texto);
-    const voces = window.speechSynthesis.getVoices();
-    const voice = voces.find(v => v.lang.startsWith(idiomaActual)) || voces[0];
-    u.voice = voice;
     u.lang = idiomaActual === "es" ? "es-ES" : "en-US";
     u.rate = 0.95;
     window.speechSynthesis.cancel();
@@ -38,8 +35,7 @@ function cambiarModalidad(esSalir) {
     modalidadSalir = esSalir;
     get("m-salir").classList.toggle("active", esSalir);
     get("m-casa").classList.toggle("active", !esSalir);
-    const wrapper = get("wrapper-form");
-    wrapper.style.borderColor = esSalir ? "#f12711" : "#2a5298";
+    get("wrapper-form").style.borderColor = esSalir ? "#f12711" : "#2a5298";
 }
 
 async function solicitarEscape() {
@@ -47,9 +43,8 @@ async function solicitarEscape() {
         decision: modalidadSalir ? "salir" : "casa",
         lang: idiomaActual,
         budget_level: presupuestoActual,
-        zip_code: get("inp-zip")?.value || "",
+        zip_code: get("inp-zip")?.value || "33101",
         estado: get("inp-state")?.value || "",
-        region: get("inp-region")?.value || "",
         desahogo: get("inp-text")?.value || ""
     };
 
@@ -57,12 +52,13 @@ async function solicitarEscape() {
     get("wrapper-loader").style.display = "flex";
 
     try {
-        const res = await fetch("/api/open-than-go", {
+        const response = await fetch("/api/open-than-go", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
-        const data = await res.json();
+        
+        const data = await response.json();
         
         get("wrapper-loader").style.display = "none";
         get("wrapper-interactive").style.display = "block";
@@ -73,6 +69,7 @@ async function solicitarEscape() {
             ejecutarProtocoloSalida(data.opciones);
         }
     } catch (e) {
+        console.error("Error en mando:", e);
         get("wrapper-form").style.display = "block";
         get("wrapper-loader").style.display = "none";
     }
@@ -100,7 +97,7 @@ function ejecutarProtocoloCasa(mision) {
         timerDisplay.innerText = `${m}:${s.toString().padStart(2, '0')}`;
         if (t_restante <= 0) {
             clearInterval(interval);
-            location.reload();
+            window.location.reload();
         }
     }, 1000);
 }
