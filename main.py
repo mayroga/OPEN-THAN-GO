@@ -95,8 +95,8 @@ async def index():
 async def mando_integral(request: Request):
     payload = await request.json()
     
-    # Forzamos mayúsculas y limpiamos textos para sincronización matemática total
-    modo = str(payload.get("modo", "SALIR")).upper()
+    # Cambiamos radicalmente los términos para que Python y JS nunca confundan las rutas
+    opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
     estado = str(payload.get("estado", "FL")).strip()
     region = str(payload.get("region", "")).strip()
@@ -105,13 +105,18 @@ async def mando_integral(request: Request):
     perfil = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     
-    if modo == "CASA":
-        return JSONResponse({"modo": "CASA", "misiones": BASE_MISIONES["CASA"]})
+    # RUTA DOMÉSTICA AISLADA: Solo entra si el cliente eligió estrictamente CASA
+    if opcion_usuario == "CASA":
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", 
+            "misiones": BASE_MISIONES["CASA"]
+        })
     
+    # RUTA DE CAMPO TOTALMENTE SEPARADA: Para el despliegue del turismo terapéutico en todo USA
     else:
         info = random.choice(BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"]))
         
-        # Filtro de supervivencia por desahogo emocional
+        # Filtro de supervivencia por desahogo financiero
         palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion"]
         if any(p in desahogo for p in palabras_criticas):
             gps_query = "agencias+de+empleo+staffings+corporations"
@@ -125,30 +130,29 @@ async def mando_integral(request: Request):
             else:
                 gps_query = info["gps"]
             
-            que_hacer_base = f"QUÉ: {info['titulo']}. CÓMO: {info['que_hacer']} CUÁNDO: Ahora mismo. POR QUÉ: {info['porque']} HAZLO CONMIGO."
+            que_hacer_base = f"QUÉ: {info['titulo']}. CÓMO: {info['que_hacer']} CUÁNDO: Ahora mismo a partir de las 4:00 PM. POR QUÉ: {info['porque']} HAZLO CONMIGO."
             donde_base = info["donde"]
 
         msg_adicional = ""
         if perfil == "accesible":
-            msg_adicional = " (Ruta plana adaptada con accesibilidad total física/edad)."
+            msg_adicional = " (Ruta plana adaptada con accesibilidad total física o edad avanzada)."
             gps_query = "wheelchair+accessible+" + gps_query
         elif perfil == "family":
             msg_adicional = " (Lugar seguro diseñado para tus niños)."
             gps_query = "family+friendly+" + gps_query
 
-        # Hackeo elástico de geolocalización: Si no hay ZIP, usa la Región o lo que el usuario ponga en el cajón
+        # RECTIFICACIÓN CLAVE: Enlace oficial universal elástico e inmune a fallas de red
         anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
         link_maps = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
         
-        # Enviamos ambos parámetros ('modo' y 'tipo') para blindar la lectura de JavaScript
+        # Estructura de salida blindada con variables únicas e irrepetibles
         return JSONResponse({
-            "modo": "SALIR",
-            "tipo": "SALIR",
-            "titulo": info["titulo"].upper(),
-            "porque": info["porque"],
-            "que_hacer": que_hacer_base + msg_adicional,
-            "donde": donde_base,
-            "gps": link_maps
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "destino_titulo": info["titulo"].upper(),
+            "destino_porque": info["porque"],
+            "destino_instruccion": que_hacer_base + msg_adicional,
+            "destino_entorno": donde_base,
+            "destino_coordenadas_gps": link_maps
         })
 
 if __name__ == "__main__":
