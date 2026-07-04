@@ -46,10 +46,10 @@ const traducciones = {
 
 function hablarTexto(texto) {
     if (!texto) return;
-    window.speechSynthesis.cancel(); 
+    window.speechSynthesis.cancel();
     const lectura = new SpeechSynthesisUtterance(texto);
     lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US';
-    lectura.rate = 0.88; 
+    lectura.rate = 0.88;
     lectura.pitch = 1.0;
     window.speechSynthesis.speak(lectura);
 }
@@ -58,7 +58,6 @@ function cambiarIdioma(lang) {
     idiomaActual = lang;
     document.getElementById('lang-es').classList.toggle('active', lang === 'es');
     document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-    
     const t = traducciones[lang];
     if(document.getElementById('txt-subtitle')) document.getElementById('txt-subtitle').innerText = t.subtitle;
     if(document.getElementById('lbl-state')) document.getElementById('lbl-state').innerText = t.state;
@@ -68,10 +67,8 @@ function cambiarIdioma(lang) {
     if(document.getElementById('lbl-mode')) document.getElementById('lbl-mode').innerText = t.mode;
     if(document.getElementById('lbl-desahogo')) document.getElementById('lbl-desahogo').innerText = t.desahogo;
     if(document.getElementById('inp-text')) document.getElementById('inp-text').placeholder = t.placeholder_text;
-    
     const btnTrigger = document.getElementById('btn-main-trigger');
     if(btnTrigger) btnTrigger.innerText = t.btn_trigger;
-    
     if(document.getElementById('txt-loader')) document.getElementById('txt-loader').innerText = t.loader;
     if(document.getElementById('btn-next')) document.getElementById('btn-next').innerText = t.btn_continue;
     if(document.getElementById('btn-maps-action')) document.getElementById('btn-maps-action').innerText = t.btn_gps;
@@ -90,10 +87,7 @@ function cambiarModalidad(esSalir) {
     modalidadSalir = esSalir;
     document.getElementById('m-salir').classList.toggle('active', esSalir === true);
     document.getElementById('m-casa').classList.toggle('active', esSalir === false);
-    
     const displayGeografia = esSalir ? 'block' : 'none';
-    
-    // CORRECCIÓN: Eliminado el error .style.style que congelaba la app
     if(document.getElementById('inp-state')) document.getElementById('inp-state').parentElement.style.display = displayGeografia;
     if(document.getElementById('inp-region')) document.getElementById('inp-region').parentElement.style.display = displayGeografia;
     if(document.getElementById('inp-zip')) document.getElementById('inp-zip').parentElement.style.display = displayGeografia;
@@ -109,38 +103,32 @@ async function solicitarEscape() {
         region: document.getElementById('inp-region') ? document.getElementById('inp-region').value : "",
         desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : ""
     };
-
     document.getElementById('wrapper-form').style.display = 'none';
     document.getElementById('wrapper-loader').style.display = 'flex';
     document.getElementById('wrapper-interactive').style.display = 'none';
-
     try {
         const respuesta = await fetch('/api/open-than-go', {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json' 
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
         });
         const data = await respuesta.json();
         document.getElementById('wrapper-loader').style.display = 'none';
-
         if (data.status === 'success' && data.mision && data.mision.b) {
             pasosMisionGlobal = data.mision.b;
             datosLugarGlobal = data.lugar || null;
             tipoEscapeGlobal = data.tipo;
-            indicePasoActual = 0;
-
+            indicePaoMisionActual = 0;
             document.getElementById('interactive-title').innerText = "OPEN THAN GO";
             document.getElementById('interactive-subtitle').innerText = tipoEscapeGlobal === "Casa" ? traducciones[idiomaActual].tipo_casa : traducciones[idiomaActual].tipo_salida;
             document.getElementById('wrapper-interactive').style.display = 'block';
-
             if (tipoEscapeGlobal === "Casa") {
                 document.getElementById('wrapper-global-timer').style.display = 'block';
                 tiempoRestanteMaestro = 600;
                 ejecutarRelojMaestro10Min();
-                
                 clearTimeout(temporizadorClinicoCasa);
                 temporizadorClinicoCasa = setTimeout(() => {
                     hablarTexto(traducciones[idiomaActual].fin_casa);
@@ -150,7 +138,6 @@ async function solicitarEscape() {
             } else {
                 document.getElementById('wrapper-global-timer').style.display = 'none';
             }
-
             procesarPaoMision();
         } else {
             alert(data.message || "Error al sincronizar canales emocionales.");
@@ -167,7 +154,6 @@ function ejecutarRelojMaestro10Min() {
     clearInterval(cronometroMaestro10Min);
     const displayGlobal = document.getElementById('global-timer-txt');
     const t = traducciones[idiomaActual];
-
     cronometroMaestro10Min = setInterval(() => {
         tiempoRestanteMaestro--;
         let mins = Math.floor(tiempoRestanteMaestro / 60);
@@ -175,7 +161,6 @@ function ejecutarRelojMaestro10Min() {
         if (displayGlobal) {
             displayGlobal.innerText = `${t.reloj_maestro_prefijo}${mins}:${secs < 10 ? '0' : ''}${secs}`;
         }
-
         if (tiempoRestanteMaestro <= 0) {
             clearInterval(cronometroMaestro10Min);
             destruirMemoriaYReiniciar();
@@ -186,37 +171,26 @@ function ejecutarRelojMaestro10Min() {
 function procesarPaoMision() {
     clearInterval(intervaloRespiracion);
     clearTimeout(relojSecuencialAutomatico);
-    
     const contenedorPasos = document.getElementById('step-content');
     const botonContinuar = document.getElementById('btn-next');
     const botonGps = document.getElementById('btn-maps-action');
-
     contenedorPasos.innerHTML = "";
     botonContinuar.style.display = 'none';
     botonGps.style.display = 'none';
-
+    
     if (indicePasoActual >= pasosMisionGlobal.length) {
         if (tipoEscapeGlobal === "Casa") {
             indicePasoActual = 0;
             procesarPaoMision();
             return;
         }
-
         if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
-
-contenedorPasos.innerHTML = `
-    <div class="card-lugar" style="margin-top:20px;">
-        <h3 style="color:var(--accent); font-weight:800; text-transform:uppercase;">🧭 Protocolo de Despliegue</h3>
-        <p style="font-size:14px; margin:8px 0; line-height:1.4;">${datosLugarGlobal.address}</p>
-        <hr style="border:0; border-top:1px dashed #ddd; margin:10px 0;">
-        <p style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:5px;">
-            Sugerencia de Enfoque en tus 3 Puntos Críticos:
-        </p>
-        <p style="font-size:13px; line-height:1.4; font-style:italic; color:#444;">
-            ${datosLugarGlobal.analisis_sugerido}
-        </p>
-    </div>
-`;
+            contenedorPasos.innerHTML = `
+                <div class="card-lugar" style="margin-top:20px;">
+🧭 Protocolo de Despliegue
+${datosLugarGlobal.address}
+Sugerencia de Enfoque en tus 3 Puntos Críticos:
+${datosLugarGlobal.analisis_sugerido};
 
 let cuentaRegresivaSalir = 35;
 botonContinuar.innerText = `${cuentaRegresivaSalir}s`;
@@ -252,13 +226,7 @@ const paso = pasosMisionGlobal[indicePasoActual];
 
 if (paso.t === "v" || paso.t === "h") {
     let textoLabel = paso.tx;
-
-    contenedorPasos.innerHTML = `
-        <h3 style="color:var(--secondary); margin:20px 0; font-size:18px; font-weight:800;">
-            ${textoLabel}
-        </h3>
-    `;
-
+    contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0; font-size:18px; font-weight:800;">${textoLabel}</h3>`;
     hablarTexto(textoLabel);
 
     if (tipoEscapeGlobal === "Casa") {
@@ -268,14 +236,10 @@ if (paso.t === "v" || paso.t === "h") {
     } else {
         botonContinuar.style.display = 'block';
     }
+}
 
-} else if (paso.story) {
-    contenedorPasos.innerHTML = `
-        <div class="screen-story">
-            <p>${paso.story}</p>
-        </div>
-    `;
-
+else if (paso.story) {
+    contenedorPasos.innerHTML = `<div class="screen-story"><p>${paso.story}</p></div>`;
     hablarTexto(paso.story);
 
     if (tipoEscapeGlobal === "Casa") {
@@ -285,8 +249,9 @@ if (paso.t === "v" || paso.t === "h") {
     } else {
         botonContinuar.style.display = 'block';
     }
+}
 
-} else if (paso.t === "breath_auto") {
+else if (paso.t === "breath_auto") {
     let tiempoRestante = paso.d;
 
     contenedorPasos.innerHTML = `
@@ -295,12 +260,8 @@ if (paso.t === "v" || paso.t === "h") {
                 <span id="txt-segundos-circulo">${tiempoRestante}s</span>
                 <div class="txt-instruccion-pulmon" id="txt-pulmon-accion">INHALA</div>
             </div>
-            <p style="font-weight:600; margin-top:25px; font-size:15px; color:var(--primary);">
-                ${paso.tx}
-            </p>
-            <p class="breath-inf" style="font-size:12px; color:#666; max-width:90%; margin:5px auto; line-height:1.4;">
-                ${paso.inf}
-            </p>
+            <p style="font-weight:600; margin-top:25px; font-size:15px; color:var(--primary);">${paso.tx}</p>
+            <p class="breath-inf" style="font-size:12px; color:#666; max-width:90%; margin:5px auto; line-height:1.4;">${paso.inf}</p>
         </div>
     `;
 
@@ -337,8 +298,9 @@ if (paso.t === "v" || paso.t === "h") {
             siguienteComando();
         }
     }, 1000);
+}
 
-} else if (paso.t === "d") {
+else if (paso.t === "d") {
     let mapeoOpciones = paso.op.map((texto, idx) => ({
         texto: texto,
         idxOriginal: idx
@@ -371,8 +333,9 @@ if (paso.t === "v" || paso.t === "h") {
     `;
 
     hablarTexto(paso.q);
+}
 
-} else if (paso.t === "r") {
+else if (paso.t === "r") {
     contenedorPasos.innerHTML = `
         <div style="margin:25px 0; text-align:center;">
             <span style="font-size:50px;">💎</span>
@@ -391,8 +354,9 @@ if (paso.t === "v" || paso.t === "h") {
     } else {
         botonContinuar.style.display = 'block';
     }
+}
 
-} else if (paso.t === "c") {
+else if (paso.t === "c") {
     contenedorPasos.innerHTML = `
         <div style="padding:20px; background:#fffde7; border-radius:10px; margin:15px 0; border:1px dashed #fbc02d;">
             <p style="font-style:italic; font-size:15px; margin:0; font-weight:500; line-height:1.4;">
@@ -410,8 +374,9 @@ if (paso.t === "v" || paso.t === "h") {
     } else {
         botonContinuar.style.display = 'block';
     }
+}
 
-} else if (paso.t === "sil") {
+else if (paso.t === "sil") {
     contenedorPasos.innerHTML = `
         <div style="text-align:left; background:#f3e5f5; padding:16px; border-radius:10px; border:1px solid #e1bee7;">
             <p style="font-size:14px; margin:0 0 10px 0; line-height:1.4;">
