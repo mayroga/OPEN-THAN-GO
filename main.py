@@ -70,7 +70,6 @@ def cargar_mision_especifica(decision, pocket_tier, force_id=None):
 @app.route('/')
 def index():
     return send_from_directory(app.static_folder, 'session.html')
-
 @app.route('/api/open-than-go', methods=['POST'])
 def procesar_sistema_bienestar():
     data = request.json or {}
@@ -168,7 +167,7 @@ def procesar_sistema_bienestar():
             }
         },
         "libre": {
-            "busqueda": "hoteles resorts discotecas club y entertainment de lujo",
+            "busqueda": "hoteles resorts discotecas club y entretenimiento de lujo",
             "sugerencias": {
                 "es": "1. El lounge de relajación premium. 2. Pista de baile de alta energía. 3. Entorno de terraza de escape.",
                 "en": "1. The premium relaxation lounge. 2. High-energy dance floor. 3. Terrace escape environment."
@@ -208,7 +207,7 @@ def procesar_sistema_bienestar():
     # ENLACE UNIVERSAL GPS INDESTRUCTIBLE REPARADO OFICIAL:
     link_google_maps_vivo = f"https://google.com{query_mapa}"
 
-       return jsonify({
+    return jsonify({
         "status": "success",
         "tipo": "Salida",
         "fuera_usa": fuera_usa_detectado,
@@ -220,6 +219,13 @@ def procesar_sistema_bienestar():
         },
         "mision": mision_final
     })
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
