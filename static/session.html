@@ -6,154 +6,99 @@
     <title>OPEN THAN GO</title>
     <style>
         :root {
-            --primary: #1e3a1e;
-            --secondary: #2e7d32;
+            --bg: #000;
+            --panel: #111;
+            --text: #fff;
             --accent: #d84315;
-            --light: #f1f8e9;
-            --dark: #111111;
-            --white: #ffffff;
-            --gray: #eeeeee;
+            --secondary: #2e7d32;
             --blue-circle: #00bcd4;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
+            background-color: var(--bg); color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--light);
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
+            margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
-        .container-app {
-            background: var(--white);
-            max-width: 480px;
-            width: 100%;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-        }
-        .header-app { text-align: center; margin-bottom: 15px; }
-        .header-app h1 { color: var(--primary); margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 0.5px; }
-        .header-app p { font-size: 13px; color: #555; margin-top: 5px; }
-        .lang-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
-        .btn-lang { background: var(--gray); border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: bold; flex: 1; max-width: 120px; text-align: center; }
-        .btn-lang.active { background: var(--primary); color: var(--white); }
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: var(--primary); text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; background: #fafafa; font-size: 14px; color: var(--dark); font-family: inherit; }
-        textarea { height: 95px; resize: none; }
-        .btn-grid-2, .btn-grid-4 { display: grid; gap: 8px; }
-        .btn-grid-2 { grid-template-columns: repeat(2, 1fr); }
-        .btn-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-        .btn-choice { padding: 12px 5px; border-radius: 10px; border: none; background: var(--gray); font-size: 11px; font-weight: bold; cursor: pointer; text-align: center; color: var(--dark); line-height: 1.2; }
-        .btn-choice.active { background: var(--secondary); color: white; }
-        .btn-trigger { width: 100%; padding: 16px; border: none; border-radius: 10px; background: var(--accent); color: white; font-weight: bold; font-size: 15px; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(216,67,21,0.2); margin-top: 10px; }
+        .container { width: 90%; max-width: 400px; padding: 20px; }
+        h1 { font-size: 1.5rem; text-align: center; letter-spacing: 0.3em; margin-bottom: 25px; color: #666; font-weight: 900; }
+        .field { margin-bottom: 16px; }
+        label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2rem; color: #555; margin-bottom: 8px; font-weight: bold; }
+        input, select, textarea { width: 100%; background: var(--panel); border: 1px solid #333; color: var(--text); padding: 14px; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box; }
+        textarea { height: 65px; resize: none; }
         
-        .interactive-screen { display: none; text-align: center; padding: 10px 0; }
-        .loader-screen { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center; }
-        .spinner { width: 40px; height: 40px; border: 4px solid var(--gray); border-top: 4px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .screen-title { font-size: 22px; font-weight: 800; color: var(--primary); margin: 0; }
-        .screen-subtitle { font-size: 14px; color: #666; margin: 0 0 15px 0; }
-        .card-lugar { background: #e8f5e9; border: 1px solid #c8e6c9; padding: 14px; border-radius: 10px; text-align: left; margin-bottom: 15px; }
-        .screen-story { background: #f9f9f9; padding: 16px; border-radius: 10px; border-left: 4px solid var(--secondary); text-align: left; margin-bottom: 15px; font-size: 14px; line-height: 1.4; }
-        .wrapper-circle { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
+        button#btn-mando { width: 100%; background: var(--accent); color: #fff; border: none; padding: 18px; font-weight: 800; cursor: pointer; margin-top: 15px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 14px; box-shadow: 0 4px 12px rgba(216,67,21,0.3); }
+        .hidden { display: none; }
         
-        .breath-circle { width: 120px; height: 120px; background: var(--blue-circle); border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 16px; box-shadow: 0 0 25px rgba(0,188,212,0.5); transform: scale(1.0); transition: transform 4s ease-in-out; }
-        .breath-circle.expand { transform: scale(1.4); }
-        .breath-circle.contract { transform: scale(1.0); }
-        .txt-instruccion-pulmon { font-size: 11px; margin-top: 4px; font-weight: 800; letter-spacing: 0.5px; }
-        .timer-display { font-size: 34px; font-weight: 800; color: var(--primary); margin: 15px 0; }
-        .global-timer { font-size: 13px; font-weight: 700; color: var(--accent); background: #feebee; padding: 8px 16px; border-radius: 20px; display: inline-block; margin-bottom: 15px; }
+        /* Pulmón Torácico Digital Sincronizado */
+        #breath-circle { width: 120px; height: 120px; border: 3px solid #00bcd4; border-radius: 50%; margin: 30px auto; animation: pulse 8s infinite ease-in-out; }
+        @keyframes pulse { 0%, 100% { transform: scale(0.85); opacity: 0.4; border-color: #00bcd4; } 50% { transform: scale(1.15); opacity: 1; border-color: #00e5ff; box-shadow: 0 0 30px rgba(0,229,255,0.4); } }
         
-        .bloque-decision { text-align: left; margin-bottom: 15px; }
-        .contenedor-opciones { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
-        .btn-opcion { width: 100%; padding: 12px; border: 1px solid #ddd; background: var(--white); border-radius: 8px; text-align: left; font-size: 13px; margin-top: 8px; cursor: pointer; line-height: 1.4; }
-        .feedback-box { display: none; margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.5; }
-        .feedback-box.fb-correcto { background: #e8f5e9; color: #2e7d32; border-left: 4px solid #2e7d32; }
-        .feedback-box.fb-incorrecto { background: #ffebee; color: #c62828; border-left: 4px solid #c62828; }
-        .btn-next-step { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-maps-route { display: none; width: 100%; text-align: center; padding: 14px; background: #4285f4; color: white; text-decoration: none; border-radius: 10px; margin-top: 15px; font-weight: bold; box-shadow: 0 4px 10px rgba(66,133,244,0.3); }
+        #timer { text-align: center; font-size: 2.5rem; margin-top: 10px; font-weight: 800; }
+        .mision-card { border: 1px solid #333; padding: 20px; text-align: center; background: #0a0a0a; border-radius: 12px; }
+        .mision-card h2, .mision-card h3 { margin-top: 0; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
+        .mision-card p { font-size: 0.95rem; line-height: 1.6; color: #ccc; }
+        
+        button { background: #333; color: white; border: none; padding: 14px 20px; margin-top: 15px; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        .feedback-box { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.4; text-align: left; }
+        .fb-correcto { background: #1b5e20; color: #fff; border-left: 4px solid #4caf50; }
+        .fb-incorrecto { background: #b71c1c; color: #fff; border-left: 4px solid #f44336; }
     </style>
 </head>
 <body>
-<div class="container-app">
-    <div id="wrapper-form">
-        <div class="lang-bar">
-            <button type="button" class="btn-lang active" id="lang-es" onclick="cambiarIdioma('es')">Español 🇪🇸</button>
-            <button type="button" class="btn-lang" id="lang-en" onclick="cambiarIdioma('en')">English 🇺🇸</button>
-        </div>
-
-        <div class="header-app">
-            <h1>OPEN THAN GO</h1>
-            <p id="txt-subtitle">Tu escape emocional inteligente</p>
-        </div>
-
-        <div class="form-group">
-            <label id="lbl-state">Estado</label>
-            <select id="inp-state">
-                <option value="FL">Florida (Miami, Orlando, Tampa, Lehigh Acres...)</option>
-                <option value="TX">Texas (Houston, Dallas...)</option>
-                <option value="CA">California (Los Angeles...)</option>
-                <option value="NY">New York</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label id="lbl-region">Región / Condado</label>
-            <input type="text" id="inp-region" placeholder="Ej: Miami-Dade / Lee County">
-        </div>
-
-        <div class="form-group">
-            <label id="lbl-zip">ZIP Code</label>
-            <input id="inp-zip" maxlength="5" placeholder="Ej: 33167">
-        </div>
-
-        <div class="form-group">
-            <label id="lbl-mode">¿Salir o quedarte en casa?</label>
-            <div class="btn-grid-2">
-                <button type="button" class="btn-choice active" id="m-salir" onclick="cambiarModalidad(true)">SALIR (Acción)</button>
-                <button type="button" class="btn-choice" id="m-casa" onclick="cambiarModalidad(false)">CASA (Estabilización)</button>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label id="lbl-budget">Presupuesto Disponible</label>
-            <div class="btn-grid-4">
-                <button type="button" class="btn-choice active" id="b-cero" onclick="cambiarBolsillo('cero')">Cero Gastos</button>
-                <button type="button" class="btn-choice" id="b-minimo" onclick="cambiarBolsillo('minimo')">Gasto Mínimo</button>
-                <button type="button" class="btn-choice" id="b-moderado" onclick="cambiarBolsillo('moderado')">Moderado</button>
-                <button type="button" class="btn-choice" id="b-libre" onclick="cambiarBolsillo('libre')">Sin Límite</button>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label id="lbl-desahogo">Desahogo Opcional (Filtro Emocional)</label>
-            <textarea id="inp-text" placeholder="Escribe libremente cómo te sientes hoy..."></textarea>
-        </div>
-
-        <button class="btn-trigger" id="btn-main-trigger" onclick="solicitarEscape()"> ACTIVAR MANDO </button>
+<div class="container" id="wrapper-form">
+    <h1>OPEN THAN GO</h1>
+    
+    <div class="field">
+        <label>Código Postal</label>
+        <input type="text" id="inp-zip" placeholder="Ej: 33167">
+    </div>
+    
+    <div class="field">
+        <label>Modo de Operación</label>
+        <select id="modo-selector">
+            <option value="CASA">CASA (Estabilización/Misiones)</option>
+            <option value="SALIR" selected>SALIR (Destinos/Acción)</option>
+        </select>
+    </div>
+    
+    <div class="field">
+        <label>Estado Mental</label>
+        <select id="inp-mente">
+            <option value="agotado">Agotado / Agobiado</option>
+            <option value="estresado">Estresado / Tensión</option>
+            <option value="aburrido">Aburrido / Rutina</option>
+        </select>
+    </div>
+    
+    <div class="field">
+        <label>Presupuesto</label>
+        <select id="inp-budget">
+            <option value="0">Cero Gastos</option>
+            <option value="1">Moderado</option>
+            <option value="2">Sin Límite</option>
+        </select>
     </div>
 
-    <div id="wrapper-loader" class="loader-screen">
-        <div class="spinner"></div>
-        <p id="txt-loader">Sincronizando frecuencias de bienestar...</p>
+    <div class="field">
+        <label>Perfil (Familia/Discapacidad)</label>
+        <select id="inp-perfil">
+            <option value="solo">Solo</option>
+            <option value="familia">Con Niños / Familia</option>
+            <option value="accesible">Requiere Acceso (Discapacidad/Edad)</option>
+        </select> 
     </div>
 
-    <div id="wrapper-interactive" class="interactive-screen">
-        <div id="wrapper-global-timer" style="display:none; text-align: center;">
-            <div class="global-timer" id="global-timer-txt">⏱️ Tiempo restante: 10:00</div>
-        </div>
-        <h2 id="interactive-title" class="screen-title"></h2>
-        <p id="interactive-subtitle" class="screen-subtitle"></p>
-        <div id="interactive-location"></div>
-        
-        <div id="step-content"></div>
-        
-        <button id="btn-next" class="btn-next-step" onclick="siguienteComando()" style="display:none;"> CONTINUAR </button>
-        <a id="btn-maps-action" class="btn-maps-route" target="_blank"> ABRIR MAPA EN GPS </a>
+    <div class="field">
+        <label>Desahogo (Filtro Emocional)</label>
+        <textarea id="inp-text" placeholder="Escribe libremente cómo te sientes hoy..."></textarea>
     </div>
+
+    <button id="btn-mando">ACTIVAR MANDO</button>
+</div>
+
+<!-- CONTENEDOR INTERACTIVO SECUENCIAL -->
+<div class="container hidden" id="wrapper-interactive">
+    <div id="step-content"></div>
 </div>
 
 <script src="/static/engine.js"></script>
