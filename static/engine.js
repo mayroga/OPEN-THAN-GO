@@ -1,7 +1,7 @@
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.3.0.0
 // Company: May Roga LLC
 // File: static/engine.js
-// PARTE 1 DE 3
+// PARTE 1 DE 4
 
 const KERNEL = {
     timer: null,
@@ -31,14 +31,16 @@ const KERNEL = {
         msg.pitch = 1.0;
         window.speechSynthesis.speak(msg);
     },
-// PARTE 2 DE 3: Captura de Datos y Enlace con el Servidor
+    
+// PARTE 2 DE 4: Captura de Datos y Enlace con el Servidor (Sincronizado)
 
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
 
+        // Captura exacta de los mandos del formulario sin dejar cabos sueltos
         const payload = {
-            zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "33167",
+            zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
             mente: document.getElementById('inp-mente') ? document.getElementById('inp-mente').value : "aburrido",
             modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR",
             budget: document.getElementById('inp-budget') ? document.getElementById('inp-budget').value : "0",
@@ -59,11 +61,13 @@ const KERNEL = {
             });
             const data = await respuesta.json();
             
+            // Asignación elástica del bloque 'b' o misiones puras de tu catálogo
             this.pasosMisiones = data.misiones || (data.mision ? data.mision.b : []);
             this.datosLugarGlobal = data.lugar || null;
             this.tipoEscapeGlobal = data.modo || data.tipo;
             this.indiceMision = 0;
 
+            // Arranca el procesador por pasos del teléfono del cliente
             this.procesarFlujoSecuencial(container);
         } catch (error) {
             alert("Error de enlace satelital con el servidor.");
@@ -74,9 +78,9 @@ const KERNEL = {
     },
 
     procesarRespuesta(res) {
-        // Mapeo de seguridad para el Kernel
         this.isLocked = false;
     },
+
 // PARTE 3 DE 4: Procesador de Misiones, Historias y Pulmón Torácico
 
     procesarFlujoSecuencial(container) {
@@ -188,6 +192,7 @@ const KERNEL = {
 
             document.getElementById('btn-next').onclick = () => this.avanzarPaso();
         }
+            
 // PARTE 4 DE 4: Cuestionario Conductual, Puntos, Compromisos y Autodestrucción de Rastro
 
         else if (paso.t === "d") {
@@ -250,17 +255,18 @@ const KERNEL = {
 
         if (esCorrecto) {
             document.querySelectorAll('.btn-opcion').forEach(btn => btn.disabled = true);
-            this.hablar((this.idiomaActual === 'es' ? "Verdadero. " : "True. ") + opcionesHtml);
+            // CORRECCIÓN: Hablar la explicación real de tu JSON sin mezclar variables
+            this.hablar((this.idiomaActual === 'es' ? "Excelente. " : "True. ") + explicacion);
             document.getElementById('btn-next').classList.remove('hidden');
         } else {
             const btnFallo = document.getElementById(`opt-${seleccionado}`);
             if (btnFallo) { btnFallo.style.opacity = "0.35"; btnFallo.style.pointerEvents = "none"; }
-            this.hablar((this.idiomaActual === 'es' ? "Falso. " : "False. ") + explicacion);
+            this.hablar((this.idiomaActual === 'es' ? "Analiza esto. " : "False. ") + explicacion);
         }
     },
 
     iniciarRelojClinicoCasa(container, traduccion) {
-        this.hablar("Fase educativa completada. Iniciando reloj clínico de diez minutos. Sincroniza tu respiración.");
+        this.hablar("Fase misiones completada. Iniciando reloj clínico de diez minutos. Sincroniza tu respiración.");
         container.innerHTML = `
             <div id="breath-circle"></div>
             <div id="timer" style="font-weight:900; text-align:center; font-size:2.8rem; margin:15px 0;">10:00</div>
