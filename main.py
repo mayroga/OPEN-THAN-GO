@@ -1,4 +1,4 @@
-# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.3.5.0
+# OPENTHANGO SYSTEM - Kernel Absolute Engine V.3.5.0
 # Company: May Roga LLC
 # File: main.py
 # PARTE 1 DE 3: Inicialización de Red y Misiones de Casa (1 a 18)
