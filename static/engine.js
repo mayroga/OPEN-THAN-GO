@@ -27,7 +27,8 @@ const traducciones = {
         inspira: "Inhala / Inspira", expira: "Exhala / Expira",
         alerta_35s: "Preparación de campo activa por 35 segundos. Escucha las sugerencias atentamente antes de abrir la ruta.",
         fin_casa: "Protocolo doméstico terminado. El sistema se apaga automáticamente por tu paz.",
-        reloj_maestro_prefijo: "⏱️ Tiempo de Estabilización Restante: "
+        reloj_maestro_prefijo: "⏱️ Tiempo de Estabilización Restante: ",
+        alertError: "Ocurrió un inconveniente al conectar con el servidor de OPEN THAN GO. Inténtalo de nuevo."
     },
     en: {
         subtitle: "Your intelligent emotional escape",
@@ -40,15 +41,17 @@ const traducciones = {
         inspira: "Inhale", expira: "Exhale",
         alerta_35s: "Field preparation active for 35 seconds. Listen to the suggestions carefully before opening the route.",
         fin_casa: "Domestic protocol completed. The system automatically shuts down to preserve your peace.",
-        reloj_maestro_prefijo: "⏱️ Remaining Stabilization Time: "
+        reloj_maestro_prefijo: "⏱️ Remaining Stabilization Time: ",
+        alertError: "An issue occurred while connecting to the OPEN THAN GO server. Please try again."
     }
 };
 
+// MOTOR DE VOZ POR FRACCIONAMIENTO: Lee textos largos completos sin saltarse nada en celulares
 function hablarTexto(textoCompleto) {
     if (!textoCompleto || !('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel(); 
 
-    // Fracciona párrafos largos por signos gramaticales para que la voz nativa lea TODO
+    // Fraccionamos por signos de puntuación para crear bloques pequeños estables
     const fragmentos = textoCompleto.split(/[.,;:!?\n]/).map(t => t.trim()).filter(t => t.length > 0);
     let indiceFragmento = 0;
 
@@ -57,13 +60,14 @@ function hablarTexto(textoCompleto) {
 
         const lectura = new SpeechSynthesisUtterance(fragmentos[indiceFragmento]);
         lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US';
-        lectura.rate = 0.86; 
+        lectura.rate = 0.86; // Tono pausado de guía profesional
         lectura.pitch = 1.0;
 
         lectura.onend = () => {
             indiceFragmento++;
             leerSiguienteFragmento();
         };
+
         lectura.onerror = () => {
             indiceFragmento++;
             leerSiguienteFragmento();
@@ -71,6 +75,7 @@ function hablarTexto(textoCompleto) {
 
         window.speechSynthesis.speak(lectura);
     }
+
     leerSiguienteFragmento();
 }
 
@@ -114,8 +119,11 @@ function cambiarModalidad(esSalir) {
     if(document.getElementById('inp-region')) document.getElementById('inp-region').parentElement.style.display = displayGeografia;
     if(document.getElementById('inp-zip')) document.getElementById('inp-zip').parentElement.style.display = displayGeografia;
 }
-
 async function solicitarEscape() {
+    // SECUENCIA ESTRICTA LOCAL STORAGE: Calcula qué ID lineal sigue (de la 1 a la 21)
+    let proximoIdMision = parseInt(localStorage.getItem('open_than_go_last_id') || '0') + 1;
+    if (proximoIdMision > 21) { proximoIdMision = 1; } // Al rebasar la 21, da la vuelta y reinicia en la 1
+
     const payload = {
         decision: modalidadSalir ? "salir" : "casa",
         lang: idiomaActual,
@@ -123,7 +131,8 @@ async function solicitarEscape() {
         zip_code: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
         estado: document.getElementById('inp-state') ? document.getElementById('inp-state').value : "FL",
         region: document.getElementById('inp-region') ? document.getElementById('inp-region').value : "",
-        desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : ""
+        desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : "",
+        force_id: proximoIdMision
     };
 
     document.getElementById('wrapper-form').style.display = 'none';
@@ -146,9 +155,10 @@ async function solicitarEscape() {
             pasosMisionGlobal = data.mision.b;
             datosLugarGlobal = data.lugar || null;
             tipoEscapeGlobal = data.tipo;
-            
-            // CORRECCIÓN CLAVE: Restablecido el nombre exacto de la variable de control
-            indicePasoActual = 0; 
+            indicePasoActual = 0;
+
+            // Almacenamos con éxito en el teléfono el ID secuencial actual
+            localStorage.setItem('open_than_go_last_id', data.mision.id);
 
             document.getElementById('interactive-title').innerText = "OPEN THAN GO";
             document.getElementById('interactive-subtitle').innerText = tipoEscapeGlobal === "Casa" ? traducciones[idiomaActual].tipo_casa : traducciones[idiomaActual].tipo_salida;
@@ -158,7 +168,6 @@ async function solicitarEscape() {
                 document.getElementById('wrapper-global-timer').style.display = 'block';
                 tiempoRestanteMaestro = 600;
                 ejecutarRelojMaestro10Min();
-                
                 clearTimeout(temporizadorClinicoCasa);
                 temporizadorClinicoCasa = setTimeout(() => {
                     hablarTexto(traducciones[idiomaActual].fin_casa);
@@ -168,7 +177,6 @@ async function solicitarEscape() {
             } else {
                 document.getElementById('wrapper-global-timer').style.display = 'none';
             }
-
             procesarPaoMision();
         } else {
             alert(data.message || "Error al sincronizar canales emocionales.");
@@ -180,23 +188,17 @@ async function solicitarEscape() {
         document.getElementById('wrapper-loader').style.display = 'none';
     }
 }
+
 function ejecutarRelojMaestro10Min() {
     clearInterval(cronometroMaestro10Min);
     const displayGlobal = document.getElementById('global-timer-txt');
     const t = traducciones[idiomaActual];
-
     cronometroMaestro10Min = setInterval(() => {
         tiempoRestanteMaestro--;
         let mins = Math.floor(tiempoRestanteMaestro / 60);
         let secs = tiempoRestanteMaestro % 60;
-        if (displayGlobal) {
-            displayGlobal.innerText = `${t.reloj_maestro_prefijo}${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }
-
-        if (tiempoRestanteMaestro <= 0) {
-            clearInterval(cronometroMaestro10Min);
-            destruirMemoriaYReiniciar();
-        }
+        if (displayGlobal) displayGlobal.innerText = `${t.reloj_maestro_prefijo}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        if (tiempoRestanteMaestro <= 0) { clearInterval(cronometroMaestro10Min); destruirMemoriaYReiniciar(); }
     }, 1000);
 }
 
@@ -205,7 +207,6 @@ function procesarPaoMision() {
     clearTimeout(relojSecuencialAutomatico);
     const contenedorPasos = document.getElementById('step-content');
     
-    // BLINDAJE DE ASIGNACIÓN: Busca los botones directamente
     const botonContinuar = document.getElementById('btn-next') || document.querySelector('.btn-next-step');
     const botonGps = document.getElementById('btn-maps-action') || document.querySelector('.btn-maps-route');
 
@@ -215,8 +216,9 @@ function procesarPaoMision() {
     
     if (indicePasoActual >= pasosMisionGlobal.length) {
         if (tipoEscapeGlobal === "Casa") {
-            indicePasoActual = 0;
-            procesarPaoMision();
+            // AUTOMATIZACIÓN CASA: Sigue llamando al backend en fila de corrido hasta cumplir los 10 minutos
+            window.speechSynthesis.cancel();
+            solicitarEscape();
             return;
         }
         if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
@@ -312,7 +314,8 @@ function procesarPaoMision() {
                 siguienteComando();
             }
         }, 1000);
-    } else if (paso.t === "d") {
+    }
+    else if (paso.t === "d") {
         let mapeoOpciones = paso.op.map((texto, idx) => ({ texto: texto, idxOriginal: idx }));
         mapeoOpciones.sort(() => Math.random() - 0.5);
         let opcionesHtml = "";
@@ -376,23 +379,19 @@ function procesarPaoMision() {
 function evaluarTriviaMargenReintento(indiceSeleccionado, indiceCorrecto, explicacionTexto) {
     const contenedorFeedback = document.getElementById('box-feedback');
     if (!contenedorFeedback) return;
-    
     const esCorrecto = indiceSeleccionado === indiceCorrecto;
     contenedorFeedback.className = esCorrecto ? "feedback-box fb-correcto" : "feedback-box fb-incorrecto";
-    
     const prefijo = esCorrecto ? traducciones[idiomaActual].txt_correcto : traducciones[idiomaActual].txt_incorrecto;
     contenedorFeedback.innerHTML = prefijo + explicacionTexto;
     contenedorFeedback.style.display = "block";
-    
     const textoLimpioExplicacion = explicacionTexto.replace(/<[^>]*>/g, '');
-    
     if (esCorrecto) {
         const botones = document.querySelectorAll('.btn-opcion');
-        botones.forEach(btn => btn.disabled = true); 
+        botones.forEach(btn => btn.disabled = true);
         hablarTexto((idiomaActual === 'es' ? "Verdadero. " : "True. ") + textoLimpioExplicacion);
-        document.getElementById('btn-next').style.display = 'block';
+        const nextBtn = document.getElementById('btn-next') || document.querySelector('.btn-next-step');
+        if (nextBtn) nextBtn.style.display = 'block';
     } else {
-        // CORRECCIÓN SINTÁCTICA CRÍTICA: Añadidas comillas invertivas correctas (` `)
         const objetivoBoton = document.getElementById(`opt-${indiceSeleccionado}`);
         if (objetivoBoton) {
             objetivoBoton.style.opacity = "0.4";
@@ -409,4 +408,13 @@ function destruirMemoriaYReiniciar() {
     clearTimeout(relojSecuencialAutomatico);
     pasosMisionGlobal = [];
     datosLugarGlobal = null;
-}    
+    indicePasoActual = 0;
+    location.reload();
+}
+
+function siguienteComando() {
+    window.speechSynthesis.cancel();
+    clearTimeout(relojSecuencialAutomatico);
+    indicePasoActual++;
+    procesarPaoMision();
+}
