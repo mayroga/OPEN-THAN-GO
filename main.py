@@ -10,13 +10,23 @@ import os
 app = Flask(__name__, static_folder='static')
 CORS(app)  # Abre las compuertas de red para evitar el congelamiento
 
-def cargar_mision_especifica(decision, pocket_tier):
-    """Carga la misión adecuada respetando la división exacta de bloques de 7."""
+def cargar_mision_especifica(decision, pocket_tier, force_id=None):
+    """Carga la misión adecuada respetando el orden lineal estricto sin repetición."""
     try:
-        if decision == "casa":
-            archivo = 'missions_01_07.json'
+        # Si el frontend envía un ID forzado lineal, buscamos en cuál archivo JSON vive
+        if force_id is not None:
+            fid = int(force_id)
+            if 1 <= fid <= 7:
+                archivo = 'missions_01_07.json'
+            elif 8 <= fid <= 14:
+                archivo = 'missions_08_14.json'
+            else:
+                archivo = 'missions_15_21.json'
         else:
-            archivo = random.choice(['missions_08_14.json', 'missions_15_21.json'])
+            if decision == "casa":
+                archivo = 'missions_01_07.json'
+            else:
+                archivo = random.choice(['missions_08_14.json', 'missions_15_21.json'])
             
         if not os.path.exists(archivo):
             archivo = 'missions_01_07.json'
@@ -39,9 +49,13 @@ def cargar_mision_especifica(decision, pocket_tier):
         if not misiones:
             return None
 
-        # CONFIGURACIÓN DEL FILTRO DE 4 PRESUPUESTOS:
+        # Si hay un ID forzado, extraemos exactamente esa misión
+        if force_id is not None:
+            for m in misiones:
+                if int(m.get('id', 0)) == int(force_id):
+                    return m
+
         filtradas = [m for m in misiones if pocket_tier in m.get('pocket_match', ["cero", "minimo", "moderado", "libre"])]
-        
         if filtradas:
             return random.choice(filtradas)
         return random.choice(misiones)
@@ -64,6 +78,7 @@ def procesar_sistema_bienestar():
     zip_code = data.get('zip_code', '').strip()
     estado = data.get('estado', 'FL').strip()
     region = data.get('region', '').strip()
+    force_id = data.get('force_id')
 
     mision_seleccionada = cargar_mision_especifica(decision, pocket)
     if not mision_seleccionada:
@@ -138,9 +153,7 @@ def procesar_sistema_bienestar():
         explicacion_sugerencias = config_actual["sugerencias"]
 
     ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
-    
-    from urllib.parse import quote_plus
-    query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
+    query_mapa = f"{termino_busqueda} en {ubicacion_destino}".replace(" ", "+")
     link_google_maps_vivo = f"https://google.com{query_mapa}"
 
     return jsonify({
