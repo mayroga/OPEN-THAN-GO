@@ -223,9 +223,9 @@ function procesarPaoMision() {
                     </div>`;
             }
             
-            // LA VOZ GUÍA LEE OBLIGATORIAMENTE TODO ANTES DE ABRIR EL CRONÓMETRO DE CAMPO DE 35 SEGUNDOS
-            hablarTextoConBloqueo(traducciones[idiomaActual].alerta_35s + " . " + datosLugarGlobal.analisis_sugerido, () => {
-                let cuentaRegresivaSalir = 35;
+            // LA VOZ GUÍA LEE OBLIGATORIAMENTE TODO ANTES DE ABRIR EL CRONÓMETRO DE CAMPO DE 15 SEGUNDOS
+            hablarTextoConBloqueo(traducciones[idiomaActual].alerta_15s + " . " + datosLugarGlobal.analisis_sugerido, () => {
+                let cuentaRegresivaSalir = 15;
                 if (botonContinuar) {
                     botonContinuar.innerText = `${cuentaRegresivaSalir}s`;
                     botonContinuar.disabled = true;
