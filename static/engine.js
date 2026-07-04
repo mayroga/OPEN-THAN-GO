@@ -151,7 +151,7 @@ const KERNEL = {
  
 // PARTE 3 DE 4: Discriminador Estricto de Rutas y Reloj de Retención de 35 Segundos (Corregido)
 
-    procesarFlujoSecuencial(container) {
+        procesarFlujoSecuencial(container) {
         clearInterval(this.timer);
         const traducciones = {
             es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin_casa: "Protocolo completado. Borrando rastro de sesión por tu paz mental." },
@@ -159,23 +159,26 @@ const KERNEL = {
         };
         const traduccion = traducciones[this.idiomaActual];
 
-        // EL BLOQUEO ABSOLUTO: Si es acción de campo, corta la casa e inyecta la tarjeta de Google Maps
+        // EL BLOQUEO ABSOLUTO: Si la respuesta es de campo, corta la casa e inyecta la tarjeta de Google Maps
         if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
             if (this.datosLugarGlobal) {
+                // Reemplazamos los saltos de línea del texto para que el HTML lo muestre limpio en oraciones cortas
+                let textoMostrar = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
+
                 container.innerHTML = `
                     <div class="mision-card" style="border: 1px solid #333; padding: 20px; text-align: center; background: #0a0a0a; border-radius: 12px;">
                         <h2 style="color:#d84315; font-weight:900; font-size:1.3rem;">${this.datosLugarGlobal.destino_titulo}</h2>
                         <p style="font-size:13px; color:#aaa; margin:5px 0;">${this.datosLugarGlobal.destino_entorno}</p>
                         <hr style="border:0; border-top:1px dashed #333; margin:15px 0;">
-                        <p style="text-align:left; font-size:14px; line-height:1.45; background:#111; padding:12px; border-radius:6px; border-left:4px solid #2e7d32; color:#fff;">
-                            <strong>GUÍA ABSOLUTA DE ACCIÓN:</strong><br>${this.datosLugarGlobal.destino_instruccion}
-                        </p>
+                        <div style="text-align:left; font-size:13.5px; line-height:1.5; background:#111; padding:15px; border-radius:6px; border-left:4px solid #2e7d32; color:#fff; font-weight:500;">
+                            ${textoMostrar}
+                        </div>
                         <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:16px; font-weight:bold; margin-top:15px;" disabled>35s ESCUCHA MI GUÍA</button>
                         <button id="btn-gps-action" class="hidden" style="width:100%; background:#4285f4; color:#fff; padding:16px; font-weight:bold; margin-top:15px;">ABRIR GOOGLE MAPS YA</button>
                     </div>`;
 
-                // Lee de corrido la guía absoluta sin demoras pesadas
-                this.hablar(this.datosLugarGlobal.destino_titulo + " . " + this.datosLugarGlobal.destino_instruccion);
+                // El despertador le habla directo al oído convenciéndolo con órdenes de acción cortas
+                this.hablar("Veredicto listo. " + this.datosLugarGlobal.destino_instruccion);
 
                 let retencion = 35;
                 const btnCount = document.getElementById('btn-countdown-salida');
@@ -189,7 +192,6 @@ const KERNEL = {
                         if (btnCount) btnCount.style.display = 'none';
                         if (btnGps) {
                             btnGps.classList.remove('hidden');
-                            // CORRECCIÓN DEFINITIVA: Llama a la variable exacta que envía Python
                             btnGps.onclick = () => { window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank'); };
                         }
                     }
