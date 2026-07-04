@@ -37,6 +37,7 @@ BASE_MISIONES = {
         {"id": 16, "titulo": "Ventilación total", "descripcion": "Abre la puerta principal de tu casa ahora. Deja que el aire ruede y cambie el ambiente de tu sala. Huele el cambio.", "para_que": "Para sacar el encierro gris de tu día."},
         {"id": 17, "titulo": "Sacudida de estrés", "descripcion": "Párate y sacude tus manos y tus piernas con fuerza ahora. Como si te quitaras agua de encima. Hazlo por diez segundos.", "para_que": "Para romper el zombi que llevas dentro."},
         {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira por tu ventana ahora. Enfoca tus ojos en el objeto más lejano que alcances a ver en la calle. No mires nada cerca."}
+        ],
 
 # PARTE 2 DE 3: Continuación del catálogo de CASA (19 a 50) y misiones de SALIR
 
