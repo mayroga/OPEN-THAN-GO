@@ -1,7 +1,7 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.3.2.0
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.3.3.0
 // Company: May Roga LLC
 // File: static/engine.js
-// PARTE 1 DE 4: Inicialización, Sorpresa Inicial y Motor de Voz
+// PARTE 1 DE 4: Inicialización, Sorpresa Inicial y Motor de Voz Activo
 
 const KERNEL = {
     timer: null,
@@ -21,26 +21,26 @@ const KERNEL = {
     },
 
     despertarInicial() {
-        // La gran sorpresa: El usuario da un clic y la app le habla directo al oído con palabras simples
+        // La sorpresa desde el clic cero en la URL usando palabras cortas de acción y acompañamiento directo
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-        this.hablar("Bienvenido a O P E N  T H A N  G O. Tu escape inteligente. Estamos listos para sacarte de la rutina diaria. Activa el mando para comenzar.");
+        this.hablar("O P E N  T H A N  G O. Estoy contigo ahora. Escucha mi voz. No mires los colores de la pantalla. No pienses en tus biles. Pon tus datos en el mando en este instante y hazlo conmigo. Vamos a romper tu piloto automático ya.");
     },
 
     hablar(texto) {
         if (!texto) return;
-        // Corta de raíz audios viejos al cambiar de fase, evitando que se trabe la memoria del teléfono
+        // Corta rastros de voz previos únicamente al avanzar de fase secuencial, jamás por segundo
         window.speechSynthesis.cancel(); 
         
         const textoLimpio = texto.replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(textoLimpio);
-        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
-        msg.rate = 0.88; // Velocidad pausada y clara para guiar los sentidos
+        msg.lang = 'es-US';
+        msg.rate = 0.88; // Ritmo pausado y firme de guía absoluta
         msg.pitch = 1.0;
         window.speechSynthesis.speak(msg);
     },
-    
-// PARTE 2 DE 4: Captura de Datos, Conexión Rápida y Memoria Local Global
+  
+// PARTE 2 DE 4: Captura de Datos, Conexión Rápida y Memoria Local Global de 50 Misiones
 
     async ejecutar() {
         if (this.isLocked) return;
@@ -48,7 +48,7 @@ const KERNEL = {
 
         const payload = {
             zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
-            mente: document.getElementById('inp-mente') ? document.getElementById('inp-mente').value : "aburrido",
+            mente: document.getElementById('inp-mente') ? document.getElementById('inp-mente').value : "agotado",
             modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR",
             budget: document.getElementById('inp-budget') ? document.getElementById('inp-budget').value : "0",
             perfil: document.getElementById('inp-perfil') ? document.getElementById('inp-perfil').value : "solo",
@@ -58,7 +58,7 @@ const KERNEL = {
 
         const container = document.getElementById('wrapper-interactive');
         document.getElementById('wrapper-form').classList.add('hidden');
-        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff;'>Sincronizando frecuencias de bienestar...</h2></div>`;
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem; letter-spacing:1px;'>CONECTANDO CON TU ENTORNO REAL...</h2></div>`;
         container.classList.remove('hidden');
 
         try {
@@ -74,24 +74,19 @@ const KERNEL = {
             this.indiceMision = 0;
 
             if (this.tipoEscapeGlobal === "CASA") {
-                // ALGORITMO INTEGRAL ANTI-REPETICIÓN A COSTO CERO PARA MILLONES
-                // El teléfono del cliente recuerda individualmente qué misiones completó
+                // Algoritmo distribuido en el hardware del cliente para rotación de las 50 misiones directas
                 let completadas = JSON.parse(localStorage.getItem('otg_completadas_50')) || [];
-                
-                // Filtramos del catálogo de 50 misiones cuáles quedan libres
                 let disponibles = data.misiones.filter(m => !completadas.includes(m.id));
                 
-                // TOPE FINAL LOGRADO: Si completó las 50 misiones, el historial se limpia solo y empieza de nuevo
+                // Tope final alcanzado: Resetea el ciclo de reingreso diario automáticamente
                 if (disponibles.length < 3) {
                     completadas = [];
                     localStorage.setItem('otg_completadas_50', JSON.stringify([]));
                     disponibles = data.misiones;
                 }
                 
-                // Selecciona las próximas 3 misiones fijas secuenciales sin repetir
+                // Extrae un bloque continuo de 3 pasos para la sesión de hoy
                 this.pasosMisiones = disponibles.slice(0, 3);
-                
-                // Guarda de inmediato los IDs en el hardware del cliente para bloquear repeticiones en el próximo reingreso
                 this.pasosMisiones.forEach(m => completadas.push(m.id));
                 localStorage.setItem('otg_completadas_50', JSON.stringify(completadas));
             } else {
@@ -110,33 +105,33 @@ const KERNEL = {
     procesarRespuesta(res) {
         this.isLocked = false;
     },
-    
-// PARTE 3 DE 4: Procesador Secuencial y Reloj de Retención de 35 Segundos
+  
+// PARTE 3 DE 4: Sesiones de Salida, Retención Somática Obligatoria de 35 segundos e Inyección de Destino
 
     procesarFlujoSecuencial(container) {
         clearInterval(this.timer);
         const traducciones = {
-            es: { inspira: "Inhala / Inspira", expira: "Exhala / Expira", txt_correcto: "<strong>¡RESPUESTA VERDADERA!</strong><br>", txt_incorrecto: "<strong>ANÁLISIS DE FALLO:</strong><br>", alerta_35s: "Preparación de campo activa por 35 segundos. Escucha atentamente antes de abrir la ruta.", fin_casa: "Protocolo completado. Borrando rastro de sesión." },
-            en: { inspira: "Inhale", expira: "Exhale", txt_correcto: "<strong>TRUE ANSWER!</strong><br>", txt_incorrecto: "<strong>FAILURE ANALYSIS:</strong><br>", alerta_35s: "Field preparation active for 35 seconds. Listen carefully before opening route.", fin_casa: "Protocol completed. Clearing session tracks." }
+            es: { inspira: "Inhala / Inspira ahora", expira: "Exhala / Expira ahora", fin_casa: "Protocolo de diez minutos completado. Borrando rastro de sesión por tu paz mental." },
+            en: { inspira: "Inhale now", expira: "Exhale now", fin_casa: "Protocol completed. Clearing tracks for your mental peace." }
         };
         const traduccion = traducciones[this.idiomaActual];
 
-        // REGLA DE CIERRE: Al completar los 3 pasos asignados del catálogo
         if (this.indiceMision >= this.pasosMisiones.length) {
             if (this.tipoEscapeGlobal === "SALIR" && this.datosLugarGlobal) {
                 container.innerHTML = `
                     <div class="mision-card" style="border: 1px solid #333; padding: 20px; text-align: center; background: #0a0a0a; border-radius: 12px;">
-                        <h2 style="color:#d84315; font-weight:900;">${this.datosLugarGlobal.name}</h2>
+                        <h2 style="color:#d84315; font-weight:900; font-size:1.3rem;">${this.datosLugarGlobal.name}</h2>
                         <p style="font-size:13px; color:#aaa; margin:5px 0;">${this.datosLugarGlobal.address}</p>
                         <hr style="border:0; border-top:1px dashed #333; margin:15px 0;">
                         <p style="text-align:left; font-size:14px; line-height:1.45; background:#111; padding:12px; border-radius:6px; border-left:4px solid #2e7d32; color:#fff;">
                             <strong>GUÍA ABSOLUTA DE ACCIÓN:</strong><br>${this.datosLugarGlobal.analisis_sugerido}
                         </p>
-                        <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:16px; font-weight:bold; margin-top:15px;" disabled>35s ANCLAJE SOMÁTICO</button>
-                        <button id="btn-gps-action" class="hidden" style="width:100%; background:#4285f4; color:#fff; padding:16px; font-weight:bold; margin-top:15px;">ABRIR ENLACE DE MAPA</button>
+                        <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:16px; font-weight:bold; margin-top:15px;" disabled>35s ESCUCHA MI GUÍA</button>
+                        <button id="btn-gps-action" class="hidden" style="width:100%; background:#4285f4; color:#fff; padding:16px; font-weight:bold; margin-top:15px;">ABRIR GOOGLE MAPS YA</button>
                     </div>`;
 
-                this.hablar(this.datosLugarGlobal.name + " . Escucha las indicaciones de campo: " + this.datosLugarGlobal.analisis_sugerido);
+                // La voz te lo exige: Te lee el qué, cómo, cuándo, dónde y para qué de forma directa
+                this.hablar("He tomado la decisión por ti. Tu destino es " + this.datosLugarGlobal.name + " . Escucha las indicaciones de acción obligatorias antes de marcharte: " + this.datosLugarGlobal.analisis_sugerido);
 
                 let retencion = 35;
                 const btnCount = document.getElementById('btn-countdown-salida');
@@ -144,13 +139,12 @@ const KERNEL = {
 
                 let relojSalida = setInterval(() => {
                     retencion--;
-                    if (btnCount) btnCount.innerText = `${retencion}s PREPARACIÓN DE ENTORNO`;
+                    if (btnCount) btnCount.innerText = `${retencion}s ESCUCHA MI GUÍA`;
                     if (retencion <= 0) {
                         clearInterval(relojSalida);
                         if (btnCount) btnCount.style.display = 'none';
                         if (btnGps) {
                             btnGps.classList.remove('hidden');
-                            // Clic voluntario inmune al bloqueo de Pop-Ups
                             btnGps.onclick = () => { window.open(this.datosLugarGlobal.gps, '_blank'); };
                         }
                     }
@@ -162,31 +156,36 @@ const KERNEL = {
         }
 
         const paso = this.pasosMisiones[this.indiceMision];
-
-        // Renderizado e inyección limpia de la misión en el lienzo interactivo
-        let textoTitulo = paso.titulo;
-        let textoDetalle = paso.descripcion;
+        let textoSesion = paso.sesion ? `<small style="color:#666; font-weight:bold; display:block; margin-bottom:5px;">${paso.sesion.toUpperCase()}</small>` : "";
+        let textoParaQue = paso.para_que ? `<p style="font-size:12px; color:#00bcd4; font-weight:bold; margin-top:10px; text-transform:uppercase;">¿PARA QUÉ?: ${paso.para_que}</p>` : "";
 
         container.innerHTML = `
             <div class="mision-card" style="background:#0a0a0a; border:1px solid #333; padding:25px; border-radius:12px;">
-                <h3 style="color:#2e7d32; font-size:1.3rem; font-weight:800; text-transform:uppercase; margin-top:0;">${textoTitulo}</h3>
-                <p style="font-size:1.1rem; line-height:1.5; color:#ccc; margin:20px 0;">${textoDetalle}</p>
-                <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:15px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer;">CONTINUAR</button>
+                ${textoSesion}
+                <h3 style="color:#2e7d32; font-size:1.25rem; font-weight:800; text-transform:uppercase; margin-top:0;">${paso.titulo}</h3>
+                <p style="font-size:1.1rem; line-height:1.55; color:#eee; margin:15px 0; text-align:left; border-left:3px solid #2e7d32; padding-left:12px;">${paso.descripcion}</p>
+                ${textoParaQue}
+                <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:15px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; margin-top:15px;">HAZLO CONMIGO AHORA</button>
             </div>`;
         
-        this.hablar(textoTitulo + " . " + textoDetalle);
+        // El acompañamiento hablado incluye el propósito exacto en tiempo real
+        this.hablar(paso.titulo + " . " + paso.descripcion + " . ¿Para qué lo haces?: " + (paso.para_que || "Para tomar el control."));
         document.getElementById('btn-next').onclick = () => this.avanzarPaso();
     },
-    
-// PARTE 4 DE 4: Reloj Clínico de Casa, Sincronización Pulmonar y Autodestrucción de Rastro
+   
+// PARTE 4 DE 4: Reloj Clínico por Sesiones en Casa, Sincronización Pulmonar y Borrado Físico de Caché
 
     iniciarRelojClinicoCasa(container, traduccion) {
-        this.hablar("Fase educativa completada. Iniciando reloj clínico de diez minutos. Sincroniza tu respiración con el pulmón.");
+        // Explicación de los tiempos médicos: Por qué, para qué y cómo se va a lograr la limpieza mental
+        this.hablar("Fase de entrenamiento terminada. Iniciamos la sesión de limpieza mental profunda de diez minutos. ¿Para qué lo hacemos?: Para bajar tus niveles de ansiedad de golpe y sacar a tu cerebro del bucle cotidiano. Hazlo conmigo ahora. Sincroniza tus costillas con el círculo azul en este instante. Inhala cuando crezca, exhala cuando se encoja. El conteo regresivo ha comenzado.");
+        
         container.innerHTML = `
             <div id="breath-circle"></div>
             <div id="timer" style="font-weight:900; text-align:center; font-size:2.8rem; margin:15px 0;">10:00</div>
-            <p id="txt-pulmon" style="font-size:14px; text-transform:uppercase; font-weight:bold; color:#00bcd4; text-align:center; letter-spacing:2px;">INHALA / INSPIRA</p>
+            <p id="txt-pulmon" style="font-size:13px; text-transform:uppercase; font-weight:bold; color:#00bcd4; text-align:center; letter-spacing:2px;">INHALA / INSPIRA AHORA</p>
+            <p style="font-size:12px; color:#555; text-align:center; line-height:1.4; max-width:85%; margin:10px auto 0 auto;">TE ESTOY ACOMPAÑANDO. QUÉDATE EN LA SALA. NO ABRAZAS LAS PANTALLAS. EL MUNDO ESTÁ AFUERA.</p>
         `;
+        
         this.timeLeft = 600;
         this.timer = setInterval(() => {
             this.timeLeft--;
@@ -194,9 +193,10 @@ const KERNEL = {
             let s = this.timeLeft % 60;
             const timerDiv = document.getElementById('timer');
             const pulmonDiv = document.getElementById('txt-pulmon');
+            
             if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
             
-            // Control visual del pulmón en pantalla (In/Out) sin invocar SpeechSynthesis interno que corte el audio anterior
+            // Sincronización pulmonar puramente gráfica para móviles sin comandos Speech internos que pisoteen la voz anterior
             if (pulmonDiv) {
                 let ciclo = this.timeLeft % 8;
                 if (ciclo >= 4) { 
@@ -207,6 +207,12 @@ const KERNEL = {
                     pulmonDiv.style.color = "#d84315"; 
                 }
             }
+            
+            // Explicaciones dinámicas intercaladas de apoyo durante los 10 minutos fijos
+            if (this.timeLeft === 450) this.hablar("Has completado la primera sesión de tres minutos. Tu pulso está bajando. Quédate conmigo ahora. Respira.");
+            if (this.timeLeft === 300) this.hablar("Segunda sesión en marcha. Siente el peso fuera de tus hombros. Lo estás haciendo bien. Continúa.");
+            if (this.timeLeft === 150) this.hablar("Última fase de estabilización. Tu mente ha despertado de la rutina gris. Sigue el pulso azul.");
+
             if (this.timeLeft <= 0) {
                 clearInterval(this.timer);
                 this.hablar(traduccion.fin_casa);
@@ -223,13 +229,12 @@ const KERNEL = {
     },
 
     destruirYReiniciar() {
-        // Borrado definitivo de variables y rastros para evitar acumulaciones que traben el teléfono
         clearInterval(this.timer);
         window.speechSynthesis.cancel();
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
-        location.reload(); // Borra la caché visual del navegador de forma instantánea
+        location.reload(); // Borrado instantáneo de rastro en el hardware
     }
 };
 
