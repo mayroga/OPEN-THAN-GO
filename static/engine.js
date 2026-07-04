@@ -24,7 +24,7 @@ const KERNEL = {
         // La sorpresa desde el clic cero en la URL usando palabras cortas de acción y acompañamiento directo
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-        this.hablar("O P E N  T H A N  G O. Estoy contigo ahora. Escucha mi voz. No mires los colores de la pantalla. No pienses en tus biles. Pon tus datos en el mando en este instante y hazlo conmigo. Vamos a romper tu piloto automático ya.");
+        this.hablar("OPEN THAN  GO. Estoy contigo ahora. Escucha mi voz. No mires los colores de la pantalla. No pienses en tus biles. Pon tus datos en el mando en este instante y hazlo conmigo. Vamos a romper tu piloto automático ya.");
     },
 
     hablar(texto) {
