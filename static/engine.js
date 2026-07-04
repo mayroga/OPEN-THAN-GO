@@ -1,429 +1,381 @@
-// OPEN THAN GO SYSTEM - Somatic Voice Engine
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.3.0.0
 // Company: May Roga LLC
 // File: static/engine.js
 
-let idiomaActual = 'es';
-let presupuestoActual = 'cero';
-let modalidadSalir = true;
-let pasosMisionGlobal = [];
-let indicePasoActual = 0;
-let datosLugarGlobal = null;
-let tipoEscapeGlobal = "";
-let intervaloRespiracion = null;
-let temporizadorClinicoCasa = null;
-let relojSecuencialAutomatico = null;
-let cronometroMaestro10Min = null;
-let tiempoRestanteMaestro = 600; // 10 minutos exactos en segundos
+const KERNEL = {
+    timer: null,
+    timeLeft: 600,
+    isLocked: false,
+    idiomaActual: 'es',
+    pasosMisiones: [],
+    indiceMision: 0,
+    datosLugarGlobal: null,
+    tipoEscapeGlobal: "",
 
-const traducciones = {
-    es: {
-        subtitle: "Tu escape emocional inteligente",
-        state: "Estado", region: "Región / Condado", zip: "ZIP Code", budget: "Presupuesto Disponible",
-        mode: "¿Salir o quedarte en casa?", desahogo: "Desahogo Opcional (Filtro Emocional)",
-        placeholder_text: "Escribe libremente cómo te sientes hoy...", btn_trigger: "ACTIVAR MANDO",
-        loader: "Sincronizando frecuencias de bienestar...", btn_continue: "CONTINUAR", btn_gps: "ABRIR MAPA EN GPS",
-        tipo_casa: "Protocolo Doméstico de 10 Minutos Activado", tipo_salida: "Guía de Exploración Abierta",
-        txt_correcto: "<strong>¡RESPUESTA VERDADERA!</strong><br>", txt_incorrecto: "<strong>ANÁLISIS DE FALLO:</strong><br>",
-        inspira: "Inhala / Inspira", expira: "Exhala / Expira",
-        alerta_35s: "Preparación de campo activa por 35 segundos. Escucha las sugerencias atentamente antes de abrir la ruta.",
-        fin_casa: "Protocolo doméstico terminado. El sistema se apaga automáticamente por tu paz.",
-        reloj_maestro_prefijo: "⏱️ Tiempo de Estabilización Restante: ",
-        alertError: "Ocurrió un inconveniente al conectar con el servidor de OPEN THAN GO. Inténtalo de nuevo."
+    init() {
+        const btnMando = document.getElementById('btn-mando') || document.getElementById('btn-main-trigger');
+        if (btnMando) {
+            btnMando.onclick = () => this.ejecutar();
+        }
     },
-    en: {
-        subtitle: "Your intelligent emotional escape",
-        state: "State", region: "Region / County", zip: "ZIP Code", budget: "Available Budget",
-        mode: "Go out or stay at home?", desahogo: "Optional Venting (Emotional Filter)",
-        placeholder_text: "Write freely about how you feel today...", btn_trigger: "ACTIVATE CONTROL",
-        loader: "Synchronizing wellness frequencies...", btn_continue: "CONTINUE", btn_gps: "OPEN MAP IN GPS",
-        tipo_casa: "10-Minute Domestic Protocol Activated", tipo_salida: "Exploration Guide Opened",
-        txt_correcto: "<strong>TRUE ANSWER!</strong><br>", txt_incorrecto: "<strong>FAILURE ANALYSIS:</strong><br>",
-        inspira: "Inhale", expira: "Exhale",
-        alerta_35s: "Field preparation active for 35 seconds. Listen to the suggestions carefully before opening the route.",
-        fin_casa: "Domestic protocol completed. The system automatically shuts down to preserve your peace.",
-        reloj_maestro_prefijo: "⏱️ Remaining Stabilization Time: ",
-        alertError: "An issue occurred while connecting to the OPEN THAN GO server. Please try again."
-    }
-};
 
-// CONTROL ESTRICTO DE AUDIO: Lee todo fluido de forma humana y desbloquea el sistema SOLO al finalizar
-function hablarTextoConBloqueo(texto, funcionLiberarPaso) {
-    if (!texto || !('speechSynthesis' in window)) {
-        if (funcionLiberarPaso) funcionLiberarPaso();
-        return;
-    }
-    window.speechSynthesis.cancel(); // Detiene cualquier audio colgado de inmediato
+    hablar(texto) {
+        if (!texto) return;
+        // Corta de inmediato la voz anterior únicamente al cambiar de fase, nunca por segundo
+        window.speechSynthesis.cancel(); 
+        
+        const textoLimpio = texto.replace(/<[^>]*>/g, '');
+        const msg = new SpeechSynthesisUtterance(textoLimpio);
+        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+        msg.rate = 0.88; // Velocidad pausada somática para romper el modo zombi
+        msg.pitch = 1.0;
+        window.speechSynthesis.speak(msg);
+    },
 
-    const lectura = new SpeechSynthesisUtterance(texto);
-    lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US';
-    lectura.rate = 0.90; // Voz guía profesional, pausada, humana y natural (no se duerme ni puja)
-    lectura.pitch = 1.0;
+    async ejecutar() {
+        if (this.isLocked) return;
+        this.isLocked = true;
 
-    // EVENTO MAESTRO INDESTRUCTIBLE: Bloquea el flujo y solo activa la acción al terminar de hablar TODO
-    lectura.onend = () => {
-        if (funcionLiberarPaso) funcionLiberarPaso();
-    };
+        // Captura instantánea de variables biosociales del HTML
+        const payload = {
+            zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "33167",
+            mente: document.getElementById('inp-mente') ? document.getElementById('inp-mente').value : "aburrido",
+            modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR",
+            budget: document.getElementById('inp-budget') ? document.getElementById('inp-budget').value : "0",
+            perfil: document.getElementById('inp-perfil') ? document.getElementById('inp-perfil').value : "solo",
+            desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : ""
+        };
 
-    lectura.onerror = () => {
-        if (funcionLiberarPaso) funcionLiberarPaso();
-    };
+        // Control visual inmediato en el teléfono del cliente (Costo cero de procesamiento)
+        document.getElementById('wrapper-form').classList.add('hidden');
+        const container = document.getElementById('wrapper-interactive');
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff;'>Sincronizando frecuencias de bienestar...</h2></div>`;
+        container.classList.remove('hidden');
 
-    window.speechSynthesis.speak(lectura);
-}
-
-function cambiarIdioma(lang) {
-    idiomaActual = lang;
-    document.getElementById('lang-es').classList.toggle('active', lang === 'es');
-    document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-    
-    const t = traducciones[lang];
-    if(document.getElementById('txt-subtitle')) document.getElementById('txt-subtitle').innerText = t.subtitle;
-    if(document.getElementById('lbl-state')) document.getElementById('lbl-state').innerText = t.state;
-    if(document.getElementById('lbl-region')) document.getElementById('lbl-region').innerText = t.region;
-    if(document.getElementById('lbl-zip')) document.getElementById('lbl-zip').innerText = t.zip;
-    if(document.getElementById('lbl-budget')) document.getElementById('lbl-budget').innerText = t.budget;
-    if(document.getElementById('lbl-mode')) document.getElementById('lbl-mode').innerText = t.mode;
-    if(document.getElementById('lbl-desahogo')) document.getElementById('lbl-desahogo').innerText = t.desahogo;
-    if(document.getElementById('inp-text')) document.getElementById('inp-text').placeholder = t.placeholder_text;
-    
-    const btnTrigger = document.getElementById('btn-main-trigger');
-    if(btnTrigger) btnTrigger.innerText = t.btn_trigger;
-    if(document.getElementById('txt-loader')) document.getElementById('txt-loader').innerText = t.loader;
-    if(document.getElementById('btn-next')) document.getElementById('btn-next').innerText = t.btn_continue;
-    if(document.getElementById('btn-maps-action')) document.getElementById('btn-maps-action').innerText = t.btn_gps;
-}
-
-function cambiarBolsillo(opcion) {
-    presupuestoActual = opcion;
-    const ids = ['b-cero', 'b-minimo', 'b-moderado', 'b-libre'];
-    ids.forEach(id => {
-        const elemento = document.getElementById(id);
-        if (elemento) elemento.classList.toggle('active', id === `b-${opcion}`);
-    });
-}
-
-function cambiarModalidad(esSalir) {
-    modalidadSalir = esSalir;
-    document.getElementById('m-salir').classList.toggle('active', esSalir === true);
-    document.getElementById('m-casa').classList.toggle('active', esSalir === false);
-    const displayGeografia = esSalir ? 'block' : 'none';
-    if(document.getElementById('inp-state')) document.getElementById('inp-state').parentElement.style.display = displayGeografia;
-    if(document.getElementById('inp-region')) document.getElementById('inp-region').parentElement.style.display = displayGeografia;
-    if(document.getElementById('inp-zip')) document.getElementById('inp-zip').parentElement.style.display = displayGeografia;
-}
-async function solicitarEscape() {
-    let proximoIdMision = parseInt(localStorage.getItem('open_than_go_last_id') || '0') + 1;
-    if (proximoIdMision > 21) { proximoIdMision = 1; } 
-
-    const payload = {
-        decision: modalidadSalir ? "salir" : "casa",
-        lang: idiomaActual,
-        budget_level: presupuestoActual,
-        zip_code: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
-        estado: document.getElementById('inp-state') ? document.getElementById('inp-state').value : "FL",
-        region: document.getElementById('inp-region') ? document.getElementById('inp-region').value : "",
-        desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : "",
-        force_id: proximoIdMision
-    };
-
-    document.getElementById('wrapper-form').style.display = 'none';
-    document.getElementById('wrapper-loader').style.display = 'flex';
-    document.getElementById('wrapper-interactive').style.display = 'none';
-
-    try {
-        const respuesta = await fetch('/api/open-than-go', {
-            method: 'POST',
-            headers: { 
-                'Accept': 'application/json',
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify(payload)
-        });
-        const data = await respuesta.json();
-        document.getElementById('wrapper-loader').style.display = 'none';
-
-        if (data.status === 'success' && data.mision && data.mision.b) {
-            pasosMisionGlobal = data.mision.b;
-            datosLugarGlobal = data.lugar || null;
-            tipoEscapeGlobal = data.tipo;
-            indicePasoActual = 0;
-
-            localStorage.setItem('open_than_go_last_id', data.mision.id);
-
-            document.getElementById('interactive-title').innerText = "OPEN THAN GO";
-            document.getElementById('interactive-subtitle').innerText = tipoEscapeGlobal === "Casa" ? traducciones[idiomaActual].tipo_casa : traducciones[idiomaActual].tipo_salida;
-            document.getElementById('wrapper-interactive').style.display = 'block';
-
-            if (tipoEscapeGlobal === "Casa") {
-                document.getElementById('wrapper-global-timer').style.display = 'block';
-                tiempoRestanteMaestro = 600;
-                ejecutarRelojMaestro10Min();
-                clearTimeout(temporizadorClinicoCasa);
-                temporizadorClinicoCasa = setTimeout(() => {
-                    hablarTextoConBloqueo(traducciones[idiomaActual].fin_casa, () => {
-                        alert(traducciones[idiomaActual].fin_casa);
-                        destruirMemoriaYReiniciar();
-                    });
-                }, 600000);
-            } else {
-                document.getElementById('wrapper-global-timer').style.display = 'none';
-            }
-            procesarPaoMision();
-        } else {
-            alert(data.message || "Error al sincronizar canales emocionales.");
-            document.getElementById('wrapper-form').style.display = 'block';
-        }
-    } catch (error) {
-        alert(traducciones[idiomaActual].alertError);
-        document.getElementById('wrapper-form').style.display = 'block';
-        document.getElementById('wrapper-loader').style.display = 'none';
-    }
-}
-
-function ejecutarRelojMaestro10Min() {
-    clearInterval(cronometroMaestro10Min);
-    const displayGlobal = document.getElementById('global-timer-txt');
-    const t = traducciones[idiomaActual];
-    cronometroMaestro10Min = setInterval(() => {
-        tiempoRestanteMaestro--;
-        let mins = Math.floor(tiempoRestanteMaestro / 60);
-        let secs = tiempoRestanteMaestro % 60;
-        if (displayGlobal) displayGlobal.innerText = `${t.reloj_maestro_prefijo}${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        if (tiempoRestanteMaestro <= 0) { clearInterval(cronometroMaestro10Min); destruirMemoriaYReiniciar(); }
-    }, 1000);
-}
-
-function procesarPaoMision() {
-    clearInterval(intervaloRespiracion);
-    clearTimeout(relojSecuencialAutomatico);
-    const contenedorPasos = document.getElementById('step-content');
-    
-    const botonContinuar = document.getElementById('btn-next') || document.querySelector('.btn-next-step');
-    const botonGps = document.getElementById('btn-maps-action') || document.querySelector('.btn-maps-route');
-
-    if (contenedorPasos) contenedorPasos.innerHTML = "";
-    if (botonContinuar) botonContinuar.style.display = 'none';
-    if (botonGps) botonGps.style.display = 'none';
-    
-    if (indicePasoActual >= pasosMisionGlobal.length) {
-        if (tipoEscapeGlobal === "Casa") {
-            window.speechSynthesis.cancel();
-            solicitarEscape();
-            return;
-        }
-        if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
-            if (contenedorPasos) {
-                contenedorPasos.innerHTML = `
-                    <div class="card-lugar" style="margin-top:20px;">
-                        <h3 style="color:var(--accent); font-weight:800; text-transform:uppercase;">🧭 Protocolo de Despliegue</h3>
-                        <p style="font-size:14px; margin:8px 0; line-height:1.4;">${datosLugarGlobal.address}</p>
-                        <hr style="border:0; border-top:1px dashed #ddd; margin:10px 0;">
-                        <p style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:5px;">Sugerencia de Enfoque en tus 3 Puntos Críticos:</p>
-                        <p style="font-size:13px; line-height:1.4; font-style:italic; color:#444;">${datosLugarGlobal.analisis_sugerido}</p>
-                    </div>`;
-            }
+        try {
+            const respuesta = await fetch("/api/mando-integral", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const data = await respuesta.json();
             
-            // LA VOZ GUÍA LEE OBLIGATORIAMENTE TODO ANTES DE ABRIR EL CRONÓMETRO DE CAMPO DE 15 SEGUNDOS
-            hablarTextoConBloqueo(traducciones[idiomaActual].alerta_15s + " . " + datosLugarGlobal.analisis_sugerido, () => {
-                let cuentaRegresivaSalir = 15;
-                if (botonContinuar) {
-                    botonContinuar.innerText = `${cuentaRegresivaSalir}s`;
-                    botonContinuar.disabled = true;
-                    botonContinuar.style.display = 'block';
-                }
+            this.pasosMisiones = data.misiones || (data.mision ? data.mision.b : []);
+            this.datosLugarGlobal = data.lugar || null;
+            this.tipoEscapeGlobal = data.modo || data.tipo;
+            this.indiceMision = 0;
+
+            // Iniciar el procesador secuencial del KERNEL
+            this.procesarFlujoSecuencial(container);
+        } catch (error) {
+            alert("Error de enlace satelital con el servidor.");
+            document.getElementById('wrapper-form').classList.remove('hidden');
+            container.classList.add('hidden');
+            this.isLocked = false;
+        }
+    },
+
+    procesarFlujoSecuencial(container) {
+        clearInterval(this.timer);
+        
+        // REGLA DE CIERRE: Si terminamos todas las misiones del JSON o Catálogo
+        if (this.indiceMision >= this.pasosMisiones.length) {
+            if (this.tipoEscapeGlobal === "SALIR" && this.datosLugarGlobal) {
+                // Despliega la Guía Absoluta en Campo con los 3 puntos mínimos sugeridos
+                container.innerHTML = `
+                    <div class="mision-card" style="border: 1px solid #333; padding: 20px; text-align: center; background: #0a0a0a; border-radius: 12px;">
+                        <h2 style="color:#d84315; font-weight:900;">${this.datosLugarGlobal.name}</h2>
+                        <p style="font-size:13px; color:#aaa; margin:5px 0;">${this.datosLugarGlobal.address}</p>
+                        <hr style="border:0; border-top:1px dashed #333; margin:15px 0;">
+                        <p style="text-align:left; font-size:14px; line-height:1.45; background:#111; padding:12px; border-radius:6px; border-left:4px solid #2e7d32; color:#fff;">
+                            <strong>GUÍA ABSOLUTA DE ACCIÓN:</strong><br>${this.datosLugarGlobal.analisis_sugerido}
+                        </p>
+                        <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:16px; font-weight:bold; margin-top:15px;" disabled>35s ANCLAJE SOMÁTICO</button>
+                        <button id="btn-gps-action" class="hidden" style="width:100%; background:#4285f4; color:#fff; padding:16px; font-weight:bold; margin-top:15px;">ABRIR ENLACE DE MAPA</button>
+                    </div>
+                `;
+
+                this.hablar(this.datosLugarGlobal.name + " . Escucha las indicaciones de campo: " + this.datosLugarGlobal.analisis_sugerido);
+
+                let retencion = 35;
+                const btnCount = document.getElementById('btn-countdown-salida');
+                const btnGps = document.getElementById('btn-gps-action');
+
                 let relojSalida = setInterval(() => {
-                    cuentaRegresivaSalir--;
-                    if (botonContinuar) botonContinuar.innerText = cuentaRegresivaSalir + "s";
-                    if (cuentaRegresivaSalir <= 0) {
+                    retencion--;
+                    if (btnCount) btnCount.innerText = `${retencion}s PREPARACIÓN DE ENTORNO`;
+                    
+                    if (retencion <= 0) {
                         clearInterval(relojSalida);
-                        if (botonContinuar) botonContinuar.style.display = 'none';
-                        if (botonGps) {
-                            botonGps.href = datosLugarGlobal.gps_link;
-                            botonGps.style.display = 'block';
+                        if (btnCount) btnCount.style.display = 'none';
+                        if (btnGps) {
+                            btnGps.classList.remove('hidden');
+                            // Clic voluntario del cliente que salta el antivirus de ventanas emergentes de Apple y Android
+                            btnGps.onclick = () => { window.open(this.datosLugarGlobal.gps, '_blank'); };
                         }
                     }
                 }, 1000);
-            });
-        } else {
-            destruirMemoriaYReiniciar();
-        }
-        return;
-    }
-    
-    const paso = pasosMisionGlobal[indicePasoActual];
-    
-    if (paso.t === "v" || paso.t === "h") {
-        let textoLabel = paso.tx;
-        if (contenedorPasos) {
-            contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0; font-size:18px; font-weight:800;">${textoLabel}</h3>`;
-        }
-        
-        // LA ACCIÓN DIRECTA ESPERA A QUE LA VOZ TERMINE DE HABLAR DE FORMA ABSOLUTA
-        hablarTextoConBloqueo(textoLabel, () => {
-            if (tipoEscapeGlobal === "Casa") {
-                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 2000);
             } else {
-                if (botonContinuar) botonContinuar.style.display = 'block';
+                // Modo CASA: Al terminar las fases secuenciales, arranca el pulmón de 10:00 minutos fijos
+                this.iniciarRelojClinicoCasa(container);
             }
-        });
-    } else if (paso.story) {
-        if (contenedorPasos) {
-            contenedorPasos.innerHTML = `<div class="screen-story"><p>${paso.story}</p></div>`;
+            return;
         }
-        
-        // LA HISTORIA EN AUDIO ENTIERRA CUALQUIER SALTO ANTICIPADO: Bloquea hasta el final
-        hablarTextoConBloqueo(paso.story, () => {
-            if (tipoEscapeGlobal === "Casa") {
-                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 2000);
-            } else {
-                if (botonContinuar) botonContinuar.style.display = 'block';
-            }
-        });
-    } else if (paso.t === "breath_auto") {
-        let tiempoRestante = paso.d;
-        if (contenedorPasos) {
-            contenedorPasos.innerHTML = `
-                <div class="wrapper-circle">
-                    <div class="breath-circle expand" id="circulo-pulso">
-                        <span id="txt-segundos-circulo">${tiempoRestante}s</span>
-                        <div class="txt-instruccion-pulmon" id="txt-pulmon-accion">INHALA</div>
-                    </div>
-                    <p style="font-weight:600; margin-top:25px; font-size:15px; color:var(--primary);">${paso.tx}</p>
-                    <p class="breath-inf" style="font-size:12px; color:#666; max-width:90%; margin:5px auto; line-height:1.4;">${paso.inf}</p>
+
+        const paso = this.pasosMisiones[this.indiceMision];
+
+        // 1. Títulos decorativos del JSON ("v" o "h")
+        if (paso.t === "v" || paso.t === "h") {
+            let textoLabel = typeof paso.tx === 'object' ? paso.tx[this.idiomaActual] : paso.tx;
+            container.innerHTML = `
+                <div class="mision-card" style="background:#0a0a0a; border:1px solid #333; padding:25px; border-radius:12px;">
+                    <h3 style="color:#2e7d32; font-size:1.3rem; font-weight:800; text-transform:uppercase;">${textoLabel}</h3>
+                    <button id="btn-next" style="width:100%; background:#222; color:#fff; padding:14px; font-weight:bold; margin-top:20px;">CONTINUAR</button>
                 </div>`;
+            this.hablar(textoLabel);
+            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
         }
         
-        // EL CÍRCULO PULMONAR ESPERA A QUE LA VOZ GUÍA EXPLIQUE LA DINÁMICA ANTES DE CORRER LOS SEGUNDOS
-        hablarTextoConBloqueo(paso.tx + " . " + paso.inf, () => {
-            let circulo = document.getElementById('circulo-pulso');
-            let indicadorTexto = document.getElementById('txt-pulmon-accion');
+        // 2. Narrativa clínica camuflada ("story")
+        else if (paso.story) {
+            let textoStory = paso.story[this.idiomaActual];
+            container.innerHTML = `
+                <div class="mision-card" style="background:#0a0a0a; border:1px solid #333; padding:25px; border-radius:12px; text-align:left;">
+                    <p style="font-size:1.05rem; line-height:1.6; color:#ccc; border-left:4px solid #2e7d32; padding-left:15px;">${textoStory}</p>
+                    <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:14px; font-weight:bold; margin-top:20px; text-transform:uppercase;">CONTINUAR</button>
+                </div>`;
+            this.hablar(textoStory);
+            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
+        }
+        
+        // 3. Regulación pulmonar rítmica ("breath_auto")
+        else if (paso.t === "breath_auto" || paso.descripcion) {
+            // Adaptar tanto si lee de tu JSON original como del nuevo formato simplificado
+            let tiempoPulmon = paso.d || 25;
+            let textoInstruccion = paso.tx ? paso.tx[this.idiomaActual] : paso.titulo;
+            let textoDetalle = paso.inf ? paso.inf[this.idiomaActual] : paso.descripcion;
+
+            container.innerHTML = `
+                <div class="mision-card" style="background:#0a0a0a; border:1px solid #333; padding:25px; border-radius:12px;">
+                    <div id="breath-circle"></div>
+                    <div id="circulo-pulso" style="font-size:2rem; font-weight:800; margin-top:10px;">${tiempoPulmon}s</div>
+                    <div id="txt-pulmon-accion" style="font-size:1.3rem; font-weight:bold; color:#00bcd4; margin-top:10px; text-transform:uppercase;">INHALA / INSPIRA</div>
+                    <p style="font-weight:600; margin-top:15px; color:#fff;">${textoInstruccion}</p>
+                    <p style="font-size:12px; color:#777; line-height:1.4;">${textoDetalle}</p>
+                    <button id="btn-next" class="hidden" style="width:100%; background:#2e7d32; color:#fff; padding:14px; font-weight:bold; margin-top:15px;">AVANZAR</button>
+                </div>`;
             
-            intervaloRespiracion = setInterval(() => {
-                tiempoRestante--;
-                if (document.getElementById('txt-segundos-circulo')) {
-                    document.getElementById('txt-segundos-circulo').innerText = `${tiempoRestante}s`;
-                }
-                let cicloSegundo = tiempoRestante % 8;
-                if (cicloSegundo >= 4) {
-                    if (circulo) circulo.className = "breath-circle expand";
-                    if (indicadorTexto) indicadorTexto.innerText = idiomaActual === 'es' ? traducciones.es.inspira : traducciones.en.inspira;
-                } else {
-                   if (circulo) circulo.className = "breath-circle contract";
-                   if (indicadorTexto) indicadorTexto.innerText = idiomaActual === 'es' ?
-                   traducciones.es.expira : traducciones.en.expira;
-                   }
-                   if (tiempoRestante <= 0) {clearInterval(intervaloRespiracion);siguienteComando();}
-                   }, 1000);
-                   });
-                   }
-        else if (paso.t === "d") {
-        // SOLUCIÓN BRUTAL DE LA MONOTONÍA POSICIONAL: Mapeo y Shuffling aleatorio
-        let mapeoOpciones = paso.op.map((texto, idx) => ({ texto: texto, idxOriginal: idx }));
-        mapeoOpciones.sort(() => Math.random() - 0.5);
-        let opcionesHtml = "";
-        mapeoOpciones.forEach((item) => {
-            let explicacionSanada = paso.ex[item.idxOriginal].replace(/'/g, "\\'");
-            opcionesHtml += `<button class="btn-opcion" id="opt-${item.idxOriginal}" onclick="evaluarTriviaMargenReintento(${item.idxOriginal}, ${paso.c}, '${explicacionSanada}')">${item.texto}</button>`;
-        });
-        if (contenedorPasos) {
-            contenedorPasos.innerHTML = `
-                <div class="bloque-decision">
-                    <p style="font-weight:700; font-size:15px; color:var(--primary); line-height:1.4; margin-bottom:15px; text-align:left;">${paso.q}</p>
-                    <div class="contenedor-opciones">${opcionesHtml}</div>
-                    <div id="box-feedback" class="feedback-box"></div>
-                </div>`;
-        }
-        hablarTextoConBloqueo(paso.q, null); // Lee la pregunta de inmediato al aparecer
-    } else if (paso.t === "r") {
-        if (contenedorPasos) {
-            contenedorPasos.innerHTML = `
-                <div style="margin:25px 0; text-align:center;">
-                    <span style="font-size:50px;">💎</span>
-                    <h2 style="color:var(--accent); margin:10px 0; font-weight:800;">${paso.tx}</h2>
-                </div>`;
-        }
-        hablarTextoConBloqueo(paso.tx, () => {
-            if (tipoEscapeGlobal === "Casa") {
-                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 2000);
-            } else {
-                if (botonContinuar) botonContinuar.style.display = 'block';
-            }
-        });
-    } else if (paso.t === "c") {
-        if (contenedorPasos) {
-            contenedorPasos.innerHTML = `
-                <div style="padding:20px; background:#fffde7; border-radius:10px; margin:15px 0; border:1px dashed #fbc02d;">
-                    <p style="font-style:italic; font-size:15px; margin:0; font-weight:500; line-height:1.4;">"${paso.tx}"</p>
-                </div>`;
-        }
-        hablarTextoConBloqueo(paso.tx, () => {
-            if (tipoEscapeGlobal === "Casa") {
-                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 2000);
-            } else {
-                if (botonContinuar) botonContinuar.style.display = 'block';
-            }
-        });            
-    } else if (paso.t === "sil") {
-        if (contenedorPasos) {
-            contenedorPasos.innerHTML = `
-                <div style="text-align:left; background:#f3e5f5; padding:16px; border-radius:10px; border:1px solid #e1bee7;">
-                    <p style="font-size:14px; margin:0 0 10px 0; line-height:1.4;"><strong>Misión Práctica:</strong> ${paso.tx}</p>
-                    <small style="color:#4a148c; display:block; font-weight:600;">💡 Enfoque: ${paso.inf}</small>
-                </div>`;
-        }
-        hablarTextoConBloqueo(paso.tx + " . Enfoque mental: " + paso.inf, () => {
-            if (tipoEscapeGlobal === "Casa") {
-                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 2000);
-            } else {
-                if (botonContinuar) botonContinuar.style.display = 'block';
-            }
-        });
-    }
+            this.hablar(textoInstruccion + " . " + textoDetalle);
+
+            let relojPulmon = setInterval(() => {
+                tiempoPulmon--;
+                const divContador = document.getElementById('circulo-pulso');
+                const divAccion = document.getElementById('txt-pulmon-accion');
+                
+                if (divContador) divContador.innerText = `${tiempoPulmon}s`;
+                
+                if (divAccion) {
+                    let ciclo = tiempoPulmon % 8;
+                    if (ciclo >= 4) {
+                        divAccion.innerText = "INHALA / INSPIRA";
+                        divAccion.style.color = "#00bcd4";
+} else {
+    divAccion.innerText = "EXHALA / EXPIRA";
+    divAccion.style.color = "#d84315";
+}
 }
 
-function evaluarTriviaMargenReintento(indiceSeleccionado, indiceCorrecto, explicacionTexto) {
-    const contenedorFeedback = document.getElementById('box-feedback');
-    if (!contenedorFeedback) return;
-    const esCorrecto = indiceSeleccionado === indiceCorrecto;
-    contenedorFeedback.className = esCorrecto ? "feedback-box fb-correcto" : "feedback-box fb-incorrecto";
-    const prefijo = esCorrecto ? traducciones[idiomaActual].txt_correcto : traducciones[idiomaActual].txt_incorrecto;
-    contenedorFeedback.innerHTML = prefijo + explicacionTexto;
-    contenedorFeedback.style.display = "block";
-    const textoLimpioExplicacion = explicacionTexto.replace(/<[^>]*>/g, '');
-    
-    // BLOQUEO ABSOLUTO EN LA RESPUESTA DE LA TRIVIA: El botón continuar solo aparece al terminar la voz
-    hablarTextoConBloqueo((idiomaActual === 'es' ? (esCorrecto ? "Verdadero. " : "Falso. ") : (esCorrecto ? "True. " : "False. ")) + textoLimpioExplicacion, () => {
-        if (esCorrecto) {
-            const botones = document.querySelectorAll('.btn-opcion');
-            botones.forEach(btn => btn.disabled = true);
-            const nextBtn = document.getElementById('btn-next') || document.querySelector('.btn-next-step');
-            if (nextBtn) nextBtn.style.display = 'block';
-        } else {
-            const objetivoBoton = document.getElementById(`opt-${indiceSeleccionado}`);
-            if (objetivoBoton) {
-                objetivoBoton.style.opacity = "0.4";
-                objetivoBoton.style.pointerEvents = "none";
-            }
-        }
+if (tiempoPulmon <= 0) {
+    clearInterval(relojPulmon);
+    const btnNext = document.getElementById('btn-next');
+    if (btnNext) btnNext.classList.remove('hidden');
+}
+}, 1000);
+
+document.getElementById('btn-next').onclick = () => this.avanzarPaso();
+}
+
+// 4. Cuestionario conductual interactivo ("d") con margen de reintento ilimitado
+else if (paso.t === "d") {
+    let opcionesHtml = "";
+
+    paso.op.forEach((opcion, index) => {
+        opcionesHtml += `<button class="btn-opcion" id="opt-${index}" style="width:100%; text-align:left; padding:12px; margin-top:8px; background:#111; color:#fff; border:1px solid #333; cursor:pointer;" onclick="KERNEL.evaluarRespuestaTrivia(${index}, ${paso.c}, '${paso.ex[index][this.idiomaActual].replace(/'/g, "\\'")}')">${opcion[this.idiomaActual]}</button>`;
     });
+
+    container.innerHTML = `
+        <div class="mision-card" style="background:#0a0a0a; border:1px solid #333; padding:20px; border-radius:12px; text-align:left;">
+            <p style="font-weight:700; font-size:14.5px; color:#fff; line-height:1.4;">${paso.q[this.idiomaActual]}</p>
+            <div style="margin-top:10px;">${opcionesHtml}</div>
+            <div id="box-feedback" class="feedback-box" style="margin-top:12px; padding:12px; border-radius:8px; display:none; font-size:13px; line-height:1.4;"></div>
+            <button id="btn-next" class="hidden" style="width:100%; background:#2e7d32; color:#fff; padding:14px; font-weight:bold; margin-top:15px; text-transform:uppercase;">CONTINUAR</button>
+        </div>`;
+
+    this.hablar(paso.q[this.idiomaActual]);
+    document.getElementById('btn-next').onclick = () => this.avanzarPaso();
 }
 
-function destruirMemoriaYReiniciar() {
-    clearTimeout(temporizadorClinicoCasa);
-    clearInterval(intervaloRespiracion);
-    clearInterval(cronometroMaestro10Min);
-    clearTimeout(relojSecuencialAutomatico);
-    pasosMisionGlobal = [];
-    datosLugarGlobal = null;
-    indicePasoActual = 0;
-    location.reload();
+// 5. Puntos de enfoque ("r")
+else if (paso.t === "r") {
+    container.innerHTML = `
+        <div class="mision-card" style="background:#0a0a0a; border:1px solid #333; padding:30px; border-radius:12px;">
+            <span style="font-size:50px;">💎</span>
+            <h2 style="color:#d84315; font-weight:900; margin:15px 0;">${paso.tx}</h2>
+            <button id="btn-next" style="width:100%; background:#222; color:#fff; padding:14px; font-weight:bold;">ACEPTAR ENFOQUE</button>
+        </div>`;
+
+    this.hablar(paso.tx);
+    document.getElementById('btn-next').onclick = () => this.avanzarPaso();
 }
 
-function siguienteComando() {
+// 6. Compromiso mental ("c")
+else if (paso.t === "c") {
+    let textoCompromiso = typeof paso.tx === 'object'
+        ? paso.tx[this.idiomaActual]
+        : paso.tx;
+
+    container.innerHTML = `
+        <div class="mision-card" style="background:#0a0a0a; border:1px solid #333; padding:25px; border-radius:12px;">
+            <div style="padding:20px; background:#111; border-radius:8px; border:1px dashed #fbc02d; margin-bottom:15px;">
+                <p style="font-style:italic; font-size:15px; margin:0; color:#fff; line-height:1.4;">"${textoCompromiso}"</p>
+            </div>
+            <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:14px; font-weight:bold;">ME COMPROMETO</button>
+        </div>`;
+
+    this.hablar(textoCompromiso);
+    document.getElementById('btn-next').onclick = () => this.avanzarPaso();
+}
+
+// 7. Misión práctica final en silencio ("sil")
+else if (paso.t === "sil") {
+    container.innerHTML = `
+        <div class="mision-card" style="background:#0a0a0a; border:1px solid #333; padding:20px; border-radius:12px; text-align:left;">
+            <p style="font-size:14px; line-height:1.4; color:#fff;">
+                <strong>MISIÓN DE ENTORNO:</strong><br>${paso.tx[this.idiomaActual]}
+            </p>
+            <small style="color:#00bcd4; font-weight:600; margin-top:5px; display:block;">
+                💡 FOCO: ${paso.inf[this.idiomaActual]}
+            </small>
+            <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:14px; font-weight:bold; margin-top:15px; text-transform:uppercase;">
+                EJECUTAR
+            </button>
+        </div>`;
+
+    this.hablar(
+        paso.tx[this.idiomaActual] +
+        " . Enfoque mental: " +
+        paso.inf[this.idiomaActual]
+    );
+
+    document.getElementById('btn-next').onclick = () => this.avanzarPaso();
+}
+},
+
+evaluarRespuestaTrivia(seleccionado, correcto, explicacion) {
+    const box = document.getElementById('box-feedback');
+    if (!box) return;
+
+    const esCorrecto = seleccionado === correcto;
+
+    box.style.display = "block";
+    box.className = esCorrecto
+        ? "feedback-box fb-correcto"
+        : "feedback-box fb-incorrecto";
+
+    const prefijo = esCorrecto
+        ? "¡RESPUESTA VERDADERA!"
+        : "ANÁLISIS DE FALLO:";
+
+    box.innerHTML = prefijo + explicacion;
+
+    if (esCorrecto) {
+        // Deshabilita reintentos al acertar y revela el pase de sección voluntario
+        document.querySelectorAll('.btn-opcion').forEach(btn => btn.disabled = true);
+
+        this.hablar(
+            (this.idiomaActual === 'es' ? "Verdadero. " : "True. ") +
+            explicacion
+        );
+
+        document.getElementById('btn-next').classList.remove('hidden');
+    } else {
+        // Deja margen de reintento atenuando el botón erróneo
+        const btnFallo = document.getElementById(`opt-${seleccionado}`);
+
+        if (btnFallo) {
+            btnFallo.style.opacity = "0.35";
+            btnFallo.style.pointerEvents = "none";
+        }
+
+        this.hablar(
+            (this.idiomaActual === 'es' ? "Falso. " : "False. ") +
+            explicacion
+        );
+    }
+},
+
+iniciarRelojClinicoCasa(container) {
+    this.hablar(
+        "Fase educativa completada. Iniciando reloj clínico de diez minutos. Sincroniza tu respiración."
+    );
+
+    container.innerHTML = `
+        <div id="breath-circle"></div>
+        <div id="timer" style="font-weight:900; text-align:center; font-size:2.8rem; margin:15px 0;">10:00</div>
+        <p id="txt-pulmon" style="font-size:14px; text-transform:uppercase; font-weight:bold; color:#00bcd4; text-align:center; letter-spacing:2px;">
+            INHALA / INSPIRA
+        </p>`;
+
+    this.timeLeft = 600;
+
+    this.timer = setInterval(() => {
+        this.timeLeft--;
+
+        let m = Math.floor(this.timeLeft / 60);
+        let s = this.timeLeft % 60;
+
+        const timerDiv = document.getElementById('timer');
+        const pulmonDiv = document.getElementById('txt-pulmon');
+
+        if (timerDiv) {
+            timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        if (pulmonDiv) {
+            let ciclo = this.timeLeft % 8;
+
+            if (ciclo >= 4) {
+                pulmonDiv.innerText = "INHALA / INSPIRA";
+                pulmonDiv.style.color = "#00bcd4";
+            } else {
+                pulmonDiv.innerText = "EXHALA / EXPIRA";
+                pulmonDiv.style.color = "#d84315";
+            }
+        }
+
+        if (this.timeLeft <= 0) {
+            clearInterval(this.timer);
+            this.hablar("Protocolo terminado. Ejecutando borrado de rastro automático.");
+            alert("Protocolo completado. Borrando rastro de sesión.");
+            this.destruirYReiniciar();
+        }
+    }, 1000);
+},
+
+avanzarPaso() {
+    this.indiceMision++;
+    const container = document.getElementById('wrapper-interactive');
+    this.procesarFlujoSecuencial(container);
+},
+
+destruirYReiniciar() {
+    clearInterval(this.timer);
     window.speechSynthesis.cancel();
-    clearTimeout(relojSecuencialAutomatico);
-    indicePasoActual++;
-    procesarPaoMision();
+    this.pasosMisiones = [];
+    this.indiceMision = 0;
+    this.isLocked = false;
+    location.reload(); // Autodestrucción absoluta de caché e hilos en el hardware del cliente
 }
+};
 
-    
+document.addEventListener('DOMContentLoaded', () => KERNEL.init());
