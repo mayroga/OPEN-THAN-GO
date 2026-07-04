@@ -157,7 +157,9 @@ def procesar_sistema_bienestar():
     query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
     
     # ENLACE UNIVERSAL GPS INDESTRUCTIBLE CORREGIDO:
-    link_google_maps_vivo = f"https://google.com{query_mapa}"
+    link_google_maps_vivo = (
+    f"https://www.google.com/maps/search/?api=1&query={query_mapa}"
+)
 
     return jsonify({
         "status": "success",
