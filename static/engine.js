@@ -21,10 +21,29 @@ const KERNEL = {
     },
 
     despertarInicial() {
-        // La sorpresa desde el clic cero en la URL usando palabras cortas de acción y acompañamiento directo
+        // Quita la pantalla negra de golpe y revela el mando de control
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-        this.hablar("OPEN THAN  GO. Estoy contigo ahora. Escucha mi voz. No mires los colores de la pantalla. No pienses en tus biles. Pon tus datos en el mando en este instante y hazlo conmigo. Vamos a romper tu piloto automático ya.");
+        
+        // Catálogo de 10 entradas con palabras cortas, sencillas y de acompañamiento inmediato
+        const saludosSorpresa = [
+            "Bienvenido a ópen dán go. Tu escape inteligente. Estoy contigo ahora. Pon tus datos en el mando y hazlo conmigo ya.",
+            "ópen dán go está activo en este segundo. Olvida tus biles por un momento. Escucha mi voz. Activa el mando ahora mismo.",
+            "Entraste a ópen dán go. El despertador está encendido. Vamos a sacarte de la rutina gris en este instante. Hazlo conmigo.",
+            "ópen dán go tomó el control. Deja de dar vueltas en círculos. Mira el mando. Pon tu zona y comencemos ya.",
+            "Ya estás dentro de ópen dán go. No mires los colores de la pantalla. Siente tu respiración. Activa el mando ahora.",
+            "ópen dán go te saluda hoy. El sistema te quiere dormido, pero yo te voy a despertar. Usa el mando en este segundo.",
+            "Frecuencias alineadas en ópen dán go. Estoy al lado tuyo ahora. Rompamos el piloto automático juntos. Activa el mando ya.",
+            "ópen dán go inició ahora. La vida está afuera, no en tus preocupaciones. Pon tus datos en la pantalla en este instante.",
+            "Bienvenido al despierto de ópen dán go. Una acción corta puede cambiar tu día entero hoy. Haz clic en activar ya.",
+            "Mando listo en ópen dán go. Tu mente necesita un escape real ahora mismo. No lo pienses más. Pon tu zona y camina conmigo."
+        ];
+
+        // Selecciona al azar una de las 10 entradas humanas directas
+        const saludoElegido = saludosSorpresa[Math.floor(Math.random() * saludosSorpresa.length)];
+        
+        // El teléfono ejecuta el audio veloz de inmediato
+        this.hablar(saludoElegido);
     },
 
     hablar(texto) {
