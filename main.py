@@ -2,11 +2,13 @@
 # Company: May Roga LLC
 # File: main.py
 from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS  # INYECCIÓN DE SEGURIDAD PARA CELULARES
 import json
 import random
 import os
 
 app = Flask(__name__, static_folder='static')
+CORS(app)  # Abre las compuertas de red para evitar el congelamiento
 
 def cargar_mision_especifica(decision, pocket_tier):
     """Carga la misión adecuada respetando la división exacta de bloques de 7."""
@@ -89,7 +91,6 @@ def procesar_sistema_bienestar():
     mision_final = mision_seleccionada.copy()
     mision_final["b"] = bloques_processed
 
-    # RETORNO CORREGIDO PARA CASA CON FORMATO BILINGÜE COMPLETO:
     if decision == "casa":
         return jsonify({"status": "success", "tipo": "Casa", "mision": mision_final})
 
@@ -140,7 +141,7 @@ def procesar_sistema_bienestar():
     
     from urllib.parse import quote_plus
     query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
-    link_google_maps_vivo = f"https://www.google.com/maps/search/?api=1&query={query_mapa}"
+    link_google_maps_vivo = f"https://google.com{query_mapa}"
 
     return jsonify({
         "status": "success",
@@ -153,13 +154,6 @@ def procesar_sistema_bienestar():
         },
         "mision": mision_final
     })
-
-@app.after_request
-def add_cors_headers(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
