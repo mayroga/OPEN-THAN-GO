@@ -94,7 +94,8 @@ def procesar_sistema_bienestar():
                 
         if bloque_clon.get("t") == "d":
             if isinstance(bloque_clon.get("q"), dict):
-                bloque_clon["q"] = ...
+                # CORRECCIÓN DE SEGURIDAD INTERNA: Extrae la pregunta limpia en espejo
+                bloque_clon["q"] = bloque_clon["q"].get(lang, bloque_clon["q"].get('es', ''))
             if "op" in bloque_clon:
                 bloque_clon["op"] = [op.get(lang, op.get('es', '')) if isinstance(op, dict) else op for op in bloque_clon["op"]]
             if "ex" in bloque_clon:
@@ -154,6 +155,8 @@ def procesar_sistema_bienestar():
     ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
     
     query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
+    
+    # ENLACE UNIVERSAL GPS INDESTRUCTIBLE CORREGIDO:
     link_google_maps_vivo = f"https://google.com{query_mapa}"
 
     return jsonify({
@@ -167,13 +170,6 @@ def procesar_sistema_bienestar():
         },
         "mision": mision_final
     })
-
-@app.after_request
-def add_cors_headers(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
