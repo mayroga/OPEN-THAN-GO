@@ -141,10 +141,20 @@ async def mando_integral(request: Request):
             msg_adicional = " (Lugar seguro diseñado para tus niños)."
             gps_query = "family+friendly+" + gps_query
 
-        # RECTIFICACIÓN CLAVE: Enlace oficial universal elástico e inmune a fallas de red
+        # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA: Usa el ZIP si existe, si no toma el Condado/Estado del cajón
         anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
         link_maps = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
         
+        # Estructura de salida blindada con variables únicas e irrepetibles
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "destino_titulo": info["titulo"].upper(),
+            "destino_porque": info["porque"],
+            "destino_instruccion": que_hacer_base + msg_adicional,
+            "destino_entorno": donde_base,
+            "destino_coordenadas_gps": link_maps
+        })
+     
         # Estructura de salida blindada con variables únicas e irrepetibles
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
