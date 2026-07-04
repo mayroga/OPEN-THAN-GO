@@ -1,7 +1,6 @@
 # OPEN THAN GO SYSTEM - Main Backend Engine
 # Company: May Roga LLC
 # File: main.py
-
 from flask import Flask, request, jsonify, send_from_directory
 import json
 import random
@@ -16,12 +15,15 @@ def cargar_mision_especifica(decision, pocket_tier):
             archivo = 'missions_01_07.json'
         else:
             archivo = random.choice(['missions_08_14.json', 'missions_15_21.json'])
-            if not os.path.exists(archivo):
-                archivo = 'missions_01_07.json'
-
+            
+        if not os.path.exists(archivo):
+            archivo = 'missions_01_07.json'
+            
         if not os.path.exists(archivo):
             return {
-                "id": 1, "cat": "bien", "pocket_match": ["cero", "moderado", "libre"],
+                "id": 1,
+                "cat": "bien",
+                "pocket_match": ["cero", "minimo", "moderado", "libre"],
                 "b": [
                     {"t": "v", "tx": {"es": "SISTEMA OPEN THAN GO ACTIVADO", "en": "OPEN THAN GO SYSTEM ACTIVATED"}},
                     {"story": {"es": "Sincronizando frecuencias emocionales. Presiona continuar.", "en": "Synchronizing emotional frequencies. Press continue."}}
@@ -30,17 +32,18 @@ def cargar_mision_especifica(decision, pocket_tier):
 
         with open(archivo, 'r', encoding='utf-8') as f:
             data = json.load(f)
-       
+            
         misiones = data.get('missions', [])
         if not misiones:
             return None
 
-        if decision == "salir":
-            filtradas = [m for m in misiones if pocket_tier in m.get('pocket_match', [])]
-            if filtradas:
-                return random.choice(filtradas)
-               
+        # CONFIGURACIÓN DEL FILTRO DE 4 PRESUPUESTOS:
+        filtradas = [m for m in misiones if pocket_tier in m.get('pocket_match', ["cero", "minimo", "moderado", "libre"])]
+        
+        if filtradas:
+            return random.choice(filtradas)
         return random.choice(misiones)
+        
     except Exception as e:
         print(f"Error crítico en catálogo de misiones: {str(e)}")
         return None
@@ -64,8 +67,31 @@ def procesar_sistema_bienestar():
     if not mision_seleccionada:
         return jsonify({"status": "error", "message": "Inicializando bases de datos biosociales..."}), 500
 
+    # Formateador de Idioma en Espejo Protegido (Kamizen Mirror Engine)
+    bloques_processed = []
+    for comando in mision_seleccionada.get("b", []):
+        bloque_clon = comando.copy()
+        
+        for campo in ["tx", "inf", "story", "c"]:
+            if campo in bloque_clon and isinstance(bloque_clon[campo], dict):
+                bloque_clon[campo] = bloque_clon[campo].get(lang, bloque_clon[campo].get('es', ''))
+                
+        if bloque_clon.get("t") == "d":
+            if isinstance(bloque_clon.get("q"), dict):
+                bloque_clon["q"] = bloque_clon["q"].get(lang, bloque_clon["q"].get('es', ''))
+            if "op" in bloque_clon:
+                bloque_clon["op"] = [op.get(lang, op.get('es', '')) if isinstance(op, dict) else op for op in bloque_clon["op"]]
+            if "ex" in bloque_clon:
+                bloque_clon["ex"] = [ex.get(lang, ex.get('es', '')) if isinstance(ex, dict) else ex for ex in bloque_clon["ex"]]
+                
+        bloques_processed.append(bloque_clon)
+
+    mision_final = mision_seleccionada.copy()
+    mision_final["b"] = bloques_processed
+
+    # RETORNO CORREGIDO PARA CASA CON FORMATO BILINGÜE COMPLETO:
     if decision == "casa":
-        return jsonify({"status": "success", "tipo": "Casa", "mision": mision_seleccionada})
+        return jsonify({"status": "success", "tipo": "Casa", "mision": mision_final})
 
     categorias_por_bolsillo = {
         "cero": {
@@ -111,11 +137,11 @@ def procesar_sistema_bienestar():
         explicacion_sugerencias = config_actual["sugerencias"]
 
     ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
+    
     from urllib.parse import quote_plus
     query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
-    link_google_maps_vivo = (
-    f"https://www.google.com/maps/search/?api=1&query={query_mapa}"
-)
+    link_google_maps_vivo = f"https://www.google.com/maps/search/?api=1&query={query_mapa}"
+
     return jsonify({
         "status": "success",
         "tipo": "Salida",
@@ -125,7 +151,7 @@ def procesar_sistema_bienestar():
             "gps_link": link_google_maps_vivo,
             "analisis_sugerido": explicacion_sugerencias[lang]
         },
-        "mision": mision_seleccionada
+        "mision": mision_final
     })
 
 @app.after_request
