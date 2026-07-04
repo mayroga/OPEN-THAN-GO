@@ -158,11 +158,11 @@ def procesar_sistema_bienestar():
 
     ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
     
-    from urllib.parse import quote_plus
-    query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
-    
-    # ENLACE UNIVERSAL GPS INDESTRUCTIBLE REPARADO:
-    link_google_maps_vivo = f"https://google.com{query_mapa}"
+        from urllib.parse import quote_plus
+        query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
+        
+        # ENLACE UNIVERSAL GPS INDESTRUCTIBLE REPARADO:
+        link_google_maps_vivo = f"https://google.com{query_mapa}"
 
     return jsonify({
         "status": "success",
