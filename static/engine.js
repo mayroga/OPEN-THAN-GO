@@ -149,7 +149,7 @@ const KERNEL = {
         this.isLocked = false;
     },
  
-// PARTE 3 DE 4: Discriminador Estricto de Rutas y Reloj de Retención de 35 Segundos
+// PARTE 3 DE 4: Discriminador Estricto de Rutas y Reloj de Retención de 35 Segundos (Corregido)
 
     procesarFlujoSecuencial(container) {
         clearInterval(this.timer);
@@ -159,7 +159,7 @@ const KERNEL = {
         };
         const traduccion = traducciones[this.idiomaActual];
 
-        // EL BLOQUEO ABSOLUTO DE SIMILITUDES: Si es acción de campo, corta la casa e inyecta la tarjeta de Google Maps
+        // EL BLOQUEO ABSOLUTO: Si es acción de campo, corta la casa e inyecta la tarjeta de Google Maps
         if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
             if (this.datosLugarGlobal) {
                 container.innerHTML = `
@@ -189,7 +189,7 @@ const KERNEL = {
                         if (btnCount) btnCount.style.display = 'none';
                         if (btnGps) {
                             btnGps.classList.remove('hidden');
-                            // Clic voluntario inmune al bloqueo de Pop-Ups en iOS y Android
+                            // CORRECCIÓN DEFINITIVA: Llama a la variable exacta que envía Python
                             btnGps.onclick = () => { window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank'); };
                         }
                     }
@@ -216,7 +216,7 @@ const KERNEL = {
         this.hablar(paso.titulo + " . " + paso.descripcion);
         document.getElementById('btn-next').onclick = () => this.avanzarPaso();
     },
- 
+
 // PARTE 4 DE 4: Reloj de Casa, Guía de Acompañamiento aleatoria expandida y Reset de Memoria
 
     iniciarRelojClinicoCasa(container, traduccion) {
