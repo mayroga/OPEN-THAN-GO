@@ -36,9 +36,7 @@ BASE_MISIONES = {
         {"id": 15, "titulo": "Contacto frío", "descripcion": "Toca una pared o una superficie de metal fría ahora mismo. Siente la temperatura real con tus dedos. Quédate ahí.", "para_que": "Para aterrizar tus pensamientos."},
         {"id": 16, "titulo": "Ventilación total", "descripcion": "Abre la puerta principal de tu casa ahora. Deja que el aire ruede y cambie el ambiente de tu sala. Huele el cambio.", "para_que": "Para sacar el encierro gris de tu día."},
         {"id": 17, "titulo": "Sacudida de estrés", "descripcion": "Párate y sacude tus manos y tus piernas con fuerza ahora. Como si te quitaras agua de encima. Hazlo por diez segundos.", "para_que": "Para romper el zombi que llevas dentro."},
-        {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira por tu ventana ahora. Enfoca tus ojos en el objeto más lejano que alcances a ver en la calle. No mires nada cerca."}
-        ],
-
+        {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira por tu ventana ahora. Enfoca tus ojos en el objeto más lejano que alcances a ver en la calle. No mires nada cerca.", "para_que": "Para descansar tu enfoque visual."}
 # PARTE 2 DE 3: Continuación del catálogo de CASA (19 a 50) y misiones de SALIR
 
         {"id": 19, "titulo": "Paso 19: Recordar la infancia", "descripcion": "Cierra los ojos y recuerda un juego o un momento feliz de tu niñez."},
@@ -83,17 +81,12 @@ BASE_MISIONES = {
             {"titulo": "Usa la resistencia de la colina", "porque": "El estrés te tiene los hombros y el pecho trabados.", "que_hacer": "Encuentra la rampa, escalera o cuesta de esa calle o parque ahora. Súbela a paso firme sintiendo el esfuerzo. Usa la gravedad del planeta para soltar el cortisol.", "donde": "Calle elevada, escalera pública o rampa.", "gps": "public+stairs+and+ramps+"},
             {"titulo": "Usa el circuito de la acera lineal", "porque": "Tu cerebro está dando vueltas en círculos de ansiedad financiera.", "que_hacer": "Pisa la acera lineal de esa avenida pública ahora. Camina recto diez minutos seguidos sin mirar el teléfono. Siente el golpe firme de tus pies contra el concreto.", "donde": "Acera peatonal o parque lineal continuo.", "gps": "linear+parks+and+walkways+"}
         ],
-        "estresado": [
-            {"titulo": "Usa la resistencia de la colina", "porque": "El estrés te tiene los hombros y el pecho trabados.", "que_hacer": "Encuentra la rampa, escalera o cuesta de esa calle o parque ahora. Súbela a paso firme sintiendo el esfuerzo. Usa la gravedad del planeta para soltar el cortisol.", "donde": "Calle elevada, escalera pública o rampa.", "gps": "public+stairs+and+ramps+"},
-            {"titulo": "Usa el circuito de la acera lineal", "porque": "Tu cerebro está dando vueltas en círculos de ansiedad financiera.", "que_hacer": "Pisa la acera lineal de esa avenida pública ahora. Camina recto diez minutos seguidos sin mirar el teléfono. Siente el golpe firme de tus pies contra el concreto.", "donde": "Acera peatonal o parque lineal continuo.", "gps": "linear+parks+and+walkways+"}
-        ],
         "aburrido": [
             {"titulo": "Usa los colores de los murales", "porque": "Vives en un piloto automático gris que te duerme la dopamina.", "que_hacer": "Párate frente a los dibujos de colores de esa pared urbana ahora. Busca tres detalles pequeños que nadie mira. Encuentra el asombro en lo insignificante.", "donde": "Calle con murales o distrito de diseño urbano.", "gps": "street+art+murals+"},
             {"titulo": "Usa los aromas del mercado abierto", "porque": "Has perdido la calidez de la espontaneidad humana por el confort.", "que_hacer": "Camina entre la multitud de ese mercado al aire libre ahora. Huele las frutas frescas, mira los objetos raros. Toca un producto gratis. Conecta ya.", "donde": "Mercado de pulgas, feria comunitaria o farmers market.", "gps": "farmers+markets+and+flea+markets+"}
         ]
     }
 }
-
 # PARTE 3 DE 3: Rutas de control, Filtros Dinámicos de Supervivencia y Encendido del Servidor
 
 @app.get("/")
@@ -104,7 +97,6 @@ async def index():
 async def mando_integral(request: Request):
     payload = await request.json()
     
-    # Captura limpia y unificada para sincronizar con tu KERNEL JS 3.2.0
     modo = str(payload.get("modo", "SALIR")).upper()
     zip_code = str(payload.get("zip", "")).strip()
     estado = str(payload.get("estado", "FL")).strip()
@@ -114,22 +106,18 @@ async def mando_integral(request: Request):
     perfil = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     
-    # MODO CASA: El KERNEL recibirá el catálogo completo de 50 misiones y aplicará el filtro local anti-repetición
     if modo == "CASA":
         return JSONResponse({"modo": "CASA", "misiones": BASE_MISIONES["CASA"]})
     
-    # MODO SALIR: El despertador calcula la ruta exacta en cualquiera de los 50 estados de USA
     else:
         info = random.choice(BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"]))
         
-        # FILTRO DE SUPERVIVENCIA FINANCIERA: Si el cliente escribe sobre deudas o biles, el mapa cambia a ayuda real
-        palabras_urgentes = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion"]
-        if any(p in desahogo for p in palabras_urgentes):
+        palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion"]
+        if any(p in desahogo for p in palabras_criticas):
             gps_query = "agencias+de+empleo+staffings+corporations"
-            que_hacer_base = "QUÉ: Oficinas de contratación rápida. CÓMO: Entra ya con tu ID en mano. CUÁNDO: Por la mañana temprano. PARA QUÉ: Conseguir ingresos y ganarle al agobio del dinero. HAZLO CONMIGO."
-            donde_base = "Agencias de trabajo y empleo inmediato en tu zona."
+            que_hacer_base = "QUÉ: Oficinas de contratación rápida. CÓMO: Entra ya con tu ID en mano. CUÁNDO: Ahora por la mañana de forma urgente. POR QUÉ: Para romper la parálisis financiera y ganarle a tus biles con acción real. HAZLO CONMIGO."
+            donde_base = "Agencias corporativas de empleo inmediato establecidas en la sociedad."
         else:
-            # Filtro elástico por presupuesto (Austeridad creativa vs Gustazos)
             if budget == "0":
                 gps_query = "free+public+parks+and+beaches"
             elif budget == "1":
@@ -137,19 +125,17 @@ async def mando_integral(request: Request):
             else:
                 gps_query = info["gps"]
             
-            que_hacer_base = f"QUÉ: {info['titulo']}. CÓMO: {info['que_hacer']} CUÁNDO: Ahora mismo. POR QUÉ: {info['porque']} HAZLO CONMIGO."
+            que_hacer_base = f"QUÉ: {info['titulo']}. CÓMO: {info['que_hacer']} CUÁNDO: Ahora mismo a partir de las 4:00 PM. POR QUÉ: {info['porque']} HAZLO CONMIGO."
             donde_base = info["donde"]
 
-        # Adaptabilidad del Perfil Biopsicosocial sin exclusión social
         msg_adicional = ""
         if perfil == "accesible":
             msg_adicional = " (Camino plano, muy fácil de caminar para personas mayores o con movilidad limitada)."
             gps_query = "wheelchair+accessible+" + gps_query
-        elif perfil == "familia":
+        elif perfil == "family":
             msg_adicional = " (Lugar seguro y divertido para ir con los niños)."
             gps_query = "family+friendly+" + gps_query
 
-        # FÓRMULA GEOGRÁFICA UNIVERSAL: Usa el ZIP si el usuario lo pone, sino usa la combinación Región + Estado
         anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
         link_maps = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
         
