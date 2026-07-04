@@ -112,7 +112,7 @@ async function solicitarEscape() {
     document.getElementById('wrapper-interactive').style.display = 'none';
 
     try {
-        const respuesta = await fetch('/api/open-than-go', {
+        const respuesta = await fetch('https://onrender.com', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
