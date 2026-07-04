@@ -1,178 +1,102 @@
-# OPEN THAN GO SYSTEM - Main Backend Engine
-# Company: May Roga LLC
-# File: main.py
-from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS
-import json
-import random
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+import uvicorn
 import os
-from urllib.parse import quote_plus
+import random
 
-app = Flask(__name__, static_folder='static')
-CORS(app)
+app = FastAPI()
 
-def cargar_mision_especifica(decision, pocket_tier, force_id=None):
-    """Carga la misión adecuada respetando la división exacta de bloques de 7."""
-    try:
-        if force_id is not None:
-            fid = int(force_id)
-            if 1 <= fid <= 7:
-                archivo = 'missions_01_07.json'
-            elif 8 <= fid <= 14:
-                archivo = 'missions_08_14.json'
-            else:
-                archivo = 'missions_15_21.json'
-        else:
-            if decision == "casa":
-                archivo = 'missions_01_07.json'
-            else:
-                archivo = random.choice(['missions_08_14.json', 'missions_15_21.json'])
-           
-        if not os.path.exists(archivo):
-            archivo = 'missions_01_07.json'
-           
-        if not os.path.exists(archivo):
-            return {
-                "id": 1,
-                "cat": "bien",
-                "pocket_match": ["cero", "minimo", "moderado", "libre"],
-                "b": [
-                    {"t": "v", "tx": {"es": "SISTEMA OPEN THAN GO ACTIVADO", "en": "OPEN THAN GO SYSTEM ACTIVATED"}},
-                    {"story": {"es": "Sincronizando frecuencias emocionales. Presiona continuar.", "en": "Synchronizing emotional frequencies. Press continue."}}
-                ]
-            }
+if not os.path.exists("static"):
+    os.makedirs("static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-        with open(archivo, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-           
-        misiones = data.get('missions', [])
-        if not misiones:
-            return None
-
-        if force_id is not None:
-            for m in misiones:
-                if int(m.get('id', 0)) == int(force_id):
-                    return m
-
-        filtradas = [m for m in misiones if pocket_tier in m.get('pocket_match', ["cero", "minimo", "moderado", "libre"])]
-        if filtradas:
-            return random.choice(filtradas)
-        return random.choice(misiones)
-       
-    except Exception as e:
-        print(f"Error crítico en catálogo de misiones: {str(e)}")
-        return None
-
-@app.route('/')
-def index():
-    return send_from_directory(app.static_folder, 'session.html')
-
-@app.route('/api/open-than-go', methods=['POST'])
-def procesar_sistema_bienestar():
-    data = request.json or {}
-    decision = data.get('decision', 'salir')
-    lang = data.get('lang', 'es')
-    desahogo_usuario = data.get('desahogo', '').lower()
-    pocket = data.get('budget_level', 'cero')
-    zip_code = data.get('zip_code', '').strip()
-    estado = data.get('estado', 'FL').strip()
-    region = data.get('region', '').strip()
-    force_id = data.get('force_id')
-
-    mision_seleccionada = cargar_mision_especifica(decision, pocket, force_id)
-    if not mision_seleccionada:
-        return jsonify({"status": "error", "message": "Inicializando bases de datos biosociales..."}), 500
-
-    # Formateador de Idioma en Espejo Protegido (Kamizen Mirror Engine)
-    bloques_processed = []
-    for comando in mision_seleccionada.get("b", []):
-        bloque_clon = comando.copy()
-       
-        for campo in ["tx", "inf", "story", "c"]:
-            if campo in bloque_clon and isinstance(bloque_clon[campo], dict):
-                bloque_clon[campo] = bloque_clon[campo].get(lang, bloque_clon[campo].get('es', ''))
-               
-        if bloque_clon.get("t") == "d":
-            if isinstance(bloque_clon.get("q"), dict):
-                # CORRECCIÓN DE SEGURIDAD INTERNA: Extrae la pregunta limpia en espejo
-                bloque_clon["q"] = bloque_clon["q"].get(lang, bloque_clon["q"].get('es', ''))
-            if "op" in bloque_clon:
-                bloque_clon["op"] = [op.get(lang, op.get('es', '')) if isinstance(op, dict) else op for op in bloque_clon["op"]]
-            if "ex" in bloque_clon:
-                bloque_clon["ex"] = [ex.get(lang, ex.get('es', '')) if isinstance(ex, dict) else ex for ex in bloque_clon["ex"]]
-               
-        bloques_processed.append(bloque_clon)
-
-    mision_final = mision_seleccionada.copy()
-    mision_final["b"] = bloques_processed
-
-    if decision == "casa":
-        return jsonify({"status": "success", "tipo": "Casa", "mision": mision_final})
-
-    categorias_por_bolsillo = {
-        "cero": {
-            "busqueda": "parques naturales publicos y playas gratis",
-            "sugerencias": {
-                "es": "1. El área verde central para desconectar. 2. El sendero abierto para activación corporal. 3. Zonas de descanso frente al paisaje.",
-                "en": "1. The central green area to disconnect. 2. The open trail for bodily activation. 3. Rest zones facing the landscape."
-            }
-        },
-        "minimo": {
-            "busqueda": "cafeterias economicas y mercados locales comunitarios",
-            "sugerencias": {
-                "es": "1. El rincón de lectura local. 2. Puestos artesanales exteriores. 3. Barra de café económico.",
-                "en": "1. The local reading corner. 2. Outdoor artisan stands. 3. Low-cost coffee bar area."
-            }
-        },
-        "moderado": {
-            "busqueda": "restaurantes familiares y centros de diversion con pistas de baile",
-            "sugerencias": {
-                "es": "1. La pista central de movimiento rítmico. 2. Mesas de integración social. 3. Espacio recreativo familiar.",
-                "en": "1. The central rhythmic movement floor. 2. Social integration tables. 3. Family recreational space."
-            }
-        },
-        "libre": {
-            "busqueda": "hoteles resorts discotecas club y entretenimiento de lujo",
-            "sugerencias": {
-                "es": "1. El lounge de relajación premium. 2. Pista de baile de alta energía. 3. Entorno de terraza de escape.",
-                "en": "1. The premium relaxation lounge. 2. High-energy dance floor. 3. Terrace escape environment."
-            }
-        }
+BASE_MISIONES = {
+    "CASA": [
+        {"titulo": "Fase 1: Reconocimiento Somático", "descripcion": "Identifica tu tensión actual sin juzgarla. Escanea tu cuerpo en silencio."},
+        {"titulo": "Fase 2: Regulación Pulmonar", "descripcion": "Inhala profundamente en 4 tiempos, mantén el aire por 2 tiempos y exhala en 6."},
+        {"titulo": "Fase 3: Desapego Digital", "descripcion": "Deja tu teléfono boca abajo. Observa 3 objetos en tu habitación, nota sus texturas y su realidad física."},
+        {"titulo": "Fase 4: Técnica de la Mochila", "descripcion": "Imagina que dejas caer al suelo una mochila pesada con todas tus deudas y biles. Siente tus hombros libres."},
+        {"titulo": "Fase 5: Cierre de Autonomía", "descripcion": "Bebe un vaso de agua lentamente, sintiendo el recorrido del líquido. Agradece una sola cosa que lograste hoy."}
+    ],
+    "SALIR": {
+        "agotado": [
+            {"titulo": "Refugio Natural", "porque": "Tu sistema necesita reducir la sobreestimulación de las pantallas.", "que_hacer": "Camina sin rumbo en zona verde.", "donde": "Parque plano de libre acceso.", "gps": "nature+parks+near+"},
+            {"titulo": "Mirador de Horizonte", "porque": "Necesitas relajar tu vista y tu perspectiva diaria.", "que_hacer": "Mira hacia la línea del horizonte.", "donde": "Punto alto o muelle de descanso.", "gps": "viewpoint+near+"}
+        ],
+        "estresado": [
+            {"titulo": "Zona de Descarga", "porque": "Necesitas metabolizar el cortisol acumulado por el trabajo.", "que_hacer": "Caminata a ritmo firme y pesado.", "donde": "Pista pública o sendero lineal.", "gps": "recreation+centers+near+"},
+            {"titulo": "Circuito de Movilidad", "porque": "Desbloquea las articulaciones donde guardas la tensión del dinero.", "que_hacer": "Camina activando el movimiento de tus hombros al aire.", "donde": "Parque lineal o camino peatonal.", "gps": "linear+park+near+"}
+        ],
+        "aburrido": [
+            {"titulo": "Distrito de Estímulo", "porque": "La monotonía bloquea tu dopamina. Necesitas asombro.", "que_hacer": "Visita una zona de arte urbano, murales y flujo público.", "donde": "Plaza principal o distrito de diseño.", "gps": "arts+and+entertainment+near+"},
+            {"titulo": "Mercado de Sabores", "porque": "La novedad sensorial despierta el interés por tu entorno.", "que_hacer": "Huele los productos nuevos y observa los colores de los puestos.", "donde": "Mercado local o feria comunitaria.", "gps": "farmers+market+near+"}
+        ]
     }
+}
 
-    palabras_urgentes = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills"]
-    if any(p in desahogo_usuario for p in palabras_urgentes):
-        termino_busqueda = "compañias de empleo agencias de trabajo staffings"
-        explicacion_sugerencias = {
-            "es": "1. Módulo de reclutamiento rápido. 2. Orientación de vacantes disponibles. 3. Agencias de contratación inmediata para solucionar el agobio financiero.",
-            "en": "1. Fast recruitment desk. 2. Available openings orientation. 3. Immediate hiring agencies to solve financial stress."
-        }
+@app.get("/")
+async def index():
+    return FileResponse('static/session.html')
+
+@app.post("/api/mando-integral")
+async def mando_integral(request: Request):
+    payload = await request.json()
+    contexto = {
+        "modo": payload.get("modo"),
+        "zip": payload.get("zip", "33101").strip(),
+        "mente": payload.get("mente", "aburrido"),
+        "budget": payload.get("budget", "0"),
+        "perfil": payload.get("perfil", "solo"),
+        "desahogo": payload.get("desahogo", "").lower()
+    }
+    
+    if contexto["modo"] == "CASA":
+        misiones_dinamicas = list(BASE_MISIONES["CASA"])
+        random.shuffle(misiones_dinamicas)
+        return JSONResponse({"modo": "CASA", "misiones": misiones_dinamicas[:3]})
+    
     else:
-        config_actual = categorias_por_bolsillo.get(pocket, categorias_por_bolsillo["cero"])
-        termino_busqueda = config_actual["busqueda"]
-        explicacion_sugerencias = config_actual["sugerencias"]
+        info = random.choice(BASE_MISIONES["SALIR"].get(contexto["mente"], BASE_MISIONES["SALIR"]["aburrido"]))
+        
+        # FILTRO DE SUPERVIVENCIA: Cambia la ruta a agencias de empleo de todos los niveles si hay urgencia financiera
+        palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion"]
+        if any(p in contexto["desahogo"] for p in palabras_criticas):
+            gps_query = "agencias+de+empleo+staffings+corporations"
+            que_hacer_base = "QUÉ: Localizar módulos de contratación rápida. CÓMO: Presenta tu identificación en recepción. CUÁNDO: Por la mañana de forma prioritaria. PARA QUÉ: Romper la parálisis del agobio económico."
+            donde_base = "Agencias de reclutamiento laboral rápido en tu zona."
+        else:
+            # Filtro elástico por presupuesto (Austeridad creativa vs Gustazos)
+            if contexto["budget"] == "0":
+                gps_query = "free+public+parks+and+beaches"
+            elif contexto["budget"] == "1":
+                gps_query = "low+cost+coffee+shops+and+local+markets"
+            else:
+                gps_query = info["gps"]
+            
+            que_hacer_base = f"QUÉ: {info['que_hacer']} CÓMO: Camina observando detalles. CUÁNDO: A partir de las 4:00 PM. PARA QUÉ: Romper tu piloto automático urbano."
+            donde_base = info["donde"]
 
-    ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
-   
-    query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
-   
-    # ENLACE UNIVERSAL GPS INDESTRUCTIBLE CORREGIDO:
-    link_google_maps_vivo = (
-    f"https://www.google.com/maps/search/?api=1&query={query_mapa}"
-)
+        # Adaptabilidad del Perfil Biopsicosocial (Edad / Discapacidad / Familia)
+        msg_adicional = ""
+        if contexto["perfil"] == "accesible":
+            msg_adicional = " (Ruta plana con prioridad de total accesibilidad física/edad)."
+            gps_query = "wheelchair+accessible+" + gps_query
+        elif contexto["perfil"] == "familia":
+            msg_adicional = " (Entorno integrador apto para menores y niños)."
+            gps_query = "family+friendly+" + gps_query
 
-    return jsonify({
-        "status": "success",
-        "tipo": "Salida",
-        "lugar": {
-            "name": f"Escape enfocado en {termino_busqueda.upper()}",
-            "address": f"📍 Área de Cobertura: {ubicacion_destino}, USA.",
-            "gps_link": link_google_maps_vivo,
-            "analisis_sugerido": explicacion_sugerencias[lang]
-        },
-        "mision": mision_final
-    })
+        link_maps = f"https://google.com{gps_query}+in+zip+{contexto['zip']}"
+        
+        return JSONResponse({
+            "modo": "SALIR",
+            "titulo": info["titulo"].upper(),
+            "porque": info["porque"],
+            "que_hacer": que_hacer_base + msg_adicional,
+            "donde": donde_base,
+            "gps": link_maps
+        })
 
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
