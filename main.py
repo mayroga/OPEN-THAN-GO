@@ -36,9 +36,8 @@ BASE_MISIONES = {
         {"id": 15, "titulo": "Contacto frío", "descripcion": "Toca una pared o una superficie de metal fría ahora mismo. Siente la temperatura real con tus dedos. Quédate ahí.", "para_que": "Para aterrizar tus pensamientos."},
         {"id": 16, "titulo": "Ventilación total", "descripcion": "Abre la puerta principal de tu casa ahora. Deja que el aire ruede y cambie el ambiente de tu sala. Huele el cambio.", "para_que": "Para sacar el encierro gris de tu día."},
         {"id": 17, "titulo": "Sacudida de estrés", "descripcion": "Párate y sacude tus manos y tus piernas con fuerza ahora. Como si te quitaras agua de encima. Hazlo por diez segundos.", "para_que": "Para romper el zombi que llevas dentro."},
-        {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira por tu ventana ahora. Enfoca tus ojos en el objeto más lejano que alcances a ver en la calle. No mires nada cerca.", "para_que": "Para descansar tu enfoque visual."}
+        {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira por tu ventana ahora. Enfoca tus ojos en el objeto más lejano que alcances a ver en la calle. No mires nada cerca.", "para_que": "Para descansar tu enfoque visual."},
 # PARTE 2 DE 3: Continuación del catálogo de CASA (19 a 50) y misiones de SALIR
-
         {"id": 19, "titulo": "Paso 19: Recordar la infancia", "descripcion": "Cierra los ojos y recuerda un juego o un momento feliz de tu niñez."},
         {"id": 20, "titulo": "Paso 20: Sonrisa forzada", "descripcion": "Dibuja una sonrisa en tu cara por 15 segundos. Tu cerebro cambiará su química."},
         {"id": 21, "titulo": "Paso 21: Agradecimiento final", "descripcion": "Cierra los ojos y agradece una sola cosa buena que te haya pasado en esta semana."},
@@ -88,7 +87,6 @@ BASE_MISIONES = {
     }
 }
 # PARTE 3 DE 3: Rutas de control, Filtros Dinámicos de Supervivencia y Encendido del Servidor
-
 @app.get("/")
 async def index():
     return FileResponse('static/session.html')
