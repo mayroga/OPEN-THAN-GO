@@ -111,8 +111,11 @@ def procesar_sistema_bienestar():
         explicacion_sugerencias = config_actual["sugerencias"]
 
     ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
-    query_mapa = f"{termino_busqueda} en {ubicacion_destino}".replace(" ", "+")
-    link_google_maps_vivo = f"https://google.com{query_mapa}"
+    from urllib.parse import quote_plus
+    query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
+    link_google_maps_vivo = (
+    f"https://www.google.com/maps/search/?api=1&query={query_mapa}"
+)
     return jsonify({
         "status": "success",
         "tipo": "Salida",
