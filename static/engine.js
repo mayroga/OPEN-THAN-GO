@@ -46,37 +46,29 @@ const traducciones = {
     }
 };
 
-// MOTOR DE VOZ POR FRACCIONAMIENTO: Lee textos largos completos sin saltarse nada en celulares
-function hablarTexto(textoCompleto) {
-    if (!textoCompleto || !('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel(); 
-
-    // Fraccionamos por signos de puntuación para crear bloques pequeños estables
-    const fragmentos = textoCompleto.split(/[.,;:!?\n]/).map(t => t.trim()).filter(t => t.length > 0);
-    let indiceFragmento = 0;
-
-    function leerSiguienteFragmento() {
-        if (indiceFragmento >= fragmentos.length) return;
-
-        const lectura = new SpeechSynthesisUtterance(fragmentos[indiceFragmento]);
-        lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US';
-        lectura.rate = 0.86; // Tono pausado de guía profesional
-        lectura.pitch = 1.0;
-
-        lectura.onend = () => {
-            indiceFragmento++;
-            leerSiguienteFragmento();
-        };
-
-        lectura.onerror = () => {
-            indiceFragmento++;
-            leerSiguienteFragmento();
-        };
-
-        window.speechSynthesis.speak(lectura);
+// CONTROL ESTRICTO DE AUDIO: Lee todo fluido de forma humana y desbloquea el sistema SOLO al finalizar
+function hablarTextoConBloqueo(texto, funcionLiberarPaso) {
+    if (!texto || !('speechSynthesis' in window)) {
+        if (funcionLiberarPaso) funcionLiberarPaso();
+        return;
     }
+    window.speechSynthesis.cancel(); // Detiene cualquier audio colgado de inmediato
 
-    leerSiguienteFragmento();
+    const lectura = new SpeechSynthesisUtterance(texto);
+    lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US';
+    lectura.rate = 0.90; // Voz guía profesional, pausada, humana y natural (no se duerme ni puja)
+    lectura.pitch = 1.0;
+
+    // EVENTO MAESTRO INDESTRUCTIBLE: Bloquea el flujo y solo activa la acción al terminar de hablar TODO
+    lectura.onend = () => {
+        if (funcionLiberarPaso) funcionLiberarPaso();
+    };
+
+    lectura.onerror = () => {
+        if (funcionLiberarPaso) funcionLiberarPaso();
+    };
+
+    window.speechSynthesis.speak(lectura);
 }
 
 function cambiarIdioma(lang) {
@@ -120,9 +112,8 @@ function cambiarModalidad(esSalir) {
     if(document.getElementById('inp-zip')) document.getElementById('inp-zip').parentElement.style.display = displayGeografia;
 }
 async function solicitarEscape() {
-    // SECUENCIA ESTRICTA LOCAL STORAGE: Calcula qué ID lineal sigue (de la 1 a la 21)
     let proximoIdMision = parseInt(localStorage.getItem('open_than_go_last_id') || '0') + 1;
-    if (proximoIdMision > 21) { proximoIdMision = 1; } // Al rebasar la 21, da la vuelta y reinicia en la 1
+    if (proximoIdMision > 21) { proximoIdMision = 1; } 
 
     const payload = {
         decision: modalidadSalir ? "salir" : "casa",
@@ -157,7 +148,6 @@ async function solicitarEscape() {
             tipoEscapeGlobal = data.tipo;
             indicePasoActual = 0;
 
-            // Almacenamos con éxito en el teléfono el ID secuencial actual
             localStorage.setItem('open_than_go_last_id', data.mision.id);
 
             document.getElementById('interactive-title').innerText = "OPEN THAN GO";
@@ -170,9 +160,10 @@ async function solicitarEscape() {
                 ejecutarRelojMaestro10Min();
                 clearTimeout(temporizadorClinicoCasa);
                 temporizadorClinicoCasa = setTimeout(() => {
-                    hablarTexto(traducciones[idiomaActual].fin_casa);
-                    alert(traducciones[idiomaActual].fin_casa);
-                    destruirMemoriaYReiniciar();
+                    hablarTextoConBloqueo(traducciones[idiomaActual].fin_casa, () => {
+                        alert(traducciones[idiomaActual].fin_casa);
+                        destruirMemoriaYReiniciar();
+                    });
                 }, 600000);
             } else {
                 document.getElementById('wrapper-global-timer').style.display = 'none';
@@ -216,7 +207,6 @@ function procesarPaoMision() {
     
     if (indicePasoActual >= pasosMisionGlobal.length) {
         if (tipoEscapeGlobal === "Casa") {
-            // AUTOMATIZACIÓN CASA: Sigue llamando al backend en fila de corrido hasta cumplir los 10 minutos
             window.speechSynthesis.cancel();
             solicitarEscape();
             return;
@@ -232,25 +222,28 @@ function procesarPaoMision() {
                         <p style="font-size:13px; line-height:1.4; font-style:italic; color:#444;">${datosLugarGlobal.analisis_sugerido}</p>
                     </div>`;
             }
-            let cuentaRegresivaSalir = 35;
-            if (botonContinuar) {
-                botonContinuar.innerText = `${cuentaRegresivaSalir}s`;
-                botonContinuar.disabled = true;
-                botonContinuar.style.display = 'block';
-            }
-            hablarTexto(traducciones[idiomaActual].alerta_35s + " . Tres sugerencias de enfoque: " + datosLugarGlobal.analisis_sugerido);
-            let relojSalida = setInterval(() => {
-                cuentaRegresivaSalir--;
-                if (botonContinuar) botonContinuar.innerText = cuentaRegresivaSalir + "s";
-                if (cuentaRegresivaSalir <= 0) {
-                    clearInterval(relojSalida);
-                    if (botonContinuar) botonContinuar.style.display = 'none';
-                    if (botonGps) {
-                        botonGps.href = datosLugarGlobal.gps_link;
-                        botonGps.style.display = 'block';
-                    }
+            
+            // LA VOZ GUÍA LEE OBLIGATORIAMENTE TODO ANTES DE ABRIR EL CRONÓMETRO DE CAMPO DE 35 SEGUNDOS
+            hablarTextoConBloqueo(traducciones[idiomaActual].alerta_35s + " . " + datosLugarGlobal.analisis_sugerido, () => {
+                let cuentaRegresivaSalir = 35;
+                if (botonContinuar) {
+                    botonContinuar.innerText = `${cuentaRegresivaSalir}s`;
+                    botonContinuar.disabled = true;
+                    botonContinuar.style.display = 'block';
                 }
-            }, 1000);
+                let relojSalida = setInterval(() => {
+                    cuentaRegresivaSalir--;
+                    if (botonContinuar) botonContinuar.innerText = cuentaRegresivaSalir + "s";
+                    if (cuentaRegresivaSalir <= 0) {
+                        clearInterval(relojSalida);
+                        if (botonContinuar) botonContinuar.style.display = 'none';
+                        if (botonGps) {
+                            botonGps.href = datosLugarGlobal.gps_link;
+                            botonGps.style.display = 'block';
+                        }
+                    }
+                }, 1000);
+            });
         } else {
             destruirMemoriaYReiniciar();
         }
@@ -264,22 +257,28 @@ function procesarPaoMision() {
         if (contenedorPasos) {
             contenedorPasos.innerHTML = `<h3 style="color:var(--secondary); margin:20px 0; font-size:18px; font-weight:800;">${textoLabel}</h3>`;
         }
-        hablarTexto(textoLabel);
-        if (tipoEscapeGlobal === "Casa") {
-            relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 8000);
-        } else {
-            if (botonContinuar) botonContinuar.style.display = 'block';
-        }
+        
+        // LA ACCIÓN DIRECTA ESPERA A QUE LA VOZ TERMINE DE HABLAR DE FORMA ABSOLUTA
+        hablarTextoConBloqueo(textoLabel, () => {
+            if (tipoEscapeGlobal === "Casa") {
+                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 8000);
+            } else {
+                if (botonContinuar) botonContinuar.style.display = 'block';
+            }
+        });
     } else if (paso.story) {
         if (contenedorPasos) {
             contenedorPasos.innerHTML = `<div class="screen-story"><p>${paso.story}</p></div>`;
         }
-        hablarTexto(paso.story);
-        if (tipoEscapeGlobal === "Casa") {
-            relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 12000);
-        } else {
-            if (botonContinuar) botonContinuar.style.display = 'block';
-        }
+        
+        // LA HISTORIA EN AUDIO ENTIERRA CUALQUIER SALTO ANTICIPADO: Bloquea hasta el final
+        hablarTextoConBloqueo(paso.story, () => {
+            if (tipoEscapeGlobal === "Casa") {
+                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 12000);
+            } else {
+                if (botonContinuar) botonContinuar.style.display = 'block';
+            }
+        });
     } else if (paso.t === "breath_auto") {
         let tiempoRestante = paso.d;
         if (contenedorPasos) {
@@ -293,29 +292,32 @@ function procesarPaoMision() {
                     <p class="breath-inf" style="font-size:12px; color:#666; max-width:90%; margin:5px auto; line-height:1.4;">${paso.inf}</p>
                 </div>`;
         }
-        hablarTexto(paso.tx + " . " + paso.inf);
-        let circulo = document.getElementById('circulo-pulso');
-        let indicadorTexto = document.getElementById('txt-pulmon-accion');
-        intervaloRespiracion = setInterval(() => {
-            tiempoRestante--;
-            if (document.getElementById('txt-segundos-circulo')) {
-                document.getElementById('txt-segundos-circulo').innerText = `${tiempoRestante}s`;
-            }
-            let cicloSegundo = tiempoRestante % 8;
-            if (cicloSegundo >= 4) {
-                if (circulo) circulo.className = "breath-circle expand";
-                if (indicadorTexto) indicadorTexto.innerText = idiomaActual === 'es' ? traducciones.es.inspira : traducciones.en.inspira;
-            } else {
-                if (circulo) circulo.className = "breath-circle contract";
-                if (indicadorTexto) indicadorTexto.innerText = idiomaActual === 'es' ? traducciones.es.expira : traducciones.en.expira;
-            }
-            if (tiempoRestante <= 0) {
-                clearInterval(intervaloRespiracion);
-                siguienteComando();
-            }
-        }, 1000);
-    }
-    else if (paso.t === "d") {
+        
+        // EL CÍRCULO PULMONAR ESPERA A QUE LA VOZ GUÍA EXPLIQUE LA DINÁMICA ANTES DE CORRER LOS SEGUNDOS
+        hablarTextoConBloqueo(paso.tx + " . " + paso.inf, () => {
+            let circulo = document.getElementById('circulo-pulso');
+            let indicadorTexto = document.getElementById('txt-pulmon-accion');
+            
+            intervaloRespiracion = setInterval(() => {
+                tiempoRestante--;
+                if (document.getElementById('txt-segundos-circulo')) {
+                    document.getElementById('txt-segundos-circulo').innerText = `${tiempoRestante}s`;
+                }
+                let cicloSegundo = tiempoRestante % 8;
+                if (cicloSegundo >= 4) {
+                    if (circulo) circulo.className = "breath-circle expand";
+                    if (indicadorTexto) indicadorTexto.innerText = idiomaActual === 'es' ? traducciones.es.inspira : traducciones.en.inspira;
+                } else {
+                   if (circulo) circulo.className = "breath-circle contract";
+                   if (indicadorTexto) indicadorTexto.innerText = idiomaActual === 'es' ?
+                   traducciones.es.expira : traducciones.en.expira;
+                   }
+                   if (tiempoRestante <= 0) {clearInterval(intervaloRespiracion);siguienteComando();}
+                   }, 1000);
+                   });
+                   }
+        else if (paso.t === "d") {
+        // SOLUCIÓN BRUTAL DE LA MONOTONÍA POSICIONAL: Mapeo y Shuffling aleatorio
         let mapeoOpciones = paso.op.map((texto, idx) => ({ texto: texto, idxOriginal: idx }));
         mapeoOpciones.sort(() => Math.random() - 0.5);
         let opcionesHtml = "";
@@ -331,7 +333,7 @@ function procesarPaoMision() {
                     <div id="box-feedback" class="feedback-box"></div>
                 </div>`;
         }
-        hablarTexto(paso.q);
+        hablarTextoConBloqueo(paso.q, null); // Lee la pregunta de inmediato al aparecer
     } else if (paso.t === "r") {
         if (contenedorPasos) {
             contenedorPasos.innerHTML = `
@@ -340,12 +342,13 @@ function procesarPaoMision() {
                     <h2 style="color:var(--accent); margin:10px 0; font-weight:800;">${paso.tx}</h2>
                 </div>`;
         }
-        hablarTexto(paso.tx);
-        if (tipoEscapeGlobal === "Casa") {
-            relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 4000);
-        } else {
-            if (botonContinuar) botonContinuar.style.display = 'block';
-        }
+        hablarTextoConBloqueo(paso.tx, () => {
+            if (tipoEscapeGlobal === "Casa") {
+                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 4000);
+            } else {
+                if (botonContinuar) botonContinuar.style.display = 'block';
+            }
+        });
     } else if (paso.t === "c") {
         if (contenedorPasos) {
             contenedorPasos.innerHTML = `
@@ -353,12 +356,13 @@ function procesarPaoMision() {
                     <p style="font-style:italic; font-size:15px; margin:0; font-weight:500; line-height:1.4;">"${paso.tx}"</p>
                 </div>`;
         }
-        hablarTexto(paso.tx);
-        if (tipoEscapeGlobal === "Casa") {
-            relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 8000);
-        } else {
-            if (botonContinuar) botonContinuar.style.display = 'block';
-        }
+        hablarTextoConBloqueo(paso.tx, () => {
+            if (tipoEscapeGlobal === "Casa") {
+                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 8000);
+            } else {
+                if (botonContinuar) botonContinuar.style.display = 'block';
+            }
+        });            
     } else if (paso.t === "sil") {
         if (contenedorPasos) {
             contenedorPasos.innerHTML = `
@@ -367,12 +371,13 @@ function procesarPaoMision() {
                     <small style="color:#4a148c; display:block; font-weight:600;">💡 Enfoque: ${paso.inf}</small>
                 </div>`;
         }
-        hablarTexto(paso.tx + " . Enfoque mental: " + paso.inf);
-        if (tipoEscapeGlobal === "Casa") {
-            relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 12000);
-        } else {
-            if (botonContinuar) botonContinuar.style.display = 'block';
-        }
+        hablarTextoConBloqueo(paso.tx + " . Enfoque mental: " + paso.inf, () => {
+            if (tipoEscapeGlobal === "Casa") {
+                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 12000);
+            } else {
+                if (botonContinuar) botonContinuar.style.display = 'block';
+            }
+        });
     }
 }
 
@@ -385,20 +390,22 @@ function evaluarTriviaMargenReintento(indiceSeleccionado, indiceCorrecto, explic
     contenedorFeedback.innerHTML = prefijo + explicacionTexto;
     contenedorFeedback.style.display = "block";
     const textoLimpioExplicacion = explicacionTexto.replace(/<[^>]*>/g, '');
-    if (esCorrecto) {
-        const botones = document.querySelectorAll('.btn-opcion');
-        botones.forEach(btn => btn.disabled = true);
-        hablarTexto((idiomaActual === 'es' ? "Verdadero. " : "True. ") + textoLimpioExplicacion);
-        const nextBtn = document.getElementById('btn-next') || document.querySelector('.btn-next-step');
-        if (nextBtn) nextBtn.style.display = 'block';
-    } else {
-        const objetivoBoton = document.getElementById(`opt-${indiceSeleccionado}`);
-        if (objetivoBoton) {
-            objetivoBoton.style.opacity = "0.4";
-            objetivoBoton.style.pointerEvents = "none";
+    
+    // BLOQUEO ABSOLUTO EN LA RESPUESTA DE LA TRIVIA: El botón continuar solo aparece al terminar la voz
+    hablarTextoConBloqueo((idiomaActual === 'es' ? (esCorrecto ? "Verdadero. " : "Falso. ") : (esCorrecto ? "True. " : "False. ")) + textoLimpioExplicacion, () => {
+        if (esCorrecto) {
+            const botones = document.querySelectorAll('.btn-opcion');
+            botones.forEach(btn => btn.disabled = true);
+            const nextBtn = document.getElementById('btn-next') || document.querySelector('.btn-next-step');
+            if (nextBtn) nextBtn.style.display = 'block';
+        } else {
+            const objetivoBoton = document.getElementById(`opt-${indiceSeleccionado}`);
+            if (objetivoBoton) {
+                objetivoBoton.style.opacity = "0.4";
+                objetivoBoton.style.pointerEvents = "none";
+            }
         }
-        hablarTexto((idiomaActual === 'es' ? "Falso. " : "False. ") + textoLimpioExplicacion);
-    }
+    });
 }
 
 function destruirMemoriaYReiniciar() {
@@ -418,3 +425,5 @@ function siguienteComando() {
     indicePasoActual++;
     procesarPaoMision();
 }
+
+    
