@@ -29,13 +29,15 @@ const KERNEL = {
 
     hablar(texto) {
         if (!texto) return;
-        // Corta rastros de voz previos únicamente al avanzar de fase secuencial, jamás por segundo
         window.speechSynthesis.cancel(); 
         
-        const textoLimpio = texto.replace(/<[^>]*>/g, '');
-        const msg = new SpeechSynthesisUtterance(textoLimpio);
+        // HACK DE MARCA: Sustituye el texto para obligar al teléfono a pronunciar "Open Dan Go" corrido
+        let textoCorregido = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO");
+        textoCorregido = textoCorregido.replace(/<[^>]*>/g, '');
+        
+        const msg = new SpeechSynthesisUtterance(textoCorregido);
         msg.lang = 'es-US';
-        msg.rate = 0.88; // Ritmo pausado y firme de guía absoluta
+        msg.rate = 1.15; // Velocidad de acción rápida y despierta, cero aburrida
         msg.pitch = 1.0;
         window.speechSynthesis.speak(msg);
     },
@@ -108,30 +110,30 @@ const KERNEL = {
   
 // PARTE 3 DE 4: Sesiones de Salida, Retención Somática Obligatoria de 35 segundos e Inyección de Destino
 
-    procesarFlujoSecuencial(container) {
+       procesarFlujoSecuencial(container) {
         clearInterval(this.timer);
         const traducciones = {
-            es: { inspira: "Inhala / Inspira ahora", expira: "Exhala / Expira ahora", fin_casa: "Protocolo de diez minutos completado. Borrando rastro de sesión por tu paz mental." },
+            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin_casa: "Protocolo completado. Borrando rastro de sesión por tu paz mental." },
             en: { inspira: "Inhale now", expira: "Exhale now", fin_casa: "Protocol completed. Clearing tracks for your mental peace." }
         };
         const traduccion = traducciones[this.idiomaActual];
 
-        if (this.indiceMision >= this.pasosMisiones.length) {
-            if (this.tipoEscapeGlobal === "SALIR" && this.datosLugarGlobal) {
+        // EL AMARRE DEFINITIVO: Si el servidor responde SALIR, corta el flujo de casa e inyecta la guía de campo de inmediato
+        if (this.tipoEscapeGlobal === "SALIR") {
+            if (this.datosLugarGlobal) {
                 container.innerHTML = `
-                    <div class="mision-card" style="border: 1px solid #333; padding: 20px; text-align: center; background: #0a0a0a; border-radius: 12px;">
+                    <div class="mision-card">
                         <h2 style="color:#d84315; font-weight:900; font-size:1.3rem;">${this.datosLugarGlobal.name}</h2>
                         <p style="font-size:13px; color:#aaa; margin:5px 0;">${this.datosLugarGlobal.address}</p>
                         <hr style="border:0; border-top:1px dashed #333; margin:15px 0;">
                         <p style="text-align:left; font-size:14px; line-height:1.45; background:#111; padding:12px; border-radius:6px; border-left:4px solid #2e7d32; color:#fff;">
-                            <strong>GUÍA ABSOLUTA DE ACCIÓN:</strong><br>${this.datosLugarGlobal.analisis_sugerido}
+                            <strong>GUÍA ABSOLUTA DE ACCIÓN:</strong><br>${this.datosLugarGlobal.que_hacer}
                         </p>
                         <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:16px; font-weight:bold; margin-top:15px;" disabled>35s ESCUCHA MI GUÍA</button>
                         <button id="btn-gps-action" class="hidden" style="width:100%; background:#4285f4; color:#fff; padding:16px; font-weight:bold; margin-top:15px;">ABRIR GOOGLE MAPS YA</button>
                     </div>`;
 
-                // La voz te lo exige: Te lee el qué, cómo, cuándo, dónde y para qué de forma directa
-                this.hablar("He tomado la decisión por ti. Tu destino es " + this.datosLugarGlobal.name + " . Escucha las indicaciones de acción obligatorias antes de marcharte: " + this.datosLugarGlobal.analisis_sugerido);
+                this.hablar(this.datosLugarGlobal.name + " . " + this.datosLugarGlobal.que_hacer);
 
                 let retencion = 35;
                 const btnCount = document.getElementById('btn-countdown-salida');
@@ -149,9 +151,13 @@ const KERNEL = {
                         }
                     }
                 }, 1000);
-            } else {
-                this.iniciarRelojClinicoCasa(container, traduccion);
+                return;
             }
+        }
+
+        // Si es Modo CASA, continúa con el flujo ordinario paso a paso
+        if (this.indiceMision >= this.pasosMisiones.length) {
+            this.iniciarRelojClinicoCasa(container, traduccion);
             return;
         }
 
