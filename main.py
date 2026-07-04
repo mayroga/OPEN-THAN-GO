@@ -2,31 +2,21 @@
 # Company: May Roga LLC
 # File: main.py
 from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS  # INYECCIÓN DE SEGURIDAD PARA CELULARES
+from flask_cors import CORS
 import json
 import random
 import os
 
 app = Flask(__name__, static_folder='static')
-CORS(app)  # Abre las compuertas de red para evitar el congelamiento
+CORS(app)
 
-def cargar_mision_especifica(decision, pocket_tier, force_id=None):
-    """Carga la misión adecuada respetando el orden lineal estricto sin repetición."""
+def cargar_mision_especifica(decision, pocket_tier):
+    """Carga la misión adecuada respetando la división exacta de bloques de 7."""
     try:
-        # Si el frontend envía un ID forzado lineal, buscamos en cuál archivo JSON vive
-        if force_id is not None:
-            fid = int(force_id)
-            if 1 <= fid <= 7:
-                archivo = 'missions_01_07.json'
-            elif 8 <= fid <= 14:
-                archivo = 'missions_08_14.json'
-            else:
-                archivo = 'missions_15_21.json'
+        if decision == "casa":
+            archivo = 'missions_01_07.json'
         else:
-            if decision == "casa":
-                archivo = 'missions_01_07.json'
-            else:
-                archivo = random.choice(['missions_08_14.json', 'missions_15_21.json'])
+            archivo = random.choice(['missions_08_14.json', 'missions_15_21.json'])
             
         if not os.path.exists(archivo):
             archivo = 'missions_01_07.json'
@@ -48,12 +38,6 @@ def cargar_mision_especifica(decision, pocket_tier, force_id=None):
         misiones = data.get('missions', [])
         if not misiones:
             return None
-
-        # Si hay un ID forzado, extraemos exactamente esa misión
-        if force_id is not None:
-            for m in misiones:
-                if int(m.get('id', 0)) == int(force_id):
-                    return m
 
         filtradas = [m for m in misiones if pocket_tier in m.get('pocket_match', ["cero", "minimo", "moderado", "libre"])]
         if filtradas:
@@ -78,17 +62,14 @@ def procesar_sistema_bienestar():
     zip_code = data.get('zip_code', '').strip()
     estado = data.get('estado', 'FL').strip()
     region = data.get('region', '').strip()
-    force_id = data.get('force_id')
 
     mision_seleccionada = cargar_mision_especifica(decision, pocket)
     if not mision_seleccionada:
         return jsonify({"status": "error", "message": "Inicializando bases de datos biosociales..."}), 500
 
-    # Formateador de Idioma en Espejo Protegido (Kamizen Mirror Engine)
     bloques_processed = []
     for comando in mision_seleccionada.get("b", []):
         bloque_clon = comando.copy()
-        
         for campo in ["tx", "inf", "story", "c"]:
             if campo in bloque_clon and isinstance(bloque_clon[campo], dict):
                 bloque_clon[campo] = bloque_clon[campo].get(lang, bloque_clon[campo].get('es', ''))
@@ -153,7 +134,11 @@ def procesar_sistema_bienestar():
         explicacion_sugerencias = config_actual["sugerencias"]
 
     ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
-    query_mapa = f"{termino_busqueda} en {ubicacion_destino}".replace(" ", "+")
+    
+    from urllib.parse import quote_plus
+    query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
+    
+    # CORRECCIÓN DE LA URL DEL GPS MÓVIL:
     link_google_maps_vivo = f"https://google.com{query_mapa}"
 
     return jsonify({
@@ -167,6 +152,13 @@ def procesar_sistema_bienestar():
         },
         "mision": mision_final
     })
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
