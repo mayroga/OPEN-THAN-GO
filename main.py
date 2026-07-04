@@ -6,14 +6,14 @@ from flask_cors import CORS
 import json
 import random
 import os
+from urllib.parse import quote_plus
 
 app = Flask(__name__, static_folder='static')
 CORS(app)
 
-def cargar_mision_secuencial(decision, pocket_tier, force_id=None):
-    """Carga la misión en orden lineal estricto del 1 al 21 respetando el LocalStorage."""
+def cargar_mision_especifica(decision, pocket_tier, force_id=None):
+    """Carga la misión adecuada respetando la división exacta de bloques de 7."""
     try:
-        # Si el frontend nos exige un ID lineal específico por LocalStorage
         if force_id is not None:
             fid = int(force_id)
             if 1 <= fid <= 7:
@@ -23,7 +23,6 @@ def cargar_mision_secuencial(decision, pocket_tier, force_id=None):
             else:
                 archivo = 'missions_15_21.json'
         else:
-            # Caída de respaldo por si falla el almacenamiento local
             if decision == "casa":
                 archivo = 'missions_01_07.json'
             else:
@@ -50,13 +49,11 @@ def cargar_mision_secuencial(decision, pocket_tier, force_id=None):
         if not misiones:
             return None
 
-        # Si tenemos el ID forzado, extraemos quirúrgicamente esa misión
         if force_id is not None:
             for m in misiones:
                 if int(m.get('id', 0)) == int(force_id):
                     return m
 
-        # Filtro de respaldo secundario
         filtradas = [m for m in misiones if pocket_tier in m.get('pocket_match', ["cero", "minimo", "moderado", "libre"])]
         if filtradas:
             return random.choice(filtradas)
@@ -80,15 +77,13 @@ def procesar_sistema_bienestar():
     zip_code = data.get('zip_code', '').strip()
     estado = data.get('estado', 'FL').strip()
     region = data.get('region', '').strip()
-    
-    # Capturamos el ID forzado secuencial del LocalStorage
     force_id = data.get('force_id')
 
-    mision_seleccionada = cargar_mision_secuencial(decision, pocket, force_id)
+    mision_seleccionada = cargar_mision_especifica(decision, pocket, force_id)
     if not mision_seleccionada:
-        return jsonify({"status": "error", "message": "Inicializando bases de datos..."}), 500
+        return jsonify({"status": "error", "message": "Inicializando bases de datos biosociales..."}), 500
 
-    # Formateador Clínico de Idioma en Espejo (Kamizen Mirror Engine)
+    # Formateador de Idioma en Espejo Protegido (Kamizen Mirror Engine)
     bloques_processed = []
     for comando in mision_seleccionada.get("b", []):
         bloque_clon = comando.copy()
@@ -99,7 +94,7 @@ def procesar_sistema_bienestar():
                 
         if bloque_clon.get("t") == "d":
             if isinstance(bloque_clon.get("q"), dict):
-                bloque_clon["q"] = bloque_clon["q"].get(lang, bloque_clon["q"].get('es', ''))
+                bloque_clon["q"] = ...
             if "op" in bloque_clon:
                 bloque_clon["op"] = [op.get(lang, op.get('es', '')) if isinstance(op, dict) else op for op in bloque_clon["op"]]
             if "ex" in bloque_clon:
@@ -158,11 +153,8 @@ def procesar_sistema_bienestar():
 
     ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
     
-        from urllib.parse import quote_plus
-        query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
-        
-        # ENLACE UNIVERSAL GPS INDESTRUCTIBLE REPARADO:
-        link_google_maps_vivo = f"https://google.com{query_mapa}"
+    query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
+    link_google_maps_vivo = f"https://google.com{query_mapa}"
 
     return jsonify({
         "status": "success",
@@ -175,6 +167,13 @@ def procesar_sistema_bienestar():
         },
         "mision": mision_final
     })
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
