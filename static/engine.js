@@ -1,7 +1,7 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.3.0.0
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.3.2.0
 // Company: May Roga LLC
 // File: static/engine.js
-// PARTE 1 DE 4
+// PARTE 1 DE 4: Inicialización, Sorpresa Inicial y Motor de Voz
 
 const KERNEL = {
     timer: null,
@@ -20,32 +20,40 @@ const KERNEL = {
         }
     },
 
+    despertarInicial() {
+        // La gran sorpresa: El usuario da un clic y la app le habla directo al oído con palabras simples
+        document.getElementById('pantalla-bienvenida').style.display = 'none';
+        document.getElementById('wrapper-form').classList.remove('hidden');
+        this.hablar("Bienvenido a O P E N  T H A N  G O. Tu escape inteligente. Estamos listos para sacarte de la rutina diaria. Activa el mando para comenzar.");
+    },
+
     hablar(texto) {
         if (!texto) return;
+        // Corta de raíz audios viejos al cambiar de fase, evitando que se trabe la memoria del teléfono
         window.speechSynthesis.cancel(); 
         
         const textoLimpio = texto.replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(textoLimpio);
         msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
-        msg.rate = 0.88; 
+        msg.rate = 0.88; // Velocidad pausada y clara para guiar los sentidos
         msg.pitch = 1.0;
         window.speechSynthesis.speak(msg);
     },
     
-// PARTE 2 DE 4: Captura de Datos y Enlace con el Servidor (Sincronizado)
+// PARTE 2 DE 4: Captura de Datos, Conexión Rápida y Memoria Local Global
 
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
 
-        // Captura exacta de los mandos del formulario sin dejar cabos sueltos
         const payload = {
             zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
             mente: document.getElementById('inp-mente') ? document.getElementById('inp-mente').value : "aburrido",
             modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR",
             budget: document.getElementById('inp-budget') ? document.getElementById('inp-budget').value : "0",
             perfil: document.getElementById('inp-perfil') ? document.getElementById('inp-perfil').value : "solo",
-            desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : ""
+            desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : "",
+            estado: document.getElementById('inp-state') ? document.getElementById('inp-state').value : "FL"
         };
 
         const container = document.getElementById('wrapper-interactive');
@@ -61,13 +69,35 @@ const KERNEL = {
             });
             const data = await respuesta.json();
             
-            // Asignación elástica del bloque 'b' o misiones puras de tu catálogo
-            this.pasosMisiones = data.misiones || (data.mision ? data.mision.b : []);
             this.datosLugarGlobal = data.lugar || null;
             this.tipoEscapeGlobal = data.modo || data.tipo;
             this.indiceMision = 0;
 
-            // Arranca el procesador por pasos del teléfono del cliente
+            if (this.tipoEscapeGlobal === "CASA") {
+                // ALGORITMO INTEGRAL ANTI-REPETICIÓN A COSTO CERO PARA MILLONES
+                // El teléfono del cliente recuerda individualmente qué misiones completó
+                let completadas = JSON.parse(localStorage.getItem('otg_completadas_50')) || [];
+                
+                // Filtramos del catálogo de 50 misiones cuáles quedan libres
+                let disponibles = data.misiones.filter(m => !completadas.includes(m.id));
+                
+                // TOPE FINAL LOGRADO: Si completó las 50 misiones, el historial se limpia solo y empieza de nuevo
+                if (disponibles.length < 3) {
+                    completadas = [];
+                    localStorage.setItem('otg_completadas_50', JSON.stringify([]));
+                    disponibles = data.misiones;
+                }
+                
+                // Selecciona las próximas 3 misiones fijas secuenciales sin repetir
+                this.pasosMisiones = disponibles.slice(0, 3);
+                
+                // Guarda de inmediato los IDs en el hardware del cliente para bloquear repeticiones en el próximo reingreso
+                this.pasosMisiones.forEach(m => completadas.push(m.id));
+                localStorage.setItem('otg_completadas_50', JSON.stringify(completadas));
+            } else {
+                this.pasosMisiones = data.misiones || [];
+            }
+
             this.procesarFlujoSecuencial(container);
         } catch (error) {
             alert("Error de enlace satelital con el servidor.");
@@ -80,21 +110,22 @@ const KERNEL = {
     procesarRespuesta(res) {
         this.isLocked = false;
     },
-
-// PARTE 3 DE 4: Procesador de Misiones, Historias y Pulmón Torácico
+    
+// PARTE 3 DE 4: Procesador Secuencial y Reloj de Retención de 35 Segundos
 
     procesarFlujoSecuencial(container) {
         clearInterval(this.timer);
         const traducciones = {
-            es: { inspira: "Inhala / Inspira", expira: "Exhala / Expira", txt_correcto: "<strong>¡RESPUESTA VERDADERA!</strong><br>", txt_incorrecto: "<strong>ANÁLISIS DE FALLO:</strong><br>", alerta_35s: "Preparación de campo activa por 35 segundos. Escucha atentamente.", fin_casa: "Protocolo completado. Borrando rastro." },
-            en: { inspira: "Inhale", expira: "Exhale", txt_correcto: "<strong>TRUE ANSWER!</strong><br>", txt_incorrecto: "<strong>FAILURE ANALYSIS:</strong><br>", alerta_35s: "Field preparation active for 35 seconds. Listen carefully.", fin_casa: "Protocol completed. Clearing tracks." }
+            es: { inspira: "Inhala / Inspira", expira: "Exhala / Expira", txt_correcto: "<strong>¡RESPUESTA VERDADERA!</strong><br>", txt_incorrecto: "<strong>ANÁLISIS DE FALLO:</strong><br>", alerta_35s: "Preparación de campo activa por 35 segundos. Escucha atentamente antes de abrir la ruta.", fin_casa: "Protocolo completado. Borrando rastro de sesión." },
+            en: { inspira: "Inhale", expira: "Exhale", txt_correcto: "<strong>TRUE ANSWER!</strong><br>", txt_incorrecto: "<strong>FAILURE ANALYSIS:</strong><br>", alerta_35s: "Field preparation active for 35 seconds. Listen carefully before opening route.", fin_casa: "Protocol completed. Clearing session tracks." }
         };
         const traduccion = traducciones[this.idiomaActual];
 
+        // REGLA DE CIERRE: Al completar los 3 pasos asignados del catálogo
         if (this.indiceMision >= this.pasosMisiones.length) {
             if (this.tipoEscapeGlobal === "SALIR" && this.datosLugarGlobal) {
                 container.innerHTML = `
-                    <div class="mision-card">
+                    <div class="mision-card" style="border: 1px solid #333; padding: 20px; text-align: center; background: #0a0a0a; border-radius: 12px;">
                         <h2 style="color:#d84315; font-weight:900;">${this.datosLugarGlobal.name}</h2>
                         <p style="font-size:13px; color:#aaa; margin:5px 0;">${this.datosLugarGlobal.address}</p>
                         <hr style="border:0; border-top:1px dashed #333; margin:15px 0;">
@@ -119,6 +150,7 @@ const KERNEL = {
                         if (btnCount) btnCount.style.display = 'none';
                         if (btnGps) {
                             btnGps.classList.remove('hidden');
+                            // Clic voluntario inmune al bloqueo de Pop-Ups
                             btnGps.onclick = () => { window.open(this.datosLugarGlobal.gps, '_blank'); };
                         }
                     }
@@ -131,142 +163,25 @@ const KERNEL = {
 
         const paso = this.pasosMisiones[this.indiceMision];
 
-        if (paso.t === "v" || paso.t === "h") {
-            let textoLabel = typeof paso.tx === 'object' ? paso.tx[this.idiomaActual] : paso.tx;
-            container.innerHTML = `
-                <div class="mision-card">
-                    <h3 style="color:#2e7d32; font-size:1.3rem; font-weight:800; text-transform:uppercase;">${textoLabel}</h3>
-                    <button id="btn-next" style="width:100%; background:#222; color:#fff; padding:14px; font-weight:bold; margin-top:20px;">CONTINUAR</button>
-                </div>`;
-            this.hablar(textoLabel);
-            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
-        }
-        else if (paso.story) {
-            let textoStory = paso.story[this.idiomaActual];
-            container.innerHTML = `
-                <div class="mision-card" style="text-align:left;">
-                    <p style="font-size:1.05rem; line-height:1.6; color:#ccc; border-left:4px solid #2e7d32; padding-left:15px;">${textoStory}</p>
-                    <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:14px; font-weight:bold; margin-top:20px; text-transform:uppercase;">CONTINUAR</button>
-                </div>`;
-            this.hablar(textoStory);
-            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
-        }
-        else if (paso.t === "breath_auto" || paso.descripcion) {
-            let tiempoPulmon = paso.d || 25;
-            let textoInstruccion = paso.tx ? paso.tx[this.idiomaActual] : paso.titulo;
-            let textoDetalle = paso.inf ? paso.inf[this.idiomaActual] : paso.descripcion;
+        // Renderizado e inyección limpia de la misión en el lienzo interactivo
+        let textoTitulo = paso.titulo;
+        let textoDetalle = paso.descripcion;
 
-            container.innerHTML = `
-                <div class="mision-card">
-                    <div id="breath-circle"></div>
-                    <div id="circulo-pulso" style="font-size:2rem; font-weight:800; margin-top:10px;">${tiempoPulmon}s</div>
-                    <div id="txt-pulmon-accion" style="font-size:1.3rem; font-weight:bold; color:#00bcd4; margin-top:10px; text-transform:uppercase;">INHALA / INSPIRA</div>
-                    <p style="font-weight:600; margin-top:15px; color:#fff;">${textoInstruccion}</p>
-                    <p style="font-size:12px; color:#777; line-height:1.4;">${textoDetalle}</p>
-                    <button id="btn-next" class="hidden" style="width:100%; background:#2e7d32; color:#fff; padding:14px; font-weight:bold; margin-top:15px;">AVANZAR</button>
-                </div>`;
-            
-            this.hablar(textoInstruccion + " . " + textoDetalle);
-
-            let relojPulmon = setInterval(() => {
-                tiempoPulmon--;
-                const divContador = document.getElementById('circulo-pulso');
-                const divAccion = document.getElementById('txt-pulmon-accion');
-                if (divContador) divContador.innerText = `${tiempoPulmon}s`;
-                if (divAccion) {
-                    let ciclo = tiempoPulmon % 8;
-                    if (ciclo >= 4) {
-                        divAccion.innerText = traduccion.inspira;
-                        divAccion.style.color = "#00bcd4";
-                    } else {
-                        divAccion.innerText = traduccion.expira;
-                        divAccion.style.color = "#d84315";
-                    }
-                }
-                if (tiempoPulmon <= 0) {
-                    clearInterval(relojPulmon);
-                    const btnNext = document.getElementById('btn-next');
-                    if (btnNext) btnNext.classList.remove('hidden');
-                }
-            }, 1000);
-
-            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
-        }
-            
-// PARTE 4 DE 4: Cuestionario Conductual, Puntos, Compromisos y Autodestrucción de Rastro
-
-        else if (paso.t === "d") {
-            let opcionesHtml = "";
-            paso.op.forEach((opcion, index) => {
-                opcionesHtml += `<button class="btn-opcion" id="opt-${index}" style="width:100%; text-align:left; padding:12px; margin-top:8px; background:#111; color:#fff; border:1px solid #333; cursor:pointer;" onclick="KERNEL.evaluarRespuestaTrivia(${index}, ${paso.c}, '${paso.ex[index][this.idiomaActual].replace(/'/g, "\\'")}', '${traduccion.txt_correcto}', '${traduccion.txt_incorrecto}')">${opcion[this.idiomaActual]}</button>`;
-            });
-
-            container.innerHTML = `
-                <div class="mision-card" style="text-align:left;">
-                    <p style="font-weight:700; font-size:14.5px; color:#fff; line-height:1.4;">${paso.q[this.idiomaActual]}</p>
-                    <div style="margin-top:10px;">${opcionesHtml}</div>
-                    <div id="box-feedback" class="feedback-box" style="margin-top:12px; padding:12px; border-radius:8px; display:none; font-size:13px; line-height:1.4;"></div>
-                    <button id="btn-next" class="hidden" style="width:100%; background:#2e7d32; color:#fff; padding:14px; font-weight:bold; margin-top:15px; text-transform:uppercase;">CONTINUAR</button>
-                </div>`;
-            this.hablar(paso.q[this.idiomaActual]);
-            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
-        }
-        else if (paso.t === "r") {
-            container.innerHTML = `
-                <div class="mision-card">
-                    <span style="font-size:50px;">💎</span>
-                    <h2 style="color:#d84315; font-weight:900; margin:15px 0;">${paso.tx}</h2>
-                    <button id="btn-next" style="width:100%; background:#222; color:#fff; padding:14px; font-weight:bold;">ACEPTAR ENFOQUE</button>
-                </div>`;
-            this.hablar(paso.tx);
-            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
-        }
-        else if (paso.t === "c") {
-            let textoCompromiso = typeof paso.tx === 'object' ? paso.tx[this.idiomaActual] : paso.tx;
-            container.innerHTML = `
-                <div class="mision-card">
-                    <div style="padding:20px; background:#111; border-radius:8px; border:1px dashed #fbc02d; margin-bottom:15px;">
-                        <p style="font-style:italic; font-size:15px; margin:0; color:#fff; line-height:1.4;">"${textoCompromiso}"</p>
-                    </div>
-                    <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:14px; font-weight:bold;">ME COMPROMETO</button>
-                </div>`;
-            this.hablar(textoCompromiso);
-            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
-        }
-        else if (paso.t === "sil") {
-            container.innerHTML = `
-                <div class="mision-card" style="text-align:left;">
-                    <p style="font-size:14px; line-height:1.4; color:#fff;"><strong>MISIÓN DE ENTORNO:</strong><br>${paso.tx[this.idiomaActual]}</p>
-                    <small style="color:#00bcd4; font-weight:600; margin-top:5px; display:block;">💡 FOCO: ${paso.inf[this.idiomaActual]}</small>
-                    <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:14px; font-weight:bold; margin-top:15px; text-transform:uppercase;">EJECUTAR</button>
-                </div>`;
-            this.hablar(paso.tx[this.idiomaActual] + " . Enfoque mental: " + paso.inf[this.idiomaActual]);
-            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
-        }
+        container.innerHTML = `
+            <div class="mision-card" style="background:#0a0a0a; border:1px solid #333; padding:25px; border-radius:12px;">
+                <h3 style="color:#2e7d32; font-size:1.3rem; font-weight:800; text-transform:uppercase; margin-top:0;">${textoTitulo}</h3>
+                <p style="font-size:1.1rem; line-height:1.5; color:#ccc; margin:20px 0;">${textoDetalle}</p>
+                <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:15px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer;">CONTINUAR</button>
+            </div>`;
+        
+        this.hablar(textoTitulo + " . " + textoDetalle);
+        document.getElementById('btn-next').onclick = () => this.avanzarPaso();
     },
-
-    evaluarRespuestaTrivia(seleccionado, correcto, explicacion, txtCorrecto, txtIncorrecto) {
-        const box = document.getElementById('box-feedback');
-        if (!box) return;
-        const esCorrecto = seleccionado === correcto;
-        box.style.display = "block";
-        box.className = esCorrecto ? "feedback-box fb-correcto" : "feedback-box fb-incorrecto";
-        box.innerHTML = (esCorrecto ? txtCorrecto : txtIncorrecto) + explicacion;
-
-        if (esCorrecto) {
-            document.querySelectorAll('.btn-opcion').forEach(btn => btn.disabled = true);
-            // CORRECCIÓN: Hablar la explicación real de tu JSON sin mezclar variables
-            this.hablar((this.idiomaActual === 'es' ? "Excelente. " : "True. ") + explicacion);
-            document.getElementById('btn-next').classList.remove('hidden');
-        } else {
-            const btnFallo = document.getElementById(`opt-${seleccionado}`);
-            if (btnFallo) { btnFallo.style.opacity = "0.35"; btnFallo.style.pointerEvents = "none"; }
-            this.hablar((this.idiomaActual === 'es' ? "Analiza esto. " : "False. ") + explicacion);
-        }
-    },
+    
+// PARTE 4 DE 4: Reloj Clínico de Casa, Sincronización Pulmonar y Autodestrucción de Rastro
 
     iniciarRelojClinicoCasa(container, traduccion) {
-        this.hablar("Fase misiones completada. Iniciando reloj clínico de diez minutos. Sincroniza tu respiración.");
+        this.hablar("Fase educativa completada. Iniciando reloj clínico de diez minutos. Sincroniza tu respiración con el pulmón.");
         container.innerHTML = `
             <div id="breath-circle"></div>
             <div id="timer" style="font-weight:900; text-align:center; font-size:2.8rem; margin:15px 0;">10:00</div>
@@ -280,14 +195,22 @@ const KERNEL = {
             const timerDiv = document.getElementById('timer');
             const pulmonDiv = document.getElementById('txt-pulmon');
             if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+            
+            // Control visual del pulmón en pantalla (In/Out) sin invocar SpeechSynthesis interno que corte el audio anterior
             if (pulmonDiv) {
                 let ciclo = this.timeLeft % 8;
-                if (ciclo >= 4) { pulmonDiv.innerText = traduccion.inspira; pulmonDiv.style.color = "#00bcd4"; }
-                else { pulmonDiv.innerText = traduccion.expira; pulmonDiv.style.color = "#d84315"; }
+                if (ciclo >= 4) { 
+                    pulmonDiv.innerText = traduccion.inspira; 
+                    pulmonDiv.style.color = "#00bcd4"; 
+                } else { 
+                    pulmonDiv.innerText = traduccion.expira; 
+                    pulmonDiv.style.color = "#d84315"; 
+                }
             }
             if (this.timeLeft <= 0) {
                 clearInterval(this.timer);
                 this.hablar(traduccion.fin_casa);
+                alert(traduccion.fin_casa);
                 this.destruirYReiniciar();
             }
         }, 1000);
@@ -300,12 +223,13 @@ const KERNEL = {
     },
 
     destruirYReiniciar() {
+        // Borrado definitivo de variables y rastros para evitar acumulaciones que traben el teléfono
         clearInterval(this.timer);
         window.speechSynthesis.cancel();
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
-        location.reload();
+        location.reload(); // Borra la caché visual del navegador de forma instantánea
     }
 };
 
