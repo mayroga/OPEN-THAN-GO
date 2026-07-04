@@ -44,14 +44,38 @@ const traducciones = {
     }
 };
 
-function hablarTexto(texto) {
-    if (!texto) return;
-    window.speechSynthesis.cancel(); 
-    const lectura = new SpeechSynthesisUtterance(texto);
-    lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US';
-    lectura.rate = 0.88; 
-    lectura.pitch = 1.0;
-    window.speechSynthesis.speak(lectura);
+// SOLUCIÓN AL CORTE DE VOZ: Rompe textos largos en oraciones cortas para que el celular lea TODO
+function hablarTexto(textoCompleto) {
+    if (!textoCompleto || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel(); // Cancela audios colgados
+
+    // Dividimos por puntos, comas o signos para crear bloques pequeños estables
+    const fragmentos = textoCompleto.split(/[.,;:!?\n]/).map(t => t.trim()).filter(t => t.length > 0);
+    let indiceFragmento = 0;
+
+    function leerSiguienteFragmento() {
+        if (indiceFragmento >= fragmentos.length) return;
+
+        const lectura = new SpeechSynthesisUtterance(fragmentos[indiceFragmento]);
+        lectura.lang = idiomaActual === 'es' ? 'es-US' : 'en-US';
+        lectura.rate = 0.86; // Tono pausado de guía profesional
+        lectura.pitch = 1.0;
+
+        // Evento nativo: en cuanto termina un fragmento, arranca inmediatamente el siguiente
+        lectura.onend = () => {
+            indiceFragmento++;
+            leerSiguienteFragmento();
+        };
+
+        lectura.onerror = () => {
+            indiceFragmento++;
+            leerSiguienteFragmento();
+        };
+
+        window.speechSynthesis.speak(lectura);
+    }
+
+    leerSiguienteFragmento();
 }
 
 function cambiarIdioma(lang) {
@@ -94,8 +118,11 @@ function cambiarModalidad(esSalir) {
     if(document.getElementById('inp-region')) document.getElementById('inp-region').parentElement.style.display = displayGeografia;
     if(document.getElementById('inp-zip')) document.getElementById('inp-zip').parentElement.style.display = displayGeografia;
 }
-
 async function solicitarEscape() {
+    // PROTECCIÓN ANTI-REPETICIÓN LINEAL: Lee de LocalStorage cuál toca ejecutar
+    let proximoIdMision = parseInt(localStorage.getItem('open_than_go_last_id') || '0') + 1;
+    if (proximoIdMision > 21) { proximoIdMision = 1; } // Al pasar la 21, reinicia en la 1
+
     const payload = {
         decision: modalidadSalir ? "salir" : "casa",
         lang: idiomaActual,
@@ -103,34 +130,44 @@ async function solicitarEscape() {
         zip_code: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
         estado: document.getElementById('inp-state') ? document.getElementById('inp-state').value : "FL",
         region: document.getElementById('inp-region') ? document.getElementById('inp-region').value : "",
-        desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : ""
+        desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : "",
+        force_id: proximoIdMision // Enviamos la instrucción de secuencia exacta al servidor
     };
+
     document.getElementById('wrapper-form').style.display = 'none';
     document.getElementById('wrapper-loader').style.display = 'flex';
     document.getElementById('wrapper-interactive').style.display = 'none';
+
     try {
         const respuesta = await fetch('/api/open-than-go', {
             method: 'POST',
-            headers: {
+            headers: { 
                 'Accept': 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json' 
             },
             body: JSON.stringify(payload)
         });
         const data = await respuesta.json();
         document.getElementById('wrapper-loader').style.display = 'none';
+
         if (data.status === 'success' && data.mision && data.mision.b) {
             pasosMisionGlobal = data.mision.b;
             datosLugarGlobal = data.lugar || null;
             tipoEscapeGlobal = data.tipo;
             indicePasoActual = 0;
+
+            // Guardamos el ID que se ejecutó con éxito para la siguiente sesión
+            localStorage.setItem('open_than_go_last_id', data.mision.id);
+
             document.getElementById('interactive-title').innerText = "OPEN THAN GO";
             document.getElementById('interactive-subtitle').innerText = tipoEscapeGlobal === "Casa" ? traducciones[idiomaActual].tipo_casa : traducciones[idiomaActual].tipo_salida;
             document.getElementById('wrapper-interactive').style.display = 'block';
+
             if (tipoEscapeGlobal === "Casa") {
                 document.getElementById('wrapper-global-timer').style.display = 'block';
                 tiempoRestanteMaestro = 600;
                 ejecutarRelojMaestro10Min();
+                
                 clearTimeout(temporizadorClinicoCasa);
                 temporizadorClinicoCasa = setTimeout(() => {
                     hablarTexto(traducciones[idiomaActual].fin_casa);
@@ -140,6 +177,7 @@ async function solicitarEscape() {
             } else {
                 document.getElementById('wrapper-global-timer').style.display = 'none';
             }
+
             procesarPaoMision();
         } else {
             alert(data.message || "Error al sincronizar canales emocionales.");
@@ -151,6 +189,7 @@ async function solicitarEscape() {
         document.getElementById('wrapper-loader').style.display = 'none';
     }
 }
+
 function ejecutarRelojMaestro10Min() {
     clearInterval(cronometroMaestro10Min);
     const displayGlobal = document.getElementById('global-timer-txt');
@@ -181,12 +220,12 @@ function procesarPaoMision() {
     
     if (indicePasoActual >= pasosMisionGlobal.length) {
         if (tipoEscapeGlobal === "Casa") {
-            indicePasoActual = 0;
-            procesarPaoMision();
+            // SI ESTÁ EN CASA: Pide inmediatamente la siguiente misión lineal (ID+1) para que no se detenga el flujo en los 10 minutos
+            window.speechSynthesis.cancel();
+            solicitarEscape();
             return;
         }
         if (tipoEscapeGlobal === "Salida" && datosLugarGlobal) {
-            // CORRECCIÓN: Backticks unificados e indestructibles
             contenedorPasos.innerHTML = `
                 <div class="card-lugar" style="margin-top:20px;">
                     <h3 style="color:var(--accent); font-weight:800; text-transform:uppercase;">🧭 Protocolo de Despliegue</h3>
@@ -274,49 +313,82 @@ function procesarPaoMision() {
         mapeoOpciones.forEach((item) => {
             let explicacionSanada = paso.ex[item.idxOriginal].replace(/'/g, "\\'");
             opcionesHtml += `<button class="btn-opcion" id="opt-${item.idxOriginal}" onclick="evaluarTriviaMargenReintento(${item.idxOriginal}, ${paso.c}, '${explicacionSanada}')">${item.texto}</button>`;
-        });
-        contenedorPasos.innerHTML = `
-            <div class="bloque-decision">
-                <p style="font-weight:700; font-size:15px; color:var(--primary); line-height:1.4; margin-bottom:15px; text-align:left;">${paso.q}</p>
-                <div class="contenedor-opciones">${opcionesHtml}</div>
-                <div id="box-feedback" class="feedback-box"></div>
-            </div>`;
-        hablarTexto(paso.q);
-    } else if (paso.t === "r") {
-        contenedorPasos.innerHTML = `
-            <div style="margin:25px 0; text-align:center;">
-                <span style="font-size:50px;">💎</span>
-                <h2 style="color:var(--accent); margin:10px 0; font-weight:800;">${paso.tx}</h2>
-            </div>`;
-        hablarTexto(paso.tx);
-        if (tipoEscapeGlobal === "Casa") {
-            relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 4000);
-        } else {
-            botonContinuar.style.display = 'block';
-        }
-    } else if (paso.t === "c") {
-        contenedorPasos.innerHTML = `
-            <div style="padding:20px; background:#fffde7; border-radius:10px; margin:15px 0; border:1px dashed #fbc02d;">
-                <p style="font-style:italic; font-size:15px; margin:0; font-weight:500; line-height:1.4;">"${paso.tx}"</p>
-            </div>`;
-        hablarTexto(paso.tx);
-        if (tipoEscapeGlobal === "Casa") {
-            relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 8000);
-        } else {
-            botonContinuar.style.display = 'block';
-        }
-    } else if (paso.t === "sil") {
-        contenedorPasos.innerHTML = `
-            <div style="text-align:left; background:#f3e5f5; padding:16px; border-radius:10px; border:1px solid #e1bee7;">
-                <p style="font-size:14px; margin:0 0 10px 0; line-height:1.4;"><strong>Misión Práctica:</strong> ${paso.tx}</p>
-                <small style="color:#4a148c; display:block; font-weight:600;">💡 Enfoque: ${paso.inf}</small>
-            </div>`;
-        hablarTexto(paso.tx + " . Enfoque mental: " + paso.inf);
-        if (tipoEscapeGlobal === "Casa") {
-            relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 12000);
-        } else {
-            botonContinuar.style.display = 'block';
-        }
+});
+
+contenedorPasos.innerHTML = `
+    <div class="bloque-decision">
+        <p style="font-weight:700; font-size:15px; color:var(--primary); line-height:1.4; margin-bottom:15px; text-align:left;">
+            ${paso.q}
+        </p>
+        <div class="contenedor-opciones">${opcionesHtml}</div>
+        <div id="box-feedback" class="feedback-box"></div>
+    </div>
+`;
+
+hablarTexto(paso.q);
+
+} else if (paso.t === "r") {
+
+    contenedorPasos.innerHTML = `
+        <div style="margin:25px 0; text-align:center;">
+            <span style="font-size:50px;">💎</span>
+            <h2 style="color:var(--accent); margin:10px 0; font-weight:800;">
+                ${paso.tx}
+            </h2>
+        </div>
+    `;
+
+    hablarTexto(paso.tx);
+
+    if (tipoEscapeGlobal === "Casa") {
+        relojSecuencialAutomatico = setTimeout(() => {
+            siguienteComando();
+        }, 4000);
+    } else {
+        botonContinuar.style.display = 'block';
+    }
+
+} else if (paso.t === "c") {
+
+    contenedorPasos.innerHTML = `
+        <div style="padding:20px; background:#fffde7; border-radius:10px; margin:15px 0; border:1px dashed #fbc02d;">
+            <p style="font-style:italic; font-size:15px; margin:0; font-weight:500; line-height:1.4;">
+                "${paso.tx}"
+            </p>
+        </div>
+    `;
+
+    hablarTexto(paso.tx);
+
+    if (tipoEscapeGlobal === "Casa") {
+        relojSecuencialAutomatico = setTimeout(() => {
+            siguienteComando();
+        }, 8000);
+    } else {
+        botonContinuar.style.display = 'block';
+    }
+
+} else if (paso.t === "sil") {
+
+    contenedorPasos.innerHTML = `
+        <div style="text-align:left; background:#f3e5f5; padding:16px; border-radius:10px; border:1px solid #e1bee7;">
+            <p style="font-size:14px; margin:0 0 10px 0; line-height:1.4;">
+                <strong>Misión Práctica:</strong> ${paso.tx}
+            </p>
+            <small style="color:#4a148c; display:block; font-weight:600;">
+                💡 Enfoque: ${paso.inf}
+            </small>
+        </div>
+    `;
+
+    hablarTexto(paso.tx + " . Enfoque mental: " + paso.inf);
+
+    if (tipoEscapeGlobal === "Casa") {
+        relojSecuencialAutomatico = setTimeout(() => {
+            siguienteComando();
+        }, 12000);
+    } else {
+        botonContinuar.style.display = 'block';
     }
 }
 function evaluarTriviaMargenReintento(indiceSeleccionado, indiceCorrecto, explicacionTexto) {
@@ -334,7 +406,6 @@ function evaluarTriviaMargenReintento(indiceSeleccionado, indiceCorrecto, explic
         hablarTexto((idiomaActual === 'es' ? "Verdadero. " : "True. ") + textoLimpioExplicacion);
         document.getElementById('btn-next').style.display = 'block';
     } else {
-        // CORRECCIÓN CLAVE: Inyección de variables con comillas invertivas correctas (` `)
         const objetivoBoton = document.getElementById(`opt-${indiceSeleccionado}`);
         if (objetivoBoton) {
             objetivoBoton.style.opacity = "0.4";
@@ -359,4 +430,4 @@ function siguienteComando() {
     clearTimeout(relojSecuencialAutomatico);
     indicePasoActual++;
     procesarPaoMision();
-}
+}    
