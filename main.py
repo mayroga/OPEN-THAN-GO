@@ -57,7 +57,7 @@ def cargar_mision_especifica(decision, pocket_tier, force_id=None):
                 if int(m.get('id', 0)) == int(force_id):
                     return m
 
-        # Filtro de respaldo secundario
+        # Filtro de respaldo secundario por presupuesto
         filtradas = [m for m in misiones if pocket_tier in m.get('pocket_match', ["cero", "minimo", "moderado", "libre"])]
         if filtradas:
             return random.choice(filtradas)
@@ -168,7 +168,7 @@ def procesar_sistema_bienestar():
             }
         },
         "libre": {
-            "busqueda": "hoteles resorts discotecas club y entretenimiento de lujo",
+            "busqueda": "hoteles resorts discotecas club y entertainment de lujo",
             "sugerencias": {
                 "es": "1. El lounge de relajación premium. 2. Pista de baile de alta energía. 3. Entorno de terraza de escape.",
                 "en": "1. The premium relaxation lounge. 2. High-energy dance floor. 3. Terrace escape environment."
@@ -209,19 +209,16 @@ def procesar_sistema_bienestar():
     link_google_maps_vivo = f"https://google.com{query_mapa}"
 
     return jsonify({
-return jsonify({
-    "status": "success",
-    "tipo": "Salida",
-    "fuera_usa": fuera_usa_detectado,  # Informa al frontend para disparar el mensaje por altavoz
-    "lugar": {
-        "name": f"Escape enfocado en {termino_busqueda.upper()}",
-        "address": f"📍 Área de Cobertura: {ubicacion_destino}.",
-        "gps_link": link_google_maps_vivo,
-        "analisis_sugerido": explicacion_sugerencias[lang]
-    },
-    "mision": mision_final
-})
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+ "status": "success",
+ "tipo": "Salida",
+ "fuera_usa": fuera_usa_detectado,  # Informa al frontend para disparar el mensaje por altavoz"lugar": {
+ "name": f"Escape enfocado en {termino_busqueda.upper()}",
+ "address": f"📍 Área de Cobertura: {ubicacion_destino}.",
+ "gps_link": link_google_maps_vivo,
+ "analisis_sugerido": explicacion_sugerencias[lang]
+ },
+ "mision": mision_final
+ })
+ if name == 'main':
+ port = int(os.environ.get("PORT", 5000))app.run(host='0.0.0.0', port=port, debug=True)    
+                   
