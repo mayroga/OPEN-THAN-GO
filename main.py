@@ -1,7 +1,7 @@
-# OPEN THAN GO SYSTEM - Main Backend Engine
+# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.3.5.0
 # Company: May Roga LLC
 # File: main.py
-# PARTE 1 DE 3
+# PARTE 1 DE 3: Inicialización de Red y Misiones de Casa (1 a 18)
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
@@ -16,27 +16,27 @@ if not os.path.exists("static"):
     os.makedirs("static")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Catálogo Maestro del Despertador Humano (Misiones Directas y Sencillas)
+# Catálogo Maestro del Despertador Humano: Acciones Cortas Directas e Inmediatas
 BASE_MISIONES = {
     "CASA": [
-        {"id": 1, "titulo": "Paso 1: Encuentra tu tensión", "descripcion": "Busca el lugar de tu cuerpo donde sientes más peso o cansancio ahora mismo."},
-        {"id": 2, "titulo": "Paso 2: Respira despacio", "descripcion": "Toma aire por la nariz lentamente, aguanta un momento y suéltalo por la boca."},
-        {"id": 3, "titulo": "Paso 3: Suelta el teléfono", "descripcion": "Deja tu celular boca abajo sobre la mesa. Mira tres objetos en tu habitación durante un minuto."},
-        {"id": 4, "titulo": "Paso 4: Adiós al peso", "descripcion": "Imagina que dejas caer al suelo una mochila muy pesada llena de cuentas y biles. Siente tus hombros libres."},
-        {"id": 5, "titulo": "Paso 5: Bebe agua", "descripcion": "Bebe un vaso de agua muy despacio. Siente cómo limpia tu cuerpo. Piensa en algo bueno de tu día."},
-        {"id": 6, "titulo": "Paso 6: Escaneo muscular", "descripcion": "Localiza el punto exacto donde sientes más nudos. Aprieta ese músculo 5 segundos y suéltalo."},
-        {"id": 7, "titulo": "Paso 7: El inventario", "descripcion": "Escribe en un papel tres cosas que hoy te pesan. Arruga ese papel con fuerza y descártalo."},
-        {"id": 8, "titulo": "Paso 8: Pausa total", "descripcion": "Detente totalmente. No hagas nada ni pienses en nada por 60 segundos."},
-        {"id": 9, "titulo": "Paso 9: Escucha el entorno", "descripcion": "Cierra los ojos. Escucha tres sonidos diferentes, desde el más lejano al más cercano."},
-        {"id": 10, "titulo": "Paso 10: Orden físico", "descripcion": "Alinea tres objetos de tu mesa perfectamente. Poner orden fuera ayuda a poner orden dentro."},
-        {"id": 11, "titulo": "Paso 11: Pies en la tierra", "descripcion": "Apoya las plantas de tus pies firmemente en el suelo. Siente el peso de la gravedad."},
-        {"id": 12, "titulo": "Paso 12: Estiramiento libre", "descripcion": "Estira tus brazos hacia arriba con fuerza como si quisieras tocar el techo y suéltalos."},
-        {"id": 13, "titulo": "Paso 13: Foco mínimo", "descripcion": "Elige una tarea pequeña de tu casa que estabas ignorando y termínala ahora mismo."},
-        {"id": 14, "titulo": "Paso 14: Postura recta", "descripcion": "Endereza tu columna. Imagina que un hilo invisible tira de tu cabeza hacia el cielo."},
-        {"id": 15, "titulo": "Paso 15: Sentido del tacto", "descripcion": "Toca una superficie fría, como una pared o una mesa de metal. Nota su temperatura."},
-        {"id": 16, "titulo": "Paso 16: Aire nuevo", "descripcion": "Abre una ventana de tu cuarto. Deja que el aire de la calle ruede y renueve tu ambiente."},
-        {"id": 17, "titulo": "Paso 17: Rotación somática", "descripcion": "Gira tus muñecas y tus tobillos diez veces en círculos hacia cada dirección."},
-        {"id": 18, "titulo": "Paso 18: Desconexión visual", "descripcion": "Mira por la ventana hacia el punto más lejano que alcances a ver durante dos minutos."}
+        {"id": 1, "titulo": "Corta el piloto automático", "descripcion": "Hazlo conmigo ahora. Escanea tu cuerpo en este segundo. Ubica el peso exacto en tu espalda. Míralo. Siente que estás aquí, vivo.", "para_que": "Para recuperar tu control."},
+        {"id": 2, "titulo": "Desconexión de biles", "descripcion": "Siente tu silla ahora. Nota cómo sostiene tu peso gratis. El piso está firme. No sostengas el mundo tú solo en este minuto. Déjate caer.", "para_que": "Para recordarte que el suelo está firme."},
+        {"id": 3, "titulo": "Aislamiento de pantalla", "descripcion": "Dale la vuelta a tu teléfono sobre la mesa ya. Mira una esquina de tu techo. Nota su color, sus líneas. Quédate ahí treinta segundos fijos.", "para_que": "Para romper el bucle visual zombi."},
+        {"id": 4, "titulo": "Soltar la carga", "descripcion": "Imagina que dejas caer una mochila pesada llena de deudas y estrés ahora. Siente tus hombros libres. Se caen de golpe. El peso ya no está.", "para_que": "Para limpiar tu pecho de inmediato."},
+        {"id": 5, "titulo": "El reset del agua", "descripcion": "Busca un vaso de agua ahora mismo. Dale un trago muy pequeño. Siente el líquido frío bajando por tu garganta. Te limpia por dentro. Es la vida.", "para_que": "Para despertar tus sentidos dormidos."},
+        {"id": 6, "titulo": "Liberación de nudos", "descripcion": "Aprieta tus dos puños con toda tu fuerza ahora. Siente la rabia acumulada. Mantén tres segundos. Ahora abre las manos de golpe. Suéltalo todo.", "para_que": "Para soltar el estrés acumulado ya."},
+        {"id": 7, "titulo": "El aire de la calle", "descripcion": "Camina hacia la ventana o puerta más cercana ahora. Ábrela. Deja que el aire te golpee la cara en este instante. Siente el viento exterior.", "para_que": "Para recordarte que hay vida fuera."},
+        {"id": 8, "titulo": "Rotación de energía", "descripcion": "Gira tus muñecas y tus tobillos despacio ahora. Siente tus articulaciones. Tu cuerpo es tuyo, no del sistema. Tú gobiernas este motor físico.", "para_que": "Para recuperar tu autonomía activa ya."},
+        {"id": 9, "titulo": "Anclaje del presente", "descripcion": "Cierra los ojos conmigo ahora. Di una sola cosa buena que tienes hoy en voz alta. Tu salud, tus manos, tu vida. Dilo con fuerza. Quédate con eso.", "para_que": "Para encender tu chispa oculta ahora."},
+        {"id": 10, "titulo": "Orden de tu espacio", "descripcion": "Alinea tres objetos de tu mesa perfectamente ahora. Pon orden fuera para poner orden dentro. Hazlo ya.", "para_que": "Para calmar el caos en tu mente."},
+        {"id": 11, "titulo": "Pies en la tierra", "descripcion": "Quítate los zapatos ahora. Apoya las plantas de tus pies firmemente en el piso. Siente el frío del suelo. Conéctate.", "para_que": "Para bajarte de la nube de la ansiedad."},
+        {"id": 12, "titulo": "Estiramiento al cielo", "descripcion": "Estira tus brazos hacia arriba con fuerza en este segundo. Imagina que tocas el techo. Mantén la tensión. Suelta de golpe.", "para_que": "Para liberar la espalda trabada."},
+        {"id": 13, "titulo": "Foco en lo olvidado", "descripcion": "Mira a tu alrededor. Elige una tarea mínima que estabas ignorando en tu cuarto. Hazla ahora mismo. Termínala ya.", "para_que": "Para ganarle a la pereza de la rutina."},
+        {"id": 14, "titulo": "Columna recta", "descripcion": "Endereza tu espalda en este instante. Imagina que un hilo invisible tira de tu cabeza hacia arriba. Respira hondo.", "para_que": "Para activar tu alerta biológica hoy."},
+        {"id": 15, "titulo": "Contacto frío", "descripcion": "Toca una pared o una superficie de metal fría ahora mismo. Siente la temperatura real con tus dedos. Quédate ahí.", "para_que": "Para aterrizar tus pensamientos."},
+        {"id": 16, "titulo": "Ventilación total", "descripcion": "Abre la puerta principal de tu casa ahora. Deja que el aire ruede y cambie el ambiente de tu sala. Huele el cambio.", "para_que": "Para sacar el encierro gris de tu día."},
+        {"id": 17, "titulo": "Sacudida de estrés", "descripcion": "Párate y sacude tus manos y tus piernas con fuerza ahora. Como si te quitaras agua de encima. Hazlo por diez segundos.", "para_que": "Para romper el zombi que llevas dentro."},
+        {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira por tu ventana ahora. Enfoca tus ojos en el objeto más lejano que alcances a ver en la calle. No mires nada cerca."}
 
 # PARTE 2 DE 3: Continuación del catálogo de CASA (19 a 50) y misiones de SALIR
 
@@ -75,16 +75,20 @@ BASE_MISIONES = {
     ],
     "SALIR": {
         "agotado": [
-            {"titulo": "Un paseo en el parque", "porque": "Tu mente está cansada de mirar pantallas todo el día.", "que_hacer": "QUÉ: Camina despacio rodeado de árboles verdes. CÓMO: Mira el movimiento de las hojas. CUÁNDO: Por la tarde. PARA QUÉ: Sentirte libre y en paz.", "donde": "Un parque verde con caminos llanos.", "gps": "public+parks+near+"},
-            {"titulo": "Mira el agua", "porque": "El sonido y el movimiento del agua calman tus nervios de forma natural.", "que_hacer": "QUÉ: Siéntate cerca del agua a mirar el paisaje. CÓMO: Escucha el sonido del viento. CUÁNDO: Al atardecer. PARA QUÉ: Resetear tu cabeza.", "donde": "Una playa o un lago cercano.", "gps": "lakes+and+beaches+near+"}
+            {"titulo": "Usa la sombra del árbol grande", "porque": "Tu mente está frita por el derroche de luz artificial y pantallas.", "que_hacer": "Hazlo ya. Camina hacia el árbol más grande de ese parque. Toca su corteza con tu mano ahora. Siente la textura fría. Quédate bajo su sombra densa.", "donde": "Parque público con árboles grandes.", "gps": "parks+with+shade+"},
+            {"titulo": "Usa el horizonte del muelle", "porque": "Tu visión está encerrada en paredes pequeñas y biles.", "que_hacer": "Párate al final del muelle o punto alto ahora. Clava tu mirada en la línea donde se une el cielo con el agua. Quédate ahí sin moverte. Recupera el asombro.", "donde": "Muelle, mirador o orilla de lago pública.", "gps": "waterfront+viewpoints+"}
         ],
         "estresado": [
-            {"titulo": "Camina rápido", "porque": "Necesitas quemar la mala energía acumulada por la rutina.", "que_hacer": "QUÉ: Camina a paso firme sin detenerte. CÓMO: Mueve tus brazos con ritmo. CUÁNDO: En cualquier momento del día. PARA QUÉ: Soltar la rabia y el estrés.", "donde": "Una pista pública de caminar.", "gps": "walking+paths+near+"},
-            {"titulo": "Mueve tu cuerpo", "porque": "El estrés traba los músculos de tu espalda y hombros.", "que_hacer": "QUÉ: Estira tus brazos hacia el cielo con fuerza. CÓMO: Gira tus hombros despacio. CUÁNDO: Al salir. PARA QUÉ: Sentirte liviano y activo.", "donde": "Un parque abierto con espacio peatonal.", "gps": "linear+parks+near+"}
+            {"titulo": "Usa la resistencia de la colina", "porque": "El estrés te tiene los hombros y el pecho trabados.", "que_hacer": "Encuentra la rampa, escalera o cuesta de esa calle o parque ahora. Súbela a paso firme sintiendo el esfuerzo. Usa la gravedad del planeta para soltar el cortisol.", "donde": "Calle elevada, escalera pública o rampa.", "gps": "public+stairs+and+ramps+"},
+            {"titulo": "Usa el circuito de la acera lineal", "porque": "Tu cerebro está dando vueltas en círculos de ansiedad financiera.", "que_hacer": "Pisa la acera lineal de esa avenida pública ahora. Camina recto diez minutos seguidos sin mirar el teléfono. Siente el golpe firme de tus pies contra el concreto.", "donde": "Acera peatonal o parque lineal continuo.", "gps": "linear+parks+and+walkways+"}
+        ],
+        "estresado": [
+            {"titulo": "Usa la resistencia de la colina", "porque": "El estrés te tiene los hombros y el pecho trabados.", "que_hacer": "Encuentra la rampa, escalera o cuesta de esa calle o parque ahora. Súbela a paso firme sintiendo el esfuerzo. Usa la gravedad del planeta para soltar el cortisol.", "donde": "Calle elevada, escalera pública o rampa.", "gps": "public+stairs+and+ramps+"},
+            {"titulo": "Usa el circuito de la acera lineal", "porque": "Tu cerebro está dando vueltas en círculos de ansiedad financiera.", "que_hacer": "Pisa la acera lineal de esa avenida pública ahora. Camina recto diez minutos seguidos sin mirar el teléfono. Siente el golpe firme de tus pies contra el concreto.", "donde": "Acera peatonal o parque lineal continuo.", "gps": "linear+parks+and+walkways+"}
         ],
         "aburrido": [
-            {"titulo": "Camino de arte", "porque": "Hacer siempre lo mismo apaga tus ganas de vivir.", "que_hacer": "QUÉ: Visita un lugar con pinturas en las paredes o murales de colores. CÓMO: Mira los detalles de las calles. CUÁNDO: Fin de semana. PARA QUÉ: Despertar tu curiosidad.", "donde": "Una zona de la ciudad con murales y gente.", "gps": "street+art+murales+near+"},
-            {"titulo": "El mercado local", "porque": "Necesitas ver caras nuevas, olores diferentes y colores vivos.", "que_hacer": "QUÉ: Camina entre los puestos de frutas y ropa. CÓMO: Mira las cosas raras que venden. CUÁNDO: Por la mañana. PARA QUÉ: Romper la rutina aburrida.", "donde": "Un mercado abierto o feria del barrio.", "gps": "farmers+market+near+"}
+            {"titulo": "Usa los colores de los murales", "porque": "Vives en un piloto automático gris que te duerme la dopamina.", "que_hacer": "Párate frente a los dibujos de colores de esa pared urbana ahora. Busca tres detalles pequeños que nadie mira. Encuentra el asombro en lo insignificante.", "donde": "Calle con murales o distrito de diseño urbano.", "gps": "street+art+murals+"},
+            {"titulo": "Usa los aromas del mercado abierto", "porque": "Has perdido la calidez de la espontaneidad humana por el confort.", "que_hacer": "Camina entre la multitud de ese mercado al aire libre ahora. Huele las frutas frescas, mira los objetos raros. Toca un producto gratis. Conecta ya.", "donde": "Mercado de pulgas, feria comunitaria o farmers market.", "gps": "farmers+markets+and+flea+markets+"}
         ]
     }
 }
@@ -109,7 +113,7 @@ async def mando_integral(request: Request):
     perfil = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     
-    # MODO CASA: El KERNEL recibirá el catálogo completo y aplicará el filtro local anti-repetición
+    # MODO CASA: El KERNEL recibirá el catálogo completo de 50 misiones y aplicará el filtro local anti-repetición
     if modo == "CASA":
         return JSONResponse({"modo": "CASA", "misiones": BASE_MISIONES["CASA"]})
     
@@ -121,7 +125,7 @@ async def mando_integral(request: Request):
         palabras_urgentes = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion"]
         if any(p in desahogo for p in palabras_urgentes):
             gps_query = "agencias+de+empleo+staffings+corporations"
-            que_hacer_base = "QUÉ: Buscar oficinas de contratación rápida. CÓMO: Entra con tu identificación en la mano. CUÁNDO: Por la mañana temprano. PARA QUÉ: Conseguir ingresos y ganarle al agobio del dinero."
+            que_hacer_base = "QUÉ: Oficinas de contratación rápida. CÓMO: Entra ya con tu ID en mano. CUÁNDO: Por la mañana temprano. PARA QUÉ: Conseguir ingresos y ganarle al agobio del dinero. HAZLO CONMIGO."
             donde_base = "Agencias de trabajo y empleo inmediato en tu zona."
         else:
             # Filtro elástico por presupuesto (Austeridad creativa vs Gustazos)
@@ -132,7 +136,7 @@ async def mando_integral(request: Request):
             else:
                 gps_query = info["gps"]
             
-            que_hacer_base = info["que_hacer"]
+            que_hacer_base = f"QUÉ: {info['titulo']}. CÓMO: {info['que_hacer']} CUÁNDO: Ahora mismo. POR QUÉ: {info['porque']} HAZLO CONMIGO."
             donde_base = info["donde"]
 
         # Adaptabilidad del Perfil Biopsicosocial sin exclusión social
