@@ -195,6 +195,8 @@ function procesarPaoMision() {
                     
                     // Prepara el botón azul con el enlace oficial de Google Maps
                     botonGps.href = datosLugarGlobal.gps_link;
+                    console.log(datosLugarGlobal);
+                    console.log(datosLugarGlobal.gps_link);
                     botonGps.style.display = 'block'; // Muestra el botón azul en grande
                 }
             }, 1000);
