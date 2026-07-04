@@ -50,7 +50,6 @@
         .btn-choice.active { background: var(--secondary); color: white; }
         .btn-trigger { width: 100%; padding: 16px; border: none; border-radius: 10px; background: var(--accent); color: white; font-weight: bold; font-size: 15px; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(216,67,21,0.2); margin-top: 10px; }
         
-        /* Modos interactivos */
         .interactive-screen { display: none; text-align: center; padding: 10px 0; }
         .loader-screen { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center; }
         .spinner { width: 40px; height: 40px; border: 4px solid var(--gray); border-top: 4px solid var(--secondary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
@@ -62,7 +61,7 @@
         .wrapper-circle { display: flex; flex-direction: column; align-items: center; margin: 20px 0; }
         
         .breath-circle { width: 120px; height: 120px; background: var(--blue-circle); border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 16px; box-shadow: 0 0 25px rgba(0,188,212,0.5); transform: scale(1.0); transition: transform 4s ease-in-out; }
-        .breath-circle.expand { transform: scale(1.5); }
+        .breath-circle.expand { transform: scale(1.4); }
         .breath-circle.contract { transform: scale(1.0); }
         .txt-instruccion-pulmon { font-size: 11px; margin-top: 4px; font-weight: 800; letter-spacing: 0.5px; }
         .timer-display { font-size: 34px; font-weight: 800; color: var(--primary); margin: 15px 0; }
@@ -80,7 +79,6 @@
 </head>
 <body>
 <div class="container-app">
-    <!-- BARRA INTERACTIVA DE IDIOMA COMPLETO -->
     <div id="wrapper-form">
         <div class="lang-bar">
             <button type="button" class="btn-lang active" id="lang-es" onclick="cambiarIdioma('es')">Español 🇪🇸</button>
@@ -92,7 +90,6 @@
             <p id="txt-subtitle">Tu escape emocional inteligente</p>
         </div>
 
-        <!-- RECOLECCIÓN GEOGRÁFICA REQUERIDA POR EL BACKEND -->
         <div class="form-group">
             <label id="lbl-state">Estado</label>
             <select id="inp-state">
@@ -113,7 +110,6 @@
             <input id="inp-zip" maxlength="5" placeholder="Ej: 33167">
         </div>
 
-        <!-- MODO DE OPERACIÓN -->
         <div class="form-group">
             <label id="lbl-mode">¿Salir o quedarte en casa?</label>
             <div class="btn-grid-2">
@@ -122,7 +118,6 @@
             </div>
         </div>
 
-        <!-- LOS 4 NIVELES DE PRESUPUESTO COMPLETO -->
         <div class="form-group">
             <label id="lbl-budget">Presupuesto Disponible</label>
             <div class="btn-grid-4">
@@ -133,7 +128,6 @@
             </div>
         </div>
 
-        <!-- CUADRO DE ESCRITURA LIBRE: ESTADO MENTAL / FILTRO EMOCIONAL -->
         <div class="form-group">
             <label id="lbl-desahogo">Desahogo Opcional (Filtro Emocional)</label>
             <textarea id="inp-text" placeholder="Escribe libremente cómo te sientes hoy..."></textarea>
@@ -142,13 +136,11 @@
         <button class="btn-trigger" id="btn-main-trigger" onclick="solicitarEscape()"> ACTIVAR MANDO </button>
     </div>
 
-    <!-- PANTALLA DE CARGA -->
     <div id="wrapper-loader" class="loader-screen">
         <div class="spinner"></div>
         <p id="txt-loader">Sincronizando frecuencias de bienestar...</p>
     </div>
 
-    <!-- PANEL INTERACTIVO PASO A PASO -->
     <div id="wrapper-interactive" class="interactive-screen">
         <div id="wrapper-global-timer" style="display:none; text-align: center;">
             <div class="global-timer" id="global-timer-txt">⏱️ Tiempo restante: 10:00</div>
@@ -158,16 +150,13 @@
         <div id="interactive-location"></div>
         
         <div id="step-content"></div>
-        CONTINUAR
-        </button>
-        <a id="btn-maps-action" class="btn-maps-route" target="_blank">
-            ABRIR MAPA EN GPS
-        </a>
+        
+        <!-- CORRECCIÓN CLAVE: Botón restaurado de forma perfecta -->
+        <button id="btn-next" class="btn-next-step" onclick="siguienteComando()" style="display:none;"> CONTINUAR </button>
+        <a id="btn-maps-action" class="btn-maps-route" target="_blank"> ABRIR MAPA EN GPS </a>
     </div>
-
 </div>
 
-<!-- Carga del JavaScript unificado con el diagnóstico interno -->
 <script src="/static/engine.js"></script>
 </body>
 </html>
