@@ -95,7 +95,6 @@ async def index():
 async def mando_integral(request: Request):
     payload = await request.json()
     
-    # Cambiamos radicalmente los términos para que Python y JS nunca confundan las rutas
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
     estado = str(payload.get("estado", "FL")).strip()
@@ -105,24 +104,38 @@ async def mando_integral(request: Request):
     perfil = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     
-    # RUTA DOMÉSTICA AISLADA: Solo entra si el cliente eligió estrictamente CASA
     if opcion_usuario == "CASA":
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", 
             "misiones": BASE_MISIONES["CASA"]
         })
     
-    # RUTA DE CAMPO TOTALMENTE SEPARADA: Para el despliegue del turismo terapéutico en todo USA
     else:
         info = random.choice(BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"]))
         
-        # Filtro de supervivencia por desahogo financiero
+        # Hackeo Financiero: Costo real masticado
+        precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if budget == "0" else "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if budget == "1" else "GASTO: Libre. El dinero es tu herramienta de escape hoy."
+        
+        # Hackeo de Círculo Social: Quiénes te acompañan
+        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if perfil == "solo" else "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if perfil == "familia" else "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad."
+
+        # HACKEO MENTAL DE SUPERVIVENCIA (Si le duelen las deudas o la explotación laboral)
         palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion"]
         if any(p in desahogo for p in palabras_criticas):
             gps_query = "agencias+de+empleo+staffings+corporations"
-            que_hacer_base = "QUÉ: Oficinas de contratación rápida. CÓMO: Entra ya con tu ID en mano. CUÁNDO: Ahora por la mañana de forma urgente. POR QUÉ: Para romper la parálisis financiera y ganarle a tus biles con acción real. HAZLO CONMIGO."
-            donde_base = "Agencias corporativas de empleo inmediato en la sociedad."
+            donde_base = "Oficinas de contratación y staffings corporativos en tu zona."
+            
+            guia_masticada = f"""
+            DESTINO: Oficinas de empleo inmediato.
+            POR QUÉ: Tu mente está bloqueada por la parálisis de las deudas y los biles.
+            QUÉ HACER: Entra ya con tu identificación en mano. Habla directo con el counter.
+            CUÁNDO: Ahora mismo por la mañana. Es prioridad de vida.
+            PARA QUÉ: Para ganarle al agobio del dinero y tomar el control de tu economía hoy.
+            {quienes_van}
+            {precio_real}
+            """
         else:
+            # INTERVENCIÓN DE ARQUITECTURA DE ENTORNO ORDINARIO (Hackear parques, playas, murales o calles)
             if budget == "0":
                 gps_query = "free+public+parks+and+beaches"
             elif budget == "1":
@@ -130,28 +143,32 @@ async def mando_integral(request: Request):
             else:
                 gps_query = info["gps"]
             
-            que_hacer_base = f"QUÉ: {info['titulo']}. CÓMO: {info['que_hacer']} CUÁNDO: Ahora mismo a partir de las 4:00 PM. POR QUÉ: {info['porque']} HAZLO CONMIGO."
             donde_base = info["donde"]
+            
+            guia_masticada = f"""
+            DESTINO: {info['titulo']}.
+            POR QUÉ: {info['porque']}
+            QUÉ HACER: {info['que_hacer']}
+            CUÁNDO: Ahora mismo. Levántate de la silla ya.
+            PARA QUÉ: Para romper el zombi urbano y recordar que la vida es más que pagar cuentas.
+            {quienes_van}
+            {precio_real}
+            """
 
         msg_adicional = ""
         if perfil == "accesible":
-            msg_adicional = " (Ruta plana adaptada con accesibilidad total física o edad avanzada)."
             gps_query = "wheelchair+accessible+" + gps_query
         elif perfil == "family":
-            msg_adicional = " (Lugar seguro diseñado para tus niños)."
             gps_query = "family+friendly+" + gps_query
 
-        # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA: Usa el ZIP si existe, si no toma el Condado/Estado del cajón
         anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
         link_maps = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
         
-        # Estructura de salida blindada con variables únicas e irrepetibles
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
             "destino_titulo": info["titulo"].upper(),
-            "destino_porque": info["porque"],
-            "destino_instruccion": que_hacer_base + msg_adicional,
             "destino_entorno": donde_base,
+            "destino_instruccion": guia_masticada.strip(),
             "destino_coordenadas_gps": link_maps
         })
      
