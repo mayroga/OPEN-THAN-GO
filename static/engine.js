@@ -261,7 +261,7 @@ function procesarPaoMision() {
         // LA ACCIÓN DIRECTA ESPERA A QUE LA VOZ TERMINE DE HABLAR DE FORMA ABSOLUTA
         hablarTextoConBloqueo(textoLabel, () => {
             if (tipoEscapeGlobal === "Casa") {
-                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 8000);
+                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 2000);
             } else {
                 if (botonContinuar) botonContinuar.style.display = 'block';
             }
@@ -274,7 +274,7 @@ function procesarPaoMision() {
         // LA HISTORIA EN AUDIO ENTIERRA CUALQUIER SALTO ANTICIPADO: Bloquea hasta el final
         hablarTextoConBloqueo(paso.story, () => {
             if (tipoEscapeGlobal === "Casa") {
-                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 12000);
+                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 2000);
             } else {
                 if (botonContinuar) botonContinuar.style.display = 'block';
             }
@@ -344,7 +344,7 @@ function procesarPaoMision() {
         }
         hablarTextoConBloqueo(paso.tx, () => {
             if (tipoEscapeGlobal === "Casa") {
-                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 4000);
+                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 2000);
             } else {
                 if (botonContinuar) botonContinuar.style.display = 'block';
             }
@@ -358,7 +358,7 @@ function procesarPaoMision() {
         }
         hablarTextoConBloqueo(paso.tx, () => {
             if (tipoEscapeGlobal === "Casa") {
-                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 8000);
+                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 2000);
             } else {
                 if (botonContinuar) botonContinuar.style.display = 'block';
             }
@@ -373,7 +373,7 @@ function procesarPaoMision() {
         }
         hablarTextoConBloqueo(paso.tx + " . Enfoque mental: " + paso.inf, () => {
             if (tipoEscapeGlobal === "Casa") {
-                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 12000);
+                relojSecuencialAutomatico = setTimeout(() => { siguienteComando(); }, 2000);
             } else {
                 if (botonContinuar) botonContinuar.style.display = 'block';
             }
