@@ -208,17 +208,19 @@ def procesar_sistema_bienestar():
     # ENLACE UNIVERSAL GPS INDESTRUCTIBLE REPARADO OFICIAL:
     link_google_maps_vivo = f"https://google.com{query_mapa}"
 
-    return jsonify({
- "status": "success",
- "tipo": "Salida",
- "fuera_usa": fuera_usa_detectado,  # Informa al frontend para disparar el mensaje por altavoz"lugar": {
- "name": f"Escape enfocado en {termino_busqueda.upper()}",
- "address": f"📍 Área de Cobertura: {ubicacion_destino}.",
- "gps_link": link_google_maps_vivo,
- "analisis_sugerido": explicacion_sugerencias[lang]
- },
- "mision": mision_final
- })
- if name == 'main':
- port = int(os.environ.get("PORT", 5000))app.run(host='0.0.0.0', port=port, debug=True)    
-                   
+       return jsonify({
+        "status": "success",
+        "tipo": "Salida",
+        "fuera_usa": fuera_usa_detectado,
+        "lugar": {
+            "name": f"Escape enfocado en {termino_busqueda.upper()}",
+            "address": f"📍 Área de Cobertura: {ubicacion_destino}.",
+            "gps_link": link_google_maps_vivo,
+            "analisis_sugerido": explicacion_sugerencias[lang]
+        },
+        "mision": mision_final
+    })
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
