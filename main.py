@@ -6,16 +6,14 @@ from flask_cors import CORS
 import json
 import random
 import os
-import re
 from urllib.parse import quote_plus
 
 app = Flask(__name__, static_folder='static')
-CORS(app)  # Abre las compuertas de red para evitar el congelamiento en celulares
+CORS(app)
 
 def cargar_mision_especifica(decision, pocket_tier, force_id=None):
-    """Carga la misión adecuada respetando el orden lineal estricto sin repetición."""
+    """Carga la misión adecuada respetando la división exacta de bloques de 7."""
     try:
-        # Si el frontend exige un ID lineal por LocalStorage, buscamos en qué archivo JSON vive
         if force_id is not None:
             fid = int(force_id)
             if 1 <= fid <= 7:
@@ -29,10 +27,10 @@ def cargar_mision_especifica(decision, pocket_tier, force_id=None):
                 archivo = 'missions_01_07.json'
             else:
                 archivo = random.choice(['missions_08_14.json', 'missions_15_21.json'])
-            
+           
         if not os.path.exists(archivo):
             archivo = 'missions_01_07.json'
-            
+           
         if not os.path.exists(archivo):
             return {
                 "id": 1,
@@ -46,23 +44,21 @@ def cargar_mision_especifica(decision, pocket_tier, force_id=None):
 
         with open(archivo, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            
+           
         misiones = data.get('missions', [])
         if not misiones:
             return None
 
-        # Si hay un ID forzado lineal, extraemos exactamente esa misión
         if force_id is not None:
             for m in misiones:
                 if int(m.get('id', 0)) == int(force_id):
                     return m
 
-        # Filtro de respaldo secundario por presupuesto
         filtradas = [m for m in misiones if pocket_tier in m.get('pocket_match', ["cero", "minimo", "moderado", "libre"])]
         if filtradas:
             return random.choice(filtradas)
         return random.choice(misiones)
-        
+       
     except Exception as e:
         print(f"Error crítico en catálogo de misiones: {str(e)}")
         return None
@@ -70,12 +66,13 @@ def cargar_mision_especifica(decision, pocket_tier, force_id=None):
 @app.route('/')
 def index():
     return send_from_directory(app.static_folder, 'session.html')
+
 @app.route('/api/open-than-go', methods=['POST'])
 def procesar_sistema_bienestar():
     data = request.json or {}
     decision = data.get('decision', 'salir')
     lang = data.get('lang', 'es')
-    desahogo_usuario = data.get('desahogo', '').strip()
+    desahogo_usuario = data.get('desahogo', '').lower()
     pocket = data.get('budget_level', 'cero')
     zip_code = data.get('zip_code', '').strip()
     estado = data.get('estado', 'FL').strip()
@@ -90,19 +87,20 @@ def procesar_sistema_bienestar():
     bloques_processed = []
     for comando in mision_seleccionada.get("b", []):
         bloque_clon = comando.copy()
-        
+       
         for campo in ["tx", "inf", "story", "c"]:
             if campo in bloque_clon and isinstance(bloque_clon[campo], dict):
                 bloque_clon[campo] = bloque_clon[campo].get(lang, bloque_clon[campo].get('es', ''))
-                
+               
         if bloque_clon.get("t") == "d":
             if isinstance(bloque_clon.get("q"), dict):
+                # CORRECCIÓN DE SEGURIDAD INTERNA: Extrae la pregunta limpia en espejo
                 bloque_clon["q"] = bloque_clon["q"].get(lang, bloque_clon["q"].get('es', ''))
             if "op" in bloque_clon:
                 bloque_clon["op"] = [op.get(lang, op.get('es', '')) if isinstance(op, dict) else op for op in bloque_clon["op"]]
             if "ex" in bloque_clon:
                 bloque_clon["ex"] = [ex.get(lang, ex.get('es', '')) if isinstance(ex, dict) else ex for ex in bloque_clon["ex"]]
-                
+               
         bloques_processed.append(bloque_clon)
 
     mision_final = mision_seleccionada.copy()
@@ -111,39 +109,6 @@ def procesar_sistema_bienestar():
     if decision == "casa":
         return jsonify({"status": "success", "tipo": "Casa", "mision": mision_final})
 
-    # =========================================================================
-    # MOTOR DE EXTRACCIÓN GEOGRÁFICA UNIVERSAL (PRIORIDAD DE DESEO)
-    # =========================================================================
-    destino_detectado = None
-    desahogo_min = desahogo_usuario.lower()
-    
-    # Patrones para capturar destinos dinámicos dentro de la frase libre del cliente
-    patrones_viaje = [
-        r'(?:ir\s+a|ir\s+hacia|viajar\s+a|en|visitar|ir\s+to|travel\s+to|visit|go\s+to)\s+([a-zA-Z\s]{3,30})'
-    ]
-    
-    for patron in patrones_viaje:
-        coincidencia = re.search(patron, desahogo_min)
-        if coincidencia:
-            posible_destino = coincidencia.group(1).strip()
-            # Limpieza de conectores o ruido secundario de la frase
-            palabras_ruido = ["un", "una", "el", "la", "los", "mis", "mis\s+hijos", "familia", "family", "today", "hoy"]
-            for ruido in palabras_ruido:
-                posible_destino = re.sub(r'\b' + ruido + r'\b', '', posible_destino).strip()
-            
-            if len(posible_destino) > 2:
-                destino_detectado = posible_destino.title()
-                break
-
-    # Escaneo directo de palabras de control internacional o destinos frecuentes
-    if not destino_detectado:
-        ciudades_frecuentes = ["hong kong", "orlando", "tampa", "lehigh acres", "miami", "paris", "new york", "los angeles", "houston", "las vegas", "london", "madrid", "colombia", "bogota", "medellin", "cali", "cartagena"]
-        for ciudad in ciudades_frecuentes:
-            if ciudad in desahogo_min:
-                destino_detectado = ciudad.title()
-                break
-
-    # Categorías de búsqueda emparejadas con el presupuesto real para USA
     categorias_por_bolsillo = {
         "cero": {
             "busqueda": "parques naturales publicos y playas gratis",
@@ -167,7 +132,7 @@ def procesar_sistema_bienestar():
             }
         },
         "libre": {
-            "busqueda": "hoteles resorts discotecas club y entertainment de lujo",
+            "busqueda": "hoteles resorts discotecas club y entretenimiento de lujo",
             "sugerencias": {
                 "es": "1. El lounge de relajación premium. 2. Pista de baile de alta energía. 3. Entorno de terraza de escape.",
                 "en": "1. The premium relaxation lounge. 2. High-energy dance floor. 3. Terrace escape environment."
@@ -175,9 +140,8 @@ def procesar_sistema_bienestar():
         }
     }
 
-    # Analizador de Palabras Urgentes de Apoyo Financiero
     palabras_urgentes = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills"]
-    if any(p in desahogo_min for p in palabras_urgentes):
+    if any(p in desahogo_usuario for p in palabras_urgentes):
         termino_busqueda = "compañias de empleo agencias de trabajo staffings"
         explicacion_sugerencias = {
             "es": "1. Módulo de reclutamiento rápido. 2. Orientación de vacantes disponibles. 3. Agencias de contratación inmediata para solucionar el agobio financiero.",
@@ -188,68 +152,26 @@ def procesar_sistema_bienestar():
         termino_busqueda = config_actual["busqueda"]
         explicacion_sugerencias = config_actual["sugerencias"]
 
-    # =========================================================================
-    # VERIFICADOR DE FRONTERA NACIONAL (USA VS INTERNACIONAL)
-    # =========================================================================
-    fuera_usa_detectado = False
-    if destino_detectado:
-        ubicacion_destino = destino_detectado
-        # Evaluamos si el destino está fuera de los estados o palabras clave de USA
-        if not any(x in destino_detectado.lower() for x in ["usa", "fl", "florida", "tx", "texas", "ca", "california", "ny", "new york"]):
-            # Protegemos ciudades domésticas comunes de caídas falsas
-            if not any(x in destino_detectado.lower() for x in ["miami", "orlando", "tampa", "houston", "los angeles", "las vegas"]):
-                fuera_usa_detectado = True
-    else:
-        ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
-    
-    # =========================================================================
-    # MOTOR DE GENERACIÓN DE RUTA INTELIGENTE (USA VS GLOBAL SEGURA)
-    # =========================================================================
-    if fuera_usa_detectado:
-        # INTERNATIONAL ACCELERATOR: Suggests exactly 3 top iconic, secure & entertaining destinations
-        if "colombia" in ubicacion_destino.lower():
-            destinos_sugeridos = "Bogota, Medellin y Cartagena"
-        else:
-            destinos_sugeridos = f"sitios turisticos principales de {ubicacion_destino}"
-            
-        query_mapa = quote_plus(f"atracciones turismo en {destinos_sugeridos}")
-        nombre_lugar = f"Escape Internacional: {ubicacion_destino.upper()}"
-        explicacion_sugerencias[lang] = (
-            f"1. Visitar la capital y sus museos históricos. "
-            f"2. Explorar zonas urbanas de innovación y flores. "
-            f"3. Recorrer la ciudad amurallada frente al mar."
-            if lang == "es" else
-            f"1. Visit the capital and its historical museums. "
-            f"2. Explore urban innovation and flower zones. "
-            f"3. Tour the walled city by the sea."
-        )
-    else:
-        # DOMESTIC USA: Normal operation based strictly on ZIP Code/Region, pocket tiers or staffings
-        query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
-        nombre_lugar = f"Escape enfocado en {termino_busqueda.upper()}"
-        
-    # OFFICIAL INDESTRUCTIBLE GPS MAPS API URL:
-    link_google_maps_vivo = f"https://google.com{query_mapa}"
+    ubicacion_destino = zip_code if zip_code else f"{region} {estado}"
+   
+    query_mapa = quote_plus(f"{termino_busqueda} en {ubicacion_destino}")
+   
+    # ENLACE UNIVERSAL GPS INDESTRUCTIBLE CORREGIDO:
+    link_google_maps_vivo = (
+    f"https://www.google.com/maps/search/?api=1&query={query_mapa}"
+)
 
     return jsonify({
         "status": "success",
         "tipo": "Salida",
-        "fuera_usa": fuera_usa_detectado,  # Signals the frontend to play the custom international voice prompt
         "lugar": {
-            "name": nombre_lugar,
-            "address": f"📍 Área de Cobertura: {ubicacion_destino}.",
+            "name": f"Escape enfocado en {termino_busqueda.upper()}",
+            "address": f"📍 Área de Cobertura: {ubicacion_destino}, USA.",
             "gps_link": link_google_maps_vivo,
             "analisis_sugerido": explicacion_sugerencias[lang]
         },
         "mision": mision_final
     })
-
-@app.after_request
-def add_cors_headers(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    return response
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
