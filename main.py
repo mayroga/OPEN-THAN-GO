@@ -165,7 +165,7 @@ async def mando_integral(request: Request):
         # ENLACE UNIVERSAL GPS INDESTRUCTIBLE CORREGIDO:
     link_google_maps_vivo = (
     f"https://www.google.com/maps/search/?api=1&query={query_mapa}"
-        
+     )   
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
             "destino_titulo": info["titulo"].upper(),
