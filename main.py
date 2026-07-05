@@ -346,45 +346,45 @@ if perfil == "accessible":
 elif perfil == "family":
     gps_query = "family+friendly+" + gps_query
 
-# =========================================================================
-# FÓRMULA GEOGRÁFICA UNIVERSAL FIJA E INDESTRUCTIBLE DE GOOGLE MAPS
-# =========================================================================
+        # =========================================================================
+        # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA E INDESTRUCTIBLE DE GOOGLE MAPS
+        # =========================================================================
+        import urllib.parse
+        query_principal_limpia = urllib.parse.quote(f"{gps_query} in {anclaje_geografico}")
+        query_hoteles_limpia = urllib.parse.quote(f"hotels in {anclaje_geografico}")
+        query_parques_limpia = urllib.parse.quote(f"public parks in {anclaje_geografico}")
 
-import urllib.parse
-
-query_principal_limpia = urllib.parse.quote(f"{gps_query} in {anclaje_geografico}")
-query_hoteles_limpia = urllib.parse.quote(f"hotels in {anclaje_geografico}")
-query_parques_limpia = urllib.parse.quote(f"public parks in {anclaje_geografico}")
-
-link_google_maps_vivo = f"google.com{query_principal_limpia}"
-link_hoteles_fijo = f"google.com{query_hoteles_limpia}"
-link_parques_fijo = f"google.com{query_parques_limpia}"
-
-return JSONResponse({
-    "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-    "destino_titulo": titulo_accion,
-    "destino_entorno": entorno_texto,
-    "destino_instruccion": guia_masticada.strip(),
-    "destino_coordenadas_gps": link_google_maps_vivo,
-    "alternativas_contingencia": [
-        {
-            "titulo": "HACKEO COMPLEMENTARIO EN LÍNEA (TIENDAS)",
-            "entorno": "Plataformas de abasto comercial global.",
-            "gps": "amazon.com"
-        },
-        {
-            "titulo": "ESCAPES DE HOSPEDAJE (HOTELES/SPAS/CAFÉS)",
-            "entorno": "Cadenas de servicio en tu área.",
-            "gps": link_hoteles_fijo
-        },
-        {
-            "titulo": "REFUGIOS TOTALMENTE GRATIS (NATURALEZA/AIRE)",
-            "entorno": "Espacios naturales públicos de USA.",
-            "gps": link_parques_fijo
-        }
-    ]
-})
+        # RECTIFICACIÓN MAESTRA: Enlaces oficiales absolutos con protocolo HTTPS
+        link_google_maps_vivo = f"https://google.com{query_principal_limpia}"
+        link_hoteles_fijo = f"https://google.com{query_hoteles_limpia}"
+        link_parques_fijo = f"https://google.com{query_parques_limpia}"
+        
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "destino_titulo": titulo_accion,
+            "destino_entorno": entorno_texto,
+            "destino_instruccion": guia_masticada.strip(),
+            "destino_coordenadas_gps": link_google_maps_vivo,
+            "alternativas_contingencia": [
+                {
+                    "titulo": "HACKEO COMPLEMENTARIO EN LÍNEA (TIENDAS)",
+                    "entorno": "Plataformas de abasto comercial global.",
+                    "gps": "https://amazon.com"
+                },
+                {
+                    "titulo": "ESCAPES DE HOSPEDAJE (HOTELES/SPAS/CAFÉS)",
+                    "entorno": "Cadenas de servicio en tu área.",
+                    "gps": link_hoteles_fijo
+                },
+                {
+                    "titulo": "REFUGIOS TOTALMENTE GRATIS (NATURALEZA/AIRE)",
+                    "entorno": "Espacios naturales públicos de USA.",
+                    "gps": link_parques_fijo
+                }
+            ]
+        })
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+           
