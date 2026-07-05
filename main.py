@@ -87,7 +87,7 @@ BASE_MISIONES = {
 # OPEN THAN GO SYSTEM - Master Backend Engine
 # Company: May Roga LLC
 # File: main.py
-# PARTE 4 DE 5: Catálogo Maestro de Campo (SALIR) y Arsenales Ocultos de Voz por Sector
+# PARTE 4 DE 6: Catálogo Maestro de Campo (SALIR) y Arsenales Ocultos de Voz por Sector
 
     "SALIR": {
         "agotado": [
@@ -147,7 +147,7 @@ async def mando_integral(request: Request):
         recordatorios_veteranos = [
             "Soldado, la guerra terminó. Estás en casa y estás a salvo conmigo ahora. Respira.",
             "Siente tus pies firmes en el suelo de tu país. El peligro ya pasó. Mantén el pulso.",
-            "No estás solo en la trinchera mental. Tu batallón de armas está contigo en este segundo.",
+            "No estás solo en la trinchera mental. Tu batallón de armas está contigo in este segundo.",
             "Suelta la guardia ahora. Escucha mi voz. Recupera el control de tu mente ya.",
             "El trauma no es dueño de tu vida. Tú mandas en este motor físico hoy. Continúa.",
             "Siente el oxígeno entrando a tu pecho. Eres fuerte, sobreviviste. Camina hacia la luz."
@@ -185,7 +185,7 @@ async def mando_integral(request: Request):
         # ARSENAL DE REPARACIÓN SOMÁTICA (TRABAJADORES LESIONADOS)
         recordatorios_lesionados = [
             "Tu cuerpo está sanando en este segundo. Suelta el rencor contra el trabajo. Respira ya.",
-            "El accidente quedó atrás. Siente tu pulso in este instante de calma. Hazlo conmigo.",
+            "El accidente quedó atrás. Siente tu pulso en este instante de calma. Hazlo conmigo.",
             "No te apresures. Tu única labor hoy es recuperar tu motor físico en esta sala.",
             "Siente el aire entrando suavemente. Dale descanso a la zona herida ahora mismo.",
             "La presión de las cuentas no va a acelerar tu salud. Suelta la prisa. Quédate aquí.",
@@ -202,7 +202,7 @@ async def mando_integral(request: Request):
             "Tu conciencia está despierta y activa. Gobiernas tu respiración con el pulso azul ya."
         ]
 
-        # ARSENAL SUPREMO PARA PROTOCOLO PERSONALIZADO CRÍTICO EXISTENCIAL
+        # ARSENAL SUPREMO COMPACTO PARA PROTOCOLO PERSONALIZADO CRÍTICO EXISTENCIAL
         recordatorios_personalizados = [
             "Inicia tu protocolo personalizado. Tu caso es único. Escucha mi dirección ahora.",
             "Rompemos tu piloto automático de forma específica en este segundo. Sigue el pulso.",
@@ -211,8 +211,7 @@ async def mando_integral(request: Request):
             "Tu agobio existencial se detiene en este rincón del tiempo. Quédate conmigo hoy.",
             "Siente el oxígeno limpiando los nudos más profundos de tu pecho ahora mismo.",
             "Estás seguro, estás en el sendero luminoso. Avanza conmigo paso a paso ya."
-        ]
-        for i in range(1, 44):
+       ],
 # OPEN THAN GO SYSTEM - Master Backend Engine
 # Company: May Roga LLC
 # File: main.py
