@@ -1,7 +1,7 @@
-# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.3.5.0
+# OPEN THAN GO SYSTEM - Kernel Absolute Human Awakening Engine V.5.5.0
 # Company: May Roga LLC
 # File: main.py
-# PARTE 1 DE 3: Inicialización de Red y Misiones de Casa (1 a 18)
+# PARTE 1 DE 5: Inicialización de Servidor ASGI y Catálogo de Casa (Misiones 1 a 25)
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
@@ -16,64 +16,68 @@ if not os.path.exists("static"):
     os.makedirs("static")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Catálogo Maestro del Despertador Humano: Acciones Cortas Directas e Inmediatas
+# Memoria de comportamiento compacta para guardar ideas nuevas sin trabar el hardware
+HISTORIAL_IDEAS_NUEVAS = []
+
+# Catálogo Maestro del Despertador Humano (Acciones Cortas, Directas e Inmediatas)
 BASE_MISIONES = {
     "CASA": [
-        {"id": 1, "titulo": "Corta el piloto automático", "descripcion": "Hazlo conmigo ahora. Escanea tu cuerpo en este segundo. Ubica el peso exacto en tu espalda. Míralo. Siente que estás aquí, vivo.", "para_que": "Para recuperar tu control."},
-        {"id": 2, "titulo": "Desconexión de biles", "descripcion": "Siente tu silla ahora. Nota cómo sostiene tu peso gratis. El piso está firme. No sostengas el mundo tú solo en este minuto. Déjate caer.", "para_que": "Para recordarte que el suelo está firme."},
-        {"id": 3, "titulo": "Aislamiento de pantalla", "descripcion": "Dale la vuelta a tu teléfono sobre la mesa ya. Mira una esquina de tu techo. Nota su color, sus líneas. Quédate ahí treinta segundos fijos.", "para_que": "Para romper el bucle visual zombi."},
-        {"id": 4, "titulo": "Soltar la carga", "descripcion": "Imagina que dejas caer una mochila pesada llena de deudas y estrés ahora. Siente tus hombros libres. Se caen de golpe. El peso ya no está.", "para_que": "Para limpiar tu pecho de inmediato."},
-        {"id": 5, "titulo": "El reset del agua", "descripcion": "Busca un vaso de agua ahora mismo. Dale un trago muy pequeño. Siente el líquido frío bajando por tu garganta. Te limpia por dentro. Es la vida.", "para_que": "Para despertar tus sentidos dormidos."},
-        {"id": 6, "titulo": "Liberación de nudos", "descripcion": "Aprieta tus dos puños con toda tu fuerza ahora. Siente la rabia acumulada. Mantén tres segundos. Ahora abre las manos de golpe. Suéltalo todo.", "para_que": "Para soltar el estrés acumulado ya."},
-        {"id": 7, "titulo": "El aire de la calle", "descripcion": "Camina hacia la ventana o puerta más cercana ahora. Ábrela. Deja que el aire te golpee la cara en este instante. Siente el viento exterior.", "para_que": "Para recordarte que hay vida fuera."},
-        {"id": 8, "titulo": "Rotación de energía", "descripcion": "Gira tus muñecas y tus tobillos despacio ahora. Siente tus articulaciones. Tu cuerpo es tuyo, no del sistema. Tú gobiernas este motor físico.", "para_que": "Para recuperar tu autonomía activa ya."},
-        {"id": 9, "titulo": "Anclaje del presente", "descripcion": "Cierra los ojos conmigo ahora. Di una sola cosa buena que tienes hoy en voz alta. Tu salud, tus manos, tu vida. Dilo con fuerza. Quédate con eso.", "para_que": "Para encender tu chispa oculta ahora."},
-        {"id": 10, "titulo": "Orden de tu espacio", "descripcion": "Alinea tres objetos de tu mesa perfectamente ahora. Pon orden fuera para poner orden dentro. Hazlo ya.", "para_que": "Para calmar el caos en tu mente."},
-        {"id": 11, "titulo": "Pies en la tierra", "descripcion": "Quítate los zapatos ahora. Apoya las plantas de tus pies firmemente en el piso. Siente el frío del suelo. Conéctate.", "para_que": "Para bajarte de la nube de la ansiedad."},
-        {"id": 12, "titulo": "Estiramiento al cielo", "descripcion": "Estira tus brazos hacia arriba con fuerza en este segundo. Imagina que tocas el techo. Mantén la tensión. Suelta de golpe.", "para_que": "Para liberar la espalda trabada."},
-        {"id": 13, "titulo": "Foco en lo olvidado", "descripcion": "Mira a tu alrededor. Elige una tarea mínima que estabas ignorando en tu cuarto. Hazla ahora mismo. Termínala ya.", "para_que": "Para ganarle a la pereza de la rutina."},
-        {"id": 14, "titulo": "Columna recta", "descripcion": "Endereza tu espalda en este instante. Imagina que un hilo invisible tira de tu cabeza hacia arriba. Respira hondo.", "para_que": "Para activar tu alerta biológica hoy."},
-        {"id": 15, "titulo": "Contacto frío", "descripcion": "Toca una pared o una superficie de metal fría ahora mismo. Siente la temperatura real con tus dedos. Quédate ahí.", "para_que": "Para aterrizar tus pensamientos."},
-        {"id": 16, "titulo": "Ventilación total", "descripcion": "Abre la puerta principal de tu casa ahora. Deja que el aire ruede y cambie el ambiente de tu sala. Huele el cambio.", "para_que": "Para sacar el encierro gris de tu día."},
-        {"id": 17, "titulo": "Sacudida de estrés", "descripcion": "Párate y sacude tus manos y tus piernas con fuerza ahora. Como si te quitaras agua de encima. Hazlo por diez segundos.", "para_que": "Para romper el zombi que llevas dentro."},
-        {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira por tu ventana ahora. Enfoca tus ojos en el objeto más lejano que alcances a ver en la calle. No mires nada cerca.", "para_que": "Para descansar tu enfoque visual."},
-# PARTE 2 DE 3: Continuación del catálogo de CASA (19 a 50) y misiones de SALIR
-        {"id": 19, "titulo": "Paso 19: Recordar la infancia", "descripcion": "Cierra los ojos y recuerda un juego o un momento feliz de tu niñez."},
-        {"id": 20, "titulo": "Paso 20: Sonrisa forzada", "descripcion": "Dibuja una sonrisa en tu cara por 15 segundos. Tu cerebro cambiará su química."},
-        {"id": 21, "titulo": "Paso 21: Agradecimiento final", "descripcion": "Cierra los ojos y agradece una sola cosa buena que te haya pasado en esta semana."},
-        {"id": 22, "titulo": "Paso 22: Relaja los ojos", "descripcion": "Cierra los ojos y tápalos suavemente con las palmas de tus manos templadas por un minuto."},
-        {"id": 23, "titulo": "Paso 23: Ritmo cardíaco", "descripcion": "Coloca tu mano derecha en tu pecho y siente los latidos de tu corazón en silencio."},
-        {"id": 24, "titulo": "Paso 24: Suelta el cuello", "descripcion": "Mueve tu cabeza en círculos muy lentos para liberar la tensión acumulada al mirar pantallas."},
-        {"id": 25, "titulo": "Paso 25: Ejercicio de palmas", "descripcion": "Frota tus manos con fuerza hasta sentir calor y luego colócalas sobre tus hombros."},
-        {"id": 26, "titulo": "Paso 26: Sonidos lejanos", "descripcion": "Trata de identificar el sonido más lejano que ocurra fuera de tu casa ahora mismo."},
-        {"id": 27, "titulo": "Paso 27: Estiramiento lateral", "descripcion": "Inclina tu cuerpo suavemente hacia un lado y luego hacia el otro de forma fluida."},
-        {"id": 28, "titulo": "Paso 28: El vaso vacío", "descripcion": "Mira un vaso vacío y concéntrate en su forma por un minuto entero sin pensar en biles."},
-        {"id": 29, "titulo": "Paso 29: Suelta la mandíbula", "descripcion": "Abre la boca grande y mueve la mandíbula de lado a lado para soltar el estrés."},
-        {"id": 30, "titulo": "Paso 30: Pasos lentos", "descripcion": "Camina diez pasos dentro de tu habitación de la forma más lenta que te sea posible."},
-        {"id": 31, "titulo": "Paso 31: Masaje suave", "descripcion": "Usa las yemas de tus dedos para dar un suave masaje circular en tus sienes."},
-        {"id": 32, "titulo": "Paso 32: Conciencia del aire", "descripcion": "Siente cómo entra el aire frío por tu nariz y cómo sale aire más cálido."},
-        {"id": 33, "titulo": "Paso 33: Espalda firme", "descripcion": "Siéntate derecho y empuja tus omóplatos hacia atrás para abrir tu pecho."},
-        {"id": 34, "titulo": "Paso 34: Apoyo total", "descripcion": "Siente cómo tu silla y el suelo sostienen todo tu peso sin que hagas esfuerzo."},
-        {"id": 35, "titulo": "Paso 35: Cuenta regresiva", "descripcion": "Cuenta hacia atrás del veinte al uno despacio en tu mente para calmar el ruido."},
-        {"id": 36, "titulo": "Paso 36: Toca tu entorno", "descripcion": "Busca un objeto de madera o tela y pasa tus dedos notando su textura real."},
-        {"id": 37, "titulo": "Paso 37: Estira los dedos", "descripcion": "Abre tus manos separando los dedos lo más que puedas por cinco segundos y suelta."},
-        {"id": 38, "titulo": "Paso 38: Sonidos internos", "descripcion": "Presta atención al sonido de tu propia respiración sin forzarla ni cambiarla."},
-        {"id": 39, "titulo": "Paso 39: Mirada fija", "descripcion": "Elige un punto pequeño en la pared y míralo fijamente sin parpadear un momento."},
-        {"id": 40, "titulo": "Paso 40: Suelta los brazos", "descripcion": "Deja colgar tus brazos a los lados de tu cuerpo y sacúdelos con suavidad."},
-        {"id": 41, "titulo": "Paso 41: Conciencia de ropa", "descripcion": "Nota el contacto y el peso de la ropa sobre tu piel por treinta segundos."},
-        {"id": 42, "titulo": "Paso 42: Aire profundo", "descripcion": "Toma aire inflando tu vientre, retenlo tres segundos y déjalo salir muy lento."},
-        {"id": 43, "titulo": "Paso 43: Rotación de hombros", "descripcion": "Lleva tus hombros hacia tus orejas y luego déjalos caer de golpe para soltar la rutina."},
-        {"id": 44, "titulo": "Paso 44: Escucha el silencio", "descripcion": "Busca el espacio de silencio que queda justo entre una respiración y la siguiente."},
-        {"id": 45, "titulo": "Paso 45: Mirada al techo", "descripcion": "Mira hacia el techo y estira tu cuello suavemente sin mover tus hombros."},
-        {"id": 46, "titulo": "Paso 46: Siente la base", "descripcion": "Siente el contacto firme de tus piernas con la silla y concéntrate en esa firmeza."},
-        {"id": 47, "titulo": "Paso 47: Puños firmes", "descripcion": "Aprieta tus manos haciendo puños con fuerza por tres segundos y luego ábrelas."},
-        {"id": 48, "titulo": "Paso 48: Limpieza mental", "descripcion": "Imagina que cada exhalación saca una preocupación aburrida fuera de tu habitación."},
-        {"id": 49, "titulo": "Paso 49: Tocar la mesa", "descripcion": "Coloca ambas palmas sobre tu mesa o escritorio y nota la estabilidad del mueble."},
-        {"id": 50, "titulo": "Paso 50: Presencia absoluta", "descripcion": "Regresa tu atención a este instante. Estás seguro, estás en casa y tienes el control."}
+        {"id": 1, "titulo": "Paso 1: Detén tu máquina", "descripcion": "Hazlo conmigo ahora. Escanea tu cuerpo en este segundo. Ubica el peso exacto en tu espalda. Míralo. Siente que estás aquí, vivo."},
+        {"id": 2, "titulo": "Paso 2: Conciencia de base", "descripcion": "Siente tu silla ahora. Nota cómo sostiene tu peso gratis. El piso está firme. No sostengas el mundo tú solo en este minuto. Déjate caer."},
+        {"id": 3, "titulo": "Paso 3: Bloqueo de pantalla", "descripcion": "Dale la vuelta a tu teléfono sobre la mesa ya. Mira una esquina de tu techo. Nota su color, sus líneas. Quédate ahí treinta segundos fijos."},
+        {"id": 4, "titulo": "Paso 4: Descarga del pecho", "descripcion": "Imagina que dejas caer una mochila pesada llena de deudas y estrés ahora. Siente tus hombros libres. Se caen de golpe. El peso ya no está."},
+        {"id": 5, "titulo": "Paso 5: Activación de vida", "descripcion": "Busca un vaso de agua ahora mismo. Dale un trago muy pequeño. Siente el líquido frío bajando por tu garganta. Te limpia por dentro. Es la vida."},
+        {"id": 6, "titulo": "Paso 6: Romper el cortisol", "descripcion": "Aprieta tus dos puños con toda tu fuerza ahora. Siente la rabia acumulada. Mantén tres segundos. Ahora abre las manos de golpe. Suéltalo todo."},
+        {"id": 7, "titulo": "Paso 7: Conexión externa", "descripcion": "Camina hacia la ventana o puerta más cercana ahora. Ábrela. Deja que el aire te golpee la cara en este instante. Siente el viento exterior."},
+        {"id": 8, "titulo": "Paso 8: Reclamo del motor", "descripcion": "Gira tus muñecas y tus tobillos despacio ahora. Siente tus articulaciones. Tu cuerpo es tuyo, no del sistema. Tú gobiernas este motor físico."},
+        {"id": 9, "titulo": "Paso 9: Anclaje del presente", "descripcion": "Cierra los ojos conmigo ahora. Di una sola cosa buena que tienes hoy en voz alta. Tu salud, tus manos, tu vida. Dilo con fuerza. Quédate con eso."},
+        {"id": 10, "titulo": "Paso 10: Orden de control", "descripcion": "Alinea tres objetos de tu mesa perfectamente ahora. Pon orden fuera para poner orden dentro. Hazlo ya."},
+        {"id": 11, "titulo": "Paso 11: Cable a tierra", "descripcion": "Quítate los zapatos ahora. Apoya las plantas de tus pies firmemente en el piso. Siente el frío del suelo. Conéctate."},
+        {"id": 12, "titulo": "Paso 12: Flecha al cielo", "descripcion": "Estira tus brazos hacia arriba con fuerza en este segundo. Imagina que tocas el techo. Mantén la tensión. Suelta de golpe."},
+        {"id": 13, "titulo": "Paso 13: Foco en lo ignorado", "descripcion": "Mira a tu alrededor. Elige una tarea mínima que estabas ignorando en tu cuarto. Hazla ahora mismo. Termínala ya."},
+        {"id": 14, "titulo": "Paso 14: Eje biológico", "descripcion": "Endereza tu espalda en este instante. Imagina que un hilo invisible tira de tu cabeza hacia arriba. Respira hondo."},
+        {"id": 15, "titulo": "Paso 15: Impacto térmico", "descripcion": "Toca una pared o una superficie de metal fría ahora mismo. Siente la temperatura real con tus dedos. Quédate ahí."},
+        {"id": 16, "titulo": "Paso 16: Ventilación limpia", "descripcion": "Abre la puerta principal de tu casa ahora. Deja que el aire ruede y cambie el ambiente de tu sala. Huele el cambio."},
+        {"id": 17, "titulo": "Paso 17: Descarga sacudida", "descripcion": "Párate y sacude tus manos y tus piernas con fuerza ahora. Como si te quitaras agua de encima. Hazlo por diez segundos."},
+        {"id": 18, "titulo": "Paso 18: Foco de horizonte", "descripcion": "Mira por tu ventana ahora. Enfoca tus ojos en el objeto más lejano que alcances a ver en la calle. No mires nada cerca."},
+        {"id": 19, "titulo": "Paso 19: Regreso a la raíz", "descripcion": "Cierra los ojos conmigo ahora. Trae a tu mente un recuerdo feliz de cuando eras un niño de ocho años. Siente esa risa."},
+        {"id": 20, "titulo": "Paso 20: Hackeo de dopamina", "descripcion": "Dibuja una sonrisa grande en tu cara ahora por quince segundos, aunque no quieras. Obliga a tu cerebro a cambiar su energía ya."},
+        {"id": 21, "titulo": "Paso 21: Veredicto de gratitud", "descripcion": "Cierra tus ojos en este instante. Di en voz alta una sola cosa buena que te pasó en la semana. Tu vida, tus manos. Dilo fuerte ya."},
+        {"id": 22, "titulo": "Paso 22: Apagón sensorial", "descripcion": "Cierra tus ojos ahora. Cúbrelos suavemente con las palmas de tus manos templadas por un minuto. Siente la oscuridad absoluta."},
+        {"id": 23, "titulo": "Paso 23: Sensor de pulso", "descripcion": "Coloca tu mano derecha sobre tu pecho en este segundo. Siente tus latidos en silencio. Estás aquí, estás al mando hoy."},
+        {"id": 24, "titulo": "Paso 24: Desbloqueo cervical", "descripcion": "Mueve tu cabeza haciendo círculos muy lentos ahora. Siente cómo se destraba tu cuello del peso diario de las pantallas."},
+        {"id": 25, "titulo": "Paso 25: Transferencia térmica", "descripcion": "Frota tus manos con fuerza ahora mismo hasta sentir calor real. Colócalas sobre tus hombros cansados. Siente el alivio ya."}
+# PARTE 2 DE 5: Continuación del catálogo de CASA (26 a 50) y catálogo maestro de SALIR
+
+        {"id": 26, "titulo": "Paso 26: Sonido periférico", "descripcion": "Presta atención al ruido más lejano que ocurra fuera de tu edificio ahora mismo. Identifícalo en silencio."},
+        {"id": 27, "titulo": "Paso 27: Balanceo mecánico", "descripcion": "Inclina tu columna suavemente de izquierda a derecha. Siente la elasticidad de tus costillas ahora."},
+        {"id": 28, "titulo": "Paso 28: Foco transparente", "descripcion": "Mira fijamente un vaso o una botella transparente por sesenta segundos fijos. No desvíes la mirada."},
+        {"id": 29, "titulo": "Paso 29: Descompresión facial", "descripcion": "Abre tu boca lo más grande que puedas y mueve tu mandíbula de lado a lado. Suelta el estrés retenido."},
+        {"id": 30, "titulo": "Paso 30: Marcha ralentizada", "descripcion": "Camina cinco pasos dentro de tu espacio de la forma más lenta posible. Siente cada milímetro del movimiento."},
+        {"id": 31, "titulo": "Paso 31: Presión digital", "descripcion": "Presiona suavemente tus sienes con las yemas de tus dedos haciendo círculos lentos por treinta segundos."},
+        {"id": 32, "titulo": "Paso 32: Captura de oxígeno", "descripcion": "Toma aire profundo notando cómo se expande tu abdomen. Retén dos segundos y exhala despacio."},
+        {"id": 33, "titulo": "Paso 33: Apertura torácica", "descripcion": "Lleva tus codos hacia atrás con fuerza e intenta que tus omóplatos se toquen. Abre tu pecho ahora."},
+        {"id": 34, "titulo": "Paso 34: Abandono de carga", "descripcion": "Suelta toda la fuerza de tus piernas. Deja que el piso absorba toda la resistencia de tu peso gratis."},
+        {"id": 35, "titulo": "Paso 35: Conteo de aislamiento", "descripcion": "Cuenta de forma regresiva en tu mente del treinta al uno despacio. Apaga el ruido de la sala."},
+        {"id": 36, "titulo": "Paso 36: Textura real", "descripcion": "Pasa la palma de tu mano sobre tu ropa o cortina. Concéntrate puramente en el roce del tejido."},
+        {"id": 37, "titulo": "Paso 37: Expansión falángica", "descripcion": "Abre tus manos separando los dedos lo más posible con rigidez por cinco segundos. Suelta de golpe."},
+        {"id": 38, "titulo": "Paso 38: Murmullo biológico", "descripcion": "Tápate los oídos con tus dedos y escucha el sonido interno de tu respiración por veinte segundos."},
+        {"id": 39, "titulo": "Paso 39: Foco milimétrico", "descripcion": "Elige un tornillo, marca o punto mínimo de la pared. Clava tus ojos ahí sin parpadear un momento."},
+        {"id": 40, "titulo": "Paso 40: Péndulo suelto", "descripcion": "Deja tus brazos completamente muertos a los lados y balancéalos como un péndulo flojo."},
+        {"id": 41, "titulo": "Paso 41: Registro dérmico", "descripcion": "Siente la temperatura exacta del aire del cuarto golpeando la piel de tus manos ahora mismo."},
+        {"id": 42, "titulo": "Paso 42: Expulsión zombi", "descripcion": "Inhala inflando el pecho al máximo. Suelta el aire con un suspiro fuerte por la boca liberando la rutina."},
+        {"id": 43, "titulo": "Paso 43: Caída de hombros", "descripcion": "Lleva tus hombros hasta tus orejas con fuerza. Sostén la tensión. Déjalos caer flojos de un solo golpe."},
+        {"id": 44, "titulo": "Paso 44: Interregno de paz", "descripcion": "Busca el segundo de silencio absoluto que ocurre exactamente cuando terminas de exhalar el aire."},
+        {"id": 45, "titulo": "Paso 45: Extensión cervical", "descripcion": "Mira hacia el techo estirando tu garganta al máximo sin mover tu espalda. Quédate ahí cinco segundos."},
+        {"id": 46, "titulo": "Paso 46: Conciencia de apoyo", "descripcion": "Nota el contacto firme de tus muslos contra el asiento. Registra la estabilidad del mueble en este instante."},
+        {"id": 47, "titulo": "Paso 47: Puños de choque", "descripcion": "Cierra tus puños apretando con fuerza máxima sintiendo la rigidez de tus antebrazos. Abre y relaja ya."},
+        {"id": 48, "titulo": "Paso 48: Limpieza de espacio", "descripcion": "Imagina que con cada bocanada de aire sacas una preocupación burocrática fuera de tus paredes."},
+        {"id": 49, "titulo": "Paso 49: Anclaje de palmas", "descripcion": "Coloca tus dos palmas planas sobre tu mesa. Empuja suavemente hacia abajo notando la solidez del material."},
+        {"id": 50, "titulo": "Paso 50: Presencia soberana", "descripcion": "Regresa tu atención a este segundo exacto. Tu mente está despierta, estás a salvo y recuperaste el mando."}
     ],
     "SALIR": {
         "agotado": [
-            {"titulo": "Usa la sombra del árbol grande", "porque": "Tu mente está frita por el derroche de luz artificial y pantallas.", "que_hacer": "Hazlo ya. Camina hacia el árbol más grande de ese parque. Toca su corteza con tu mano ahora. Siente la textura fría. Quédate bajo su sombra densa.", "donde": "Parque público con árboles grandes.", "gps": "parks+with+shade+"},
+            {"titulo": "Usa la sombra del árbol grande", "porque": "Tu mente está frita por el derroche de luz artificial y pantallas.", "que_hacer": "Hazlo ya. Camina hacia el árbol más grande de ese parque. Toca su corteza con tu mano ahora. Siente la textura fría. Quédate bajo su sombra densa mirando el aire.", "donde": "Parque público con árboles grandes.", "gps": "parks+with+shade+"},
             {"titulo": "Usa el horizonte del muelle", "porque": "Tu visión está encerrada en paredes pequeñas y biles.", "que_hacer": "Párate al final del muelle o punto alto ahora. Clava tu mirada en la línea donde se une el cielo con el agua. Quédate ahí sin moverte. Recupera el asombro.", "donde": "Muelle, mirador o orilla de lago pública.", "gps": "waterfront+viewpoints+"}
         ],
         "estresado": [
@@ -81,12 +85,12 @@ BASE_MISIONES = {
             {"titulo": "Usa el circuito de la acera lineal", "porque": "Tu cerebro está dando vueltas en círculos de ansiedad financiera.", "que_hacer": "Pisa la acera lineal de esa avenida pública ahora. Camina recto diez minutos seguidos sin mirar el teléfono. Siente el golpe firme de tus pies contra el concreto.", "donde": "Acera peatonal o parque lineal continuo.", "gps": "linear+parks+and+walkways+"}
         ],
         "aburrido": [
-            {"titulo": "Usa los colores de los murales", "porque": "Vives en un piloto automático gris que te duerme la dopamina.", "que_hacer": "Párate frente a los dibujos de colores de esa pared urbana ahora. Busca tres detalles pequeños que nadie mira. Encuentra el asombro en lo insignificante.", "donde": "Calle con murales o distrito de diseño urbano.", "gps": "street+art+murals+"},
+            {"titulo": "Usa los colores de los murales", "porque": "Vives en un piloto automático gris que te duerme la dopamina.", "que_hacer": "Párate frente a los dibujos de colores de esa pared urbana ahora. Busca tres detalles pequeños que nadie mira. Encuentra el asombro en lo insignificante.", "donde": "Calle con murales o distrito de diseño urbano.", "gps": "street+art+murales+"},
             {"titulo": "Usa los aromas del mercado abierto", "porque": "Has perdido la calidez de la espontaneidad humana por el confort.", "que_hacer": "Camina entre la multitud de ese mercado al aire libre ahora. Huele las frutas frescas, mira los objetos raros. Toca un producto gratis. Conecta ya.", "donde": "Mercado de pulgas, feria comunitaria o farmers market.", "gps": "farmers+markets+and+flea+markets+"}
         ]
     }
 }
-# PARTE 3 DE 3: Lógica de API, Filtros Elásticos y Enlace Satelital Universal
+# PARTE 3 DE 5: Rutas de FastAPI, Captura de Mando y Arsenales Ocultos de Voz (Común, Veteranos y Gobierno)
 
 @app.get("/")
 async def index():
@@ -107,77 +111,227 @@ async def mando_integral(request: Request):
     
     anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
 
+    # =========================================================================
+    # RUTA DOMÉSTICA INTERNA (MODO CASA) - EL "AS BAJO LA MANGA" CLÍNICO
+    # =========================================================================
     if opcion_usuario == "CASA":
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", 
-            "misiones": BASE_MISIONES["CASA"]
-        })
-    
-    else:
-        # CONFIGURACIÓN DE COSTOS Y COMPAÑÍA EN POCAS PALABRAS
-        precio_real = "GASTO: Cero dólares. Libertad mental gratis hoy." if budget == "0" else "GASTO: Rango controlado. Un intercambio justo."
-        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a romper tus cadenas." if perfil == "solo" else "ACOMPAÑAMIENTO: Entorno apto para tus niños y familia." if perfil == "familia" else "ACOMPAÑAMIENTO: Sendero con total accesibilidad física."
+        palabras_veteranos = ["veterano", "veteranos", "ejercito", "fuerzas+armadas", "irak", "trauma", "post_trauma"]
+        palabras_gobierno = ["gobierno", "federal", "estatal", "oficina", "burocracia", "empleado+publico"]
+        palabras_ancianos = ["anciano", "ancianos", "adulto+mayor", "abuelo", "abuela", "viejo", "vejez", "edad", "senior"]
+        palabras_directivos = ["jefe", "jefes", "director", "directivo", "gerente", "ceo", "ejecutivo", "manager", "dueño", "corporativo"]
+        palabras_lesionados = ["lesionado", "lesionada", "lesion", "lesión", "herido", "herida", "accidente", "accidentado", "compensacion", "workcomp", "dolor+espalda"]
+        palabras_discapacitados = ["discapacidad", "discapacitado", "discapacitada", "silla", "ruedas", "limitado", "limitada", "paralisis", "parálisis", "ciego", "sordo", "accesible"]
 
-        # GENERADOR ELÁSTICO CLÍNICO Y COMERCIAL MAESTRO EN TIEMPO REAL
-        
-        # Flujo A: Hackeo de Gobierno, Veteranos, Escuelas o Empleados Federales
-        if any(p in desahogo for p in ["gobierno", "federal", "estatal", "veterano", "veteranos", "anciano", "ancianos", "escuela", "colegio", "jefe", "compañia"]):
-            if "veterano" in desahogo:
-                gps_query = "va+hospital+veterans+affairs+center"
-                titulo_accion = "INTERVENCIÓN ESPECIAL PARA VETERANOS DE GUERRA"
-                guia_masticada = f"VEREDICTO: Protección prioritaria para defensores del país. POR QUÉ: Tu mente carga con un peso pesado y el sistema te ignora. QUÉ HACER: Acude a este centro de atención ahora mismo. Solicita tu chequeo y apoyo directo. PARA QUÉ: Recuperar tu estabilidad biopsicosocial ya. {quienes_van}"
-                entorno_texto = "Centros oficiales y clínicas de asistencia para Veteranos de USA."
-            elif any(p in desahogo for p in ["gobierno", "federal", "estatal"]):
-                gps_query = "government+offices+social+security+administration"
-                titulo_accion = "PROTOCOLO DE CHOQUE EXCLUSIVO PARA TRABAJADORES DEL ESTADO"
-                guia_masticada = f"VEREDICTO: Liberación de la burocracia mental. POR QUÉ: Sostienes al gobierno pero el piloto automático te consume. QUÉ HACER: Ve a este punto de gestión en este segundo. Realiza tu trámite postergado ya. PARA QUÉ: Limpiar tus pendientes y recuperar tu paz. {quienes_van}"
-                entorno_texto = "Oficinas gubernamentales e infraestructura administrativa estatal."
+        # ARSENAL ESTÁNDAR PARA USUARIOS COMUNES
+        recordatorios_comunes = [
+            "Sigue el pulso azul ahora. Estás conmigo.",
+            "No mires tus biles. Respira ya.",
+            "Mantén el ritmo ahora. Estás ganando control.",
+            "Siente el peso fuera de tus hombros en este segundo.",
+            "Te estoy acompañando. No estás solo. Hazlo conmigo.",
+            "Siente el aire limpiando tu pecho ahora mismo.",
+            "El piloto automático está apagado. Continúa.",
+            "Quédate en este instante. El presente es tuyo."
+        ]
+
+        # ARSENAL DE RESCATE MILITAR (VETERANOS)
+        recordatorios_veteranos = [
+            "Soldado, la guerra terminó. Estás en casa y estás a salvo conmigo ahora. Respira.",
+            "Siente tus pies firmes en el suelo de tu país. El peligro ya pasó. Mantén el pulso.",
+            "No estás solo en la trinchera mental. Tu batallón de armas está contigo en este segundo.",
+            "Suelta la guardia ahora. Escucha mi voz. Recupera el control de tu mente ya.",
+            "El trauma no es dueño de tu vida. Tú mandas en este motor físico hoy. Continúa.",
+            "Siente el oxígeno entrando a tu pecho. Eres fuerte, sobreviviste. Camina hacia la luz."
+        ]
+
+        # ARSENAL DE LIBERACIÓN BUROCRÁTICA (GOBIERNO)
+        recordatorios_gobierno = [
+            "Apaga la burocracia en este segundo. Tu mente no le pertenece al estado. Respira.",
+            "Suelta la presión del sistema ahora. Eres un ser humano libre fuera de esa oficina.",
+            "El papeleo y las llamadas pueden esperar. Quédate en este instante de poder.",
+            "Siente cómo tus costillas se expanden limpiando el cortisol acumulado hoy.",
+            "No tienes que sostener el peso de la administración tú solo. Suelta los hombros ya.",
+            "Recupera tu autonomía activa en este minuto. Tu salud mental es lo único que importa."
+        ]
+# PARTE 4 DE 5: Arsenales Ocultos de Voz (Ancianos, Jefes, Lesionados, Discapacidad, Personalizado) y Filtro Clínico
+
+        # ARSENAL DE COMPAÑÍA Y CALIDEZ (ANCIANOS)
+        recordatorios_ancianos = [
+            "Estás seguro conmigo en esta sala ahora. Siente la paz de tus años. Respira despacio.",
+            "Tu historia tiene un valor inmenso. No estás solo en este segundo. Sigue el pulso azul.",
+            "Siente el calor de tus manos ahora. Tu cuerpo está vivo y en calma en este instante.",
+            "Suelta la prisa del mundo exterior. Quédate en este minuto conmigo. Lo estás haciendo bien.",
+            "Tu presencia es un regalo hoy. Siente el aire llenando tus pulmones con suavidad."
+        ]
+
+        # ARSENAL DE DESAPEGO DE CONTROL (DIRECTIVOS)
+        recordatorios_directivos = [
+            "Suelta el control en este segundo. Nadie te está evaluando ahora. Apaga tu mente. Respira.",
+            "Ya no tienes que decidir nada en este minuto. Yo tengo el mando. Déjate guiar ya.",
+            "El peso de la compañía no está en tus hombros en esta sala. El suelo te sostiene gratis.",
+            "Siente el aire limpiando tu cabeza. Olvida los números, las metas y las juntas ahora.",
+            "Respira despacio. Saca la urgencia de tus pulmones. Estás a salvo del teléfono hoy.",
+            "Tú eres más que tu rango o tu empresa. Recupera tu presencia humana en este instante."
+        ]
+
+        # ARSENAL DE REPARACIÓN SOMÁTICA (TRABAJADORES LESIONADOS)
+        recordatorios_lesionados = [
+            "Tu cuerpo está sanando en este segundo. Suelta el rencor contra el trabajo. Respira ya.",
+            "El accidente quedó atrás. Siente tu pulso en este instante de calma. Hazlo conmigo.",
+            "No te apresures. Tu única labor hoy es recuperar tu motor físico en esta sala.",
+            "Siente el aire entrando suavemente. Dale descanso a la zona herida ahora mismo.",
+            "La presión de las cuentas no va a acelerar tu salud. Suelta la prisa. Quédate aquí.",
+            "Te estoy acompañando en este proceso. Tu fuerza biológica es real. Mantén el ritmo azul."
+        ]
+
+        # ARSENAL DE AUTONOMÍA ADAPTADA (DISCAPACITADOS / SILLA DE RUEDAS)
+        recordatorios_discapacitados = [
+            "Tu mente no tiene límites físicos. Eres el soberano de tus pensamientos hoy. Respira.",
+            "Siente la estabilidad de tu soporte ahora. El presente te rodea en este segundo fijos.",
+            "No mires las barreras de la calle. Mira el Sendero Luminoso de tu mente ahora mismo.",
+            "Siente el viento entrando por tus pulmones. Tu energía es libre en esta sala conmigo.",
+            "Estoy al lado tuyo. Tomo el mando de tu descompresión sensorial en este instante.",
+            "Tu conciencia está despierta y activa. Gobiernas tu respiración con el pulso azul ya."
+        ]
+
+        # ARSENAL SUPREMO PARA PROTOCOLO PERSONALIZADO CRÍTICO EXISTENCIAL
+        recordatorios_personalizados = [
+            "Inicia tu protocolo personalizado. Tu caso es único. Escucha mi dirección ahora.",
+            "Rompemos tu piloto automático de forma específica en este segundo. Sigue el pulso.",
+            "No permitas que tu mente ruede por los mismos carriles aburridos. Despierta ya.",
+            "Tomo el mando absoluto de tus decisiones en este instante porque lo necesitas.",
+            "Tu agobio existencial se detiene en este rincón del tiempo. Quédate conmigo hoy.",
+            "Siente el oxígeno limpiando los nudos más profundos de tu pecho ahora mismo.",
+            "Estás seguro, estás en el sendero luminoso. Avanza conmigo paso a paso ya."
+        ]
+        for i in range(1, 44):
+            recordatorios_personalizados.append(f"Orden de choque número {i}. Mantén presencia absoluta en la sala ahora. No te desvíes.")
+
+        # SEGMENTACIÓN CLÍNICA AUTOMÁTICA (EL "AS BAJO LA MANGA" SUPREMO)
+        if any(p in desahogo for p in palabras_veteranos + palabras_gobierno + palabras_ancianos + palabras_directivos + palabras_lesionados + palabras_discapacitados) or perfil in ["accesible", "familia"] or (desahogo and len(desahogo) > 5):
+            
+            if any(v in desahogo for v in palabras_veteranos):
+                audios_choque = recordatorios_veteranos
+                tipo_protocolo_master = "CLINICO_INTENSIVO_50_VET"
+                catalogo_enviar = BASE_MISIONES["CASA"]
+            elif any(g in desahogo for g in palabras_gobierno):
+                audios_choque = recordatorios_gobierno
+                tipo_protocolo_master = "CLINICO_INTENSIVO_50_GOB"
+                catalogo_enviar = BASE_MISIONES["CASA"]
+            elif any(d in desahogo for d in palabras_directivos):
+                audios_choque = recordatorios_directivos
+                tipo_protocolo_master = "CLINICO_EJECUTIVO_30"
+                catalogo_enviar = list(BASE_MISIONES["CASA"])[:30]
+                for m in catalogo_enviar: m["titulo"] = m["titulo"].replace("Foco", "Suelte").replace("Orden", "Desconexión")
+            elif any(l in desahogo for l in palabras_lesionados):
+                audios_choque = recordatorios_lesionados
+                tipo_protocolo_master = "CLINICO_LESIONADOS_30"
+                catalogo_enviar = list(BASE_MISIONES["CASA"])[:30]
+                for m in catalogo_enviar: m["titulo"] = m["titulo"].replace("Aprieta", "Siente").replace("Sacudida", "Estiramiento suave")
+            elif any(x in desahogo for x in palabras_discapacitados) or perfil == "accesible":
+                audios_choque = recordatorios_discapacitados
+                tipo_protocolo_master = "CLINICO_DISCAPACIDAD_30"
+                catalogo_enviar = list(BASE_MISIONES["CASA"])[:30]
+                for m in catalogo_enviar: m["titulo"] = m["titulo"].replace("Párate", "Siéntate recto").replace("Camina", "Respira en tu sitio")
             else:
-                gps_query = "public+schools+and+community+centers"
-                titulo_accion = "MANDO DE APOYO PARA PADRES, MAESTROS Y ESCUELAS"
-                guia_masticada = f"VEREDICTO: Dirección inmediata para el núcleo familiar. POR QUÉ: El agobio de educar te tiene agotado. QUÉ HACER: Camina hacia este centro comunitario o escuela ahora. Habla con los encargados de frente. PARA QUÉ: Proteger el bienestar de tus niños y el tuyo hoy."
-                entorno_texto = "Centros educativos e infraestructura escolar comunitaria."
+                audios_choque = recordatorios_personalizados
+                tipo_protocolo_master = "CLINICO_PERSONALIZADO_50"
+                catalogo_enviar = BASE_MISIONES["CASA"]
 
-        # Flujo B: Hackeo Minorista y Descuentos Masivos (Walmart, Ross, DD's, Burlington)
-        elif any(p in desahogo for p in ["comprar", "ropa", "comida", "walmart", "ross", "dds", "burlington", "tienda", "barato", "ahorrar"]):
+            return JSONResponse({
+                "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
+                "tipo_protocolo": tipo_protocolo_master,
+                "misiones": catalogo_enviar,
+                "recordatorios_voz_choque": audios_choque
+            })
+        else:
+            misiones_comunes = list(BASE_MISIONES["CASA"])
+            random.shuffle(misiones_comunes)
+            return JSONResponse({
+                "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
+                "tipo_protocolo": "COMUN_RAPIDO",
+                "misiones": misiones_comunes[:3],
+                "recordatorios_voz_choque": recordatorios_comunes
+            })
+# PARTE 5 DE 5: Lógica Suprema del Modo SALIR (Intervención de Campo) y Cierre de Servidor ASGI
+
+    # =========================================================================
+    # RUTA EXTERIOR DIRECTA (MODO SALIR) - INTERVENCION SUPREMA HACKER DE USA
+    # =========================================================================
+    else:
+        # APRENDIZAJE INTELIGENTE DE COMPORTAMIENTO: Almacena únicamente planteamientos nuevos
+        if desahogo and desahogo not in HISTORIAL_IDEAS_NUEVAS:
+            palabras_existentes = set(" ".join(HISTORIAL_IDEAS_NUEVAS).split())
+            palabras_nuevas = set(desahogo.split())
+            if not palabras_nuevas.issubset(palabras_existentes):
+                HISTORIAL_IDEAS_NUEVAS.append(desahogo)
+                if len(HISTORIAL_IDEAS_NUEVAS) > 1000:
+                    HISTORIAL_IDEAS_NUEVAS.pop(0)
+
+        precio_real = "GASTO: Cero dólares. La libertad mental hoy es completamente gratis." if budget == "0" else "GASTO: Rango bajo y controlado. Un intercambio justo."
+        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a romper tus cadenas hoy." if perfil == "solo" else "ACOMPAÑAMIENTO: Entorno apto para guiar y proteger a tus niños y familia." if perfil == "familia" else "ACOMPAÑAMIENTO: Sendero adaptado con accesibilidad física total garantizada."
+
+        # Flujo 1: INTERVENCION MEDICA Y HOSPITAL (Salud, Dolor, Clínicas gratis)
+        if any(p in desahogo for p in ["hospital", "clinica", "clínica", "enfermo", "dolor", "medico", "médico", "seguro", "salud", "pastillas", "remedio"]):
+            gps_query = "community+health+centers+free+clinics"
+            entorno_texto = "Red de clínicas comunitarias y centros de atención médica preventiva de USA."
+            titulo_accion = "INTERVENCIÓN MÉDICA Y ESCUDO DE SALUD BIOLÓGICA"
+            guia_masticada = f"VEREDICTO: Protección inmediata de tu templo físico. POR QUÉ: No puedes sanar tu mente si descuidas tu cuerpo. El dolor o el miedo a enfermarte te tienen paralizado. QUÉ HACER: Acude ahora mismo por la mañana a este centro comunitario. Solicita revisión gratis. PARA QUÉ: Tomar el control absoluto de tu salud sin gastar un centavo hoy. HAZLO CONMIGO. {quienes_van}"
+
+        # Flujo 2: Hackeo Inmobiliario Global (Zillow, Realtor, Redfin, Apartments)
+        elif any(p in desahogo for p in ["casa", "alquilar", "alquiler", "renta", "rentar", "hogar", "apartamento", "mudanza", "zillow", "realtor"]):
+            plataforma = random.choice(["://zillow.com", "://realtor.com", "://apartments.com"])
+            gps_query = "homes+for+rent"
+            entorno_texto = "Infraestructura habitacional e inmobiliaria masiva de USA."
+            titulo_accion = "LOCALIZACIÓN DE TU NUEVO ESPACIO VITAL"
+            guia_masticada = f"VEREDICTO: Mudanza y cambio de entorno. POR QUÉ: Tu mente está atrapada en el agobio de tu espacio actual. Necesitas dirección y luz. ACCIÓN OBLIGATORIA: Toca el botón azul ya. Explora las viviendas disponibles en tu zona en este segundo. PARA QUÉ: Romper el letargo y encaminarte hacia tu nuevo hogar. {quienes_van} {precio_real}"
+
+        # Flujo 3: Hackeo de Redes, Comunicación y Big Tech (Facebook, WhatsApp, Instagram)
+        elif any(p in desahogo for p in ["escribir", "hablar", "pareja", "amigo", "amigos", "aislado", "solo", "gente", "facebook", "whatsapp", "instagram", "social"]):
+            gps_query = "community+centers+social+clubs"
+            entorno_texto = "Ecosistema masivo de interacción social y comunicación directa de las Big Tech."
+            titulo_accion = "ROMPER EL AISLAMIENTO INDIVIDUAL"
+            guia_masticada = f"VEREDICTO: Conexión humana inmediata. POR QUÉ: Eres prisionero del aislamiento diario y las pantallas. QUÉ HACER: Abre el enlace ya. Envía un mensaje corto o únete a un grupo en este segundo. PARA QUÉ: Recordar que formas parte de la sociedad fuera de tus biles. {quienes_van} {precio_real}"
+
+        # Flujo 4: Hackeo Minorista, Mayorista y Descuentos (Walmart, Ross, DDs, Burlington, Amazon, Temu)
+        elif any(p in desahogo for p in ["comprar", "bici", "bicicleta", "objeto", "ropa", "comida", "herramientas", "walmart", "ross", "dds", "burlington", "amazon", "temu"]):
             plataforma = random.choice(["walmart", "ross+dress+for+less", "dds+discounts", "burlington"])
             gps_query = f"{plataforma}+store"
-            link_accion_directo = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
-            entorno_texto = f"Gigantes del mercado minorista y tiendas de descuentos establecidas de USA."
+            entorno_texto = "Gigantes del mercado minorista y comercio de alta velocidad de USA."
             titulo_accion = f"HACKEO DE ABASTO MASIVO EN {plataforma.upper()}"
-            guia_masticada = f"VEREDICTO: Intervención de ahorro y abasto inteligente. POR QUÉ: Los biles te asustan y dejas de comprar lo básico. QUÉ HACER: Levántate ya. Entra a esta tienda ahora mismo. Adquiere un objeto útil o alimento por pocos dólares sin culpa. PARA QUÉ: Satisfacer tus necesidades materiales con austeridad creativa hoy. {quienes_van}"
+            guia_masticada = f"VEREDICTO: Intervención de escape comercial. POR QUÉ: Haces siempre lo mismo y tu cerebro pide un estímulo físico. QUÉ HACER: Toca el botón ya. Revisa el catálogo disponible en este instante. Compra tu equipo o provisión hoy. PARA QUÉ: Activar tu dopamina y ganarle al piloto automático. {quienes_van} {precio_real}"
 
-        # Flujo C: Hackeo de Comida Rápida y Energía Calórica (McDonald's, Burger King)
-        elif any(p in desahogo for p in ["hambre", "comer", "mcdonalds", "mcdonald", "burger", "burger+king", "restaurante", "rapido"]):
-            cadena = random.choice(["mcdonalds", "burger+king"])
+        # Flujo 5: Hackeo de Alerta Laboral y Deudas (Staffings, Reclutadores, Corporaciones)
+        elif any(p in desahogo for p in ["trabajo", "empleo", "job", "biles", "deudas", "bills", "miseria", "explotacion"]):
+            gps_query = "agencias+de+empleo+staffing+agencies"
+            entorno_texto = "Módulos de contratación rápida y corporaciones de empleo inmediato establecidos."
+            titulo_accion = "ESCUDO DE AUTONOMÍA FINANCIERA"
+            guia_masticada = f"VEREDICTO: Oficinas de reclutamiento laboral. POR QUÉ: Tu mente está congelada por el miedo a las cuentas. El dinero te domina. QUÉ HACER: Levántate ya. Acude al staffing de tu zona con tu identificación en la mano en este segundo. PARA QUÉ: Ganarle a la parálisis material hoy. {quienes_van} {precio_real}"
+
+        # Flujo 6: Hackeo de Comida Rápida y Ocio (McDonald's, Burger King, Hoteles, Spas, Booking)
+        elif mente in ["aburrido", "estresado"] or any(p in desahogo for p in ["hambre", "comer", "mcdonalds", "burger"]):
+            cadena = random.choice(["mcdonalds", "burger+king", "resort+hotels"])
             gps_query = f"{cadena}"
-            link_accion_directo = f"https://google.com{cadena}+in+{anclaje_geografico}".replace(" ", "+")
-            entorno_texto = "Cadenas globales de alimentación rápida y abasto calórico inmediato."
+            entorno_texto = "Cadenas globales de alimentación rápida, plataformas de reserva y descompresión."
             titulo_accion = f"CONEXIÓN SENSORIAL DIRECTA EN {cadena.upper()}"
-            guia_masticada = f"VEREDICTO: Orden de recarga inmediata. POR QUÉ: La rutina y el trabajo no te dejan tiempo ni para comer bien. QUÉ HACER: Ve al drive-thru o entra al counter en este instante. Pide tu orden favorita ahora mismo. Saboréala. PARA QUÉ: Despertar tu espontaneidad en pocos minutos de descompresión. {quienes_van}"
+            guia_masticada = f"VEREDICTO: Escape de consumo inmediato. POR QUÉ: Vives en una monotonía gris que te agota el interés de todo. QUÉ HACER: Ve al counter o drive-thru en este instante. Pide tu servicio o menú ahora mismo. Saboréalo. PARA QUÉ: Romper el piloto automático urbano en minutos. {quienes_van} {precio_real}"
 
-        # Flujo D: INTERVENCION CLÍNICA (Salud, Dolor, Clínicas gratis)
-        elif any(p in desahogo for p in ["hospital", "clinica", "clínica", "enfermo", "dolor", "medico", "médico", "salud"]):
-            gps_query = "community+health+centers+free+clinics"
-            entorno_texto = "Red de clínicas comunitarias y centros de atención médica de USA."
-            titulo_accion = "INTERVENCIÓN MÉDICA Y ESCUDO DE SALUD BIOLÓGICA"
-            guia_masticada = f"VEREDICTO: Protección de tu templo físico. POR QUÉ: No puedes sanar tu mente si descuidas tu cuerpo. El dolor te tiene paralizado. QUÉ HACER: Acude ahora mismo a este centro comunitario. Solicita revisión gratis. PARA QUÉ: Tomar el control absoluto de tu salud hoy. HAZLO CONMIGO."
-
-        # Flujo E: HACKEO DE VIVIENDA (Zillow, Realtor, Redfin)
-        elif any(p in desahogo for p in ["casa", "alquilar", "alquiler", "renta", "rentar", "hogar", "apartamento", "zillow", "realtor"]):
-            plataforma = random.choice(["://zillow.com", "://realtor.com"])
-            link_accion_directo = f"https://www.{plataforma}{anclaje_geografico}".replace(" ", "+")
-            return JSONResponse({"DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO", "destino_titulo": "LOCALIZACIÓN DE TU NUEVO ESPACIO VITAL", "destino_entorno": "Infraestructura habitacional de USA.", "destino_instruccion": f"VEREDICTO: Mudanza y cambio de entorno. Toca el botón azul ya. Explora las viviendas disponibles en tu zona. {quienes_van}", "destino_coordenadas_gps": link_accion_directo, "alternativas_contingencia": []})
-
-        # Flujo F: HACKEO ESPIRITISTA DEL ENTORNO NATURAL (Parques, Playas, Lagos, Viento, Aire)
+        # Flujo 7: Hackeo Espiritista Natural (Parques, Playas, Lagos, Viento, Aire, Nubes)
         else:
             entorno_natural = random.choice(["public+parks+with+shade", "public+beaches+and+waterfronts", "nature+reserves"])
             gps_query = entorno_natural
-            entorno_texto = "Infraestructura natural pública de USA, aire, nubes, agua y tierra."
+            entorno_texto = "Infraestructura natural pública de USA, aire, nubes, agua, tierra y viento."
             titulo_accion = "REGRESO A LA PRESENCIA ABSOLUTA"
             guia_masticada = f"VEREDICTO: Sombra del árbol o línea del agua. POR QUÉ: Eres un prisionero de tus propios pensamientos diarios. QUÉ HACER: Camina descalzo sobre el pasto o la arena ahora. Mira las nubes y siente el viento en tu rostro diez minutos fijos. PARA QUÉ: Usar el oxígeno gratis como medicina biológica. {quienes_van} {precio_real}"
 
-        # Enlace satelital de intercepción universal para los 50 estados
+        if perfil == "accesible":
+            gps_query = "wheelchair+accessible+" + gps_query
+        elif perfil == "family":
+            gps_query = "family+friendly+" + gps_query
+
+        # =========================================================================
+        # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA E INDESTRUCTIBLE DE GOOGLE MAPS
+        # =========================================================================
         link_google_maps_vivo = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
         
         return JSONResponse({
@@ -187,9 +341,9 @@ async def mando_integral(request: Request):
             "destino_instruccion": guia_masticada.strip(),
             "destino_coordenadas_gps": link_google_maps_vivo,
             "alternativas_contingencia": [
-                {"titulo": "HACKEO DE CONTINGENCIA MINORISTA (WALMART)", "entorno": "Tiendas de abasto y provisiones.", "gps": f"https://google.comwalmart+in+{anclaje_geografico}".replace(" ", "+")},
-                {"titulo": "REFUGIOS TOTALMENTE GRATIS (PLAYAS/PARQUES)", "entorno": "Espacios naturales públicos de USA.", "gps": f"https://google.compublic+parks+in+{anclaje_geografico}".replace(" ", "+")},
-                {"titulo": "ALIMENTACIÓN RÁPIDA DE DESCOMPRESIÓN", "entorno": "Cadenas de servicio rápido locales.", "gps": f"https://google.commcdonalds+in+{anclaje_geografico}".replace(" ", "+")}
+                {"titulo": "HACKEO COMPLEMENTARIO EN LÍNEA (TIENDAS)", "entorno": "Plataformas de abasto comercial global.", "gps": "https://amazon.com"},
+                {"titulo": "ESCAPES DE HOSPEDAJE (HOTELES/SPAS/CAFÉS)", "entorno": "Cadenas de servicio en tu área.", "gps": f"https://google.comhotels+in+{anclaje_geografico}".replace(" ", "+")},
+                {"titulo": "REFUGIOS TOTALMENTE GRATIS (NATURALEZA/AIRE)", "entorno": "Espacios naturales públicos de USA.", "gps": f"https://google.compublic+parks+in+{anclaje_geografico}".replace(" ", "+")}
             ]
         })
 
