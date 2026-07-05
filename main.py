@@ -354,9 +354,12 @@ async def mando_integral(request: Request):
         query_hoteles_limpia = urllib.parse.quote(f"hotels in {anclaje_geografico}")
         query_parques_limpia = urllib.parse.quote(f"public parks in {anclaje_geografico}")
 
-        link_google_maps_vivo = f"https://google.com{query_principal_limpia}"
-        link_hoteles_fijo = f"https://google.com{query_hoteles_limpia}"
-        link_parques_fijo = f"https://google.com{query_parques_limpia}"
+                # =========================================================================
+        # RECTIFICACIÓN MAESTRA DE VARIABLES UNIFICADAS (FÓRMULA INDESTRUCTIBLE)
+        # =========================================================================
+        link_google_maps_vivo = f"https://www.google.com/maps/search/?api=1&query={gps_query}+in+{anclaje_geografico}".replace(" ", "+")
+        link_hoteles_fijo = f"https://google.com+{anclaje_geografico}".replace(" ", "+")
+        link_parques_fijo = f"https://google.com+{anclaje_geografico}".replace(" ", "+")
 
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
@@ -382,7 +385,6 @@ async def mando_integral(request: Request):
                 }
             ]
         })
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
