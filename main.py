@@ -20,6 +20,20 @@ if not os.path.exists("static"):
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# =========================================================================
+# SOLUCIÓN AL ERROR NOT FOUND: Ruta Raíz para cargar la interfaz del usuario
+# =========================================================================
+@app.get("/")
+async def leer_raiz():
+    # Busca y sirve el archivo html principal de forma directa
+    ruta_html = os.path.join("static", "session.html")
+    if os.path.exists(ruta_html):
+        return FileResponse(ruta_html)
+    return JSONResponse(
+        {"error": "Archivo static/session.html no encontrado en el servidor."}, 
+        status_code=404
+    )
+
 # Memoria compacta de comportamiento general para guardar ideas nuevas con privacidad total
 HISTORIAL_IDEAS_NUEVAS = []
 # OPEN THAN GO SYSTEM - Master Backend Engine
