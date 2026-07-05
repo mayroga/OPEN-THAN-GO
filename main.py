@@ -253,47 +253,12 @@ async def mando_integral(request: Request):
                 "misiones": misiones_comunes[:3],
                 "recordatorios_voz_choque": recordatorios_comunes
             })
-# PARTE 5 DE 5: Lógica Suprema del Modo SALIR (Intervención de Campo) y Cierre de Servidor ASGI
+# OPEN THAN GO SYSTEM - Master Backend Engine
+# Company: May Roga LLC
+# File: main.py
+# PARTE 5 DE 5: El Cerebro Clínico de 4 Preguntas, Intervención de Choque y Enrutamiento Universal
 
-    # =========================================================================
-    # RUTA EXTERIOR DIRECTA (MODO SALIR) - INTERVENCION SUPREMA HACKER DE USA
-    # =========================================================================
-    else:
-        # APRENDIZAJE INTELIGENTE DE COMPORTAMIENTO: Almacena únicamente planteamientos nuevos
-        if desahogo and desahogo not in HISTORIAL_IDEAS_NUEVAS:
-            palabras_existentes = set(" ".join(HISTORIAL_IDEAS_NUEVAS).split())
-            palabras_nuevas = set(desahogo.split())
-            if not palabras_nuevas.issubset(palabras_existentes):
-                HISTORIAL_IDEAS_NUEVAS.append(desahogo)
-                if len(HISTORIAL_IDEAS_NUEVAS) > 1000:
-                    HISTORIAL_IDEAS_NUEVAS.pop(0)
-
-        precio_real = "GASTO: Cero dólares. La libertad mental hoy es completamente gratis." if budget == "0" else "GASTO: Rango bajo y controlado. Un intercambio justo."
-        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a romper tus cadenas hoy." if perfil == "solo" else "ACOMPAÑAMIENTO: Entorno apto para guiar y proteger a tus niños y familia." if perfil == "familia" else "ACOMPAÑAMIENTO: Sendero adaptado con accesibilidad física total garantizada."
-
-        # Flujo 1: INTERVENCION MEDICA Y HOSPITAL (Salud, Dolor, Clínicas gratis)
-        if any(p in desahogo for p in ["hospital", "clinica", "clínica", "enfermo", "dolor", "medico", "médico", "seguro", "salud", "pastillas", "remedio"]):
-            gps_query = "community+health+centers+free+clinics"
-            entorno_texto = "Red de clínicas comunitarias y centros de atención médica preventiva de USA."
-            titulo_accion = "INTERVENCIÓN MÉDICA Y ESCUDO DE SALUD BIOLÓGICA"
-            guia_masticada = f"VEREDICTO: Protección inmediata de tu templo físico. POR QUÉ: No puedes sanar tu mente si descuidas tu cuerpo. El dolor o el miedo a enfermarte te tienen paralizado. QUÉ HACER: Acude ahora mismo por la mañana a este centro comunitario. Solicita revisión gratis. PARA QUÉ: Tomar el control absoluto de tu salud sin gastar un centavo hoy. HAZLO CONMIGO. {quienes_van}"
-
-        # Flujo 2: Hackeo Inmobiliario Global (Zillow, Realtor, Redfin, Apartments)
-        elif any(p in desahogo for p in ["casa", "alquilar", "alquiler", "renta", "rentar", "hogar", "apartamento", "mudanza", "zillow", "realtor"]):
-            plataforma = random.choice(["://zillow.com", "://realtor.com", "://apartments.com"])
-            gps_query = "homes+for+rent"
-            entorno_texto = "Infraestructura habitacional e inmobiliaria masiva de USA."
-            titulo_accion = "LOCALIZACIÓN DE TU NUEVO ESPACIO VITAL"
-            guia_masticada = f"VEREDICTO: Mudanza y cambio de entorno. POR QUÉ: Tu mente está atrapada en el agobio de tu espacio actual. Necesitas dirección y luz. ACCIÓN OBLIGATORIA: Toca el botón azul ya. Explora las viviendas disponibles en tu zona en este segundo. PARA QUÉ: Romper el letargo y encaminarte hacia tu nuevo hogar. {quienes_van} {precio_real}"
-
-        # Flujo 3: Hackeo de Redes, Comunicación y Big Tech (Facebook, WhatsApp, Instagram)
-        elif any(p in desahogo for p in ["escribir", "hablar", "pareja", "amigo", "amigos", "aislado", "solo", "gente", "facebook", "whatsapp", "instagram", "social"]):
-            gps_query = "community+centers+social+clubs"
-            entorno_texto = "Ecosistema masivo de interacción social y comunicación directa de las Big Tech."
-            titulo_accion = "ROMPER EL AISLAMIENTO INDIVIDUAL"
-            guia_masticada = f"VEREDICTO: Conexión humana inmediata. POR QUÉ: Eres prisionero del aislamiento diario y las pantallas. QUÉ HACER: Abre el enlace ya. Envía un mensaje corto o únete a un grupo en este segundo. PARA QUÉ: Recordar que formas parte de la sociedad fuera de tus biles. {quienes_van} {precio_real}"
-
-        # Flujo 4: Hackeo Minorista, Mayorista y Descuentos (Walmart, Ross, DDs, Burlington, Amazon, Temu)
+        # Flujo B: Hackeo Minorista, Mayorista y Descuentos (Walmart, Ross, DDs, Burlington, Amazon, Temu)
         elif any(p in desahogo for p in ["comprar", "bici", "bicicleta", "objeto", "ropa", "comida", "herramientas", "walmart", "ross", "dds", "burlington", "amazon", "temu"]):
             plataforma = random.choice(["walmart", "ross+dress+for+less", "dds+discounts", "burlington"])
             gps_query = f"{plataforma}+store"
@@ -301,14 +266,14 @@ async def mando_integral(request: Request):
             titulo_accion = f"HACKEO DE ABASTO MASIVO EN {plataforma.upper()}"
             guia_masticada = f"VEREDICTO: Intervención de escape comercial. POR QUÉ: Haces siempre lo mismo y tu cerebro pide un estímulo físico. QUÉ HACER: Toca el botón ya. Revisa el catálogo disponible en este instante. Compra tu equipo o provisión hoy. PARA QUÉ: Activar tu dopamina y ganarle al piloto automático. {quienes_van} {precio_real}"
 
-        # Flujo 5: Hackeo de Alerta Laboral y Deudas (Staffings, Reclutadores, Corporaciones)
+        # Flujo C: Hackeo de Alerta Laboral y Deudas (Staffings, Reclutadores, Corporaciones)
         elif any(p in desahogo for p in ["trabajo", "empleo", "job", "biles", "deudas", "bills", "miseria", "explotacion"]):
             gps_query = "agencias+de+empleo+staffing+agencies"
             entorno_texto = "Módulos de contratación rápida y corporaciones de empleo inmediato establecidos."
             titulo_accion = "ESCUDO DE AUTONOMÍA FINANCIERA"
             guia_masticada = f"VEREDICTO: Oficinas de reclutamiento laboral. POR QUÉ: Tu mente está congelada por el miedo a las cuentas. El dinero te domina. QUÉ HACER: Levántate ya. Acude al staffing de tu zona con tu identificación en la mano en este segundo. PARA QUÉ: Ganarle a la parálisis material hoy. {quienes_van} {precio_real}"
 
-        # Flujo 6: Hackeo de Comida Rápida y Ocio (McDonald's, Burger King, Hoteles, Spas, Booking)
+        # Flujo D: Hackeo de Comida Rápida y Ocio (McDonald's, Burger King, Hoteles, Spas, Booking)
         elif mente in ["aburrido", "estresado"] or any(p in desahogo for p in ["hambre", "comer", "mcdonalds", "burger"]):
             cadena = random.choice(["mcdonalds", "burger+king", "resort+hotels"])
             gps_query = f"{cadena}"
@@ -316,7 +281,7 @@ async def mando_integral(request: Request):
             titulo_accion = f"CONEXIÓN SENSORIAL DIRECTA EN {cadena.upper()}"
             guia_masticada = f"VEREDICTO: Escape de consumo inmediato. POR QUÉ: Vives en una monotonía gris que te agota el interés de todo. QUÉ HACER: Ve al counter o drive-thru en este instante. Pide tu servicio o menú ahora mismo. Saboréalo. PARA QUÉ: Romper el piloto automático urbano en minutos. {quienes_van} {precio_real}"
 
-        # Flujo 7: Hackeo Espiritista Natural (Parques, Playas, Lagos, Viento, Aire, Nubes)
+        # Flujo E: Hackeo Espiritista Natural (Parques, Playas, Lagos, Viento, Aire, Nubes)
         else:
             entorno_natural = random.choice(["public+parks+with+shade", "public+beaches+and+waterfronts", "nature+reserves"])
             gps_query = entorno_natural
@@ -325,9 +290,9 @@ async def mando_integral(request: Request):
             guia_masticada = f"VEREDICTO: Sombra del árbol o línea del agua. POR QUÉ: Eres un prisionero de tus propios pensamientos diarios. QUÉ HACER: Camina descalzo sobre el pasto o la arena ahora. Mira las nubes y siente el viento en tu rostro diez minutos fijos. PARA QUÉ: Usar el oxígeno gratis como medicina biológica. {quienes_van} {precio_real}"
 
         if perfil == "accesible":
-        gps_query = "wheelchair+accessible+" + gps_query
+            gps_query = "wheelchair+accessible+" + gps_query
         elif perfil == "family":
-        gps_query = "family+friendly+" + gps_query
+            gps_query = "family+friendly+" + gps_query
 
         # =========================================================================
         # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA E INDESTRUCTIBLE DE GOOGLE MAPS
