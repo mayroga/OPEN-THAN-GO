@@ -259,7 +259,7 @@ async def mando_integral(request: Request):
 # PARTE 5 DE 5: El Cerebro Clínico de 4 Preguntas, Intervención de Choque y Enrutamiento Universal
 
         # Flujo B: Hackeo Minorista, Mayorista y Descuentos (Walmart, Ross, DDs, Burlington, Amazon, Temu)
-        elif any(p in desahogo for p in ["comprar", "bici", "bicicleta", "objeto", "ropa", "comida", "herramientas", "walmart", "ross", "dds", "burlington", "amazon", "temu"]):
+        if any(p in desahogo for p in ["comprar", "bici", "bicicleta", "objeto", "ropa", "comida", "herramientas", "walmart", "ross", "dds", "burlington", "amazon", "temu"]):
             plataforma = random.choice(["walmart", "ross+dress+for+less", "dds+discounts", "burlington"])
             gps_query = f"{plataforma}+store"
             entorno_texto = "Gigantes del mercado minorista y comercio de alta velocidad de USA."
