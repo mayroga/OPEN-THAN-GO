@@ -68,41 +68,32 @@ BASE_MISIONES = {
         {"id": 23, "titulo": "Paso 23: Sensor de pulso", "descripcion": "Coloca tu mano derecha sobre tu pecho en este segundo. Siente tus latidos en silencio. Estás aquí, estás al mando hoy."},
         {"id": 24, "titulo": "Paso 24: Desbloqueo cervical", "descripcion": "Mueve tu cabeza haciendo círculos muy lentos ahora. Siente cómo se destraba tu cuello del peso diario de las pantallas."},
         {"id": 25, "titulo": "Paso 25: Transferencia térmica", "descripcion": "Frota tus manos con fuerza ahora mismo hasta sentir calor real. Colócalas sobre tus hombros cansados. Siente el alivio ya."}
-    ]
-}
-# OPEN THAN GO SYSTEM - Master Backend Engine
-# Company: May Roga LLC
-# File: main.py
-# PARTE 3 DE 6: Catálogo Clínico de Casa (Misiones 26 a 50) - Bloque de Cierre Limpio y Rutas de Escape
-
-BASE_MISIONES["CASA"].extend([
-    {"id": 26, "titulo": "Paso 26: Sonido periférico", "descripcion": "Presta atención al ruido más lejano que ocurra fuera de tu edificio ahora mismo. Identifícalo en silencio."},
-    {"id": 27, "titulo": "Paso 27: Balanceo mecánico", "descripcion": "Inclina tu columna suavemente de izquierda a derecha. Siente la elasticidad de tus costillas ahora."},
-    {"id": 28, "titulo": "Paso 28: Foco transparente", "descripcion": "Mira fijamente un vaso o una botella transparente por sesenta segundos fijos. No desvíes la mirada."},
-    {"id": 29, "titulo": "Paso 29: Descompresión facial", "descripcion": "Abre tu boca lo más grande que puedas y mueve tu mandíbula de lado a lado. Suelta el estrés retenido."},
-    {"id": 30, "titulo": "Paso 30: Marcha ralentizada", "descripcion": "Camina cinco pasos dentro de tu espacio de la forma más lenta posible. Siente cada milímetro del movimiento."},
-    {"id": 31, "titulo": "Paso 31: Presión digital", "descripcion": "Presiona suavemente tus sienes con las yemas de tus dedos haciendo círculos lentos por treinta segundos."},
-    {"id": 32, "titulo": "Paso 32: Captura de oxígeno", "descripcion": "Toma aire profundo notando cómo se expande tu abdomen. Retén dos segundos y exhala despacio."},
-    {"id": 33, "titulo": "Paso 33: Apertura torácica", "descripcion": "Lleva tus codos hacia atrás con fuerza e intenta que tus omóplatos se toquen. Abre tu pecho ahora."},
-    {"id": 34, "titulo": "Paso 34: Abandono de carga", "descripcion": "Suelta toda la fuerza de tus piernas. Deja que el piso absorba toda la resistencia de tu peso gratis."},
-    {"id": 35, "titulo": "Paso 35: Conteo de aislamiento", "descripcion": "Cuenta de forma regresiva en tu mente del treinta al uno despacio. Apaga el ruido de la sala."},
-    {"id": 36, "titulo": "Paso 36: Textura real", "descripcion": "Pasa la palma de tu mano sobre tu ropa o cortina. Concéntrate puramente en el roce del tejido."},
-    {"id": 37, "titulo": "Paso 37: Expansión falángica", "descripcion": "Abre tus manos separando los dedos lo más posible con rigidez por cinco segundos. Suelta de golpe."},
-    {"id": 38, "titulo": "Paso 38: Murmullo biológico", "descripcion": "Tápate los oídos con tus dedos y escucha el sonido interno de tu respiración por veinte segundos."},
-    {"id": 39, "titulo": "Paso 39: Foco milimétrico", "descripcion": "Elige un tornillo, marca o punto mínimo de la pared. Clava tus ojos ahí sin parpadear un momento."},
-    {"id": 40, "titulo": "Paso 40: Péndulo suelto", "descripcion": "Deja tus brazos completamente muertos a los lados y balancéalos como un péndulo flojo."},
-    {"id": 41, "titulo": "Paso 41: Registro dérmico", "descripcion": "Siente la temperatura exacta del aire del cuarto golpeando la piel de tus manos ahora mismo."},
-    {"id": 42, "titulo": "Paso 42: Expulsión zombi", "descripcion": "Inhala inflando el pecho al máximo. Suelta el aire con un suspiro fuerte por la boca liberando la rutina."},
-    {"id": 43, "titulo": "Paso 43: Caída de hombros", "descripcion": "Lleva tus hombros hasta tus orejas con fuerza. Sostén la tensión. Déjalos caer flojos de un solo golpe."},
-    {"id": 44, "titulo": "Paso 44: Interregno de paz", "descripcion": "Busca el segundo de silencio absoluto que ocurre exactamente cuando terminas de exhalar el aire."},
-    {"id": 45, "titulo": "Paso 45: Extensión cervical", "descripcion": "Mira hacia el techo estirando tu garganta al máximo sin mover tu espalda. Quédate ahí cinco segundos."},
-    {"id": 46, "titulo": "Paso 46: Conciencia de apoyo", "descripcion": "Nota el contacto firme de tus muslos contra el asiento. Registra la estabilidad del mueble en este instante."},
-    {"id": 47, "titulo": "Paso 47: Puños de choque", "descripcion": "Cierra tus puños apretando con fuerza máxima sintiendo la rigidez de tus antebrazos. Abre y relaja ya."},
-    {"id": 48, "titulo": "Paso 48: Limpieza de espacio", "descripcion": "Imagina que con cada bocanada de aire sacas una preocupación burocrática fuera de tus paredes."},
-    {"id": 49, "titulo": "Paso 49: Anclaje de palmas", "descripcion": "Coloca tus dos palmas planas sobre tu mesa. Empuja suavemente hacia abajo notando la solidez del material."},
-    {"id": 50, "titulo": "Paso 50: Presencia soberana", "descripcion": "Regresa tu atención a este segundo exacto. Tu mente está despierta, estás a safe y recuperaste el mando."}
-])
-
+        {"id": 26, "titulo": "Paso 26: Sonido periférico", "descripcion": "Presta atención al ruido más lejano que ocurra fuera de tu edificio ahora mismo. Identifícalo en silencio."},
+        {"id": 27, "titulo": "Paso 27: Balanceo mecánico", "descripcion": "Inclina tu columna suavemente de izquierda a derecha. Siente la elasticidad de tus costillas ahora."},
+        {"id": 28, "titulo": "Paso 28: Foco transparente", "descripcion": "Mira fijamente un vaso o una botella transparente por sesenta segundos fijos. No desvíes la mirada."},
+        {"id": 29, "titulo": "Paso 29: Descompresión facial", "descripcion": "Abre tu boca lo más grande que puedas y mueve tu mandíbula de lado a lado. Suelta el estrés retenido."},
+        {"id": 30, "titulo": "Paso 30: Marcha ralentizada", "descripcion": "Camina cinco pasos dentro de tu espacio de la forma más lenta posible. Siente cada milímetro del movimiento."},
+        {"id": 31, "titulo": "Paso 31: Presión digital", "descripcion": "Presiona suavemente tus sienes con las yemas de tus dedos haciendo círculos lentos por treinta segundos."},
+        {"id": 32, "titulo": "Paso 32: Captura de oxígeno", "descripcion": "Toma aire profundo notando cómo se expande tu abdomen. Retén dos segundos y exhala despacio."},
+        {"id": 33, "titulo": "Paso 33: Apertura torácica", "descripcion": "Lleva tus codos hacia atrás con fuerza e intenta que tus omóplatos se toquen. Abre tu pecho ahora."},
+        {"id": 34, "titulo": "Paso 34: Abandono de carga", "descripcion": "Suelta toda la fuerza de tus piernas. Deja que el piso absorba toda la resistencia de tu peso gratis."},
+        {"id": 35, "titulo": "Paso 35: Conteo de aislamiento", "descripcion": "Cuenta de forma regresiva en tu mente del treinta al uno despacio. Apaga el ruido de la sala."},
+        {"id": 36, "titulo": "Paso 36: Textura real", "descripcion": "Pasa la palma de tu mano sobre tu ropa o cortina. Concéntrate puramente en el roce del tejido."},
+        {"id": 37, "titulo": "Paso 37: Expansión falángica", "descripcion": "Abre tus manos separando los dedos lo más posible con rigidez por cinco segundos. Suelta de golpe."},
+        {"id": 38, "titulo": "Paso 38: Murmullo biológico", "descripcion": "Tápate los oídos con tus dedos y escucha el sonido interno de tu respiración por veinte segundos."},
+        {"id": 39, "titulo": "Paso 39: Foco milimétrico", "descripcion": "Elige un tornillo, marca o punto mínimo de la pared. Clava tus ojos ahí sin parpadear un momento."},
+        {"id": 40, "titulo": "Paso 40: Péndulo suelto", "descripcion": "Deja tus brazos completamente muertos a los lados y balancéalos como un péndulo flojo."},
+        {"id": 41, "titulo": "Paso 41: Registro dérmico", "descripcion": "Siente la temperatura exacta del aire del cuarto golpeando la piel de tus manos ahora mismo."},
+        {"id": 42, "titulo": "Paso 42: Expulsión zombi", "descripcion": "Inhala inflando el pecho al máximo. Suelta el aire con un suspiro fuerte por la boca liberando la rutina."},
+        {"id": 43, "titulo": "Paso 43: Caída de hombros", "descripcion": "Lleva tus hombros hasta tus orejas con fuerza. Sostén la tensión. Déjalos caer flojos de un solo golpe."},
+        {"id": 44, "titulo": "Paso 44: Interregno de paz", "descripcion": "Busca el segundo de silencio absoluto que ocurre exactamente cuando terminas de exhalar el aire."},
+        {"id": 45, "titulo": "Paso 45: Extensión cervical", "descripcion": "Mira hacia el techo estirando tu garganta al máximo sin mover tu espalda. Quédate ahí cinco segundos."},
+        {"id": 46, "titulo": "Paso 46: Conciencia de apoyo", "descripcion": "Nota el contacto firme de tus muslos contra el asiento. Registra la estabilidad del mueble en este instante."},
+        {"id": 47, "titulo": "Paso 47: Puños de choque", "descripcion": "Cierra tus puños apretando con fuerza máxima sintiendo la rigidez de tus antebrazos. Abre y relaja ya."},
+        {"id": 48, "titulo": "Paso 48: Limpieza de espacio", "descripcion": "Imagina que con cada bocanada de aire sacas una preocupación burocrática fuera de tus paredes."},
+        {"id": 49, "titulo": "Paso 49: Anclaje de palmas", "descripcion": "Coloca tus dos palmas planas sobre tu mesa. Empuja suavemente hacia abajo notando la solidez del material."},
+        {"id": 50, "titulo": "Paso 50: Presencia soberana", "descripcion": "Regresa tu atención a este segundo exacto. Tu mente está despierta, estás a safe y recuperaste el mando."}
+    ])
 BASE_MISIONES["SALIR"] = {
     "agotado": [
         {"titulo": "Usa la sombra del árbol grande", "porque": "Tu mente está frita por el derroche de luz artificial y pantallas.", "que_hacer": "Hazlo ya. Camina hacia el árbol más grande de ese parque. Toca su corteza con tu mano ahora. Siente la textura fría. Quédate bajo su sombra densa mirando el aire.", "donde": "Parque público con árboles grandes.", "gps": "parks+with+shade+"},
@@ -132,10 +123,8 @@ async def mando_integral(request: Request):
     mente = str(payload.get("mente", "agotado")).lower()
     budget = str(payload.get("budget", "0"))
     perfil = str(payload.get("perfil", "solo")).lower()
-    desahogo = str(payload.get("desahogo", "")).strip().lower()
-    
+    desahogo = str(payload.get("desahogo", "")).strip().lower()   
     anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
-
     palabras_veteranos = ["veterano", "veteranos", "ejercito", "fuerzas+armadas", "irak", "trauma", "post_trauma"]
     palabras_gobierno = ["gobierno", "federal", "estatal", "oficina", "burocracia", "empleado+publico"]
     palabras_ancianos = ["anciano", "ancianos", "adulto+mayor", "abuelo", "abuela", "viejo", "vejez", "edad", "senior"]
@@ -213,11 +202,6 @@ async def mando_integral(request: Request):
         "Siente el oxígeno limpiando los nudos más profundos de tu pecho ahora mismo.",
         "Estás seguro, estás en el sendero luminoso. Avanza conmigo paso a paso ya."
     ]
-# OPEN THAN GO SYSTEM - Master Backend Engine
-# Company: May Roga LLC
-# File: main.py
-# PARTE 5 DE 6: El Cerebro Clínico Interno (Modo Casa)
-
     # =========================================================================
     # RUTA DOMÉSTICA INTERNA (MODO CASA) - EL "AS BAJO LA MANGA" CLÍNICO
     # =========================================================================
@@ -269,11 +253,6 @@ async def mando_integral(request: Request):
                 "misiones": misiones_comunes[:3],
                 "recordatorios_voz_choque": recordatorios_comunes
             })
-# OPEN THAN GO SYSTEM - Master Backend Engine
-# Company: May Roga LLC
-# File: main.py
-# PARTE 6 DE 6: Intercepción de Crisis, Geolocalización y Cierre de Servidor
-
     # =========================================================================
     # RUTA EXTERIOR DIRECTA (MODO SALIR) - INTERVENCION SUPREMA HACKER DE USA
     # =========================================================================
