@@ -281,7 +281,7 @@ async def mando_integral(request: Request):
         info = random.choice(BASE_MISIONES["SALIR"]["aburrido"])
         if mente in BASE_MISIONES["SALIR"]:
             info = random.choice(BASE_MISIONES["SALIR"][mente])
-            
+
         gps_query = info["gps"]
         donde_base = info["donde"]
         titulo_accion = "REGRESO A LA PRESENCIA ABSOLUTA"
@@ -301,4 +301,75 @@ async def mando_integral(request: Request):
             titulo_accion = "LOCALIZACIÓN DE TU NUEVO ESPACIO VITAL"
             guia_masticada = f"VEREDICTO: Mudanza y cambio de entorno. POR QUÉ: Tu mente está atrapada en el agobio de tu espacio actual. Necesitas dirección. ACCIÓN OBLIGATORIA: Toca el botón azul ya. Explora las viviendas disponibles en tu zona en este segundo. PARA QUÉ: Romper el letargo y encaminarte hacia tu nuevo hogar. {quienes_van} {precio_real}"
 
-        # ... (continúa con la lógica de respuesta JSON) ...
+        if any(p in desahogo for p in ["escribir", "hablar", "pareja", "amigo", "amigos", "aislado", "solo", "gente", "facebook", "whatsapp", "instagram", "social"]):
+            gps_query = "community+centers+social+clubs"
+            entorno_texto = "Ecosistema masivo de interacción social y comunicación directa de las Big Tech."
+            titulo_accion = "ROMPER EL AISLAMIENTO INDIVIDUAL"
+            guia_masticada = f"VEREDICTO: Conexión humana inmediata. POR QUÉ: Eres prisionero del aislamiento diario y las pantallas. QUÉ HACER: Abre el enlace ya. Envía un mensaje corto o únete a un grupo en este segundo. PARA QUÉ: Recordar que formas parte de la sociedad fuera de tus biles. {quienes_van} {precio_real}"
+
+        if any(p in desahogo for p in ["comprar", "bici", "bicicleta", "objeto", "ropa", "comida", "herramientas", "walmart", "ross", "dds", "burlington", "amazon", "temu", "tienda"]):
+            plataforma_minorista = random.choice(["walmart", "ross+dress+for+less", "dds+discounts", "burlington"])
+            gps_query = f"{plataforma_minorista}+store"
+            entorno_texto = "Gigantes del mercado minorista y tiendas de descuentos de USA."
+            titulo_accion = f"HACKEO DE ABASTO MASIVO EN {plataforma_minorista.upper()}"
+            guia_masticada = f"VEREDICTO: Intervención de escape comercial. POR QUÉ: Haces siempre lo mismo y tu cerebro pide un estímulo físico. QUÉ HACER: Toca el botón ya. Revisa el catálogo disponible en este instante. Compra tu equipo o provisión hoy. PARA QUÉ: Activar tu dopamina y ganarle al piloto automático. {quienes_van} {precio_real}"
+
+        if any(p in desahogo for p in ["trabajo", "empleo", "job", "biles", "deudas", "bills", "miseria", "explotacion"]):
+            gps_query = "agencias+de+empleo+staffing+agencies"
+            entorno_texto = "Módulos de contratación rápida y corporaciones de empleo inmediato establecidos."
+            titulo_accion = "ESCUDO DE AUTONOMÍA FINANCIERA"
+            guia_masticada = f"VEREDICTO: Oficinas de reclutamiento laboral. POR QUÉ: Tu mente está congelada por el miedo a las cuentas. El dinero te domina. QUÉ HACER: Levántate ya. Acude al staffing de tu zona con tu identificación en la mano en este segundo. PARA QUÉ: Ganarle a la parálisis material hoy. {quienes_van} {precio_real}"
+
+        if mente in ["aburrido", "estresado"] or any(p in desahogo for p in ["hambre", "comer", "mcdonalds", "burger", "burger+king", "restaurante", "rapido"]):
+            cadena_ocio = random.choice(["mcdonalds", "burger+king", "resort+hotels"])
+            gps_query = f"{cadena_ocio}"
+            entorno_texto = "Cadenas globales de alimentación rápida, plataformas de reserva y descompresión."
+            titulo_accion = f"CONEXIÓN SENSORIAL DIRECTA EN {cadena_ocio.upper()}"
+            guia_masticada = f"VEREDICTO: Escape de consumo inmediato. POR QUÉ: Vives en una monotonía gris que te agota el interés de todo. QUÉ HACER: Ve al counter o drive-thru en este instante. Pide tu servicio o menú ahora mismo. Saboréalo. PARA QUÉ: Romper el piloto automático urbano en minutos. {quienes_van} {precio_real}"
+
+        if perfil == "accessible":
+            gps_query = "wheelchair+accessible+" + gps_query
+        elif perfil == "family":
+            gps_query = "family+friendly+" + gps_query
+
+        # =========================================================================
+        # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA E INDESTRUCTIBLE DE GOOGLE MAPS
+        # =========================================================================
+        import urllib.parse
+        query_principal_limpia = urllib.parse.quote(f"{gps_query} in {anclaje_geografico}")
+        query_hoteles_limpia = urllib.parse.quote(f"hotels in {anclaje_geografico}")
+        query_parques_limpia = urllib.parse.quote(f"public parks in {anclaje_geografico}")
+
+        link_google_maps_vivo = f"https://google.com{query_principal_limpia}"
+        link_hoteles_fijo = f"https://google.com{query_hoteles_limpia}"
+        link_parques_fijo = f"https://google.com{query_parques_limpia}"
+
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "destino_titulo": titulo_accion,
+            "destino_entorno": entorno_texto,
+            "destino_instruccion": guia_masticada.strip(),
+            "destino_coordenadas_gps": link_google_maps_vivo,
+            "alternativas_contingencia": [
+                {
+                    "titulo": "HACKEO COMPLEMENTARIO EN LÍNEA (TIENDAS)",
+                    "entorno": "Plataformas de abasto comercial global.",
+                    "gps": "https://amazon.com"
+                },
+                {
+                    "titulo": "ESCAPES DE HOSPEDAJE (HOTELES/SPAS/CAFÉS)",
+                    "entorno": "Cadenas de servicio en tu área.",
+                    "gps": link_hoteles_fijo
+                },
+                {
+                    "titulo": "REFUGIOS TOTALMENTE GRATIS (NATURALEZA/AIRE)",
+                    "entorno": "Espacios naturales públicos de USA.",
+                    "gps": link_parques_fijo
+                }
+            ]
+        })
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
