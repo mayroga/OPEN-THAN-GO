@@ -56,7 +56,7 @@ BASE_MISIONES = {
 # OPEN THAN GO SYSTEM - Master Backend Engine
 # Company: May Roga LLC
 # File: main.py
-# PARTE 3 DE 5: Catálogo Clínico de Casa (Misiones 26 a 50)
+# PARTE 3 DE 5: Catálogo Clínico de Casa (Misiones 26 a 50) - Bloque de Cierre Limpio
 
         {"id": 26, "titulo": "Paso 26: Sonido periférico", "descripcion": "Presta atención al ruido más lejano que ocurra fuera de tu edificio ahora mismo. Identifícalo en silencio."},
         {"id": 27, "titulo": "Paso 27: Balanceo mecánico", "descripcion": "Inclina tu columna suavemente de izquierda a derecha. Siente la elasticidad de tus costillas ahora."},
@@ -82,99 +82,184 @@ BASE_MISIONES = {
         {"id": 47, "titulo": "Paso 47: Puños de choque", "descripcion": "Cierra tus puños apretando con fuerza máxima sintiendo la rigidez de tus antebrazos. Abre y relaja ya."},
         {"id": 48, "titulo": "Paso 48: Limpieza de espacio", "descripcion": "Imagina que con cada bocanada de aire sacas una preocupación burocrática fuera de tus paredes."},
         {"id": 49, "titulo": "Paso 49: Anclaje de palmas", "descripcion": "Coloca tus dos palmas planas sobre tu mesa. Empuja suavemente hacia abajo notando la solidez del material."},
-        {"id": 50, "titulo": "Paso 50: Presencia soberana", "descripcion": "Regresa tu atención a este segundo exacto. Tu mente está despierta, estás a salvo y recuperaste el mando."}
+        {"id": 50, "titulo": "Paso 50: Presencia soberana", "descripcion": "Regresa tu atención a este segundo exacto. Tu mente está despierta, estás a safe y recuperaste el mando."}
     ],
-for i in range(1, 44):
-    recordatorios_personalizados.append(
-        f"Orden de choque número {i}. Mantén presencia absoluta en la sala ahora. No te desvíes."
-    )
+# OPEN THAN GO SYSTEM - Master Backend Engine
+# Company: May Roga LLC
+# File: main.py
+# PARTE 4 DE 5: Catálogo Maestro de Campo (SALIR) y Arsenales Ocultos de Voz por Sector
 
-# SEGMENTACIÓN CLÍNICA AUTOMÁTICA
-if (
-    any(
-        p in desahogo
-        for p in (
-            palabras_veteranos
-            + palabras_gobierno
-            + palabras_ancianos
-            + palabras_directivos
-            + palabras_lesionados
-            + palabras_discapacitados
-        )
-    )
-    or perfil in ["accesible", "familia"]
-    or (desahogo and len(desahogo) > 5)
-):
+    "SALIR": {
+        "agotado": [
+            {"titulo": "Usa la sombra del árbol grande", "porque": "Tu mente está frita por el derroche de luz artificial y pantallas.", "que_hacer": "Hazlo ya. Camina hacia el árbol más grande de ese parque. Toca su corteza con tu mano ahora. Siente la textura fría. Quédate bajo su sombra densa mirando el aire.", "donde": "Parque público con árboles grandes.", "gps": "parks+with+shade+"},
+            {"titulo": "Usa el horizonte del muelle", "porque": "Tu visión está encerrada en paredes pequeñas y biles.", "que_hacer": "Párate al final del muelle o punto alto ahora. Clava tu mirada en la línea donde se une el cielo con el agua. Quédate ahí sin moverte. Recupera el asombro.", "donde": "Muelle, mirador o orilla de lago pública.", "gps": "waterfront+viewpoints+"}
+        ],
+        "estresado": [
+            {"titulo": "Usa la resistencia de la colina", "porque": "El estrés te tiene los hombros y el pecho trabados.", "que_hacer": "Encuentra la rampa, escalera o cuesta de esa calle o parque ahora. Súbela a paso firme sintiendo el esfuerzo. Usa la gravedad del planeta para soltar el cortisol.", "donde": "Calle elevada, escalera pública o rampa.", "gps": "public+stairs+and+ramps+"},
+            {"titulo": "Usa el circuito de la acera lineal", "porque": "Tu cerebro está dando vueltas en círculos de ansiedad financiera.", "que_hacer": "Pisa la acera lineal de esa avenida pública ahora. Camina recto diez minutos seguidos sin mirar el teléfono. Siente el golpe firme de tus pies contra el concreto.", "donde": "Acera peatonal o parque lineal continuo.", "gps": "linear+parks+and+walkways+"}
+        ],
+        "aburrido": [
+            {"titulo": "Usa los colores de los murales", "porque": "Vives en un piloto automático gris que te duerme la dopamina.", "que_hacer": "Párate frente a los dibujos de colores de esa pared urbana ahora. Busca tres detalles pequeños que nadie mira. Encuentra el asombro en lo insignificante.", "donde": "Calle con murales o distrito de diseño urbano.", "gps": "street+art+murales+"},
+            {"titulo": "Usa los aromas del mercado abierto", "porque": "Has perdido la calidez de la espontaneidad humana por el confort.", "que_hacer": "Camina entre la multitud de ese mercado al aire libre ahora. Huele las frutas frescas, mira los objetos raros. Toca un producto gratis. Conecta ya.", "donde": "Mercado de pulgas, feria comunitaria o farmers market.", "gps": "farmers+markets+and+flea+markets+"}
+        ]
+    }
+}
 
-    if any(v in desahogo for v in palabras_veteranos):
-        audios_choque = recordatorios_veteranos
-        tipo_protocolo_master = "CLINICO_INTENSIVO_50_VET"
-        catalogo_enviar = BASE_MISIONES["CASA"]
+@app.post("/api/mando-integral")
+async def mando_integral(request: Request):
+    payload = await request.json()
+    
+    opcion_usuario = str(payload.get("modo", "")).strip().upper()
+    zip_code = str(payload.get("zip", "")).strip()
+    estado = str(payload.get("estado", "FL")).strip()
+    region = str(payload.get("region", "")).strip()
+    mente = str(payload.get("mente", "agotado")).lower()
+    budget = str(payload.get("budget", "0"))
+    perfil = str(payload.get("perfil", "solo")).lower()
+    desahogo = str(payload.get("desahogo", "")).strip().lower()
+    
+    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
 
-    elif any(g in desahogo for g in palabras_gobierno):
-        audios_choque = recordatorios_gobierno
-        tipo_protocolo_master = "CLINICO_INTENSIVO_50_GOB"
-        catalogo_enviar = BASE_MISIONES["CASA"]
+    # =========================================================================
+    # RUTA DOMÉSTICA INTERNA (MODO CASA) - EL "AS BAJO LA MANGA" CLÍNICO
+    # =========================================================================
+    if opcion_usuario == "CASA":
+        palabras_veteranos = ["veterano", "veteranos", "ejercito", "fuerzas+armadas", "irak", "trauma", "post_trauma"]
+        palabras_gobierno = ["gobierno", "federal", "estatal", "oficina", "burocracia", "empleado+publico"]
+        palabras_ancianos = ["anciano", "ancianos", "adulto+mayor", "abuelo", "abuela", "viejo", "vejez", "edad", "senior"]
+        palabras_directivos = ["jefe", "jefes", "director", "directivo", "gerente", "ceo", "ejecutivo", "manager", "dueño", "corporativo"]
+        palabras_lesionados = ["lesionado", "lesionada", "lesion", "lesión", "herido", "herida", "accidente", "accidentado", "compensacion", "workcomp", "dolor+espalda"]
+        palabras_discapacitados = ["discapacidad", "discapacitado", "discapacitada", "silla", "ruedas", "limitado", "limitada", "paralisis", "parálisis", "ciego", "sordo", "accesible"]
 
-    elif any(d in desahogo for d in palabras_directivos):
-        audios_choque = recordatorios_directivos
-        tipo_protocolo_master = "CLINICO_EJECUTIVO_30"
-        catalogo_enviar = list(BASE_MISIONES["CASA"])[:30]
+        # ARSENAL ESTÁNDAR PARA USUARIOS COMUNES
+        recordatorios_comunes = [
+            "Sigue el pulso azul ahora. Estás conmigo.",
+            "No mires tus biles. Respira ya.",
+            "Mantén el ritmo ahora. Estás ganando control.",
+            "Siente el peso fuera de tus hombros en este segundo.",
+            "Te estoy acompañando. No estás solo. Hazlo conmigo.",
+            "Siente el aire limpiando tu pecho ahora mismo.",
+            "El piloto automático está apagado. Continúa.",
+            "Quédate en este instante. El presente es tuyo."
+        ]
 
-        for m in catalogo_enviar:
-            m["titulo"] = (
-                m["titulo"]
-                .replace("Foco", "Suelte")
-                .replace("Orden", "Desconexión")
-            )
+        # ARSENAL DE RESCATE MILITAR (VETERANOS)
+        recordatorios_veteranos = [
+            "Soldado, la guerra terminó. Estás en casa y estás a salvo conmigo ahora. Respira.",
+            "Siente tus pies firmes en el suelo de tu país. El peligro ya pasó. Mantén el pulso.",
+            "No estás solo en la trinchera mental. Tu batallón de armas está contigo en este segundo.",
+            "Suelta la guardia ahora. Escucha mi voz. Recupera el control de tu mente ya.",
+            "El trauma no es dueño de tu vida. Tú mandas en este motor físico hoy. Continúa.",
+            "Siente el oxígeno entrando a tu pecho. Eres fuerte, sobreviviste. Camina hacia la luz."
+        ]
 
-    elif any(l in desahogo for l in palabras_lesionados):
-        audios_choque = recordatorios_lesionados
-        tipo_protocolo_master = "CLINICO_LESIONADOS_30"
-        catalogo_enviar = list(BASE_MISIONES["CASA"])[:30]
+        # ARSENAL DE LIBERACIÓN BUROCRÁTICA (GOBIERNO)
+        recordatorios_gobierno = [
+            "Apaga la burocracia en este segundo. Tu mente no le pertenece al estado. Respira.",
+            "Suelta la presión del sistema ahora. Eres un ser humano libre fuera de esa oficina.",
+            "El papeleo y las llamadas pueden esperar. Quédate en este instante de poder.",
+            "Siente cómo tus costillas se expanden limpiando el cortisol acumulado hoy.",
+            "No tienes que sostener el peso de la administración tú solo. Suelta los hombros ya.",
+            "Recupera tu autonomía activa en este minuto. Tu salud mental es lo único que importa."
+        ]
 
-        for m in catalogo_enviar:
-            m["titulo"] = (
-                m["titulo"]
-                .replace("Aprieta", "Siente")
-                .replace("Sacudida", "Estiramiento suave")
-            )
+        # ARSENAL DE COMPAÑÍA Y CALIDEZ (ANCIANOS)
+        recordatorios_ancianos = [
+            "Estás seguro conmigo en esta sala ahora. Siente la paz de tus años. Respira despacio.",
+            "Tu historia tiene un valor inmenso. No estás solo en este segundo. Sigue el pulso azul.",
+            "Siente el calor de tus manos ahora. Tu cuerpo está vivo y en calma en este instante.",
+            "Suelta la prisa del mundo exterior. Quédate en este minuto conmigo. Lo estás haciendo bien.",
+            "Tu presencia es un regalo hoy. Siente el aire llenando tus pulmones con suavidad."
+        ]
 
-    elif any(x in desahogo for x in palabras_discapacitados) or perfil == "accesible":
-        audios_choque = recordatorios_discapacitados
-        tipo_protocolo_master = "CLINICO_DISCAPACIDAD_30"
-        catalogo_enviar = list(BASE_MISIONES["CASA"])[:30]
+        # ARSENAL DE DESAPEGO DE CONTROL (DIRECTIVOS)
+        recordatorios_directivos = [
+            "Suelta el control en este segundo. Nadie te está evaluando ahora. Apaga tu mente. Respira.",
+            "Ya no tienes que decidir nada en este minuto. Yo tengo el mando. Déjate guiar ya.",
+            "El peso de la compañía no está en tus hombros en esta sala. El suelo te sostiene gratis.",
+            "Siente el aire limpiando tu cabeza. Olvida los números, las metas y las juntas ahora.",
+            "Respira despacio. Saca la urgencia de tus pulmones. Estás a salvo del teléfono hoy.",
+            "Tú eres más que tu rango o tu empresa. Recupera tu presencia humana en este instante."
+        ]
 
-        for m in catalogo_enviar:
-            m["titulo"] = (
-                m["titulo"]
-                .replace("Párate", "Siéntate recto")
-                .replace("Camina", "Respira en tu sitio")
-            )
+        # ARSENAL DE REPARACIÓN SOMÁTICA (TRABAJADORES LESIONADOS)
+        recordatorios_lesionados = [
+            "Tu cuerpo está sanando en este segundo. Suelta el rencor contra el trabajo. Respira ya.",
+            "El accidente quedó atrás. Siente tu pulso in este instante de calma. Hazlo conmigo.",
+            "No te apresures. Tu única labor hoy es recuperar tu motor físico en esta sala.",
+            "Siente el aire entrando suavemente. Dale descanso a la zona herida ahora mismo.",
+            "La presión de las cuentas no va a acelerar tu salud. Suelta la prisa. Quédate aquí.",
+            "Te estoy acompañando en este proceso. Tu fuerza biológica es real. Mantén el ritmo azul."
+        ]
 
-    else:
-        audios_choque = recordatorios_personalizados
-        tipo_protocolo_master = "CLINICO_PERSONALIZADO_50"
-        catalogo_enviar = BASE_MISIONES["CASA"]
+        # ARSENAL DE AUTONOMÍA ADAPTADA (DISCAPACITADOS / SILLA DE RUEDAS)
+        recordatorios_discapacitados = [
+            "Tu mente no tiene límites físicos. Eres el soberano de tus pensamientos hoy. Respira.",
+            "Siente la estabilidad de tu soporte ahora. El presente te rodea en este segundo fijos.",
+            "No mires las barreras de la calle. Mira el Sendero Luminoso de tu mente ahora mismo.",
+            "Siente el viento entrando por tus pulmones. Tu energía es libre en esta sala conmigo.",
+            "Estoy al lado tuyo. Tomo el mando de tu descompresión sensorial en este instante.",
+            "Tu conciencia está despierta y activa. Gobiernas tu respiración con el pulso azul ya."
+        ]
 
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-        "tipo_protocolo": tipo_protocolo_master,
-        "misiones": catalogo_enviar,
-        "recordatorios_voz_choque": audios_choque
-    })
+        # ARSENAL SUPREMO PARA PROTOCOLO PERSONALIZADO CRÍTICO EXISTENCIAL
+        recordatorios_personalizados = [
+            "Inicia tu protocolo personalizado. Tu caso es único. Escucha mi dirección ahora.",
+            "Rompemos tu piloto automático de forma específica en este segundo. Sigue el pulso.",
+            "No permitas que tu mente ruede por los mismos carriles aburridos. Despierta ya.",
+            "Tomo el mando absoluto de tus decisiones en este instante porque lo necesitas.",
+            "Tu agobio existencial se detiene en este rincón del tiempo. Quédate conmigo hoy.",
+            "Siente el oxígeno limpiando los nudos más profundos de tu pecho ahora mismo.",
+            "Estás seguro, estás en el sendero luminoso. Avanza conmigo paso a paso ya."
+        ]
+        for i in range(1, 44):
+# OPEN THAN GO SYSTEM - Master Backend Engine
+# Company: May Roga LLC
+# File: main.py
+# PARTE 5 DE 5: El Cerebro Clínico de 4 Preguntas, Intervención de Choque de Campo y Enrutamiento Universal
 
-else:
-    misiones_comunes = list(BASE_MISIONES["CASA"])
-    random.shuffle(misiones_comunes)
-
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-        "tipo_protocolo": "COMUN_RAPIDO",
-        "misiones": misiones_comunes[:3],
-        "recordatorios_voz_choque": recordatorios_comunes
-    })
-    else:
+        # =========================================================================
+        # SEGMENTACIÓN CLÍNICA AUTOMÁTICA (Alineación matemática de sangrías interna corregida)
+        # =========================================================================
+        if any(p in desahogo for p in palabras_veteranos + palabras_gobierno + palabras_ancianos + palabras_directivos + palabras_lesionados + palabras_discapacitados) or perfil in ["accesible", "familia"] or (desahogo and len(desahogo) > 5):
+            if any(v in desahogo for v in palabras_veteranos):
+                audios_choque = recordatorios_veteranos
+                tipo_protocolo_master = "CLINICO_INTENSIVO_50_VET"
+                catalogo_enviar = BASE_MISIONES["CASA"]
+            elif any(g in desahogo for g in palabras_gobierno):
+                audios_choque = recordatorios_gobierno
+                tipo_protocolo_master = "CLINICO_INTENSIVO_50_GOB"
+                catalogo_enviar = BASE_MISIONES["CASA"]
+            elif any(d in desahogo for d in palabras_directivos):
+                audios_choque = recordatorios_directivos
+                tipo_protocolo_master = "CLINICO_EJECUTIVO_30"
+                catalogo_enviar = list(BASE_MISIONES["CASA"])[:30]
+                for m in catalogo_enviar: 
+                    m["titulo"] = m["titulo"].replace("Foco", "Suelte").replace("Orden", "Desconexión")
+            elif any(l in desahogo for l in palabras_lesionados):
+                audios_choque = recordatorios_lesionados
+                tipo_protocolo_master = "CLINICO_LESIONADOS_30"
+                catalogo_enviar = list(BASE_MISIONES["CASA"])[:30]
+                for m in catalogo_enviar: 
+                    m["titulo"] = m["titulo"].replace("Aprieta", "Siente").replace("Sacudida", "Estiramiento suave")
+            elif any(x in desahogo for x in palabras_discapacitados) or perfil == "accessible":
+                audios_choque = recordatorios_discapacitados
+                tipo_protocolo_master = "CLINICO_DISCAPACIDAD_30"
+                catalogo_enviar = list(BASE_MISIONES["CASA"])[:30]
+                for m in catalogo_enviar: 
+                    m["titulo"] = m["titulo"].replace("Párate", "Siéntate recto").replace("Camina", "Respira en tu sitio")
+            else:
+                audios_choque = recordatorios_personalizados
+                tipo_protocolo_master = "CLINICO_PERSONALIZADO_50"
+                catalogo_enviar = BASE_MISIONES["CASA"]
+                
+            return JSONResponse({
+                "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
+                "tipo_protocolo": tipo_protocolo_master,
+                "misiones": catalogo_enviar,
+                "recordatorios_voz_choque": audios_choque
+            })
+        else:
             misiones_comunes = list(BASE_MISIONES["CASA"])
             random.shuffle(misiones_comunes)
             return JSONResponse({
@@ -218,7 +303,7 @@ else:
         {precio_real}
         """
 
-        # INTERCEPCIÓN DINÁMICA DE CRISIS: Bloques independientes "if" puros sin elif para riesgo cero
+        # INTERCEPCIÓN DINÁMICA DE CRISIS: Bloques independientes "if" puros inmunes a fallas de jerarquía
         if any(p in desahogo for p in ["hospital", "clinica", "clínica", "enfermo", "dolor", "medico", "médico", "seguro", "salud", "pastillas", "remedio"]):
             gps_query = "community+health+centers+free+clinics"
             entorno_texto = "Red de clínicas comunitarias y centros de atención médica preventiva de USA."
@@ -227,7 +312,7 @@ else:
 
         if any(p in desahogo for p in ["casa", "alquilar", "alquiler", "renta", "rentar", "hogar", "apartamento", "mudanza", "zillow", "realtor"]):
             gps_query = "homes+for+rent"
-            entorno_texto = "Infraestructura habitacional e inmobiliaria masiva de USA."
+            entorno_texto = "Infraestructura habitacional e inmobiliaria masiva de USA (Zillow / Realtor)."
             titulo_accion = "LOCALIZACIÓN DE TU NUEVO ESPACIO VITAL"
             guia_masticada = f"VEREDICTO: Mudanza y cambio de entorno. POR QUÉ: Tu mente está atrapada en el agobio de tu espacio actual. Necesitas dirección. ACCIÓN OBLIGATORIA: Toca el botón azul ya. Explora las viviendas disponibles en tu zona en este segundo. PARA QUÉ: Romper el letargo y encaminarte hacia tu nuevo hogar. {quienes_van} {precio_real}"
 
@@ -254,40 +339,52 @@ else:
             cadena_ocio = random.choice(["mcdonalds", "burger+king", "resort+hotels"])
             gps_query = f"{cadena_ocio}"
             entorno_texto = "Cadenas globales de alimentación rápida, plataformas de reserva y descompresión."
-            titulo_accion = f"CONEXIÓN SENSORIAL DIRECTA EN {cadena_ocio.upper()}"
-            guia_masticada = f"VEREDICTO: Escape de consumo inmediato. POR QUÉ: Vives en una monotonía gris que te agota el interés de todo. QUÉ HACER: Ve al counter o drive-thru en este instante. Pide tu servicio o menú ahora mismo. Saboréalo. PARA QUÉ: Romper el piloto automático urbano en minutos. {quienes_van} {precio_real}"
+titulo_accion = f"CONEXIÓN SENSORIAL DIRECTA EN {cadena_ocio.upper()}"
+guia_masticada = f"VEREDICTO: Escape de consumo inmediato. POR QUÉ: Vives en una monotonía gris que te agota el interés de todo. QUÉ HACER: Ve al counter o drive-thru en este instante. Pide tu servicio o menú ahora mismo. Saboréalo. PARA QUÉ: Romper el piloto automático urbano en minutos. {quienes_van} {precio_real}"
 
-        if perfil == "accessible":
-            gps_query = "wheelchair+accessible+" + gps_query
-        elif perfil == "family":
-            gps_query = "family+friendly+" + gps_query
+if perfil == "accessible":
+    gps_query = "wheelchair+accessible+" + gps_query
+elif perfil == "family":
+    gps_query = "family+friendly+" + gps_query
 
 # =========================================================================
-        # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA E INDESTRUCTIBLE DE GOOGLE MAPS
-        # =========================================================================
+# FÓRMULA GEOGRÁFICA UNIVERSAL FIJA E INDESTRUCTIBLE DE GOOGLE MAPS
+# =========================================================================
 
-        import urllib.parse
-        query_principal_limpia = urllib.parse.quote(f"{gps_query} in {anclaje_geografico}")
-        query_hoteles_limpia = urllib.parse.quote(f"hotels in {anclaje_geografico}")
-        query_parques_limpia = urllib.parse.quote(f"public parks in {anclaje_geografico}")
+import urllib.parse
 
-        # RECTIFICACIÓN UNIVERSAL DE LA API OFICIAL DE BÚSQUEDA
-        link_google_maps_vivo = f"https://google.com{query_principal_limpia}"
-        link_hoteles_fijo = f"https://google.com{query_hoteles_limpia}"
-        link_parques_fijo = f"https://google.com{query_parques_limpia}"
-        
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "destino_titulo": titulo_accion,
-            "destino_entorno": entorno_texto,
-            "destino_instruccion": guia_masticada.strip(),
-            "destino_coordenadas_gps": link_google_maps_vivo,
-            "alternativas_contingencia": [
-                {"titulo": "HACKEO COMPLEMENTARIO EN LÍNEA (TIENDAS)", "entorno": "Plataformas de abasto comercial global.", "gps": "https://amazon.com"},
-                {"titulo": "ESCAPES DE HOSPEDAJE (HOTELES/SPAS/CAFÉS)", "entorno": "Cadenas de servicio en tu área.", "gps": link_hoteles_fijo},
-                {"titulo": "REFUGIOS TOTALMENTE GRATIS (NATURALEZA/AIRE)", "entorno": "Espacios naturales públicos de USA.", "gps": link_parques_fijo}
-            ]
-        })
+query_principal_limpia = urllib.parse.quote(f"{gps_query} in {anclaje_geografico}")
+query_hoteles_limpia = urllib.parse.quote(f"hotels in {anclaje_geografico}")
+query_parques_limpia = urllib.parse.quote(f"public parks in {anclaje_geografico}")
+
+link_google_maps_vivo = f"google.com{query_principal_limpia}"
+link_hoteles_fijo = f"google.com{query_hoteles_limpia}"
+link_parques_fijo = f"google.com{query_parques_limpia}"
+
+return JSONResponse({
+    "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+    "destino_titulo": titulo_accion,
+    "destino_entorno": entorno_texto,
+    "destino_instruccion": guia_masticada.strip(),
+    "destino_coordenadas_gps": link_google_maps_vivo,
+    "alternativas_contingencia": [
+        {
+            "titulo": "HACKEO COMPLEMENTARIO EN LÍNEA (TIENDAS)",
+            "entorno": "Plataformas de abasto comercial global.",
+            "gps": "amazon.com"
+        },
+        {
+            "titulo": "ESCAPES DE HOSPEDAJE (HOTELES/SPAS/CAFÉS)",
+            "entorno": "Cadenas de servicio en tu área.",
+            "gps": link_hoteles_fijo
+        },
+        {
+            "titulo": "REFUGIOS TOTALMENTE GRATIS (NATURALEZA/AIRE)",
+            "entorno": "Espacios naturales públicos de USA.",
+            "gps": link_parques_fijo
+        }
+    ]
+})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
