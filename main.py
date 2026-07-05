@@ -32,7 +32,6 @@ async def leer_raiz():
     )
 
 HISTORIAL_IDEAS_NUEVAS = []
-
 BASE_MISIONES = {
     "CASA": [
         {"id": 1, "titulo": "Paso 1: Detén tu máquina", "descripcion": "Hazlo conmigo ahora. Escanea tu cuerpo en este segundo. Ubica el peso exacto en tu espalda. Míralo. Siente que estás aquí, vivo."},
