@@ -325,15 +325,26 @@ async def mando_integral(request: Request):
             guia_masticada = f"VEREDICTO: Sombra del árbol o línea del agua. POR QUÉ: Eres un prisionero de tus propios pensamientos diarios. QUÉ HACER: Camina descalzo sobre el pasto o la arena ahora. Mira las nubes y siente el viento en tu rostro diez minutos fijos. PARA QUÉ: Usar el oxígeno gratis como medicina biológica. {quienes_van} {precio_real}"
 
         if perfil == "accesible":
-            gps_query = "wheelchair+accessible+" + gps_query
+        gps_query = "wheelchair+accessible+" + gps_query
         elif perfil == "family":
-            gps_query = "family+friendly+" + gps_query
+        gps_query = "family+friendly+" + gps_query
 
         # =========================================================================
         # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA E INDESTRUCTIBLE DE GOOGLE MAPS
         # =========================================================================
-        link_google_maps_vivo = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
+        anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
         
+        # El motor de codificación inyecta la consulta de forma limpia y segura para la red
+        import urllib.parse
+        query_principal_limpia = urllib.parse.quote(f"{gps_query} in {anclaje_geografico}")
+        query_hoteles_limpia = urllib.parse.quote(f"hotels in {anclaje_geografico}")
+        query_parques_limpia = urllib.parse.quote(f"public parks in {anclaje_geografico}")
+
+        link_google_maps_vivo = f"https://google.com{query_principal_limpia}"
+        link_hoteles_fijo = f"https://google.com{query_hoteles_limpia}"
+        link_parques_fijo = f"https://google.com{query_parques_limpia}"
+        
+        # Estructura de salida blindada sincronizada al 100% con tu engine.js
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
             "destino_titulo": titulo_accion,
@@ -342,8 +353,8 @@ async def mando_integral(request: Request):
             "destino_coordenadas_gps": link_google_maps_vivo,
             "alternativas_contingencia": [
                 {"titulo": "HACKEO COMPLEMENTARIO EN LÍNEA (TIENDAS)", "entorno": "Plataformas de abasto comercial global.", "gps": "https://amazon.com"},
-                {"titulo": "ESCAPES DE HOSPEDAJE (HOTELES/SPAS/CAFÉS)", "entorno": "Cadenas de servicio en tu área.", "gps": f"https://google.comhotels+in+{anclaje_geografico}".replace(" ", "+")},
-                {"titulo": "REFUGIOS TOTALMENTE GRATIS (NATURALEZA/AIRE)", "entorno": "Espacios naturales públicos de USA.", "gps": f"https://google.compublic+parks+in+{anclaje_geografico}".replace(" ", "+")}
+                {"titulo": "ESCAPES DE HOSPEDAJE (HOTELES/SPAS/CAFÉS)", "entorno": "Cadenas de servicio en tu área.", "gps": link_hoteles_fijo},
+                {"titulo": "REFUGIOS TOTALMENTE GRATIS (NATURALEZA/AIRE)", "entorno": "Espacios naturales públicos de USA.", "gps": link_parques_fijo}
             ]
         })
 
