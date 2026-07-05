@@ -83,7 +83,7 @@ BASE_MISIONES = {
         {"id": 48, "titulo": "Paso 48: Limpieza de espacio", "descripcion": "Imagina que con cada bocanada de aire sacas una preocupación burocrática fuera de tus paredes."},
         {"id": 49, "titulo": "Paso 49: Anclaje de palmas", "descripcion": "Coloca tus dos palmas planas sobre tu mesa. Empuja suavemente hacia abajo notando la solidez del material."},
         {"id": 50, "titulo": "Paso 50: Presencia soberana", "descripcion": "Regresa tu atención a este segundo exacto. Tu mente está despierta, estás a safe y recuperaste el mando."}
-    ],
+],
 # OPEN THAN GO SYSTEM - Master Backend Engine
 # Company: May Roga LLC
 # File: main.py
