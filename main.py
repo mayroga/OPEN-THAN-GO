@@ -94,25 +94,21 @@ BASE_MISIONES = {
         {"id": 49, "titulo": "Paso 49: Anclaje de palmas", "descripcion": "Coloca tus dos palmas planas sobre tu mesa. Empuja suavemente hacia abajo notando la solidez del material."},
         {"id": 50, "titulo": "Paso 50: Presencia soberana", "descripcion": "Regresa tu atención a este segundo exacto. Tu mente está despierta, estás a safe y recuperaste el mando."}
     ])
-BASE_MISIONES["SALIR"] = {
-    "agotado": [
-        {"titulo": "Usa la sombra del árbol grande", "porque": "Tu mente está frita por el derroche de luz artificial y pantallas.", "que_hacer": "Hazlo ya. Camina hacia el árbol más grande de ese parque. Toca su corteza con tu mano ahora. Siente la textura fría. Quédate bajo su sombra densa mirando el aire.", "donde": "Parque público con árboles grandes.", "gps": "parks+with+shade+"},
-        {"titulo": "Usa el horizonte del muelle", "porque": "Tu visión está encerrada en paredes pequeñas y biles.", "que_hacer": "Párate al final del muelle o punto alto ahora. Clava tu mirada en la línea donde se une el cielo con el agua. Quédate ahí sin moverte. Recupera el asombro.", "donde": "Muelle, mirador o orilla de lago pública.", "gps": "waterfront+viewpoints+"}
-    ],
-    "estresado": [
-        {"titulo": "Usa la resistencia de la colina", "porque": "El estrés te tiene los hombros y el pecho trabados.", "que_hacer": "Encuentra la rampa, escalera o cuesta de esa calle o parque ahora. Súbela a paso firme sintiendo el esfuerzo. Usa la gravedad del planeta para soltar el cortisol.", "donde": "Calle elevada, escalera pública o rampa.", "gps": "public+stairs+and+ramps+"},
-        {"titulo": "Usa el circuito de la acera lineal", "porque": "Tu cerebro está dando vueltas en círculos de ansiedad financiera.", "que_hacer": "Pisa la acera lineal de esa avenida pública ahora. Camina recto diez minutos seguidos sin mirar el teléfono. Siente el golpe firme de tus pies contra el concreto.", "donde": "Acera peatonal o parque lineal continuo.", "gps": "linear+parks+and+walkways+"}
-    ],
-    "aburrido": [
-        {"titulo": "Usa los colores de los murales", "porque": "Vives en un piloto automático gris que te duerme la dopamina.", "que_hacer": "Párate frente a los dibujos de colores de esa pared urbana ahora. Busca tres detalles pequeños que nadie mira. Encuentra el asombro en lo insignificante.", "donde": "Calle con murales o distrito de diseño urbano.", "gps": "street+art+murales+"},
-        {"titulo": "Usa los aromas del mercado abierto", "porque": "Has perdido la calidez de la espontaneidad humana por el confort.", "que_hacer": "Camina entre la multitud de ese mercado al aire libre ahora. Huele las frutas frescas, mira los objetos raros. Toca un producto gratis. Conecta ya.", "donde": "Mercado de pulgas, feria comunitaria o farmers market.", "gps": "farmers+markets+and+flea+markets+"}
-    ]
+"SALIR": {
+        "agotado": [
+            {"titulo": "Usa la sombra del árbol grande", "porque": "Tu mente está frita por el derroche de luz artificial y pantallas.", "que_hacer": "Hazlo ya. Camina hacia el árbol más grande de ese parque. Toca su corteza con tu mano ahora. Siente la textura fría. Quédate bajo su sombra densa mirando el aire.", "donde": "Parque público con árboles grandes.", "gps": "parks+with+shade+"},
+            {"titulo": "Usa el horizonte del muelle", "porque": "Tu visión está encerrada en paredes pequeñas y biles.", "que_hacer": "Párate al final del muelle o punto alto ahora. Clava tu mirada en la línea donde se une el cielo con el agua. Quédate ahí sin moverte. Recupera el asombro.", "donde": "Muelle, mirador o orilla de lago pública.", "gps": "waterfront+viewpoints+"}
+        ],
+        "estresado": [
+            {"titulo": "Usa la resistencia de la colina", "porque": "El estrés te tiene los hombros y el pecho trabados.", "que_hacer": "Encuentra la rampa, escalera o cuesta de esa calle o parque ahora. Súbela a paso firme sintiendo el esfuerzo. Usa la gravedad del planeta para soltar el cortisol.", "donde": "Calle elevada, escalera pública o rampa.", "gps": "public+stairs+and+ramps+"},
+            {"titulo": "Usa el circuito de la acera lineal", "porque": "Tu cerebro está dando vueltas en círculos de ansiedad financiera.", "que_hacer": "Pisa la acera lineal de esa avenida pública ahora. Camina recto diez minutos seguidos sin mirar el teléfono. Siente el golpe firme de tus pies contra el concreto.", "donde": "Acera peatonal o parque lineal continuo.", "gps": "linear+parks+and+walkways+"}
+        ],
+        "aburrido": [
+            {"titulo": "Usa los colores de los murales", "porque": "Vives en un piloto automático gris que te duerme la dopamina.", "que_hacer": "Párate frente a los dibujos de colores de esa pared urbana ahora. Busca tres detalles pequeños que nadie mira. Encuentra el asombro en lo insignificante.", "donde": "Calle con murales o distrito de diseño urbano.", "gps": "street+art+murales+"},
+            {"titulo": "Usa los aromas del mercado abierto", "porque": "Has perdido la calidez de la espontaneidad humana por el confort.", "que_hacer": "Camina entre la multitud de ese mercado al aire libre ahora. Huele las frutas frescas, mira los objetos raros. Toca un producto gratis. Conecta ya.", "donde": "Mercado de pulgas, feria comunitaria o farmers market.", "gps": "farmers+markets+and+flea+markets+"}
+        ]
+    }
 }
-# OPEN THAN GO SYSTEM - Master Backend Engine
-# Company: May Roga LLC
-# File: main.py
-# PARTE 4 DE 6: Catálogo Maestro de Campo (SALIR) y Arsenales Ocultos de Voz por Sector
-
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
     payload = await request.json()
@@ -131,7 +127,6 @@ async def mando_integral(request: Request):
     palabras_directivos = ["jefe", "jefes", "director", "directivo", "gerente", "ceo", "ejecutivo", "manager", "dueño", "corporativo"]
     palabras_lesionados = ["lesionado", "lesionada", "lesion", "lesión", "herido", "herida", "accidente", "accidentado", "compensacion", "workcomp", "dolor+espalda"]
     palabras_discapacitados = ["discapacidad", "discapacitado", "discapacitada", "silla", "ruedas", "limitado", "limitada", "paralisis", "parálisis", "ciego", "sordo", "accesible"]
-
     # ARSENAL ESTÁNDAR PARA USUARIOS COMUNES
     recordatorios_comunes = [
         "Sigue el pulso azul ahora. Estás conmigo.", "No mires tus biles. Respira ya.",
