@@ -195,7 +195,7 @@ async def mando_integral(request: Request):
         "Siente el oxígeno limpiando los nudos más profundos de tu pecho ahora mismo.",
         "Estás seguro, estás en el sendero luminoso. Avanza conmigo paso a paso ya."
     ]
-       elif  opcion_usuario == "CASA":
+       if  opcion_usuario == "CASA":
        elif any(p in desahogo for p in palabras_veteranos + palabras_gobierno + palabras_ancianos + palabras_directivos + palabras_lesionados + palabras_discapacitados) or perfil in ["accesible", "familia"] or (desahogo and len(desahogo) > 5):
 
             if any(v in desahogo for v in palabras_veteranos):
