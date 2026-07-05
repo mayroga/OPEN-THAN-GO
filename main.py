@@ -256,9 +256,9 @@ async def mando_integral(request: Request):
 # OPEN THAN GO SYSTEM - Master Backend Engine
 # Company: May Roga LLC
 # File: main.py
-# PARTE 5 DE 5: El Cerebro Clínico de 4 Preguntas, Intervención de Choque y Enrutamiento Universal
+# PARTE 5 DE 5: El Cerebro Clínico de 4 Preguntas, Intervención de Choque y Enrutamiento Universal Independiente Pure If
 
-        # Inicialización de variables de seguridad para evitar que el servidor se quede en blanco
+        # Inicialización y fusibles de seguridad de las variables de campo tácticas para evitar el colapso del servidor
         gps_query = info["gps"]
         donde_base = info["donde"]
         titulo_accion = "REGRESO A LA PRESENCIA ABSOLUTA"
@@ -274,39 +274,39 @@ async def mando_integral(request: Request):
         {precio_real}
         """
 
-        # INTERCEPCIÓN DINÁMICA DE CRISIS: Escanea el desahogo y toma el mando absoluto
-        if any(p in desahogo for p in ["hospital", "clinica", "clínica", "enfermo", "dolor", "medico", "médico", "seguro", "salud"]):
+        # INTERCEPCIÓN DINÁMICA DE CRISIS: Bloques independientes "if" puros inmunes a fallas de jerarquía
+        if any(p in desahogo for p in ["hospital", "clinica", "clínica", "enfermo", "dolor", "medico", "médico", "seguro", "salud", "pastillas", "remedio"]):
             gps_query = "community+health+centers+free+clinics"
             entorno_texto = "Red de clínicas comunitarias y centros de atención médica preventiva de USA."
             titulo_accion = "INTERVENCIÓN MÉDICA Y ESCUDO DE SALUD BIOLÓGICA"
             guia_masticada = f"VEREDICTO: Protección inmediata de tu templo físico. POR QUÉ: No puedes sanar tu mente si descuidas tu cuerpo. El dolor te tiene paralizado. QUÉ HACER: Acude ahora mismo por la mañana a este centro comunitario. Solicita revisión gratis. PARA QUÉ: Tomar el control absoluto de tu salud sin gastar un centavo hoy. HAZLO CONMIGO. {quienes_van}"
 
-        elif any(p in desahogo for p in ["casa", "alquilar", "alquiler", "renta", "rentar", "hogar", "apartamento", "mudanza", "zillow", "realtor"]):
+        if any(p in desahogo for p in ["casa", "alquilar", "alquiler", "renta", "rentar", "hogar", "apartamento", "mudanza", "zillow", "realtor"]):
             gps_query = "homes+for+rent"
             entorno_texto = "Infraestructura habitacional e inmobiliaria masiva de USA."
             titulo_accion = "LOCALIZACIÓN DE TU NUEVO ESPACIO VITAL"
             guia_masticada = f"VEREDICTO: Mudanza y cambio de entorno. POR QUÉ: Tu mente está atrapada en el agobio de tu espacio actual. Necesitas dirección. ACCIÓN OBLIGATORIA: Toca el botón azul ya. Explora las viviendas disponibles en tu zona en este segundo. PARA QUÉ: Romper el letargo y encaminarte hacia tu nuevo hogar. {quienes_van} {precio_real}"
 
-        elif any(p in desahogo for p in ["escribir", "hablar", "pareja", "amigo", "amigos", "aislado", "solo", "gente", "facebook", "whatsapp", "instagram"]):
+        if any(p in desahogo for p in ["escribir", "hablar", "pareja", "amigo", "amigos", "aislado", "solo", "gente", "facebook", "whatsapp", "instagram", "social"]):
             gps_query = "community+centers+social+clubs"
             entorno_texto = "Ecosistema masivo de interacción social y comunicación directa de las Big Tech."
             titulo_accion = "ROMPER EL AISLAMIENTO INDIVIDUAL"
             guia_masticada = f"VEREDICTO: Conexión humana inmediata. POR QUÉ: Eres prisionero del aislamiento diario y las pantallas. QUÉ HACER: Abre el enlace ya. Envía un mensaje corto o únete a un grupo en este segundo. PARA QUÉ: Recordar que formas parte de la sociedad fuera de tus biles. {quienes_van} {precio_real}"
 
-        elif any(p in desahogo for p in ["comprar", "bici", "bicicleta", "objeto", "ropa", "comida", "herramientas", "walmart", "ross", "dds", "burlington", "amazon", "temu"]):
+        if any(p in desahogo for p in ["comprar", "bici", "bicicleta", "objeto", "ropa", "comida", "herramientas", "walmart", "ross", "dds", "burlington", "amazon", "temu", "tienda"]):
             plataforma_minorista = random.choice(["walmart", "ross+dress+for+less", "dds+discounts", "burlington"])
             gps_query = f"{plataforma_minorista}+store"
             entorno_texto = "Gigantes del mercado minorista y tiendas de descuentos de USA."
             titulo_accion = f"HACKEO DE ABASTO MASIVO EN {plataforma_minorista.upper()}"
             guia_masticada = f"VEREDICTO: Intervención de escape comercial. POR QUÉ: Haces siempre lo mismo y tu cerebro pide un estímulo físico. QUÉ HACER: Toca el botón ya. Revisa el catálogo disponible en este instante. Compra tu equipo o provisión hoy. PARA QUÉ: Activar tu dopamina y ganarle al piloto automático. {quienes_van} {precio_real}"
 
-        elif any(p in desahogo for p in ["trabajo", "empleo", "job", "biles", "deudas", "bills", "miseria", "explotacion"]):
+        if any(p in desahogo for p in ["trabajo", "empleo", "job", "biles", "deudas", "bills", "miseria", "explotacion"]):
             gps_query = "agencias+de+empleo+staffing+agencies"
             entorno_texto = "Módulos de contratación rápida y corporaciones de empleo inmediato establecidos."
             titulo_accion = "ESCUDO DE AUTONOMÍA FINANCIERA"
             guia_masticada = f"VEREDICTO: Oficinas de reclutamiento laboral. POR QUÉ: Tu mente está congelada por el miedo a las cuentas. El dinero te domina. QUÉ HACER: Levántate ya. Acude al staffing de tu zona con tu identificación en la mano en este segundo. PARA QUÉ: Ganarle a la parálisis material hoy. {quienes_van} {precio_real}"
 
-        elif mente in ["aburrido", "estresado"] or any(p in desahogo for p in ["hambre", "comer", "mcdonalds", "burger"]):
+        if mente in ["aburrido", "estresado"] or any(p in desahogo for p in ["hambre", "comer", "mcdonalds", "burger", "burger+king", "restaurante", "rapido"]):
             cadena_ocio = random.choice(["mcdonalds", "burger+king", "resort+hotels"])
             gps_query = f"{cadena_ocio}"
             entorno_texto = "Cadenas globales de alimentación rápida, plataformas de reserva y descompresión."
@@ -321,14 +321,11 @@ async def mando_integral(request: Request):
         # =========================================================================
         # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA E INDESTRUCTIBLE DE GOOGLE MAPS
         # =========================================================================
-        anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
-        
         import urllib.parse
         query_principal_limpia = urllib.parse.quote(f"{gps_query} in {anclaje_geografico}")
         query_hoteles_limpia = urllib.parse.quote(f"hotels in {anclaje_geografico}")
         query_parques_limpia = urllib.parse.quote(f"public parks in {anclaje_geografico}")
 
-        # RECTIFICACIÓN MAESTRA: Enlaces oficiales absolutos con la API de Google Maps
         link_google_maps_vivo = f"https://google.com{query_principal_limpia}"
         link_hoteles_fijo = f"https://google.com{query_hoteles_limpia}"
         link_parques_fijo = f"https://google.com{query_parques_limpia}"
@@ -340,7 +337,7 @@ async def mando_integral(request: Request):
             "destino_instruccion": guia_masticada.strip(),
             "destino_coordenadas_gps": link_google_maps_vivo,
             "alternativas_contingencia": [
-                {"titulo": "HACKEO COMPLEMENTARIO EN LÍNEA (TIENDAS)", "entorno": "Plataformas de abasto comercial global.", "gps": "https://www.amazon.com"},
+                {"titulo": "HACKEO COMPLEMENTARIO EN LÍNEA (TIENDAS)", "entorno": "Plataformas de abasto comercial global.", "gps": "https://amazon.com"},
                 {"titulo": "ESCAPES DE HOSPEDAJE (HOTELES/SPAS/CAFÉS)", "entorno": "Cadenas de servicio en tu área.", "gps": link_hoteles_fijo},
                 {"titulo": "REFUGIOS TOTALMENTE GRATIS (NATURALEZA/AIRE)", "entorno": "Espacios naturales públicos de USA.", "gps": link_parques_fijo}
             ]
