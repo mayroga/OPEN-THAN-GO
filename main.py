@@ -46,7 +46,7 @@ BASE_MISIONES = {
         {"id": 22, "titulo": "Paso 22: Apagón sensorial", "descripcion": "Cierra tus ojos ahora. Cúbrelos suavemente con las palmas de tus manos templadas por un minuto. Siente la oscuridad absoluta."},
         {"id": 23, "titulo": "Paso 23: Sensor de pulso", "descripcion": "Coloca tu mano derecha sobre tu pecho en este segundo. Siente tus latidos en silencio. Estás aquí, estás al mando hoy."},
         {"id": 24, "titulo": "Paso 24: Desbloqueo cervical", "descripcion": "Mueve tu cabeza haciendo círculos muy lentos ahora. Siente cómo se destraba tu cuello del peso diario de las pantallas."},
-        {"id": 25, "titulo": "Paso 25: Transferencia térmica", "descripcion": "Frota tus manos con fuerza ahora mismo hasta sentir calor real. Colócalas sobre tus hombros cansados. Siente el alivio ya."}
+        {"id": 25, "titulo": "Paso 25: Transferencia térmica", "descripcion": "Frota tus manos con fuerza ahora mismo hasta sentir calor real. Colócalas sobre tus hombros cansados. Siente el alivio ya."},
 # PARTE 2 DE 5: Continuación del catálogo de CASA (26 a 50) y catálogo maestro de SALIR
 
         {"id": 26, "titulo": "Paso 26: Sonido periférico", "descripcion": "Presta atención al ruido más lejano que ocurra fuera de tu edificio ahora mismo. Identifícalo en silencio."},
