@@ -103,8 +103,10 @@ async def mando_integral(request: Request):
     mente = str(payload.get("mente", "agotado")).lower()
     budget = str(payload.get("budget", "0"))
     perfil = str(payload.get("perfil", "solo")).lower()
-    desahogo = str(payload.get("desahogo", "")).lower()
+    desahogo = str(payload.get("desahogo", "")).strip().lower()
     
+    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
+
     if opcion_usuario == "CASA":
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", 
@@ -112,69 +114,83 @@ async def mando_integral(request: Request):
         })
     
     else:
-        info = random.choice(BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"]))
-        
-        # Filtro de precio real en palabras cortas de acción
-        precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if budget == "0" else "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if budget == "1" else "GASTO: Libre. El dinero es tu herramienta de escape hoy."
-        
-        # Filtro de acompañantes reales
-        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if perfil == "solo" else "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if perfil == "familia" else "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad."
+        # CONFIGURACIÓN DE COSTOS Y COMPAÑÍA EN POCAS PALABRAS
+        precio_real = "GASTO: Cero dólares. Libertad mental gratis hoy." if budget == "0" else "GASTO: Rango controlado. Un intercambio justo."
+        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a romper tus cadenas." if perfil == "solo" else "ACOMPAÑAMIENTO: Entorno apto para tus niños y familia." if perfil == "familia" else "ACOMPAÑAMIENTO: Sendero con total accesibilidad física."
 
-        # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO
-        palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion"]
-        if any(p in desahogo for p in palabras_criticas):
-            gps_query = "agencias+de+empleo+staffings+corporations"
-            donde_base = "Oficinas de contratación y staffings corporativos en tu zona."
-            
-            guia_masticada = f"""
-            DESTINO: Oficinas de empleo inmediato.
-            POR QUÉ: Tu mente está bloqueada por la parálisis de las deudas y los biles.
-            QUÉ HACER: Entra ya con tu identificación en mano. Habla directo con el counter.
-            CUÁNDO: Ahora mismo por la mañana. Es prioridad de vida.
-            PARA QUÉ: Para ganarle al agobio del dinero y tomar el control de tu economía hoy.
-            {quienes_van}
-            {precio_real}
-            """
-        else:
-            # INTERVENCIÓN DE ARQUITECTURA DE ENTORNO ORDINARIO (Hackear parques, playas, murales o calles)
-            if budget == "0":
-                gps_query = "free+public+parks+and+beaches"
-            elif budget == "1":
-                gps_query = "low+cost+coffee+shops+and+local+markets"
+        # GENERADOR ELÁSTICO CLÍNICO Y COMERCIAL MAESTRO EN TIEMPO REAL
+        
+        # Flujo A: Hackeo de Gobierno, Veteranos, Escuelas o Empleados Federales
+        if any(p in desahogo for p in ["gobierno", "federal", "estatal", "veterano", "veteranos", "anciano", "ancianos", "escuela", "colegio", "jefe", "compañia"]):
+            if "veterano" in desahogo:
+                gps_query = "va+hospital+veterans+affairs+center"
+                titulo_accion = "INTERVENCIÓN ESPECIAL PARA VETERANOS DE GUERRA"
+                guia_masticada = f"VEREDICTO: Protección prioritaria para defensores del país. POR QUÉ: Tu mente carga con un peso pesado y el sistema te ignora. QUÉ HACER: Acude a este centro de atención ahora mismo. Solicita tu chequeo y apoyo directo. PARA QUÉ: Recuperar tu estabilidad biopsicosocial ya. {quienes_van}"
+                entorno_texto = "Centros oficiales y clínicas de asistencia para Veteranos de USA."
+            elif any(p in desahogo for p in ["gobierno", "federal", "estatal"]):
+                gps_query = "government+offices+social+security+administration"
+                titulo_accion = "PROTOCOLO DE CHOQUE EXCLUSIVO PARA TRABAJADORES DEL ESTADO"
+                guia_masticada = f"VEREDICTO: Liberación de la burocracia mental. POR QUÉ: Sostienes al gobierno pero el piloto automático te consume. QUÉ HACER: Ve a este punto de gestión en este segundo. Realiza tu trámite postergado ya. PARA QUÉ: Limpiar tus pendientes y recuperar tu paz. {quienes_van}"
+                entorno_texto = "Oficinas gubernamentales e infraestructura administrativa estatal."
             else:
-                gps_query = info["gps"]
-            
-            donde_base = info["donde"]
-            
-            guia_masticada = f"""
-            DESTINO: {info['titulo']}.
-            POR QUÉ: {info['porque']}
-            QUÉ HACER: {info['que_hacer']}
-            CUÁNDO: Ahora mismo. Levántate de la silla ya.
-            PARA QUÉ: Para romper el zombi urbano y recordar que la vida es más que pagar cuentas.
-            {quienes_van}
-            {precio_real}
-            """
+                gps_query = "public+schools+and+community+centers"
+                titulo_accion = "MANDO DE APOYO PARA PADRES, MAESTROS Y ESCUELAS"
+                guia_masticada = f"VEREDICTO: Dirección inmediata para el núcleo familiar. POR QUÉ: El agobio de educar te tiene agotado. QUÉ HACER: Camina hacia este centro comunitario o escuela ahora. Habla con los encargados de frente. PARA QUÉ: Proteger el bienestar de tus niños y el tuyo hoy."
+                entorno_texto = "Centros educativos e infraestructura escolar comunitaria."
 
-        # Adaptabilidad del Perfil Biopsicosocial sin exclusión social
-        if perfil == "accesible":
-            gps_query = "wheelchair+accessible+" + gps_query
-        elif perfil == "family":
-            gps_query = "family+friendly+" + gps_query
+        # Flujo B: Hackeo Minorista y Descuentos Masivos (Walmart, Ross, DD's, Burlington)
+        elif any(p in desahogo for p in ["comprar", "ropa", "comida", "walmart", "ross", "dds", "burlington", "tienda", "barato", "ahorrar"]):
+            plataforma = random.choice(["walmart", "ross+dress+for+less", "dds+discounts", "burlington"])
+            gps_query = f"{plataforma}+store"
+            link_accion_directo = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
+            entorno_texto = f"Gigantes del mercado minorista y tiendas de descuentos establecidas de USA."
+            titulo_accion = f"HACKEO DE ABASTO MASIVO EN {plataforma.upper()}"
+            guia_masticada = f"VEREDICTO: Intervención de ahorro y abasto inteligente. POR QUÉ: Los biles te asustan y dejas de comprar lo básico. QUÉ HACER: Levántate ya. Entra a esta tienda ahora mismo. Adquiere un objeto útil o alimento por pocos dólares sin culpa. PARA QUÉ: Satisfacer tus necesidades materiales con austeridad creativa hoy. {quienes_van}"
 
-        # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA: Usa el ZIP si existe, si no toma la combinación del cajón
-        anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
+        # Flujo C: Hackeo de Comida Rápida y Energía Calórica (McDonald's, Burger King)
+        elif any(p in desahogo for p in ["hambre", "comer", "mcdonalds", "mcdonald", "burger", "burger+king", "restaurante", "rapido"]):
+            cadena = random.choice(["mcdonalds", "burger+king"])
+            gps_query = f"{cadena}"
+            link_accion_directo = f"https://google.com{cadena}+in+{anclaje_geografico}".replace(" ", "+")
+            entorno_texto = "Cadenas globales de alimentación rápida y abasto calórico inmediato."
+            titulo_accion = f"CONEXIÓN SENSORIAL DIRECTA EN {cadena.upper()}"
+            guia_masticada = f"VEREDICTO: Orden de recarga inmediata. POR QUÉ: La rutina y el trabajo no te dejan tiempo ni para comer bien. QUÉ HACER: Ve al drive-thru o entra al counter en este instante. Pide tu orden favorita ahora mismo. Saboréala. PARA QUÉ: Despertar tu espontaneidad en pocos minutos de descompresión. {quienes_van}"
+
+        # Flujo D: INTERVENCION CLÍNICA (Salud, Dolor, Clínicas gratis)
+        elif any(p in desahogo for p in ["hospital", "clinica", "clínica", "enfermo", "dolor", "medico", "médico", "salud"]):
+            gps_query = "community+health+centers+free+clinics"
+            entorno_texto = "Red de clínicas comunitarias y centros de atención médica de USA."
+            titulo_accion = "INTERVENCIÓN MÉDICA Y ESCUDO DE SALUD BIOLÓGICA"
+            guia_masticada = f"VEREDICTO: Protección de tu templo físico. POR QUÉ: No puedes sanar tu mente si descuidas tu cuerpo. El dolor te tiene paralizado. QUÉ HACER: Acude ahora mismo a este centro comunitario. Solicita revisión gratis. PARA QUÉ: Tomar el control absoluto de tu salud hoy. HAZLO CONMIGO."
+
+        # Flujo E: HACKEO DE VIVIENDA (Zillow, Realtor, Redfin)
+        elif any(p in desahogo for p in ["casa", "alquilar", "alquiler", "renta", "rentar", "hogar", "apartamento", "zillow", "realtor"]):
+            plataforma = random.choice(["://zillow.com", "://realtor.com"])
+            link_accion_directo = f"https://www.{plataforma}{anclaje_geografico}".replace(" ", "+")
+            return JSONResponse({"DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO", "destino_titulo": "LOCALIZACIÓN DE TU NUEVO ESPACIO VITAL", "destino_entorno": "Infraestructura habitacional de USA.", "destino_instruccion": f"VEREDICTO: Mudanza y cambio de entorno. Toca el botón azul ya. Explora las viviendas disponibles en tu zona. {quienes_van}", "destino_coordenadas_gps": link_accion_directo, "alternativas_contingencia": []})
+
+        # Flujo F: HACKEO ESPIRITISTA DEL ENTORNO NATURAL (Parques, Playas, Lagos, Viento, Aire)
+        else:
+            entorno_natural = random.choice(["public+parks+with+shade", "public+beaches+and+waterfronts", "nature+reserves"])
+            gps_query = entorno_natural
+            entorno_texto = "Infraestructura natural pública de USA, aire, nubes, agua y tierra."
+            titulo_accion = "REGRESO A LA PRESENCIA ABSOLUTA"
+            guia_masticada = f"VEREDICTO: Sombra del árbol o línea del agua. POR QUÉ: Eres un prisionero de tus propios pensamientos diarios. QUÉ HACER: Camina descalzo sobre el pasto o la arena ahora. Mira las nubes y siente el viento en tu rostro diez minutos fijos. PARA QUÉ: Usar el oxígeno gratis como medicina biológica. {quienes_van} {precio_real}"
+
+        # Enlace satelital de intercepción universal para los 50 estados
+        link_google_maps_vivo = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
         
-        # RECTIFICACIÓN MAESTRA DE VARIABLES UNIFICADAS:
-        link_google_maps_vivo = f"https://www.google.com/maps/search/?api=1&query={gps_query}+in+{anclaje_geografico}".replace(" ", "+")
-        
-        # Estructura de salida blindada sincronizada al 100% con tu engine.js
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "destino_titulo": info["titulo"].upper(),
-            "destino_entorno": donde_base,
+            "destino_titulo": titulo_accion,
+            "destino_entorno": entorno_texto,
             "destino_instruccion": guia_masticada.strip(),
-            "destino_coordenadas_gps": link_google_maps_vivo
+            "destino_coordenadas_gps": link_google_maps_vivo,
+            "alternativas_contingencia": [
+                {"titulo": "HACKEO DE CONTINGENCIA MINORISTA (WALMART)", "entorno": "Tiendas de abasto y provisiones.", "gps": f"https://google.comwalmart+in+{anclaje_geografico}".replace(" ", "+")},
+                {"titulo": "REFUGIOS TOTALMENTE GRATIS (PLAYAS/PARQUES)", "entorno": "Espacios naturales públicos de USA.", "gps": f"https://google.compublic+parks+in+{anclaje_geografico}".replace(" ", "+")},
+                {"titulo": "ALIMENTACIÓN RÁPIDA DE DESCOMPRESIÓN", "entorno": "Cadenas de servicio rápido locales.", "gps": f"https://google.commcdonalds+in+{anclaje_geografico}".replace(" ", "+")}
+            ]
         })
 
 if __name__ == "__main__":
