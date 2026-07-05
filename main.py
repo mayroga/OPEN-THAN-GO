@@ -86,7 +86,8 @@ BASE_MISIONES = {
         ]
     }
 }
-# PARTE 3 DE 3: Rutas de control, Filtros Dinámicos de Supervivencia y Encendido del Servidor
+# PARTE 3 DE 3: Lógica de API, Filtros Elásticos y Enlace Satelital Universal
+
 @app.get("/")
 async def index():
     return FileResponse('static/session.html')
@@ -113,13 +114,13 @@ async def mando_integral(request: Request):
     else:
         info = random.choice(BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"]))
         
-        # Hackeo Financiero: Costo real masticado
+        # Filtro de precio real en palabras cortas de acción
         precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if budget == "0" else "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if budget == "1" else "GASTO: Libre. El dinero es tu herramienta de escape hoy."
         
-        # Hackeo de Círculo Social: Quiénes te acompañan
+        # Filtro de acompañantes reales
         quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if perfil == "solo" else "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if perfil == "familia" else "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad."
 
-        # HACKEO MENTAL DE SUPERVIVENCIA (Si le duelen las deudas o la explotación laboral)
+        # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO
         palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion"]
         if any(p in desahogo for p in palabras_criticas):
             gps_query = "agencias+de+empleo+staffings+corporations"
@@ -155,33 +156,25 @@ async def mando_integral(request: Request):
             {precio_real}
             """
 
-        msg_adicional = ""
+        # Adaptabilidad del Perfil Biopsicosocial sin exclusión social
         if perfil == "accesible":
             gps_query = "wheelchair+accessible+" + gps_query
         elif perfil == "family":
             gps_query = "family+friendly+" + gps_query
 
+        # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA: Usa el ZIP si existe, si no toma la combinación del cajón
         anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
-        # ENLACE UNIVERSAL GPS INDESTRUCTIBLE CORREGIDO:
-    link_google_maps_vivo = (
-    f"https://www.google.com/maps/search/?api=1&query={query_mapa}"
-     )   
+        
+        # RECTIFICACIÓN MAESTRA DE VARIABLES UNIFICADAS:
+        link_google_maps_vivo = f"https://www.google.com/maps/search/?api=1&query={gps_query}+in+{anclaje_geografico}".replace(" ", "+")
+        
+        # Estructura de salida blindada sincronizada al 100% con tu engine.js
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
             "destino_titulo": info["titulo"].upper(),
             "destino_entorno": donde_base,
             "destino_instruccion": guia_masticada.strip(),
-            "destino_coordenadas_gps": link_maps
-        })
-     
-        # Estructura de salida blindada con variables únicas e irrepetibles
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "destino_titulo": info["titulo"].upper(),
-            "destino_porque": info["porque"],
-            "destino_instruccion": que_hacer_base + msg_adicional,
-            "destino_entorno": donde_base,
-            "destino_coordenadas_gps": link_maps
+            "destino_coordenadas_gps": link_google_maps_vivo
         })
 
 if __name__ == "__main__":
