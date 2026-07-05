@@ -20,9 +20,6 @@ if not os.path.exists("static"):
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# =========================================================================
-# SOLUCIÓN AL ERROR NOT FOUND: Ruta Raíz para cargar la interfaz del usuario
-# =========================================================================
 @app.get("/")
 async def leer_raiz():
     # Busca y sirve el archivo html principal de forma directa
@@ -34,12 +31,7 @@ async def leer_raiz():
         status_code=404
     )
 
-# Memoria compacta de comportamiento general para guardar ideas nuevas con privacidad total
 HISTORIAL_IDEAS_NUEVAS = []
-# OPEN THAN GO SYSTEM - Master Backend Engine
-# Company: May Roga LLC
-# File: main.py
-# PARTE 2 DE 6: Catálogo Clínico de Casa (Misiones 1 a 25)
 
 BASE_MISIONES = {
     "CASA": [
@@ -127,14 +119,14 @@ async def mando_integral(request: Request):
     palabras_directivos = ["jefe", "jefes", "director", "directivo", "gerente", "ceo", "ejecutivo", "manager", "dueño", "corporativo"]
     palabras_lesionados = ["lesionado", "lesionada", "lesion", "lesión", "herido", "herida", "accidente", "accidentado", "compensacion", "workcomp", "dolor+espalda"]
     palabras_discapacitados = ["discapacidad", "discapacitado", "discapacitada", "silla", "ruedas", "limitado", "limitada", "paralisis", "parálisis", "ciego", "sordo", "accesible"]
-    # ARSENAL ESTÁNDAR PARA USUARIOS COMUNES
+   
     recordatorios_comunes = [
         "Sigue el pulso azul ahora. Estás conmigo.", "No mires tus biles. Respira ya.",
         "Mantén el ritmo ahora. Estás ganando control.", "Siente el peso fuera de tus hombros en este segundo.",
         "Te estoy acompañando. No estás solo. Hazlo conmigo.", "Siente el aire limpiando tu pecho ahora mismo.",
         "El piloto automático está apagado. Continúa.", "Quédate en este instante. El presente es tuyo."
     ]
-    # ARSENAL DE RESCATE MILITAR (VETERANOS)
+   
     recordatorios_veteranos = [
         "Soldado, la guerra terminó. Estás en casa y estás a salvo conmigo ahora. Respira.",
         "Siente tus pies firmes en el suelo de tu país. El peligro ya pasó. Mantén el pulso.",
@@ -143,7 +135,7 @@ async def mando_integral(request: Request):
         "El trauma no es dueño de tu vida. Tú mandas en este motor físico hoy. Continúa.",
         "Siente el oxígeno entrando a tu pecho. Eres fuerte, sobreviviste. Camina hacia la luz."
     ]
-    # ARSENAL DE LIBERACIÓN BUROCRÁTICA (GOBIERNO)
+    
     recordatorios_gobierno = [
         "Apaga la burocracia en este segundo. Tu mente no le pertenece al estado. Respira.",
         "Suelta la presión del sistema ahora. Eres un ser humano libre fuera de esa oficina.",
@@ -152,7 +144,7 @@ async def mando_integral(request: Request):
         "No tienes que sostener el peso de la administración tú solo. Suelta los hombros ya.",
         "Recupera tu autonomía activa en este minuto. Tu salud mental es lo único que importa."
     ]
-    # ARSENAL DE COMPAÑÍA Y CALIDEZ (ANCIANOS)
+    
     recordatorios_ancianos = [
         "Estás seguro conmigo en esta sala ahora. Siente la paz de tus años. Respira despacio.",
         "Tu historia tiene un valor inmenso. No estás solo en este segundo. Sigue el pulso azul.",
@@ -160,7 +152,7 @@ async def mando_integral(request: Request):
         "Suelta la prisa del mundo exterior. Quédate en este minuto conmigo. Lo estás haciendo bien.",
         "Tu presencia es un regalo hoy. Siente el aire llenando tus pulmones con suavidad."
     ]
-    # ARSENAL DE DESAPEGO DE CONTROL (DIRECTIVOS)
+    
     recordatorios_directivos = [
         "Suelta el control en este segundo. Nadie te está evaluando ahora. Apaga tu mente. Respira.",
         "Ya no tienes que decidir nada en este minuto. Yo tengo el mando. Déjate guiar ya.",
@@ -169,7 +161,7 @@ async def mando_integral(request: Request):
         "Respira despacio. Saca la urgencia de tus pulmones. Estás a salvo del teléfono hoy.",
         "Tú eres más que tu rango o tu empresa. Recupera tu presencia humana en este instante."
     ]
-    # ARSENAL DE REPARACIÓN SOMÁTICA (TRABAJADORES LESIONADOS)
+    
     recordatorios_lesionados = [
         "Tu cuerpo está sanando en este segundo. Suelta el rencor contra el trabajo. Respira ya.",
         "El accidente quedó atrás. Siente tu pulso in este instante de calma. Hazlo conmigo.",
@@ -178,7 +170,7 @@ async def mando_integral(request: Request):
         "La presión de las cuentas no va a acelerar tu salud. Suelta la prisa. Quédate aquí.",
         "Te estoy acompañando en este proceso. Tu fuerza biológica es real. Mantén el ritmo azul."
     ]
-    # ARSENAL DE AUTONOMÍA ADAPTADA (DISCAPACITADOS / SILLA DE RUEDAS)
+    
     recordatorios_discapacitados = [
         "Tu mente no tiene límites físicos. Eres el soberano de tus pensamientos hoy. Respira.",
         "Siente la estabilidad de tu soporte ahora. El presente te rodea en este segundo fijos.",
@@ -187,7 +179,7 @@ async def mando_integral(request: Request):
         "Estoy al lado tuyo. Tomo el mando de tu descompresión sensorial en este instante.",
         "Tu conciencia está despierta y activa. Gobiernas tu respiración con el pulso azul ya."
     ]
-    # ARSENAL SUPREMO COMPACTO PARA PROTOCOLO PERSONALIZADO CRÍTICO EXISTENCIAL
+    
     recordatorios_personalizados = [
         "Inicia tu protocolo personalizado. Tu caso es único. Escucha mi dirección ahora.",
         "Rompemos tu piloto automático de forma específica en este segundo. Sigue el pulso.",
@@ -197,9 +189,7 @@ async def mando_integral(request: Request):
         "Siente el oxígeno limpiando los nudos más profundos de tu pecho ahora mismo.",
         "Estás seguro, estás en el sendero luminoso. Avanza conmigo paso a paso ya."
     ]
-    # =========================================================================
-    # RUTA DOMÉSTICA INTERNA (MODO CASA) - EL "AS BAJO LA MANGA" CLÍNICO
-    # =========================================================================
+  
     if opcion_usuario == "CASA":
         if any(p in desahogo for p in palabras_veteranos + palabras_gobierno + palabras_ancianos + palabras_directivos + palabras_lesionados + palabras_discapacitados) or perfil in ["accesible", "familia"] or (desahogo and len(desahogo) > 5):
             if any(v in desahogo for v in palabras_veteranos):
@@ -248,9 +238,7 @@ async def mando_integral(request: Request):
                 "misiones": misiones_comunes[:3],
                 "recordatorios_voz_choque": recordatorios_comunes
             })
-    # =========================================================================
-    # RUTA EXTERIOR DIRECTA (MODO SALIR) - INTERVENCION SUPREMA HACKER DE USA
-    # =========================================================================
+    
     else:
         # APRENDIZAJE INTELIGENTE DE COMPORTAMIENTO: Almacena únicamente planteamientos nuevos
         if desahogo and desahogo not in HISTORIAL_IDEAS_NUEVAS:
@@ -320,17 +308,11 @@ async def mando_integral(request: Request):
         elif perfil == "family":
             gps_query = "family+friendly+" + gps_query
 
-        # =========================================================================
-        # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA E INDESTRUCTIBLE DE GOOGLE MAPS
-        # =========================================================================
         import urllib.parse
         query_principal_limpia = urllib.parse.quote(f"{gps_query} in {anclaje_geografico}")
         query_hoteles_limpia = urllib.parse.quote(f"hotels in {anclaje_geografico}")
         query_parques_limpia = urllib.parse.quote(f"public parks in {anclaje_geografico}")
 
-                # =========================================================================
-        # RECTIFICACIÓN MAESTRA DE VARIABLES UNIFICADAS (FÓRMULA INDESTRUCTIBLE)
-        # =========================================================================
         link_google_maps_vivo = f"https://www.google.com/maps/search/?api=1&query={gps_query}+in+{anclaje_geografico}".replace(" ", "+")
         link_hoteles_fijo = f"https://google.com+{anclaje_geografico}".replace(" ", "+")
         link_parques_fijo = f"https://google.com+{anclaje_geografico}".replace(" ", "+")
