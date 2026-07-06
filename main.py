@@ -1,6 +1,6 @@
 # OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.5.0
 # Company: May Roga LLC
-# File: main.py - SECCIÓN 1 DE 3 (NÚCLEO Y MITAD MISIONES CASA)
+# File: main.py
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
@@ -16,7 +16,7 @@ if not os.path.exists("static"):
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Tu base de datos original intacta y completa sin recortes
+# Tu base de misiones original completa sin recortes
 BASE_MISIONES = {
     "CASA": [
         {"id": 1, "titulo": "Corta el piloto automático", "descripcion": "Escanea tu cuerpo. Ubica el peso exacto en tu espalda. Míralo. Estás vivo."},
@@ -27,14 +27,14 @@ BASE_MISIONES = {
         {"id": 6, "titulo": "Liberación de nudos", "descripcion": "Aprieta los puños 3 segundos. Abre de golpe. Suéltalo todo."},
         {"id": 7, "titulo": "El aire de la calle", "descripcion": "Abre la ventana. Deja que el aire te golpee la cara. Siente el exterior."},
         {"id": 8, "titulo": "Rotación de energía", "descripcion": "Gira muñecas y tobillos. Tu cuerpo es tuyo. Tú gobiernas este motor."},
-        {"id": 9, "titulo": "Anclaje del presente", "descripcion": "Cierra los ojos. Di una sola cosa buena que tienes hoy. Dilo fuerte."},
+        {"id": 9, "turnos": "Anclaje del presente", "descripcion": "Cierra los ojos. Di una sola cosa buena que tienes hoy. Dilo fuerte."},
         {"id": 10, "titulo": "Orden de tu espacio", "descripcion": "Alinea tres objetos de tu mesa. Orden fuera es orden dentro."},
         {"id": 11, "titulo": "Pies en la tierra", "descripcion": "Quítate zapatos. Apoya plantas en el piso. Siente el frío. Conéctate."},
         {"id": 12, "titulo": "Estiramiento al cielo", "descripcion": "Brazo arriba. Toca el techo. Mantén la tensión. Suelta de golpe."},
         {"id": 13, "titulo": "Foco en lo olvidado", "descripcion": "Elige una tarea mínima que ignorabas. Hazla ahora. Termínala."},
         {"id": 14, "titulo": "Columna recta", "descripcion": "Endereza la espalda. Un hilo invisible tira de tu cabeza. Respira."},
         {"id": 15, "titulo": "Contacto frío", "descripcion": "Toca una superficie fría. Siente la temperatura real. Aterriza."},
-        {"id": 16, "ventilación": "Ventilación total", "descripcion": "Abre la puerta principal. Deja que el aire ruede. Huele el cambio."},
+        {"id": 16, "titulo": "Ventilación total", "descripcion": "Abre la puerta principal. Deja que el aire ruede. Huele el cambio."},
         {"id": 17, "titulo": "Sacudida de estrés", "descripcion": "Párate y sacude manos y piernas como quitándote agua. Hazlo 10 segundos."},
         {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira el objeto más lejano por tu ventana. Descansa el enfoque."},
         {"id": 19, "titulo": "Memoria feliz", "descripcion": "Cierra los ojos y recuerda un momento real de calma en tu niñez."},
@@ -45,10 +45,6 @@ BASE_MISIONES = {
         {"id": 24, "titulo": "Suelta cuello", "descripcion": "Círculos lentos de cabeza. Libera la tensión de pantalla."},
         {"id": 25, "titulo": "Ejercicio de palmas", "descripcion": "Frota manos hasta sentir calor. Colócalas en hombros."}
     ],
-# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.5.0
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 2 DE 3 (MISIONES EXTRA Y FILTROS DE CAMPO ORIGINALES)
-
     "CASA_EXTRA": [
         {"id": 26, "titulo": "Sonidos lejanos", "descripcion": "Identifica el sonido más lejano fuera de casa."},
         {"id": 27, "titulo": "Estiramiento lateral", "descripcion": "Inclina el cuerpo suavemente a cada lado."},
@@ -78,25 +74,27 @@ BASE_MISIONES = {
     ],
     "SALIR": {
         "agotado": [
-            {"titulo": "Sombra de árbol", "porque": "Mente frita por luz artificial.", "que_hacer": "Toca corteza de árbol, siente su textura. Quédate bajo sombra densa.", "donde": "Parque grande.", "gps": "parks+with+shade+"}
+            {"titulo": "Sombra de árbol", "porque": "Tu mente necesita descansar de las luces de la pantalla.", "que_hacer": "Busca un árbol grande. Toca su madera y quédate un rato bajo su sombra fresca.", "donde": "Un parque verde.", "gps": "parks+with+shade+"}
         ],
         "estresado": [
-            {"titulo": "Resistencia de colina", "porque": "Cortisol bloqueando hombros.", "que_hacer": "Sube rampa o escalera a paso firme. Usa la gravedad para soltar tensión.", "donde": "Escalera pública.", "gps": "public+stairs+"}
+            {"titulo": "Caminata en subida", "porque": "Tu cuerpo acumuló cansancio y necesitas soltarlo caminando.", "que_hacer": "Busca una rampa o escalera pública. Sube a paso firme usando tu fuerza.", "donde": "Escalera pública.", "gps": "public+stairs+"}
         ],
         "aburrido": [
-            {"titulo": "Colores urbanos", "porque": "Piloto automático gris.", "que_hacer": "Mira murales. Encuentra tres detalles pequeños. Asómbrate.", "donde": "Calle con murales.", "gps": "street+art+"}
+            {"titulo": "Paseo de colores", "porque": "Estás repitiendo los mismos días y necesitas ver cosas nuevas.", "que_hacer": "Camina despacio por la calle. Encuentra dibujos grandes en las paredes de tu zona.", "donde": "Calle con murales.", "gps": "street+art+"}
         ]
     }
 }
 
-# RECURSOS GRATUITOS ADICIONALES PARA EL SECUESTRO DE LA INFRAESTRUCTURA DE USA
+# Recursos de infraestructura trillonaria secuestrados para romper la monotonía
 BIG_TECH_RESOURCES = {
     "spotify_audio": "https://spotify.com",
-    "youtube_audio": "https://youtube.com"
+    "youtube_audio": "https://youtube.com",
+    "staffing_agencies": "https://google.com+"
 }
-# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.5.0
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 3 DE 3 (ENDPOINT MASTER Y ARRANQUE)
+
+@app.get("/")
+async def index():
+    return FileResponse('static/session.html')
 
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
@@ -107,23 +105,19 @@ async def mando_integral(request: Request):
     lang = str(p.get("lang", "es")).lower()
     zip_code = str(p.get("zip", "")).strip()
 
-    # 1. INTERVENCIÓN DOMÉSTICA (TU LÓGICA DE CASA ORIGINAL INTACTA)
+    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA ORIGINAL)
     if m == "CASA":
         misiones = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"]
-        # Evita la monotonía: Mezcla aleatoria para que cada entrada sea una experiencia nueva
-        random.shuffle(misiones)
+        random.shuffle(misiones) # Evita la monotonía barajando los retos
         return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones})
 
-    # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR PREDICTIVO DE LAS BIG TECH)
+    # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE RECOMENDACIÓN ANTI-REPETICIÓN)
     opciones_salir = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-    
-    # Motor Predictivo: Baraja las opciones para evitar la repetición cíclica de contenido
     info = random.choice(opciones_salir)
 
-    # El parásito lee la mente y los hábitos de consumo de USA (Amazon, Walmart, Costco, Fresco y Más)
+    # El parásito lee los hábitos de consumo de USA (Amazon, Walmart, Costco, Fresco y Más)
     interceptores_compra = ["amazon", "walmart", "costco", "fresco", "tienda", "comprar", "biles", "deudas", "dinero", "miseria", "trabajo", "explotacion"]
     
-    # Elige dinámicamente un contra-estímulo multimedia para que la app nunca sea monótona
     canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
 
     if any(pal in desahogo for pal in interceptores_compra):
@@ -133,45 +127,158 @@ async def mando_integral(request: Request):
             guia = "DESTINO: Spotify Gratis.\nQUÉ HACER: Escucha los sonidos naturales en silencio.\nPARA QUÉ: Detener el impulso de gastar dinero en cosas innecesarias hoy." if lang == "es" else "TARGET: Free Spotify.\nWHAT TO DO: Listen to nature sounds in silence.\nWHY: Stop the urge to buy unnecessary items today."
             link_final = BIG_TECH_RESOURCES["spotify_audio"]
         elif canal_multimedia == "YOUTUBE":
-            titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
-            entorno_ganador = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency"
-            guia = "DESTINO: Video en YouTube.\nQUÉ HACER: Pon el video en pantalla completa.\nPARA QUÉ: Calmar los pensamientos rápidos del día." if lang == "es" else "TARGET: YouTube Video.\nWHAT TO DO: Play the video in full screen.\nWHY: Calm your racing thoughts right now."
-            link_final = BIG_TECH_RESOURCES["youtube_audio"]
-        else:
-            titulo_ganador = "ACTIVACIÓN ECONÓMICA EXPRESS" if lang == "es" else "ECONOMIC ACTION"
-            entorno_ganador = "Agencia Corporativa de Empleo" if lang == "es" else "Corporate Employment Agency"
-            guia = "DESTINO: Staffing. QUÉ HACER: Ve directo con tu identificación física. CUÁNDO: Ya. PARA QUÉ: Conseguir un empleo rápido y ganar dinero." if lang == "es" else "TARGET: Google Maps.\nWHAT TO DO: Go out straight with your physical ID.\nWHY: Look for a quick job and get cash now."
-            link_final = f"https://google.com"
+if any(pal in desahogo for pal in interceptores_compra):
+
+    if canal_multimedia == "SPOTIFY":
+
+        titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
+
+        entorno_ganador = (
+            "Zona Libre de Consumo"
+            if lang == "es"
+            else "Store-Free Zone"
+        )
+
+        guia = (
+            "DESTINO: Spotify Gratis.\n"
+            "QUÉ HACER: Escucha los sonidos naturales en silencio.\n"
+            "PARA QUÉ: Detener el impulso de gastar dinero en cosas innecesarias hoy."
+            if lang == "es"
+            else
+            "TARGET: Free Spotify.\n"
+            "WHAT TO DO: Listen to nature sounds in silence.\n"
+            "WHY: Stop the urge to buy unnecessary items today."
+        )
+
+        link_final = BIG_TECH_RESOURCES["spotify_audio"]
+
+
+    elif canal_multimedia == "YOUTUBE":
+
+        titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
+
+        entorno_ganador = (
+            "Frecuencia de Alivio"
+            if lang == "es"
+            else "Relief Frequency"
+        )
+
+        guia = (
+            "DESTINO: Video en YouTube.\n"
+            "QUÉ HACER: Pon el video en pantalla completa.\n"
+            "PARA QUÉ: Calmar los pensamientos rápidos del día."
+            if lang == "es"
+            else
+            "TARGET: YouTube Video.\n"
+            "WHAT TO DO: Play the video in full screen.\n"
+            "WHY: Calm your racing thoughts right now."
+        )
+
+        link_final = BIG_TECH_RESOURCES["youtube_audio"]
+
+
     else:
-        # Tus rutas e instrucciones originales traducidas al vuelo si se activa el botón en inglés
-        if lang == "en":
-            # Traducción limpia nivel niño de 9 años para usuarios angloparlantes de USA
-            traducciones_guia = {
-                "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
-                "Resistencia de colina": "TARGET: Public Stairs.\nWHAT TO DO: Walk up firmly.\nWHY: Release the physical stress from your shoulders.",
-                "Colores urbanos": "TARGET: Street Art.\nWHAT TO DO: Look at murals in silence. Find hidden details.\nWHY: Break your daily routine with something new."
-            }
-            guia = traducciones_guia.get(info["titulo"], f"TARGET: {info['donde']}.\nWHAT TO DO: {info['que_hacer']}\nWHY: Reset your focus.")
-            titulo_ganador = info["titulo"].upper() # Fallback a inglés gestionado por JS en el motor visual
-            entorno_ganador = info["donde"]
-        else:
-            guia = f"DESTINO: {info['titulo']}.\nQUÉ HACER: {info['que_hacer']}\nPARA QUÉ: {info['porque']}"
-            titulo_ganador = info["titulo"].upper()
-            entorno_ganador = info["donde"]
-            
-        link_final = f"https://google.com{info['gps']}"
 
-    # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA POTENCIADA: Si hay ZIP lo inyecta, si no, busca libre en USA
-    anclaje_geografico = zip_code if zip_code else "United+States"
-    link_google_maps_vivo = f"{link_final}+in+{anclaje_geografico}".replace(" ", "+")
+        titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION"
 
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "destino_titulo": titulo_ganador,
-        "destino_entorno": entorno_ganador,
-        "destino_instruccion": guia,
-        "destino_coordenadas_gps": link_google_maps_vivo
-    })
+        entorno_ganador = (
+            "Agencia Corporativa de Empleo"
+            if lang == "es"
+            else "Employment Agency"
+        )
+
+        guia = (
+            "DESTINO: Google Maps.\n"
+            "QUÉ HACER: Camina directo con tu identificación física.\n"
+            "PARA QUÉ: Buscar una salida económica limpia y ganar dinero ya."
+            if lang == "es"
+            else
+            "TARGET: Google Maps.\n"
+            "WHAT TO DO: Go out straight with your physical ID.\n"
+            "WHY: Look for a quick job and get cash now."
+        )
+
+        link_final = f"{BIG_TECH_RESOURCES['staffing_agencies']}"
+
+
+else:
+
+    # Rutas bilingües con instrucciones sencillas nivel niño de 9 años
+
+    if lang == "en":
+
+        traducciones_guia = {
+
+            "Sombra de árbol":
+                "TARGET: Tree Shade.\n"
+                "WHAT TO DO: Touch the bark. Stay under its fresh shade.\n"
+                "WHY: Your eyes need a rest from screen lights.",
+
+            "Caminata en subida":
+                "TARGET: Public Stairs.\n"
+                "WHAT TO DO: Walk up firmly using your strength.\n"
+                "WHY: Release the physical stress from your body.",
+
+            "Paseo de colores":
+                "TARGET: Street Art.\n"
+                "WHAT TO DO: Look at murals in silence. Find hidden details.\n"
+                "WHY: Break your daily routine with something new."
+        }
+
+        guia = traducciones_guia.get(
+            info["titulo"],
+            f"TARGET: {info['donde']}.\n"
+            f"WHAT TO DO: {info['que_hacer']}\n"
+            f"WHY: {info['porque']}"
+        )
+
+        titulo_ganador = info["titulo"].upper()
+        entorno_ganador = info["donde"]
+
+    else:
+
+        guia = (
+            f"DESTINO: {info['titulo']}.\n"
+            f"QUÉ HACER: {info['que_hacer']}\n"
+            f"PARA QUÉ: {info['porque']}"
+        )
+
+        titulo_ganador = info["titulo"].upper()
+        entorno_ganador = info["donde"]
+
+    link_final = f"google.com{info['gps']}"
+
+
+# FÓRMULA GEOGRÁFICA UNIVERSAL ENLACE VIVO
+# Borra los huecos y concatena cualquier ZIP de USA
+
+anclaje_geografico = zip_code if zip_code else "United+States"
+
+link_google_maps_vivo = (
+    f"{link_final}+in+{anclaje_geografico}"
+    .replace(" ", "+")
+)
+
+
+return JSONResponse({
+
+    "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+
+    "destino_titulo": titulo_ganador,
+
+    "destino_entorno": entorno_ganador,
+
+    "destino_instruccion": guia,
+
+    "destino_coordenadas_gps": link_google_maps_vivo
+
+})
+
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8000))
+    )
