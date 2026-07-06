@@ -10,7 +10,7 @@
             --panel: #111;
             --text: #fff;
             --accent: #d84315;
-            --secondary: #0d47a1; /* Azul de Comando Satelital */
+            --secondary: #0d47a1; 
             --glow: #2196f3;
         }
         * {
@@ -20,7 +20,7 @@
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
@@ -63,10 +63,6 @@
             border-radius: 4px;
             font-size: 0.9rem;
             outline: none;
-            transition: border-color 0.2s;
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: #444;
         }
         textarea {
             height: 60px;
@@ -85,8 +81,6 @@
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
-        
-        /* Contenedor del Pulmón de Retención de Big Tech */
         .retention-layer {
             text-align: center;
             padding: 20px 10px;
@@ -115,12 +109,10 @@
             animation: breathe 4s infinite ease-in-out;
         }
         @keyframes breathe {
-            0% { transform: scale(0.9); box-shadow: 0 0 10px rgba(216, 67, 21, 0.1); }
-            50% { transform: scale(1.1); box-shadow: 0 0 30px rgba(216, 67, 21, 0.4); background: rgba(216, 67, 21, 0.15); }
-            100% { transform: scale(0.9); box-shadow: 0 0 10px rgba(216, 67, 21, 0.1); }
+            0% { transform: scale(0.9); }
+            50% { transform: scale(1.1); background: rgba(216, 67, 21, 0.15); }
+            100% { transform: scale(0.9); }
         }
-        
-        /* Botón de Intercepción de Navegación Nativa */
         button#action-blue-button {
             width: 100%;
             background: var(--secondary);
@@ -132,17 +124,8 @@
             border-radius: 4px;
             text-transform: uppercase;
             letter-spacing: 0.15em;
-            box-shadow: 0 4px 15px rgba(13, 71, 161, 0.4);
             display: none;
-            animation: pulse-blue 2s infinite;
         }
-        @keyframes pulse-blue {
-            0% { box-shadow: 0 0 0 0 rgba(13, 71, 161, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(13, 71, 161, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(13, 71, 161, 0); }
-        }
-
-        /* Bloques de texto informativos dentro del espejo */
         .instruction-box {
             background: var(--panel);
             border-left: 3px solid var(--accent);
@@ -153,12 +136,9 @@
             font-size: 0.95rem;
             line-height: 1.4;
         }
-
         .hidden {
             display: none !important;
         }
-        
-        /* Capa de control de inactividad obligatoria */
         #pantalla-bienvenida {
             position: fixed;
             top: 0;
@@ -182,21 +162,16 @@
             border-radius: 4px;
             letter-spacing: 0.2em;
             font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-        .btn-bienvenida:active {
-            background: #ccc;
         }
     </style>
 </head>
 <body>
-
-    <!-- Pantalla de inicio obligatoria para forzar el desbloqueo de Audio Nativo -->
+    <!-- Pantalla de inicio obligatoria corregida con ejecución directa -->
     <div id="pantalla-bienvenida">
-        <button class="btn-bienvenida" id="init-trigger">INICIAR SESIÓN</button>
+        <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN</button>
     </div>
 
-    <!-- Contenedor del Formulario del Centro de Mando -->
+    <!-- Contenedor del Formulario del Mando Integral -->
     <div class="container hidden" id="wrapper-form">
         <h1 id="txt-app-title">OPEN THAN GO</h1>
         
@@ -246,20 +221,16 @@
         <button id="btn-mando">ACTIVAR MANDO</button>
     </div>
 
-    <!-- Contenedor Espejo de Ejecución Interactiva del Kernel -->
+    <!-- Capa del Espejo Interactivo del Kernel -->
     <div class="container hidden" id="wrapper-interactive">
         <div class="retention-layer">
             <div class="timer-text" id="retention-status">Sincronizando Frecuencia...</div>
             <div class="lung-box" id="pulmon-visual">35</div>
-            
             <div class="instruction-box hidden" id="texto-instruccion"></div>
-            
-            <!-- Botón de Control Final de Escape Satelital -->
             <button id="action-blue-button">Cargando Misión...</button>
         </div>
     </div>
 
-    <!-- El Cerebro de Ejecución Local -->
     <script src="/static/engine.js"></script>
 </body>
 </html>
