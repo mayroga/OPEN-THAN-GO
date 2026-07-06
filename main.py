@@ -142,11 +142,11 @@ async def mando_integral(request: Request):
             titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION" 
             entorno_ganador = "Agencia Corporativa de Empleo" if lang == "es" else "Employment Agency" 
             guia = "DESTINO: Google Maps.\nQUÉ HACER: Camina directo con tu identificación física.\nPARA QUÉ: Buscar una salida económica limpia y ganar dinero ya." if lang == "es" else "TARGET: Google Maps.\nWHAT TO DO: Go out straight with your physical ID.\nWHY: Look for a quick job and get cash now." 
-            link_base = "https://google.com" 
+            link_base = "https://www.google.com/maps/search/?api=1&query=" 
             gps_query = BIG_TECH_RESOURCES["staffing_agencies"] 
     else: 
         # Rutas bilingües con instrucciones sencillas nivel niño de 9 años cuando NO hay interceptores de deudas 
-        link_base = "https://google.com" 
+        link_base = "https://www.google.com/maps/search/?api=1&query="
         gps_query = info["gps"] 
         if lang == "en": 
             traducciones_guia = { 
