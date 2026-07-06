@@ -3,103 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OPEN THAN GO</title>
+    <title>OPEN DAN GO</title>
     <style>
-        :root {
-            --bg: #000;
-            --panel: #111;
-            --text: #fff;
-            --accent: #d84315;
-            --secondary: #2e7d32;
-            --blue-circle: #00bcd4;
-        }
+        :root { --bg: #000; --panel: #111; --text: #fff; --accent: #d84315; --secondary: #2e7d32; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            background-color: var(--bg); color: var(--text);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh;
-        }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .container { width: 90%; max-width: 400px; padding: 20px; }
-        h1 { font-size: 1.5rem; text-align: center; letter-spacing: 0.3em; margin-bottom: 25px; color: #666; font-weight: 900; }
-        .field { margin-bottom: 16px; }
-        label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2rem; color: #555; margin-bottom: 8px; font-weight: bold; }
-        input, select, textarea { width: 100%; background: var(--panel); border: 1px solid #333; color: var(--text); padding: 14px; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box; }
-        textarea { height: 65px; resize: none; }
-       
-        button#btn-mando { width: 100%; background: var(--accent); color: #fff; border: none; padding: 18px; font-weight: 800; cursor: pointer; margin-top: 15px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 14px; }
+        h1 { font-size: 1.2rem; text-align: center; letter-spacing: 0.3em; margin-bottom: 20px; color: #444; font-weight: 900; }
+        .field { margin-bottom: 12px; }
+        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; background: var(--panel); border: 1px solid #222; color: var(--text); padding: 12px; border-radius: 4px; font-size: 0.9rem; }
+        textarea { height: 60px; resize: none; }
+        button#btn-mando { width: 100%; background: var(--accent); color: #fff; border: none; padding: 16px; font-weight: 900; cursor: pointer; margin-top: 10px; border-radius: 4px; text-transform: uppercase; }
         .hidden { display: none; }
-       
-        /* Pantalla de Bienvenida Absoluta para forzar el Audio */
+        
+        /* Capa de control de inactividad */
         #pantalla-bienvenida { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; }
-        .btn-bienvenida { background:#fff; color:#000; border:none; padding:20px 40px; font-size:1.2rem; font-weight:900; letter-spacing:2px; cursor:pointer; text-transform:uppercase; border-radius:6px; }
-
-        #breath-circle { width: 120px; height: 120px; border: 3px solid #00bcd4; border-radius: 50%; margin: 30px auto; animation: pulse 8s infinite ease-in-out; }
-        @keyframes pulse { 0%, 100% { transform: scale(0.85); opacity: 0.4; border-color: #00bcd4; } 50% { transform: scale(1.15); opacity: 1; border-color: #00e5ff; box-shadow: 0 0 30px rgba(0,229,255,0.4); } }
-       
-        #timer { text-align: center; font-size: 2.5rem; margin-top: 10px; font-weight: 800; }
-        .mision-card { border: 1px solid #333; padding: 20px; text-align: center; background: #0a0a0a; border-radius: 12px; }
-        .mision-card h2, .mision-card h3 { margin-top: 0; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
-        .mision-card p { font-size: 0.95rem; line-height: 1.6; color: #ccc; }
-       
-        button { background: #333; color: white; border: none; padding: 14px 20px; margin-top: 15px; cursor: pointer; border-radius: 6px; font-weight: bold; }
-        .feedback-box { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.4; text-align: left; }
-        .fb-correcto { background: #1b5e20; color: #fff; border-left: 4px solid #4caf50; }
-        .fb-incorrecto { background: #b71c1c; color: #fff; border-left: 4px solid #f44336; }
+        .btn-bienvenida { background:#fff; color:#000; padding:20px 40px; font-weight:900; cursor:pointer; text-transform:uppercase; border-radius:4px; }
     </style>
 </head>
 <body>
 
-<!-- LA GRAN SORPRESA: Activa la voz desde el primer segundo del clic -->
+<!-- Pantalla de inicio obligatoria para forzar el desbloqueo de Audio -->
 <div id="pantalla-bienvenida">
-    <button class="btn-bienvenida" onclick="KERNEL.despertarInicial()">ENTRAR</button>
+    <button class="btn-bienvenida" onclick="KERNEL.despertarInicial(); document.getElementById('pantalla-bienvenida').style.display='none'; document.getElementById('wrapper-form').classList.remove('hidden');">INICIAR SESIÓN</button>
 </div>
 
 <div class="container hidden" id="wrapper-form">
-    <h1>OPEN THAN GO</h1>
-   
+    <h1 id="txt-app-title">OPEN DAN GO</h1>
+    
     <div class="field">
-        <label>Código Postal</label>
+        <label id="lbl-zip">Código Postal</label>
         <input type="text" id="inp-zip" placeholder="Ej: 33167">
     </div>
-   
+    
     <div class="field">
-        <label>Modo de Operación</label>
+        <label id="lbl-mode">Modo de Operación</label>
         <select id="modo-selector">
-            <option value="CASA">CASA (Estabilización/Misiones)</option>
-            <option value="SALIR" selected>SALIR (Destinos/Acción)</option>
+            <option value="CASA">CASA (Estabilización)</option>
+            <option value="SALIR" selected>SALIR (Acción)</option>
         </select>
     </div>
-   
+    
     <div class="field">
-        <label>Estado Mental</label>
+        <label id="lbl-mente">Estado Mental</label>
         <select id="inp-mente">
-            <option value="agotado">Agotado / Agobiado</option>
-            <option value="estresado">Estresado / Tensión</option>
-            <option value="aburrido">Aburrido / Rutina</option>
+            <option value="agotado">Agotado</option>
+            <option value="estresado">Estresado</option>
+            <option value="aburrido">Aburrido</option>
         </select>
     </div>
-   
+    
     <div class="field">
-        <label>Presupuesto</label>
+        <label id="lbl-budget">Presupuesto</label>
         <select id="inp-budget">
             <option value="0">Cero Gastos</option>
             <option value="1">Moderado</option>
-            <option value="2">Sin Límite</option>
         </select>
     </div>
 
     <div class="field">
-        <label>Perfil (Familia/Discapacidad)</label>
+        <label id="lbl-perfil">Perfil</label>
         <select id="inp-perfil">
             <option value="solo">Solo</option>
-            <option value="familia">Con Niños / Familia</option>
-            <option value="accesible">Requiere Acceso (Discapacidad/Edad)</option>
+            <option value="familia">Familia</option>
         </select>
     </div>
 
     <div class="field">
-        <label>Desahogo (Filtro Emocional)</label>
-        <textarea id="inp-text" placeholder="Escribe libremente cómo te sientes hoy..."></textarea>
+        <label id="lbl-desahogo">Desahogo</label>
+        <textarea id="inp-text" placeholder="Escribe tu estado actual..."></textarea>
     </div>
 
     <button id="btn-mando">ACTIVAR MANDO</button>
