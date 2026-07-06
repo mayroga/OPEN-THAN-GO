@@ -85,98 +85,98 @@ BASE_MISIONES = {
     }
 }
 
-# Recursos de infraestructura trillonaria secuestrados para romper la monotonía
-BIG_TECH_RESOURCES = {
-    "spotify_audio": "https://spotify.com",
-    "youtube_audio": "https://youtube.com",
-    "staffing_agencies": "staffing+agencies"
-}
+# Recursos de infraestructura trillonaria secuestrados para romper la monotonía 
+BIG_TECH_RESOURCES = { 
+    "spotify_audio": "https://spotify.com", 
+    "youtube_audio": "https://youtube.com", 
+    "staffing_agencies": "staffing+agencies" 
+} 
 
-@app.get("/")
-async def index():
-    return FileResponse('static/session.html')
-# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.5.0
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 2 DE 2
+@app.get("/") 
+async def index(): 
+    return FileResponse('static/session.html') 
 
-@app.post("/api/mando-integral")
-async def mando_integral(request: Request):
-    p = await request.json()
-    m = str(p.get("modo", "")).upper()
-    mente = str(p.get("mente", "aburrido")).lower()
-    desahogo = str(p.get("desahogo", "")).lower()
-    lang = str(p.get("lang", "es")).lower()
-    zip_code = str(p.get("zip", "")).strip()
-    region = str(p.get("region", "Florida")).strip()
-    estado = str(p.get("estado", "FL")).strip()
+# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.5.0 
+# Company: May Roga LLC 
+# File: main.py - SECCIÓN 2 DE 2 
 
-    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA ORIGINAL INTACTO)
-    if m == "CASA":
-        misiones = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"]
-        random.shuffle(misiones)  # Evita la monotonía barajando los retos locales
-        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones})
+@app.post("/api/mando-integral") 
+async def mando_integral(request: Request): 
+    p = await request.json() 
+    m = str(p.get("modo", "")).upper() 
+    mente = str(p.get("mente", "aburrido")).lower() 
+    desahogo = str(p.get("desahogo", "")).lower() 
+    lang = str(p.get("lang", "es")).lower() 
+    zip_code = str(p.get("zip", "")).strip() 
+    region = str(p.get("region", "Florida")).strip() 
+    estado = str(p.get("estado", "FL")).strip() 
 
-    # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN)
-    opciones_salir = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-    info = random.choice(opciones_salir)
+    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA ORIGINAL INTACTO) 
+    if m == "CASA": 
+        misiones = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"] 
+        random.shuffle(misiones)  # Evita la monotonía barajando los retos locales 
+        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones}) 
 
-    # El parásito lee los hábitos de consumo de USA (Amazon, Walmart, Costco, Fresco y Más)
-    interceptores_compra = ["amazon", "walmart", "costco", "fresco", "tienda", "comprar", "biles", "deudas", "dinero", "miseria", "trabajo", "explotacion"]
-    canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
+    # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN) 
+    opciones_salir = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"]) 
+    info = random.choice(opciones_salir) 
 
-    if any(pal in desahogo for pal in interceptores_compra):
-        if canal_multimedia == "SPOTIFY":
-            titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
-            entorno_ganador = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone"
-            guia = "DESTINO: Spotify Gratis.\nQUÉ HACER: Escucha los sonidos naturales en silencio.\nPARA QUÉ: Detener el impulso de gastar dinero en cosas innecesarias hoy." if lang == "es" else "TARGET: Free Spotify.\nWHAT TO DO: Listen to nature sounds in silence.\nWHY: Stop the urge to buy unnecessary items today."
-            link_base = BIG_TECH_RESOURCES["spotify_audio"]
-            gps_query = ""
-        elif canal_multimedia == "YOUTUBE":
-            titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
-            entorno_ganador = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency"
-            guia = "DESTINO: Video en YouTube.\nQUÉ HACER: Pon el video en pantalla completa.\nPARA QUÉ: Calmar los pensamientos rápidos del día." if lang == "es" else "TARGET: YouTube Video.\nWHAT TO DO: Play the video in full screen.\nWHY: Calm your racing thoughts right now."
-            link_base = BIG_TECH_RESOURCES["youtube_audio"]
-            gps_query = ""
-        else:
-            titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION"
-            entorno_ganador = "Agencia Corporativa de Empleo" if lang == "es" else "Employment Agency"
-            guia = "DESTINO: Google Maps.\nQUÉ HACER: Camina directo con tu identificación física.\nPARA QUÉ: Buscar una salida económica limpia y ganar dinero ya." if lang == "es" else "TARGET: Google Maps.\nWHAT TO DO: Go out straight with your physical ID.\nWHY: Look for a quick job and get cash now."
-            link_base = "https://google.com"
-            gps_query = BIG_TECH_RESOURCES["staffing_agencies"]
-    else:
-        # Rutas bilingües con instrucciones sencillas nivel niño de 9 años cuando NO hay interceptores de deudas
-        link_base = "https://google.com"
-        gps_query = info["gps"]
-        
-        if lang == "en":
-            traducciones_guia = {
-                "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
-                "Caminata en subida": "TARGET: Public Stairs.\nWHAT TO DO: Walk up firmly using your strength.\nWHY: Release the physical stress from your body.",
-                "Paseo de colores": "TARGET: Street Art.\nWHAT TO DO: Look at murals in silence. Find hidden details.\nWHY: Break your daily routine with something new."
-            }
-            guia = traducciones_guia.get(info["titulo"], f"TARGET: {info['donde']}.\nWHAT TO DO: {info['que_hacer']}\nWHY: {info['porque']}")
-            titulo_ganador = info["titulo"].upper()
-            entorno_ganador = info["donde"]
-        else:
-            guia = f"DESTINO: {info['titulo']}.\nQUÉ HACER: {info['que_hacer']}\nPARA QUÉ: {info['porque']}"
-            titulo_ganador = info["titulo"].upper()
-            entorno_ganador = info["donde"]
+    # El parásito lee los hábitos de consumo de USA (Amazon, Walmart, Costco, Fresco y Más) 
+    interceptores_compra = ["amazon", "walmart", "costco", "fresco", "tienda", "comprar", "biles", "deudas", "dinero", "miseria", "trabajo", "explotacion"] 
+    canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"]) 
 
-    # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA RESTAURADA AL 100% SIN ALTERAR UN SOLO CARÁCTER
-    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
+    if any(pal in desahogo for pal in interceptores_compra): 
+        if canal_multimedia == "SPOTIFY": 
+            titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET" 
+            entorno_ganador = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone" 
+            guia = "DESTINO: Spotify Gratis.\nQUÉ HACER: Escucha los sonidos naturales en silencio.\nPARA QUÉ: Detener el impulso de gastar dinero en cosas innecesarias hoy." if lang == "es" else "TARGET: Free Spotify.\nWHAT TO DO: Listen to nature sounds in silence.\nWHY: Stop the urge to buy unnecessary items today." 
+            link_base = BIG_TECH_RESOURCES["spotify_audio"] 
+            gps_query = "" 
+        elif canal_multimedia == "YOUTUBE": 
+            titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK" 
+            entorno_ganador = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency" 
+            guia = "DESTINO: Video en YouTube.\nQUÉ HACER: Pon el video en pantalla completa.\nPARA QUÉ: Calmar los pensamientos rápidos del día." if lang == "es" else "TARGET: YouTube Video.\nWHAT TO DO: Play the video in full screen.\nWHY: Calm your racing thoughts right now." 
+            link_base = BIG_TECH_RESOURCES["youtube_audio"] 
+            gps_query = "" 
+        else: 
+            titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION" 
+            entorno_ganador = "Agencia Corporativa de Empleo" if lang == "es" else "Employment Agency" 
+            guia = "DESTINO: Google Maps.\nQUÉ HACER: Camina directo con tu identificación física.\nPARA QUÉ: Buscar una salida económica limpia y ganar dinero ya." if lang == "es" else "TARGET: Google Maps.\nWHAT TO DO: Go out straight with your physical ID.\nWHY: Look for a quick job and get cash now." 
+            link_base = "https://google.com" 
+            gps_query = BIG_TECH_RESOURCES["staffing_agencies"] 
+    else: 
+        # Rutas bilingües con instrucciones sencillas nivel niño de 9 años cuando NO hay interceptores de deudas 
+        link_base = "https://google.com" 
+        gps_query = info["gps"] 
+        if lang == "en": 
+            traducciones_guia = { 
+                "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.", 
+                "Caminata en subida": "TARGET: Public Stairs.\nWHAT TO DO: Walk up firmly using your strength.\nWHY: Release the physical stress from your body.", 
+                "Paseo de colores": "TARGET: Street Art.\nWHAT TO DO: Look at murals in silence. Find hidden details.\nWHY: Break your daily routine with something new." 
+            } 
+            guia = traducciones_guia.get(info["titulo"], f"TARGET: {info['donde']}.\nWHAT TO DO: {info['que_hacer']}\nWHY: {info['porque']}") 
+            titulo_ganador = info["titulo"].upper() 
+            entorno_ganador = info["donde"] 
+        else: 
+            guia = f"DESTINO: {info['titulo']}.\nQUÉ HACER: {info['que_hacer']}\nPARA QUÉ: {info['porque']}" 
+            titulo_ganador = info["titulo"].upper() 
+            entorno_ganador = info["donde"] 
+
+    # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA RESTAURADA AL 100% SIN ALTERAR UN SOLO CARÁCTER 
+    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}" 
     
-    if gps_query:
-        link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
-    else:
-        link_google_maps_vivo = link_base.replace(" ", "+")
+    if gps_query: 
+        link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+") 
+    else: 
+        link_google_maps_vivo = link_base.replace(" ", "+") 
 
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "destino_titulo": titulo_ganador,
-        "destino_entorno": entorno_ganador,
-        "destino_instruccion": guia,
-        "destino_coordenadas_gps": link_google_maps_vivo
-    })
+    return JSONResponse({ 
+        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO", 
+        "destino_titulo": titulo_ganador, 
+        "destino_entorno": entorno_ganador, 
+        "destino_instruccion": guia, 
+        "destino_coordenadas_gps": link_google_maps_vivo 
+    }) 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
