@@ -11,7 +11,6 @@
             --text: #fff;
             --accent: #d84315;
             --secondary: #0d47a1; 
-            --glow: #2196f3;
         }
         * {
             box-sizing: border-box;
@@ -26,13 +25,11 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
         }
         .container {
             width: 90%;
             max-width: 400px;
             padding: 20px;
-            transition: all 0.3s ease;
         }
         h1 {
             font-size: 1.2rem;
@@ -79,7 +76,6 @@
             margin-top: 10px;
             border-radius: 4px;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
         }
         .retention-layer {
             text-align: center;
@@ -105,7 +101,6 @@
             font-size: 1.8rem;
             font-weight: 900;
             color: var(--accent);
-            box-shadow: 0 0 15px rgba(216, 67, 21, 0.2);
             animation: breathe 4s infinite ease-in-out;
         }
         @keyframes breathe {
@@ -123,7 +118,6 @@
             cursor: pointer;
             border-radius: 4px;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
             display: none;
         }
         .instruction-box {
@@ -160,18 +154,17 @@
             cursor: pointer;
             text-transform: uppercase;
             border-radius: 4px;
-            letter-spacing: 0.2em;
             font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <!-- Pantalla de inicio obligatoria corregida con ejecución directa -->
+
+    <!-- Evento directo e inmediato que destruye la capa negra de golpe -->
     <div id="pantalla-bienvenida">
-        <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN</button>
+        <button class="btn-bienvenida" onclick="document.getElementById('pantalla-bienvenida').style.display='none'; document.getElementById('wrapper-form').classList.remove('hidden'); if(window.KERNEL) window.KERNEL.despertarInicial();">INICIAR SESIÓN</button>
     </div>
 
-    <!-- Contenedor del Formulario del Mando Integral -->
     <div class="container hidden" id="wrapper-form">
         <h1 id="txt-app-title">OPEN THAN GO</h1>
         
@@ -215,13 +208,12 @@
         
         <div class="field">
             <label id="lbl-desahogo">Desahogo</label>
-            <textarea id="inp-text" placeholder="Escribe tu estado actual... (deudas, monotonía, biles, etc.)"></textarea>
+            <textarea id="inp-text" placeholder="Escribe tu estado actual..."></textarea>
         </div>
         
         <button id="btn-mando">ACTIVAR MANDO</button>
     </div>
 
-    <!-- Capa del Espejo Interactivo del Kernel -->
     <div class="container hidden" id="wrapper-interactive">
         <div class="retention-layer">
             <div class="timer-text" id="retention-status">Sincronizando Frecuencia...</div>
