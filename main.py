@@ -1,7 +1,6 @@
 # OPEN THAN GO SYSTEM - Kernel Absolute Engine V.4.0.0
 # Company: May Roga LLC
-# File: main.py
-# Propósito: Motor Predictivo de Activación Humana (Secuestro de Algoritmos Big Tech)
+# File: main.py - SECCIÓN 1 DE 2
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
@@ -96,11 +95,11 @@ def calcular_probabilidad_engache(datos_usuario: dict, opcion_destino: dict) -> 
     """
     score = 0.0
     
-    # Coincidencia con el perfil social (Solo, Familia, Desahogo)
+    # Coincidencia con el perfil social (Solo, Familia)
     if opcion_destino.get("perfil") == datos_usuario.get("perfil"):
         score += 0.4
     else:
-        score += 0.2  # Coincidencia parcial por contingencia urbana
+        score += 0.2
         
     # Coincidencia de viabilidad presupuestaria
     if datos_usuario.get("presupuesto") == "Cero Gastos":
@@ -108,13 +107,15 @@ def calcular_probabilidad_engache(datos_usuario: dict, opcion_destino: dict) -> 
     else:
         score += 0.1
         
-    # Multiplicador predictivo basado en la efectividad biopsicosocial del nodo
     probabilidad_final = score * opcion_destino.get("peso_prediccion", 0.90)
     return min(probabilidad_final, 1.0)
 
 @app.get("/")
 async def index():
     return FileResponse('static/session.html')
+# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.4.0.0
+# Company: May Roga LLC
+# File: main.py - SECCIÓN 2 DE 2
 
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
@@ -124,124 +125,59 @@ async def mando_integral(request: Request):
     desahogo = str(p.get("desahogo", "")).lower()
     codigo_postal = str(p.get("zip", "33167"))
     
-    # Simulación del Factor de Estancamiento (Sf) a partir del estado mental reportado
+    # Simulación del Factor de Estancamiento (Sf)
     stagnation_weights = {"agotado": 0.75, "estresado": 0.60, "aburrido": 0.90}
-# ---------------------------------------------------------
-# SIMULACIÓN DEL FACTOR DE ESTANCAMIENTO (Sf)
-# ---------------------------------------------------------
-stagnation_weights = {
-    "agotado": 0.75,
-    "estresado": 0.60,
-    "aburrido": 0.90
-}
+    sf = stagnation_weights.get(mente, 0.50)
 
-sf = stagnation_weights.get(mente.lower(), 0.50)
+    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
+    if m == "CASA":
+        misiones = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"]
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
+            "stagnation_factor": sf,
+            "misiones": misiones
+        })
 
-# ---------------------------------------------------------
-# 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
-# ---------------------------------------------------------
-if m == "CASA":
-    misiones = (
-        BASE_MISIONES["CASA"] +
-        BASE_MISIONES["CASA_EXTRA"]
-    )
+    # 2. ACCIÓN DE CAMPO (MODO SALIR)
+    opciones_disponibles = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
+    
+    candidatos_puntuados = []
+    for opc in opciones_disponibles:
+        p_clic = calcular_probabilidad_engache(p, opc)
+        candidato = opc.copy()
+        candidato["p_clic"] = p_clic
+        candidatos_puntuados.append(candidato)
+        
+    # Ordenamiento de mayor a menor probabilidad predictiva al estilo Big Tech
+    candidatos_puntuados.sort(key=lambda x: x["p_clic"], reverse=True)
+    
+    # Extraemos de forma segura el objetivo ganador (Posición 0 en el vector indexado)
+    info = candidatos_puntuados[0]
+
+    # Lógica de Intercepción Crítica (Supervivencia y Desahogo Económico)
+    if any(pal in desahogo for pal in ["trabajo", "biles", "deudas", "dinero", "miseria", "explotacion"]):
+        guia = "DESTINO: Oficina de Reclutamiento Corporativo. QUÉ HACER: Entra con tu ID física, solicita entrevista inmediata de contingencia laboral. CUÁNDO: Ya. PARA QUÉ: Romper el ahogo financiero y recuperar el mando económico."
+        gps = "staffing+agencies"
+        titulo_ganador = "ACTIVACIÓN ECONÓMICA EXPRESS"
+        entorno_ganador = "Agencia Corporativa de Empleo"
+        p_clic_final = 0.99
+    else:
+        guia = f"DESTINO: {info['titulo']}. QUÉ HACER: {info['que_hacer']} PARA QUÉ: {info['porque']}"
+        gps = info["gps"]
+        titulo_ganador = info["titulo"].upper()
+        entorno_ganador = info["donde"]
+        p_clic_final = info["p_clic"]
 
     return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
+        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "stagnation_factor": sf,
-        "misiones": misiones
+        "probability_activation": p_clic_final,
+        "algoritmo_origen": "Predictive_Dopamine_Loop_V4",
+        "destino_titulo": titulo_ganador,
+        "destino_entorno": entorno_ganador,
+        "destino_instruccion": guia,
+        "destino_coordenadas_gps": f"https://google.com{gps}+in+{codigo_postal}"
     })
 
-# ---------------------------------------------------------
-# 2. ACCIÓN DE CAMPO (MODO SALIR)
-# ---------------------------------------------------------
-opciones_disponibles = BASE_MISIONES["SALIR"].get(
-    mente.lower(),
-    BASE_MISIONES["SALIR"]["aburrido"]
-)
-
-# Ejecutar algoritmo predictivo Big Tech
-candidatos_puntuados = []
-
-for opc in opciones_disponibles:
-    p_clic = calcular_probabilidad_engache(p, opc)
-
-    candidato = opc.copy()
-    candidato["p_clic"] = p_clic
-    candidatos_puntuados.append(candidato)
-
-# Clasificación en tiempo real
-candidatos_puntuados.sort(
-    key=lambda x: x["p_clic"],
-    reverse=True
-)
-
-# Destino ganador
-info = candidatos_puntuados[0]
-
-# ---------------------------------------------------------
-# INTERCEPCIÓN CRÍTICA
-# ---------------------------------------------------------
-desahogo_lower = desahogo.lower()
-
-if any(
-    pal in desahogo_lower
-    for pal in [
-        "trabajo",
-        "biles",
-        "deudas",
-        "dinero",
-        "miseria",
-        "explotacion"
-    ]
-):
-    guia = (
-        "DESTINO: Oficina de Reclutamiento Corporativo. "
-        "QUÉ HACER: Entra con tu ID física, solicita entrevista "
-        "inmediata de contingencia laboral. "
-        "CUÁNDO: Ya. "
-        "PARA QUÉ: Romper el ahogo financiero y recuperar "
-        "el mando económico."
-    )
-
-    gps = "staffing+agencies"
-    titulo_ganador = "ACTIVACIÓN ECONÓMICA EXPRESS"
-    entorno_ganador = "Agencia Corporativa de Empleo"
-    p_clic_final = 0.99
-
-else:
-    guia = (
-        f"DESTINO: {info['titulo']}. "
-        f"QUÉ HACER: {info['que_hacer']} "
-        f"PARA QUÉ: {info['porque']}"
-    )
-
-    gps = info["gps"]
-    titulo_ganador = info["titulo"].upper()
-    entorno_ganador = info["donde"]
-    p_clic_final = info["p_clic"]
-
-# ---------------------------------------------------------
-# RESPUESTA FINAL
-# ---------------------------------------------------------
-return JSONResponse({
-    "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-    "stagnation_factor": sf,
-    "probability_activation": p_clic_final,
-    "algoritmo_origen": "Predictive_Dopamine_Loop_V4",
-    "destino_titulo": titulo_ganador,
-    "destino_entorno": entorno_ganador,
-    "destino_instruccion": guia,
-    "destino_coordenadas_gps":
-        f"https://www.google.com/maps/search/?api=1&query={gps}+in+{codigo_postal}"
-})
-
-# ---------------------------------------------------------
-# INICIO DEL SERVIDOR
-# ---------------------------------------------------------
 if __name__ == "__main__":
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8000))
-    )
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
