@@ -129,7 +129,8 @@ async def mando_integral(request: Request):
             guia = "DESTINO: Spotify Gratis.\nQUÉ HACER: Escucha los sonidos naturales en silencio.\nPARA QUÉ: Detener el impulso de gastar dinero en cosas innecesarias hoy." if lang == "es" else "TARGET: Free Spotify.\nWHAT TO DO: Listen to nature sounds in silence.\nWHY: Stop the urge to buy unnecessary items today."
             link_base = BIG_TECH_RESOURCES["spotify_audio"]
             gps_query = ""
-        elif canal_multimedia == "YOUTUBE"
+            
+        if canal_multimedia == "YOUTUBE"
     titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
 
     entorno_ganador = (
