@@ -130,7 +130,7 @@ async def mando_integral(request: Request):
             link_base = BIG_TECH_RESOURCES["spotify_audio"]
             gps_query = ""
             
-        if canal_multimedia == "YOUTUBE"
+        if canal_multimedia == "YOUTUBE":
     titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
 
     entorno_ganador = (
