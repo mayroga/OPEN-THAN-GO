@@ -12,6 +12,21 @@ const KERNEL = {
     datosLugarGlobal: null,
     tipoEscapeGlobal: "",
 
+    // MOTOR DE PREFERENCIAS IMPLÍCITAS LOCAL: Inicializa los contadores de las 19 necesidades en la RAM del teléfono
+    obtenerPerfilLocal() {
+        let perfil = localStorage.getItem("otg_perfil_dinamico");
+        if (!perfil) {
+            perfil = {
+                "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50, 
+                "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50, 
+                "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50, 
+                "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50
+            };
+            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+        }
+        return JSON.stringify(perfil) === "{}" ? JSON.parse(localStorage.getItem("otg_perfil_dinamico")) : JSON.parse(perfil);
+    },
+
     init() {
         const btnMando = document.getElementById('btn-mando');
         if (btnMando) btnMando.onclick = () => this.ejecutar();
@@ -36,8 +51,8 @@ const KERNEL = {
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
         
-        // CORRECCIÓN ABSOLUTA DE VOZ: Cambia el motor de audio según el botón presionado
-        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+        // RECTIFICACIÓN MÁXIMA DE IDIOMA: La voz siempre se mantiene en español nativo por estabilidad
+        msg.lang = 'es-US';
         msg.rate = 1.20; // Velocidad de acción rápida y despierta
         window.speechSynthesis.speak(msg);
     },
@@ -47,10 +62,10 @@ const KERNEL = {
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
 
-        // TRADUCCIÓN REAL E INMEDIATA DE TODO EL CONTENEDOR VISUAL
+        // TRADUCCIÓN REAL E INMEDIATA DE TODO EL CONTENEDOR VISUAL (La voz no cambia, se mantiene en español)
         const t = {
             es: { title: "OPEN THAN GO", zip: "Código Postal", mode: "Modo de Operación", mente: "Estado Mental", budget: "Presupuesto", perfil: "Perfil", desahogo: "Desahogo", placeholder: "Escribe libremente cómo te sientes hoy...", btn: "ACTIVAR MANDO", alert: "Idioma cambiado a español." },
-            en: { title: "OPEN THAN GO", zip: "ZIP Code", mode: "Operation Mode", mente: "Mental State", budget: "Budget Available", perfil: "Profile", desahogo: "Venting Layer", placeholder: "Write freely how you feel today...", btn: "ACTIVATE CONTROL", alert: "Language switched to English." }
+            en: { title: "OPEN THAN GO", zip: "ZIP Code", mode: "Operation Mode", mente: "Mental State", budget: "Budget Available", perfil: "Profile", desahogo: "Venting Layer", placeholder: "Write freely how you feel today...", btn: "ACTIVATE CONTROL", alert: "Idioma de pantalla cambiado a inglés." }
         }[lang];
 
         document.getElementById('txt-app-title').innerText = t.title;
@@ -63,13 +78,15 @@ const KERNEL = {
         document.getElementById('inp-text').placeholder = t.placeholder;
         document.getElementById('btn-mando').innerText = t.btn;
         
-        // Ejecuta la confirmación por voz en el idioma seleccionado
         this.hablar(t.alert);
     },
 
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
+
+        // Extrae las métricas dinámicas acumuladas de clics en local antes de despachar al servidor
+        const perfilDinamicLocal = this.obtenerPerfilLocal();
 
         const payload = {
             zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
@@ -78,7 +95,8 @@ const KERNEL = {
             budget: document.getElementById('inp-budget') ? document.getElementById('inp-budget').value : "0",
             perfil: document.getElementById('inp-perfil') ? document.getElementById('inp-perfil').value : "solo",
             desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : "",
-            lang: this.idiomaActual
+            lang: this.idiomaActual,
+            perfil_local: perfilDinamicLocal // Inyectamos la lectura implícita de la mente
         };
 
         const container = document.getElementById('wrapper-interactive');
@@ -113,7 +131,7 @@ const KERNEL = {
     },
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.5.5.0
 // Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 2 DE 2 (EJECUCIÓN DISRUPTIVA BIENESTAR)
+// File: static/engine.js - SECCIÓN 2 DE 2
 
     procesarFlujoSecuencial(container) {
         clearInterval(this.timer);
@@ -150,6 +168,30 @@ const KERNEL = {
                         if (btnGps) {
                             btnGps.classList.remove('hidden');
                             btnGps.onclick = () => {
+                                // APRENDIZAJE IMPLÍCITO: Registra la elección antes de saltar a la plataforma externa
+                                try {
+                                    let perfil = JSON.parse(localStorage.getItem("otg_perfil_dinamico"));
+                                    let token = KERNEL.datosLugarGlobal.token_entorno || "general";
+                                    
+                                    if (perfil) {
+                                        // Si elige un entorno natural, suma peso al indicador correspondiente para la siguiente consulta
+                                        if (token.toLowerCase().includes("árbol") || token.toLowerCase().includes("sombra")) {
+                                            perfil["naturaleza"] = Math.min(perfil["naturaleza"] + 10, 100);
+                                            perfil["silencio"] = Math.min(perfil["silencio"] + 5, 100);
+                                        } else if (token.toLowerCase().includes("caminata") || token.toLowerCase().includes("subida")) {
+                                            perfil["movimiento"] = Math.min(perfil["movimiento"] + 10, 100);
+                                            perfil["aire_fresco"] = Math.min(perfil["aire_fresco"] + 5, 100);
+                                        } else if (token.toLowerCase().includes("paseo") || token.toLowerCase().includes("colores")) {
+                                            perfil["creatividad"] = Math.min(perfil["creatividad"] + 10, 100);
+                                            perfil["esperanza"] = Math.min(perfil["esperanza"] + 5, 100);
+                                        }
+                                        // Guarda el avance sin bases de datos pesadas de forma segura y anónima
+                                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                                    }
+                                } catch (e) {
+                                    console.log("[Kernel] Error en registro de preferencia implícita.");
+                                }
+
                                 // Secuestra el comportamiento: Abre la app nativa (YouTube, Spotify, Maps) de golpe en el celular
                                 window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
                                 this.destruirYReiniciar(); // Purga todo rastro del teléfono al saltar al escape
@@ -204,7 +246,7 @@ const KERNEL = {
             if (pulmonDiv) {
                 // SINCRO CLÍNICA NATURAL: 4 segundos arriba y 4 segundos abajo (Ciclos regulares de 8 segundos)
                 let ciclo = this.timeLeft % 8;
-                if (ciclo >= 4) {
+                if (cycle >= 4) {
                     pulmonDiv.innerText = t.inspira.toUpperCase();
                     pulmonDiv.style.color = "#00bcd4";
                 } else {
@@ -247,7 +289,8 @@ const KERNEL = {
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
-        localStorage.clear();
+        
+        // Mantiene guardado el perfil dinámico pero limpia estados volátiles de sesión por privacidad
         sessionStorage.clear();
         location.reload();
     }
