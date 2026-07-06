@@ -1,6 +1,6 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.5.5.0
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.0
 // Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 1 DE 2
+// File: static/engine.js - SECCIÓN 1 DE 2 (NÚCLEO Y CAPTURA)
 
 const KERNEL = {
     timer: null,
@@ -11,8 +11,12 @@ const KERNEL = {
     indiceMision: 0,
     datosLugarGlobal: null,
     tipoEscapeGlobal: "",
+    
+    // Variables del Espejismo Temporal e Inferencia Psicológica
+    relojRealSegundos: 600,
+    contadorToques: 0,
+    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
 
-    // MOTOR DE PREFERENCIAS IMPLÍCITAS LOCAL: Inicializa los contadores de las 19 necesidades en la RAM del teléfono
     obtenerPerfilLocal() {
         let perfil = localStorage.getItem("otg_perfil_dinamico");
         if (!perfil) {
@@ -20,11 +24,12 @@ const KERNEL = {
                 "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50, 
                 "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50, 
                 "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50, 
-                "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50
+                "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
+                "indicador_ansiedad": 0 // Nuevo indicador biopsicosocial implícito
             };
             localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
         }
-        return JSON.stringify(perfil) === "{}" ? JSON.parse(localStorage.getItem("otg_perfil_dinamico")) : JSON.parse(perfil);
+        return typeof perfil === "string" ? JSON.parse(perfil) : perfil;
     },
 
     init() {
@@ -36,7 +41,6 @@ const KERNEL = {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
 
-        // Oraciones sencillas de acción directa claras para todos
         const saludos = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Pon tus datos en el mando ya.",
             "ópen dán go está activo. Olvida tus biles un momento. Usa el mando ahora.",
@@ -47,13 +51,11 @@ const KERNEL = {
 
     hablar(texto) {
         if (!texto) return;
-        window.speechSynthesis.cancel();
+        window.speechSynthesis.cancel(); // Desbloqueo y purga forzada del canal nativo
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
-        
-        // RECTIFICACIÓN MÁXIMA DE IDIOMA: La voz siempre se mantiene en español nativo por estabilidad
-        msg.lang = 'es-US';
-        msg.rate = 1.20; // Velocidad de acción rápida y despierta
+        msg.lang = 'es-US'; // Voz nativa siempre en español por estabilidad absoluta de hardware
+        msg.rate = 1.20; 
         window.speechSynthesis.speak(msg);
     },
 
@@ -62,7 +64,6 @@ const KERNEL = {
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
 
-        // TRADUCCIÓN REAL E INMEDIATA DE TODO EL CONTENEDOR VISUAL (La voz no cambia, se mantiene en español)
         const t = {
             es: { title: "OPEN THAN GO", zip: "Código Postal", mode: "Modo de Operación", mente: "Estado Mental", budget: "Presupuesto", perfil: "Perfil", desahogo: "Desahogo", placeholder: "Escribe libremente cómo te sientes hoy...", btn: "ACTIVAR MANDO", alert: "Idioma cambiado a español." },
             en: { title: "OPEN THAN GO", zip: "ZIP Code", mode: "Operation Mode", mente: "Mental State", budget: "Budget Available", perfil: "Profile", desahogo: "Venting Layer", placeholder: "Write freely how you feel today...", btn: "ACTIVATE CONTROL", alert: "Idioma de pantalla cambiado a inglés." }
@@ -85,9 +86,6 @@ const KERNEL = {
         if (this.isLocked) return;
         this.isLocked = true;
 
-        // Extrae las métricas dinámicas acumuladas de clics en local antes de despachar al servidor
-        const perfilDinamicLocal = this.obtenerPerfilLocal();
-
         const payload = {
             zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
             mente: document.getElementById('inp-mente') ? document.getElementById('inp-mente').value : "agotado",
@@ -96,12 +94,12 @@ const KERNEL = {
             perfil: document.getElementById('inp-perfil') ? document.getElementById('inp-perfil').value : "solo",
             desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : "",
             lang: this.idiomaActual,
-            perfil_local: perfilDinamicLocal // Inyectamos la lectura implícita de la mente
+            perfil_local: this.obtenerPerfilLocal()
         };
 
         const container = document.getElementById('wrapper-interactive');
         document.getElementById('wrapper-form').classList.add('hidden');
-        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem; letter-spacing:1px;'>CONECTANDO...</h2></div>`;
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>CONECTANDO...</h2></div>`;
         container.classList.remove('hidden');
 
         try {
@@ -129,18 +127,20 @@ const KERNEL = {
             this.isLocked = false;
         }
     },
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.5.5.0
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.0
 // Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 2 DE 2
+// File: static/engine.js - SECCIÓN 2 DE 2 (EJECUCIÓN Y ESMAJISMO CONDUCTUAL)
 
     procesarFlujoSecuencial(container) {
         clearInterval(this.timer);
+        window.speechSynthesis.cancel(); // Purga radical para liberar el altavoz nativo del smartphone
+
         const t = {
             es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL BIG TECH YA" },
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW" }
         }[this.idiomaActual];
 
-        // MODO SALIR (ACCION_CAMPO) - SECUESTRO DIRECTO DE PLATAFORMAS TRILLONARIAS
+        // MODO SALIR (ACCION_CAMPO) - TARJETA HOMOGÉNEA GRANDE CON RETENCIÓN DE 35S
         if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
             if (this.datosLugarGlobal) {
                 let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
@@ -168,33 +168,19 @@ const KERNEL = {
                         if (btnGps) {
                             btnGps.classList.remove('hidden');
                             btnGps.onclick = () => {
-                                // APRENDIZAJE IMPLÍCITO: Registra la elección antes de saltar a la plataforma externa
+                                // Guarda el avance conductual antes del salto satelital
                                 try {
-                                    let perfil = JSON.parse(localStorage.getItem("otg_perfil_dinamico"));
+                                    let perfil = KERNEL.obtenerPerfilLocal();
                                     let token = KERNEL.datosLugarGlobal.token_entorno || "general";
-                                    
                                     if (perfil) {
-                                        // Si elige un entorno natural, suma peso al indicador correspondiente para la siguiente consulta
-                                        if (token.toLowerCase().includes("árbol") || token.toLowerCase().includes("sombra")) {
-                                            perfil["naturaleza"] = Math.min(perfil["naturaleza"] + 10, 100);
-                                            perfil["silencio"] = Math.min(perfil["silencio"] + 5, 100);
-                                        } else if (token.toLowerCase().includes("caminata") || token.toLowerCase().includes("subida")) {
-                                            perfil["movimiento"] = Math.min(perfil["movimiento"] + 10, 100);
-                                            perfil["aire_fresco"] = Math.min(perfil["aire_fresco"] + 5, 100);
-                                        } else if (token.toLowerCase().includes("paseo") || token.toLowerCase().includes("colores")) {
-                                            perfil["creatividad"] = Math.min(perfil["creatividad"] + 10, 100);
-                                            perfil["esperanza"] = Math.min(perfil["esperanza"] + 5, 100);
-                                        }
-                                        // Guarda el avance sin bases de datos pesadas de forma segura y anónima
+                                        if (token.includes("árbol") || token.includes("Sombra")) perfil["naturaleza"] = Math.min(perfil["naturaleza"] + 10, 100);
+                                        else if (token.includes("Caminata") || token.includes("subida")) perfil["movimiento"] = Math.min(perfil["movimiento"] + 10, 100);
+                                        else if (token.includes("Paseo") || token.includes("colores")) perfil["creatividad"] = Math.min(perfil["creatividad"] + 10, 100);
                                         localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
                                     }
-                                } catch (e) {
-                                    console.log("[Kernel] Error en registro de preferencia implícita.");
-                                }
-
-                                // Secuestra el comportamiento: Abre la app nativa (YouTube, Spotify, Maps) de golpe en el celular
+                                } catch (e) {}
                                 window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                                this.destruirYReiniciar(); // Purga todo rastro del teléfono al saltar al escape
+                                KERNEL.destruirYReiniciar();
                             };
                         }
                     }
@@ -203,7 +189,7 @@ const KERNEL = {
             }
         }
 
-        // MODO CASA - ACCIONES SECUENCIALES CORTAS
+        // MODO CASA - RETOS SECUENCIALES CORTOS
         if (this.indiceMision >= this.pasosMisiones.length) {
             this.iniciarRelojClinicoCasa(container, t);
             return;
@@ -223,30 +209,70 @@ const KERNEL = {
     },
 
     iniciarRelojClinicoCasa(container, t) {
+        window.speechSynthesis.cancel(); // Purga el altavoz antes de inyectar el estímulo clínico inicial
+        
         let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
         this.hablar(msg);
         
         container.innerHTML = `
         <div style="text-align:center; width:100%;">
-            <div id="breath-circle"></div>
+            <!-- Botón invisible y círculo interactivo que absorbe la ansiedad del toque -->
+            <div id="breath-circle" style="cursor:pointer;" title="Toca para acelerar tu enfoque"></div>
             <div id="timer">10:00</div>
             <p id="txt-pulmon">INHALA / INHALE</p>
         </div>`;
 
-        this.timeLeft = 600;
+        // Inicialización de la matriz de dilatación del tiempo exacta que pediste
+        this.timeLeft = 600; // Lo que ve el cliente en pantalla (Visual)
+        this.relojRealSegundos = 600; // El tiempo real que corre segundo a segundo dentro del Kernel (App)
+        this.contadorToques = 0;
+        this.secuenciaAdelantos =;
+
+        const circleElement = document.getElementById('breath-circle');
+        const timerDiv = document.getElementById('timer');
+        const pulmonDiv = document.getElementById('txt-pulmon');
+
+        // ESCUCHAR TOQUES EN PANTALLA: Mide la impaciencia y genera el espejismo temporal
+        if (circleElement) {
+            circleElement.onclick = () => {
+                if (this.contadorToques < 10) {
+                    let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
+                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
+                    this.contadorToques++;
+                    
+                    // Inferencia Psicológica: Registra de forma implícita el rastro de ansiedad local
+                    try {
+                        let perfil = this.obtenerPerfilLocal();
+                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 10, 100);
+                        perfil["descanso"] = Math.max((perfil["descanso"] || 50) - 5, 0); // Pierde tolerancia a la calma estática
+                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                    } catch (e) {}
+
+                    // Actualiza la visual de inmediato al tocar
+                    let m = Math.floor(this.timeLeft / 60);
+                    let s = this.timeLeft % 60;
+                    if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                }
+            };
+        }
+
         this.timer = setInterval(() => {
-            this.timeLeft--;
+            this.relojRealSegundos--; // El reloj interno de la app siempre corre a un segundo real fijo
+            
+            // Si el cliente no ha agotado los toques o el tiempo visual sigue corriendo
+            if (this.timeLeft > 0) {
+                this.timeLeft--;
+            }
+
             let m = Math.floor(this.timeLeft / 60);
             let s = this.timeLeft % 60;
             
-            const timerDiv = document.getElementById('timer');
-            const pulmonDiv = document.getElementById('txt-pulmon');
-            
             if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+            
             if (pulmonDiv) {
-                // SINCRO CLÍNICA NATURAL: 4 segundos arriba y 4 segundos abajo (Ciclos regulares de 8 segundos)
-                let ciclo = this.timeLeft % 8;
-                if (cycle >= 4) {
+                // SINCRO CLÍNICA NATURAL INTEGRAL: Ciclos fijos y seguros de 8 segundos guiados por el reloj real de la app
+                let ciclo = this.relojRealSegundos % 8;
+                if (ciclo >= 4) {
                     pulmonDiv.innerText = t.inspira.toUpperCase();
                     pulmonDiv.style.color = "#00bcd4";
                 } else {
@@ -255,21 +281,64 @@ const KERNEL = {
                 }
             }
 
-            if (this.timeLeft > 0 && this.timeLeft % 20 === 0) {
-                let recordatorios = this.idiomaActual === 'es' ? [
-                    "Sigue el pulso. Estás conmigo.", "No mires tus biles. Respira ya.",
-                    "Mantén el ritmo ahora.", "Siente el peso fuera de tus hombros.",
-                    "Te estoy acompañando. Hazlo conmigo.", "Siente el aire limpiando tu pecho."
-                ] : [
-                    "Follow the rhythm. You are with me.", "Forget your bills. Breathe now.",
-                    "Keep the pace.", "Feel the weight leave your shoulders.",
-                    "I am with you. Do it now.", "Feel the air clearing your chest."
-                ];
-                KERNEL.hablar(recordatorios[Math.floor(Math.random() * recordatorios.length)]);
+            // ACOMPAÑAMIENTO CON LOS 14 AUDIOS REACTIVOS DESDE EL SEGUNDO CERO
+if (this.relojRealSegundos > 0 && this.relojRealSegundos % 20 === 0) {
+
+    let recordatorios = this.idiomaActual === 'es' ? [
+
+        "Sigue el pulso. Estás conmigo.",
+        "No mires tus biles. Respira ya.",
+        "Mantén el ritmo ahora.",
+        "Siente el peso fuera de tus hombros.",
+        "Te estoy acompañando. Hazlo conmigo.",
+        "Siente el aire limpiando tu pecho.",
+        "El piloto automático está apagado. Continúa.",
+        "Quédate en este instante. El presente es tuyo.",
+        "Siente tus pies firmes. El suelo te sostiene gratis.",
+        "Suelta la mandíbula ahora. Libera esa carga ya.",
+        "Tu mente está despertando en este segundo. Sigue así.",
+        "Eres más grande que tus deudas. Respira hondo.",
+        "Rompe el zombi que llevas dentro en este instante.",
+        "Escucha mi voz. Quédate en la sala conmigo ahora."
+
+    ] : [
+
+        "Follow the rhythm. You are with me.",
+        "Forget your bills. Breathe now.",
+        "Keep the pace.",
+        "Feel the weight leave your shoulders.",
+        "I am with you. Do it now.",
+        "Feel the air clearing your chest.",
+        "Autopilot is off. Keep moving.",
+        "Stay in this moment. The present is yours.",
+        "Feel your feet firm. The ground holds you for free.",
+        "Relax your jaw now. Release that burden.",
+        "Your mind is waking up this second. Keep going.",
+        "You are bigger than your debts. Breathe deep.",
+        "Break the zombie inside you right now.",
+        "Listen to my voice. Stay in the room with me."
+
+    ];
+
+    this.hablar(
+        recordatorios[Math.floor(Math.random() * recordatorios.length)]
+    );
+}
+                
+                window.speechSynthesis.cancel(); // Hack preventivo: Limpia el altavoz para inyectar fluido cada 20 segundos
+                let recordatorioElegido = recordatorios[Math.floor(Math.random() * recordatorios.length)];
+                
+                let msgFlotante = new SpeechSynthesisUtterance(recordatorioElegido);
+                // SINCRO DE FONÉTICA CORREGIDA: Fuerza el acento nativo correcto según el idioma elegido
+                msgFlotante.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+                msgFlotante.rate = 1.20;
+                window.speechSynthesis.speak(msgFlotante);
             }
 
-            if (this.timeLeft <= 0) {
+            // FINALIZACIÓN CONDICIONAL: Termina exactamente a los 10 minutos reales de la aplicación (relojRealSegundos = 0)
+            if (this.relojRealSegundos <= 0) {
                 clearInterval(this.timer);
+                window.speechSynthesis.cancel();
                 this.hablar(t.fin);
                 alert(t.fin);
                 this.destruirYReiniciar();
@@ -290,7 +359,7 @@ const KERNEL = {
         this.indiceMision = 0;
         this.isLocked = false;
         
-        // Mantiene guardado el perfil dinámico pero limpia estados volátiles de sesión por privacidad
+        // Conserva el historial del perfil dinámico aprendido localmente, pero purga la sesión por privacidad
         sessionStorage.clear();
         location.reload();
     }
