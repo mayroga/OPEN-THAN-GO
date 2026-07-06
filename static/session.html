@@ -1,6 +1,6 @@
-<!-- OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.0.0 -->
+<!-- OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.5.0 -->
 <!-- Company: May Roga LLC -->
-<!-- File: static/session.html - SECCIÓN 1 DE 2 (ESTILOS Y CABECERA BILINGÜE) -->
+<!-- File: static/session.html - SECCIÓN 1 DE 2 (ESTILOS Y CONTROL INTERFAZ) -->
 
 <!DOCTYPE html>
 <html lang="es">
@@ -42,14 +42,23 @@
         #pantalla-bienvenida { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; }
         .btn-bienvenida { background:#fff; color:#000; padding:22px 45px; font-weight:900; cursor:pointer; text-transform:uppercase; border-radius:4px; font-size: 0.95rem; border: none; letter-spacing: 1px; }
         
-        /* DISEÑO DE INTERFAZ INTEGRAL UNIFICADO (GRANDES, LEGIBLES Y LIMPIOS) */
+        /* DISEÑO DE INTERFAZ INTEGRAL UNIFICADO (GRANDES, LEGIBLES Y LIMPIOS TANTO PARA CASA COMO PARA SALIR) */
         .mision-card { border: 1px solid #222; padding: 26px; text-align: left; background: #0a0a0a; border-radius: 12px; width: 100%; }
         .mision-card small { color: #666; font-weight: bold; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
         .mision-card h2, .mision-card h3 { color: #2e7d32; font-size: 1.45rem; font-weight: 900; text-transform: uppercase; margin-top: 0; margin-bottom: 15px; letter-spacing: 0.5px; }
         .mision-card p, .mision-card .instruccion-text { font-size: 1.25rem; line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid #2e7d32; padding-left: 14px; text-align: left; font-weight: bold; }
         
-        /* PULMÓN ELÁSTICO DE 35 SEGUNDOS Y 10 MINUTOS */
-        #breath-circle { width: 135px; height: 135px; background: rgba(0, 188, 212, 0.15); border: 3px solid #00bcd4; border-radius: 50%; margin: 35px auto; animation: elasticLung 4s infinite ease-in-out; box-shadow: 0 0 20px rgba(0,188,212,0.2); }
+        /* PULMÓN ELÁSTICO CONFIGURADO A RITMO MÉDICO NORMAL SEGURO (8 SEGUNDOS POR CICLO) */
+        #breath-circle { 
+            width: 135px; 
+            height: 135px; 
+            background: rgba(0, 188, 212, 0.15); 
+            border: 3px solid #00bcd4; 
+            border-radius: 50%; 
+            margin: 35px auto; 
+            box-shadow: 0 0 20px rgba(0,188,212,0.2);
+            animation: elasticLung 8s infinite ease-in-out; 
+        }
         @keyframes elasticLung {
             0% { transform: scale(0.85); box-shadow: 0 0 10px rgba(0, 188, 212, 0.2); }
             50% { transform: scale(1.15); background: rgba(0, 188, 212, 0.3); box-shadow: 0 0 35px rgba(0,188,212,0.5); }
@@ -59,19 +68,18 @@
         #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: #00bcd4; text-align: center; letter-spacing: 2px; }
     </style>
 </head>
-
-<!-- OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.0.0 -->
+<!-- OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.5.0 -->
 <!-- Company: May Roga LLC -->
 <!-- File: static/session.html - SECCIÓN 2 DE 2 (MANDO INTEGRAL FÍSICO) -->
 
 <body>
-    <!-- Pantalla de inicio obligatoria para desbloquear el audio del celular -->
+    <!-- Pantalla de inicio obligatoria para desbloquear el audio nativo del teléfono -->
     <div id="pantalla-bienvenida">
         <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button>
     </div>
 
     <div class="container hidden" id="wrapper-form">
-        <!-- Barra de control bilingüe integrada -->
+        <!-- Barra superior con botones de idioma bilingües reales -->
         <div class="lang-bar">
             <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button>
             <button class="btn-lang" id="lang-en" onclick="KERNEL.cambiarIdioma('en')">ENG</button>
@@ -125,7 +133,7 @@
         <button id="btn-mando">ACTIVAR MANDO</button>
     </div>
 
-    <!-- Contenedor único e integrado para las misiones del parásito virtuoso -->
+    <!-- Contenedor único donde se inyectan las misiones grandes y uniformes -->
     <div class="container hidden" id="wrapper-interactive">
         <!-- El Kernel inyecta aquí dinámicamente las misiones unificadas -->
     </div>
