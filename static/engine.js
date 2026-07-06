@@ -1,4 +1,4 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.5.0.0
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.5.5.0
 // Company: May Roga LLC
 // File: static/engine.js - SECCIÓN 1 DE 2
 
@@ -21,7 +21,7 @@ const KERNEL = {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
 
-        // Oraciones directas cortas sin explicaciones aburridas
+        // Oraciones sencillas de acción directa claras para todos
         const saludos = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Pon tus datos en el mando ya.",
             "ópen dán go está activo. Olvida tus biles un momento. Usa el mando ahora.",
@@ -35,6 +35,8 @@ const KERNEL = {
         window.speechSynthesis.cancel();
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
+        
+        // CORRECCIÓN ABSOLUTA DE VOZ: Cambia el motor de audio según el botón presionado
         msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
         msg.rate = 1.20; // Velocidad de acción rápida y despierta
         window.speechSynthesis.speak(msg);
@@ -45,6 +47,7 @@ const KERNEL = {
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
 
+        // TRADUCCIÓN REAL E INMEDIATA DE TODO EL CONTENEDOR VISUAL
         const t = {
             es: { title: "OPEN THAN GO", zip: "Código Postal", mode: "Modo de Operación", mente: "Estado Mental", budget: "Presupuesto", perfil: "Perfil", desahogo: "Desahogo", placeholder: "Escribe libremente cómo te sientes hoy...", btn: "ACTIVAR MANDO", alert: "Idioma cambiado a español." },
             en: { title: "OPEN THAN GO", zip: "ZIP Code", mode: "Operation Mode", mente: "Mental State", budget: "Budget Available", perfil: "Profile", desahogo: "Venting Layer", placeholder: "Write freely how you feel today...", btn: "ACTIVATE CONTROL", alert: "Language switched to English." }
@@ -59,6 +62,8 @@ const KERNEL = {
         document.getElementById('lbl-desahogo').innerText = t.desahogo;
         document.getElementById('inp-text').placeholder = t.placeholder;
         document.getElementById('btn-mando').innerText = t.btn;
+        
+        // Ejecuta la confirmación por voz en el idioma seleccionado
         this.hablar(t.alert);
     },
 
@@ -106,8 +111,7 @@ const KERNEL = {
             this.isLocked = false;
         }
     },
-
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.5.0.0
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.5.5.0
 // Company: May Roga LLC
 // File: static/engine.js - SECCIÓN 2 DE 2 (EJECUCIÓN DISRUPTIVA BIENESTAR)
 
@@ -198,6 +202,7 @@ const KERNEL = {
             
             if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
             if (pulmonDiv) {
+                // SINCRO CLÍNICA NATURAL: 4 segundos arriba y 4 segundos abajo (Ciclos regulares de 8 segundos)
                 let ciclo = this.timeLeft % 8;
                 if (ciclo >= 4) {
                     pulmonDiv.innerText = t.inspira.toUpperCase();
