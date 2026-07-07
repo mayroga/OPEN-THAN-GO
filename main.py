@@ -272,7 +272,7 @@ async def mando_integral(request: Request):
             canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
 # Company: May Roga LLC
-# File: main.py - SECCIÓN 5 DE 5 (PARTE B: CIERRE, TRADUCCIONES Y UVICORN)
+# File: main.py - SECCIÓN 5 DE 5 (PARTE B: TRADUCCIONES DE 48 ENTORNOS Y ARRANQUE REAL)
 
     else:
         # Rutas bilingües de campo ordinarias libres de deudas
@@ -281,15 +281,31 @@ async def mando_integral(request: Request):
         donde_base = info["donde"]
 
         if lang == "en":
+            # TRADUCCIONES EXPANDIDAS: Mapeo real de tu catálogo de 48 entornos para evitar caídas repetitivas
             traducciones_guia = {
                 "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
                 "Caminata en subida": "TARGET: Public Stairs.\nWHAT TO DO: Walk up firmly using your strength.\nWHY: Release the physical stress from your body.",
-                "Paseo de colores": "TARGET: Street Art.\nWHAT TO DO: Look at murals in silence. Find hidden details.\nWHY: Break your daily routine with something new."
+                "Paseo de colores": "TARGET: Street Art.\nWHAT TO DO: Look at murals in silence. Find hidden details.\nWHY: Break your daily routine with something new.",
+                "Paseo del Mall": "TARGET: Shopping Mall Walk.\nWHAT TO DO: Walk through the bright corridors. Explore what is new and enjoy the lively atmosphere.\nWHY: Surrounding yourself with lights and social movement dynamic boosts your urban energy.",
+                "Estímulo del Sabor": "TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to the background music, and celebrate life's abundance.\nWHY: Enjoying great food in a vibrant environment sparks your passion.",
+                "Inercia de Alta Gama": "TARGET: High-End Inertia.\nWHAT TO DO: Examine the aerodynamic designs. Absorb the vibration of material success and ambition.\nWHY: For dynamic minds, smelling new leather and horsepower refuels focus.",
+                "Pulso de la Competencia": "TARGET: Competitiveness Pulse.\nWHAT TO DO: Sit on the sidelines. Follow the ball and absorb the crowd's energy.\nWHY: Fresh-cut grass and a live game shift your mind away from fixed thoughts.",
+                "Pista del Viento": "TARGET: Wind Track.\nWHAT TO DO: Walk from end to end on the top floor of the parking lot. Look at the skyline.\nWHY: Massive open concrete spaces give your lungs a free runway to breathe.",
+                "Laberinto de orden": "TARGET: Maze of Order (IKEA).\nWHAT TO DO: Follow the arrows on the floor. Observe extreme minimal organization.\nWHY: Exploring ideal home designs brings logical balance back to a racing mind.",
+                "Pulso rítmico nocturno": "TARGET: Nightly Rhythmic Pulse.\nWHAT TO DO: Step into the outdoor lounge. Listen to deep bass frequencies and watch the light show.\nWHY: Breaking static isolation at home sometimes requires entering the city's night motion.",
+                "Catarsis Coreográfica": "TARGET: Choreographic Catharsis.\nWHAT TO DO: Stay near the dance floor. Watch couples moving in sync and enjoy the unbothered laughter.\nWHY: Loud music and dancing force routine worries to shut down instantly today.",
+                "Estímuo de Choque Máximo": "TARGET: Maximum Shock Stimulus.\nWHAT TO DO: Walk the central fair avenues. Watch the mechanical rides and catch the playground joy.\nWHY: Screams of excitement and bright arcade colors inject fresh dopamine into your body.",
+                "Cazador de Reliquias": "TARGET: Relic Hunter (Flea Market).\nWHAT TO DO: Check vintage items on tables. Find three things you used to enjoy as a child.\nWHY: Looking for rare items from the past triggers curiosity and healthy nostalgia.",
+                "Escala de Suministro Industrial": "TARGET: Industrial Supply Scale (Costco).\nWHAT TO DO: Walk from end to end through food aisles. Observe the massive volume of the American supply chain.\nWHY: Seeing endless mountains of stacked pallets distracts your brain's daily loop.",
+                "Línea de Flotación Marina": "TARGET: Marine Waterline.\nWHAT TO DO: Walk the wooden docks. Watch the boats sway gently and breathe the salty wind.\nWHY: Seeing pristine yacht decks gives you an instant breath of absolute outdoor freedom.",
+                "Ventana de la Ficción": "TARGET: Fiction Window.\nWHAT TO DO: Step into the classic indie lobby. Check physical posters and absorb the cinematic art.\nWHY: Alternative theater stories pull you out of the routine commercial system.",
+                "Contacto de Estrategia Humana": "TARGET: Human Strategy Chess Club.\nWHAT TO DO: Watch an ongoing chess game. Analyze the position of the pieces in silence.\nWHY: Seeing focused minds calculating movements forces your racing thoughts to slow down.",
+                "Deslizamiento y Equilibrio Sincrónico": "TARGET: Symmetrical Gliding (Skating Rink).\nWHAT TO DO: Grab a seat on the benches. Watch the circular inertia of skaters and follow the beat.\nWHY: Continuous gliding forces your body to coordinate somatic rhythm and presence."
             }
             guia_masticada = traducciones_guia.get(info["titulo"], f"TARGET: {info['donde']}.\nWHAT TO DO: {info['que_hacer']}\nWHY: {info['porque']}\n{quienes_van}\n{precio_real}")
             titulo_ganador = info["titulo"].upper()
         else:
-            guia_masticada = f"DESTINO: {info['titulo']}.\nPOR QUÉ: {info['porque']}\nQUÉ HACER: {info['que_hacer']}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Para romper el zombi urbano y recordar que la vida es más que pagar cuentas.\n{quienes_van}\n{precio_real}"
+            guia_masticada = f"DESTINO: {info['titulo']}.\nPOR QUÉ: {info['porque']}\nQUÉ HACER: {info['que_hacer']}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Para romper el zombi urbano y recordar la abundancia de la vida.\n{quienes_van}\n{precio_real}"
             titulo_ganador = info["titulo"].upper()
 
     # Adaptabilidad del Perfil Biopsicosocial sin exclusión social
@@ -320,3 +336,5 @@ async def mando_integral(request: Request):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
+    
