@@ -240,11 +240,13 @@ async def mando_integral(request: Request):
         random.shuffle(misiones)  # Evita la monotonía barajando los retos locales
         return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones})
 
-    # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN)
+        # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN Y RUIDO VECTORIAL)
     opciones_salir = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     
-    # LÓGICA CWRE INTEGRADA: Ponderación matemática basada en el rastro de clics dentro de tu app
-    # Cruza las preferencias implícitas de las 19 necesidades contra los 48 destinos cargados
+    # ANTI-MONOTONÍA SHUFFLER: Pre-scrambles the list order to break perfect tie scores
+    random.shuffle(opciones_salir)
+    
+    # LÓGICA CWRE INTEGRADA REPARADA: Ponderación con varianza dinámica para evitar bucles repetitivos
     if len(opciones_salir) >= 2:
         mejor_score = -1
         info = opciones_salir[0]
@@ -256,7 +258,10 @@ async def mando_integral(request: Request):
             # Suma los pesos del historial interno del usuario contra la puntuación del entorno
             for necesidad, peso_usuario in perfil_local.items():
                 if isinstance(peso_usuario, (int, float)):
-                    score_coincidencia += vector_lugar.get(necesidad, 50) * peso_usuario
+                    # INYECCIÓN DE VARIANZA DE CHOQUE: Rompe monopolios vectoriales planos (ej: Playa)
+                    ruido_variancia = random.uniform(0.85, 1.15)
+                    peso_base_lugar = vector_lugar.get(necesidad, 50)
+                    score_coincidencia += (peso_base_lugar * ruido_variancia) * peso_usuario
                 
             if score_coincidencia > mejor_score:
                 mejor_score = score_coincidencia
