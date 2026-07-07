@@ -189,8 +189,8 @@ async def mando_integral(request: Request):
     # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO INTERCEPTOR
     palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero"] 
     canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
-    
-        if any(p in desahogo for p in palabras_criticas):
+
+    if any(p in desahogo for p in palabras_criticas):
         # LÓGICA DE RAMIFICACIÓN TRIDIMENSIONAL INTEGRADA (3 OPCIONES PARA AMAZON)
         # Forzamos al parásito a barajar entre Spotify, YouTube o Google Maps usando tus mismas variables fijas
         if "amazon" in desahogo:
@@ -270,6 +270,3 @@ async def mando_integral(request: Request):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
-
-
-        
