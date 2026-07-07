@@ -1,6 +1,6 @@
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
 # Company: May Roga LLC
-# File: main.py - SECCIÓN 1 DE 5 (NÚCLEO Y RETOS DOMÉSTICOS)
+# File: main.py - SECCIÓN 1 DE 5 (NÚCLEO Y RETOS DOMÉSTICOS CORREGIDOS)
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
@@ -33,7 +33,8 @@ BASE_MISIONES = {
         {"id": 12, "titulo": "Estiramiento al cielo", "descripcion": "Brazo arriba. Toca el techo. Mantén la tensión. Suelta de golpe."},
         {"id": 13, "titulo": "Foco en lo olvidado", "descripcion": "Elige una tarea mínima que ignorabas. Hazla ahora. Termínala."},
         {"id": 14, "titulo": "Columna recta", "descripcion": "Endereza la espalda. Un hilo invisible tira de tu cabeza. Respira."},
-        {"id": 15, "titulo": "Contacto frío", " superficie fría. Siente la temperatura real. Aterriza."},
+        # CORREGIDO: Se restauró la clave "descripcion" perdida
+        {"id": 15, "titulo": "Contacto frío", "descripcion": "Toca una superficie fría. Siente la temperatura real. Aterriza."},
         {"id": 16, "titulo": "Ventilación total", "descripcion": "Abre la puerta principal. Deja que el aire ruede. Huele el cambio."},
         {"id": 17, "titulo": "Sacudida de estrés", "descripcion": "Párate y sacude manos y piernas como quitándote agua. Hazlo 10 segundos."},
         {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira el objeto más lejano por tu ventana. Descansa el enfoque."},
@@ -72,6 +73,7 @@ BASE_MISIONES = {
         {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la estabilidad."},
         {"id": 50, "presencia": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control."}
     ],
+
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 2 DE 5 (PARTE A: ACTIVOS AGOTADO)
