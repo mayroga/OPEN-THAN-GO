@@ -15,7 +15,7 @@ const KERNEL = {
     // Variables del Espejismo Temporal e Inferencia Psicológica
     relojRealSegundos: 600,
     contadorToques: 0,
-    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
+    secuenciaAdelantos:,
 
     obtenerPerfilLocal() {
         let perfil = localStorage.getItem("otg_perfil_dinamico");
@@ -40,7 +40,7 @@ const KERNEL = {
     despertarInicial() {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-
+        
         const saludos = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Pon tus datos en el mando ya.",
             "ópen dán go está activo. Olvida tus biles un momento. Usa el mando ahora.",
@@ -55,7 +55,7 @@ const KERNEL = {
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
         msg.lang = 'es-US'; // Voz nativa siempre en español por estabilidad absoluta de hardware
-        msg.rate = 1.20; 
+        msg.rate = 1.20;
         window.speechSynthesis.speak(msg);
     },
 
@@ -63,12 +63,12 @@ const KERNEL = {
         this.idiomaActual = lang;
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-
+        
         const t = {
             es: { title: "OPEN THAN GO", zip: "Código Postal", mode: "Modo de Operación", mente: "Estado Mental", budget: "Presupuesto", perfil: "Perfil", desahogo: "Desahogo", placeholder: "Escribe libremente cómo te sientes hoy...", btn: "ACTIVAR MANDO", alert: "Idioma cambiado a español." },
             en: { title: "OPEN THAN GO", zip: "ZIP Code", mode: "Operation Mode", mente: "Mental State", budget: "Budget Available", perfil: "Profile", desahogo: "Venting Layer", placeholder: "Write freely how you feel today...", btn: "ACTIVATE CONTROL", alert: "Idioma de pantalla cambiado a inglés." }
         }[lang];
-
+        
         document.getElementById('txt-app-title').innerText = t.title;
         document.getElementById('lbl-zip').innerText = t.zip;
         document.getElementById('lbl-mode').innerText = t.mode;
@@ -78,14 +78,13 @@ const KERNEL = {
         document.getElementById('lbl-desahogo').innerText = t.desahogo;
         document.getElementById('inp-text').placeholder = t.placeholder;
         document.getElementById('btn-mando').innerText = t.btn;
-        
         this.hablar(t.alert);
     },
 
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
-
+        
         const payload = {
             zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
             mente: document.getElementById('inp-mente') ? document.getElementById('inp-mente').value : "agotado",
@@ -96,12 +95,12 @@ const KERNEL = {
             lang: this.idiomaActual,
             perfil_local: this.obtenerPerfilLocal()
         };
-
+        
         const container = document.getElementById('wrapper-interactive');
         document.getElementById('wrapper-form').classList.add('hidden');
         container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>CONECTANDO...</h2></div>`;
         container.classList.remove('hidden');
-
+        
         try {
             const r = await fetch("/api/mando-integral", {
                 method: "POST",
@@ -109,11 +108,10 @@ const KERNEL = {
                 body: JSON.stringify(payload)
             });
             const data = await r.json();
-
             this.datosLugarGlobal = data;
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
-
+            
             if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
                 this.pasosMisiones = data.misiones.slice(0, 3);
             } else {
@@ -129,7 +127,7 @@ const KERNEL = {
     },
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.0
 // Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 2 DE 2 (EJECUCIÓN Y ESMAJISMO CONDUCTUAL)
+// File: static/engine.js - SECCIÓN 2 DE 3 (EJECUCIÓN Y ESMAJISMO CONDUCTUAL)
 
     procesarFlujoSecuencial(container) {
         clearInterval(this.timer);
@@ -210,10 +208,9 @@ const KERNEL = {
 
     iniciarRelojClinicoCasa(container, t) {
         window.speechSynthesis.cancel(); // Purga el altavoz antes de inyectar el estímulo clínico inicial
-        
         let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
         this.hablar(msg);
-        
+
         container.innerHTML = `
         <div style="text-align:center; width:100%;">
             <!-- Botón invisible y círculo interactivo que absorbe la ansiedad del toque -->
@@ -255,7 +252,6 @@ const KERNEL = {
                 }
             };
         }
-
         this.timer = setInterval(() => {
             this.relojRealSegundos--; // El reloj interno de la app siempre corre a un segundo real fijo
             
@@ -282,49 +278,25 @@ const KERNEL = {
             }
 
             // ACOMPAÑAMIENTO CON LOS 14 AUDIOS REACTIVOS DESDE EL SEGUNDO CERO
-if (this.relojRealSegundos > 0 && this.relojRealSegundos % 20 === 0) {
+            if (this.relojRealSegundos > 0 && this.relojRealSegundos % 20 === 0) {
+                let recordatorios = this.idiomaActual === 'es' ? [
+                    "Sigue el pulso. Estás conmigo.", "No mires tus biles. Respira ya.",
+                    "Mantén el ritmo ahora.", "Siente el peso fuera de tus hombros.",
+                    "Te estoy acompañando. Hazlo conmigo.", "Siente el aire limpiando tu pecho.",
+                    "El piloto automático está apagado. Continúa.", "Quédate en este instante. El presente es tuyo.",
+                    "Siente tus pies firmes. El suelo te sostiene gratis.", "Suelta la mandíbula ahora. Libera esa carga ya.",
+                    "Tu mente está despertando en este segundo. Sigue así.", "Eres más grande que tus deudas. Respira hondo.",
+                    "Rompe el zombi que llevas dentro en este instante.", "Escucha mi voz. Quédate en la sala conmigo ahora."
+                ] : [
+                    "Follow the rhythm. You are with me.", "Forget your bills. Breathe now.",
+                    "Keep the pace.", "Feel the weight leave your shoulders.",
+                    "I am with you. Do it now.", "Feel the air clearing your chest.",
+                    "Autopilot is off. Keep moving.", "Stay in this moment. The present is yours.",
+                    "Feel your feet firm. The ground holds you for free.", "Relax your jaw now. Release that burden.",
+                    "Your mind is waking up this second. Keep going.", "You are bigger than your debts. Breathe deep.",
+                    "Break the zombie inside you right now.", "Listen to my voice. Stay in the room with me."
+                ];
 
-    let recordatorios = this.idiomaActual === 'es' ? [
-
-        "Sigue el pulso. Estás conmigo.",
-        "No mires tus biles. Respira ya.",
-        "Mantén el ritmo ahora.",
-        "Siente el peso fuera de tus hombros.",
-        "Te estoy acompañando. Hazlo conmigo.",
-        "Siente el aire limpiando tu pecho.",
-        "El piloto automático está apagado. Continúa.",
-        "Quédate en este instante. El presente es tuyo.",
-        "Siente tus pies firmes. El suelo te sostiene gratis.",
-        "Suelta la mandíbula ahora. Libera esa carga ya.",
-        "Tu mente está despertando en este segundo. Sigue así.",
-        "Eres más grande que tus deudas. Respira hondo.",
-        "Rompe el zombi que llevas dentro en este instante.",
-        "Escucha mi voz. Quédate en la sala conmigo ahora."
-
-    ] : [
-
-        "Follow the rhythm. You are with me.",
-        "Forget your bills. Breathe now.",
-        "Keep the pace.",
-        "Feel the weight leave your shoulders.",
-        "I am with you. Do it now.",
-        "Feel the air clearing your chest.",
-        "Autopilot is off. Keep moving.",
-        "Stay in this moment. The present is yours.",
-        "Feel your feet firm. The ground holds you for free.",
-        "Relax your jaw now. Release that burden.",
-        "Your mind is waking up this second. Keep going.",
-        "You are bigger than your debts. Breathe deep.",
-        "Break the zombie inside you right now.",
-        "Listen to my voice. Stay in the room with me."
-
-    ];
-
-    this.hablar(
-        recordatorios[Math.floor(Math.random() * recordatorios.length)]
-    );
-}
-                
                 window.speechSynthesis.cancel(); // Hack preventivo: Limpia el altavoz para inyectar fluido cada 20 segundos
                 let recordatorioElegido = recordatorios[Math.floor(Math.random() * recordatorios.length)];
                 
