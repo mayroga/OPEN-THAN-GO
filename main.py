@@ -72,11 +72,8 @@ BASE_MISIONES = {
         {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la estabilidad."},
         {"id": 50, "presencia": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control."}
     ],
-
-# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 2 DE 5 (ACTIVOS DE CAMPO MULTIDIMENSIONALES: AGOTADO)
-
+    
+    # ENLACE SOLDADO: Se cierra la estructura interna y se abre el diccionario de campo multidimensional
     "SALIR": {
         "agotado": [
             # 1. Parques Públicos (Naturaleza/Sombra)
