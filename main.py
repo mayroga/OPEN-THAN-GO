@@ -189,6 +189,7 @@ async def mando_integral(request: Request):
     # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO INTERCEPTOR
     palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero"] 
     canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
+    
         if any(p in desahogo for p in palabras_criticas):
         # LÓGICA DE RAMIFICACIÓN TRIDIMENSIONAL INTEGRADA (3 OPCIONES PARA AMAZON)
         # Forzamos al parásito a barajar entre Spotify, YouTube o Google Maps usando tus mismas variables fijas
