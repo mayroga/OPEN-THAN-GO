@@ -3,7 +3,9 @@
 // File: static/engine.js - SECCIÓN 1 DE 2 (NÚCLEO Y PREGUNTAS MASTER)
 
 const KERNEL = {
-    timer: null,
+    // SEPARATED TIMER CHANNELS: Prevents memory collisions and cross-timer overrides
+    timerInaccion: null,
+    timerClinico: null,
     timeLeft: 600,
     isLocked: false,
     idiomaActual: 'es',
@@ -15,7 +17,7 @@ const KERNEL = {
     // Variables de Control de Tiempo e Impaciencia SOLDADAS
     relojRealSegundos: 600,
     contadorToques: 0,
-    secuenciaAdelantos: [5,7,9,10,14,16,17,19,21,5],
+    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
 
     // ARQUITECTURA ADICTIVA: 8 Bloques Secuenciales Fijos de 6 Preguntas (De Menor a Mayor Complejidad)
     bloqueActual: 0,
@@ -57,7 +59,7 @@ const KERNEL = {
         // Bloque 5: Viajes Largos y Fugas de la Realidad (Aviones y Cruceros)
         "¿Suestimas el valor de tu entorno local y sueñas con un viaje en avión que no puedes pagar?",
         "¿Deseas meterte en un crucero de lujo para que el mar se lleve tus crisis existenciales?",
-        "¿Crees que la solución a tu infelicidad es mudarte de ciudad o cambiar de estado en USA?",
+        "¿Crees que la solución a tu infelicidad es mudarte de ciudad o cambio de estado en USA?",
         "¿Planificas vacaciones costosas con dinero que deberías usar para proteger tu economía?",
         "¿Buscas paisajes lejanos en internet porque has perdido la capacidad de asombrarte con tu cielo?",
         "¿Te sientes atrapado en el territorio y asumes que la libertad depende de un boleto de viaje?",
@@ -87,19 +89,26 @@ const KERNEL = {
         "¿Estás listo para obedecer al mando, soltar tus indecisiones y salir de tu encierro mental hoy?"
     ],
 
+    // SANITIZED DATA DESERIALIZER: Guarantees a direct object is returned under all session mutations
     obtenerPerfilLocal() {
-        let perfil = localStorage.getItem("otg_perfil_dinamico");
-        if (!perfil) {
-            perfil = {
+        let perfilRaw = localStorage.getItem("otg_perfil_dinamico");
+        if (!perfilRaw) {
+            const perfilInicial = {
                 "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50, 
                 "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50, 
                 "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50, 
                 "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
                 "indicador_ansiedad": 0
             };
-            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfilInicial));
+            return perfilInicial;
         }
-        return typeof perfil === "string" ? JSON.parse(perfil) : perfil;
+        try {
+            return typeof perfilRaw === "string" ? JSON.parse(perfilRaw) : perfilRaw;
+        } catch (e) {
+            localStorage.removeItem("otg_perfil_dinamico");
+            return this.obtenerPerfilLocal();
+        }
     },
 
     init() {
@@ -121,202 +130,211 @@ const KERNEL = {
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
         this.iniciarMonitoreoInaccion();
     },
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
-// Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 2 DE 4 (MANEJO DE CASCADA)
-
-    temporizadorCascada: null,
-    indicePreguntaCascada: 0,
-
-    inyectarBloquePreguntas() {
-        const grid = document.getElementById('contenedor-preguntas-oraculo');
-        if (!grid) return;
+    init() { 
+        const btnMando = document.getElementById('btn-mando'); 
+        if (btnMando) btnMando.onclick = () => this.ejecutar(); 
+        this.bloqueActual = parseInt(localStorage.getItem("otg_bloque_secuencial")) || 0; 
+    }, 
+    
+    despertarInicial() { 
+        document.getElementById('pantalla-bienvenida').style.display = 'none'; 
+        document.getElementById('wrapper-form').classList.remove('hidden'); 
+        this.inyectarBloquePreguntas(); 
         
-        clearInterval(this.temporizadorCascada);
-        grid.innerHTML = "";
-        this.indicePreguntaCascada = 0;
+        const saludos = [ 
+            "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.", 
+            "ópen dán go está activo. No rellenes casillas de biles. Mira las opciones en tu pantalla ya.", 
+            "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca lo que sientes hoy." 
+        ]; 
+        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
+        this.iniciarMonitoreoInaccion(); 
+    }, 
+
+    // OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.5.0 
+    // Company: May Roga LLC 
+    // File: static/engine.js - SECCIÓN 2 DE 4 (MANEJO DE CASCADA) 
+    temporizadorCascada: null, 
+    indicePreguntaCascada: 0, 
+
+    inyectarBloquePreguntas() { 
+        const grid = document.getElementById('contenedor-preguntas-oraculo'); 
+        if (!grid) return; 
         
-        let inicioIdx = this.bloqueActual * 6;
+        clearInterval(this.temporizadorCascada); 
+        grid.innerHTML = ""; 
+        this.indicePreguntaCascada = 0; 
+        let inicioIdx = this.bloqueActual * 6; 
         
-        // Si el usuario supera los 8 bloques de menor a mayor profundidad, reinicia en limpio
-        if (inicioIdx >= this.CATALOGO_PREGUNTAS.length) {
-            this.bloqueActual = 0;
-            inicioIdx = 0;
-            localStorage.setItem("otg_bloque_secuencial", 0);
-        }
-
-        // Renderiza el bloque de 6 preguntas directas
-        for (let i = 0; i < 6; i++) {
-            let preguntaTexto = this.CATALOGO_PREGUNTAS[inicioIdx + i];
-            if (!preguntaTexto) break;
-
-            let btn = document.createElement('button');
-            btn.className = 'btn-pregunta-crisis';
-            btn.id = `btn-pregunta-${i}`;
-            btn.innerText = `${i + 1}. ${preguntaTexto}`;
-            btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto);
-            grid.appendChild(btn);
-        }
-
-        // Restaura el estado visual neutro del cajón libre mientras corre la cascada
-        const btnLibre = document.getElementById('btn-activar-libre');
-        const lblDesahogo = document.getElementById('lbl-desahogo');
-        if (btnLibre) {
-            btnLibre.style.background = "#111";
-            btnLibre.style.color = "#555";
-            btnLibre.style.borderColor = "#222";
-        }
-        if (lblDesahogo) lblDesahogo.style.color = "#666";
-
-        // DISPARADOR DE CASCADA AUTOMÁTICO DE 8 SEGUNDOS
-        this.iniciarEfectoCascada();
-    },
-
-    iniciarEfectoCascada() {
-        this.indicePreguntaCascada = 0;
+        // Si el usuario supera los 8 bloques de menor a mayor profundidad, reinicia en limpio 
+        if (inicioIdx >= this.CATALOGO_PREGUNTAS.length) { 
+            this.bloqueActual = 0; 
+            inicioIdx = 0; 
+            localStorage.setItem("otg_bloque_secuencial", 0); 
+        } 
         
-        this.temporizadorCascada = setInterval(() => {
-            let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
-            
-            if (botonParaEliminar) {
-                // Inyecta la clase CSS para desvanecer y contraer hacia arriba
-                botonParaEliminar.classList.add('fade-out');
+        // Renderiza el bloque de 6 preguntas directas 
+        for (let i = 0; i < 6; i++) { 
+            let preguntaTexto = this.CATALOGO_PREGUNTAS[inicioIdx + i]; 
+            if (!preguntaTexto) break; 
+            let btn = document.createElement('button'); 
+            btn.className = 'btn-pregunta-crisis'; 
+            btn.id = `btn-pregunta-${i}`; 
+            btn.innerText = `${i + 1}. ${preguntaTexto}`; 
+            btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto); 
+            grid.appendChild(btn); 
+        } 
+        
+        // Restaura el estado visual neutro del cajón libre mientras corre la cascada 
+        const btnLibre = document.getElementById('btn-activar-libre'); 
+        const lblDesahogo = document.getElementById('lbl-desahogo'); 
+        if (btnLibre) { 
+            btnLibre.style.background = "#111"; 
+            btnLibre.style.color = "#555"; 
+            btnLibre.style.borderColor = "#222"; 
+        } 
+        if (lblDesahogo) lblDesahogo.style.color = "#666"; 
+        
+        // DISPARADOR DE CASCADA AUTOMÁTICO DE 8 SEGUNDOS 
+        this.iniciarEfectoCascada(); 
+    }, 
+    
+    iniciarEfectoCascada() { 
+        this.indicePreguntaCascada = 0; 
+        this.temporizadorCascada = setInterval(() => { 
+            let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`); 
+            if (botonParaEliminar) { 
+                // Inyecta la clase CSS para desvanecer y contraer hacia arriba 
+                botonParaEliminar.classList.add('fade-out'); 
                 
-                // Hace que el asistente de voz narre de inmediato la siguiente pregunta disponible
-                let siguienteIdx = this.indicePreguntaCascada + 1;
-                let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
-                if (siguienteBoton) {
-                    let textoLimpio = siguienteBoton.innerText.substring(3);
-                    this.hablar(textoLimpio);
-                }
-                
-                this.indicePreguntaCascada++;
-            } else {
-                // Al desaparecer los 6 botones del bloque, detiene el bucle y libera la escritura
-                clearInterval(this.temporizadorCascada);
-                this.liberarCajonEscrituraLibre();
-            }
-        }, 8000); // Ritmo exacto de 8 segundos mandatorios
-    },
-
-    liberarCajonEscrituraLibre() {
-        const textarea = document.getElementById('inp-text-libre');
-        const btnLibre = document.getElementById('btn-activar-libre');
-        const lblDesahogo = document.getElementById('lbl-desahogo');
-        const instruccion = document.getElementById('lbl-oraculo-instruccion');
-
-        if (instruccion) instruccion.innerText = "Mando libre listo. Cuéntame qué te pasa.";
-        if (lblDesahogo) lblDesahogo.style.color = "#fff";
-        
-        if (textarea) {
-            textarea.focus(); // Introduce automáticamente el cursor en el cuadro
-        }
-
-        if (btnLibre) {
-            // Enciende el botón en verde de acción directa e inyecta el evento de clic
-            btnLibre.style.background = "var(--green-action)";
-            btnLibre.style.color = "#fff";
-            btnLibre.style.borderColor = "#4caf50";
-            
-            btnLibre.onclick = () => {
-                let textoEscrito = textarea.value.trim();
-                if (textoEscrito.length > 3) {
-                    this.reaccionarPreguntaSeleccionada(textoEscrito);
-                } else {
-                    this.hablar("Escribe tu problema en el cuadro antes de activar el mando.");
-                }
-            };
-        }
-    },
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
-// Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 3 DE 4 (INACCIÓN Y FETCH NÚCLEO)
-
-    iniciarMonitoreoInaccion() {
-        clearInterval(this.timer);
-        this.conteoInaccion = 0;
-        
-        // Bucle de contingencia: Si pasa el tiempo en el cajón libre sin escribir, rota al siguiente bloque de 6 de menor a mayor
-        this.timer = setInterval(() => {
-            this.conteoInaccion++;
-            
-            if (this.conteoInaccion === 4 || this.conteoInaccion === 8) { // Ventanas espaciadas de control conductual
-                clearInterval(this.temporizadorCascada);
-                this.bloqueActual++;
-                this.inyectarBloquePreguntas();
-                this.hablar("Avanzamos de nivel. Mira estas otras opciones en pantalla.");
+                // Hace que el asistente de voz narre de inmediato la siguiente pregunta disponible 
+                let siguienteIdx = this.indicePreguntaCascada + 1; 
+                let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`); 
+                if (siguienteBoton) { 
+                    let textoLimpio = siguienteBoton.innerText.substring(3); 
+                    this.hablar(textoLimpio); 
+                } 
+                this.indicePreguntaCascada++; 
+            } else { 
+                // Al desaparecer los 6 botones del bloque, detiene el bucle y libera la escritura 
+                clearInterval(this.temporizadorCascada); 
+                this.liberarCajonEscrituraLibre(); 
             } 
-            else if (this.conteoInaccion >= 12) {
-                clearInterval(this.timer);
-                clearInterval(this.temporizadorCascada);
-                this.hablar("Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando.");
-                const instruccion = document.getElementById('lbl-oraculo-instruccion');
-                if (instruccion) instruccion.innerText = "Tomando un respiro. Toca cuando estés listo...";
-            }
-        }, 12000); 
-    },
-
-    reaccionarPreguntaSeleccionada(textoPregunta) {
-        clearInterval(this.timer);
-        clearInterval(this.temporizadorCascada);
+        }, 8000); // Ritmo exacto de 8 segundos mandatorios 
+    }, 
+    
+    liberarCajonEscrituraLibre() { 
+        const textarea = document.getElementById('inp-text-libre'); 
+        const btnLibre = document.getElementById('btn-activar-libre'); 
+        const lblDesahogo = document.getElementById('lbl-desahogo'); 
+        const instruccion = document.getElementById('lbl-oraculo-instruccion'); 
         
-        this.bloqueActual++;
-        localStorage.setItem("otg_bloque_secuencial", this.bloqueActual);
-
-        const inputOculto = document.getElementById('inp-text-invisible');
-        if (inputOculto) inputOculto.value = textoPregunta;
-
-        this.ejecutar();
-    },
-
-    async ejecutar() {
-        if (this.isLocked) return;
-        this.isLocked = true;
-
-        const payload = {
-            zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
-            modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR",
-            desahogo: document.getElementById('inp-text-invisible') ? document.getElementById('inp-text-invisible').value : "",
-            lang: this.idiomaActual,
-            perfil_local: this.obtenerPerfilLocal()
-        };
-
-        const container = document.getElementById('wrapper-interactive');
-        document.getElementById('wrapper-form').classList.add('hidden');
-        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>CONECTANDO...</h2></div>`;
-        container.classList.remove('hidden');
-
-        try {
-            const r = await fetch("/api/mando-integral", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-            const data = await r.json();
-
-            this.datosLugarGlobal = data;
-            this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
-            this.indiceMision = 0;
-
-            if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
-                this.pasosMisiones = data.misiones.slice(0, 3);
-            } else {
-                this.pasosMisiones = [];
-            }
-            this.procesarFlujoSecuencial(container);
-        } catch (error) {
-            alert("Error.");
-            document.getElementById('wrapper-form').classList.remove('hidden');
-            container.classList.add('hidden');
-            this.isLocked = false;
-        }
+        if (instruccion) instruccion.innerText = "Mando libre listo. Cuéntame qué te pasa."; 
+        if (lblDesahogo) lblDesahogo.style.color = "#fff"; 
+        if (textarea) { 
+            textarea.focus(); // Introduce automáticamente el cursor en el cuadro 
+        } 
+        if (btnLibre) { 
+            // Enciende el botón en verde de acción directa e inyecta el evento de clic 
+            btnLibre.style.background = "var(--green-action)"; 
+            btnLibre.style.color = "#fff"; 
+            btnLibre.style.borderColor = "#4caf50"; 
+            btnLibre.onclick = () => { 
+                let textoEscrito = textarea.value.trim(); 
+                if (textoEscrito.length > 3) { 
+                    this.reaccionarPreguntaSeleccionada(textoEscrito); 
+                } else { 
+                    this.hablar("Escribe tu problema en el cuadro antes de activar el mando."); 
+                } 
+            }; 
+        } 
+    }, 
+    
+    // OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.5.0 
+    // Company: May Roga LLC 
+    // File: static/engine.js - SECCIÓN 3 DE 4 (INACCIÓN Y FETCH NÚCLEO) 
+    iniciarMonitoreoInaccion() { 
+        clearInterval(this.timerInaccion); 
+        this.conteoInaccion = 0; 
+        
+        // SANADO: Usa un hilo de tiempo exclusivo (timerInaccion) para no pisar el reloj clínico o el de retención
+        this.timerInaccion = setInterval(() => { 
+            this.conteoInaccion++; 
+            if (this.conteoInaccion === 4 || this.conteoInaccion === 8) { 
+                // Ventanas espaciadas de control conductual 
+                clearInterval(this.temporizadorCascada); 
+                this.bloqueActual++; 
+                this.inyectarBloquePreguntas(); 
+                this.hablar("Avanzamos de nivel. Mira estas otras opciones en pantalla."); 
+            } else if (this.conteoInaccion >= 12) { 
+                clearInterval(this.timerInaccion); 
+                clearInterval(this.temporizadorCascada); 
+                this.hablar("Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando."); 
+                const instruccion = document.getElementById('lbl-oraculo-instruccion'); 
+                if (instruccion) instruccion.innerText = "Tomando un respiro. Toca cuando estés listo..."; 
+            } 
+        }, 12000); 
+    }, 
+    
+    reaccionarPreguntaSeleccionada(textoPregunta) { 
+        clearInterval(this.timerInaccion); 
+        clearInterval(this.temporizadorCascada); 
+        this.bloqueActual++; 
+        localStorage.setItem("otg_bloque_secuencial", this.bloqueActual); 
+        
+        const inputOculto = document.getElementById('inp-text-invisible'); 
+        if (inputOculto) inputOculto.value = textoPregunta; 
+        this.ejecutar(); 
+    }, 
+    
+    async ejecutar() { 
+        if (this.isLocked) return; 
+        this.isLocked = true; 
+        
+        const payload = { 
+            zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "", 
+            modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR", 
+            desahogo: document.getElementById('inp-text-invisible') ? document.getElementById('inp-text-invisible').value : "", 
+            lang: this.idiomaActual, 
+            perfil_local: this.obtenerPerfilLocal() 
+        }; 
+        
+        const container = document.getElementById('wrapper-interactive'); 
+        document.getElementById('wrapper-form').classList.add('hidden'); 
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>CONECTANDO...</h2></div>`; 
+        container.classList.remove('hidden'); 
+        
+        try { 
+            const r = await fetch("/api/mando-integral", { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify(payload) 
+            }); 
+            const data = await r.json(); 
+            
+            this.datosLugarGlobal = data; 
+            this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER; 
+            this.indiceMision = 0; 
+            
+            if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") { 
+                this.pasosMisiones = data.misiones.slice(0, 3); 
+            } else { 
+                this.pasosMisiones = []; 
+            } 
+            this.procesarFlujoSecuencial(container); 
+        } catch (error) { 
+            alert("Error."); 
+            document.getElementById('wrapper-form').classList.remove('hidden'); 
+            container.classList.add('hidden'); 
+            this.isLocked = false; 
+        } 
     },
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
 // Company: May Roga LLC
 // File: static/engine.js - SECCIÓN 4 DE 4 (PARTE A: RELOJ CLÍNICO)
 
     procesarFlujoSecuencial(container) {
-        clearInterval(this.timer);
+        // SANADO: Limpia el canal clínico exclusivo para evitar la duplicación de hilos
+        clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
 
         const t = {
@@ -343,11 +361,12 @@ const KERNEL = {
                 const btnCount = document.getElementById('btn-countdown-salida');
                 const btnGps = document.getElementById('btn-gps-action');
                 
-                this.timer = setInterval(() => {
+                // SANADO: Se asigna el intervalo al canal clínico dedicado
+                this.timerClinico = setInterval(() => {
                     retencion--;
                     if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
                     if (retencion <= 0) {
-                        clearInterval(this.timer);
+                        clearInterval(this.timerClinico);
                         if (btnCount) btnCount.style.display = 'none';
                         if (btnGps) {
                             btnGps.classList.remove('hidden');
@@ -392,7 +411,9 @@ const KERNEL = {
     },
 
     iniciarRelojClinicoCasa(container, t) {
+        clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
+        
         let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
         this.hablar(msg);
         
@@ -407,11 +428,10 @@ const KERNEL = {
         this.relojRealSegundos = 600;
         this.contadorToques = 0;
         this.secuenciaAdelantos = [5, 7, 9, 10, 14, 16, 17, 19, 21, 5];
-
+        
         const circleElement = document.getElementById('breath-circle');
         const timerDiv = document.getElementById('timer');
         const pulmonDiv = document.getElementById('txt-pulmon');
-
         // CATÁLOGO COMPLETO DE LOS 30 AUDIOS BIOPREVENTIVOS SECUENCIALES FIJOS
         const AUDIOS_SECUENCIALES_CASA = [
             "Sigue el pulso en tu pantalla. Concéntrate. Estás conmigo hoy.",
@@ -426,7 +446,7 @@ const KERNEL = {
             "Tu mente está despertando poco a poco. Estás ganando control real.",
             "Eres mucho más grande que tus deudas. Respira hondo y despacio.",
             "Rompe el zombi que el sistema quiere que seas. Quédate en la sala conmigo.",
-            "Escucha mi voz. Nota cómo tu respiración se vuelve más profunda y limpia.",
+            "Escucha mi voz. Nota cómo tu respiración se vuelve más profunda ... y limpia.",
             "Tus ojos están descansando finalmente de las luces artificiales de la pantalla.",
             "Siente los latidos de tu pecho. Es tu motor vivo latiendo para ti.",
             "Siente el peso fuera de tu espalda. Imagina que dejas caer tu mochila.",
@@ -445,9 +465,10 @@ const KERNEL = {
             "Faltan pocos segundos para el reinicio definitivo. Siente la esperanza.",
             "Estás completamente a salvo aquí. Quédate en paz absoluta en este segundo."
         ];
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
-// Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 4 DE 4 (PARTE B: CIERRE Y PURGA)
+
+        // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
+        // Company: May Roga LLC
+        // File: static/engine.js - SECCIÓN 4 DE 4 (PARTE B: CIERRE Y PURGA)
 
         if (circleElement) {
             circleElement.onclick = () => {
@@ -469,9 +490,9 @@ const KERNEL = {
             };
         }
 
-        this.timer = setInterval(() => {
+        // SANADO: Se amarra el intervalo al canal clínico exclusivo para evitar solapamiento de hilos
+        this.timerClinico = setInterval(() => {
             this.relojRealSegundos--;
-
             if (this.timeLeft > 0) {
                 this.timeLeft--;
             }
@@ -504,7 +525,7 @@ const KERNEL = {
             }
 
             if (this.relojRealSegundos <= 0) {
-                clearInterval(this.timer);
+                clearInterval(this.timerClinico);
                 window.speechSynthesis.cancel();
                 if (circleElement) {
                     circleElement.style.animation = "none";
@@ -524,11 +545,17 @@ const KERNEL = {
     },
 
     destruirYReiniciar() {
-        clearInterval(this.timer);
+        // SANADO: Se limpian de forma explícita todos los canales de temporizadores independientes
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerClinico);
+        clearInterval(this.temporizadorCascada);
         window.speechSynthesis.cancel();
+        
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
+        
+        // Conserva de forma anónima el perfil dinámico pero purga estados volátiles por privacidad
         sessionStorage.clear();
         location.reload();
     }
