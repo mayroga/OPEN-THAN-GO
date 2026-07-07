@@ -12,7 +12,7 @@ const KERNEL = {
     datosLugarGlobal: null,
     tipoEscapeGlobal: "",
     
-    // Variables del Espejismo Temporal e Inferencia Psicológica CORREGIDAS
+    // Variables del Espejismo Temporal e Inferencia Psicológica COMPLETA
     relojRealSegundos: 600,
     contadorToques: 0,
     secuenciaAdelantos:,
