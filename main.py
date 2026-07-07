@@ -200,7 +200,7 @@ BIG_TECH_RESOURCES = {
 
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
 # Company: May Roga LLC
-# File: main.py - SECCIÓN 5 DE 5 (ENDPOINTS, INTERCEPTOR Y ARRANQUE)
+# File: main.py - SECCIÓN 5 DE 5 (ENDPOINTS E INICIALIZACIÓN DE PROCESAMIENTO)
 
 @app.get("/")
 async def index():
@@ -250,17 +250,15 @@ async def mando_integral(request: Request):
                     ruido_variancia = random.uniform(0.85, 1.15)
                     peso_base_lugar = vector_lugar.get(necesidad, 50)
                     score_coincidencia += (peso_base_lugar * ruido_variancia) * peso_usuario
-                
+                    
             if score_coincidencia > mejor_score:
                 mejor_score = score_coincidencia
                 info = opc
     else:
         info = random.choice(opciones_salir)
 
-    # Filtro de precio real en palabras cortas de acción
+    # Filtro de precio real en palabras cortas de acción y acompañantes
     precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if budget == "0" else "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if budget == "1" else "GASTO: Libre. El dinero es tu herramienta de escape hoy."
-    
-    # Filtro de acompañantes reales
     quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if perfil == "solo" else "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if perfil == "familia" else "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad."
 
     # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO INTERCEPTOR SANEADO
@@ -272,33 +270,10 @@ async def mando_integral(request: Request):
             canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
         else:
             canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
+# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
+# Company: May Roga LLC
+# File: main.py - SECCIÓN 5 DE 5 (PARTE B: CIERRE, TRADUCCIONES Y UVICORN)
 
-        if canal_multimedia == "SPOTIFY":
-            titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
-            donde_base = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone"
-            guia_masticada = "DESTINO: Spotify Gratis.\nQUÉ HACER: Escucha los sonidos naturales en silencio.\nPARA QUÉ: Detener la prisa de la mente y el impulso repetitivo de la rutina de hoy." if lang == "es" else "TARGET: Free Spotify.\nWHAT TO DO: Listen to nature sounds in silence.\nWHY: Stop the rush of the mind and the repetitive cycle of today's routine."
-            link_base = BIG_TECH_RESOURCES["spotify_audio"]
-            gps_query = ""
-        elif canal_multimedia == "YOUTUBE":
-            titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
-            donde_base = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency"
-            guia_masticada = "DESTINO: Video en YouTube.\nQUÉ HACER: Pon el video en pantalla completa.\nPARA QUÉ: Calmar los pensamientos rápidos del día y equilibrar tu energía celular." if lang == "es" else "TARGET: YouTube Video.\nWHAT TO DO: Play the video in full screen.\nWHY: Calm your racing thoughts and balance your cellular energy right now."
-            link_base = BIG_TECH_RESOURCES["youtube_audio"]
-            gps_query = ""
-        else:
-            # MAPS DE ABUNDANCIA URBANA: Redirección estimulante libre de agencias corporativas
-            if "amazon" in desahogo:
-                titulo_ganador = "EXPLORACIÓN DE AUSENCIA" if lang == "es" else "EXPLORATION OF ABSENCE"
-                donde_base = "Mercado Local Abierto o Farmers Market" if lang == "es" else "Local Open Market or Farmers Market"
-                guia_masticada = f"DESTINO: Mercado agrícola o de pulgas local al aire libre.\nQUÉ HACER: Camina y observa personas reales, artesanías y colores sin presiones de pantallas.\nPARA QUÉ: Romper el bucle de la red digital y reconectar con la abundancia de tu tierra.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: Local Farmers or Flea Market.\nWHAT TO DO: Walk and observe real people, crafts, and colors without screen pressures.\nWHY: Break the digital network loop and reconnect with the abundance of your land.\n{quienes_van}\n{precio_real}"
-                link_base = "https://google.com"
-                gps_query = "farmers+market"
-            else:
-                titulo_ganador = "ESTÍMULO Y REGENERACIÓN URBANA" if lang == "es" else "URBAN REGENERATION STIMULUS"
-                donde_base = "Grandes Centros Comerciales, Outlets o Department Stores (Ross / Marshalls)" if lang == "es" else "Large Shopping Malls, Outlets or Department Stores"
-                guia_masticada = f"DESTINO: Un centro de liquidaciones o Shopping Mall vibrante.\nQUÉ HACER: Camina entre los pasillos, mira las vitrinas llenas, la música, la gente y distrae tu mente explorando novedades.\nPARA QUÉ: Tomar el control de tu entorno, disfrutar de los colores y recordar la prosperidad que te rodea hoy.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: Vibrant Shopping Mall or Outlet Center.\nWHAT TO DO: Walk through the aisles, check the full windows, the music, the people, and distract your mind exploring new items.\nWHY: Take control of your environment, enjoy the colors, and remember the prosperity surrounding you today.\n{quienes_van}\n{precio_real}"
-                link_base = "https://google.com"
-                gps_query = "shopping+mall+or+department+store"
     else:
         # Rutas bilingües de campo ordinarias libres de deudas
         link_base = "https://google.com"
@@ -334,17 +309,14 @@ async def mando_integral(request: Request):
     else:
         link_google_maps_vivo = link_base.replace(" ", "+")
 
-        return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO", 
-        "destino_titulo": titulo_ganador, 
-        "destino_entorno": donde_base, 
-        "destino_instruccion": guia_masticada.strip(), 
+    return JSONResponse({
+        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+        "destino_titulo": titulo_ganador,
+        "destino_entorno": donde_base,
+        "destino_instruccion": guia_masticada.strip(),
         "destino_coordenadas_gps": link_google_maps_vivo,
         "token_entorno": info["titulo"] if "titulo" in info else "general"
     })
 
 if __name__ == "__main__":
-    import uvicorn
-    import os
-    uvicorn.run("main:app", host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), reload=False)
-
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
