@@ -273,8 +273,7 @@ BASE_MISIONES = {
 }
 
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 4 DE 4 (ENDPOINTS, DESPACHADOR CRUZADO 3X1 Y UVICORN)
+# File: main.py - SECCIÓN FINAL (ENDPOINTS Y PROCESAMIENTO INTEGRADO)
 
 @app.get("/")
 async def index():
@@ -293,22 +292,18 @@ async def mando_integral(request: Request):
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
     
-    # Captura las métricas de clics acumuladas localmente en engine.js para las 19 necesidades
     perfil_local = payload.get("perfil_local", {})
 
     # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA ORIGINAL INTACTO)
     if opcion_usuario == "CASA":
         misiones = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"]
-        random.shuffle(misiones)  # Evita la monotonía barajando los retos locales
+        random.shuffle(misiones)
         return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones})
 
-    # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN Y RUIDO VECTORIAL)
+    # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN)
     opciones_salir = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-    
-    # ANTI-MONOTONÍA SHUFFLER: Pre-mezcla el orden para romper empates vectoriales planos
     random.shuffle(opciones_salir)
     
-    # LÓGICA CWRE INTEGRADA REPARADA: Ponderación con varianza dinámica para evitar bucles repetitivos
     if len(opciones_salir) >= 2:
         mejor_score = -1
         info = opciones_salir[0]
@@ -316,11 +311,8 @@ async def mando_integral(request: Request):
         for opc in opciones_salir:
             vector_lugar = opc.get("vector_necesidades", {})
             score_coincidencia = 0
-            
-            # Suma los pesos del historial interno del usuario contra la puntuación del entorno
             for necesidad, peso_usuario in perfil_local.items():
                 if isinstance(peso_usuario, (int, float)):
-                    # INYECCIÓN DE VARIANZA DE CHOQUE: Rompe monopolios vectoriales planos (ej: Playa)
                     ruido_variancia = random.uniform(0.85, 1.15)
                     peso_base_lugar = vector_lugar.get(necesidad, 50)
                     score_coincidencia += (peso_base_lugar * ruido_variancia) * peso_usuario
@@ -331,46 +323,85 @@ async def mando_integral(request: Request):
     else:
         info = random.choice(opciones_salir)
 
-    # Filtros situacionales bilingües de precio y acompañantes reales
-    precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if budget == "0" else "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if budget == "1" else "GASTO: Libre. El dinero es tu herramienta de escape hoy."
-    quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if perfil == "solo" else "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if perfil == "familia" else "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad."
+    # =========================================================================
+    # 📌 ¡AQUÍ VA EL CÓDIGO NUEVO! (SANEADO, INTERNO E INVISIBLE AL USUARIO)
+    # =========================================================================
+    budget_str = str(budget).strip()
+    
+    if budget_str == "0":
+        precio_real = "Austeridad creativa para proteger tu mente hoy."
+        gps_query_default = "public+parks+with+shade+or+public+beaches+or+historical+monument+plaza"
+    elif budget_str == "1":
+        precio_real = "Un gustazo mínimo para romper la rutina."
+        gps_query_default = "bookstore+cafe+or+department+store+outlet+or+wholesale+store+costco+or+cheap+motel"
+    elif budget_str == "2":
+        precio_real = "El entorno es tu herramienta de escape hoy."
+        gps_query_default = "shopping+mall+or+go+kart+racing+or+restaurant+with+rooftop+or+amusement+park"
+    else:
+        precio_real = "Flujo de abundancia activa. Date un lujo merecido hoy."
+        gps_query_default = "luxury+marina+boat+dock+or+5+star+hotel+lobby+or+luxury+car+dealership+or+musical+instruments+store"
 
-    # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO INTERCEPTOR SANEADO
-    palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero"]
+    perfil_str = str(perfil).strip().lower()
+    quienes_van = "Vas solo contigo mismo a recuperar tu centro."
+    tratamiento_especial = ""
 
-    if any(p in desahogo for p in palabras_criticas):
-        # EL DADO DEL ORÁCULO TRIDIMENSIONAL ACTIVO: Baraja de forma equitativa
+    if "adulto" in perfil_str or "mayor" in perfil_str or "senior" in perfil_str or perfil_str == "accessible":
+        quienes_van = "Ruta plana con acceso total por comodidad física y cuidado de tu edad."
+        tratamiento_especial = "Desplázate a ritmo lento. Este entorno cuenta con áreas sombreadas y descansos confortables para proteger tu cuerpo hoy."
+    elif "veterano" in perfil_str or "veteran" in perfil_str:
+        quienes_van = "Entorno honorable seleccionado para tu descanso interior."
+        tratamiento_especial = "Este espacio está seleccionado por su estabilidad y respeto. Un territorio seguro para recuperar la calma que tu mente merece."
+    elif "gobierno" in perfil_str or "admin" in perfil_str or "corporativo" in perfil_str or "trabajador" in perfil_str:
+        quienes_van = "Desconexión radical del tiempo institucional."
+        tratamiento_especial = "Estás fuera del horario del sistema. Queda estrictamente bienvenido el descanso; tu mente está libre de reportes y pantallas durante los próximos 60 minutos."
+    elif "familia" in perfil_str or "hijos" in perfil_str or "family" in perfil_str:
+        quienes_van = "Entorno apto para el desahogo de tus niños y seres queridos."
+
+    palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "gastar", "compras"]
+
+    if any(p in desahogo for p in palabras_criticas) or opcion_usuario == "MANDO_LIBRE":
         canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
 
         if canal_multimedia == "SPOTIFY":
             titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
-            donde_base = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone"
-            guia_masticada = "DESTINO: Spotify Gratis.\nQUÉ HACER: Escucha los sonidos naturales en silencio.\nPARA QUÉ: Detener la prisa de la mente y el impulso repetitivo de la rutina de hoy." if lang == "es" else "TARGET: Free Spotify.\nWHAT TO DO: Listen to nature sounds in silence.\nWHY: Stop the rush of the mind and the repetitive cycle of today's routine."
-            # CAPTURA EXTRACTO DEL ENTORNO SELECCIONADO POR EL INTEGRADO CWRE
+            donde_base = "Zona Libre de Consumo y Frecuencias Altas" if lang == "es" else "Store-Free High Frequency Zone"
+            guia_masticada = "DESTINO: Conexión Acústica.\nQUÉ HACER: Escucha los sonidos naturales en silencio absoluto.\nPARA QUÉ: Detener la prisa de la mente, enfriar el impulso de la rutina y sintonizar con tu prosperidad interior." if lang == "es" else "TARGET: Audio Connection.\nWHAT TO DO: Listen to nature sounds in complete silence.\nWHY: Stop the rush of the mind, cool down routine impulses, and tune into inner prosperity."
             link_base = info.get("variante_spotify", "https://spotify.com")
             gps_query = ""
         elif canal_multimedia == "YOUTUBE":
             titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
-            donde_base = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency"
-            guia_masticada = "DESTINO: Video en YouTube.\nQUÉ HACER: Pon el video en pantalla completa.\nPARA QUÉ: Calmar los pensamientos rápidos del día y equilibrar tu energía celular." if lang == "es" else "TARGET: YouTube Video.\nWHAT TO DO: Play the video in full screen.\nWHY: Calm your racing thoughts and balance your cellular energy right now."
+            donde_base = "Frecuencia de Abundancia y Alivio" if lang == "es" else "Abundance & Relief Frequency"
+            guia_masticada = "DESTINO: Sesión de Enfoque.\nQUÉ HACER: Pon el video en pantalla completa con audífonos.\nPARA QUÉ: Desacelerar los pensamientos rápidos y reprogramar tu cerebro hacia caminos de prosperidad y balance." if lang == "es" else "TARGET: Focus Session.\nWHAT TO DO: Play the video in full screen with headphones.\nWHY: Slow down racing thoughts and reprogram your brain towards paths of prosperity and balance."
             link_base = info.get("variante_youtube", "https://youtube.com")
             gps_query = ""
         else:
-            # MAPS DE ABUNDANCIA URBANA CRUZADA: Envía al entorno comercial o natural seleccionado sin agencias laborales
-            if "amazon" in desahogo:
+            link_base = "https://google.com"
+            gps_query = gps_query_default
+            
+            if budget_str == "0":
                 titulo_ganador = "EXPLORACIÓN DE AUSENCIA" if lang == "es" else "EXPLORATION OF ABSENCE"
-                donde_base = "Mercado Local Abierto o Farmers Market" if lang == "es" else "Local Open Market or Farmers Market"
-                guia_masticada = f"DESTINO: Mercado agrícola o de pulgas local al aire libre.\nQUÉ HACER: Camina y observa personas reales, artesanías y colores sin presiones de pantallas.\nPARA QUÉ: Romper el bucle de la red digital y reconectar con la abundancia de tu tierra.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: Local Farmers or Flea Market.\nWHAT TO DO: Walk and observe real people, crafts, and colors without screen pressures.\nWHY: Break the digital network loop and reconnect with the abundance of your land.\n{quienes_van}\n{precio_real}"
-                link_base = "https://google.com"
-                gps_query = "farmers+market"
-            else:
+                donde_base = "Espacio Peatonal Abierto, Playa Pública o Parque Verde Nacional" if lang == "es" else "Public Open Space, Beach or National Park"
+                guia_masticada = f"DESTINO: Un entorno natural o plaza al aire libre.\nQUÉ HACER: Camina despacio registrando el viento, el cielo y el flujo del entorno.\nPARA QUÉ: Romper la hipnosis del encierro, relajar el cuerpo y conectar con la libertad del espacio abierto.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}" if lang == "es" else f"TARGET: Free Nature Trail, Public Plaza or Open Beach.\nWHAT TO DO: Walk slowly registering the wind, the sky, and the natural flow.\nWHY: Break the indoor hypnosis, relax your body, and connect with open freedom.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}"
+                
+            elif budget_str == "1":
+                titulo_ganador = "INERCIA DE ABASTECIMIENTO" if lang == "es" else "SMART URBAN INERTIA"
+                donde_base = "Grandes Almacenes de Suministros, Cafeterías de Libros o Tiendas de Saldo Cotidiano" if lang == "es" else "Department Outlets, Bookstores or Distribution Centers"
+                guia_masticada = f"DESTINO: Un centro de distribución o rincón de diseño urbano.\nQU¿É HACER: Recorre los pasillos masivos, hojea portadas o busca novedades cotidianas con soltura.\nPARA QUÉ: Activar la mente a través de la exploración de objetos, oler el dinamismo del día y sacudirte la monotonía.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}" if lang == "es" else f"TARGET: Smart Department Outlets or Used Bookstores.\nWHAT TO DO: Walk through massive aisles, browse book covers, or look for daily items with ease.\nWHY: Activate your mind through object exploration, feel the day's energy, and shake off monotony.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}"
+                
+            elif budget_str == "2":
                 titulo_ganador = "ESTÍMULO Y REGENERACIÓN URBANA" if lang == "es" else "URBAN REGENERATION STIMULUS"
-                donde_base = f"{info['donde']}"
-                guia_masticada = f"DESTINO: {info['titulo']}.\nQUÉ HACER: {info['que_hacer']}\nPARA QUÉ: Tomar el control de tu entorno, disfrutar los colores y recordar la prosperidad de tu camino.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: {info['titulo']}.\nWHAT TO DO: {info['que_hacer']}\nWHY: Take control of your environment, enjoy the colors, and remember the prosperity of your path.\n{quienes_van}\n{precio_real}"
-                link_base = "https://google.com"
-                gps_query = info.get("variante_maps", info["gps"])
+                donde_base = "Grandes Centros Comerciales, Terrazas Elevadas, Cines o Centros de Recreación" if lang == "es" else "Vibrant Shopping Malls, Rooftops, Movie Theaters or Recreation Loops"
+                guia_masticada = f"DESTINO: Un entorno comercial o recreativo activo.\nQUÉ HACER: Entra a los pasillos confortables, sube a una terraza a pie o sigue la inercia circular de la pista.\nPARA QUÉ: Rodearte de estímulos visuales, flujos sociales grandes y recuperar la soltura de tu día libre.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}" if lang == "es" else f"TARGET: Vibrant Shopping Mall, Rooftop or Recreation Center.\nWHAT TO DO: Walk through comfortable aisles, visit an open terrace, or track the track's circular loop.\nWHY: Surround yourself with visual stimulus, massive social flows, and regain the ease of your day.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}"
+            gps_query = info.get("variante_maps", "shopping+mall+or+go+kart+racing+or+restaurant+with+rooftop")
+        else:
+            titulo_ganador = "NÚCLEO DE LA PROSPERIDAD" if lang == "es" else "CORE OF PROSPERITY"
+            donde_base = "Muelles y Marinas de Yates, Vestíbulos Elegantes o Salas de Exhibición Premium" if lang == "es" else "Yacht Marinas, Premium Lobbies or Showrooms"
+            guia_masticada = f"DESTINO: Un entorno de alta infraestructura y diseño urbano.\nQUÉ HACER: Camina por las pasarelas de madera entre mástiles, siéntate en los sofás amplios o admira la ingeniería de vanguardia.\nPARA QUÉ: Elevar tu sintonía subiendo el nivel de tu entorno visual, rompiendo la parálisis mental y fluyendo con el éxito material.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}" if lang == "es" else f"TARGET: High-End Yacht Marina, Premium Hotel Lobby, or Showroom.\nWHAT TO DO: Walk the wooden docks, take a seat on wide sofas, or inspect cutting-edge engineering.\nWHY: Elevate your vibration by upgrading your visual environment level, breaking mental freeze, and flowing with material success.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}"
+            gps_query = "luxury+marina+boat+dock+or+5+star+hotel+lobby+or+luxury+car+dealership+or+musical+instruments+store"
+    # =========================================================================
+    # 📌 CONTINÚA TU CÓDIGO VIEJO DE TRADUCCIONES AUTOMÁTICAS Y ARRANQUE UVICORN
+    # =========================================================================
     else:
-        # Rutas bilingües ordinarias libres de deudas y marcas críticas
         link_base = "https://google.com"
         gps_query = info["gps"]
         donde_base = info["donde"]
@@ -388,13 +419,11 @@ async def mando_integral(request: Request):
             guia_masticada = f"DESTINO: {info['titulo']}.\nPOR QUÉ: {info['porque']}\nQUÉ HACER: {info['que_hacer']}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Romper el zombi urbano y recordar el valor de tu tranquilidad.\n{quienes_van}\n{precio_real}"
             titulo_ganador = info["titulo"].upper()
 
-    # Adaptabilidad del Perfil Biopsicosocial sin exclusión social
     if perfil == "accesible":
         gps_query = "wheelchair+accessible+" + gps_query
     elif perfil == "family":
         gps_query = "family+friendly+" + gps_query
 
-    # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA ORIGINAL RESTAURADA SIN RECORTE NI ALTERACIONES
     anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
 
     if gps_query:
@@ -404,6 +433,9 @@ async def mando_integral(request: Request):
             link_google_maps_vivo = link_base.replace(" ", "+")
     else:
         link_google_maps_vivo = link_base.replace(" ", "+")
+
+    if tratamiento_especial:
+        guia_masticada += f"\n\n{tratamiento_especial}"
 
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
