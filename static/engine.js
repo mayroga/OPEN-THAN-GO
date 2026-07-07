@@ -1,6 +1,6 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.0
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.5.5.0
 // Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 1 DE 2 (NÚCLEO Y CAPTURA)
+// File: static/engine.js - SECCIÓN 1 DE 2
 
 const KERNEL = {
     timer: null,
@@ -12,11 +12,12 @@ const KERNEL = {
     datosLugarGlobal: null,
     tipoEscapeGlobal: "",
     
-    // Variables del Espejismo Temporal e Inferencia Psicológica
+    // Variables del Espejismo Temporal e Inferencia Psicológica CORREGIDAS
     relojRealSegundos: 600,
     contadorToques: 0,
     secuenciaAdelantos:,
 
+    // MOTOR DE PREFERENCIAS IMPLÍCITAS LOCAL: Inicializa los contadores de las 19 necesidades en la RAM del teléfono
     obtenerPerfilLocal() {
         let perfil = localStorage.getItem("otg_perfil_dinamico");
         if (!perfil) {
@@ -40,7 +41,8 @@ const KERNEL = {
     despertarInicial() {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-        
+
+        // Oraciones sencillas de acción directa claras para todos
         const saludos = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Pon tus datos en el mando ya.",
             "ópen dán go está activo. Olvida tus biles un momento. Usa el mando ahora.",
@@ -51,11 +53,13 @@ const KERNEL = {
 
     hablar(texto) {
         if (!texto) return;
-        window.speechSynthesis.cancel(); // Desbloqueo y purga forzada del canal nativo
+        window.speechSynthesis.cancel();
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
-        msg.lang = 'es-US'; // Voz nativa siempre en español por estabilidad absoluta de hardware
-        msg.rate = 1.20;
+        
+        // RECTIFICACIÓN MÁXIMA DE IDIOMA: La voz siempre se mantiene en español nativo por estabilidad
+        msg.lang = 'es-US';
+        msg.rate = 1.20; // Velocidad de acción rápida y despierta
         window.speechSynthesis.speak(msg);
     },
 
@@ -63,12 +67,13 @@ const KERNEL = {
         this.idiomaActual = lang;
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-        
+
+        // TRADUCCIÓN REAL E INMEDIATA DE TODO EL CONTENEDOR VISUAL (La voz no cambia, se mantiene en español)
         const t = {
             es: { title: "OPEN THAN GO", zip: "Código Postal", mode: "Modo de Operación", mente: "Estado Mental", budget: "Presupuesto", perfil: "Perfil", desahogo: "Desahogo", placeholder: "Escribe libremente cómo te sientes hoy...", btn: "ACTIVAR MANDO", alert: "Idioma cambiado a español." },
             en: { title: "OPEN THAN GO", zip: "ZIP Code", mode: "Operation Mode", mente: "Mental State", budget: "Budget Available", perfil: "Profile", desahogo: "Venting Layer", placeholder: "Write freely how you feel today...", btn: "ACTIVATE CONTROL", alert: "Idioma de pantalla cambiado a inglés." }
         }[lang];
-        
+
         document.getElementById('txt-app-title').innerText = t.title;
         document.getElementById('lbl-zip').innerText = t.zip;
         document.getElementById('lbl-mode').innerText = t.mode;
@@ -78,13 +83,17 @@ const KERNEL = {
         document.getElementById('lbl-desahogo').innerText = t.desahogo;
         document.getElementById('inp-text').placeholder = t.placeholder;
         document.getElementById('btn-mando').innerText = t.btn;
+        
         this.hablar(t.alert);
     },
 
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
-        
+
+        // Extrae las métricas dinámicas acumuladas de clics en local antes de despachar al servidor
+        const perfilDinamicLocal = this.obtenerPerfilLocal();
+
         const payload = {
             zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
             mente: document.getElementById('inp-mente') ? document.getElementById('inp-mente').value : "agotado",
@@ -93,14 +102,14 @@ const KERNEL = {
             perfil: document.getElementById('inp-perfil') ? document.getElementById('inp-perfil').value : "solo",
             desahogo: document.getElementById('inp-text') ? document.getElementById('inp-text').value.trim() : "",
             lang: this.idiomaActual,
-            perfil_local: this.obtenerPerfilLocal()
+            perfil_local: perfilDinamicLocal // Inyectamos la lectura implícita de la mente
         };
-        
+
         const container = document.getElementById('wrapper-interactive');
         document.getElementById('wrapper-form').classList.add('hidden');
-        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>CONECTANDO...</h2></div>`;
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem; letter-spacing:1px;'>CONECTANDO...</h2></div>`;
         container.classList.remove('hidden');
-        
+
         try {
             const r = await fetch("/api/mando-integral", {
                 method: "POST",
@@ -108,10 +117,11 @@ const KERNEL = {
                 body: JSON.stringify(payload)
             });
             const data = await r.json();
+
             this.datosLugarGlobal = data;
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
-            
+
             if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
                 this.pasosMisiones = data.misiones.slice(0, 3);
             } else {
@@ -125,6 +135,7 @@ const KERNEL = {
             this.isLocked = false;
         }
     },
+
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.0
 // Company: May Roga LLC
 // File: static/engine.js - SECCIÓN 2 DE 3 (EJECUCIÓN Y ESMAJISMO CONDUCTUAL)
