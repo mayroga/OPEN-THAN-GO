@@ -190,7 +190,14 @@ async def mando_integral(request: Request):
     palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero"] 
     canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"]) 
 
-    if any(p in desahogo for p in palabras_criticas): 
+        if any(p in desahogo for p in palabras_criticas): 
+        # LÓGICA DE RAMIFICACIÓN TRIDIMENSIONAL INTEGRADA (3 OPCIONES PARA AMAZON)
+        # Forzamos al parásito a barajar entre Spotify, YouTube o Google Maps usando tus mismas variables fijas
+        if "amazon" in desahogo:
+            canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
+        else:
+            canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
+
         if canal_multimedia == "SPOTIFY": 
             titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET" 
             donde_base = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone" 
@@ -204,17 +211,25 @@ async def mando_integral(request: Request):
             link_base = BIG_TECH_RESOURCES["youtube_audio"] 
             gps_query = "" 
         else: 
-            titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION" 
-            donde_base = "Oficinas de contratación y staffings corporativos en tu zona." if lang == "es" else "Employment Agency" 
-            guia_masticada = f"DESTINO: Oficinas de empleo inmediato.\nQUÉ HACER: Entra ya con tu identificación en mano.\nPARA QUÉ: Para ganarle al agobio del dinero y tomar el control de tu economía hoy.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: Google Maps.\nWHAT TO DO: Go out straight with your physical ID.\nWHY: Look for a quick job and get cash now.\n{quienes_van}\n{precio_real}" 
-            link_base = "https://www.google.com/maps/search/?api=1&query=" 
-            gps_query = BIG_TECH_RESOURCES["staffing_agencies"] 
+            # Si el azar tira MAPS, evalúa de forma inteligente si viene de Amazon o de una deuda general
+            if "amazon" in desahogo:
+                titulo_ganador = "EXPLORACIÓN DE AUSENCIA" if lang == "es" else "EXPLORATION OF ABSENCE"
+                donde_base = "Mercado Local Abierto" if lang == "es" else "Local Open Market"
+                guia_masticada = f"DESTINO: Mercado agrícola o de pulgas local.\nQUÉ HACER: Camina y observa personas reales sin comprar nada.\nPARA QUÉ: Romper el bucle de la pantalla digital.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: Local Farmers or Flea Market.\nWHAT TO DO: Walk and observe real people without buying anything.\nWHY: Break the digital screen loop.\n{quienes_van}\n{precio_real}"
+                link_base = "https://www.google.com/maps/search/?api=1&query="
+                gps_query = "farmers+market"
+            else:
+                titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION" 
+                donde_base = "Oficinas de contratación y staffings corporativos en tu zona." if lang == "es" else "Employment Agency" 
+                guia_masticada = f"DESTINO: Oficinas de empleo inmediato.\nQUÉ HACER: Entra ya con tu identificación en mano.\nPARA QUÉ: Para ganarle al agobio del dinero y tomar el control de tu economía hoy.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: Google Maps.\nWHAT TO DO: Go out straight with your physical ID.\nWHY: Look for a quick job and get cash now.\n{quienes_van}\n{precio_real}" 
+                link_base = "https://www.google.com/maps/search/?api=1&query=" 
+                gps_query = BIG_TECH_RESOURCES["staffing_agencies"] 
     else: 
-        # Rutas bilingües de campo ordinarias libres de deudas
-        link_base = "https://www.google.com/maps/search/?api=1&query="
+        # Rutas bilingües de campo ordinarias libres de deudas 
+        link_base = "https://www.google.com/maps/search/?api=1&query=" 
         gps_query = info["gps"] 
         donde_base = info["donde"]
-        
+    
         if lang == "en": 
             traducciones_guia = { 
                 "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.", 
