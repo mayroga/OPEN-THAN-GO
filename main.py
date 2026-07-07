@@ -401,6 +401,7 @@ async def mando_integral(request: Request):
     # =========================================================================
     # 📌 CONTINÚA TU CÓDIGO VIEJO DE TRADUCCIONES AUTOMÁTICAS Y ARRANQUE UVICORN
     # =========================================================================
+    
     else:
         link_base = "https://google.com"
         gps_query = info["gps"]
