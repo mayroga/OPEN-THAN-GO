@@ -1,6 +1,6 @@
-<!-- OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.5.0 -->
+<!-- OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.0 -->
 <!-- Company: May Roga LLC -->
-<!-- File: static/session.html - SECCIÓN 1 DE 2 (ESTILOS Y CONTROL INTERFAZ) -->
+<!-- File: static/session.html - INTERFAZ DE DIÁLOGO DISRUPTIVO -->
 
 <!DOCTYPE html>
 <html lang="es">
@@ -15,6 +15,7 @@
             --text: #fff; 
             --accent: #d84315; 
             --secondary: #0d47a1; 
+            --green-action: #2e7d32;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
@@ -27,28 +28,51 @@
             align-items: center; 
             min-height: 100vh; 
         }
-        .container { width: 90%; max-width: 400px; padding: 20px; }
+        .container { width: 95%; max-width: 420px; padding: 15px; }
         .lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; }
         .btn-lang { background: #222; color: #666; border: none; padding: 6px 12px; font-weight: 900; border-radius: 4px; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; }
         .btn-lang.active { background: #fff; color: #000; }
-        h1 { font-size: 1.2rem; text-align: center; letter-spacing: 0.3em; margin-bottom: 25px; color: #444; font-weight: 900; }
-        .field { margin-bottom: 14px; }
-        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 6px; font-weight: bold; }
-        input, select, textarea { width: 100%; background: var(--panel); border: 1px solid #222; color: var(--text); padding: 14px; border-radius: 4px; font-size: 0.95rem; outline: none; }
-        textarea { height: 65px; resize: none; }
-        button#btn-mando { width: 100%; background: var(--accent); color: #fff; border: none; padding: 18px; font-weight: 900; cursor: pointer; margin-top: 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { font-size: 1.3rem; text-align: center; letter-spacing: 0.3em; margin-bottom: 20px; color: #555; font-weight: 900; }
+        
+        /* EL ORÁCULO: BOTONES DE PREGUNTAS DISRUPTIVAS DIRECTAS GRANDES */
+        .oraculo-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+        .btn-pregunta-crisis {
+            width: 100%;
+            background: var(--panel);
+            color: #eee;
+            border: 1px solid #222;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1.4;
+        }
+        .btn-pregunta-crisis:hover, .btn-pregunta-crisis:active {
+            background: #1a1a1a;
+            border-color: var(--accent);
+            color: #fff;
+        }
+        
+        .field { margin-bottom: 12px; }
+        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 4px; font-weight: bold; }
+        input, select, textarea { width: 100%; background: var(--panel); border: 1px solid #222; color: var(--text); padding: 12px; border-radius: 4px; font-size: 0.95rem; outline: none; }
+        textarea { height: 55px; resize: none; }
+        
         .hidden { display: none !important; }
         
         #pantalla-bienvenida { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; }
         .btn-bienvenida { background:#fff; color:#000; padding:22px 45px; font-weight:900; cursor:pointer; text-transform:uppercase; border-radius:4px; font-size: 0.95rem; border: none; letter-spacing: 1px; }
         
-        /* DISEÑO DE INTERFAZ INTEGRAL UNIFICADO (GRANDES, LEGIBLES Y LIMPIOS TANTO PARA CASA COMO PARA SALIR) */
+        /* COHESIÓN ESTÉTICA DE TARJETAS DE MISIONES */
         .mision-card { border: 1px solid #222; padding: 26px; text-align: left; background: #0a0a0a; border-radius: 12px; width: 100%; }
         .mision-card small { color: #666; font-weight: bold; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
-        .mision-card h2, .mision-card h3 { color: #2e7d32; font-size: 1.45rem; font-weight: 900; text-transform: uppercase; margin-top: 0; margin-bottom: 15px; letter-spacing: 0.5px; }
-        .mision-card p, .mision-card .instruccion-text { font-size: 1.25rem; line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid #2e7d32; padding-left: 14px; text-align: left; font-weight: bold; }
+        .mision-card h2, .mision-card h3 { color: var(--green-action); font-size: 1.45rem; font-weight: 900; text-transform: uppercase; margin-top: 0; margin-bottom: 15px; }
+        .mision-card p, .mision-card .instruccion-text { font-size: 1.25rem; line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid var(--green-action); padding-left: 14px; text-align: left; font-weight: bold; }
         
-        /* PULMÓN ELÁSTICO CONFIGURADO A RITMO MÉDICO NORMAL SEGURO (8 SEGUNDOS POR CICLO) */
+        /* PULMÓN ELÁSTICO REGULADO SEGURO */
         #breath-circle { 
             width: 135px; 
             height: 135px; 
@@ -60,26 +84,21 @@
             animation: elasticLung 8s infinite ease-in-out; 
         }
         @keyframes elasticLung {
-            0% { transform: scale(0.85); box-shadow: 0 0 10px rgba(0, 188, 212, 0.2); }
+            0% { transform: scale(0.85); }
             50% { transform: scale(1.15); background: rgba(0, 188, 212, 0.3); box-shadow: 0 0 35px rgba(0,188,212,0.5); }
-            100% { transform: scale(0.85); box-shadow: 0 0 10px rgba(0, 188, 212, 0.2); }
+            100% { transform: scale(0.85); }
         }
         #timer { font-weight: 900; text-align: center; font-size: 3.2rem; margin: 15px 0; color: #fff; }
         #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: #00bcd4; text-align: center; letter-spacing: 2px; }
     </style>
 </head>
-<!-- OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.5.0 -->
-<!-- Company: May Roga LLC -->
-<!-- File: static/session.html - SECCIÓN 2 DE 2 (MANDO INTEGRAL FÍSICO) -->
-
 <body>
-    <!-- Pantalla de inicio obligatoria para desbloquear el audio nativo del teléfono -->
+
     <div id="pantalla-bienvenida">
         <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button>
     </div>
 
     <div class="container hidden" id="wrapper-form">
-        <!-- Barra superior con botones de idioma bilingües reales -->
         <div class="lang-bar">
             <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button>
             <button class="btn-lang" id="lang-en" onclick="KERNEL.cambiarIdioma('en')">ENG</button>
@@ -87,55 +106,39 @@
         
         <h1 id="txt-app-title">OPEN THAN GO</h1>
         
-        <div class="field">
-            <label id="lbl-zip">Código Postal</label>
-            <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5">
+        <!-- CONTROL ANÓNIMO DE LOCALIZACIÓN REQUERIDO POR MAPS -->
+        <div class="field" style="display: flex; gap: 10px;">
+            <div style="flex: 2;">
+                <label id="lbl-zip">ZIP Code</label>
+                <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5">
+            </div>
+            <div style="flex: 1;">
+                <label>Modo</label>
+                <select id="modo-selector">
+                    <option value="SALIR" selected>SALIR</option>
+                    <option value="CASA">CASA</option>
+                </select>
+            </div>
+        </div>
+
+        <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: #d84315; font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
+        
+        <!-- RECEPTOR MÓVIL DEL FEED DE PREGUNTAS CRÍTICAS -->
+        <div class="oraculo-grid" id="contenedor-preguntas-oraculo">
+            <!-- Inyección automatizada de 6 en 6 mediante engine.js -->
         </div>
         
-        <div class="field">
-            <label id="lbl-mode">Modo de Operación</label>
-            <select id="modo-selector">
-                <option value="CASA">CASA (Estabilización)</option>
-                <option value="SALIR" selected>SALIR (Acción)</option>
-            </select>
+        <!-- CAPA OCULTA DE DESAHOGO INTEGRADO -->
+        <div class="field hidden">
+            <input type="text" id="inp-text-invisible">
+            <input type="hidden" id="inp-mente" value="aburrido">
+            <input type="hidden" id="inp-budget" value="0">
+            <input type="hidden" id="inp-perfil" value="solo">
         </div>
-        
-        <div class="field">
-            <label id="lbl-mente">Estado Mental</label>
-            <select id="inp-mente">
-                <option value="agotado">Agotado</option>
-                <option value="estresado">Estresado</option>
-                <option value="aburrido">Aburrido</option>
-            </select>
-        </div>
-        
-        <div class="field">
-            <label id="lbl-budget">Presupuesto</label>
-            <select id="inp-budget">
-                <option value="0">Cero Gastos</option>
-                <option value="1">Moderado</option>
-            </select>
-        </div>
-        
-        <div class="field">
-            <label id="lbl-perfil">Perfil</label>
-            <select id="inp-perfil">
-                <option value="solo">Solo</option>
-                <option value="familia">Familia</option>
-            </select>
-        </div>
-        
-        <div class="field">
-            <label id="lbl-desahogo">Desahogo</label>
-            <textarea id="inp-text" placeholder="Escribe libremente cómo te sientes hoy..."></textarea>
-        </div>
-        
-        <button id="btn-mando">ACTIVAR MANDO</button>
     </div>
 
-    <!-- Contenedor único donde se inyectan las misiones grandes y uniformes -->
     <div class="container hidden" id="wrapper-interactive">
-        <!-- El Kernel inyecta aquí dinámicamente las misiones unificadas -->
+        <!-- Espejo dinámico homogéneo -->
     </div>
 
     <script src="/static/engine.js"></script>
