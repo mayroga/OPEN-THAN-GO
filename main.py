@@ -341,9 +341,9 @@ async def mando_integral(request: Request):
         precio_real = "Flujo de abundancia activa. Date un lujo merecido hoy."
         gps_query_default = "luxury+marina+boat+dock+or+5+star+hotel+lobby+or+luxury+car+dealership+or+musical+instruments+store"
 
-    perfil_str = str(perfil).strip().lower()
-    quienes_van = "Vas solo contigo mismo a recuperar tu centro."
-    tratamiento_especial = ""
+        perfil_str = str(perfil).strip().lower()
+        quienes_van = "Vas solo contigo mismo a recuperar tu centro."
+        tratamiento_especial = ""
 
     if "adulto" in perfil_str or "mayor" in perfil_str or "senior" in perfil_str or perfil_str == "accessible":
         quienes_van = "Ruta plana con acceso total por comodidad física y cuidado de tu edad."
