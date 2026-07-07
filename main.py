@@ -188,9 +188,8 @@ async def mando_integral(request: Request):
 
     # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO INTERCEPTOR
     palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero"] 
-    canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"]) 
-
-        if any(p in desahogo for p in palabras_criticas): 
+    canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
+        if any(p in desahogo for p in palabras_criticas):
         # LÓGICA DE RAMIFICACIÓN TRIDIMENSIONAL INTEGRADA (3 OPCIONES PARA AMAZON)
         # Forzamos al parásito a barajar entre Spotify, YouTube o Google Maps usando tus mismas variables fijas
         if "amazon" in desahogo:
@@ -198,20 +197,20 @@ async def mando_integral(request: Request):
         else:
             canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
 
-        if canal_multimedia == "SPOTIFY": 
-            titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET" 
-            donde_base = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone" 
-            guia_masticada = "DESTINO: Spotify Gratis.\nQUÉ HACER: Escucha los sonidos naturales en silencio.\nPARA QUÉ: Detener el impulso de gastar dinero en cosas innecesarias hoy." if lang == "es" else "TARGET: Free Spotify.\nWHAT TO DO: Listen to nature sounds in silence.\nWHY: Stop the urge to buy unnecessary items today." 
-            link_base = BIG_TECH_RESOURCES["spotify_audio"] 
-            gps_query = "" 
-        elif canal_multimedia == "YOUTUBE": 
-            titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK" 
-            donde_base = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency" 
-            guia_masticada = "DESTINO: Video en YouTube.\nQUÉ HACER: Pon el video en pantalla completa.\nPARA QUÉ: Calmar los pensamientos rápidos del día." if lang == "es" else "TARGET: YouTube Video.\nWHAT TO DO: Play the video in full screen.\nWHY: Calm your racing thoughts right now." 
-            link_base = BIG_TECH_RESOURCES["youtube_audio"] 
-            gps_query = "" 
-        else: 
-            # Si el azar tira MAPS, evalúa de forma inteligente si viene de Amazon o de una deuda general
+        if canal_multimedia == "SPOTIFY":
+            titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
+            donde_base = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone"
+            guia_masticada = "DESTINO: Spotify Gratis.\nQUÉ HACER: Escucha los sonidos naturales en silencio.\nPARA QUÉ: Detener el impulso de gastar dinero en cosas innecesarias hoy." if lang == "es" else "TARGET: Free Spotify.\nWHAT TO DO: Listen to nature sounds in silence.\nWHY: Stop the urge to buy unnecessary items today."
+            link_base = BIG_TECH_RESOURCES["spotify_audio"]
+            gps_query = ""
+        elif canal_multimedia == "YOUTUBE":
+            titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
+            donde_base = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency"
+            guia_masticada = "DESTINO: Video en YouTube.\nQUÉ HACER: Pon el video en pantalla completa.\nPARA QUÉ: Calmar los pensamientos rápidos del día." if lang == "es" else "TARGET: YouTube Video.\nWHAT TO DO: Play the video in full screen.\nWHY: Calm your racing thoughts right now."
+            link_base = BIG_TECH_RESOURCES["youtube_audio"]
+            gps_query = ""
+        else:
+            # Si el azar tira MAPS, evalúa de forma inteligente si viene de Amazon o de una deba general
             if "amazon" in desahogo:
                 titulo_ganador = "EXPLORACIÓN DE AUSENCIA" if lang == "es" else "EXPLORATION OF ABSENCE"
                 donde_base = "Mercado Local Abierto" if lang == "es" else "Local Open Market"
@@ -219,52 +218,57 @@ async def mando_integral(request: Request):
                 link_base = "https://www.google.com/maps/search/?api=1&query="
                 gps_query = "farmers+market"
             else:
-                titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION" 
-                donde_base = "Oficinas de contratación y staffings corporativos en tu zona." if lang == "es" else "Employment Agency" 
-                guia_masticada = f"DESTINO: Oficinas de empleo inmediato.\nQUÉ HACER: Entra ya con tu identificación en mano.\nPARA QUÉ: Para ganarle al agobio del dinero y tomar el control de tu economía hoy.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: Google Maps.\nWHAT TO DO: Go out straight with your physical ID.\nWHY: Look for a quick job and get cash now.\n{quienes_van}\n{precio_real}" 
-                link_base = "https://www.google.com/maps/search/?api=1&query=" 
-                gps_query = BIG_TECH_RESOURCES["staffing_agencies"] 
-    else: 
-        # Rutas bilingües de campo ordinarias libres de deudas 
-        link_base = "https://www.google.com/maps/search/?api=1&query=" 
-        gps_query = info["gps"] 
+                titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION"
+                donde_base = "Oficinas de contratación y staffings corporativos en tu zona." if lang == "es" else "Employment Agency"
+                guia_masticada = f"DESTINO: Oficinas de empleo inmediato.\nQUÉ HACER: Entra ya con tu identificación en mano.\nPARA QUÉ: Para ganarle al agobio del dinero y tomar el control de tu economía hoy.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: Google Maps.\nWHAT TO DO: Go out straight with your physical ID.\nWHY: Look for a quick job and get cash now.\n{quienes_van}\n{precio_real}"
+                link_base = "https://www.google.com/maps/search/?api=1&query="
+                gps_query = BIG_TECH_RESOURCES["staffing_agencies"]
+    else:
+        # Rutas bilingües de campo ordinarias libres de deudas
+        link_base = "https://www.google.com/maps/search/?api=1&query="
+        gps_query = info["gps"]
         donde_base = info["donde"]
-    
-        if lang == "en": 
-            traducciones_guia = { 
-                "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.", 
-                "Caminata en subida": "TARGET: Public Stairs.\nWHAT TO DO: Walk up firmly using your strength.\nWHY: Release the physical stress from your body.", 
-                "Paseo de colores": "TARGET: Street Art.\nWHAT TO DO: Look at murals in silence. Find hidden details.\nWHY: Break your daily routine with something new." 
-            } 
-            guia_masticada = traducciones_guia.get(info["titulo"], f"TARGET: {info['donde']}.\nWHAT TO DO: {info['que_hacer']}\nWHY: {info['porque']}\n{quienes_van}\n{precio_real}") 
-            titulo_ganador = info["titulo"].upper() 
-        else: 
-            guia_masticada = f"DESTINO: {info['titulo']}.\nPOR QUÉ: {info['porque']}\nQUÉ HACER: {info['que_hacer']}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Para romper el zombi urbano y recordar que la vida es más que pagar cuentas.\n{quienes_van}\n{precio_real}" 
-            titulo_ganador = info["titulo"].upper() 
 
-    # Adaptabilidad del Perfil Biopsicosocial sin exclusión social 
-    if perfil == "accesible": gps_query = "wheelchair+accessible+" + gps_query 
-    elif perfil == "family": gps_query = "family+friendly+" + gps_query 
+        if lang == "en":
+            traducciones_guia = {
+                "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
+                "Caminata en subida": "TARGET: Public Stairs.\nWHAT TO DO: Walk up firmly using your strength.\nWHY: Release the physical stress from your body.",
+                "Paseo de colores": "TARGET: Street Art.\nWHAT TO DO: Look at murals in silence. Find hidden details.\nWHY: Break your daily routine with something new."
+            }
+            guia_masticada = traducciones_guia.get(info["titulo"], f"TARGET: {info['donde']}.\nWHAT TO DO: {info['que_hacer']}\nWHY: {info['porque']}\n{quienes_van}\n{precio_real}")
+            titulo_ganador = info["titulo"].upper()
+        else:
+            guia_masticada = f"DESTINO: {info['titulo']}.\nPOR QUÉ: {info['porque']}\nQUÉ HACER: {info['que_hacer']}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Para romper el zombi urbano y recordar que la vida es más que pagar cuentas.\n{quienes_van}\n{precio_real}"
+            titulo_ganador = info["titulo"].upper()
+
+    # Adaptabilidad del Perfil Biopsicosocial sin exclusión social
+    if perfil == "accesible":
+        gps_query = "wheelchair+accessible+" + gps_query
+    elif perfil == "family":
+        gps_query = "family+friendly+" + gps_query
 
     # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA ORIGINAL RESTAURADA SIN RECORTE NI ALTERACIONES
-    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}" 
-    
-    if gps_query: 
+    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
+
+    if gps_query:
         if link_base.startswith("http"):
-            link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+") 
+            link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
         else:
             link_google_maps_vivo = link_base.replace(" ", "+")
-    else: 
-        link_google_maps_vivo = link_base.replace(" ", "+") 
+    else:
+        link_google_maps_vivo = link_base.replace(" ", "+")
 
-    return JSONResponse({ 
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO", 
-        "destino_titulo": titulo_ganador, 
-        "destino_entorno": donde_base, 
-        "destino_instruccion": guia_masticada.strip(), 
+    return JSONResponse({
+        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+        "destino_titulo": titulo_ganador,
+        "destino_entorno": donde_base,
+        "destino_instruccion": guia_masticada.strip(),
         "destino_coordenadas_gps": link_google_maps_vivo,
-        "token_entorno": info["titulo"] if "titulo" in info else "general" # Inyecta la firma para que engine.js sume al perfil dinámico
-    }) 
+        "token_entorno": info["titulo"] if "titulo" in info else "general"
+    })
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
+
+        
