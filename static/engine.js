@@ -1,6 +1,6 @@
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
 // Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 1 DE 3 (NÚCLEO CONVERSACIONAL SECUENCIAL)
+// File: static/engine.js - SECCIÓN 1 DE 2 (NÚCLEO Y PREGUNTAS MASTER)
 
 const KERNEL = {
     timer: null,
@@ -15,76 +15,76 @@ const KERNEL = {
     // Variables de Control de Tiempo e Impaciencia SOLDADAS
     relojRealSegundos: 600,
     contadorToques: 0,
-    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
+    ssecuenciaAdelantos: [],
 
     // ARQUITECTURA ADICTIVA: 8 Bloques Secuenciales Fijos de 6 Preguntas (De Menor a Mayor Complejidad)
     bloqueActual: 0,
-    conteoInaccion: 0, // Rastreador de Congelamiento para no cargar el sistema
+    conteoInaccion: 0, 
     
     CATALOGO_PREGUNTAS: [
-        // Bloque 1: Rutina Diaria General
-        "¿La rutina de la semana te está consumiendo?",
-        "¿Sientes que tus días son una copia del anterior?",
-        "¿Pasas el día libre mirando la pantalla sin hacer nada?",
-        "¿Te cuesta levantarte de la cama aunque ya descansaste?",
-        "¿Sientes pereza de salir de tu zona de confort hoy?",
-        "¿El piloto automático tomó el control de tus decisiones?",
+        // Bloque 1: El Bucle Digital Urbano (Facebook, YouTube, Spotify y Amazon)
+        "¿Abres Facebook por inercia para ver vidas falsas y compararlas con tu rutina gris?",
+        "¿Te quedas dormido viendo videos en YouTube que olvidas a los cinco segundos?",
+        "¿Te pones audífonos en Spotify para tapar con música el ruido y la ansiedad de tu mente?",
+        "¿Buscas ofertas innecesarias en Amazon solo por la dopamina de esperar un paquete?",
+        "¿Caminas por los pasillos de Walmart o Costco gastando dinero por puro aburrimiento?",
+        "¿Sientes que la tecnología te robó la capacidad de contemplar el mundo real en silencio?",
 
-        // Bloque 2: Presión Financiera e Impulso Corporativo
-        "¿Trabajas mucho y sientes que no avanzas económicamente?",
-        "¿Tienes miedo constante a perder tu empleo en este país?",
-        "¿Sientes que lo que te pagan no es suficiente para tus gastos?",
-        "¿Ganas bien pero no te atreves a hacer algo diferente?",
-        "¿Abres Amazon o Walmart para gastar por aburrimiento?",
-        "¿Los biles y las deudas bloquean tu paz mental?",
+        // Bloque 2: Consumo de Escape y Rutina Física (Restaurantes, Hoteles y Autos)
+        "¿Gastas de más en restaurantes lujosos buscando una felicidad que dura solo una cena?",
+        "¿Te encierras en el cuarto de un hotel huyendo de problemas que viajan en tu maleta?",
+        "¿Manejas tu auto sin rumbo fijo solo para no estar encerrado en tu propia casa?",
+        "¿Pagas biles de servicios que usas mecánicamente para mantenerte anestesiado?",
+        "¿Te da terror romper tu salida de rutina habitual por miedo a cansarte físicamente?",
+        "¿Tu cuerpo te pide a gritos mover los músculos pero eliges la comodidad del sofá?",
 
-        // Bloque 3: Aislamiento Social y Entorno Familiar
-        "¿Discutes seguido con tus hijos o tu familia?",
-        "¿Sientes que están separados o aislados viviendo bajo el mismo techo?",
-        "¿Las inconveniencias y diferencias familiares te agobian?",
-        "¿Extrañas demasiado a tus familiares que están lejos?",
-        "¿Sientes que estás solo contigo mismo enfrentando todo?",
-        "¿Te rodea mucha gente pero te sientes incomprendido?",
+        // Bloque 3: Distracción Nocturna y Evasión (Discotecas, Clubes y Fiestas de Amigos)
+        "¿Vas a clubes nocturnos buscando ruido para ensordecer las deudas que te preocupan?",
+        "¿Bailas en una discoteca rodeado de extraños sintiendo una soledad profunda por dentro?",
+        "¿Asistes a la fiesta de un amigo solo por compromiso, deseando regresar a tu aislamiento?",
+        "¿Bebes alcohol en reuniones sociales para poder aguantar conversaciones monótonas?",
+        "¿Aceptas la visita de un amigo pero te escondes detrás de la pantalla de tu celular?",
+        "¿Finges que todo está perfecto en tu vida social para no mostrar tu encarcelamiento mental?",
 
-        // Bloque 4: Relaciones de Pareja y Desamor
-        "¿Es difícil encontrar a alguien que de verdad te quiera aquí?",
-        "¿Estás pasando por un divorcio o separación dolorosa?",
-        "¿No tienes pareja y el peso de la soledad te asfixia hoy?",
-        "¿Tu relación actual se volvió monótona y sin motivos?",
-        "¿Discutes por dinero o por biles con tu pareja?",
-        "¿Prefieres esconderte en el teléfono antes de hablar con alguien?",
+        // Bloque 4: Entorno Familiar y Distancia (Fiestas Familiares y Visitas)
+        "¿Discutes constantemente con tus hijos por diferencias que bloquean la armonía en casa?",
+        "¿Sientes flojera o apathy antes de asistir a una fiesta familiar obligatoria de fin de semana?",
+        "¿Vives bajo el mismo techo con tu familia pero se sienten como perfectos extraños aislados?",
+        "¿La visita de un familiar te genera tensión en lugar de darte paz y alegría real?",
+        "¿Extrañas tanto a tus familiares lejanos que te paralizas y dejas de vivir tu presente?",
+        "¿Sientes el peso de biles compartidos abriendo grietas de silencio en tus relaciones?",
 
-        // Bloque 5: Parálisis por Comodidad o Abundancia Vacía
-        "¿Tienes todo a nivel material pero no te conformas con nada?",
-        "¿Quieres hacer algo diferente hoy pero no sabes qué es?",
-        "¿Sientes que el dinero no está llenando tu vacío interno?",
-        "¿Te compras cosas innecesarias que luego dejas guardadas?",
-        "¿La comodidad te mantiene encerrado en tu propia casa?",
-        "¿Has perdido los motivos reales para sonreír de corazón?",
+        // Bloque 5: Viajes Largos y Fugas de la Realidad (Aviones y Cruceros)
+        "¿Suestimas el valor de tu entorno local y sueñas con un viaje en avión que no puedes pagar?",
+        "¿Deseas meterte en un crucero de lujo para que el mar se lleve tus crisis existenciales?",
+        "¿Crees que la solución a tu infelicidad es mudarte de ciudad o cambiar de estado en USA?",
+        "¿Planificas vacaciones costosas con dinero que deberías usar para proteger tu economía?",
+        "¿Buscas paisajes lejanos en internet porque has perdido la capacidad de asombrarte con tu cielo?",
+        "¿Te sientes atrapado en el territorio y asumes que la libertad depende de un boleto de viaje?",
 
-        // Bloque 6: Desgaste Físico, Mental y Salud
-        "¿Quieres estar bien de salud pero no encuentras la energía?",
-        "¿Sientes tensión acumulada en tus hombros y espalda ahora?",
-        "¿Tus ojos te arden por culpa de la luz artificial?",
-        "¿Tu mente no para de dar vueltas pensando en el mañana?",
-        "¿Sientes el pecho apretado por la prisa de la ciudad?",
-        "¿Has olvidado cuándo fue la última vez que respiraste aire puro?",
+        // Bloque 6: Vulnerabilidad Corporal y Dolor (Hospitales, Clínicas e Impotencia)
+        "¿Postergas tu visita a la clínica de dientes o al hospital por miedo a gastar tu presupuesto?",
+        "¿Sientes dolores físicos en la espalda o el cuello causados por el estrés de tus biles?",
+        "¿Te aterra enfermarte en este sistema y perder la estabilidad laboral de tu familia?",
+        "¿Sientes el pecho apretado por la prisa de la ciudad y el miedo constante al futuro?",
+        "¿Ganas buen dinero pero tu salud se está desgastando en un trabajo que te explota?",
+        "¿Has olvidado el alivio de respirar aire puro con los ojos cerrados libres de preocupación?",
 
-        // Bloque 7: Crisis de Identidad y Miedos Ocultos
-        "¿Te da miedo perder el control si dejas la rutina?",
-        "¿Sientes que el sistema te quiere dormido y consumiendo?",
-        "¿Te comparas con lo que ves en las redes de otros?",
-        "¿Crees que tu vida es solo trabajar y pagar biles?",
-        "¿Te da pánico equivocarte si tomas una decisión nueva?",
-        "¿Sientes que el tiempo vuela y tú sigues estancado?",
+        // Bloque 7: El Espejismo Material y Vacío (Playas y Propiedades)
+        "¿Vas a la playa a tomar el sol pero tu mente sigue contando deudas y obligaciones?",
+        "¿Tienes estabilidad material y comodidades pero sientes un inconformismo crónico devorándote?",
+        "¿Quieres comprarte una casa o un terreno pensando que las paredes te darán identidad?",
+        "¿Te da pánico equivocarte si dejas la rutina cómoda y segura que ya conoces?",
+        "¿Te comparas secretamente con el estatus y las posesiones de tus vecinos en Estados Unidos?",
+        "¿Sientes que el tiempo se te escapa de las manos trabajando solo para acumular botes vacíos?",
 
-        // Bloque 8: Quiebre Biopsicosocial Profundo
-        "¿Tu mente se convirtió en tu mayor prisión en este momento?",
-        "¿Quieres ayudar a tu familia pero te sientes impotente?",
-        "¿Ganas lo suficiente pero te da miedo perder tu estatus?",
-        "¿Sientes que estás perdiendo los mejores años de tu vida?",
-        "¿Te cuesta creer que las cosas puedan mejorar para ti hoy?",
-        "¿Estás listo para dejar que el mando rompa tu encierro mental?"
+        // Bloque 8: El Despertar Maestro (Quiebre y Mando Absoluto)
+        "¿Tu mente se convirtió en la prisión más difícil de romper en este momento de tu vida?",
+        "¿Quieres ayudar a tu familia a estar mejor pero te paraliza no saber cómo empezar?",
+        "¿Estás cansado de caer siempre en los mismos lugares innecesarios devorando tu libertad?",
+        "¿Sientes que estás perdiendo tus mejores años esperando un milagro que no va a llegar?",
+        "¿Te cuesta creer que exista un espacio gratis en tu zona capaz de devolverte la esperanza?",
+        "¿Estás listo para obedecer al mando, soltar tus indecisiones y salir de tu encierro mental hoy?"
     ],
 
     obtenerPerfilLocal() {
@@ -105,8 +105,6 @@ const KERNEL = {
     init() {
         const btnMando = document.getElementById('btn-mando');
         if (btnMando) btnMando.onclick = () => this.ejecutar();
-        
-        // Carga secuencial automática del Bloque 1 desde la memoria local del smartphone
         this.bloqueActual = parseInt(localStorage.getItem("otg_bloque_secuencial")) || 0;
     },
 
@@ -121,91 +119,155 @@ const KERNEL = {
             "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca lo que sientes hoy."
         ];
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-        
-        // Inicializa el temporizador de inacción de contingencia local (Acción-Reacción)
         this.iniciarMonitoreoInaccion();
     },
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
+// Company: May Roga LLC
+// File: static/engine.js - SECCIÓN 2 DE 4 (MANEJO DE CASCADA)
+
+    temporizadorCascada: null,
+    indicePreguntaCascada: 0,
 
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
         
+        clearInterval(this.temporizadorCascada);
         grid.innerHTML = "";
+        this.indicePreguntaCascada = 0;
+        
         let inicioIdx = this.bloqueActual * 6;
         
-        // Si el usuario superó los 8 bloques secuenciales, reinicia de menor a mayor
+        // Si el usuario supera los 8 bloques de menor a mayor profundidad, reinicia en limpio
         if (inicioIdx >= this.CATALOGO_PREGUNTAS.length) {
             this.bloqueActual = 0;
             inicioIdx = 0;
             localStorage.setItem("otg_bloque_secuencial", 0);
         }
 
+        // Renderiza el bloque de 6 preguntas directas
         for (let i = 0; i < 6; i++) {
             let preguntaTexto = this.CATALOGO_PREGUNTAS[inicioIdx + i];
             if (!preguntaTexto) break;
 
             let btn = document.createElement('button');
             btn.className = 'btn-pregunta-crisis';
+            btn.id = `btn-pregunta-${i}`;
             btn.innerText = `${i + 1}. ${preguntaTexto}`;
             btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto);
             grid.appendChild(btn);
         }
+
+        // Restaura el estado visual neutro del cajón libre mientras corre la cascada
+        const btnLibre = document.getElementById('btn-activar-libre');
+        const lblDesahogo = document.getElementById('lbl-desahogo');
+        if (btnLibre) {
+            btnLibre.style.background = "#111";
+            btnLibre.style.color = "#555";
+            btnLibre.style.borderColor = "#222";
+        }
+        if (lblDesahogo) lblDesahogo.style.color = "#666";
+
+        // DISPARADOR DE CASCADA AUTOMÁTICO DE 8 SEGUNDOS
+        this.iniciarEfectoCascada();
     },
+
+    iniciarEfectoCascada() {
+        this.indicePreguntaCascada = 0;
+        
+        this.temporizadorCascada = setInterval(() => {
+            let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
+            
+            if (botonParaEliminar) {
+                // Inyecta la clase CSS para desvanecer y contraer hacia arriba
+                botonParaEliminar.classList.add('fade-out');
+                
+                // Hace que el asistente de voz narre de inmediato la siguiente pregunta disponible
+                let siguienteIdx = this.indicePreguntaCascada + 1;
+                let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
+                if (siguienteBoton) {
+                    let textoLimpio = siguienteBoton.innerText.substring(3);
+                    this.hablar(textoLimpio);
+                }
+                
+                this.indicePreguntaCascada++;
+            } else {
+                // Al desaparecer los 6 botones del bloque, detiene el bucle y libera la escritura
+                clearInterval(this.temporizadorCascada);
+                this.liberarCajonEscrituraLibre();
+            }
+        }, 8000); // Ritmo exacto de 8 segundos mandatorios
+    },
+
+    liberarCajonEscrituraLibre() {
+        const textarea = document.getElementById('inp-text-libre');
+        const btnLibre = document.getElementById('btn-activar-libre');
+        const lblDesahogo = document.getElementById('lbl-desahogo');
+        const instruccion = document.getElementById('lbl-oraculo-instruccion');
+
+        if (instruccion) instruccion.innerText = "Mando libre listo. Cuéntame qué te pasa.";
+        if (lblDesahogo) lblDesahogo.style.color = "#fff";
+        
+        if (textarea) {
+            textarea.focus(); // Introduce automáticamente el cursor en el cuadro
+        }
+
+        if (btnLibre) {
+            // Enciende el botón en verde de acción directa e inyecta el evento de clic
+            btnLibre.style.background = "var(--green-action)";
+            btnLibre.style.color = "#fff";
+            btnLibre.style.borderColor = "#4caf50";
+            
+            btnLibre.onclick = () => {
+                let textoEscrito = textarea.value.trim();
+                if (textoEscrito.length > 3) {
+                    this.reaccionarPreguntaSeleccionada(textoEscrito);
+                } else {
+                    this.hablar("Escribe tu problema en el cuadro antes de activar el mando.");
+                }
+            };
+        }
+    },
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
+// Company: May Roga LLC
+// File: static/engine.js - SECCIÓN 3 DE 4 (INACCIÓN Y FETCH NÚCLEO)
 
     iniciarMonitoreoInaccion() {
         clearInterval(this.timer);
         this.conteoInaccion = 0;
         
-        // Monitorea el comportamiento del hardware cada 10 segundos para no saturar procesos
+        // Bucle de contingencia: Si pasa el tiempo en el cajón libre sin escribir, rota al siguiente bloque de 6 de menor a mayor
         this.timer = setInterval(() => {
             this.conteoInaccion++;
             
-            // ESTADO 1 Y 2: Si pasa el tiempo sin responder, avanza al siguiente bloque para picar su curiosidad
-            if (this.conteoInaccion === 1 || this.conteoInaccion === 2) {
+            if (this.conteoInaccion === 4 || this.conteoInaccion === 8) { // Ventanas espaciadas de control conductual
+                clearInterval(this.temporizadorCascada);
                 this.bloqueActual++;
                 this.inyectarBloquePreguntas();
-                this.hablar("Veo que estás dudando. Mira estas otras opciones en tu pantalla. Rompe la indecisión.");
+                this.hablar("Avanzamos de nivel. Mira estas otras opciones en pantalla.");
             } 
-            // ESTADO 3 (CONGELAMIENTO CRÓNICO): Se detiene de forma respetuosa y le da su tiempo
-            else if (this.conteoInaccion >= 3) {
+            else if (this.conteoInaccion >= 12) {
                 clearInterval(this.timer);
-                this.hablar("Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando a que estés listo para salir del encierro.");
-                
-                // Muta la visual a un estado de pausa amigable
+                clearInterval(this.temporizadorCascada);
+                this.hablar("Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando.");
                 const instruccion = document.getElementById('lbl-oraculo-instruccion');
                 if (instruccion) instruccion.innerText = "Tomando un respiro. Toca cuando estés listo...";
             }
-        }, 10000); // Ventanas exactas de 10 segundos
+        }, 12000); 
     },
+
     reaccionarPreguntaSeleccionada(textoPregunta) {
-        // Detiene el temporizador de inacción en el segundo en que hay Reacción
         clearInterval(this.timer);
+        clearInterval(this.temporizadorCascada);
         
-        // Guarda el avance secuencial de menor a mayor para su próxima visita
         this.bloqueActual++;
         localStorage.setItem("otg_bloque_secuencial", this.bloqueActual);
 
-        // Mapea la pregunta seleccionada al input oculto de desahogo
         const inputOculto = document.getElementById('inp-text-invisible');
         if (inputOculto) inputOculto.value = textoPregunta;
 
-        // Dispara la ejecución satelital de inmediato
         this.ejecutar();
     },
-
-    hablar(texto) {
-        if (!texto) return;
-        window.speechSynthesis.cancel();
-        let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
-        const msg = new SpeechSynthesisUtterance(fx);
-        msg.lang = 'es-US'; 
-        msg.rate = 1.20; 
-        window.speechSynthesis.speak(msg);
-    },
-
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
-// Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 2 DE 2 (EJECUCIÓN DISRUPTIVA Y RELOJ INTEGRAL)
 
     async ejecutar() {
         if (this.isLocked) return;
@@ -249,6 +311,9 @@ const KERNEL = {
             this.isLocked = false;
         }
     },
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
+// Company: May Roga LLC
+// File: static/engine.js - SECCIÓN 4 DE 4 (PARTE A: RELOJ CLÍNICO)
 
     procesarFlujoSecuencial(container) {
         clearInterval(this.timer);
@@ -259,7 +324,7 @@ const KERNEL = {
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW" }
         }[this.idiomaActual];
 
-        // MODO SALIR (ACCION_CAMPO) - RETENCION BIOLÓGICA DE 35S
+        // MODO SALIR (ACCION_CAMPO) - RETENCIÓN BIOLÓGICA DE 35 SEGUNDOS OBLIGATORIOS
         if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
             if (this.datosLugarGlobal) {
                 let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
@@ -307,7 +372,7 @@ const KERNEL = {
             }
         }
 
-        // MODO CASA - TRANSICIÓN HACIA EL RELOJ CLÍNICO MANDATORIO
+        // MODO CASA - CONTROL INTERNO HACIA EL TEMPORIZADOR CLÍNICO
         if (this.indiceMision >= this.pasosMisiones.length) {
             this.iniciarRelojClinicoCasa(container, t);
             return;
@@ -325,6 +390,7 @@ const KERNEL = {
         this.hablar(paso.titulo + " . " + paso.descripcion);
         document.getElementById('btn-next').onclick = () => this.avanzarPaso();
     },
+
     iniciarRelojClinicoCasa(container, t) {
         window.speechSynthesis.cancel();
         let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
@@ -346,7 +412,7 @@ const KERNEL = {
         const timerDiv = document.getElementById('timer');
         const pulmonDiv = document.getElementById('txt-pulmon');
 
-        // CATÁLOGO DE 30 AUDIOS SECUENCIALES FIJOS (Cada 20 segundos sin repetir de menor a mayor profundidad)
+        // CATÁLOGO COMPLETO DE LOS 30 AUDIOS BIOPREVENTIVOS SECUENCIALES FIJOS
         const AUDIOS_SECUENCIALES_CASA = [
             "Sigue el pulso en tu pantalla. Concéntrate. Estás conmigo hoy.",
             "Suelta los hombros despacio. Deja caer todo el peso físico de la semana.",
@@ -379,6 +445,9 @@ const KERNEL = {
             "Faltan pocos segundos para el reinicio definitivo. Siente la esperanza.",
             "Estás completamente a salvo aquí. Quédate en paz absoluta en este segundo."
         ];
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
+// Company: May Roga LLC
+// File: static/engine.js - SECCIÓN 4 DE 4 (PARTE B: CIERRE Y PURGA)
 
         if (circleElement) {
             circleElement.onclick = () => {
@@ -426,7 +495,7 @@ const KERNEL = {
                 let pasoAudioIdx = Math.floor((600 - this.relojRealSegundos) / 20) - 1;
                 let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
                 if (recordatorioTexto) {
-                    window.speechSynthesis.cancel(); // Purga forzada instantánea para mantener limpio el hardware
+                    window.speechSynthesis.cancel(); // Limpieza instantánea para evitar solapamiento de audio
                     let msgFlotante = new SpeechSynthesisUtterance(recordatorioTexto);
                     msgFlotante.lang = 'es-US';
                     msgFlotante.rate = 1.20;
