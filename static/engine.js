@@ -1,6 +1,6 @@
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
 // Company: May Roga LLC
-// File: static/engine.js - SECCIÓN 1 DE 2 (NÚCLEO CONVERSACIONAL SECUENCIAL)
+// File: static/engine.js - SECCIÓN 1 DE 3 (NÚCLEO CONVERSACIONAL SECUENCIAL)
 
 const KERNEL = {
     timer: null,
@@ -12,7 +12,7 @@ const KERNEL = {
     datosLugarGlobal: null,
     tipoEscapeGlobal: "",
     
-    // Variables de Control de Tiempo e Impaciencia
+    // Variables de Control de Tiempo e Impaciencia SOLDADAS
     relojRealSegundos: 600,
     contadorToques: 0,
     secuenciaAdelantos:,
@@ -177,7 +177,6 @@ const KERNEL = {
             }
         }, 10000); // Ventanas exactas de 10 segundos
     },
-
     reaccionarPreguntaSeleccionada(textoPregunta) {
         // Detiene el temporizador de inacción en el segundo en que hay Reacción
         clearInterval(this.timer);
@@ -203,6 +202,7 @@ const KERNEL = {
         msg.rate = 1.20; 
         window.speechSynthesis.speak(msg);
     },
+
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
 // Company: May Roga LLC
 // File: static/engine.js - SECCIÓN 2 DE 2 (EJECUCIÓN DISRUPTIVA Y RELOJ INTEGRAL)
@@ -259,7 +259,7 @@ const KERNEL = {
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW" }
         }[this.idiomaActual];
 
-        // MODO SALIR (ACCION_CAMPO) - RETENCIÓN BIOLÓGICA DE 35S
+        // MODO SALIR (ACCION_CAMPO) - RETENCION BIOLÓGICA DE 35S
         if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
             if (this.datosLugarGlobal) {
                 let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
@@ -325,169 +325,144 @@ const KERNEL = {
         this.hablar(paso.titulo + " . " + paso.descripcion);
         document.getElementById('btn-next').onclick = () => this.avanzarPaso();
     },
+    iniciarRelojClinicoCasa(container, t) {
+        window.speechSynthesis.cancel();
+        let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
+        this.hablar(msg);
+        
+        container.innerHTML = `
+        <div style="text-align:center; width:100%;">
+            <div id="breath-circle" style="cursor:pointer;" title="Toca para enfocar tu mente"></div>
+            <div id="timer">10:00</div>
+            <p id="txt-pulmon">INHALA / INHALE</p>
+        </div>`;
 
-    ```javascript
-iniciarRelojClinicoCasa(container, t) {
-    window.speechSynthesis.cancel();
-    
-    let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
-    this.hablar(msg);
+        this.timeLeft = 600;
+        this.relojRealSegundos = 600;
+        this.contadorToques = 0;
+        this.secuenciaAdelantos =;
 
-    container.innerHTML = `
-    <div style="text-align:center; width:100%;">
-        <div id="breath-circle" style="cursor:pointer;" title="Toca para enfocar tu mente"></div>
-        <div id="timer">10:00</div>
-        <p id="txt-pulmon">INHALA / INHALE</p>
-    </div>`;
+        const circleElement = document.getElementById('breath-circle');
+        const timerDiv = document.getElementById('timer');
+        const pulmonDiv = document.getElementById('txt-pulmon');
 
-    this.timeLeft = 600; 
-    this.relojRealSegundos = 600; 
-    this.contadorToques = 0;
-    this.secuenciaAdelantos = [5, 7, 9, 10, 14, 16, 17, 19, 21, 5];
+        // CATÁLOGO DE 30 AUDIOS SECUENCIALES FIJOS (Cada 20 segundos sin repetir de menor a mayor profundidad)
+        const AUDIOS_SECUENCIALES_CASA = [
+            "Sigue el pulso en tu pantalla. Concéntrate. Estás conmigo hoy.",
+            "Suelta los hombros despacio. Deja caer todo el peso físico de la semana.",
+            "No mires tus biles ahora. No mires tu cartera. Respira ya.",
+            "Mantén el ritmo constante. Siente el aire fresco limpiando tu pecho.",
+            "Te estoy acompañando en silencio. No estás solo en esta habitación.",
+            "Siente tus pies firmes apoyados en el suelo. La tierra te sostiene gratis.",
+            "El piloto automático corporativo está apagado en este segundo. Continúa así.",
+            "Quédate justo en este instante. El pasado ya pasó, el presente es tuyo.",
+            "Suelta la mandíbula ahora. Libera esa carga que aprietas sin darte cuenta.",
+            "Tu mente está despertando poco a poco. Estás ganando control real.",
+            "Eres mucho más grande que tus deudas. Respira hondo y despacio.",
+            "Rompe el zombi que el sistema quiere que seas. Quédate en la sala conmigo.",
+            "Escucha mi voz. Nota cómo tu respiración se vuelve más profunda y limpia.",
+            "Tus ojos están descansando finalmente de las luces artificiales de la pantalla.",
+            "Siente los latidos de tu pecho. Es tu motor vivo latiendo para ti.",
+            "Siente el peso fuera de tu espalda. Imagina que dejas caer tu mochila.",
+            "No dejes que los pensamientos rápidos te saquen de este momento de paz.",
+            "Abandona la prisa de la ciudad hoy. Aquí el tiempo es tuyo.",
+            "El dinero regresará a tus bolsillos, pero este segundo de calma no se repite.",
+            "Siente cómo tus pulmones se llenan de fuerza con cada ciclo de aire azul.",
+            "Tu familia necesita que estés fuerte por dentro. Recupérate ahora.",
+            "Olvídate de las aplicaciones de compras. Tu mente está por encima del consumo.",
+            "Estás borrando el ruido del día. Quédate en la sala respirando conmigo.",
+            "La rutina diaria se ha roto. Tú gobiernas tus decisiones en este instante.",
+            "El suelo está firme debajo tuyo. Siente la estabilidad de la tierra.",
+            "Tu pecho está libre de agobios ahora. Expulsa todo lo malo de golpe.",
+            "Estás recuperando tu centro biopsicosocial. Sigue la luz del círculo.",
+            "Tu mente es fuerte. Has domado el miedo a perder el trabajo hoy.",
+            "Faltan pocos segundos para el reinicio definitivo. Siente la esperanza.",
+            "Estás completamente a salvo aquí. Quédate en paz absoluta en este segundo."
+        ];
 
-    const circleElement = document.getElementById('breath-circle');
-    const timerDiv = document.getElementById('timer');
-    const pulmonDiv = document.getElementById('txt-pulmon');
+        if (circleElement) {
+            circleElement.onclick = () => {
+                if (this.contadorToques < 10) {
+                    let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
+                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
+                    this.contadorToques++;
+                    try {
+                        let perfil = this.obtenerPerfilLocal();
+                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 10, 100);
+                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                    } catch (e) {}
+                    let m = Math.floor(this.timeLeft / 60);
+                    let s = this.timeLeft % 60;
+                    if (timerDiv) {
+                        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                    }
+                }
+            };
+        }
 
-    // CATÁLOGO DE 30 AUDIOS SECUENCIALES FIJOS
-    const AUDIOS_SECUENCIALES_CASA = [
-        "Sigue el pulso en tu pantalla. Concéntrate. Estás conmigo hoy.",
-        "Suelta los hombros despacio. Deja caer todo el peso físico de la semana.",
-        "No mires tus biles ahora. No mires tu cartera. Respira ya.",
-        "Mantén el ritmo constante. Siente el aire fresco limpiando tu pecho.",
-        "Te estoy acompañando en silencio. No estás solo en esta habitación.",
-        "Siente tus pies firmes apoyados en el suelo. La tierra te sostiene gratis.",
-        "El piloto automático corporativo está apagado en este segundo. Continúa así.",
-        "Quédate justo en este instante. El pasado ya pasó, el presente es tuyo.",
-        "Suelta la mandíbula ahora. Libera esa carga que aprietas sin darte cuenta.",
-        "Tu mente está despertando poco a poco. Estás ganando control real.",
-        "Eres mucho más grande que tus deudas. Respira hondo y despacio.",
-        "Rompe el zombi que el sistema quiere que seas. Quédate en la sala conmigo.",
-        "Escucha mi voz. Nota cómo tu respiración se vuelve más profunda y limpia.",
-        "Tus ojos están descansando finalmente de las luces artificiales de la pantalla.",
-        "Siente los latidos de tu pecho. Es tu motor vivo latiendo para ti.",
-        "Siente el peso fuera de tu espalda. Imagina que dejas caer tu mochila.",
-        "No dejes que los pensamientos rápidos te saquen de este momento de paz.",
-        "Abandona la prisa de la ciudad hoy. Aquí el tiempo es tuyo.",
-        "El dinero regresará a tus bolsillos, pero este segundo de calma no se repite.",
-        "Siente cómo tus pulmones se llenan de fuerza con cada ciclo de aire azul.",
-        "Tu familia necesita que estés fuerte por dentro. Recupérate ahora.",
-        "Olvídate de las aplicaciones de compras. Tu mente está por encima del consumo.",
-        "Estás borrando el ruido del día. Quédate en la sala respirando conmigo.",
-        "La rutina diaria se ha roto. Tú gobiernas tus decisiones en este instante.",
-        "El suelo está firme debajo tuyo. Siente la estabilidad de la tierra.",
-        "Tu pecho está libre de agobios ahora. Expulsa todo lo malo de golpe.",
-        "Estás recuperando tu centro biopsicosocial. Sigue la luz del círculo.",
-        "Tu mente es fuerte. Has domado el miedo a perder el trabajo hoy.",
-        "Faltan pocos segundos para el reinicio definitivo. Siente la esperanza.",
-        "Estás completamente a salvo aquí. Quédate en paz absoluta en este segundo."
-    ];
+        this.timer = setInterval(() => {
+            this.relojRealSegundos--;
 
-    if (circleElement) {
-        circleElement.onclick = () => {
-            if (this.contadorToques < 10) {
-                let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
-                this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
-                this.contadorToques++;
-
-                try {
-                    let perfil = this.obtenerPerfilLocal();
-                    perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 10, 100);
-                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                } catch (e) {}
-
-                let m = Math.floor(this.timeLeft / 60);
-                let s = this.timeLeft % 60;
-
-                if (timerDiv) {
-                    timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+            if (this.timeLeft > 0) {
+                this.timeLeft--;
+            }
+            let m = Math.floor(this.timeLeft / 60);
+            let s = this.timeLeft % 60;
+            if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+            
+            if (pulmonDiv) {
+                let ciclo = this.relojRealSegundos % 8;
+                if (ciclo >= 4) {
+                    pulmonDiv.innerText = t.inspira.toUpperCase();
+                    pulmonDiv.style.color = "#00bcd4";
+                } else {
+                    pulmonDiv.innerText = t.expira.toUpperCase();
+                    pulmonDiv.style.color = "#d84315";
                 }
             }
-        };
-    }
-}
-```
 
-this.timer = setInterval(() => {
-this.relojRealSegundos--;
+            // CONTROL Y DISPARO SECUENCIAL FIJO MAESTRO CADA 20 SEGUNDOS DESDE EL SEGUNDO CERO
+            if (this.relojRealSegundos < 600 && this.relojRealSegundos % 20 === 0) {
+                let pasoAudioIdx = Math.floor((600 - this.relojRealSegundos) / 20) - 1;
+                let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
+                if (recordatorioTexto) {
+                    window.speechSynthesis.cancel(); // Purga forzada instantánea para mantener limpio el hardware
+                    let msgFlotante = new SpeechSynthesisUtterance(recordatorioTexto);
+                    msgFlotante.lang = 'es-US';
+                    msgFlotante.rate = 1.20;
+                    window.speechSynthesis.speak(msgFlotante);
+                }
+            }
 
-```
-if (this.timeLeft > 0) {
-    this.timeLeft--;
-}
+            if (this.relojRealSegundos <= 0) {
+                clearInterval(this.timer);
+                window.speechSynthesis.cancel();
+                if (circleElement) {
+                    circleElement.style.animation = "none";
+                    circleElement.style.transform = "scale(1)";
+                }
+                this.hablar(t.fin);
+                alert(t.fin);
+                this.destruirYReiniciar();
+            }
+        }, 1000);
+    },
 
-let m = Math.floor(this.timeLeft / 60);
-let s = this.timeLeft % 60;
+    avanzarPaso() {
+        this.indiceMision++;
+        const container = document.getElementById('wrapper-interactive');
+        this.procesarFlujoSecuencial(container);
+    },
 
-if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-
-if (pulmonDiv) {
-    let ciclo = this.relojRealSegundos % 8;
-
-    if (ciclo >= 4) {
-        pulmonDiv.innerText = t.inspira.toUpperCase();
-        pulmonDiv.style.color = "#00bcd4";
-    } else {
-        pulmonDiv.innerText = t.expira.toUpperCase();
-        pulmonDiv.style.color = "#d84315";
-    }
-}
-
-// CONTROL Y DISPARO SECUENCIAL FIJO MAESTRO CADA 20 SEGUNDOS DESDE EL SEGUNDO CERO
-if (this.relojRealSegundos < 600 && this.relojRealSegundos % 20 === 0) {
-
-    // Calcula exactamente qué audio le corresponde en la traza lineal del tiempo real
-    let pasoAudioIdx = Math.floor((600 - this.relojRealSegundos) / 20) - 1;
-
-    let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
-
-    if (recordatorioTexto) {
+    destruirYReiniciar() {
+        clearInterval(this.timer);
         window.speechSynthesis.cancel();
-
-        // Purga forzada instantánea para mantener limpio el hardware
-        let msgFlotante = new SpeechSynthesisUtterance(recordatorioTexto);
-        msgFlotante.lang = 'es-US';
-        msgFlotante.rate = 1.20;
-
-        window.speechSynthesis.speak(msgFlotante);
+        this.pasosMisiones = [];
+        this.indiceMision = 0;
+        this.isLocked = false;
+        sessionStorage.clear();
+        location.reload();
     }
-}
-
-if (this.relojRealSegundos <= 0) {
-    clearInterval(this.timer);
-    window.speechSynthesis.cancel();
-
-    if (circleElement) {
-        circleElement.style.animation = "none";
-        circleElement.style.transform = "scale(1)";
-    }
-
-    this.hablar(t.fin);
-    alert(t.fin);
-    this.destruirYReiniciar();
-}
-```
-
-}, 1000);
-
-},
-
-avanzarPaso() {
-this.indiceMision++;
-const container = document.getElementById('wrapper-interactive');
-this.procesarFlujoSecuencial(container);
-},
-
-destruirYReiniciar() {
-clearInterval(this.timer);
-window.speechSynthesis.cancel();
-this.pasosMisiones = [];
-this.indiceMision = 0;
-this.isLocked = false;
-sessionStorage.clear();
-location.reload();
-}
-
 };
 
 document.addEventListener('DOMContentLoaded', () => KERNEL.init());
