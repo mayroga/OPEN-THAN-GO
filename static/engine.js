@@ -12,10 +12,10 @@ const KERNEL = {
     datosLugarGlobal: null,
     tipoEscapeGlobal: "",
     
-    // Variables del Espejismo Temporal e Inferencia Psicológica COMPLETA
+    // Variables del Espejismo Temporal e Inferencia Psicológica CORREGIDAS
     relojRealSegundos: 600,
     contadorToques: 0,
-    secuenciaAdelantos:,
+    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
 
     // MOTOR DE PREFERENCIAS IMPLÍCITAS LOCAL: Inicializa los contadores de las 19 necesidades en la RAM del teléfono
     obtenerPerfilLocal() {
@@ -234,7 +234,7 @@ const KERNEL = {
         this.timeLeft = 600; // Lo que ve el cliente en pantalla (Visual)
         this.relojRealSegundos = 600; // El tiempo real que corre segundo a segundo dentro del Kernel (App)
         this.contadorToques = 0;
-        this.secuenciaAdelantos =;
+        this.secuenciaAdelantos = [5, 7, 9, 10, 14, 16, 17, 19, 21, 5];
 
         const circleElement = document.getElementById('breath-circle');
         const timerDiv = document.getElementById('timer');
