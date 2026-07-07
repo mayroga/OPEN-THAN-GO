@@ -15,7 +15,7 @@ const KERNEL = {
     // Variables de Control de Tiempo e Impaciencia SOLDADAS
     relojRealSegundos: 600,
     contadorToques: 0,
-    secuenciaAdelantos: [],
+    secuenciaAdelantos: [5,7,9,10,14,16,17,19,21,5],
 
     // ARQUITECTURA ADICTIVA: 8 Bloques Secuenciales Fijos de 6 Preguntas (De Menor a Mayor Complejidad)
     bloqueActual: 0,
