@@ -114,7 +114,7 @@
         <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;"> 
             <div style="flex: 2;"> 
                 <label id="lbl-zip">ZIP Code</label> 
-                <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5"> 
+                <input type="text" id="input-zip" placeholder="Ej: 33167" maxlength="5"> 
             </div> 
             <div style="flex: 1;"> 
                 <label>Modo</label> 
@@ -137,8 +137,8 @@
         <!-- EL CAJÓN DE ESCRITURA LIBRE SANADO AL 100% --> 
         <div class="field" id="bloque-escritura-libre"> 
             <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label> 
-            <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea> 
-            <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button> 
+            <textarea id="cajon-desahogo" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea> 
+            <button id="btn-mando-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button> 
         </div> 
 
         <input type="hidden" id="inp-text-invisible"> 
@@ -147,6 +147,7 @@
     <!-- CONTENEDOR DE SALIDA INTERACTIVA PARA PARQUES, VIDEOS Y PULMÓN -->
     <div class="container hidden" id="wrapper-interactive"></div>
 
-    <script src="/static/engine.js"></script> 
-</body> 
+    <script src="/static/engine.js"></script>
+<script src="/static/kernel-safety.js"></script>
+</body>
 </html>
