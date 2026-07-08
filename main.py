@@ -40,7 +40,7 @@ BASE_MISIONES = {
         {"id": 19, "titulo": "Memoria feliz", "descripcion": "Cierra los ojos y recuerda un momento real de calma en tu niñez."},
         {"id": 20, "titulo": "Sonrisa forzada", "descripcion": "Sonríe 15 segundos. Cambia tu química cerebral ahora."},
         {"id": 21, "titulo": "Agradecimiento", "descripcion": "Cierra los ojos. Agradece una cosa buena de esta semana."},
-        {"id": 22, "titulo": "Relaja ojos", "descripcion": "Tápate los ojos con palmas templadas. Un minuto de oscuridad."},
+        {"id": 22, "titulo": "Relaja ojos", "contentType": "text", "descripcion": "Tápate los ojos con palmas templadas. Un minuto de oscuridad."},
         {"id": 23, "titulo": "Ritmo cardíaco", "descripcion": "Mano derecha en el pecho. Siente el latido. Es tu motor."},
         {"id": 24, "titulo": "Suelta cuello", "descripcion": "Círculos lentos de cabeza. Libera la tensión de pantalla."},
         {"id": 25, "titulo": "Ejercicio de palmas", "descripcion": "Frota manos hasta sentir calor. Colócalas en hombros."},
@@ -69,8 +69,9 @@ BASE_MISIONES = {
         {"id": 48, "titulo": "Limpieza mental", "descripcion": "Exhala preocupación aburrida. Fuera de ti."},
         {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la estabilidad."},
         {"id": 50, "titulo": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control."}
-    ],
-    "SALIR": {
+    ], # <-- TRANSICIÓN TOTALMENTE LIMPIA CERRADA CON COMA REGLAMENTARIA
+
+        "SALIR": {
         "agotado": [
             # 1. Parques Públicos (Naturaleza/Sombra)
             {
@@ -143,8 +144,9 @@ BASE_MISIONES = {
                 "variante_spotify": "https://spotify.com",
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "vibrant+restaurant+with+music"
-            },
-            # 7. Miradores Elevados de la Ciudad
+            }, # <-- CONTINUIDAD DE ARREGLO PROTEGIDA CON COMA E INDENTACIÓN ESTABLE
+
+                        # 7. Miradores Elevados de la Ciudad
             {
                 "titulo": "Punto de altura",
                 "porque": "Ver las luces y los rascacielos desde arriba te da perspectiva y expande tus metas de prosperidad.",
@@ -239,8 +241,9 @@ BASE_MISIONES = {
                 "variante_spotify": "https://spotify.com",
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "5+star+hotel+lobby"
-            },
-            # 15. Mercados Gastronómicos Abiertos (Food Halls / Time Out)
+            }, # <-- CONTINUIDAD INTEGRAL ASEGURADA CON COMA Y CORCHETES BALANCEADOS
+
+                        # 15. Mercados Gastronómicos Abiertos (Food Halls / Time Out)
             {
                 "titulo": "Pulso del Sabor Urbano",
                 "porque": "Oler decenas de cocinas internacionales mezcladas con risas y charlas rompe cualquier aislamiento de forma dinámica.",
@@ -255,7 +258,7 @@ BASE_MISIONES = {
             # 16. Centros de Estética, Barberías o Spas Premium
             {
                 "titulo": "Inversión en Ti",
-                "porque": "Dedicarse tiempo a la apariencia física enciende tu autoestima y te recuerda la prosperidad de tu cuerpo.",
+                "porque": "Dedicarse tiempo a la apariencia física enciende tu autoestima y te recuerda la prosperidad de tu body.",
                 "que_hacer": "Entra a revisar el menú de masajes, cortes o tratamientos. Disfruta de la atención impecable del personal.",
                 "donde": "Spa urbano, salón o barbería de alta gama.",
                 "gps": "luxury+spa+or+barbershop",
@@ -264,8 +267,8 @@ BASE_MISIONES = {
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "luxury+spa+or+barbershop"
             }
-        ],
-        "estresado": [
+        ], # <-- AQUÍ CIERRA LIMPIAMENTE EL ARREGLO DE "agotado"
+        "estresado": [ # <-- AQUÍ ABRE EL ARREGLO PARA EL ESTADO "estresado"
             # 17. Graderías y Escaleras Públicas Grandes (Movimiento)
             {
                 "titulo": "Caminata en subida",
@@ -337,8 +340,9 @@ BASE_MISIONES = {
                 "variante_spotify": "https://spotify.com",
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "go+kart+racing"
-            },
-            # 23. Zonas de Skateparks y Parques de Acción Urbana
+            }, # <-- CONTINUIDAD TOTALMENTE ASEGURADA CON SANGRA DO EXACTO Y COMA
+
+                        # 23. Zonas de Skateparks y Parques de Acción Urbana
             {
                 "titulo": "Impacto Dinámico Urbano",
                 "porque": "La cultura callejera, la música hip-hop y el riesgo controlado de los trucos inyectan juventud y vitalidad a tu día.",
@@ -401,7 +405,7 @@ BASE_MISIONES = {
             # 43. Pistas de Patinaje sobre Hielo o Ruedas (Rollerskating)
             {
                 "titulo": "Deslizamiento y Equilibrio Sincrónico",
-                "porque": "La inercia de los giros circulares y el movimiento fluido forzan a tu mente a coordinar el ritmo físico.",
+                "porque": "La inercia de los giros circulares y el movement fluido forzan a tu mente a coordinar el ritmo físico.",
                 "que_hacer": "Toma un asiento en las gradas laterales. Sigue el movimiento de los patinadores y déjate llevar.",
                 "donde": "Pista de patinaje del condado indoor/outdoor.",
                 "gps": "skating+rink",
@@ -421,8 +425,9 @@ BASE_MISIONES = {
                 "variante_spotify": "https://spotify.com",
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "historical+monument+plaza"
-            },
-            # 45. Pasarelas y Miradores sobre Autopistas Interestatales (Freeways)
+            }, # <-- CONTINUIDAD TOTALMENTE ASEGURADA CON SANGRA DO EXACTO Y COMA
+
+                        # 45. Pasarelas y Miradores sobre Autopistas Interestatales (Freeways)
             {
                 "titulo": "Inercia de la Masa en Movimiento",
                 "porque": "Ver la velocidad y el destello de miles de luces de freeways marchándose saca a tu cerebro de su inercia estática.",
@@ -470,7 +475,7 @@ BASE_MISIONES = {
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "antique+store+or+used+bookstore"
             }
-        ],
+        ], # <-- AQUÍ CIERRA EL ARREGLO DE "estresado"
         "aburrido": [
             {
                 "titulo": "Paseo tranquilo",
@@ -483,12 +488,13 @@ BASE_MISIONES = {
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "quiet+public+park"
             }
-        ]
-    }
-}
-# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
-# Company: May Roga LLC
-# File: main.py - SECCIÓN FINAL DE CONTROL INTEGRAL COMPACTO
+        ] # <-- AQUÍ CIERRA EL ARREGLO DE "aburrido"
+    } # <-- AQUÍ CIERRA EL DICCIONARIO "SALIR"
+} # <-- AQUÍ CIERRA EL DICCIONARIO MAESTRO GLOBAL "BASE_MISIONES"
+
+# =========================================================================
+# 🚀 ENDPOINTS DE CONTROL DE RUTA Y FLUJO ASÍNCRONO DE ENTRADA
+# =========================================================================
 
 @app.get("/")
 async def index():
@@ -609,7 +615,6 @@ async def mando_integral(request: Request):
             link_base = info.get("variante_spotify", "https://spotify.com")
             gps_query = ""
 
-
         elif canal_multimedia == "YOUTUBE":
 
             titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
@@ -628,7 +633,6 @@ async def mando_integral(request: Request):
 
             link_base = info.get("variante_youtube", "https://youtube.com")
             gps_query = ""
-
 
         else: # canal_multimedia == "MAPS"
 
@@ -667,130 +671,85 @@ async def mando_integral(request: Request):
                     f"GASTO: {precio_real}"
                 )
 
-
-            elif budget == "1":
-
+                        elif budget == "1":
                 titulo_ganador = (
-                    "INERCIA DE ABASTECIMIENTO"
-                    if lang == "es"
-                    else
-                    "SMART URBAN INERTIA"
+                    "INERCIA DE ABASTECIMIENTO" if lang == "es" else "SMART URBAN INERTIA"
                 )
-
                 donde_base = (
                     "Grandes Almacenes de Suministros, Cafeterías de Libros o Tiendas de Saldo Cotidiano"
-                    if lang == "es"
-                    else
-                    "Department Outlets, Bookstores or Distribution Centers"
+                    if lang == "es" else "Department Outlets, Bookstores or Distribution Centers"
                 )
-
                 guia_masticada = (
                     f"DESTINO: Un centro de distribución o rincón de diseño urbano.\n"
                     f"QUÉ HACER: Recorre los pasillos masivos, hojea portadas o busca novedades cotidianas con soltura.\n"
                     f"PARA QUÉ: Activar la mente a través de la exploración de objetos, oler el dinamismo del día y sacudirte la monotonía.\n\n"
                     f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}"
-                    if lang == "es"
-                    else
-                    f"TARGET: Smart Department Outlets or Used Bookstores.\n"
+                    f"GASTO: {precio_real}" if lang == "es" else f"TARGET: Smart Department Outlets or Used Bookstores.\n"
                     f"WHAT TO DO: Walk through massive aisles, browse book covers, or look for daily items with ease.\n"
                     f"WHY: Activate your mind through object exploration, feel the day's energy, and shake off monotony.\n\n"
                     f"ACOMPAÑAMIENTO: {quienes_van}\n"
                     f"GASTO: {precio_real}"
                 )
-
-
             elif budget == "2":
-
                 titulo_ganador = (
-                    "ESTÍMULO Y REGENERACIÓN URBANA"
-                    if lang == "es"
-                    else
-                    "URBAN REGENERATION STIMULUS"
+                    "ESTÍMULO Y REGENERACIÓN URBANA" if lang == "es" else "URBAN REGENERATION STIMULUS"
                 )
-
                 donde_base = (
                     "Grandes Centros Comerciales, Terrazas Elevadas, Cines o Centros de Recreación"
-                    if lang == "es"
-                    else
-                    "Vibrant Shopping Malls, Rooftops, Movie Theaters or Recreation Loops"
+                    if lang == "es" else "Vibrant Shopping Malls, Rooftops, Movie Theaters or Recreation Loops"
                 )
-
                 guia_masticada = (
                     f"DESTINO: Un entorno comercial o recreativo activo.\n"
                     f"QUÉ HACER: Entra a los pasillos confortables, sube a una terraza a pie o sigue la inercia circular de la pista.\n"
                     f"PARA QUÉ: Rodearte de estímulos visuales, flujos sociales grandes y recuperar la soltura de tu día libre.\n\n"
                     f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}"
-                    if lang == "es"
-                    else
-                    f"TARGET: Vibrant Shopping Mall, Rooftop or Recreation Center.\n"
+                    f"GASTO: {precio_real}" if lang == "es" else f"TARGET: Vibrant Shopping Mall, Rooftop or Recreation Center.\n"
                     f"WHAT TO DO: Walk through comfortable aisles, visit an open terrace, or track the track's circular loop.\n"
                     f"WHY: Surround yourself with visual stimulus, massive social flows, and regain the ease of your day.\n\n"
                     f"ACOMPAÑAMIENTO: {quienes_van}\n"
                     f"GASTO: {precio_real}"
                 )
-
                 gps_query = info.get(
-                    "variante_maps",
-                    "shopping+mall+or+go+kart+racing+or+restaurant+with+rooftop"
+                    "variante_maps", "shopping+mall+or+go+kart+racing+or+restaurant+with+rooftop"
                 )
-
-
             else: # budget == "3" or any other value
-
                 titulo_ganador = (
-                    "NÚCLEO DE LA PROSPERIDAD"
-                    if lang == "es"
-                    else
-                    "CORE OF PROSPERITY"
+                    "NÚCLEO DE LA PROSPERIDAD" if lang == "es" else "CORE OF PROSPERITY"
                 )
-
                 donde_base = (
                     "Muelles y Marinas de Yates, Vestíbulos Elegantes o Salas de Exhibición Premium"
-                    if lang == "es"
-                    else
-                    "Yacht Marinas, Premium Lobbies or Showrooms"
+                    if lang == "es" else "Yacht Marinas, Premium Lobbies or Showrooms"
                 )
-
                 guia_masticada = (
                     f"DESTINO: Un activo urbano de alto estatus sin límites de gasto.\n"
                     f"QUÉ HACER: Camina por las pasarelas de madera entre mástiles, siéntate en los sofás amplios o admira la ingeniería de vanguardia.\n"
                     f"PARA QUÉ: Elevar tu sintonía subiendo el nivel de tu entorno visual, rompiendo la parálisis mental y fluyendo con el éxito material.\n\n"
                     f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}"
-                    if lang == "es"
-                    else
-                    f"TARGET: High-End Yacht Marina, Premium Hotel Lobby, or Showroom.\n"
+                    f"GASTO: {precio_real}" if lang == "es" else f"TARGET: High-End Yacht Marina, Premium Hotel Lobby, or Showroom.\n"
                     f"WHAT TO DO: Walk the wooden docks, take a seat on wide sofas, or inspect cutting-edge engineering.\n"
                     f"WHY: Elevate your vibration by upgrading your visual environment level, breaking mental freeze, and flowing with material success.\n\n"
                     f"ACOMPAÑAMIENTO: {quienes_van}\n"
                     f"GASTO: {precio_real}"
                 )
 
-                gps_query = info.get(
-                    "variante_maps",
-                    "luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership"
+                               gps_query = info.get(
+                    "variante_maps", "luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership"
                 )
-
-
+    
     # 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN
     else: # If not critical words or MANDO_LIBRE
-
         link_base = "https://www.google.com/maps/search/?api=1&query="
         gps_query = info["gps"]
         donde_base = info["donde"]
         titulo_ganador = info["titulo"].upper()
-
+        
         if lang == "en":
-
             traducciones_guia = {
                 "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
                 "Orilla de playa": "TARGET: Beach Shore.\nWHAT TO DO: Walk barefoot on wet sand. Let waves touch your feet.\nWHY: Ocean waves clear background noise from your mind.",
                 "Paseo del Mall": "TARGET: Shopping Mall Walk.\nWHAT TO DO: Walk through the corridors. Explore what is new and enjoy the lively atmosphere.\nWHY: Surrounding yourself with lights and social dynamic boosts your urban energy.",
                 "Estímulo del Sabor": "TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to background music and enjoy.\nWHY: Great food in a vibrant environment sparks life's abundance."
             }
-
             if info["titulo"] in traducciones_guia:
                 guia_masticada = f"{traducciones_guia[info['titulo']]}\n\n{quienes_van}\n{precio_real}"
             else:
@@ -801,10 +760,7 @@ async def mando_integral(request: Request):
                     f"{quienes_van}\n"
                     f"{precio_real}"
                 )
-
-
         else: # lang == "es"
-
             guia_masticada = (
                 f"DESTINO: {info['titulo']}.\n"
                 f"POR QUÉ: {info['porque']}\n"
@@ -814,6 +770,7 @@ async def mando_integral(request: Request):
                 f"{quienes_van}\n"
                 f"{precio_real}"
             )
+
     # 7. ADAPTABILIDAD GEOGRÁFICA UNIVERSAL FIJA Y SALIDA DE CONTROL
     if perfil == "accesible":
         gps_query = "wheelchair+accessible+" + gps_query
@@ -821,7 +778,7 @@ async def mando_integral(request: Request):
         gps_query = "family+friendly+" + gps_query
 
     anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
-
+    
     if gps_query:
         link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
     else:
