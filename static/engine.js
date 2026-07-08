@@ -1,3 +1,4 @@
+
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
 // Company: May Roga LLC
 // File: static/engine.js
@@ -132,9 +133,7 @@ const KERNEL = {
 
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
-        if (!grid) {
-            return;
-        }
+        if (!grid) return;
        
         clearInterval(this.temporizadorCascada);
         grid.innerHTML = "";
@@ -149,9 +148,7 @@ const KERNEL = {
 
         for (let i = 0; i < 6; i++) {
             let preguntaTexto = this.CATALOGO_PREGUNTAS[inicioIdx + i];
-            if (!preguntaTexto) {
-                break;
-            }
+            if (!preguntaTexto) break;
 
             let btn = document.createElement('button');
             btn.className = 'btn-pregunta-crisis';
@@ -168,9 +165,7 @@ const KERNEL = {
             btnLibre.style.color = "#555";
             btnLibre.style.borderColor = "#222";
         }
-        if (lblDesahogo) {
-            lblDesahogo.style.color = "#666";
-        }
+        if (lblDesahogo) lblDesahogo.style.color = "#666";
 
         this.iniciarEfectoCascada();
     },
@@ -208,12 +203,8 @@ const KERNEL = {
         if (instruccion) {
             instruccion.innerText = this.idiomaActual === 'es' ? "Mando libre listo. Cuéntame qué te pasa." : "Free control ready. Tell me what is happening.";
         }
-        if (lblDesahogo) {
-            lblDesahogo.style.color = "#fff";
-        }
-        if (textarea) {
-            textarea.focus();
-        }
+        if (lblDesahogo) lblDesahogo.style.color = "#fff";
+        if (textarea) textarea.focus();
 
         if (btnLibre) {
             btnLibre.style.background = "var(--green-action)";
@@ -264,9 +255,7 @@ const KERNEL = {
     },
 
     hablar(texto) {
-        if (!texto) {
-            return;
-        }
+        if (!texto) return;
         window.speechSynthesis.cancel();
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
@@ -295,9 +284,7 @@ const KERNEL = {
         this.hablar(t.alert);
     },
     async ejecutar() {
-        if (this.isLocked) {
-            return;
-        }
+        if (this.isLocked) return;
         this.isLocked = true;
 
         const payload = {
@@ -368,14 +355,10 @@ const KERNEL = {
                
                 this.timerClinico = setInterval(() => {
                     retencion--;
-                    if (btnCount) {
-                        btnCount.innerText = `${retencion}s ${t.listen}`;
-                    }
+                    if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
                     if (retencion <= 0) {
                         clearInterval(this.timerClinico);
-                        if (btnCount) {
-                            btnCount.style.display = 'none';
-                        }
+                        if (btnCount) btnCount.style.display = 'none';
                         if (btnGps) {
                             btnGps.classList.remove('hidden');
                             btnGps.onclick = () => {
@@ -383,13 +366,9 @@ const KERNEL = {
                                     let perfil = KERNEL.obtenerPerfilLocal();
                                     let token = KERNEL.datosLugarGlobal.token_entorno || "general";
                                     if (perfil) {
-                                        if (token.includes("árbol") || token.includes("Sombra")) {
-                                            perfil["naturaleza"] = Math.min(perfil["naturaleza"] + 10, 100);
-                                        } else if (token.includes("Caminata") || token.includes("subida")) {
-                                            perfil["movimiento"] = Math.min(perfil["movimiento"] + 10, 100);
-                                        } else if (token.includes("Paseo") || token.includes("colores")) {
-                                            perfil["creatividad"] = Math.min(perfil["creatividad"] + 10, 100);
-                                        }
+                                        if (token.includes("árbol") || token.includes("Sombra")) perfil["naturaleza"] = Math.min(perfil["naturaleza"] + 10, 100);
+                                        else if (token.includes("Caminata") || token.includes("subida")) perfil["movimiento"] = Math.min(perfil["movimiento"] + 10, 100);
+                                        else if (token.includes("Paseo") || token.includes("colores")) perfil["creatividad"] = Math.min(perfil["creatividad"] + 10, 100);
                                         localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
                                     }
                                 } catch (e) {}
@@ -498,15 +477,11 @@ const KERNEL = {
 
         this.timerClinico = setInterval(() => {
             this.relojRealSegundos--;
-            if (this.timeLeft > 0) {
-                this.timeLeft--;
-            }
+            if (this.timeLeft > 0) this.timeLeft--;
            
             let m = Math.floor(this.timeLeft / 60);
             let s = this.timeLeft % 60;
-            if (timerDiv) {
-                timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-            }
+            if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
            
             if (pulmonDiv) {
                 let ciclo = this.relojRealSegundos % 8;
