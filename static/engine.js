@@ -169,6 +169,37 @@ const KERNEL = {
             }
         }
     },
+    // =========================================================================
+    // 📌 LISTENERS INTERNOS: CAPTURA DE ACCIONES DEL CAJÓN Y BOTÓN MAESTRO
+    // =========================================================================
+    inicializarListenersMando() {
+        const botonMandoLibre = document.getElementById("btn-mando-libre");
+        const inputCajon = document.getElementById("cajon-desahogo");
+
+        // Desbloquea y activa el envío al hacer clic en el botón de Mando Libre
+        if (botonMandoLibre) {
+            botonMandoLibre.addEventListener("click", () => {
+                if (inputCajon && inputCajon.value.trim() !== "") {
+                    // Invoca al despachador cruzado tridimensional en modo MANDO_LIBRE
+                    this.despacharOraculo(inputCajon.value.trim());
+                } else {
+                    alert("Por favor, describe cómo te sientes en el cajón para activar el Mando Libre.");
+                }
+            });
+        }
+
+        // Permite al cliente enviar su desahogo presionando la tecla Enter dentro del cajón
+        if (inputCajon) {
+            inputCajon.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    if (inputCajon.value.trim() !== "") {
+                        e.preventDefault(); // Evita que la página se refresque o salte de línea
+                        this.despacharOraculo(inputCajon.value.trim());
+                    }
+                }
+            });
+        }
+    },
 
     init() {
         this.bloqueActual = parseInt(localStorage.getItem("otg_bloque_secuencial")) || 0;
