@@ -551,156 +551,264 @@ async def mando_integral(request: Request):
     elif "familia" in perfil or "hijos" in perfil or "family" in perfil:
         quienes_van = "Entorno apto para el desahogo de tus niños y seres queridos."
 
-    # 5. EL INTERCEPTOR TRIDIMENSIONAL 3X1 DE CONTROL FINANCIERO Y MANDO LIBRE
-    palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "gastar", "compras"]
+        # 5. EL INTERCEPTOR TRIDIMENSIONAL 3X1 DE CONTROL FINANCIERO Y MANDO LIBRE
+    palabras_criticas = [
+        "trabajo", "empleo", "compañia", "compañía", "job",
+        "biles", "deudas", "bills", "miseria", "explotacion",
+        "amazon", "walmart", "costco", "fresco", "tienda",
+        "comprar", "dinero", "gastar", "compras"
+    ]
 
     if any(p in desahogo for p in palabras_criticas) or opcion_usuario == "MANDO_LIBRE":
+
         canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
 
         if canal_multimedia == "SPOTIFY":
+
             titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
             donde_base = "Zona Libre de Consumo y Frecuencias Altas" if lang == "es" else "Store-Free High Frequency Zone"
-            guia_masticada = "DESTINO: Conexión Acústica.\nQUÉ HACER: Escucha los sonidos naturales en silencio absoluto.\nPARA QUÉ: Detener la prisa de la mente, enfriar el impulso de la rutina y sintonizar con tu prosperidad interior." if lang == "es" else "TARGET: Audio Connection.\nWHAT TO DO: Listen to nature sounds in complete silence.\nWHY: Stop the rush of the mind, cool down routine impulses, and tune into inner prosperity."
+
+            guia_masticada = (
+                "DESTINO: Conexión Acústica.\n"
+                "QUÉ HACER: Escucha los sonidos naturales en silencio absoluto.\n"
+                "PARA QUÉ: Detener la prisa de la mente, enfriar el impulso de la rutina y sintonizar con tu prosperidad interior."
+                if lang == "es"
+                else
+                "TARGET: Audio Connection.\n"
+                "WHAT TO DO: Listen to nature sounds in complete silence.\n"
+                "WHY: Stop the rush of the mind, cool down routine impulses, and tune into inner prosperity."
+            )
+
             link_base = info.get("variante_spotify", "https://spotify.com")
             gps_query = ""
+
+
         elif canal_multimedia == "YOUTUBE":
+
             titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
             donde_base = "Frecuencia de Abundancia y Alivio" if lang == "es" else "Abundance & Relief Frequency"
-            guia_masticada = "DESTINO: Sesión de Enfoque.\nQUÉ HACER: Pon el video en pantalla completa con audífonos.\nPARA QUÉ: Desacelerar los pensamientos rápidos y reprogramar tu cerebro hacia caminos de prosperidad y balance." if lang == "es" else "TARGET: Focus Session.\nWHAT TO DO: Play the video in full screen with headphones.\nWHY: Slow down racing thoughts and reprogram your brain towards paths of prosperity and balance."
+
+            guia_masticada = (
+                "DESTINO: Sesión de Enfoque.\n"
+                "QUÉ HACER: Pon el video en pantalla completa con audífonos.\n"
+                "PARA QUÉ: Desacelerar los pensamientos rápidos y reprogramar tu cerebro hacia caminos de prosperidad y balance."
+                if lang == "es"
+                else
+                "TARGET: Focus Session.\n"
+                "WHAT TO DO: Play the video in full screen with headphones.\n"
+                "WHY: Slow down racing thoughts and reprogram your brain towards paths of prosperity and balance."
+            )
+
             link_base = info.get("variante_youtube", "https://youtube.com")
             gps_query = ""
+
+
         else:
+
             link_base = "https://www.google.com/maps/search/?api=1&query="
             gps_query = gps_fallback
+
+
             if budget == "0":
+
                 titulo_ganador = (
-                    "EXPLORACIÓN DE AUSENCIA" if lang == "es" else "EXPLORATION OF ABSENCE"
+                    "EXPLORACIÓN DE AUSENCIA"
+                    if lang == "es"
+                    else
+                    "EXPLORATION OF ABSENCE"
                 )
+
                 donde_base = (
                     "Espacio Peatonal Abierto, Playa Pública o Parque Verde Nacional"
-                    if lang == "es" else "Public Open Space, Beach or National Park"
+                    if lang == "es"
+                    else
+                    "Public Open Space, Beach or National Park"
                 )
+
                 guia_masticada = (
-                    (
-                        f"DESTINO: Un entorno natural o plaza al aire libre.\n"
-                        f"QUÉ HACER: Camina despacio registrando el viento, el cielo y el flujo del entorno.\n"
-                        f"PARA QUÉ: Romper la hipnosis del encierro, relajar el cuerpo y conectar con la libertad del espacio abierto.\n\n"
-                        f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                        f"GASTO: {precio_real}"
-                    ) if lang == "es" else (
-                        f"TARGET: Free Nature Trail, Public Plaza or Open Beach.\n"
-                        f"WHAT TO DO: Walk slowly registering the wind, the sky, and the natural flow.\n"
-                        f"WHY: Break the indoor hypnosis, relax your body, and connect with open freedom.\n\n"
-                        f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                        f"GASTO: {precio_real}"
-                    )
+                    f"DESTINO: Un entorno natural o plaza al aire libre.\n"
+                    f"QUÉ HACER: Camina despacio registrando el viento, el cielo y el flujo del entorno.\n"
+                    f"PARA QUÉ: Romper la hipnosis del encierro, relajar el cuerpo y conectar con la libertad del espacio abierto.\n\n"
+                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
+                    f"GASTO: {precio_real}"
+                    if lang == "es"
+                    else
+                    f"TARGET: Free Nature Trail, Public Plaza or Open Beach.\n"
+                    f"WHAT TO DO: Walk slowly registering the wind, the sky, and the natural flow.\n"
+                    f"WHY: Break the indoor hypnosis, relax your body, and connect with open freedom.\n\n"
+                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
+                    f"GASTO: {precio_real}"
                 )
+
+
             elif budget == "1":
+
                 titulo_ganador = (
-                    "INERCIA DE ABASTECIMIENTO" if lang == "es" else "SMART URBAN INERTIA"
+                    "INERCIA DE ABASTECIMIENTO"
+                    if lang == "es"
+                    else
+                    "SMART URBAN INERTIA"
                 )
+
                 donde_base = (
                     "Grandes Almacenes de Suministros, Cafeterías de Libros o Tiendas de Saldo Cotidiano"
-                    if lang == "es" else "Department Outlets, Bookstores or Distribution Centers"
+                    if lang == "es"
+                    else
+                    "Department Outlets, Bookstores or Distribution Centers"
                 )
+
                 guia_masticada = (
-                    (
-                        f"DESTINO: Un centro de distribución o rincón de diseño urbano.\n"
-                        f"QUÉ HACER: Recorre los pasillos masivos, hojea portadas o busca novedades cotidianas con soltura.\n"
-                        f"PARA QUÉ: Activar la mente a través de la exploración de objetos, oler el dinamismo del día y sacudirte la monotonía.\n\n"
-                        f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                        f"GASTO: {precio_real}"
-                    ) if lang == "es" else (
-                        f"TARGET: Smart Department Outlets or Used Bookstores.\n"
-                        f"WHAT TO DO: Walk through massive aisles, browse book covers, or look for daily items with ease.\n"
-                        f"WHY: Activate your mind through object exploration, feel the day's energy, and shake off monotony.\n\n"
-                        f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                        f"GASTO: {precio_real}"
-                    )
+                    f"DESTINO: Un centro de distribución o rincón de diseño urbano.\n"
+                    f"QUÉ HACER: Recorre los pasillos masivos, hojea portadas o busca novedades cotidianas con soltura.\n"
+                    f"PARA QUÉ: Activar la mente a través de la exploración de objetos, oler el dinamismo del día y sacudirte la monotonía.\n\n"
+                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
+                    f"GASTO: {precio_real}"
+                    if lang == "es"
+                    else
+                    f"TARGET: Smart Department Outlets or Used Bookstores.\n"
+                    f"WHAT TO DO: Walk through massive aisles, browse book covers, or look for daily items with ease.\n"
+                    f"WHY: Activate your mind through object exploration, feel the day's energy, and shake off monotony.\n\n"
+                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
+                    f"GASTO: {precio_real}"
                 )
+
+
             elif budget == "2":
+
                 titulo_ganador = (
-                    "ESTÍMULO Y REGENERACIÓN URBANA" if lang == "es" else "URBAN REGENERATION STIMULUS"
+                    "ESTÍMULO Y REGENERACIÓN URBANA"
+                    if lang == "es"
+                    else
+                    "URBAN REGENERATION STIMULUS"
                 )
+
                 donde_base = (
                     "Grandes Centros Comerciales, Terrazas Elevadas, Cines o Centros de Recreación"
-                    if lang == "es" else "Vibrant Shopping Malls, Rooftops, Movie Theaters or Recreation Loops"
+                    if lang == "es"
+                    else
+                    "Vibrant Shopping Malls, Rooftops, Movie Theaters or Recreation Loops"
                 )
+
                 guia_masticada = (
-                    (
-                        f"DESTINO: Un entorno comercial o recreativo activo.\n"
-                        f"QUÉ HACER: Entra a los pasillos confortables, sube a una terraza a pie o sigue la inercia circular de la pista.\n"
-                        f"PARA QUÉ: Rodearte de estímulos visuales, flujos sociales grandes y recuperar la soltura de tu día libre.\n\n"
-                        f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                        f"GASTO: {precio_real}"
-                    ) if lang == "es" else (
-                        f"TARGET: Vibrant Shopping Mall, Rooftop or Recreation Center.\n"
-                        f"WHAT TO DO: Walk through comfortable aisles, visit an open terrace, or track the track's circular loop.\n"
-                        f"WHY: Surround yourself with visual stimulus, massive social flows, and regain the ease of your day.\n\n"
-                        f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                        f"GASTO: {precio_real}"
-                    )
+                    f"DESTINO: Un entorno comercial o recreativo activo.\n"
+                    f"QUÉ HACER: Entra a los pasillos confortables, sube a una terraza a pie o sigue la inercia circular de la pista.\n"
+                    f"PARA QUÉ: Rodearte de estímulos visuales, flujos sociales grandes y recuperar la soltura de tu día libre.\n\n"
+                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
+                    f"GASTO: {precio_real}"
+                    if lang == "es"
+                    else
+                    f"TARGET: Vibrant Shopping Mall, Rooftop or Recreation Center.\n"
+                    f"WHAT TO DO: Walk through comfortable aisles, visit an open terrace, or track the track's circular loop.\n"
+                    f"WHY: Surround yourself with visual stimulus, massive social flows, and regain the ease of your day.\n\n"
+                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
+                    f"GASTO: {precio_real}"
                 )
+
                 gps_query = info.get(
-                    "variante_maps", "shopping+mall+or+go+kart+racing+or+restaurant+with+rooftop"
+                    "variante_maps",
+                    "shopping+mall+or+go+kart+racing+or+restaurant+with+rooftop"
                 )
+
+
             else:
+
                 titulo_ganador = (
-                    "NÚCLEO DE LA PROSPERIDAD" if lang == "es" else "CORE OF PROSPERITY"
+                    "NÚCLEO DE LA PROSPERIDAD"
+                    if lang == "es"
+                    else
+                    "CORE OF PROSPERITY"
                 )
+
                 donde_base = (
                     "Muelles y Marinas de Yates, Vestíbulos Elegantes o Salas de Exhibición Premium"
-                    if lang == "es" else "Yacht Marinas, Premium Lobbies or Showrooms"
+                    if lang == "es"
+                    else
+                    "Yacht Marinas, Premium Lobbies or Showrooms"
                 )
+
                 guia_masticada = (
-                    (
-                        f"DESTINO: Un activo urbano de alto estatus sin límites de gasto.\n"
-                        f"QUÉ HACER: Camina por las pasarelas de madera entre mástiles, siéntate en los sofás amplios o admira la ingeniería de vanguardia.\n"
-                        f"PARA QUÉ: Elevar tu sintonía subiendo el nivel de tu entorno visual, rompiendo la parálisis mental y fluyendo con el éxito material.\n\n"
-                        f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                        f"GASTO: {precio_real}"
-                    ) if lang == "es" else (
-                        f"TARGET: High-End Yacht Marina, Premium Hotel Lobby, or Showroom.\n"
-                        f"WHAT TO DO: Walk the wooden docks, take a seat on wide sofas, or inspect cutting-edge engineering.\n"
-                        f"WHY: Elevate your vibration by upgrading your visual environment level, breaking mental freeze, and flowing with material success.\n\n"
-                        f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                        f"GASTO: {precio_real}"
-                    )
+                    f"DESTINO: Un activo urbano de alto estatus sin límites de gasto.\n"
+                    f"QUÉ HACER: Camina por las pasarelas de madera entre mástiles, siéntate en los sofás amplios o admira la ingeniería de vanguardia.\n"
+                    f"PARA QUÉ: Elevar tu sintonía subiendo el nivel de tu entorno visual, rompiendo la parálisis mental y fluyendo con el éxito material.\n\n"
+                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
+                    f"GASTO: {precio_real}"
+                    if lang == "es"
+                    else
+                    f"TARGET: High-End Yacht Marina, Premium Hotel Lobby, or Showroom.\n"
+                    f"WHAT TO DO: Walk the wooden docks, take a seat on wide sofas, or inspect cutting-edge engineering.\n"
+                    f"WHY: Elevate your vibration by upgrading your visual environment level, breaking mental freeze, and flowing with material success.\n\n"
+                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
+                    f"GASTO: {precio_real}"
                 )
+
                 gps_query = info.get(
-                    "variante_maps", "luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership"
+                    "variante_maps",
+                    "luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership"
                 )
-# 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN                   
-else:
-    link_base = "https://www.google.com/maps/search/?api=1&query="
-    gps_query = info["gps"]
-    donde_base = info["donde"]
-    titulo_ganador = info["titulo"].upper()
 
-    if lang == "en":
-        traducciones_guia = {
-            "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
-            "Orilla de playa": "TARGET: Beach Shore.\nWHAT TO DO: Walk barefoot on wet sand. Let waves touch your feet.\nWHY: Ocean waves clear background noise from your mind.",
-            "Paseo del Mall": "TARGET: Shopping Mall Walk.\nWHAT TO DO: Walk through the corridors. Explore what is new and enjoy the lively atmosphere.\nWHY: Surrounding yourself with lights and social dynamic boosts your urban energy.",
-            "Estímulo del Sabor": "TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to background music and enjoy.\nWHY: Great food in a vibrant environment sparks life's abundance."
-        }
 
-        guia_masticada = traducciones_guia.get(
-            info["titulo"],
-            f"TARGET: {info['donde']}.\n"
-            f"WHAT TO DO: {info['que_hacer']}\n"
-            f"WHY: {info['porque']}\n"
-            f"{quienes_van}\n"
-            f"{precio_real}"
-        )
-
+    # 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN
     else:
-        guia_masticada = (
-            f"DESTINO: {info['titulo']}.\n"
-            f"POR QUÉ: {info['porque']}\n"
-            f"QUÉ HACER: {info['que_hacer']}\n"
-            f"CUÁNDO: Ahora mismo. Levántate de la silla ya.\n"
-            f"PARA QUÉ: Romper el zombi urbano y recordar el valor de tu tranquilidad.\n"
-            f"{quienes_van}\n"
-            f"{precio_real}"
-        ) 
+
+        link_base = "https://www.google.com/maps/search/?api=1&query="
+        gps_query = info["gps"]
+        donde_base = info["donde"]
+        titulo_ganador = info["titulo"].upper()
+
+        if lang == "en":
+
+            traducciones_guia = {
+                "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
+                "Orilla de playa": "TARGET: Beach Shore.\nWHAT TO DO: Walk barefoot on wet sand. Let waves touch your feet.\nWHY: Ocean waves clear background noise from your mind.",
+                "Paseo del Mall": "TARGET: Shopping Mall Walk.\nWHAT TO DO: Walk through the corridors. Explore what is new and enjoy the lively atmosphere.\nWHY: Surrounding yourself with lights and social dynamic boosts your urban energy.",
+                "Estímulo del Sabor": "TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to background music and enjoy.\nWHY: Great food in a vibrant environment sparks life's abundance."
+            }
+
+            guia_masticada = traducciones_guia.get(
+                info["titulo"],
+                f"TARGET: {info['donde']}.\n"
+                f"WHAT TO DO: {info['que_hacer']}\n"
+                f"WHY: {info['porque']}\n"
+                f"{quienes_van}\n"
+                f"{precio_real}"
+            )
+
+
+        else:
+
+            guia_masticada = (
+                f"DESTINO: {info['titulo']}.\n"
+                f"POR QUÉ: {info['porque']}\n"
+                f"QUÉ HACER: {info['que_hacer']}\n"
+                f"CUÁNDO: Ahora mismo. Levántate de la silla ya.\n"
+                f"PARA QUÉ: Romper el zombi urbano y recordar el valor de tu tranquilidad.\n"
+                f"{quienes_van}\n"
+                f"{precio_real}"
+            )
+            # 7. ADAPTABILIDAD GEOGRÁFICA UNIVERSAL FIJA Y SALIDA DE CONTROL
+    if perfil == "accesible":
+        gps_query = "wheelchair+accessible+" + gps_query
+    elif perfil == "family":
+        gps_query = "family+friendly+" + gps_query
+
+    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
+    
+    if gps_query:
+        link_google_maps_vivo = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
+    else:
+        link_google_maps_vivo = link_base.replace(" ", "+")
+
+    if tratamiento_especial:
+        guia_masticada += f"\n\n{tratamiento_especial}"
+
+    return JSONResponse({
+        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+        "destino_titulo": titulo_ganador,
+        "destino_entorno": donde_base,
+        "destino_instruccion": guia_masticada.strip(),
+        "destino_coordenadas_gps": link_google_maps_vivo,
+        "token_entorno": info["titulo"] if "titulo" in info else "general"
+    })
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
