@@ -569,7 +569,7 @@ async def mando_integral(request: Request):
             guia_masticada = "DESTINO: Sesión de Enfoque.\nQUÉ HACER: Pon el video en pantalla completa con audífonos.\nPARA QUÉ: Desacelerar los pensamientos rápidos y reprogramar tu cerebro hacia caminos de prosperidad y balance." if lang == "es" else "TARGET: Focus Session.\nWHAT TO DO: Play the video in full screen with headphones.\nWHY: Slow down racing thoughts and reprogram your brain towards paths of prosperity and balance."
             link_base = info.get("variante_youtube", "https://youtube.com")
             gps_query = ""
-                else:
+        else:
             link_base = "https://www.google.com/maps/search/?api=1&query="
             gps_query = gps_fallback
             if budget == "0":
@@ -685,7 +685,7 @@ async def mando_integral(request: Request):
                 "Estímulo del Sabor": "TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to background music and enjoy.\nWHY: Great food in a vibrant environment sparks life's abundance."
             }
             guia_masticada = traducciones_guia.get(info["titulo"], f"TARGET: {info['donde']}.\nWHAT TO DO: {info['que_hacer']}\nWHY: {info['porque']}\n{quienes_van}\n{precio_real}")
-        else:
+    else:
             guia_masticada = f"DESTINO: {info['titulo']}.\nPOR QUÉ: {info['porque']}\nQUÉ HACER: {info['que_hacer']}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Romper el zombi urbano y recordar el valor de tu tranquilidad.\n{quienes_van}\n{precio_real}"
 
     # 7. ADAPTABILIDAD GEOGRÁFICA UNIVERSAL FIJA Y SALIDA DE CONTROL
