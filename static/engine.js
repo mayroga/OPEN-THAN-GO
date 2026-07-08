@@ -18,7 +18,7 @@ const KERNEL = {
     // Variables de Control de Tiempo e Impaciencia SOLDADAS
     relojRealSegundos: 600,
     contadorToques: 0,
-    secuenciaAdelantos:, 
+    secuenciaAdelantos: [], 
     
     // ARQUITECTURA CONVERSACIONAL SECUENCIAL
     bloqueActual: 0,
@@ -64,9 +64,9 @@ const KERNEL = {
         "¿Crees que la solución a tu infelicidad es mudarte de ciudad o cambiar de estado en USA?",
         "¿Planificas vacaciones costosas con dinero que deberías usar para proteger tu economía?",
         "¿Buscas paisajes lejanos en internet porque has perdido la capacidad de asombrarte con tu cielo?",
-        "¿Te sientes atrapado en el territorio y asumes que la libertad depende de un boleto de viaje?"
-    ],
-        // Bloque 6: Vulnerabilidad Corporal y Dolor (Hospitales, Clínicas e Impotencia)
+        "¿Te sientes atrapado en el territorio y asumes que la libertad depende de un boleto de viaje?",
+
+        // Bloque 6: Vulnerabilidad Corporal y Dolor
         "¿Postergas tu visita a la clínica de dientes o al hospital por miedo a gastar tu presupuesto?",
         "¿Sientes dolores físicos en la espalda o el cuello causados por el estrés de tus biles?",
         "¿Te aterra enfermarte en este sistema y perder la estabilidad laboral de tu familia?",
@@ -89,11 +89,12 @@ const KERNEL = {
         "¿Sientes que estás perdiendo tus mejores años esperando un milagro que no va a llegar?",
         "¿Te cuesta creer que exista un espacio gratis en tu zona capaz de devolverte la esperanza?",
         "¿Estás listo para obedecer al mando, soltar tus indecisiones y salir de tu encierro mental hoy?"
-    ], // <-- AQUÍ CIERRA EL ARREGLO DE PREGUNTAS DEL CATÁLOGO PERFECTAMENTE
+    ],
 
     // =========================================================================
     // 🚀 LÓGICA DE ALMACENAMIENTO LOCAL Y DESPACHADOR CRUZADO 3X1
     // =========================================================================
+    
     obtenerPerfilLocal() { 
         let perfilRaw = localStorage.getItem("otg_perfil_dinamico"); 
         if (!perfilRaw) { 
@@ -198,7 +199,6 @@ const KERNEL = {
             }); 
         } 
         
-        // Permite al cliente enviar su desahogo presionando la tecla Enter dentro del cajón 
         if (inputCajon) { 
             inputCajon.addEventListener("keypress", (e) => { 
                 if (e.key === "Enter") { 
@@ -209,14 +209,14 @@ const KERNEL = {
                 } 
             }); 
         } 
-    }, 
+    },
+    
+init() { 
+    this.bloqueActual = parseInt(localStorage.getItem("otg_bloque_secuencial")) || 0; 
+    this.inicializarListenersMando();
+},
 
-    init() { 
-        this.bloqueActual = parseInt(localStorage.getItem("otg_bloque_secuencial")) || 0; 
-        this.inicializarListenersMando(); // Llama mecánicamente al amarre de hardware
-    }
-}; // <-- AQUÍ SE CIERRA EL OBJETO KERNEL DE FORMA DEFINITIVA Y SEGURA
-    despertarInicial() { 
+despertarInicial() { 
         document.getElementById('pantalla-bienvenida').style.display = 'none'; 
         document.getElementById('wrapper-form').classList.remove('hidden'); 
         
@@ -365,7 +365,7 @@ const KERNEL = {
         window.speechSynthesis.cancel(); 
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, ''); 
         const msg = new SpeechSynthesisUtterance(fx); 
-        msg.lang = 'es-US'; // Voz fija siempre en español por estabilidad nativa 
+        msg.lang = this.idiomaActual === "es" ? "es-US" : "en-US"; // Voz fija siempre en español por estabilidad nativa 
         msg.rate = 1.20; 
         window.speechSynthesis.speak(msg); 
     }, 
@@ -447,8 +447,6 @@ const KERNEL = {
             
         // Dispara la animación de cuenta atrás nativa que ya maneja tu flujo secuencial
         this.procesarFlujoSecuencial(container);
-    },
-
         this.hablar(this.datosLugarGlobal.destino_instruccion); 
         let retencion = 35; 
         const btnCount = document.getElementById('btn-countdown-salida'); 
