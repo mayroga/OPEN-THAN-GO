@@ -366,6 +366,14 @@ BASE_MISIONES = {
             {
                 "titulo": "Inercia del Viajero",
                 "porque": "El movimiento constante de maletas, autobuses y personas abordando le recuerda a tu mente que las fronteras se pueden cruzar.",
+                "que_hacer": "Párate en la zona segura de la plataforma de autobuses o trenes. Siente la vibración del motor y mira los destinos impresos en las pantallas.",
+                "donde": "Estación de tránsito o terminal central de autobuses.",
+                "gps": "transit+station+or+bus+terminal",
+                "vector_necesidades": {"movimiento": 50, "naturaleza": 10, "silencio": 20, "agua": 0, "sol": 60, "sombra": 40, "aire_fresco": 75, "creatividad": 30, "comunidad": 70, "aprendizaje": 50, "juego": 30, "contemplacion": 80, "trabajo": 20, "descanso": 30, "organizacion": 85, "alimentacion": 10, "musica": 10, "risa": 20, "esperanza": 85},
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "transit+station"
+            },
             # 41. Teatros de Cine Independientes o Clásicos (Arte Alternativo)
             {
                 "titulo": "Ventana de la Ficción",
