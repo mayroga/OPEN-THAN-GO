@@ -1,6 +1,6 @@
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
 # Company: May Roga LLC
-# File: main.py - SECCIÓN 1 DE 6 (NÚCLEO Y RETOS DOMÉSTICOS)
+# File: main.py - SECCIÓN 1 DE 6 (NÚCLEO Y CATÁLOGO DE INTERIOR - "CASA")
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
@@ -207,7 +207,7 @@ BASE_MISIONES = {
             # 12. Distritos de Galerías de Arte Urbanas
             {
                 "titulo": "Espejo Creativo",
-                "porque": "Observar los diseños, colores y formas vanguardistas expande tu visión y enriquece tu mente libre.",
+                "porque": "Observar los designs, colores y formas vanguardistas expande tu visión y enriquece tu mente libre.",
                 "que_hacer": "Camina por la zona de galerías. Contempla las exposiciones y nota la riqueza del pensamiento artístico.",
                 "donde": "Distrito de galerías o centro cultural urbano.",
                 "gps": "art+galleries+district",
@@ -255,7 +255,7 @@ BASE_MISIONES = {
             # 16. Centros de Estética, Barberías o Spas Premium
             {
                 "titulo": "Inversión en Ti",
-                "porque": "Dedicarse tiempo a la apariencia física enciende tu autoestima y te recuerda la prosperidad de tu body.",
+                "porque": "Dedicarse tiempo a la apariencia física enciende tu autoestima y te recuerda la prosperidad de tu cuerpo.",
                 "que_hacer": "Entra a revisar el menú de masajes, cortes o tratamientos. Disfruta de la atención impecable del personal.",
                 "donde": "Spa urbano, salón o barbería de alta gama.",
                 "gps": "luxury+spa+or+barbershop",
@@ -354,7 +354,7 @@ BASE_MISIONES = {
             {
                 "titulo": "Santuario de la Expedición",
                 "porque": "Explorar barcos en exhibición, acuarios gigantes y equipo de aventura activa tu deseo de explorar el mundo salvaje.",
-                "que_hacer": "Camina por la sección de barcos o pesca de la megatienda. Toca las texturas, mira los diseños y planifica tu próximo escape.",
+                "que_hacer": "Camina por la sección de barcos o pesca de la megatienda. Toca las texturas, mira los designs, y planifica tu próximo escape.",
                 "donde": "Megatienda de deportes de aventura u outdoor.",
                 "gps": "bass+pro+shops+or+rei+store",
                 "vector_necesidades": {"movimiento": 55, "naturaleza": 40, "silencio": 20, "agua": 30, "sol": 0, "sombra": 100, "aire_fresco": 50, "creatividad": 80, "comunidad": 65, "aprendizaje": 60, "juego": 85, "contemplacion": 70, "trabajo": 10, "descanso": 50, "organizacion": 60, "alimentacion": 10, "musica": 20, "risa": 40, "esperanza": 90},
@@ -369,10 +369,352 @@ BASE_MISIONES = {
                 "que_hacer": "Párate en la zona segura de la plataforma de autobuses o trenes. Siente la vibración del motor y mira los destinos impresos en las pantallas.",
                 "donde": "Estación de tránsito o terminal central de autobuses.",
                 "gps": "transit+station+or+bus+terminal",
-                "vector_necesidades": {"movimiento": 50, "naturaleza": 10, "silencio": 20, "agua": 0, "sol": 60, "sombra": 40, "aire_fresco": 75, "creatividad": 30, "comunidad": 70, "aprendizaje": 50, "juego": 30, "contemplacion": 80, "trabajo": 20, "descanso": 30, "organizacion": 85, "alimentacion": 10, "musica": 10, "risa": 20, "esperanza": 85},
+                "vector_necesidades": {
+                    "movimiento": 50,
+                    "naturaleza": 10,
+                    "silencio": 20,
+                    "agua": 0,
+                    "sol": 60,
+                    "sombra": 40,
+                    "aire_fresco": 75,
+                    "creatividad": 30,
+                    "comunidad": 70,
+                    "aprendizaje": 50,
+                    "juego": 30,
+                    "contemplacion": 80,
+                    "trabajo": 20,
+                    "descanso": 30,
+                    "organizacion": 85,
+                    "alimentacion": 10,
+                    "musica": 10,
+                    "risa": 20,
+                    "esperanza": 85
+                },
                 "variante_spotify": "https://spotify.com",
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "transit+station"
+            },
+            # 26. Senderos Geológicos y Parques de Rocas Escénicas
+            {
+                "titulo": "Anclaje Mineral Extremo",
+                "porque": "Tocar formaciones rocosas milenarias destruye instantáneamente cualquier cortocircuito digital.",
+                "que_hacer": "Busca una gran muralla de piedra o roca en el sendero. Apoya ambas palmas con firmeza y absorbe la solidez y estabilidad mineral.",
+                "donde": "Parque geológico, cantera pública o sendero rocoso.",
+                "gps": "state+park+trails+rocks",
+                "vector_necesidades": {
+                    "movimiento": 90,
+                    "naturaleza": 100,
+                    "silencio": 85,
+                    "agua": 10,
+                    "sol": 60,
+                    "sombra": 50,
+                    "aire_fresco": 100,
+                    "creatividad": 20,
+                    "comunidad": 10,
+                    "aprendizaje": 40,
+                    "juego": 40,
+                    "contemplacion": 95,
+                    "trabajo": 0,
+                    "descanso": 50,
+                    "organizacion": 10,
+                    "alimentacion": 0,
+                    "musica": 0,
+                    "risa": 20,
+                    "esperanza": 85
+                },
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "state+park+trails+rocks"
+            },
+            # 27. Clínicas de Estética y Diseño Dental Premium (Smile Centers)
+            {
+                "titulo": "Foco en la Sonrisa",
+                "porque": "Ver la transformación cosmética y el cuidado del rostro enciende tu deseo inconsciente de mostrar una expresión de triunfo.",
+                "que_hacer": "Camina por la zona de recepción o infórmate sobre blanqueamientos express. Siente la pulcritud y el orden higiénico del lugar.",
+                "donde": "Clínica dental cosmética o centro estético moderno.",
+                "gps": "cosmetic+dental+clinic+or+smile+center",
+                "vector_necesidades": {
+                    "movimiento": 20,
+                    "naturaleza": 0,
+                    "silencio": 80,
+                    "agua": 0,
+                    "sol": 0,
+                    "sombra": 100,
+                    "aire_fresco": 50,
+                    "creatividad": 30,
+                    "comunidad": 40,
+                    "aprendizaje": 60,
+                    "juego": 10,
+                    "contemplacion": 70,
+                    "trabajo": 10,
+                    "descanso": 60,
+                    "organizacion": 95,
+                    "alimentacion": 0,
+                    "musica": 20,
+                    "risa": 30,
+                    "esperanza": 90
+                },
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "cosmetic+dental+clinic"
+            },
+            # 28. Miradores y Parques de Observación de Aeropuertos
+            {
+                "titulo": "Vector de Despegue",
+                "porque": "Mirar la masa de un avión pesado romper la gravedad y elevarse hacia las nubes reprograma de golpe tus límites mentales.",
+                "que_hacer": "Párate en la zona de observación exterior pública. Mira fijamente la trayectoria de un despegue y siente el rugido sónico del aire.",
+                "donde": "Parque de observación de aeronaves colindante al aeropuerto.",
+                "gps": "airport+viewing+area+or+aviation+park",
+                "vector_necesidades": {
+                    "movimiento": 40,
+                    "naturaleza": 30,
+                    "silencio": 10,
+                    "agua": 0,
+                    "sol": 80,
+                    "sombra": 10,
+                    "aire_fresco": 90,
+                    "creatividad": 40,
+                    "comunidad": 60,
+                    "aprendizaje": 40,
+                    "juego": 30,
+                    "contemplacion": 95,
+                    "trabajo": 20,
+                    "descanso": 40,
+                    "organizacion": 70,
+                    "alimentacion": 20,
+                    "musica": 10,
+                    "risa": 30,
+                    "esperanza": 95
+                },
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "airport+viewing+area"
+            },
+            # 29. Canchas Públicas de Tenis, Racketball o Pickleball
+            {
+                "titulo": "Impacto y Reflejos Veloces",
+                "porque": "El sonido seco del impacto de la bola contra la raqueta absorbe al 100% el foco de tu atención visual.",
+                "que_hacer": "Quédate en la grada lateral siguiendo la trayectoria de la pelota con tus ojos a velocidad rápida. Disfruta de la inercia del juego.",
+                "donde": "Cancha pública deportiva del parque de tu condado.",
+                "gps": "public+pickleball+or+tennis+courts",
+                "vector_necesidades": {
+                    "movimiento": 85,
+                    "naturaleza": 40,
+                    "silencio": 30,
+                    "agua": 0,
+                    "sol": 85,
+                    "sombra": 15,
+                    "aire_fresco": 90,
+                    "creatividad": 20,
+                    "comunidad": 70,
+                    "aprendizaje": 30,
+                    "juego": 95,
+                    "contemplacion": 50,
+                    "trabajo": 0,
+                    "descanso": 30,
+                    "organizacion": 30,
+                    "alimentacion": 0,
+                    "musica": 10,
+                    "risa": 50,
+                    "esperanza": 80
+                },
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "public+pickleball+courts"
+            },
+            # 30. Tiendas Megastore de Herramientas y Diseño (Home Depot / Lowe's)
+            {
+                "titulo": "Orden e Ingeniería Estructural",
+                "porque": "Caminar entre pasillos de maderas masivas, bloques de piedra, herramientas y planos le devuelve el balance lógico a tu mente.",
+                "que_hacer": "Recorre el pasillo de materiales pesados y construcción. Mira la solidez de las estructuras físicas y nota la capacidad de crear.",
+                "donde": "Establecimiento industrial de construcción de tu zona.",
+                "gps": "hardware+megastore",
+                "vector_necesidades": {
+                    "movimiento": 50,
+                    "naturaleza": 10,
+                    "silencio": 20,
+                    "agua": 0,
+                    "sol": 20,
+                    "sombra": 100,
+                    "aire_fresco": 50,
+                    "creatividad": 85,
+                    "comunidad": 60,
+                    "aprendizaje": 70,
+                    "juego": 40,
+                    "contemplacion": 65,
+                    "trabajo": 40,
+                    "descanso": 20,
+                    "organizacion": 95,
+                    "alimentacion": 0,
+                    "musica": 10,
+                    "risa": 25,
+                    "esperanza": 85
+                },
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "hardware+megastore"
+            },
+            # 31. Terrazas y Rooftops de Restaurantes con Vistas Libres
+            {
+                "titulo": "Pausa Nutricia Elevada",
+                "porque": "Disfrutar de un buen aroma rodeado de una atmósfera abierta bajo el sol disuelve de inmediato el agobio familiar.",
+                "que_hacer": "Siéntate en la barra de la terraza exterior. Pide un aperitivo simple, disfruta la música lounge y mira los colores de la ciudad.",
+                "donde": "Restaurante con rooftop o terraza abierta elevada.",
+                "gps": "restaurant+with+rooftop+or+outdoor+seating",
+                "vector_necesidades": {
+                    "movimiento": 10,
+                    "naturaleza": 20,
+                    "silencio": 40,
+                    "agua": 10,
+                    "sol": 70,
+                    "sombra": 70,
+                    "aire_fresco": 90,
+                    "creatividad": 45,
+                    "comunidad": 90,
+                    "aprendizaje": 30,
+                    "juego": 40,
+                    "contemplacion": 75,
+                    "trabajo": 10,
+                    "descanso": 80,
+                    "organizacion": 40,
+                    "alimentacion": 100,
+                    "musica": 60,
+                    "risa": 60,
+                    "esperanza": 90
+                },
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "restaurant+with+rooftop"
+            },
+            # 32. Hospitales y Centros Médicos Grandes (Zonas de Fuentes y Jardines)
+            {
+                "titulo": "Reflexión Vital Profunda",
+                "porque": "Ver la seriedad de la arquitectura médica y la fragilidad real de la vida te ayuda a poner tus quejas en la escala correcta.",
+                "que_hacer": "Camina por el jardín exterior o la plaza de la gran fuente médica. Siente la quietud y la estabilidad de las estructuras limpias.",
+                "donde": "Jardín exterior público de un gran complejo hospitalario.",
+                "gps": "hospital+public+plaza+or+gardens",
+                "vector_necesidades": {
+                    "movimiento": 30,
+                    "naturaleza": 60,
+                    "silencio": 90,
+                    "agua": 30,
+                    "sol": 50,
+                    "sombra": 70,
+                    "aire_fresco": 80,
+                    "creatividad": 10,
+                    "comunidad": 50,
+                    "aprendizaje": 60,
+                    "juego": 0,
+                    "contemplacion": 100,
+                    "trabajo": 10,
+                    "descanso": 70,
+                    "organizacion": 80,
+                    "alimentacion": 10,
+                    "musica": 0,
+                    "risa": 10,
+                    "esperanza": 95
+                },
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "hospital+public+gardens"
+            }
+        ],
+        "aburrido": [
+            # 33. Calles con Murales (Creatividad Urbana)
+            {
+                "titulo": "Paseo de colores",
+                "porque": "Estás repitiendo los mismos días y necesitas inyectar imágenes e ideas totalmente nuevas a tus ojos hoy.",
+                "que_hacer": "Camina despacio observando la acera de enfrente. Encuentra dibujos gigantes pintados con aerosol en los bloques de tu zona.",
+                "donde": "Calle decorada con murales de arte urbano.",
+                "gps": "street+art",
+                "vector_necesidades": {"movimiento": 80, "naturaleza": 20, "silencio": 40, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 100, "comunidad": 60, "aprendizaje": 70, "juego": 55, "contemplacion": 85, "trabajo": 10, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 30, "risa": 60, "esperanza": 95},
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "street+art"
+            },
+            # 34. Tiendas IKEA o Centros de Arquitectura y Diseño Interior
+            {
+                "titulo": "Laberinto de orden",
+                "porque": "Explorar simulaciones de apartamentos y hogares ideales le da una estructura y balance lógico a tu mente en crisis.",
+                "que_hacer": "Camina siguiendo la ruta marcada en el suelo. Observa la organización extrema de los espacios mínimos y los colores modernos.",
+                "donde": "Establecimiento masivo de diseño, muebles o decoración.",
+                "gps": "furniture+store+ikea",
+                "vector_necesidades": {"movimiento": 60, "naturaleza": 0, "silencio": 30, "agua": 0, "sol": 0, "sombra": 100, "aire_fresco": 50, "creatividad": 90, "comunidad": 65, "aprendizaje": 60, "juego": 50, "contemplacion": 75, "trabajo": 20, "descanso": 40, "organizacion": 100, "alimentacion": 30, "musica": 20, "risa": 40, "esperanza": 80},
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "furniture+store+ikea"
+            },
+            # 35. Clubes Nocturnos y Lounges Musicales (Atmósfera Social Activa)
+            {
+                "titulo": "Pulso rítmico nocturno",
+                "porque": "Romper el confinamiento estático de casa requiere a veces sumergirte de golpe en el movimiento de la noche.",
+                "que_hacer": "Entra a la zona de la barra exterior. Escucha las frecuencias graves del bajo, mira las luces cambiar y disfruta el ambiente.",
+                "donde": "Lounge de música o club nocturno local de moda.",
+                "gps": "music+lounge+bar",
+                "vector_necesidades": {"movimiento": 40, "naturaleza": 0, "silencio": 10, "agua": 0, "sol": 0, "sombra": 100, "aire_fresco": 40, "creatividad": 60, "comunidad": 90, "aprendizaje": 10, "juego": 80, "contemplacion": 65, "trabajo": 0, "descanso": 50, "organizacion": 20, "alimentacion": 70, "musica": 100, "risa": 70, "esperanza": 80},
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "music+lounge+bar"
+            },
+            # 36. Discotecas de Música Latina o Centros de Baile Urbano
+            {
+                "titulo": "Catarsis Coreográfica",
+                "porque": "La música alta y el baile forzan a tus pensamientos rápidos a apagarse de inmediato.",
+                "que_hacer": "Quédate cerca de la pista peatonal observando el balanceo coordinado de las parejas. Disfruta de la risa y soltura del lugar.",
+                "donde": "Discoteca urbana o salón de baile activo.",
+                "gps": "dance+club+or+latin+lounge",
+                "vector_necesidades": {"movimiento": 90, "naturaleza": 0, "silencio": 0, "agua": 0, "sol": 0, "sombra": 100, "aire_fresco": 40, "creatividad": 70, "comunidad": 95, "aprendizaje": 20, "juego": 95, "contemplacion": 40, "trabajo": 0, "descanso": 10, "organizacion": 10, "alimentacion": 60, "musica": 100, "risa": 80, "esperanza": 85},
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "dance+club"
+            },
+            # 37. Parques de Atracciones, Ferias Locales o Grandes Arcades (Adrenalina)
+            {
+                "titulo": "Estímulo de Choque Máximo",
+                "porque": "Los gritos de emoción, las luces mecánicas y los giros rápidos le inyectan dopamina fresca y vitalidad a tu cuerpo.",
+                "que_hacer": "Recorre las avenidas centrales de la feria o parque. Mira los puestos de luces, los retos físicos y contágiate del juego.",
+                "donde": "Feria del condado, parque de atracciones o gran arcade público.",
+                "gps": "amusement+park+or+arcade",
+                "vector_necesidades": {"movimiento": 75, "naturaleza": 20, "silencio": 5, "agua": 10, "sol": 70, "sombra": 30, "aire_fresco": 85, "creatividad": 50, "comunidad": 90, "aprendizaje": 15, "juego": 100, "contemplacion": 40, "trabajo": 0, "descanso": 20, "organizacion": 20, "alimentacion": 80, "musica": 70, "risa": 90, "esperanza": 90},
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "amusement+park"
+            },
+            # 38. Mercados de Pulgas Grandes (Flea Markets / Coleccionismo)
+            {
+                "titulo": "Cazador de Reliquias",
+                "porque": "Examinar antigüedades u objetos extraños del pasado despierta la curiosidad, la ilusión y la nostalgia sana de tu mente.",
+                "que_hacer": "Camina despacio revisando los artículos sobre las mesas de los vendedores. Intenta encontrar tres objetos que usabas en tu niñez.",
+                "donde": "Flea market de fin de semana o almacén vintage masivo.",
+                "gps": "flea+market",
+                "vector_necesidades": {"movimiento": 60, "naturaleza": 20, "silencio": 20, "agua": 0, "sol": 80, "sombra": 40, "aire_fresco": 90, "creatividad": 80, "comunidad": 90, "aprendizaje": 70, "juego": 60, "contemplacion": 75, "trabajo": 20, "descanso": 40, "organizacion": 25, "alimentacion": 50, "musica": 20, "risa": 50, "esperanza": 85},
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "flea+market"
+            },
+            # 39. Tiendas Megastore Costco, Sam's o Mayoristas Industriales
+            {
+                "titulo": "Escala de Suministro Industrial",
+                "porque": "Ver montañas interminables de paletas gigantes, productos apilados y movimiento masivo de personas distrae tu rutina.",
+                "que_hacer": "Recorre los pasillos de comida o electrónica de extremo a extremo. Observa el volumen de la cadena de distribución americana.",
+                "donde": "Almacén mayorista o distribuidora industrial de tu zona.",
+                "gps": "wholesale+store+costco+or+sams",
+                "vector_necesidades": {"movimiento": 55, "naturaleza": 0, "silencio": 15, "agua": 0, "sol": 0, "sombra": 100, "aire_fresco": 45, "creatividad": 20, "comunidad": 85, "aprendizaje": 40, "juego": 35, "contemplacion": 50, "trabajo": 40, "descanso": 30, "organizacion": 95, "alimentacion": 90, "musica": 10, "risa": 30, "esperanza": 75},
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "wholesale+store+costco"
+            },
+            # 40. Marinas Públicas y Clubes de Yates
+            {
+                "titulo": "Línea de Flotación Marina",
+                "porque": "Observar los veleros, las cubiertas pulidas y el agua en movimiento te regala una bocanada instantánea de aire libre y libertad.",
+                "que_hacer": "Camina por los muelles de madera de la marina pública. Mira cómo los botes se balancean suavemente y respira la frescura marina.",
+                "donde": "Puerto de botes o marina pública costera de tu condado.",
+                "gps": "marina+boat+dock",
+                "vector_necesidades": {"movimiento": 50, "naturaleza": 85, "silencio": 65, "agua": 100, "sol": 85, "sombra": 20, "aire_fresco": 100, "creatividad": 40, "comunidad": 60, "aprendizaje": 30, "juego": 50, "contemplacion": 90, "trabajo": 10, "descanso": 70, "organizacion": 40, "alimentacion": 30, "musica": 20, "risa": 40, "esperanza": 90},
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "marina+boat+dock"
             },
             # 41. Teatros de Cine Independientes o Clásicos (Arte Alternativo)
             {
@@ -381,115 +723,102 @@ BASE_MISIONES = {
                 "que_hacer": "Ingresa al vestíbulo clásico de la sala. Mira los afiches antiguos y absorbe el ambiente artístico.",
                 "donde": "Teatro de cine independiente, alternativo o clásico local.",
                 "gps": "independent+movie+theater",
-                "vector_necesidades": {"movimiento": 15, "naturaleza": 0, "silencio": 70, "agua": 0, "sol": 0, "sombra": 100, "aire_fresco": 50, "creatividad": 95, "comunidad": 65, "aprendizaje": 80, "juego": 40, "contemplacion": 90, "trabajo": 10, "descanso": 85, "organizacion": 40, "alimentacion": 40, "musica": 30, "risa": 50, "esperanza": 85},
+                "vector_necesidades": {"movimiento":15,"naturaleza":0,"silencio":70,"agua":0,"sol":0,"sombra":100,"aire_fresco":50,"creatividad":95,"comunidad":65,"aprendizaje":80,"juego":40,"contemplacion":90,"trabajo":10,"descanso":85,"organizacion":40,"alimentacion":40,"musica":30,"risa":50,"esperanza":85},
                 "variante_spotify": "https://spotify.com",
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "independent+movie+theater"
             },
             # 42. Clubes de Ajedrez Públicos o Mesas Recreativas de Parques
             {
-                "titulo": "Contacto de Estrategia Humana",
-                "porque": "Ver mentes concentradas calculando jugadas en silencio te obliga a desacelerar los pensamientos rápidos.",
-                "que_hacer": "Párate cerca de una mesa de juego. Analiza en silencio el orden de las piezas de madera.",
-                "donde": "Club de recreación, centro comunitario o parque de mesas públicos.",
-                "gps": "community+center+or+chess+club",
-                "vector_necesidades": {"movimiento": 20, "naturaleza": 10, "silencio": 65, "agua": 0, "sol": 30, "sombra": 90, "aire_fresco": 60, "creatividad": 60, "comunidad": 100, "aprendizaje": 85, "juego": 90, "contemplacion": 80, "trabajo": 20, "descanso": 70, "organizacion": 60, "alimentacion": 10, "musica": 10, "risa": 40, "esperanza": 90},
-                "variante_spotify": "https://spotify.com",
-                "variante_youtube": "https://youtube.com",
-                "variante_maps": "community+center"
+                "titulo":"Contacto de Estrategia Humana",
+                "porque":"Ver mentes concentradas calculando jugadas en silencio te obliga a desacelerar los pensamientos rápidos.",
+                "que_hacer":"Párate cerca de una mesa de juego. Analiza en silencio el orden de las piezas de madera.",
+                "donde":"Club de recreación, centro comunitario o parque de mesas públicos.",
+                "gps":"community+center+or+chess+club",
+                "vector_necesidades":{"movimiento":20,"naturaleza":10,"silencio":65,"agua":0,"sol":30,"sombra":90,"aire_fresco":60,"creatividad":60,"comunidad":100,"aprendizaje":85,"juego":90,"contemplacion":80,"trabajo":20,"descanso":70,"organizacion":60,"alimentacion":10,"musica":10,"risa":40,"esperanza":90},
+                "variante_spotify":"https://spotify.com",
+                "variante_youtube":"https://youtube.com",
+                "variante_maps":"community+center"
             },
             # 43. Pistas de Patinaje sobre Hielo o Ruedas (Rollerskating)
             {
-                "titulo": "Deslizamiento y Equilibrio Sincrónico",
-                "porque": "La inercia de los giros circulares y el movement fluido forzan a tu mente a coordinar el ritmo físico.",
-                "que_hacer": "Toma un asiento en las gradas laterales. Sigue el movimiento de los patinadores y déjate llevar.",
-                "donde": "Pista de patinaje del condado indoor/outdoor.",
-                "gps": "skating+rink",
-                "vector_necesidades": {"movimiento": 80, "naturaleza": 10, "silencio": 20, "agua": 20, "sol": 20, "sombra": 90, "aire_fresco": 75, "creatividad": 30, "comunidad": 80, "aprendizaje": 30, "juego": 95, "contemplacion": 60, "trabajo": 0, "descanso": 40, "organizacion": 30, "alimentacion": 20, "musica": 60, "risa": 70, "esperanza": 85},
-                "variante_spotify": "https://spotify.com",
-                "variante_youtube": "https://youtube.com",
-                "variante_maps": "skating+rink"
+                "titulo":"Deslizamiento y Equilibrio Sincrónico",
+                "porque":"La inercia de los giros circulares y el movimiento fluido forzan a tu mente a coordinar el ritmo físico.",
+                "que_hacer":"Toma un asiento en las gradas laterales. Sigue el movimiento de los patinadores y déjate llevar.",
+                "donde":"Pista de patinaje del condado indoor/outdoor.",
+                "gps":"skating+rink",
+                "vector_necesidades":{"movimiento":80,"naturaleza":10,"silencio":20,"agua":20,"sol":20,"sombra":90,"aire_fresco":75,"creatividad":30,"comunidad":80,"aprendizaje":30,"juego":95,"contemplacion":60,"trabajo":0,"descanso":40,"organizacion":30,"alimentacion":20,"musica":60,"risa":70,"esperanza":85},
+                "variante_spotify":"https://spotify.com",
+                "variante_youtube":"https://youtube.com",
+                "variante_maps":"skating+rink"
             },
             # 44. Monumentos Históricos, Plazas Conmemorativas o Memoriales
             {
-                "titulo": "Eje del Tiempo Humano",
-                "porque": "Pisar el centro de un gran acontecimiento histórico te recuerda que tu agobio actual es un fragmento mínimo.",
-                "que_hacer": "Camina rodeando el monumento central. Lee la inscripción grabada en la piedra.",
-                "donde": "Plaza histórica, memorial del condado o parque monumental.",
-                "gps": "historical+monument+plaza",
-                "vector_necesidades": {"movimiento": 50, "naturaleza": 30, "silencio": 65, "agua": 20, "sol": 80, "sombra": 30, "aire_fresco": 90, "creatividad": 40, "comunidad": 60, "aprendizaje": 80, "juego": 10, "contemplacion": 95, "trabajo": 0, "descanso": 50, "organizacion": 40, "alimentacion": 0, "musica": 0, "risa": 20, "esperanza": 90},
-                "variante_spotify": "https://spotify.com",
-                "variante_youtube": "https://youtube.com",
-                "variante_maps": "historical+monument+plaza"
+                "titulo":"Eje del Tiempo Humano",
+                "porque":"Pisar el centro de un gran acontecimiento histórico te recuerda que tu agobio actual es un fragmento mínimo.",
+                "que_hacer":"Camina rodeando el monumento central. Lee la inscripción grabada en la piedra.",
+                "donde":"Plaza histórica, memorial del condado o parque monumental.",
+                "gps":"historical+monument+plaza",
+                "vector_necesidades":{"movimiento":50,"naturaleza":30,"silencio":65,"agua":20,"sol":80,"sombra":30,"aire_fresco":90,"creatividad":40,"comunidad":60,"aprendizaje":80,"juego":10,"contemplacion":95,"trabajo":0,"descanso":50,"organizacion":40,"alimentacion":0,"musica":0,"risa":20,"esperanza":90},
+                "variante_spotify":"https://spotify.com",
+                "variante_youtube":"https://youtube.com",
+                "variante_maps":"historical+monument+plaza"
             },
             # 45. Pasarelas y Miradores sobre Autopistas Interestatales (Freeways)
             {
-                "titulo": "Inercia de la Masa en Movimiento",
-                "porque": "Ver la velocidad y el destello de miles de luces de freeways marchándose saca a tu cerebro de su inercia estática.",
-                "que_hacer": "Quédate en la pasarela peatonal segura mirando el flujo masivo de autos desplazarse hacia el horizonte.",
-                "donde": "Punto peatonal elevado o pasarela sobre la autopista interestatal.",
-                "gps": "highway+overpass+walkway",
-                "vector_necesidades": {"movimiento": 40, "naturaleza": 10, "silencio": 10, "agua": 0, "sol": 60, "sombra": 20, "aire_fresco": 80, "creatividad": 10, "comunidad": 40, "aprendizaje": 20, "juego": 20, "contemplacion": 90, "trabajo": 30, "descanso": 30, "organizacion": 80, "alimentacion": 0, "musica": 10, "risa": 15, "esperanza": 75},
-                "variante_spotify": "https://spotify.com",
-                "variante_youtube": "https://youtube.com",
-                "variante_maps": "highway+overpass+walkway"
+                "titulo":"Inercia de la Masa en Movimiento",
+                "porque":"Ver la velocidad y el destello de miles de luces de freeways marchándose saca a tu cerebro de su inercia estática.",
+                "que_hacer":"Quédate en la pasarela peatonal segura mirando el flujo masivo de autos desplazarse hacia el horizonte.",
+                "donde":"Punto peatonal elevado o pasarela sobre la autopista interestatal.",
+                "gps":"highway+overpass+walkway",
+                "vector_necesidades":{"movimiento":40,"naturaleza":10,"silencio":10,"agua":0,"sol":60,"sombra":20,"aire_fresco":80,"creatividad":10,"comunidad":40,"aprendizaje":20,"juego":20,"contemplacion":90,"trabajo":30,"descanso":30,"organizacion":80,"alimentacion":0,"musica":10,"risa":15,"esperanza":75},
+                "variante_spotify":"https://spotify.com",
+                "variante_youtube":"https://youtube.com",
+                "variante_maps":"highway+overpass+walkway"
             },
             # 46. Terminales Ferroviarias o de Autobuses Interurbanos (Greyhound)
             {
-                "titulo": "Frontera de Asfalto Peatonal",
-                "porque": "El ambiente del viajero rudo de carretera te obliga a despertar de golpe tu instinto y vitalidad biopsicosocial.",
-                "que_hacer": "Camina por las aceras públicas exteriores observando los equipajes y los rumbos de salida.",
-                "donde": "Terminal central de autobuses interurbanos o estación de tránsito.",
-                "gps": "bus+terminal+station",
-                "vector_necesidades": {"movimiento": 50, "naturaleza": 5, "silencio": 15, "agua": 0, "sol": 65, "sombra": 35, "aire_fresco": 70, "creatividad": 20, "comunidad": 75, "aprendizaje": 40, "juego": 20, "contemplacion": 75, "trabajo": 30, "descanso": 20, "organizacion": 70, "alimentacion": 30, "musica": 10, "risa": 20, "esperanza": 80},
-                "variante_spotify": "https://spotify.com",
-                "variante_youtube": "https://youtube.com",
-                "variante_maps": "bus+terminal+station"
+                "titulo":"Frontera de Asfalto Peatonal",
+                "porque":"El ambiente del viajero rudo de carretera te obliga a despertar de golpe tu instinto y vitalidad biopsicosocial.",
+                "que_hacer":"Camina por las aceras públicas exteriores observando los equipajes yards y los rumbos de salida.",
+                "donde":"Terminal central de autobuses interurbanos o estación de tránsito.",
+                "gps":"bus+terminal+station",
+                "vector_necesidades":{"movimiento":50,"naturaleza":5,"silencio":15,"agua":0,"sol":65,"sombra":35,"aire_fresco":70,"creatividad":20,"comunidad":75,"aprendizaje":40,"juego":20,"contemplacion":75,"trabajo":30,"descanso":20,"organizacion":70,"alimentacion":30,"musica":10,"risa":20,"esperanza":80},
+                "variante_spotify":"https://spotify.com",
+                "variante_youtube":"https://youtube.com",
+                "variante_maps":"bus+terminal+station"
             },
             # 47. Megatiendas de Instrumentos Musicales (Guitar Center)
             {
-                "titulo": "Frecuencia Acústica Instrumental",
-                "porque": "Tocar cuerdas de madera o teclas físicas de pianos desactiva la inercia monótona de las aplicaciones digitales.",
-                "que_hacer": "Entra a la sección de teclados o guitarras acústicas. Pasa tus dedos suavemente sobre las teclas libres.",
-                "donde": "Gran tienda o almacén de instrumentos musicales de tu condado.",
-                "gps": "musical+instruments+store",
-                "vector_necesidades": {"movimiento": 20, "naturaleza": 0, "silencio": 30, "agua": 0, "sol": 0, "sombra": 100, "aire_fresco": 50, "creatividad": 100, "comunidad": 60, "aprendizaje": 75, "juego": 80, "contemplacion": 80, "trabajo": 20, "descanso": 60, "organizacion": 45, "alimentacion": 0, "musica": 100, "risa": 40, "esperanza": 90},
-                "variante_spotify": "https://spotify.com",
-                "variante_youtube": "https://youtube.com",
-                "variante_maps": "musical+instruments+store"
+                "titulo":"Frecuencia Acústica Instrumental",
+                "porque":"Tocar cuerdas de madera o teclas físicas de pianos desactiva la inercia monótona de las aplicaciones digitales.",
+                "que_hacer":"Entra a la sección de teclados o guitarras acústicas. Pasa tus dedos suavemente sobre las teclas libres.",
+                "donde":"Gran tienda o almacén de instrumentos musicales de tu condado.",
+                "gps":"musical+instruments+store",
+                "vector_necesidades":{"movimiento":20,"naturaleza":0,"silencio":30,"agua":0,"sol":0,"sombra":100,"aire_fresco":50,"creatividad":100,"comunidad":60,"aprendizaje":75,"juego":80,"contemplacion":80,"trabajo":20,"descanso":60,"organizacion":45,"alimentacion":0,"musica":100,"risa":40,"esperanza":90},
+                "variante_spotify":"https://spotify.com",
+                "variante_youtube":"https://youtube.com",
+                "variante_maps":"musical+instruments+store"
             },
             # 48. Almacenes de Antigüedades, Libros de Viejo o Tiendas Vintage
             {
-                "titulo": "Túnel de la Permanencia",
-                "porque": "Tocar portadas de viejo e inspeccionar reliquias te reconecta con el sentido del tiempo y borra la prisa.",
-                "que_hacer": "Examina los estantes del fondo. Busca un tomo o reliquia del siglo pasado y léelo un minuto en silencio.",
-                "donde": "Librería de viejo, almacén vintage o anticuario local.",
-                "gps": "antique+store+or+used+bookstore",
-                "vector_necesidades": {"movimiento": 30, "naturaleza": 0, "silencio": 85, "agua": 0, "sol": 0, "sombra": 100, "aire_fresco": 50, "creatividad": 85, "comunidad": 40, "aprendizaje": 90, "juego": 50, "contemplacion": 95, "trabajo": 10, "descanso": 75, "organizacion": 50, "alimentacion": 0, "musica": 0, "risa": 30, "esperanza": 85},
-                "variante_spotify": "https://spotify.com",
-                "variante_youtube": "https://youtube.com",
-                "variante_maps": "antique+store+or+used+bookstore"
-            }
-        ],
-        "aburrido": [
-            {
-                "titulo": "Paseo tranquilo",
-                "porque": "La calma ayuda a reorganizar tus pensamientos y a encontrar nuevas perspectivas.",
-                "que_hacer": "Busca un lugar apacible, observa el entorno y respira profundamente.",
-                "donde": "Un lugar tranquilo al aire libre.",
-                "gps": "quiet+public+park",
-                "vector_necesidades": {"movimiento": 30, "naturaleza": 70, "silencio": 90, "agua": 10, "sol": 50, "sombra": 50, "aire_fresco": 80, "creatividad": 30, "comunidad": 20, "aprendizaje": 20, "juego": 10, "contemplacion": 90, "trabajo": 0, "descanso": 80, "organizacion": 20, "alimentacion": 0, "musica": 0, "risa": 10, "esperanza": 70},
-                "variante_spotify": "https://spotify.com",
-                "variante_youtube": "https://youtube.com",
-                "variante_maps": "quiet+public+park"
+                "titulo":"Túnel de la Permanencia",
+                "porque":"Tocar portadas de viejo e inspeccionar reliquias te reconecta con el sentido del tiempo y borra la prisa.",
+                "que_hacer":"Examina los estantes del fondo. Busca un tomo o reliquia del siglo pasado y léelo un minuto en silencio.",
+                "donde":"Librería de viejo, almacén vintage o anticuario local.",
+                "gps":"antique+store+or+used+bookstore",
+                "vector_necesidades":{"movimiento":30,"naturaleza":0,"silencio":85,"agua":0,"sol":0,"sombra":100,"aire_fresco":50,"creatividad":85,"comunidad":40,"aprendizaje":90,"juego":50,"contemplacion":95,"trabajo":10,"descanso":75,"organizacion":50,"alimentacion":0,"musica":0,"risa":30,"esperanza":85},
+                "variante_spotify":"https://spotify.com",
+                "variante_youtube":"https://youtube.com",
+                "variante_maps":"antique+store+or+used+bookstore"
             }
         ]
     }
 }
 
-# =========================================================================
-# 🚀 ENDPOINTS DE CONTROL DE RUTA Y FLUJO ASÍNCRONO DE ENTRADA
-# =========================================================================
+# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
+# Company: May Roga LLC
+# File: main.py - SECCIÓN 6 DE 6 (NÚCLEO API FASTAPI, DESPACHADOR ASÍNCRONO INTEGRAL Y UVICORN RUNNER)
 
 @app.get("/")
 async def index():
@@ -518,9 +847,9 @@ async def mando_integral(request: Request):
     # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR VECTORIAL CWRE ANTI-REPETICIÓN)
     opciones_salir = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     random.shuffle(opciones_salir)
-
-    info = {} # Initialize info to a safe empty dict
-    if not opciones_salir: # Handle case where `opciones_salir` might be empty
+    
+    info = {}
+    if not opciones_salir:
         info = {
             "titulo": "Sin opciones disponibles",
             "porque": "No se encontraron actividades para tu estado actual. Intenta con otra opción.",
@@ -533,11 +862,9 @@ async def mando_integral(request: Request):
             "variante_maps": "quiet+place"
         }
     else:
-        info = random.choice(opciones_salir) # Initial choice as a fallback
-
+        info = random.choice(opciones_salir)
         if len(opciones_salir) >= 2:
             mejor_score = -1
-            # Iterate and find the best match based on perfil_local
             for opc in opciones_salir:
                 vector_lugar = opc.get("vector_necesidades", {})
                 score_coincidencia = 0
@@ -553,20 +880,19 @@ async def mando_integral(request: Request):
     if budget == "0":
         precio_real = "Austeridad creativa para proteger tu mente hoy."
         gps_fallback = "public+parks+with+shade+or+public+beaches"
-    elif budget == "1": # Max $100: Ross, Burlington, Costco, Walmart, Book Cafes
+    elif budget == "1":
         precio_real = "Un gustazo mínimo para romper la rutina."
         gps_fallback = "department+store+outlet+or+wholesale+store+costco+or+bookstore+cafe"
-    elif budget == "2": # Malls, Recreation, Roofs
+    elif budget == "2":
         precio_real = "El entorno es tu herramienta de escape hoy."
         gps_fallback = "shopping+mall+or+go+kart+racing+or+restaurant+with+rooftop"
-    else: # Premium Abundance Showrooms, Luxury Marinas, 5-Star Lobbies
+    else:
         precio_real = "Flujo de abundancia activa. Date un lujo merecido hoy."
         gps_fallback = "luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership"
 
     # 4. TRATAMIENTO DE PERFIL ACCESIBLE Y SENSITIVO (USA SPECIAL POLICIES)
     quienes_van = "Vas solo contigo mismo a recuperar tu centro."
     tratamiento_especial = ""
-
     if "adulto" in perfil or "mayor" in perfil or "senior" in perfil or perfil == "accessible":
         quienes_van = "Ruta plana con acceso total por comodidad física y cuidado de tu edad."
         tratamiento_especial = "Desplázate a ritmo lento. Este entorno cuenta con áreas sombreadas y descansos confortables para proteger tu cuerpo hoy."
@@ -580,170 +906,60 @@ async def mando_integral(request: Request):
         quienes_van = "Entorno apto para el desahogo de tus niños y seres queridos."
 
     # 5. EL INTERCEPTOR TRIDIMENSIONAL 3X1 DE CONTROL FINANCIERO Y MANDO LIBRE
-    palabras_criticas = [
-        "trabajo", "empleo", "compañia", "compañía", "job",
-        "biles", "deudas", "bills", "miseria", "explotacion",
-        "amazon", "walmart", "costco", "fresco", "tienda",
-        "comprar", "dinero", "gastar", "compras"
-    ]
-
+    palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "gastar", "compras"]
+    
     if any(p in desahogo for p in palabras_criticas) or opcion_usuario == "MANDO_LIBRE":
-
         canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
-
+        
         if canal_multimedia == "SPOTIFY":
-
             titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
             donde_base = "Zona Libre de Consumo y Frecuencias Altas" if lang == "es" else "Store-Free High Frequency Zone"
-
-            guia_masticada = (
-                "DESTINO: Conexión Acústica.\n"
-                "QUÉ HACER: Escucha los sonidos naturales en silencio absoluto.\n"
-                "PARA QUÉ: Detener la prisa de la mente, enfriar el impulso de la rutina y sintonizar con tu prosperidad interior."
-                if lang == "es"
-                else
-                "TARGET: Audio Connection.\n"
-                "WHAT TO DO: Listen to nature sounds in complete silence.\n"
-                "WHY: Stop the rush of the mind, cool down routine impulses, and tune into inner prosperity."
-            )
-
+            guia_masticada = "DESTINO: Conexión Acústica.\nQUÉ HACER: Escucha los sonidos naturales en silencio absoluto.\nPARA QUÉ: Detener la prisa de la mente, enfriar el impulso de la rutina y sintonizar con tu prosperidad interior." if lang == "es" else "TARGET: Audio Connection.\nWHAT TO DO: Listen to nature sounds in complete silence.\nWHY: Stop the rush of the mind, cool down routine impulses, and tune into inner prosperity."
             link_base = info.get("variante_spotify", "https://spotify.com")
             gps_query = ""
-
         elif canal_multimedia == "YOUTUBE":
-
             titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
             donde_base = "Frecuencia de Abundancia y Alivio" if lang == "es" else "Abundance & Relief Frequency"
-
-            guia_masticada = (
-                "DESTINO: Sesión de Enfoque.\n"
-                "QUÉ HACER: Pon el video en pantalla completa con audífonos.\n"
-                "PARA QUÉ: Desacelerar los pensamientos rápidos y reprogramar tu cerebro hacia caminos de prosperidad y balance."
-                if lang == "es"
-                else
-                "TARGET: Focus Session.\n"
-                "WHAT TO DO: Play the video in full screen with headphones.\n"
-                "WHY: Slow down racing thoughts and reprogram your brain towards paths of prosperity and balance."
-            )
-
+            guia_masticada = "DESTINO: Sesión de Enfoque.\nQUÉ HACER: Pon el video en pantalla completa con audífonos.\nPARA QUÉ: Desacelerar los pensamientos rápidos y reprogramar tu cerebro hacia caminos de prosperidad y balance." if lang == "es" else "TARGET: Focus Session.\nWHAT TO DO: Play the video in full screen with headphones.\nWHY: Slow down racing thoughts and reprogram your brain towards paths of prosperity and balance."
             link_base = info.get("variante_youtube", "https://youtube.com")
             gps_query = ""
-
-        else: # canal_multimedia == "MAPS"
-
-            link_base = "https://www.google.com/maps/search/?api=1&query="
+        else:
+            link_base = "https://google.com"
             gps_query = gps_fallback
-
-
             if budget == "0":
-
-                titulo_ganador = (
-                    "EXPLORACIÓN DE AUSENCIA"
-                    if lang == "es"
-                    else
-                    "EXPLORATION OF ABSENCE"
-                )
-
-                donde_base = (
-                    "Espacio Peatonal Abierto, Playa Pública o Parque Verde Nacional"
-                    if lang == "es"
-                    else
-                    "Public Open Space, Beach or National Park"
-                )
-
-                guia_masticada = (
-                    f"DESTINO: Un entorno natural o plaza al aire libre.\n"
-                    f"QUÉ HACER: Camina despacio registrando el viento, el cielo y el flujo del entorno.\n"
-                    f"PARA QUÉ: Romper la hipnosis del encierro, relajar el cuerpo y conectar con la libertad del espacio abierto.\n\n"
-                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}"
-                    if lang == "es"
-                    else
-                    f"TARGET: Free Nature Trail, Public Plaza or Open Beach.\n"
-                    f"WHAT TO DO: Walk slowly registering the wind, the sky, and the natural flow.\n"
-                    f"WHY: Break the indoor hypnosis, relax your body, and connect with open freedom.\n\n"
-                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}"
-                )
-
+                titulo_ganador = "EXPLORACIÓN DE AUSENCIA" if lang == "es" else "EXPLORATION OF ABSENCE"
+                donde_base = "Espacio Peatonal Abierto, Playa Pública o Parque Verde Nacional" if lang == "es" else "Public Open Space, Beach or National Park"
+                guia_masticada = f"DESTINO: Un entorno natural o plaza al aire libre.\nQUÉ HACER: Camina despacio registrando el viento, el cielo y el flujo del entorno.\nPARA QUÉ: Romper la hipnosis del encierro, relajar el cuerpo y conectar con la libertad del espacio abierto.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}" if lang == "es" else f"TARGET: Free Nature Trail, Public Plaza or Open Beach.\nWHAT TO DO: Walk slowly registering the wind, the sky, and the natural flow.\nWHY: Break the indoor hypnosis, relax your body, and connect with open freedom.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}"
             elif budget == "1":
-                titulo_ganador = (
-                    "INERCIA DE ABASTECIMIENTO" if lang == "es" else "SMART URBAN INERTIA"
-                )
-                donde_base = (
-                    "Grandes Almacenes de Suministros, Cafeterías de Libros o Tiendas de Saldo Cotidiano"
-                    if lang == "es" else "Department Outlets, Bookstores or Distribution Centers"
-                )
-                guia_masticada = (
-                    f"DESTINO: Un centro de distribución o rincón de diseño urbano.\n"
-                    f"QUÉ HACER: Recorre los pasillos masivos, hojea portadas o busca novedades cotidianas con soltura.\n"
-                    f"PARA QUÉ: Activar la mente a través de la exploración de objetos, oler el dinamismo del día y sacudirte la monotonía.\n\n"
-                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}" if lang == "es" else f"TARGET: Smart Department Outlets or Used Bookstores.\n"
-                    f"WHAT TO DO: Walk through massive aisles, browse book covers, or look for daily items with ease.\n"
-                    f"WHY: Activate your mind through object exploration, feel the day's energy, and shake off monotony.\n\n"
-                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}"
-                )
+                titulo_ganador = "INERCIA DE ABASTECIMIENTO" if lang == "es" else "SMART URBAN INERTIA"
+                donde_base = "Grandes Almacenes de Suministros, Cafeterías de Libros o Tiendas de Saldo Cotidiano" if lang == "es" else "Department Outlets, Bookstores or Distribution Centers"
+                guia_masticada = f"DESTINO: Un centro de distribución o rincón de diseño urbano.\nQUÉ HACER: Recorre los pasillos masivos, hojea portadas o busca novedades cotidianas con soltura.\nPARA QUÉ: Activar la mente a través de la exploración de objetos, oler el dinamismo del día y sacudirte la monotonía.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}" if lang == "es" else f"TARGET: Smart Department Outlets or Used Bookstores.\nWHAT TO DO: Walk through massive aisles, browse book covers, or look for daily items with ease.\nWHY: Activate your mind through object exploration, feel the day's energy, and shake off monotony.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}"
             elif budget == "2":
-                titulo_ganador = (
-                    "ESTÍMULO Y REGENERACIÓN URBANA" if lang == "es" else "URBAN REGENERATION STIMULUS"
-                )
-                donde_base = (
-                    "Grandes Centros Comerciales, Terrazas Elevadas, Cines o Centros de Recreación"
-                    if lang == "es" else "Vibrant Shopping Malls, Rooftops, Movie Theaters or Recreation Loops"
-                )
-                guia_masticada = (
-                    f"DESTINO: Un entorno comercial o recreativo activo.\n"
-                    f"QUÉ HACER: Entra a los pasillos confortables, sube a una terraza a pie o sigue la inercia circular de la pista.\n"
-                    f"PARA QUÉ: Rodearte de estímulos visuales, flujos sociales grandes y recuperar la soltura de tu día libre.\n\n"
-                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}" if lang == "es" else f"TARGET: Vibrant Shopping Mall, Rooftop or Recreation Center.\n"
-                    f"WHAT TO DO: Walk through comfortable aisles, visit an open terrace, or track the track's circular loop.\n"
-                    f"WHY: Surround yourself with visual stimulus, massive social flows, and regain the ease of your day.\n\n"
-                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}"
-                )
-                gps_query = info.get(
-                    "variante_maps", "shopping+mall+or+go+kart+racing+or+restaurant+with+rooftop"
-                )
-            else: # budget == "3" or any other value
-                titulo_ganador = (
-                    "NÚCLEO DE LA PROSPERIDAD" if lang == "es" else "CORE OF PROSPERITY"
-                )
-                donde_base = (
-                    "Muelles y Marinas de Yates, Vestíbulos Elegantes o Salas de Exhibición Premium"
-                    if lang == "es" else "Yacht Marinas, Premium Lobbies or Showrooms"
-                )
-                guia_masticada = (
-                    f"DESTINO: Un activo urbano de alto estatus sin límites de gasto.\n"
-                    f"QUÉ HACER: Camina por las pasarelas de madera entre mástiles, siéntate en los sofás amplios o admira la ingeniería de vanguardia.\n"
-                    f"PARA QUÉ: Elevar tu sintonía subiendo el nivel de tu entorno visual, rompiendo la parálisis mental y fluyendo con el éxito material.\n\n"
-                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}" if lang == "es" else f"TARGET: High-End Yacht Marina, Premium Hotel Lobby, or Showroom.\n"
-                    f"WHAT TO DO: Walk the wooden docks, take a seat on wide sofas, or inspect cutting-edge engineering.\n"
-                    f"WHY: Elevate your vibration by upgrading your visual environment level, breaking mental freeze, and flowing with material success.\n\n"
-                    f"ACOMPAÑAMIENTO: {quienes_van}\n"
-                    f"GASTO: {precio_real}"
-                )
+                titulo_ganador = "ESTÍMULO Y REGENERACIÓN URBANA" if lang == "es" else "URBAN REGENERATION STIMULUS"
+                donde_base = "Grandes Centros Comerciales, Terrazas Elevadas, Cines o Centros de Recreación" if lang == "es" else "Vibrant Shopping Malls, Rooftops, Movie Teaters or Recreation Loops"
+                guia_masticada = f"DESTINO: Un entorno comercial o recreativo activo.\nQUÉ HACER: Entra a los pasillos confortables, sube a una terraza a pie o sigue la inercia circular de la pista.\nPARA QUÉ: Rodearte de estímulos visuales, flujos sociales grandes y recuperar la soltura de tu día libre.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}" if lang=="es" else f"TARGET: Vibrant Shopping Mall, Rooftop or Recreation Center.\nWHAT TO DO: Walk through comfortable aisles, visit an open terrace, or track the track's circular loop.\nWHY: Surround yourself with visual stimulus, massive social flows, and regain the ease of your day.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}"
+                gps_query = info.get("variante_maps","shopping+mall+or+go+kart+racing+or+restaurant+with+rooftop")
+            else:
+                titulo_ganador = "NÚCLEO DE LA PROSPERIDAD" if lang == "es" else "CORE OF PROSPERITY"
+                donde_base = "Muelles y Marinas de Yates, Vestíbulos Elegantes o Salas de Exhibición Premium" if lang == "es" else "Yacht Marinas, Premium Lobbies or Showrooms"
+                guia_masticada = f"DESTINO: Un activo urbano de alto estatus sin límites de gasto.\nQUÉ HACER: Camina por las pasarelas de madera entre mástiles, siéntate en los sofás amplios o admira la ingeniería de vanguardia.\nPARA QUÉ: Elevar tu sintonía subiendo el nivel de tu entorno visual, rompiendo la parálisis mental y fluyendo con el éxito material.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}" if lang=="es" else f"TARGET: High-End Yacht Marina, Premium Hotel Lobby, or Showroom.\nWHAT TO DO: Walk the wooden docks, take a seat on wide sofas, or inspect cutting-edge engineering.\nWHY: Elevate your vibration by upgrading your visual environment level, breaking mental freeze, and flowing with material success.\n\nACOMPAÑAMIENTO: {quienes_van}\nGASTO: {precio_real}"
+                gps_query = info.get("variante_maps","luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership")
 
-                gps_query = info.get(
-                    "variante_maps", "luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership"
-                )
     # 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN
-    else: # If not critical words or MANDO_LIBRE
-        link_base = "https://www.google.com/maps/search/?api=1&query="
+    else:
+        link_base = "https://google.com"
         gps_query = info["gps"]
         donde_base = info["donde"]
         titulo_ganador = info["titulo"].upper()
-        
-        if lang == "en":
-            traducciones_guia = {
-                "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
-                "Orilla de playa": "TARGET: Beach Shore.\nWHAT TO DO: Walk barefoot on wet sand. Let waves touch your feet.\nWHY: Ocean waves clear background noise from your mind.",
-                "Paseo del Mall": "TARGET: Shopping Mall Walk.\nWHAT TO DO: Walk through the corridors. Explore what is new and enjoy the lively atmosphere.\nWHY: Surrounding yourself with lights and social dynamic boosts your urban energy.",
-                "Estímulo del Sabor": "TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to background music and enjoy.\nWHY: Great food in a vibrant environment sparks life's abundance."
+
+        if lang=="en":
+            traducciones_guia={
+                "Sombra de árbol":"TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
+                "Orilla de playa":"TARGET: Beach Shore.\nWHAT TO DO: Walk barefoot on wet sand. Let waves touch your feet.\nWHY: Ocean waves clear background noise from your mind.",
+                "Paseo del Mall":"TARGET: Shopping Mall Walk.\nWHAT TO DO: Walk through the corridors. Explore what is new and enjoy the lively atmosphere.\nWHY: Surrounding yourself with lights and social dynamic boosts your urban energy.",
+                "Estímulo del Sabor":"TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to background music and enjoy.\nWHY: Great food in a vibrant environment sparks life's abundance."
             }
+
             if info["titulo"] in traducciones_guia:
                 guia_masticada = f"{traducciones_guia[info['titulo']]}\n\n{quienes_van}\n{precio_real}"
             else:
@@ -754,7 +970,7 @@ async def mando_integral(request: Request):
                     f"{quienes_van}\n"
                     f"{precio_real}"
                 )
-        else: # lang == "es"
+        else:
             guia_masticada = (
                 f"DESTINO: {info['titulo']}.\n"
                 f"POR QUÉ: {info['porque']}\n"
@@ -766,29 +982,29 @@ async def mando_integral(request: Request):
             )
 
     # 7. ADAPTABILIDAD GEOGRÁFICA UNIVERSAL FIJA Y SALIDA DE CONTROL
-    if perfil == "accesible":
-        gps_query = "wheelchair+accessible+" + gps_query
-    elif perfil == "family":
-        gps_query = "family+friendly+" + gps_query
+    if perfil=="accesible":
+        gps_query="wheelchair+accessible+"+gps_query
+    elif perfil=="family":
+        gps_query="family+friendly+"+gps_query
 
     anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
-    
+
     if gps_query:
-        link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
+        link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ","+")
     else:
-        link_google_maps_vivo = link_base.replace(" ", "+")
+        link_google_maps_vivo = link_base.replace(" ","+")
 
     if tratamiento_especial:
         guia_masticada += f"\n\n{tratamiento_especial}"
 
     return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "destino_titulo": titulo_ganador,
-        "destino_entorno": donde_base,
-        "destino_instruccion": guia_masticada.strip(),
-        "destino_coordenadas_gps": link_google_maps_vivo,
-        "token_entorno": info["titulo"] if "titulo" in info else "general"
+        "DIRECCIONAMIENTO_MASTER":"ACCION_CAMPO",
+        "destino_titulo":titulo_ganador,
+        "destino_entorno":donde_base,
+        "destino_instruccion":guia_masticada.strip(),
+        "destino_coordenadas_gps":link_google_maps_vivo,
+        "token_entorno":info["titulo"] if "titulo" in info else "general"
     })
 
-if __name__ == "__main__":
+if __name__=="__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
