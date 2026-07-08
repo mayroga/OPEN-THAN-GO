@@ -40,7 +40,7 @@ BASE_MISIONES = {
         {"id": 19, "titulo": "Memoria feliz", "descripcion": "Cierra los ojos y recuerda un momento real de calma en tu niñez."},
         {"id": 20, "titulo": "Sonrisa forzada", "descripcion": "Sonríe 15 segundos. Cambia tu química cerebral ahora."},
         {"id": 21, "titulo": "Agradecimiento", "descripcion": "Cierra los ojos. Agradece una cosa buena de esta semana."},
-        {"id": 22, "titulo": "Relaja ojos", "contentType": "text", "descripcion": "Tápate los ojos con palmas templadas. Un minuto de oscuridad."},
+        {"id": 22, "titulo": "Relaja ojos", "descripcion": "Tápate los ojos con palmas templadas. Un minuto de oscuridad."},
         {"id": 23, "titulo": "Ritmo cardíaco", "descripcion": "Mano derecha en el pecho. Siente el latido. Es tu motor."},
         {"id": 24, "titulo": "Suelta cuello", "descripcion": "Círculos lentos de cabeza. Libera la tensión de pantalla."},
         {"id": 25, "titulo": "Ejercicio de palmas", "descripcion": "Frota manos hasta sentir calor. Colócalas en hombros."},
@@ -69,9 +69,8 @@ BASE_MISIONES = {
         {"id": 48, "titulo": "Limpieza mental", "descripcion": "Exhala preocupación aburrida. Fuera de ti."},
         {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la estabilidad."},
         {"id": 50, "titulo": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control."}
-    ], # <-- TRANSICIÓN TOTALMENTE LIMPIA CERRADA CON COMA REGLAMENTARIA
-
-        "SALIR": {
+    ],
+    "SALIR": {
         "agotado": [
             # 1. Parques Públicos (Naturaleza/Sombra)
             {
@@ -144,9 +143,8 @@ BASE_MISIONES = {
                 "variante_spotify": "https://spotify.com",
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "vibrant+restaurant+with+music"
-            }, # <-- CONTINUIDAD DE ARREGLO PROTEGIDA CON COMA E INDENTACIÓN ESTABLE
-
-                        # 7. Miradores Elevados de la Ciudad
+            },
+            # 7. Miradores Elevados de la Ciudad
             {
                 "titulo": "Punto de altura",
                 "porque": "Ver las luces y los rascacielos desde arriba te da perspectiva y expande tus metas de prosperidad.",
@@ -241,9 +239,8 @@ BASE_MISIONES = {
                 "variante_spotify": "https://spotify.com",
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "5+star+hotel+lobby"
-            }, # <-- CONTINUIDAD INTEGRAL ASEGURADA CON COMA Y CORCHETES BALANCEADOS
-
-                        # 15. Mercados Gastronómicos Abiertos (Food Halls / Time Out)
+            },
+            # 15. Mercados Gastronómicos Abiertos (Food Halls / Time Out)
             {
                 "titulo": "Pulso del Sabor Urbano",
                 "porque": "Oler decenas de cocinas internacionales mezcladas con risas y charlas rompe cualquier aislamiento de forma dinámica.",
@@ -267,8 +264,8 @@ BASE_MISIONES = {
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "luxury+spa+or+barbershop"
             }
-        ], # <-- AQUÍ CIERRA LIMPIAMENTE EL ARREGLO DE "agotado"
-        "estresado": [ # <-- AQUÍ ABRE EL ARREGLO PARA EL ESTADO "estresado"
+        ],
+        "estresado": [
             # 17. Graderías y Escaleras Públicas Grandes (Movimiento)
             {
                 "titulo": "Caminata en subida",
@@ -340,9 +337,8 @@ BASE_MISIONES = {
                 "variante_spotify": "https://spotify.com",
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "go+kart+racing"
-            }, # <-- CONTINUIDAD TOTALMENTE ASEGURADA CON SANGRA DO EXACTO Y COMA
-
-                        # 23. Zonas de Skateparks y Parques de Acción Urbana
+            },
+            # 23. Zonas de Skateparks y Parques de Acción Urbana
             {
                 "titulo": "Impacto Dinámico Urbano",
                 "porque": "La cultura callejera, la música hip-hop y el riesgo controlado de los trucos inyectan juventud y vitalidad a tu día.",
@@ -425,9 +421,8 @@ BASE_MISIONES = {
                 "variante_spotify": "https://spotify.com",
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "historical+monument+plaza"
-            }, # <-- CONTINUIDAD TOTALMENTE ASEGURADA CON SANGRA DO EXACTO Y COMA
-
-                        # 45. Pasarelas y Miradores sobre Autopistas Interestatales (Freeways)
+            },
+            # 45. Pasarelas y Miradores sobre Autopistas Interestatales (Freeways)
             {
                 "titulo": "Inercia de la Masa en Movimiento",
                 "porque": "Ver la velocidad y el destello de miles de luces de freeways marchándose saca a tu cerebro de su inercia estática.",
@@ -475,7 +470,7 @@ BASE_MISIONES = {
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "antique+store+or+used+bookstore"
             }
-        ], # <-- AQUÍ CIERRA EL ARREGLO DE "estresado"
+        ],
         "aburrido": [
             {
                 "titulo": "Paseo tranquilo",
@@ -488,9 +483,9 @@ BASE_MISIONES = {
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "quiet+public+park"
             }
-        ] # <-- AQUÍ CIERRA EL ARREGLO DE "aburrido"
-    } # <-- AQUÍ CIERRA EL DICCIONARIO "SALIR"
-} # <-- AQUÍ CIERRA EL DICCIONARIO MAESTRO GLOBAL "BASE_MISIONES"
+        ]
+    }
+}
 
 # =========================================================================
 # 🚀 ENDPOINTS DE CONTROL DE RUTA Y FLUJO ASÍNCRONO DE ENTRADA
@@ -671,7 +666,7 @@ async def mando_integral(request: Request):
                     f"GASTO: {precio_real}"
                 )
 
-                        elif budget == "1":
+            elif budget == "1":
                 titulo_ganador = (
                     "INERCIA DE ABASTECIMIENTO" if lang == "es" else "SMART URBAN INERTIA"
                 )
@@ -732,10 +727,9 @@ async def mando_integral(request: Request):
                     f"GASTO: {precio_real}"
                 )
 
-                               gps_query = info.get(
+                gps_query = info.get(
                     "variante_maps", "luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership"
                 )
-    
     # 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN
     else: # If not critical words or MANDO_LIBRE
         link_base = "https://www.google.com/maps/search/?api=1&query="
