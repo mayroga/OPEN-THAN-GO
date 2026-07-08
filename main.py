@@ -671,10 +671,10 @@ async def mando_integral(request: Request):
                     "variante_maps", "luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership"
                 )
 
-    # 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN
+       # 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN
     else:
         link_base = "https://www.google.com/maps/search/?api=1&query="
-        ggps_query = info.get("gps", "")
+        gps_query = info["gps"]
         donde_base = info["donde"]
         titulo_ganador = info["titulo"].upper()
         
@@ -698,7 +698,7 @@ async def mando_integral(request: Request):
     anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
     
     if gps_query:
-        link_google_maps_vivo = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
+        link_google_maps_vivo = f"https://www.google.com/maps/search/?api=1&query={gps_query}+in+{anclaje_geografico}".replace(" ", "+")
     else:
         link_google_maps_vivo = link_base.replace(" ", "+")
 
