@@ -670,51 +670,37 @@ async def mando_integral(request: Request):
                 gps_query = info.get(
                     "variante_maps", "luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership"
                 )
-                    # 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN
+# 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN                   
+else:
+    link_base = "https://www.google.com/maps/search/?api=1&query="
+    gps_query = info["gps"]
+    donde_base = info["donde"]
+    titulo_ganador = info["titulo"].upper()
+
+    if lang == "en":
+        traducciones_guia = {
+            "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
+            "Orilla de playa": "TARGET: Beach Shore.\nWHAT TO DO: Walk barefoot on wet sand. Let waves touch your feet.\nWHY: Ocean waves clear background noise from your mind.",
+            "Paseo del Mall": "TARGET: Shopping Mall Walk.\nWHAT TO DO: Walk through the corridors. Explore what is new and enjoy the lively atmosphere.\nWHY: Surrounding yourself with lights and social dynamic boosts your urban energy.",
+            "Estímulo del Sabor": "TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to background music and enjoy.\nWHY: Great food in a vibrant environment sparks life's abundance."
+        }
+
+        guia_masticada = traducciones_guia.get(
+            info["titulo"],
+            f"TARGET: {info['donde']}.\n"
+            f"WHAT TO DO: {info['que_hacer']}\n"
+            f"WHY: {info['porque']}\n"
+            f"{quienes_van}\n"
+            f"{precio_real}"
+        )
+
     else:
-          link_base = "https://www.google.com/maps/search/?api=1&query="
-        gps_query = info["gps"]
-        donde_base = info["donde"]
-        titulo_ganador = info["titulo"].upper()
-        
-        if lang == "en":
-            traducciones_guia = {
-                "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
-                "Orilla de playa": "TARGET: Beach Shore.\nWHAT TO DO: Walk barefoot on wet sand. Let waves touch your feet.\nWHY: Ocean waves clear background noise from your mind.",
-                "Paseo del Mall": "TARGET: Shopping Mall Walk.\nWHAT TO DO: Walk through the corridors. Explore what is new and enjoy the lively atmosphere.\nWHY: Surrounding yourself with lights and social dynamic boosts your urban energy.",
-                "Estímulo del Sabor": "TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to background music and enjoy.\nWHY: Great food in a vibrant environment sparks life's abundance."
-            }
-            guia_masticada = traducciones_guia.get(info["titulo"], f"TARGET: {info['donde']}.\nWHAT TO DO: {info['que_hacer']}\nWHY: {info['porque']}\n{quienes_van}\n{precio_real}")
-    else:
-            guia_masticada = f"DESTINO: {info['titulo']}.\nPOR QUÉ: {info['porque']}\nQUÉ HACER: {info['que_hacer']}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Romper el zombi urbano y recordar el valor de tu tranquilidad.\n{quienes_van}\n{precio_real}"
-
-    # 7. ADAPTABILIDAD GEOGRÁFICA UNIVERSAL FIJA Y SALIDA DE CONTROL
-    if perfil == "accesible":
-        gps_query = "wheelchair+accessible+" + gps_query
-    elif perfil == "family":
-        gps_query = "family+friendly+" + gps_query
-
-    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
-    
-    if gps_query:
-        link_google_maps_vivo = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
-    else:
-        link_google_maps_vivo = link_base.replace(" ", "+")
-
-    if tratamiento_especial:
-        guia_masticada += f"\n\n{tratamiento_especial}"
-
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "destino_titulo": titulo_ganador,
-        "destino_entorno": donde_base,
-        "destino_instruccion": guia_masticada.strip(),
-        "destino_coordenadas_gps": link_google_maps_vivo,
-        "token_entorno": info["titulo"] if "titulo" in info else "general"
-    })
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
-
-
-                 
+        guia_masticada = (
+            f"DESTINO: {info['titulo']}.\n"
+            f"POR QUÉ: {info['porque']}\n"
+            f"QUÉ HACER: {info['que_hacer']}\n"
+            f"CUÁNDO: Ahora mismo. Levántate de la silla ya.\n"
+            f"PARA QUÉ: Romper el zombi urbano y recordar el valor de tu tranquilidad.\n"
+            f"{quienes_van}\n"
+            f"{precio_real}"
+        ) 
