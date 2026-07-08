@@ -50,25 +50,25 @@ BASE_MISIONES = {
         {"id": 29, "titulo": "Suelta mandíbula", "descripcion": "Abre grande la mouth, mueve mandíbula a los lados."},
         {"id": 30, "titulo": "Pasos lentos", "descripcion": "Diez pasos lentos, conscientes, en tu cuarto."},
         {"id": 31, "titulo": "Masaje suave", "descripcion": "Yemas en las sienes. Círculos muy lentos."},
-        {"id": 32, "conciencia": "Conciencia aire", "descripcion": "Siente el aire frío entrar, el cálido salir."},
+        {"id": 32, "titulo": "Conciencia aire", "descripcion": "Siente el aire frío entrar, el cálido salir."},
         {"id": 33, "titulo": "Espalda firme", "descripcion": "Omóplatos atrás, abre el pecho."},
         {"id": 34, "titulo": "Apoyo total", "descripcion": "Siente la silla sosteniendo tu weight total."},
-        {"id": 35, "cuenta": "Cuenta atrás", "descripcion": "Del 20 al 1. Despacio. Calma el ruido."},
+        {"id": 35, "titulo": "Cuenta atrás", "descripcion": "Del 20 al 1. Despacio. Calma el ruido."},
         {"id": 36, "titulo": "Toca textura", "descripcion": "Pasa dedos por una textura real. Madera o tela."},
         {"id": 37, "titulo": "Estira dedos", "descripcion": "Separa dedos lo más posible 5 segundos. Suelta."},
         {"id": 38, "titulo": "Sonido interno", "descripcion": "Escucha tu respiración. No la fuerces."},
         {"id": 39, "titulo": "Mirada fija", "descripcion": "Punto pequeño en la pared. Fijo. Sin parpadear."},
         {"id": 40, "titulo": "Suelta brazos", "descripcion": "Cuelga brazos. Sacúdelos suavemente."},
-        {"id": 41, "contacto": "Contacto ropa", "descripcion": "Nota el peso de la ropa sobre tu piel."},
-        {"id": 42, "aire": "Aire profundo", "descripcion": "Infla viento, retén 3 segundos, suelta lento."},
+        {"id": 41, "titulo": "Contacto ropa", "descripcion": "Nota el peso de la ropa sobre tu piel."},
+        {"id": 42, "titulo": "Aire profundo", "descripcion": "Infla viento, retén 3 segundos, suelta lento."},
         {"id": 43, "titulo": "Rotación hombros", "descripcion": "Hombros a orejas, cae de golpe."},
         {"id": 44, "titulo": "Escucha silencio", "descripcion": "Busca el silencio entre respiraciones."},
         {"id": 45, "titulo": "Mirada techo", "descripcion": "Mira techo. Estira cuello sin mover hombros."},
-        {"id": 46, "siente": "Siente base", "descripcion": "Contacto firme de piernas con silla."},
+        {"id": 46, "titulo": "Siente base", "descripcion": "Contacto firme de piernas con silla."},
         {"id": 47, "titulo": "Puños firmes", "descripcion": "Puños con fuerza 3 segundos, abre rápido."},
         {"id": 48, "titulo": "Limpieza mental", "descripcion": "Exhala preocupación aburrida. Fuera de ti."},
         {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la estabilidad."},
-        {"id": 50, "presencia": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control."}
+        {"id": 50, "titulo": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control."}
     ],
     "SALIR": {
         "agotado": [
@@ -470,6 +470,19 @@ BASE_MISIONES = {
                 "variante_youtube": "https://youtube.com",
                 "variante_maps": "antique+store+or+used+bookstore"
             }
+        ],
+        "aburrido": [
+            {
+                "titulo": "Paseo tranquilo",
+                "porque": "La calma ayuda a reorganizar tus pensamientos y a encontrar nuevas perspectivas.",
+                "que_hacer": "Busca un lugar apacible, observa el entorno y respira profundamente.",
+                "donde": "Un lugar tranquilo al aire libre.",
+                "gps": "quiet+public+park",
+                "vector_necesidades": {"movimiento": 30, "naturaleza": 70, "silencio": 90, "agua": 10, "sol": 50, "sombra": 50, "aire_fresco": 80, "creatividad": 30, "comunidad": 20, "aprendizaje": 20, "juego": 10, "contemplacion": 90, "trabajo": 0, "descanso": 80, "organizacion": 20, "alimentacion": 0, "musica": 0, "risa": 10, "esperanza": 70},
+                "variante_spotify": "https://spotify.com",
+                "variante_youtube": "https://youtube.com",
+                "variante_maps": "quiet+public+park"
+            }
         ]
     }
 }
@@ -497,29 +510,43 @@ async def mando_integral(request: Request):
 
     # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA ORIGINAL INTACTO)
     if opcion_usuario == "CASA":
-        misiones = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"]
+        misiones = BASE_MISIONES["CASA"]
         random.shuffle(misiones)
         return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones})
 
     # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR VECTORIAL CWRE ANTI-REPETICIÓN)
     opciones_salir = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     random.shuffle(opciones_salir)
-    
-    if len(opciones_salir) >= 2:
-        mejor_score = -1
-        info = opciones_salir
-        for opc in opciones_salir:
-            vector_lugar = opc.get("vector_necesidades", {})
-            score_coincidencia = 0
-            for necesidad, peso_usuario in perfil_local.items():
-                if isinstance(peso_usuario, (int, float)):
-                    ruido_variancia = random.uniform(0.85, 1.15)
-                    score_coincidencia += (vector_lugar.get(necesidad, 50) * ruido_variancia) * peso_usuario
-            if score_coincidencia > mejor_score:
-                mejor_score = score_coincidencia
-                info = opc
+
+    info = {} # Initialize info to a safe empty dict
+    if not opciones_salir: # Handle case where `opciones_salir` might be empty
+        info = {
+            "titulo": "Sin opciones disponibles",
+            "porque": "No se encontraron actividades para tu estado actual. Intenta con otra opción.",
+            "que_hacer": "Busca un lugar tranquilo y respira.",
+            "donde": "Cualquier lugar seguro y tranquilo",
+            "gps": "quiet+place",
+            "vector_necesidades": {},
+            "variante_spotify": "https://spotify.com",
+            "variante_youtube": "https://youtube.com",
+            "variante_maps": "quiet+place"
+        }
     else:
-        info = random.choice(opciones_salir)
+        info = random.choice(opciones_salir) # Initial choice as a fallback
+
+        if len(opciones_salir) >= 2:
+            mejor_score = -1
+            # Iterate and find the best match based on perfil_local
+            for opc in opciones_salir:
+                vector_lugar = opc.get("vector_necesidades", {})
+                score_coincidencia = 0
+                for necesidad, peso_usuario in perfil_local.items():
+                    if isinstance(peso_usuario, (int, float)):
+                        ruido_variancia = random.uniform(0.85, 1.15)
+                        score_coincidencia += (vector_lugar.get(necesidad, 50) * ruido_variancia) * peso_usuario
+                if score_coincidencia > mejor_score:
+                    mejor_score = score_coincidencia
+                    info = opc
 
     # 3. SEGMENTACIÓN DE PRESUPUESTO SILENCIOSA E INVISIBLE (INTERNAL MATRICES)
     if budget == "0":
@@ -538,7 +565,7 @@ async def mando_integral(request: Request):
     # 4. TRATAMIENTO DE PERFIL ACCESIBLE Y SENSITIVO (USA SPECIAL POLICIES)
     quienes_van = "Vas solo contigo mismo a recuperar tu centro."
     tratamiento_especial = ""
-    
+
     if "adulto" in perfil or "mayor" in perfil or "senior" in perfil or perfil == "accessible":
         quienes_van = "Ruta plana con acceso total por comodidad física y cuidado de tu edad."
         tratamiento_especial = "Desplázate a ritmo lento. Este entorno cuenta con áreas sombreadas y descansos confortables para proteger tu cuerpo hoy."
@@ -551,7 +578,7 @@ async def mando_integral(request: Request):
     elif "familia" in perfil or "hijos" in perfil or "family" in perfil:
         quienes_van = "Entorno apto para el desahogo de tus niños y seres queridos."
 
-        # 5. EL INTERCEPTOR TRIDIMENSIONAL 3X1 DE CONTROL FINANCIERO Y MANDO LIBRE
+    # 5. EL INTERCEPTOR TRIDIMENSIONAL 3X1 DE CONTROL FINANCIERO Y MANDO LIBRE
     palabras_criticas = [
         "trabajo", "empleo", "compañia", "compañía", "job",
         "biles", "deudas", "bills", "miseria", "explotacion",
@@ -603,7 +630,7 @@ async def mando_integral(request: Request):
             gps_query = ""
 
 
-        else:
+        else: # canal_multimedia == "MAPS"
 
             link_base = "https://www.google.com/maps/search/?api=1&query="
             gps_query = gps_fallback
@@ -710,7 +737,7 @@ async def mando_integral(request: Request):
                 )
 
 
-            else:
+            else: # budget == "3" or any other value
 
                 titulo_ganador = (
                     "NÚCLEO DE LA PROSPERIDAD"
@@ -748,7 +775,7 @@ async def mando_integral(request: Request):
 
 
     # 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN
-    else:
+    else: # If not critical words or MANDO_LIBRE
 
         link_base = "https://www.google.com/maps/search/?api=1&query="
         gps_query = info["gps"]
@@ -764,37 +791,39 @@ async def mando_integral(request: Request):
                 "Estímulo del Sabor": "TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to background music and enjoy.\nWHY: Great food in a vibrant environment sparks life's abundance."
             }
 
-            guia_masticada = traducciones_guia.get(
-                info["titulo"],
-                f"TARGET: {info['donde']}.\n"
-                f"WHAT TO DO: {info['que_hacer']}\n"
-                f"WHY: {info['porque']}\n"
-                f"{quienes_van}\n"
-                f"{precio_real}"
-            )
+            if info["titulo"] in traducciones_guia:
+                guia_masticada = f"{traducciones_guia[info['titulo']]}\n\n{quienes_van}\n{precio_real}"
+            else:
+                guia_masticada = (
+                    f"TARGET: {info['titulo']}.\n"
+                    f"WHAT TO DO: {info['que_hacer']}\n"
+                    f"WHY: {info['porque']}\n\n"
+                    f"{quienes_van}\n"
+                    f"{precio_real}"
+                )
 
 
-        else:
+        else: # lang == "es"
 
             guia_masticada = (
                 f"DESTINO: {info['titulo']}.\n"
                 f"POR QUÉ: {info['porque']}\n"
                 f"QUÉ HACER: {info['que_hacer']}\n"
                 f"CUÁNDO: Ahora mismo. Levántate de la silla ya.\n"
-                f"PARA QUÉ: Romper el zombi urbano y recordar el valor de tu tranquilidad.\n"
+                f"PARA QUÉ: Romper el zombi urbano y recordar el valor de tu tranquilidad.\n\n"
                 f"{quienes_van}\n"
                 f"{precio_real}"
             )
-            # 7. ADAPTABILIDAD GEOGRÁFICA UNIVERSAL FIJA Y SALIDA DE CONTROL
+    # 7. ADAPTABILIDAD GEOGRÁFICA UNIVERSAL FIJA Y SALIDA DE CONTROL
     if perfil == "accesible":
         gps_query = "wheelchair+accessible+" + gps_query
     elif perfil == "family":
         gps_query = "family+friendly+" + gps_query
 
     anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
-    
+
     if gps_query:
-        link_google_maps_vivo = f"https://google.com{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
+        link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
     else:
         link_google_maps_vivo = link_base.replace(" ", "+")
 
