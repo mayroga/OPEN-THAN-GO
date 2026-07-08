@@ -1,8 +1,3 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V6.5.0
-// Company: May Roga LLC
-// File: static/engine.js
-// SECTION 1 OF 3: KERNEL VARIABLE CONTEXT & TRIDIMENSIONAL INITIATION
-
 const KERNEL = {
     timerInaccion: null,
     timerClinico: null,
@@ -90,630 +85,630 @@ const KERNEL = {
         "¿Sientes que estás perdiendo tus mejores años esperando un milagro que no va a llegar?",
         "¿Te cuesta creer que exista un espacio gratis en tu zona capaz de devolverte la esperanza?",
         "¿Estás listo para obedecer al mando, soltar tus indecisiones y salir de tu encierro mental hoy?"
-    ]
-};
     ], // transición correcta del bloque anterior
 
-// =========================================================================
-// 🚀 LÓGICA DE ALMACENAMIENTO LOCAL Y DESPACHADOR CRUZADO 3X1
-// =========================================================================
+    // =========================================================================
+    // 🚀 LÓGICA DE ALMACENAMIENTO LOCAL Y DESPACHADOR CRUZADO 3X1
+    // =========================================================================
 
-obtenerPerfilLocal() {
-    const perfilBase = {
-        movimiento:50,naturaleza:50,silencio:50,agua:50,sol:50,
-        sombra:50,aire_fresco:50,creatividad:50,comunidad:50,aprendizaje:50,
-        juego:50,contemplacion:50,trabajo:50,descanso:50,organizacion:50,
-        alimentacion:50,musica:50,risa:50,esperanza:50,indicador_ansiedad:0
-    };
+    obtenerPerfilLocal() {
+        const perfilBase = {
+            movimiento:50,naturaleza:50,silencio:50,agua:50,sol:50,
+            sombra:50,aire_fresco:50,creatividad:50,comunidad:50,aprendizaje:50,
+            juego:50,contemplacion:50,trabajo:50,descanso:50,organizacion:50,
+            alimentacion:50,musica:50,risa:50,esperanza:50,indicador_ansiedad:0
+        };
 
-    try {
-        let perfilRaw = localStorage.getItem("otg_perfil_dinamico");
+        try {
+            let perfilRaw = localStorage.getItem("otg_perfil_dinamico");
 
-        if (!perfilRaw) {
-            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfilBase));
+            if (!perfilRaw) {
+                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfilBase));
+                return perfilBase;
+            }
+
+            return JSON.parse(perfilRaw);
+
+        } catch(e) {
             return perfilBase;
         }
+    },
 
-        return JSON.parse(perfilRaw);
+    async despacharOraculo(inputTextoLibre = "") {
+        const inputCajon = document.getElementById("cajon-desahogo");
+        const alertaConexion = document.getElementById("alerta-error");
+        const contenedorPreguntas = document.getElementById("contenedor-preguntas");
 
-    } catch(e) {
-        return perfilBase;
-    }
-},
+        const activeMode = window.activeMode || "SALIR";
+        const activeBudget = window.activeBudget || "0";
+        const activeProfile = window.activeProfile || "solo";
 
-async despacharOraculo(inputTextoLibre = "") {
-    const inputCajon = document.getElementById("cajon-desahogo");
-    const alertaConexion = document.getElementById("alerta-error");
-    const contenedorPreguntas = document.getElementById("contenedor-preguntas");
+        const textoDesahogo = inputTextoLibre || (inputCajon?.value || "");
+        const modoEnvio = inputTextoLibre ? "MANDO_LIBRE" : activeMode;
 
-    const activeMode = window.activeMode || "SALIR";
-    const activeBudget = window.activeBudget || "0";
-    const activeProfile = window.activeProfile || "solo";
+        const payload = {
+            modo: modoEnvio,
+            zip: document.getElementById("input-zip")?.value || "",
+            estado: document.getElementById("select-estado")?.value || "FL",
+            region: document.getElementById("input-region")?.value || "",
+            mente: document.getElementById("select-mente")?.value || "agotado",
+            budget: activeBudget,
+            perfil: activeProfile,
+            desahogo: textoDesahogo.trim().toLowerCase(),
+            lang: document.getElementById("select-lang")?.value || "es",
+            perfil_local: this.obtenerPerfilLocal()
+        };
 
-    const textoDesahogo = inputTextoLibre || (inputCajon?.value || "");
-    const modoEnvio = inputTextoLibre ? "MANDO_LIBRE" : activeMode;
+        try {
+            contenedorPreguntas?.classList.add("fade-out-cascade");
 
-    const payload = {
-        modo: modoEnvio,
-        zip: document.getElementById("input-zip")?.value || "",
-        estado: document.getElementById("select-estado")?.value || "FL",
-        region: document.getElementById("input-region")?.value || "",
-        mente: document.getElementById("select-mente")?.value || "agotado",
-        budget: activeBudget,
-        perfil: activeProfile,
-        desahogo: textoDesahogo.trim().toLowerCase(),
-        lang: document.getElementById("select-lang")?.value || "es",
-        perfil_local: this.obtenerPerfilLocal()
-    };
+            const respuesta = await fetch("/api/mando-integral", {
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify(payload)
+            });
 
-    try {
-        contenedorPreguntas?.classList.add("fade-out-cascade");
-
-        const respuesta = await fetch("/api/mando-integral", {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(payload)
-        });
-
-        if (!respuesta.ok) {
-            throw new Error(`Servidor respondió HTTP ${respuesta.status}`);
-        }
-
-        const datos = await respuesta.json();
-
-        if(alertaConexion){
-            alertaConexion.style.display="none";
-        }
-
-        this.mostrarResultadoOraculo(datos);
-
-    } catch(error) {
-
-        console.error("Error CWRE:",error);
-
-        contenedorPreguntas?.classList.remove("fade-out-cascade");
-
-        if(alertaConexion){
-            alertaConexion.innerText="Error de conexión. Sincronizando con el servidor...";
-            alertaConexion.style.display="block";
-        }
-    }
-},
-
-// =========================================================================
-// 📌 LISTENERS INTERNOS: CAPTURA DEL CAJÓN Y BOTÓN MAESTRO
-// =========================================================================
-
-inicializarListenersMando(){
-
-    const botonMandoLibre=document.getElementById("btn-mando-libre");
-    const inputCajon=document.getElementById("cajon-desahogo");
-
-    if(botonMandoLibre){
-        botonMandoLibre.addEventListener("click",()=>{
-            const texto=inputCajon?.value.trim();
-
-            if(texto){
-                this.despacharOraculo(texto);
-            }else{
-                alert("Por favor, describe cómo te sientes para activar el Mando Libre.");
+            if (!respuesta.ok) {
+                throw new Error(`Servidor respondió HTTP ${respuesta.status}`);
             }
-        });
-    }
 
-    if(inputCajon){
-        inputCajon.addEventListener("keypress",(e)=>{
-            if(e.key==="Enter" && inputCajon.value.trim()){
-                e.preventDefault();
-                this.despacharOraculo(inputCajon.value.trim());
+            const datos = await respuesta.json();
+
+            if(alertaConexion){
+                alertaConexion.style.display="none";
             }
-        });
-    }
-},
 
-init(){
-    this.bloqueActual=parseInt(localStorage.getItem("otg_bloque_secuencial"))||0;
-    this.inicializarListenersMando();
-},
+            this.mostrarResultadoOraculo(datos);
 
-despertarInicial(){
+        } catch(error) {
 
-    const bienvenida=document.getElementById("pantalla-bienvenida");
-    const wrapper=document.getElementById("wrapper-form");
+            console.error("Error CWRE:",error);
 
-    if(bienvenida) bienvenida.style.display="none";
-    if(wrapper) wrapper.classList.remove("hidden");
+            contenedorPreguntas?.classList.remove("fade-out-cascade");
 
-    const saludos=[
-        "Bienvenido a Open Than Go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
-        "Open Than Go está activo. Olvida tus biles un momento. Mira las opciones en pantalla.",
-        "Entraste a Open Than Go. Rompamos tu piloto automático ahora mismo."
-    ];
+            if(alertaConexion){
+                alertaConexion.innerText="Error de conexión. Sincronizando con el servidor...";
+                alertaConexion.style.display="block";
+            }
+        }
+    },
 
-    this.hablar(
-        saludos[Math.floor(Math.random()*saludos.length)]
-    );
+    // =========================================================================
+    // 📌 LISTENERS INTERNOS: CAPTURA DEL CAJÓN Y BOTÓN MAESTRO
+    // =========================================================================
 
-    this.inyectarBloquePreguntas();
-    this.iniciarMonitoreoInaccion();
-},
+    inicializarListenersMando(){
+
+        const botonMandoLibre=document.getElementById("btn-mando-libre");
+        const inputCajon=document.getElementById("cajon-desahogo");
+
+        if(botonMandoLibre){
+            botonMandoLibre.addEventListener("click",()=>{
+                const texto=inputCajon?.value.trim();
+
+                if(texto){
+                    this.despacharOraculo(texto);
+                }else{
+                    alert("Por favor, describe cómo te sientes para activar el Mando Libre.");
+                }
+            });
+        }
+
+        if(inputCajon){
+            inputCajon.addEventListener("keypress",(e)=>{
+                if(e.key==="Enter" && inputCajon.value.trim()){
+                    e.preventDefault();
+                    this.despacharOraculo(inputCajon.value.trim());
+                }
+            });
+        }
+    },
+
+    init(){
+        this.bloqueActual=parseInt(localStorage.getItem("otg_bloque_secuencial"))||0;
+        this.inicializarListenersMando();
+    },
+
+    despertarInicial(){
+
+        const bienvenida=document.getElementById("pantalla-bienvenida");
+        const wrapper=document.getElementById("wrapper-form");
+
+        if(bienvenida) bienvenida.style.display="none";
+        if(wrapper) wrapper.classList.remove("hidden");
+
+        const saludos=[
+            "Bienvenido a Open Than Go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
+            "Open Than Go está activo. Olvida tus biles un momento. Mira las opciones en pantalla.",
+            "Entraste a Open Than Go. Rompamos tu piloto automático ahora mismo."
+        ];
+
+        this.hablar(
+            saludos[Math.floor(Math.random()*saludos.length)]
+        );
+
+        this.inyectarBloquePreguntas();
+        this.iniciarMonitoreoInaccion();
+    },
+
     inyectarBloquePreguntas(){
-    const grid=document.getElementById("contenedor-preguntas-oraculo");
-    if(!grid)return;
+        const grid=document.getElementById("contenedor-preguntas-oraculo");
+        if(!grid)return;
 
-    clearInterval(this.temporizadorCascada);
-    grid.innerHTML="";
-    this.indicePreguntaCascada=0;
+        clearInterval(this.temporizadorCascada);
+        grid.innerHTML="";
+        this.indicePreguntaCascada=0;
 
-    let inicioIdx=this.bloqueActual*6;
+        let inicioIdx=this.bloqueActual*6;
 
-    if(inicioIdx>=this.CATALOGO_PREGUNTAS.length){
-        this.bloqueActual=0;
-        inicioIdx=0;
-        localStorage.setItem("otg_bloque_secuencial","0");
-    }
-
-    for(let i=0;i<6;i++){
-        const preguntaTexto=this.CATALOGO_PREGUNTAS[inicioIdx+i];
-        if(!preguntaTexto)break;
-
-        const btn=document.createElement("button");
-        btn.className="btn-pregunta-crisis";
-        btn.id=`btn-pregunta-${i}`;
-        btn.innerText=`${i+1}. ${preguntaTexto}`;
-        btn.onclick=()=>this.reaccionarPreguntaSeleccionada(preguntaTexto);
-
-        grid.appendChild(btn);
-    }
-
-    const btnLibre=document.getElementById("btn-mando-libre");
-    const lblDesahogo=document.getElementById("lbl-desahogo");
-
-    if(btnLibre){
-        btnLibre.style.background="#111";
-        btnLibre.style.color="#555";
-        btnLibre.style.borderColor="#222";
-        btnLibre.disabled=true;
-    }
-
-    if(lblDesahogo)lblDesahogo.style.color="#666";
-
-    this.iniciarEfectoCascada();
-},
-
-iniciarEfectoCascada(){
-
-    this.indicePreguntaCascada=0;
-
-    this.temporizadorCascada=setInterval(()=>{
-
-        const boton=document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
-
-        if(boton){
-
-            boton.classList.add("fade-out");
-
-            const siguiente=document.getElementById(`btn-pregunta-${this.indicePreguntaCascada+1}`);
-
-            if(siguiente){
-                this.hablar(siguiente.innerText.substring(3));
-            }
-
-            this.indicePreguntaCascada++;
-
-        }else{
-
-            clearInterval(this.temporizadorCascada);
-            this.liberarCajonEscrituraLibre();
-
+        if(inicioIdx>=this.CATALOGO_PREGUNTAS.length){
+            this.bloqueActual=0;
+            inicioIdx=0;
+            localStorage.setItem("otg_bloque_secuencial","0");
         }
 
-    },8000);
-},
+        for(let i=0;i<6;i++){
+            const preguntaTexto=this.CATALOGO_PREGUNTAS[inicioIdx+i];
+            if(!preguntaTexto)break;
 
-liberarCajonEscrituraLibre(){
+            const btn=document.createElement("button");
+            btn.className="btn-pregunta-crisis";
+            btn.id=`btn-pregunta-${i}`;
+            btn.innerText=`${i+1}. ${preguntaTexto}`;
+            btn.onclick=()=>this.reaccionarPreguntaSeleccionada(preguntaTexto);
 
-    const textarea=document.getElementById("cajon-desahogo");
-    const btnLibre=document.getElementById("btn-mando-libre");
-    const lblDesahogo=document.getElementById("lbl-desahogo");
-    const instruccion=document.getElementById("lbl-oraculo-instruccion");
+            grid.appendChild(btn);
+        }
 
-    if(instruccion){
-        instruccion.innerText=this.idiomaActual==="es"
-        ?"Mando libre listo. Cuéntame qué te pasa."
-        :"Free control ready. Tell me what is happening.";
-    }
+        const btnLibre=document.getElementById("btn-mando-libre");
+        const lblDesahogo=document.getElementById("lbl-desahogo");
 
-    if(lblDesahogo)lblDesahogo.style.color="#fff";
+        if(btnLibre){
+            btnLibre.style.background="#111";
+            btnLibre.style.color="#555";
+            btnLibre.style.borderColor="#222";
+            btnLibre.disabled=true;
+        }
 
-    if(textarea){
-        textarea.disabled=false;
-        textarea.focus();
-    }
+        if(lblDesahogo)lblDesahogo.style.color="#666";
 
-    if(btnLibre){
+        this.iniciarEfectoCascada();
+    },
 
-        btnLibre.style.background="#4caf50";
-        btnLibre.style.color="#fff";
-        btnLibre.style.borderColor="#4caf50";
-        btnLibre.disabled=false;
+    iniciarEfectoCascada(){
 
-        btnLibre.onclick=()=>{
+        this.indicePreguntaCascada=0;
 
-            if(textarea && textarea.value.trim().length>3){
+        this.temporizadorCascada=setInterval(()=>{
 
-                this.despacharOraculo(textarea.value.trim());
+            const boton=document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
+
+            if(boton){
+
+                boton.classList.add("fade-out");
+
+                const siguiente=document.getElementById(`btn-pregunta-${this.indicePreguntaCascada+1}`);
+
+                if(siguiente){
+                    this.hablar(siguiente.innerText.substring(3));
+                }
+
+                this.indicePreguntaCascada++;
 
             }else{
+
+                clearInterval(this.temporizadorCascada);
+                this.liberarCajonEscrituraLibre();
+
+            }
+
+        },8000);
+    },
+
+    liberarCajonEscrituraLibre(){
+
+        const textarea=document.getElementById("cajon-desahogo");
+        const btnLibre=document.getElementById("btn-mando-libre");
+        const lblDesahogo=document.getElementById("lbl-desahogo");
+        const instruccion=document.getElementById("lbl-oraculo-instruccion");
+
+        if(instruccion){
+            instruccion.innerText=this.idiomaActual==="es"
+            ?"Mando libre listo. Cuéntame qué te pasa."
+            :"Free control ready. Tell me what is happening.";
+        }
+
+        if(lblDesahogo)lblDesahogo.style.color="#fff";
+
+        if(textarea){
+            textarea.disabled=false;
+            textarea.focus();
+        }
+
+        if(btnLibre){
+
+            btnLibre.style.background="#4caf50";
+            btnLibre.style.color="#fff";
+            btnLibre.style.borderColor="#4caf50";
+            btnLibre.disabled=false;
+
+            btnLibre.onclick=()=>{
+
+                if(textarea && textarea.value.trim().length>3){
+
+                    this.despacharOraculo(textarea.value.trim());
+
+                }else{
+
+                    this.hablar(
+                        this.idiomaActual==="es"
+                        ?"Escribe tu problema en el cuadro antes de activar el mando."
+                        :"Write your problem in the box before activating control."
+                    );
+
+                }
+            };
+        }
+    },
+
+    iniciarMonitoreoInaccion(){
+
+        clearInterval(this.timerInaccion);
+        this.conteoInaccion=0;
+
+        this.timerInaccion=setInterval(()=>{
+
+            this.conteoInaccion++;
+
+            if(this.conteoInaccion===4 || this.conteoInaccion===8){
+
+                clearInterval(this.temporizadorCascada);
+
+                this.bloqueActual++;
+
+                localStorage.setItem(
+                    "otg_bloque_secuencial",
+                    this.bloqueActual
+                );
+
+                this.inyectarBloquePreguntas();
 
                 this.hablar(
                     this.idiomaActual==="es"
-                    ?"Escribe tu problema en el cuadro antes de activar el mando."
-                    :"Write your problem in the box before activating control."
+                    ?"Avanzamos de nivel. Mira estas otras opciones en pantalla."
+                    :"Moving up. Look at these other options on screen."
                 );
 
+            }else if(this.conteoInaccion>=12){
+
+                clearInterval(this.timerInaccion);
+                clearInterval(this.temporizadorCascada);
+
+                this.hablar(
+                    this.idiomaActual==="es"
+                    ?"Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando."
+                    :"Apologies. I will give you time. I know your mind is tired. I will be waiting here."
+                );
+
+                const instruccion=document.getElementById("lbl-oraculo-instruccion");
+
+                if(instruccion){
+                    instruccion.innerText=this.idiomaActual==="es"
+                    ?"Tomando un respiro. Toca cuando estés listo..."
+                    :"Taking a breath. Tap when you are ready...";
+                }
             }
-        };
-    }
-},
 
-iniciarMonitoreoInaccion(){
+        },12000);
+    },
 
-    clearInterval(this.timerInaccion);
-    this.conteoInaccion=0;
-
-    this.timerInaccion=setInterval(()=>{
-
-        this.conteoInaccion++;
-
-        if(this.conteoInaccion===4 || this.conteoInaccion===8){
-
-            clearInterval(this.temporizadorCascada);
-
-            this.bloqueActual++;
-
-            localStorage.setItem(
-                "otg_bloque_secuencial",
-                this.bloqueActual
-            );
-
-            this.inyectarBloquePreguntas();
-
-            this.hablar(
-                this.idiomaActual==="es"
-                ?"Avanzamos de nivel. Mira estas otras opciones en pantalla."
-                :"Moving up. Look at these other options on screen."
-            );
-
-        }else if(this.conteoInaccion>=12){
-
-            clearInterval(this.timerInaccion);
-            clearInterval(this.temporizadorCascada);
-
-            this.hablar(
-                this.idiomaActual==="es"
-                ?"Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando."
-                :"Apologies. I will give you time. I know your mind is tired. I will be waiting here."
-            );
-
-            const instruccion=document.getElementById("lbl-oraculo-instruccion");
-
-            if(instruccion){
-                instruccion.innerText=this.idiomaActual==="es"
-                ?"Tomando un respiro. Toca cuando estés listo..."
-                :"Taking a breath. Tap when you are ready...";
-            }
-        }
-
-    },12000);
-},
     reaccionarPreguntaSeleccionada(textoPregunta){
-    clearInterval(this.timerInaccion);
-    clearInterval(this.temporizadorCascada);
-    this.bloqueActual++;
-    localStorage.setItem("otg_bloque_secuencial",this.bloqueActual);
-    this.despacharOraculo(textoPregunta);
-},
+        clearInterval(this.timerInaccion);
+        clearInterval(this.temporizadorCascada);
+        this.bloqueActual++;
+        localStorage.setItem("otg_bloque_secuencial",this.bloqueActual);
+        this.despacharOraculo(textoPregunta);
+    },
 
-hablar(texto){
-    if(!texto)return;
-    if(!window.speechSynthesis)return;
+    hablar(texto){
+        if(!texto)return;
+        if(!window.speechSynthesis)return;
 
-    window.speechSynthesis.cancel();
+        window.speechSynthesis.cancel();
 
-    const fx=texto.replace(/OPEN THAN GO/gi,"OPEN DAN GO").replace(/<[^>]*>/g,"");
-    const msg=new SpeechSynthesisUtterance(fx);
+        const fx=texto.replace(/OPEN THAN GO/gi,"OPEN DAN GO").replace(/<[^>]*>/g,"");
+        const msg=new SpeechSynthesisUtterance(fx);
 
-    msg.lang=this.idiomaActual==="es"?"es-US":"en-US";
-    msg.rate=1.20;
+        msg.lang=this.idiomaActual==="es"?"es-US":"en-US";
+        msg.rate=1.20;
 
-    window.speechSynthesis.speak(msg);
-},
+        window.speechSynthesis.speak(msg);
+    },
 
-cambiarIdioma(lang){
+    cambiarIdioma(lang){
 
-    this.idiomaActual=lang;
-    window.lang=lang;
+        this.idiomaActual=lang;
+        window.lang=lang;
 
-    document.getElementById("lang-es")?.classList.toggle("active",lang==="es");
-    document.getElementById("lang-en")?.classList.toggle("active",lang==="en");
+        document.getElementById("lang-es")?.classList.toggle("active",lang==="es");
+        document.getElementById("lang-en")?.classList.toggle("active",lang==="en");
 
-    const t={
-        es:{
-            title:"OPEN THAN GO",
-            zip:"Código Postal",
-            instruccion:"¿Qué te tiene atrapado hoy?",
-            desahogo:"O escribe aquí tu propio agobio si no aparece arriba:",
-            placeholder:"Cuéntale al mando libremente qué te pasa hoy...",
-            btn:"Activar Mando Libre",
-            alert:"Idioma cambiado a español."
-        },
-        en:{
-            title:"OPEN THAN GO",
-            zip:"ZIP Code",
-            instruccion:"What has you trapped today?",
-            desahogo:"Or write your own burden here if it does not appear above:",
-            placeholder:"Tell the control freely what is happening to you today...",
-            btn:"Activate Free Control",
-            alert:"Language switched to English."
+        const t={
+            es:{
+                title:"OPEN THAN GO",
+                zip:"Código Postal",
+                instruccion:"¿Qué te tiene atrapado hoy?",
+                desahogo:"O escribe aquí tu propio agobio si no aparece arriba:",
+                placeholder:"Cuéntale al mando libremente qué te pasa hoy...",
+                btn:"Activar Mando Libre",
+                alert:"Idioma cambiado a español."
+            },
+            en:{
+                title:"OPEN THAN GO",
+                zip:"ZIP Code",
+                instruccion:"What has you trapped today?",
+                desahogo:"Or write your own burden here if it does not appear above:",
+                placeholder:"Tell the control freely what is happening to you today...",
+                btn:"Activate Free Control",
+                alert:"Language switched to English."
+            }
+        }[lang] || null;
+
+        if(!t)return;
+
+        const txtTitle=document.getElementById("txt-app-title");
+        const lblZip=document.getElementById("lbl-zip");
+        const lblInstruccion=document.getElementById("lbl-oraculo-instruccion");
+        const lblDesahogo=document.getElementById("lbl-desahogo");
+        const cajonTexto=document.getElementById("cajon-desahogo");
+        const botonMando=document.getElementById("btn-mando-libre");
+
+        if(txtTitle)txtTitle.innerText=t.title;
+        if(lblZip)lblZip.innerText=t.zip;
+        if(lblInstruccion)lblInstruccion.innerText=t.instruccion;
+        if(lblDesahogo)lblDesahogo.innerText=t.desahogo;
+        if(cajonTexto)cajonTexto.placeholder=t.placeholder;
+        if(botonMando)botonMando.innerText=t.btn;
+
+        this.hablar(t.alert);
+    },
+
+    evaluarEstadoBoton(){
+
+        const cajonTexto=document.getElementById("cajon-desahogo");
+        const botonMando=document.getElementById("btn-mando-libre");
+
+        if(!cajonTexto||!botonMando)return;
+
+        if(cajonTexto.value.trim().length>0){
+
+            botonMando.style.background="#4caf50";
+            botonMando.style.borderColor="#4caf50";
+            botonMando.style.color="#fff";
+            botonMando.disabled=false;
+
+        }else{
+
+            botonMando.style.background="#111";
+            botonMando.style.borderColor="#222";
+            botonMando.style.color="#555";
+            botonMando.disabled=true;
         }
-    }[lang] || null;
+    },
 
-    if(!t)return;
+    mostrarResultadoOraculo(datos){
 
-    const txtTitle=document.getElementById("txt-app-title");
-    const lblZip=document.getElementById("lbl-zip");
-    const lblInstruccion=document.getElementById("lbl-oraculo-instruccion");
-    const lblDesahogo=document.getElementById("lbl-desahogo");
-    const cajonTexto=document.getElementById("cajon-desahogo");
-    const botonMando=document.getElementById("btn-mando-libre");
+        if(!datos)return;
 
-    if(txtTitle)txtTitle.innerText=t.title;
-    if(lblZip)lblZip.innerText=t.zip;
-    if(lblInstruccion)lblInstruccion.innerText=t.instruccion;
-    if(lblDesahogo)lblDesahogo.innerText=t.desahogo;
-    if(cajonTexto)cajonTexto.placeholder=t.placeholder;
-    if(botonMando)botonMando.innerText=t.btn;
+        this.datosLugarGlobal=datos;
 
-    this.hablar(t.alert);
-},
+        const container=document.getElementById("wrapper-interactive");
+        if(!container)return;
 
-evaluarEstadoBoton(){
+        const t={
+            es:{listen:"ESCUCHA MI GUÍA"},
+            en:{listen:"LISTEN TO THE GUIDE"}
+        }[this.idiomaActual] || {listen:"LISTEN"};
 
-    const cajonTexto=document.getElementById("cajon-desahogo");
-    const botonMando=document.getElementById("btn-mando-libre");
+        const instruccion=(datos.destino_instruccion||"").replace(/\n/g,"<br>");
 
-    if(!cajonTexto||!botonMando)return;
+        container.innerHTML=`
+        <div class="mision-card">
+            <small>${this.idiomaActual==="es"?"Acción de Campo":"Field Action"}</small>
+            <h2>${datos.destino_titulo||"Open Than Go"}</h2>
+            <div class="instruccion-text">${instruccion}</div>
+            <button id="btn-countdown-salida" style="width:100%;background:#222;color:#aaa;padding:17px;font-weight:bold;margin-top:15px;border:none;text-transform:uppercase;border-radius:4px;font-size:.9rem;" disabled>35s ${t.listen}</button>
+            <button id="btn-gps-action" class="hidden" style="width:100%;background:#0d47a1;color:#fff;padding:17px;font-weight:bold;margin-top:15px;border:none;text-transform:uppercase;border-radius:4px;cursor:pointer;font-size:.95rem;">ABRIR CANAL YA</button>
+        </div>`;
 
-    if(cajonTexto.value.trim().length>0){
+        this.hablar(instruccion);
 
-        botonMando.style.background="#4caf50";
-        botonMando.style.borderColor="#4caf50";
-        botonMando.style.color="#fff";
-        botonMando.disabled=false;
+        let retencion=35;
 
-    }else{
+        const btnCount=document.getElementById("btn-countdown-salida");
+        const btnGps=document.getElementById("btn-gps-action");
 
-        botonMando.style.background="#111";
-        botonMando.style.borderColor="#222";
-        botonMando.style.color="#555";
-        botonMando.disabled=true;
-    }
-},
+        clearInterval(this.timerClinico);
 
-mostrarResultadoOraculo(datos){
+        this.timerClinico=setInterval(()=>{
 
-    if(!datos)return;
+            retencion--;
 
-    this.datosLugarGlobal=datos;
+            if(btnCount)btnCount.innerText=`${retencion}s ${t.listen}`;
 
-    const container=document.getElementById("wrapper-interactive");
-    if(!container)return;
+            if(retencion<=0){
 
-    const t={
-        es:{listen:"ESCUCHA MI GUÍA"},
-        en:{listen:"LISTEN TO THE GUIDE"}
-    }[this.idiomaActual] || {listen:"LISTEN"};
+                clearInterval(this.timerClinico);
 
-    const instruccion=(datos.destino_instruccion||"").replace(/\n/g,"<br>");
+                if(btnCount)btnCount.style.display="none";
 
-    container.innerHTML=`
-    <div class="mision-card">
-        <small>${this.idiomaActual==="es"?"Acción de Campo":"Field Action"}</small>
-        <h2>${datos.destino_titulo||"Open Than Go"}</h2>
-        <div class="instruccion-text">${instruccion}</div>
-        <button id="btn-countdown-salida" style="width:100%;background:#222;color:#aaa;padding:17px;font-weight:bold;margin-top:15px;border:none;text-transform:uppercase;border-radius:4px;font-size:.9rem;" disabled>35s ${t.listen}</button>
-        <button id="btn-gps-action" class="hidden" style="width:100%;background:#0d47a1;color:#fff;padding:17px;font-weight:bold;margin-top:15px;border:none;text-transform:uppercase;border-radius:4px;cursor:pointer;font-size:.95rem;">ABRIR CANAL YA</button>
-    </div>`;
+                if(btnGps){
 
-    this.hablar(instruccion);
+                    btnGps.classList.remove("hidden");
 
-    let retencion=35;
+                    btnGps.onclick=()=>{
 
-    const btnCount=document.getElementById("btn-countdown-salida");
-    const btnGps=document.getElementById("btn-gps-action");
+                        try{
 
-    clearInterval(this.timerClinico);
+                            let perfil=this.obtenerPerfilLocal();
+                            let token=(this.datosLugarGlobal.token_entorno||"").toLowerCase();
 
-    this.timerClinico=setInterval(()=>{
+                            if(token.includes("árbol")||token.includes("sombra"))
+                                perfil.naturaleza=Math.min((perfil.naturaleza||0)+10,100);
 
-        retencion--;
+                            else if(token.includes("caminata")||token.includes("subida"))
+                                perfil.movimiento=Math.min((perfil.movimiento||0)+10,100);
 
-        if(btnCount)btnCount.innerText=`${retencion}s ${t.listen}`;
+                            else if(token.includes("paseo")||token.includes("colores"))
+                                perfil.creatividad=Math.min((perfil.creatividad||0)+10,100);
 
-        if(retencion<=0){
+                            localStorage.setItem("otg_perfil_dinamico",JSON.stringify(perfil));
 
-            clearInterval(this.timerClinico);
+                        }catch(e){
+                            console.error("Error actualización perfil:",e);
+                        }
 
-            if(btnCount)btnCount.style.display="none";
+                        if(this.datosLugarGlobal.destino_coordenadas_gps){
+                            window.open(this.datosLugarGlobal.destino_coordenadas_gps,"_blank");
+                        }
 
-            if(btnGps){
+                        this.destruirYReiniciar();
+                    };
+                }
+            }
 
-                btnGps.classList.remove("hidden");
+        },1000);
+    },
 
-                btnGps.onclick=()=>{
+    procesarFlujoSiguiente(container,t){
+
+        if(this.indiceMision>=this.pasosMisiones.length){
+            this.iniciarRelojClinicoCasa(container,t);
+            return;
+        }
+
+        const paso=this.pasosMisiones[this.indiceMision];
+        if(!paso)return;
+
+        container.innerHTML=`
+        <div class="mision-card">
+            <small>${this.idiomaActual==="es"?"Misión Interna":"Internal Mission"}</small>
+            <h3>${paso.titulo||""}</h3>
+            <p>${paso.descripcion||""}</p>
+            <button id="btn-next" style="width:100%;background:#2e7d32;color:#fff;padding:16px;font-weight:bold;text-transform:uppercase;border-radius:6px;cursor:pointer;border:none;margin-top:15px;font-size:.95rem;">
+            ${this.idiomaActual==="es"?"HAZLO AHORA":"DO IT NOW"}
+            </button>
+        </div>`;
+
+        this.hablar(`${paso.titulo||""}. ${paso.descripcion||""}`);
+
+        const btnNext=document.getElementById("btn-next");
+
+        if(btnNext){
+            btnNext.onclick=()=>this.avanzarPaso();
+        }
+    },
+
+    iniciarRelojClinicoCasa(container,t){
+
+        clearInterval(this.timerClinico);
+
+        if(window.speechSynthesis){
+            window.speechSynthesis.cancel();
+        }
+
+        this.hablar(
+            this.idiomaActual==="es"
+            ?"Iniciamos diez minutos de limpieza mental profunda. Respira."
+            :"Starting ten minutes of deep mental clearing. Breathe."
+        );
+
+        container.innerHTML=`
+        <div style="text-align:center;width:100%;">
+            <div id="breath-circle" style="cursor:pointer;" title="Toca para enfocar tu mente"></div>
+            <div id="timer">10:00</div>
+            <p id="txt-pulmon">INHALA / INHALE</p>
+        </div>`;
+
+        this.timeLeft=600;
+        this.relojRealSegundos=600;
+        this.contadorToques=0;
+
+        const circleElement=document.getElementById("breath-circle");
+        const timerDiv=document.getElementById("timer");
+        const pulmonDiv=document.getElementById("txt-pulmon");
+
+        this.AUDIOS_SECUENCIALES_CASA=[
+            "Sigue el pulso en tu pantalla. Concéntrate. Estás conmigo hoy.",
+            "Suelta los hombros despacio. Deja caer todo el peso físico de la semana.",
+            "No mires tus biles ahora. No mires tu cartera. Respira ya.",
+            "Mantén el ritmo constante. Siente el aire fresco limpiando tu pecho.",
+            "Te estoy acompañando en silencio. No estás solo en esta habitación.",
+            "Siente tus pies firmes apoyados en el suelo. La tierra te sostiene gratis.",
+            "El piloto automático corporativo está apagado en este segundo. Continúa así.",
+            "Quédate justo en este instante. El pasado ya pasó, el presente es tuyo.",
+            "Suelta la mandíbula ahora. Libera esa carga que aprietas sin darte cuenta.",
+            "Tu mente está despertando poco a poco. Estás ganando control real.",
+            "Eres mucho más grande que tus deudas. Respira hondo y despacio.",
+            "Rompe el zombi que el sistema quiere que seas. Quédate en la sala conmigo.",
+            "Escucha mi voz. Nota cómo tu respiración se vuelve más profunda y limpia.",
+            "Tus ojos están descansando finalmente de las luces artificiales de la pantalla.",
+            "Siente los latidos de tu pecho. Es tu motor vivo latiendo para ti.",
+            "Siente el peso fuera de tu espalda. Imagina que dejas caer tu mochila.",
+            "No dejes que los pensamientos rápidos te saquen de este momento de paz.",
+            "Abandona la prisa de la ciudad hoy. Aquí el tiempo es tuyo.",
+            "El dinero regresará a tus bolsillos, pero este segundo de calma no se repite.",
+            "Siente cómo tus pulmones se llenan de fuerza con cada ciclo de aire azul.",
+            "Tu familia necesita que estés fuerte por dentro. Recupérate ahora.",
+            "Olvídate de las aplicaciones de compras. Tu mente está por encima del consumo.",
+            "Estás borrando el ruido del día. Quédate respirando conmigo.",
+            "La rutina diaria se ha roto. Tú gobiernas tus decisiones en este instante.",
+            "El suelo está firme debajo de ti. Siente la estabilidad de la tierra.",
+            "Tu pecho está libre de agobios ahora. Expulsa todo lo malo.",
+            "Estás recuperando tu centro biopsicosocial. Sigue la luz del círculo.",
+            "Tu mente es fuerte. Has domado el miedo a perder el trabajo hoy.",
+            "Faltan pocos segundos para el reinicio definitivo. Siente la esperanza.",
+            "Estás completamente a salvo aquí. Quédate en paz absoluta."
+        ];
+
+        if(circleElement){
+
+            circleElement.onclick=()=>{
+
+                if(this.contadorToques<10){
+
+                    const adelantoSegundos=this.secuenciaAdelantos?.[this.contadorToques]||5;
+
+                    this.timeLeft=Math.max(this.timeLeft-adelantoSegundos,0);
+                    this.contadorToques++;
 
                     try{
 
                         let perfil=this.obtenerPerfilLocal();
-                        let token=(this.datosLugarGlobal.token_entorno||"").toLowerCase();
 
-                        if(token.includes("árbol")||token.includes("sombra"))
-                            perfil.naturaleza=Math.min((perfil.naturaleza||0)+10,100);
+                        perfil.indicador_ansiedad=Math.min(
+                            (perfil.indicador_ansiedad||0)+10,
+                            100
+                        );
 
-                        else if(token.includes("caminata")||token.includes("subida"))
-                            perfil.movimiento=Math.min((perfil.movimiento||0)+10,100);
-
-                        else if(token.includes("paseo")||token.includes("colores"))
-                            perfil.creatividad=Math.min((perfil.creatividad||0)+10,100);
-
-                        localStorage.setItem("otg_perfil_dinamico",JSON.stringify(perfil));
+                        localStorage.setItem(
+                            "otg_perfil_dinamico",
+                            JSON.stringify(perfil)
+                        );
 
                     }catch(e){
-                        console.error("Error actualización perfil:",e);
+                        console.error("Error índice ansiedad:",e);
                     }
 
-                    if(this.datosLugarGlobal.destino_coordenadas_gps){
-                        window.open(this.datosLugarGlobal.destino_coordenadas_gps,"_blank");
-                    }
+                    const m=Math.floor(this.timeLeft/60);
+                    const s=this.timeLeft%60;
 
-                    this.destruirYReiniciar();
-                };
-            }
+                    if(timerDiv){
+                        timerDiv.innerText=`${m}:${s.toString().padStart(2,"0")}`;
+                    }
+                }
+            };
         }
-
-    },1000);
-},
-    procesarFlujoSiguiente(container,t){
-
-    if(this.indiceMision>=this.pasosMisiones.length){
-        this.iniciarRelojClinicoCasa(container,t);
-        return;
-    }
-
-    const paso=this.pasosMisiones[this.indiceMision];
-    if(!paso)return;
-
-    container.innerHTML=`
-    <div class="mision-card">
-        <small>${this.idiomaActual==="es"?"Misión Interna":"Internal Mission"}</small>
-        <h3>${paso.titulo||""}</h3>
-        <p>${paso.descripcion||""}</p>
-        <button id="btn-next" style="width:100%;background:#2e7d32;color:#fff;padding:16px;font-weight:bold;text-transform:uppercase;border-radius:6px;cursor:pointer;border:none;margin-top:15px;font-size:.95rem;">
-        ${this.idiomaActual==="es"?"HAZLO AHORA":"DO IT NOW"}
-        </button>
-    </div>`;
-
-    this.hablar(`${paso.titulo||""}. ${paso.descripcion||""}`);
-
-    const btnNext=document.getElementById("btn-next");
-
-    if(btnNext){
-        btnNext.onclick=()=>this.avanzarPaso();
-    }
-},
-
-iniciarRelojClinicoCasa(container,t){
-
-    clearInterval(this.timerClinico);
-
-    if(window.speechSynthesis){
-        window.speechSynthesis.cancel();
-    }
-
-    this.hablar(
-        this.idiomaActual==="es"
-        ?"Iniciamos diez minutos de limpieza mental profunda. Respira."
-        :"Starting ten minutes of deep mental clearing. Breathe."
-    );
-
-    container.innerHTML=`
-    <div style="text-align:center;width:100%;">
-        <div id="breath-circle" style="cursor:pointer;" title="Toca para enfocar tu mente"></div>
-        <div id="timer">10:00</div>
-        <p id="txt-pulmon">INHALA / INHALE</p>
-    </div>`;
-
-    this.timeLeft=600;
-    this.relojRealSegundos=600;
-    this.contadorToques=0;
-
-    const circleElement=document.getElementById("breath-circle");
-    const timerDiv=document.getElementById("timer");
-    const pulmonDiv=document.getElementById("txt-pulmon");
-
-    this.AUDIOS_SECUENCIALES_CASA=[
-        "Sigue el pulso en tu pantalla. Concéntrate. Estás conmigo hoy.",
-        "Suelta los hombros despacio. Deja caer todo el peso físico de la semana.",
-        "No mires tus biles ahora. No mires tu cartera. Respira ya.",
-        "Mantén el ritmo constante. Siente el aire fresco limpiando tu pecho.",
-        "Te estoy acompañando en silencio. No estás solo en esta habitación.",
-        "Siente tus pies firmes apoyados en el suelo. La tierra te sostiene gratis.",
-        "El piloto automático corporativo está apagado en este segundo. Continúa así.",
-        "Quédate justo en este instante. El pasado ya pasó, el presente es tuyo.",
-        "Suelta la mandíbula ahora. Libera esa carga que aprietas sin darte cuenta.",
-        "Tu mente está despertando poco a poco. Estás ganando control real.",
-        "Eres mucho más grande que tus deudas. Respira hondo y despacio.",
-        "Rompe el zombi que el sistema quiere que seas. Quédate en la sala conmigo.",
-        "Escucha mi voz. Nota cómo tu respiración se vuelve más profunda y limpia.",
-        "Tus ojos están descansando finalmente de las luces artificiales de la pantalla.",
-        "Siente los latidos de tu pecho. Es tu motor vivo latiendo para ti.",
-        "Siente el peso fuera de tu espalda. Imagina que dejas caer tu mochila.",
-        "No dejes que los pensamientos rápidos te saquen de este momento de paz.",
-        "Abandona la prisa de la ciudad hoy. Aquí el tiempo es tuyo.",
-        "El dinero regresará a tus bolsillos, pero este segundo de calma no se repite.",
-        "Siente cómo tus pulmones se llenan de fuerza con cada ciclo de aire azul.",
-        "Tu familia necesita que estés fuerte por dentro. Recupérate ahora.",
-        "Olvídate de las aplicaciones de compras. Tu mente está por encima del consumo.",
-        "Estás borrando el ruido del día. Quédate respirando conmigo.",
-        "La rutina diaria se ha roto. Tú gobiernas tus decisiones en este instante.",
-        "El suelo está firme debajo de ti. Siente la estabilidad de la tierra.",
-        "Tu pecho está libre de agobios ahora. Expulsa todo lo malo.",
-        "Estás recuperando tu centro biopsicosocial. Sigue la luz del círculo.",
-        "Tu mente es fuerte. Has domado el miedo a perder el trabajo hoy.",
-        "Faltan pocos segundos para el reinicio definitivo. Siente la esperanza.",
-        "Estás completamente a salvo aquí. Quédate en paz absoluta."
-    ];
-
-    if(circleElement){
-
-        circleElement.onclick=()=>{
-
-            if(this.contadorToques<10){
-
-                const adelantoSegundos=this.secuenciaAdelantos?.[this.contadorToques]||5;
-
-                this.timeLeft=Math.max(this.timeLeft-adelantoSegundos,0);
-                this.contadorToques++;
-
-                try{
-
-                    let perfil=this.obtenerPerfilLocal();
-
-                    perfil.indicador_ansiedad=Math.min(
-                        (perfil.indicador_ansiedad||0)+10,
-                        100
-                    );
-
-                    localStorage.setItem(
-                        "otg_perfil_dinamico",
-                        JSON.stringify(perfil)
-                    );
-
-                }catch(e){
-                    console.error("Error índice ansiedad:",e);
-                }
-
-                const m=Math.floor(this.timeLeft/60);
-                const s=this.timeLeft%60;
-
-                if(timerDiv){
-                    timerDiv.innerText=`${m}:${s.toString().padStart(2,"0")}`;
-                }
-            }
-        };
-    }
-},
         // MAPEADO LOCAL SEGURO DE VARIABLES BILINGÜES PARA EL PULSO PULMONAR
         const langTerms={
             es:{
@@ -795,7 +790,6 @@ iniciarRelojClinicoCasa(container,t){
             }
 
         },1000);
-
     },
 
     avanzarPaso(){
@@ -841,5 +835,4 @@ iniciarRelojClinicoCasa(container,t){
 };
 
 // ARRANQUE AUTOMÁTICO DE HARDWARE DE INTERFAZ UNIFICADO
-document.addEventListener("DOMContentLoaded",()=>KERNEL.init());        
-        
+document.addEventListener("DOMContentLoaded",()=>KERNEL.init());
