@@ -90,23 +90,83 @@ const KERNEL = {
         "¿Estás listo para obedecer al mando, soltar tus indecisiones y salir de tu encierro mental hoy?"
     ],
 
-    obtenerPerfilLocal() {
-        let perfilRaw = localStorage.getItem("otg_perfil_dinamico");
-        if (!perfilRaw) {
-            const perfilInicial = {
+    // =========================================================================
+    // 🔍 TU FRAGMENTO REEMPLAZADO Y MEJORADO (QUITA EL VIEJO Y PEGA ESTO)
+    // =========================================================================
+    obtenerPerfilLocal() { 
+        let perfilRaw = localStorage.getItem("otg_perfil_dinamico"); 
+        if (!perfilRaw) { 
+            const perfilInicial = { 
                 "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50, 
                 "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50, 
                 "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50, 
-                "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
-                "indicador_ansiedad": 0
-            };
-            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfilInicial));
-            return perfilInicial;
-        }
+                "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50, "indicador_ansiedad": 0 
+            }; 
+            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfilInicial)); 
+            return perfilInicial; 
+        } 
+        try { 
+            return typeof perfilRaw === "string" ? JSON.parse(perfilRaw) : perfilRaw; 
+        } catch (e) { 
+            return { "movimiento": 50, "naturaleza": 50, "silencio": 50 }; 
+        } 
+    },
+
+    async despacharOraculo(inputTextoLibre = "") {
+        const inputCajon = document.getElementById("cajon-desahogo");
+        const alertaConexion = document.getElementById("alerta-error");
+        const contenedorPreguntas = document.getElementById("contenedor-preguntas");
+        
+        let activeMode = window.activeMode || "SALIR";
+        let activeBudget = window.activeBudget || "0";
+        let activeProfile = window.activeProfile || "solo";
+
+        let textoDesahogo = inputTextoLibre ? inputTextoLibre : (inputCajon ? inputCajon.value : "");
+        let modoEnvio = inputTextoLibre ? "MANDO_LIBRE" : activeMode;
+
+        // Aquí lee tu función interna de almacenamiento local de forma limpia
+        const perfilDinamicoCelular = this.obtenerPerfilLocal();
+
+        const payload = {
+            modo: modoEnvio,
+            zip: document.getElementById("input-zip")?.value || "",
+            estado: document.getElementById("select-estado")?.value || "FL",
+            region: document.getElementById("input-region")?.value || "",
+            mente: document.getElementById("select-mente")?.value || "agotado",
+            budget: activeBudget,
+            perfil: activeProfile,
+            desahogo: textoDesahogo.trim().toLowerCase(),
+            lang: document.getElementById("select-lang")?.value || "es",
+            perfil_local: perfilDinamicoCelular 
+        };
+
         try {
-            return typeof perfilRaw === "string" ? JSON.parse(perfilRaw) : perfilRaw;
-        } catch (e) {
-            return { "movimiento": 50, "naturaleza": 50, "silencio": 50 };
+            if (contenedorPreguntas) {
+                contenedorPreguntas.classList.add("fade-out-cascade");
+            }
+
+            const respuesta = await fetch("/api/mando-integral", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!respuesta.ok) {
+                throw new Error(`Fallo interno del servidor HTTP: ${respuesta.status}`);
+            }
+
+            const datos = await respuesta.json();
+            if (alertaConexion) { alertaConexion.style.display = "none"; }
+            
+            this.mostrarResultadoOraculo(datos);
+
+        } catch (error) {
+            console.error("Error en la red de comunicación CWRE:", error);
+            if (contenedorPreguntas) { contenedorPreguntas.classList.remove("fade-out-cascade"); }
+            if (alertaConexion) {
+                alertaConexion.innerText = "Error de conexión. Sincronizando con el servidor...";
+                alertaConexion.style.display = "block";
+            }
         }
     },
 
