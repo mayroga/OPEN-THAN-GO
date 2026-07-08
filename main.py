@@ -670,15 +670,14 @@ async def mando_integral(request: Request):
                 gps_query = info.get(
                     "variante_maps", "luxury+marina+or+5+star+hotel+lobby+or+luxury+car+dealership"
                 )
-
-   # 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN
-   else:
-        link_base = "https://google.com"
+                    # 6. ENTORNO ORDINARIO LIBRE DE INTERCEPCIÓN
+    else:
+          link_base = "https://www.google.com/maps/search/?api=1&query="
         gps_query = info["gps"]
         donde_base = info["donde"]
         titulo_ganador = info["titulo"].upper()
         
-   if lang == "en":
+        if lang == "en":
             traducciones_guia = {
                 "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
                 "Orilla de playa": "TARGET: Beach Shore.\nWHAT TO DO: Walk barefoot on wet sand. Let waves touch your feet.\nWHY: Ocean waves clear background noise from your mind.",
@@ -686,7 +685,7 @@ async def mando_integral(request: Request):
                 "Estímulo del Sabor": "TARGET: Flavor Stimulus.\nWHAT TO DO: Order something new, listen to background music and enjoy.\nWHY: Great food in a vibrant environment sparks life's abundance."
             }
             guia_masticada = traducciones_guia.get(info["titulo"], f"TARGET: {info['donde']}.\nWHAT TO DO: {info['que_hacer']}\nWHY: {info['porque']}\n{quienes_van}\n{precio_real}")
-    else:
+        else:
             guia_masticada = f"DESTINO: {info['titulo']}.\nPOR QUÉ: {info['porque']}\nQUÉ HACER: {info['que_hacer']}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Romper el zombi urbano y recordar el valor de tu tranquilidad.\n{quienes_van}\n{precio_real}"
 
     # 7. ADAPTABILIDAD GEOGRÁFICA UNIVERSAL FIJA Y SALIDA DE CONTROL
@@ -714,5 +713,8 @@ async def mando_integral(request: Request):
         "token_entorno": info["titulo"] if "titulo" in info else "general"
     })
 
-    if __name__ == "__main__":
+if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
+
+                 
