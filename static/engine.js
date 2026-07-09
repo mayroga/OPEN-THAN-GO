@@ -832,4 +832,3 @@
 
     // Expose KERNEL to global scope for HTML onclick events (e.g., KERNEL.despertarInicial())
     window.KERNEL = KERNEL;
-                
