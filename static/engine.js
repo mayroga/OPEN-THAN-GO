@@ -1,4 +1,3 @@
-
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
 // Company: May Roga LLC
 // File: static/engine.js
