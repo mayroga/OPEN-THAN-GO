@@ -1,4 +1,4 @@
-    # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
+# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
     # Company: May Roga LLC
     # File: main.py - SECCIÓN 1 DE 2 (Backend Core)
 
