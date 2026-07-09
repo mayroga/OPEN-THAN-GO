@@ -1,4 +1,4 @@
-```python
+
     # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
     # Company: May Roga LLC
     # File: main.py - SECCIÓN 1 DE 2 (Backend Core)
@@ -454,4 +454,4 @@
 
     if __name__ == "__main__":
         uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
-    ```
+        
