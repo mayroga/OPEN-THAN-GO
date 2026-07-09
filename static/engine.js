@@ -626,4 +626,4 @@ const KERNEL = {
 document.addEventListener('DOMContentLoaded', () => KERNEL.init());
 
 // Expose KERNEL to global scope for HTML onclick events (e.g., KERNEL.despertarInicial())
-window.KERNEL = KERNEL;
+window.KERNEL = KERNE
