@@ -29,6 +29,7 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative; /* Necesario para posicionar el header */
         }
         .container { width: 95%; max-width: 420px; padding: 15px; position: relative; z-index: 10; }
         .lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; }
@@ -62,12 +63,40 @@
             0% { transform: translateX(0); }
             100% { transform: translateX(520px); }
         }
+
+        /* Header persistente en modo CASA */
+        body.casa-mode-active .header-wrapper {
+            position: fixed; /* O fixed si quieres que flote */
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 25px 0; /* Aumentar padding para más tamaño */
+            background-color: rgba(0,0,0,0.6); /* Fondo semi-transparente */
+            z-index: 1000; /* Asegurar que esté por encima de otros elementos */
+            transition: all 0.5s ease;
+        }
+        body.casa-mode-active .header-wrapper h1.dynamic-title {
+            font-size: 1.8rem; /* Aumentar tamaño del título */
+            letter-spacing: 0.4em;
+            text-shadow: 0 0 15px rgba(0,188,212,0.5), 0 0 20px rgba(46,125,50,0.5); /* Aumentar sombra */
+        }
+        body.casa-mode-active .header-wrapper .sky-container {
+            opacity: 0.4; /* Hacer las nubes más visibles */
+            filter: blur(2px); /* Menos blur para más presencia */
+        }
+        /* Ajustar el cuerpo para que el contenido no quede debajo del header fijo */
+        body.casa-mode-active {
+            padding-top: 100px; /* Altura aproximada del header en modo CASA */
+        }
+        body.casa-mode-active .container {
+            margin-top: -80px; /* Subir el contenido interactivo para que no quede tan abajo */
+        }
        
         /* EL ORÁCULO: EFECTO CASCADA HACIA ARRIBA */
         .oraculo-scroll-box { position: relative; min-height: 280px; overflow: hidden; margin-bottom: 20px; }
         .oraculo-grid { display: flex; flex-direction: column; gap: 12px; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
-        .btn-pregunta-crisis { width: 100%; background: var(--panel); color: #eee; border: 1px solid #222; padding: 16px; font-size: 1.05rem; font-weight: bold; text-align: left; border-radius: 8px; cursor: pointer; transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s; line-height: 1.4; transform-origin: top center; }
-        .btn-pregunta-crisis.fade-out { opacity: 0; transform: scale(0.8) translateY(-30px); margin-bottom: -64px; pointer-events: none; }
+        .btn-pregunta-crisis { width: 100%; background: var(--panel); color: #eee; border: 1px solid #222; padding: 16px; font-size: 1.05rem; font-weight: bold; text-align: left; border-radius: 8px; cursor: pointer; transition: opacity 0.4s ease, transform 0.4s ease, margin-bottom 0.4s ease, border-color 0.2s; line-height: 1.4; transform-origin: top center; }
+        .btn-pregunta-crisis.fade-out { opacity: 0; transform: scale(0.8) translateY(-30px); margin-bottom: -64px; /* Ocultar y comprimir el espacio */ pointer-events: none; }
        
         .field { margin-bottom: 12px; transition: all 0.5s ease; }
         label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 4px; font-weight: bold; }
