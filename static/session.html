@@ -1,23 +1,21 @@
-<!-- OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.0 -->
+<!-- OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.5.0 -->
 <!-- Company: May Roga LLC -->
-<!-- File: static/session.html (Frontend UI) -->
+<!-- File: static/session.html -->
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="html-title">OPEN THAN GO</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>">
+    <title>OPEN THAN GO</title>
     <style>
         :root {
             --bg: #000;
             --panel: #111;
             --text: #fff;
-            --accent: #d84315; /* Orange for exhale */
-            --secondary: #0d47a1; /* Dark blue for action buttons */
-            --green-action: #2e7d32; /* Green for positive action */
-            --cyan-inhale: #00bcd4; /* Cyan for inhale */
+            --accent: #d84315;
+            --secondary: #0d47a1;
+            --green-action: #2e7d32;
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
@@ -30,47 +28,26 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
         .container { width: 95%; max-width: 420px; padding: 15px; position: relative; z-index: 10; }
         .lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; }
-        .btn-lang {
-            background: #222;
-            color: #666;
-            border: none;
-            padding: 6px 12px;
-            font-weight: 900;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            transition: all 0.2s ease;
-        }
+        .btn-lang { background: #222; color: #666; border: none; padding: 6px 12px; font-weight: 900; border-radius: 4px; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; }
         .btn-lang.active { background: #fff; color: #000; }
        
-        /* MASTER TITLE ANIMATION WITH AIR AND CLOUD FEELING */
+        /* ANIMACIÓN MAESTRA DEL TÍTULO CON SENSACIÓN DE AIRE Y NUBES */
         .header-wrapper { position: relative; text-align: center; margin-bottom: 25px; padding: 20px 0; overflow: hidden; }
-        h1.dynamic-title {
-            font-size: 1.4rem;
-            letter-spacing: 0.3em;
-            font-weight: 900;
-            margin: 0;
-            z-index: 2;
-            position: relative;
-            animation: titleFloat 6s infinite ease-in-out, colorShift 12s infinite alternate;
-        }
+        h1.dynamic-title { font-size: clamp(1.2rem, 4vw, 1.4rem); letter-spacing: 0.3em; font-weight: 900; margin: 0; z-index: 2; position: relative; animation: titleFloat 6s infinite ease-in-out, colorShift 12s infinite alternate; }
         @keyframes titleFloat {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-6px); }
             100% { transform: translateY(0px); }
         }
         @keyframes colorShift {
-            0% { color: var(--cyan-inhale); text-shadow: 0 0 10px rgba(0,188,212,0.3); }
-            100% { color: var(--green-action); text-shadow: 0 0 10px rgba(46,125,50,0.3); }
+            0% { color: #00bcd4; text-shadow: 0 0 10px rgba(0,188,212,0.3); }
+            100% { color: #2e7d32; text-shadow: 0 0 10px rgba(46,125,50,0.3); }
         }
        
-        /* MOVING WHITE CLOUDS SCENERY */
+        /* ESCENARIO DE NUBES BLANCAS EN MOVIMIENTO */
         .sky-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.25; z-index: 1; }
         .cloud { position: absolute; background: #fff; border-radius: 100px; filter: blur(4px); animation: windMove 18s infinite linear; }
         .cloud::before, .cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
@@ -82,184 +59,158 @@
         .cloud.c2::after { width: 30px; height: 35px; top: -15px; left: 40px; }
         @keyframes windMove {
             0% { transform: translateX(0); }
-            100% { transform: translateX(520px); } /* Cloud should move across the full width + some */
+            100% { transform: translateX(520px); }
         }
        
-        /* THE ORACLE: CASCADE UP EFFECT */
+        /* EL ORÁCULO: EFECTO CASCADA HACIA ARRIBA */
         .oraculo-scroll-box { position: relative; min-height: 280px; overflow: hidden; margin-bottom: 20px; }
         .oraculo-grid { display: flex; flex-direction: column; gap: 12px; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
-        .btn-pregunta-crisis {
-            width: 100%;
-            background: var(--panel);
-            color: #eee;
-            border: 1px solid #222;
-            padding: 16px;
-            font-size: 1.05rem;
-            font-weight: bold;
-            text-align: left;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s;
-            line-height: 1.4;
-            transform-origin: top center;
-        }
-        .btn-pregunta-crisis:hover { border-color: var(--accent); }
+        .btn-pregunta-crisis { width: 100%; background: var(--panel); color: #eee; border: 1px solid #222; padding: 16px; font-size: clamp(0.9rem, 3vw, 1.05rem); font-weight: bold; text-align: left; border-radius: 8px; cursor: pointer; transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s; line-height: 1.4; transform-origin: top center; }
         .btn-pregunta-crisis.fade-out { opacity: 0; transform: scale(0.8) translateY(-30px); margin-bottom: -64px; pointer-events: none; }
        
         .field { margin-bottom: 12px; transition: all 0.5s ease; }
-        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 4px; font-weight: bold; }
-        input, select, textarea {
-            width: 100%;
-            background: var(--panel);
-            border: 1px solid #222;
-            color: var(--text);
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 0.95rem;
-            outline: none;
-            -webkit-appearance: none; /* For consistent select styling on iOS */
-            -moz-appearance: none;
-            appearance: none;
-        }
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 30px; /* Make space for the arrow */
-        }
-        input:focus, select:focus, textarea:focus { border-color: var(--green-action); }
-        textarea { height: 65px; resize: vertical; border-color: #333; max-height: 150px; } /* Allow vertical resize */
+        label { display: block; font-size: clamp(0.6rem, 2vw, 0.75rem); text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 4px; font-weight: bold; }
+        input, select, textarea { width: 100%; background: var(--panel); border: 1px solid #222; color: var(--text); padding: 12px; border-radius: 4px; font-size: clamp(0.8rem, 3vw, 0.95rem); outline: none; }
+        textarea { height: 65px; resize: none; border-color: #333; }
+        textarea:focus { border-color: var(--accent); }
        
         .hidden { display: none !important; }
        
         #pantalla-bienvenida { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; }
-        .btn-bienvenida {
-            background:#fff;
-            color:#000;
-            padding:22px 45px;
-            font-weight:900;
-            cursor:pointer;
-            text-transform:uppercase;
-            border-radius:4px;
-            font-size: 0.95rem;
-            border: none;
-            letter-spacing: 1px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .btn-bienvenida:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
-
-        /* INTERACTIVE CONTENT STYLING */
-        .mision-card { border: 1px solid #222; padding: 26px; text-align: left; background: #0a0a0a; border-radius: 12px; width: 100%; }
-        .mision-card small { color: #666; font-weight: bold; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
-        .mision-card h2, .mision-card h3 { color: var(--green-action); font-size: 1.45rem; font-weight: 900; text-transform: uppercase; margin-top: 0; margin-bottom: 15px; }
-        .mision-card p, .mision-card .instruccion-text { font-size: 1.25rem; line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid var(--green-action); padding-left: 14px; text-align: left; font-weight: bold; }
+        .btn-bienvenida { background:#fff; color:#000; padding:22px 45px; font-weight:900; cursor:pointer; text-transform:uppercase; border-radius:4px; font-size: clamp(0.8rem, 3.5vw, 0.95rem); border: none; letter-spacing: 1px; }
        
-        #breath-circle {
-            width: 135px; height: 135px;
-            background: rgba(0, 188, 212, 0.15); /* Light cyan */
-            border: 3px solid var(--cyan-inhale); /* Cyan border */
-            border-radius: 50%;
-            margin: 35px auto;
-            box-shadow: 0 0 20px rgba(0,188,212,0.2);
-            animation: elasticLung 8s infinite ease-in-out;
-        }
-        @keyframes elasticLung {
-            0% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); } /* Inhale state */
-            50% { transform: scale(1.15); background: rgba(216, 67, 21, 0.3); border-color: var(--accent); } /* Exhale state with orange tint */
-            100% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); }
-        }
-        #timer { font-weight: 900; text-align: center; font-size: 3.2rem; margin: 15px 0; color: #fff; }
-        #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: var(--cyan-inhale); text-align: center; letter-spacing: 2px; }
+        .mision-card { border: 1px solid #222; padding: 26px; text-align: left; background: #0a0a0a; border-radius: 12px; width: 100%; }
+        .mision-card small { color: #666; font-weight: bold; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: clamp(0.7rem, 2.5vw, 0.75rem); }
+        .mision-card h2, .mision-card h3 { color: var(--green-action); font-size: clamp(1.2rem, 4vw, 1.45rem); font-weight: 900; text-transform: uppercase; margin-top: 0; margin-bottom: 15px; }
+        .mision-card p, .mision-card .instruccion-text { font-size: clamp(1rem, 3.5vw, 1.25rem); line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid var(--green-action); padding-left: 14px; text-align: left; font-weight: bold; }
+       
+        #breath-circle { width: 135px; height: 135px; background: rgba(0, 188, 212, 0.15); border: 3px solid #00bcd4; border-radius: 50%; margin: 35px auto; box-shadow: 0 0 20px rgba(0,188,212,0.2); animation: elasticLung 8s infinite ease-in-out; }
+        @keyframes elasticLung { 0% { transform: scale(0.85); } 50% { transform: scale(1.15); background: rgba(0, 188, 212, 0.3); } 100% { transform: scale(0.85); } }
+        #timer { font-weight: 900; text-align: center; font-size: clamp(2.5rem, 8vw, 3.2rem); margin: 15px 0; color: #fff; }
+        #txt-pulmon { font-size: clamp(0.9rem, 3.5vw, 15px); text-transform: uppercase; font-weight: bold; color: #00bcd4; text-align: center; letter-spacing: 2px; }
 
-        /* NEW: TVid® EXERCISE SCREEN STYLES */
-        #wrapper-tvid {
+        /* General button styling for Mente, Gasto, Perfil */
+        .selection-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; margin-bottom: 20px; justify-content: center; }
+        .selection-btn {
+            background: #222;
+            color: #888;
+            border: 1px solid #333;
+            padding: 10px 15px;
+            font-size: clamp(0.75rem, 2.8vw, 0.85rem);
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-grow: 1; /* Allow buttons to grow */
+            text-align: center;
+        }
+        .selection-btn.active, .selection-btn.selected { /* Using both .active and .selected for robustness */
+            background: var(--secondary); /* Blue accent for selected */
+            color: #fff;
+            border-color: #0d47a1;
+        }
+        .selection-btn:hover:not(.active):not(:disabled) {
+            background: #333;
+            color: #aaa;
+        }
+
+        /* TVid Animation Overlays */
+        #tvid-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: #000;
-            display: flex;
-            flex-direction: column;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000; /* Absolute black */
+            display: none; /* Hidden by default */
             justify-content: center;
             align-items: center;
-            z-index: 100;
+            flex-direction: column;
+            z-index: 1000;
             overflow: hidden;
         }
         #tvid-countdown {
             position: absolute;
             top: 20px;
             right: 20px;
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--accent);
-            z-index: 101;
-            text-shadow: 0 0 8px rgba(216,67,21,0.5);
-        }
-        #tvid-text-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column; /* Allows stacking and relative positioning for individual texts */
-            pointer-events: none; /* Allows clicks to pass through to underlying elements if any */
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            color: var(--accent); /* Accent color for countdown */
+            font-weight: bold;
+            z-index: 1001;
         }
         .tvid-text {
             position: absolute;
-            font-size: clamp(1.2rem, 5vw, 2.5rem);
-            font-weight: 900;
-            text-align: center;
-            line-height: 1.3;
-            padding: 10px 20px;
+            font-size: clamp(1.2rem, 5vw, 2.5rem); /* Responsive font size */
             color: #fff;
+            text-shadow: 0 0 8px rgba(255,255,255,0.4);
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
             opacity: 0;
-            text-shadow: 0 0 15px rgba(255,255,255,0.4);
-            animation-fill-mode: forwards; /* Keep the final state of the animation */
-            white-space: pre-wrap; /* Allows text to wrap */
+            white-space: pre-wrap; /* Preserve line breaks */
+            animation-duration: 4s; /* Each text stays for 4s */
+            animation-fill-mode: forwards;
+            animation-timing-function: ease-out; /* Smooth entrance */
+            /* Animation classes will be added dynamically by JS */
         }
 
-        /* NEW: TVid® MOVEMENT ANIMATIONS (6 DIRECTIONS) */
-        @keyframes tvid-corner-to-center {
-            0% { opacity: 0; transform: translate(-100vw, -100vh) scale(0.5) rotate(-30deg); }
-            20% { opacity: 1; transform: translate(-10vw, -10vh) scale(1) rotate(0deg); }
-            80% { opacity: 1; transform: translate(10vw, 10vh) scale(1) rotate(0deg); }
-            100% { opacity: 0; transform: translate(100vw, 100vh) scale(0.5) rotate(30deg); }
+        /* Keyframe animations for 6 directions */
+        @keyframes cornerToCenter {
+            0% { transform: translate(calc(-50vw - 100%), calc(-50vh - 100%)) scale(0.5); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(calc(50vw + 100%), calc(50vh + 100%)) scale(0.5); opacity: 0; }
         }
-        @keyframes tvid-side-to-center-left {
-            0% { opacity: 0; transform: translateX(-100vw) scale(0.7); }
-            20% { opacity: 1; transform: translateX(0) scale(1); }
-            80% { opacity: 1; transform: translateX(0) scale(1); }
-            100% { opacity: 0; transform: translateX(100vw) scale(0.7); }
+        @keyframes sideToCenter {
+            0% { transform: translate(calc(-100vw - 50%), -50%) scale(0.7); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(calc(100vw + 50%), -50%) scale(0.7); opacity: 0; }
         }
-        @keyframes tvid-side-to-center-right {
-            0% { opacity: 0; transform: translateX(100vw) scale(0.7); }
-            20% { opacity: 1; transform: translateX(0) scale(1); }
-            80% { opacity: 1; transform: translateX(0) scale(1); }
-            100% { opacity: 0; transform: translateX(-100vw) scale(0.7); }
+        @keyframes bottomToCenter {
+            0% { transform: translate(-50%, calc(100vh + 50%)) scale(0.7); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, calc(-100vh - 50%)) scale(0.7); opacity: 0; }
         }
-        @keyframes tvid-bottom-to-center {
-            0% { opacity: 0; transform: translateY(100vh) scale(0.8); }
-            20% { opacity: 1; transform: translateY(0) scale(1); }
-            80% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-100vh) scale(0.8); }
+        @keyframes topToCenter {
+            0% { transform: translate(-50%, calc(-100vh - 50%)) scale(0.7); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, calc(100vh + 50%)) scale(0.7); opacity: 0; }
         }
-        @keyframes tvid-top-to-center {
-            0% { opacity: 0; transform: translateY(-100vh) scale(0.8); }
-            20% { opacity: 1; transform: translateY(0) scale(1); }
-            80% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(100vh) scale(0.8); }
+        @keyframes centerOut {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            70% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
         }
-        @keyframes tvid-center-out {
-            0% { opacity: 0.8; transform: scale(0.9); }
-            20% { opacity: 1; transform: scale(1.1); }
-            80% { opacity: 1; transform: scale(1.1); }
-            100% { opacity: 0; transform: scale(2); }
+        @keyframes outIn {
+            0% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            70% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
         }
-        @keyframes tvid-out-in {
-            0% { opacity: 0; transform: scale(3); filter: blur(10px); }
-            20% { opacity: 1; transform: scale(1.1); filter: blur(0); }
-            80% { opacity: 1; transform: scale(1.1); filter: blur(0); }
-            100% { opacity: 0; transform: scale(0.5); filter: blur(5px); }
+        /* Positions for chaotic entry (applied via JS) */
+        .tvid-text.pos-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .tvid-text.pos-top-left { top: 10%; left: 10%; }
+        .tvid-text.pos-top-right { top: 10%; right: 10%; }
+        .tvid-text.pos-bottom-left { bottom: 10%; left: 10%; }
+        .tvid-text.pos-bottom-right { bottom: 10%; right: 10%; }
+        .tvid-text.pos-left-middle { top: 50%; left: 5%; transform: translateY(-50%); }
+        .tvid-text.pos-right-middle { top: 50%; right: 5%; transform: translateY(-50%); }
+        .tvid-text.pos-top-middle { top: 5%; left: 50%; transform: translateX(-50%); }
+        .tvid-text.pos-bottom-middle { bottom: 5%; left: 50%; transform: translateX(-50%); }
+
+        @media (max-width: 600px) {
+            .container { padding: 10px; }
+            .selection-btn { padding: 8px 10px; font-size: 0.75rem; }
+            h1.dynamic-title { font-size: 1.2rem; }
+            .mision-card h2, .mision-card h3 { font-size: 1.2rem; }
+            .mision-card p, .mision-card .instruccion-text { font-size: 1rem; }
+            #timer { font-size: 2.5rem; }
+            #tvid-countdown { font-size: 1.5rem; }
+            .tvid-text { font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -274,7 +225,7 @@
             <button class="btn-lang" id="lang-en" onclick="KERNEL.cambiarIdioma('en')">ENG</button>
         </div>
        
-        <!-- HEADER WITH REAL MOVING CLOUDS -->
+        <!-- CABECERA CON NUBES REALES EN MOVIMIENTO -->
         <div class="header-wrapper">
             <div class="sky-container">
                 <div class="cloud c1"></div>
@@ -283,67 +234,63 @@
             <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1>
         </div>
        
-        <!-- GEOLOCATION INPUTS CORRECTED -->
+        <!-- ENTRADA DE GEOLOCALIZACIÓN CORREGIDA -->
         <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
             <div style="flex: 2;">
-                <label id="lbl-zip">ZIP Code</label>
+                <label id="lbl-zip" for="inp-zip">Código Postal</label>
                 <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5">
             </div>
             <div style="flex: 1;">
-                <label>Modo</label>
+                <label for="modo-selector">Modo</label>
                 <select id="modo-selector">
                     <option value="SALIR" selected>SALIR</option>
                     <option value="CASA">CASA</option>
                 </select>
             </div>
         </div>
-
-        <!-- NEW SELECTORS FOR MENTE, BUDGET, PERFIL -->
-        <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <div style="flex: 1;">
-                <label>Mente</label>
-                <select id="mente-selector">
-                    <option value="aburrido" id="opt-mente-aburrido" selected>Aburrido</option>
-                    <option value="agotado" id="opt-mente-agotado">Agotado</option>
-                    <option value="estresado" id="opt-mente-estresado">Estresado</option>
-                    <option value="cansado" id="opt-mente-cansado">Cansado</option>
-                    <option value="ansioso" id="opt-mente-ansioso">Ansioso</option>
-                </select>
-            </div>
-            <div style="flex: 1;">
-                <label>Gasto</label>
-                <select id="budget-selector">
-                    <option value="0" id="opt-budget-0" selected>Gratis</option>
-                    <option value="1" id="opt-budget-1">Bajo</option>
-                    <option value="2" id="opt-budget-2">Abierto</option>
-                </select>
-            </div>
-            <div style="flex: 1;">
-                <label>Perfil</label>
-                <select id="perfil-selector">
-                    <option value="solo" id="opt-perfil-solo" selected>Solo</option>
-                    <option value="familia" id="opt-perfil-familia">Familia</option>
-                    <option value="hijos" id="opt-perfil-hijos">Hijos</option>
-                    <option value="adultos_mayores" id="opt-perfil-adultos-mayores">Adultos Mayores</option>
-                    <option value="veteranos_guerra" id="opt-perfil-veteranos-guerra">Veteranos de Guerra</option>
-                    <option value="directivos_empresarios" id="opt-perfil-directivos-empresarios">Directivos/Empresarios</option>
-                    <option value="trabajadores_gobierno" id="opt-perfil-trabajadores-gobierno">Trabajadores del Gobierno</option>
-                </select>
-            </div>
+       
+        <!-- ESTADO MENTAL -->
+        <label for="mente-group">Estado Mental (Vulnerabilidad Humana)</label>
+        <div class="selection-group" id="mente-group">
+            <button class="selection-btn" data-value="aburrido">Aburrido</button>
+            <button class="selection-btn" data-value="agotado">Agotado</button>
+            <button class="selection-btn" data-value="estresado">Estresado</button>
+            <button class="selection-btn" data-value="cansado">Cansado</button>
+            <button class="selection-btn" data-value="ansioso">Ansioso</button>
         </div>
+
+        <!-- PRESUPUESTO -->
+        <label for="budget-group">Presupuesto (Control de Consumo)</label>
+        <div class="selection-group" id="budget-group">
+            <button class="selection-btn" data-value="0">Gratis</button>
+            <button class="selection-btn" data-value="1">Bajo Gasto</button>
+            <button class="selection-btn" data-value="2">Gasto Libre</button>
+        </div>
+
+        <!-- CONTEXTO SOCIAL -->
+        <label for="perfil-group">Contexto Social e Identidad</label>
+        <div class="selection-group" id="perfil-group">
+            <button class="selection-btn" data-value="solo">Solo</button>
+            <button class="selection-btn" data-value="familia">Familia</button>
+            <button class="selection-btn" data-value="hijos">Hijos</button>
+            <button class="selection-btn" data-value="adultos_mayores">Adultos Mayores</button>
+            <button class="selection-btn" data-value="veteranos_guerra">Veteranos de Guerra</button>
+            <button class="selection-btn" data-value="directivos">Directivos/Empresarios</button>
+            <button class="selection-btn" data-value="trabajadores_gobierno">Trabajadores del Gobierno</button>
+        </div>
+
+        <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: #d84315; font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
        
-        <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent); font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
-       
-        <!-- CASCADING SCROLL BOX -->
+        <!-- CAJÓN DE DESPLAZAMIENTO CASCADA -->
         <div class="oraculo-scroll-box">
             <div class="oraculo-grid" id="contenedor-preguntas-oraculo">
-                <!-- Questions are dynamically injected here by engine.js -->
+                <!-- Las preguntas se inyectan dinámicamente -->
             </div>
         </div>
        
-        <!-- THE FREE WRITING BOX HEALED 100% -->
+        <!-- EL CAJÓN DE ESCRITURA LIBRE SANADO AL 100% -->
         <div class="field" id="bloque-escritura-libre">
-            <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label>
+            <label id="lbl-desahogo" for="inp-text-libre" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label>
             <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea>
             <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
         </div>
@@ -351,15 +298,13 @@
         <input type="hidden" id="inp-text-invisible">
     </div>
 
-    <!-- INTERACTIVE OUTPUT CONTAINER FOR PARKS, VIDEOS, AND LUNG -->
+    <!-- CONTENEDOR DE SALIDA INTERACTIVA PARA PARQUES, VIDEOS Y PULMÓN -->
     <div class="container hidden" id="wrapper-interactive"></div>
 
-    <!-- NEW: TVid® EXERCISE SCREEN -->
-    <div id="wrapper-tvid" class="hidden">
-        <div id="tvid-countdown">30</div>
-        <div id="tvid-text-container">
-            <!-- Animated TVid texts will be injected here -->
-        </div>
+    <!-- OVERLAY PARA EL EJERCICIO TVid® -->
+    <div id="tvid-overlay">
+        <!-- Contenido y contador se inyectarán aquí por JavaScript -->
+        <span id="tvid-countdown">30s</span>
     </div>
 
     <script src="/static/engine.js"></script>
