@@ -10,8 +10,8 @@ const KERNEL = {
     timeLeft: 610, // 10 minutos y 10 segundos para el ejercicio de respiración
     isLocked: false,
     idiomaActual: 'es',
-    pasosMisiones: [],
-    indiceMision: 0,
+    pasosMisiones: [], // No utilizado en el flujo actual de CASA directo, se mantiene para compatibilidad.
+    indiceMision: 0, // No utilizado en el flujo actual de CASA directo, se mantiene para compatibilidad.
     datosLugarGlobal: null,
     tipoEscapeGlobal: "",
     tvidAsignadaGlobal: "", // Nueva variable para almacenar la TVid asignada
@@ -259,39 +259,55 @@ const KERNEL = {
         document.querySelectorAll('.btn-selector-perfil').forEach(btn => {
             btn.onclick = () => this.seleccionarBoton('perfil', btn.dataset.value);
         });
-        document.getElementById('btn-activar-libre').onclick = () => this.ejecutarDesdeMandoLibre();
+        
+        const btnActivarLibre = document.getElementById('btn-activar-libre');
+        if (btnActivarLibre) {
+            btnActivarLibre.onclick = () => this.ejecutarDesdeMandoLibre();
+        }
+
 
         // Monitorear cambios en el selector de modo
-        document.getElementById('modo-selector').addEventListener('change', (event) => {
-            const selectedMode = event.target.value;
-            const selectorsContainer = document.getElementById('selectors-container');
-            const oracleContainer = document.getElementById('oracle-container');
-            const libreContainer = document.getElementById('bloque-escritura-libre');
+        const modoSelector = document.getElementById('modo-selector');
+        if (modoSelector) {
+            modoSelector.addEventListener('change', (event) => {
+                const selectedMode = event.target.value;
+                const selectorsContainer = document.getElementById('selectors-container');
+                const oracleContainer = document.getElementById('oracle-container');
+                const libreContainer = document.getElementById('bloque-escritura-libre');
 
-            if (selectedMode === 'CASA') {
-                selectorsContainer.classList.add('hidden');
-                oracleContainer.classList.add('hidden');
-                libreContainer.classList.add('hidden');
-            } else { // SALIR
-                selectorsContainer.classList.remove('hidden');
-                oracleContainer.classList.remove('hidden');
-                libreContainer.classList.remove('hidden');
-            }
-            localStorage.setItem('otg_mode', selectedMode); // Persistir el modo
-            this.iniciarMonitoreoInaccion(); // Reiniciar monitoreo de inacción
-        });
+                if (selectedMode === 'CASA') {
+                    // Ocultar selectores de SALIR y oráculo
+                    selectorsContainer.classList.add('hidden');
+                    oracleContainer.classList.add('hidden');
+                    libreContainer.classList.add('hidden');
+                    clearInterval(this.temporizadorCascada); // Detener cascada si estaba activa
+                    clearInterval(this.timerInaccion); // Detener monitoreo de inacción
+                } else { // SALIR
+                    // Mostrar selectores de SALIR y oráculo
+                    selectorsContainer.classList.remove('hidden');
+                    oracleContainer.classList.remove('hidden');
+                    libreContainer.classList.remove('hidden');
+                    this.inyectarBloquePreguntas(); // Reiniciar preguntas del oráculo
+                    this.iniciarMonitoreoInaccion(); // Reiniciar monitoreo de inacción
+                }
+                localStorage.setItem('otg_mode', selectedMode); // Persistir el modo
+            });
+        }
 
         // Listener para habilitar/deshabilitar el botón de mando libre
-        document.getElementById('inp-text-libre').addEventListener('input', (event) => {
-            const btnLibre = document.getElementById('btn-activar-libre');
-            if (btnLibre) {
-                const hasText = event.target.value.trim().length >= 3;
-                btnLibre.disabled = !hasText;
-                btnLibre.style.background = hasText ? "var(--green-action)" : "#111";
-                btnLibre.style.color = hasText ? "#fff" : "#555";
-                btnLibre.style.borderColor = hasText ? "#4caf50" : "#222";
-            }
-        });
+        const inpTextLibre = document.getElementById('inp-text-libre');
+        if (inpTextLibre) {
+            inpTextLibre.addEventListener('input', (event) => {
+                const btnLibre = document.getElementById('btn-activar-libre');
+                if (btnLibre) {
+                    const hasText = event.target.value.trim().length >= 3;
+                    btnLibre.disabled = !hasText;
+                    btnLibre.style.background = hasText ? "var(--green-action)" : "#111";
+                    btnLibre.style.color = hasText ? "#fff" : "#555";
+                    btnLibre.style.borderColor = hasText ? "#4caf50" : "#222";
+                }
+            });
+        }
     },
 
     seleccionarBoton(tipo, valor) {
@@ -307,9 +323,12 @@ const KERNEL = {
             // Guardar el estado en localStorage para persistencia
             localStorage.setItem(`otg_selected_${tipo}`, valor);
         }
-        // console.log(`Selector ${tipo} establecido a: ${valor}`);
-        clearInterval(this.timerInaccion); // Reiniciar el contador de inacción
-        this.iniciarMonitoreoInaccion(); // O iniciar el monitoreo si no está activo
+        // Reiniciar el contador de inacción solo si el modo actual es "SALIR"
+        const modoSelector = document.getElementById('modo-selector');
+        if (modoSelector && modoSelector.value === 'SALIR') {
+            clearInterval(this.timerInaccion);
+            this.iniciarMonitoreoInaccion();
+        }
     },
 
     restaurarEstadoUI() {
@@ -322,6 +341,12 @@ const KERNEL = {
             const savedValue = localStorage.getItem(`otg_selected_${tipo}`);
             if (savedValue) {
                 this.seleccionarBoton(tipo, savedValue);
+            } else {
+                // Seleccionar un valor por defecto si no hay uno guardado
+                const firstButton = document.querySelector(`.btn-selector-${tipo}`);
+                if (firstButton) {
+                    this.seleccionarBoton(tipo, firstButton.dataset.value);
+                }
             }
         });
 
@@ -347,8 +372,11 @@ const KERNEL = {
         ];
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
        
-        this.inyectarBloquePreguntas();
-        this.iniciarMonitoreoInaccion();
+        const modoSelector = document.getElementById('modo-selector');
+        if (modoSelector && modoSelector.value === 'SALIR') {
+            this.inyectarBloquePreguntas();
+            this.iniciarMonitoreoInaccion();
+        }
     },
 
     inyectarBloquePreguntas() {
@@ -412,7 +440,7 @@ const KERNEL = {
                 this.hablar(textoLimpio, () => {
                     // Una vez que el habla termina, iniciar el desvanecimiento
                     botonParaDesvanecer.classList.add('fade-out');
-                    botonParaDesvanecer.addEventListener('transitionend', () => {
+                    botonParaDesvanecer.addEventListener('animationend', () => { // Usar animationend en lugar de transitionend
                         botonParaDesvanecer.remove(); // Eliminar el botón después de la transición
                     }, { once: true });
                     
@@ -472,6 +500,13 @@ const KERNEL = {
         this.conteoInaccion = 0;
         this.timerInaccion = setInterval(() => {
             this.conteoInaccion++;
+            const modoSelector = document.getElementById('modo-selector');
+            if (modoSelector && modoSelector.value === 'CASA') { // Si el modo cambia a CASA, detener este monitoreo
+                clearInterval(this.timerInaccion);
+                clearInterval(this.temporizadorCascada);
+                return;
+            }
+
             if (this.conteoInaccion === 4 || this.conteoInaccion === 8) {
                 clearInterval(this.temporizadorCascada);
                 this.bloqueActual++;
@@ -598,7 +633,6 @@ const KERNEL = {
             this.datosLugarGlobal = data;
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.tvidAsignadaGlobal = data.tvid_asignada; // Captura la TVid asignada
-            this.indiceMision = 0;
 
             if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
                 // Para CASA mode, directamente iniciar el reloj clínico (ejercicio de respiración).
@@ -636,6 +670,9 @@ const KERNEL = {
         allPhrases.push(tvid.afirmacion);
         allPhrases = allPhrases.concat(tvid.preguntas_choque, tvid.ejercicios);
         
+        // Barajar las frases para que no siempre aparezcan en el mismo orden
+        allPhrases = allPhrases.sort(() => Math.random() - 0.5);
+
         const directions = [
             'corner-in', 'side-in', 'bottom-in', 'top-in', 'center-out', 'outside-in'
         ];
@@ -646,8 +683,8 @@ const KERNEL = {
 
             // Selección de frase sin repetición en el ciclo de 55 segundos
             let availablePhrases = allPhrases.filter(p => !this.frasesTVidMostradas.includes(p));
-            if (availablePhrases.length === 0) {
-                this.frasesTVidMostradas = []; // Reiniciar si todas se han mostrado
+            if (availablePhrases.length < 3) { // Si quedan pocas frases, reiniciar la lista de mostradas
+                this.frasesTVidMostradas = []; 
                 availablePhrases = allPhrases;
             }
             
@@ -674,14 +711,14 @@ const KERNEL = {
                 phraseContainer.appendChild(newPhrase);
                 
                 // Hablar la frase
-                this.hablar(phrase);
+                this.hablar(phrase, () => {
+                    // Después de que la frase se ha hablado, planificar la siguiente
+                    if (tvidTimeLeft > 0) { // Asegurarse de que el tiempo no ha terminado mientras se hablaba
+                        this.temporizadorTVid = setTimeout(showNextPhrase, 500); // Pequeña pausa entre frases
+                    }
+                });
 
-                const readingTime = Math.max(phrase.length * 70, 4000); // 70ms por caracter, mínimo 4 segundos
-                
-                if (tvidTimeLeft > 0) {
-                    this.temporizadorTVid = setTimeout(showNextPhrase, readingTime);
-                }
-            }, 500); // Retraso de 0.5s para la entrada de la nueva frase
+            }, 500); // Retraso de 0.5s para la entrada de la nueva frase (animación)
         };
 
         // Iniciar el ciclo de frases
@@ -705,6 +742,14 @@ const KERNEL = {
 
     mostrarDestinoAccionCampo() {
         const container = document.getElementById('wrapper-interactive');
+        
+        // Asegurar que el header no persista si estamos en modo SALIR y vamos a mostrar un destino.
+        const headerWrapper = document.querySelector('.header-wrapper');
+        if (headerWrapper) {
+            headerWrapper.classList.remove('casa-mode-header');
+        }
+        document.body.classList.remove('casa-mode-active'); // Limpiar la clase del body también.
+
         const t = {
             es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL BIG TECH YA" },
             en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW" }
@@ -720,7 +765,7 @@ const KERNEL = {
                 <h2>${this.datosLugarGlobal.destino_titulo}</h2>
                 <div class="instruccion-text">${textoFormateado}</div>
                 <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>0s ${t.listen}</button>
-                <button id="btn-gps-action" style="width:100%; background:#0d47a1; color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+                <button id="btn-gps-action" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
             </div>`;
 
             this.hablar(this.datosLugarGlobal.destino_instruccion);
@@ -738,6 +783,8 @@ const KERNEL = {
                             if (token.includes("Sendero") || token.includes("trail")) perfil["movimiento"] = Math.min(perfil["movimiento"] + 15, 100);
                             if (token.includes("Centro Cultural") || token.includes("cultural")) perfil["creatividad"] = Math.min(perfil["creatividad"] + 15, 100);
                             if (token.includes("Contemplación") || token.includes("viewpoint")) perfil["contemplacion"] = Math.min(perfil["contemplacion"] + 15, 100);
+                            // También se puede actualizar el indicador_ansiedad si se considera que SALIR reduce la ansiedad
+                            perfil["indicador_ansiedad"] = Math.max((perfil["indicador_ansiedad"] || 0) - 10, 0); // Reducir ansiedad al salir
                             localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
                         }
                     } catch (e) {
@@ -775,8 +822,8 @@ const KERNEL = {
         const headerWrapper = document.querySelector('.header-wrapper');
         if (headerWrapper) {
             headerWrapper.classList.add('casa-mode-header'); // Añadir clase para estilos especiales en modo CASA
-            document.body.classList.add('casa-mode-active'); // Añadir al body para controlar estilos globales si es necesario
         }
+        document.body.classList.add('casa-mode-active'); // Añadir al body para controlar estilos globales si es necesario
 
         this.timeLeft = 610; // 10 minutos y 10 segundos
         this.relojRealSegundos = 610; // 10 minutos y 10 segundos
@@ -821,7 +868,7 @@ const KERNEL = {
 
         if (circleElement) {
             circleElement.onclick = () => {
-                if (this.contadorToques < 10) {
+                if (this.contadorToques < this.secuenciaAdelantos.length) { // Limitar toques al tamaño de secuenciaAdelantos
                     let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
                     this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
                     this.contadorToques++;
@@ -843,7 +890,7 @@ const KERNEL = {
 
         this.timerClinico = setInterval(() => {
             this.relojRealSegundos--;
-            if (this.timeLeft > 0) this.timeLeft--;
+            if (this.timeLeft > 0) this.timeLeft--; // Asegura que el timeLeft no baje de 0
            
             let m = Math.floor(this.timeLeft / 60);
             let s = this.timeLeft % 60;
@@ -860,7 +907,8 @@ const KERNEL = {
                 }
             }
 
-            if (this.relojRealSegundos < 610 && this.relojRealSegundos > 0 && this.relojRealSegundos % 20 === 0) {
+            // Trigger audio cues every 20 real seconds, starting after the initial message
+            if (this.relojRealSegundos < 610 && this.relojRealSegundos > 0 && (610 - this.relojRealSegundos) % 20 === 0) {
                 let pasoAudioIdx = Math.floor((610 - this.relojRealSegundos) / 20) - 1;
                 let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
                 if (recordatorioTexto) {
@@ -889,7 +937,6 @@ const KERNEL = {
         this.indiceMision++;
         const container = document.getElementById('wrapper-interactive');
         // Aquí se necesitaría una lógica para procesar la siguiente misión si 'pasosMisiones' fuera usada
-        // Si no, esta función puede ser eliminada.
         console.warn("avanzarPaso called, but current flow doesn't use sequential missions.");
     },
 
