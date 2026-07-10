@@ -355,7 +355,10 @@ const KERNEL = {
         if (!grid) return;
        
         clearInterval(this.temporizadorCascada);
-        grid.innerHTML = "";
+        // Borrar todas las preguntas anteriores antes de inyectar nuevas
+        while (grid.firstChild) {
+            grid.removeChild(grid.firstChild);
+        }
         this.indicePreguntaCascada = 0;
        
         let inicioIdx = this.bloqueActual * 6;
@@ -394,12 +397,15 @@ const KERNEL = {
             let botonParaDesvanecer = preguntasActuales[this.indicePreguntaCascada];
            
             if (botonParaDesvanecer) {
-                // EFECTO DESVANECER REAL: Se desvanece uno por uno
-                botonParaDesvanecer.classList.add('fade-out');
-                
                 let textoLimpio = botonParaDesvanecer.innerText.substring(3); // Obtener texto sin el número
-                // Hablar la pregunta que se está desvaneciendo
-                this.hablar(textoLimpio);
+                // Hablar la pregunta que se está desvaneciendo ANTES de desvanecerla
+                this.hablar(textoLimpio, () => {
+                    // Una vez que el habla termina, iniciar el desvanecimiento
+                    botonParaDesvanecer.classList.add('fade-out');
+                    botonParaDesvanecer.addEventListener('transitionend', () => {
+                        botonParaDesvanecer.remove(); // Eliminar el botón después de la transición
+                    }, { once: true });
+                });
 
                 this.indicePreguntaCascada++;
             }
@@ -481,13 +487,14 @@ const KERNEL = {
         this.ejecutar();
     },
 
-    hablar(texto) {
+    hablar(texto, callback = () => {}) { // Agregado callback para ejecutar después de hablar
         if (!texto) return;
         window.speechSynthesis.cancel();
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
         msg.lang = 'es-US'; // Voz fija siempre en español por estabilidad nativa
         msg.rate = 1.20;
+        msg.onend = callback; // Llamar al callback cuando la voz termina
         window.speechSynthesis.speak(msg);
     },
 
@@ -577,7 +584,8 @@ const KERNEL = {
                 // Para CASA mode, directamente iniciar el reloj clínico (ejercicio de respiración).
                 // Las misiones individuales para CASA ya no se procesan secuencialmente aquí
                 // ya que el usuario desea el círculo respiratorio inmediatamente.
-                this.iniciarRelojClinicoCasa(container, t);
+                // t ya no está definido globalmente, se debe pasar o definir en la función si se necesita.
+                this.iniciarRelojClinicoCasa(container);
             } else { // ACCION_CAMPO - Incluye la intervención TVid
                 this.iniciarIntervencionTVid();
             }
@@ -607,7 +615,7 @@ const KERNEL = {
         // Si se desea reintroducir misiones para CASA, esta lógica debería ser revisada.
         if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
             if (this.indiceMision >= this.pasosMisiones.length) {
-                this.iniciarRelojClinicoCasa(container, t);
+                this.iniciarRelojClinicoCasa(container); // Quitar 't' si no se necesita pasar
                 return;
             }
 
@@ -628,6 +636,8 @@ const KERNEL = {
 
     iniciarIntervencionTVid() {
         const container = document.getElementById('wrapper-interactive');
+        
+        // Limpiar el contenedor antes de inyectar nuevo contenido
         container.innerHTML = `
             <div id="tvid-intervention-screen">
                 <div id="tvid-countdown">55</div> <!-- Aumentado a 55 segundos (35 + 20) -->
@@ -726,6 +736,8 @@ const KERNEL = {
 
         if (this.datosLugarGlobal) {
             let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
+            
+            // Limpiar el contenedor antes de inyectar nuevo contenido
             container.innerHTML = `
             <div class="mision-card">
                 <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
@@ -764,22 +776,36 @@ const KERNEL = {
     },
 
 
-    iniciarRelojClinicoCasa(container, t) {
+    iniciarRelojClinicoCasa(container) { // Removido 't' de parámetros ya que se define internamente
         clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
+
+        const t = {
+            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL BIG TECH YA" },
+            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW" }
+        }[this.idiomaActual];
        
         let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
         this.hablar(msg);
        
+        // Limpiar el contenedor antes de inyectar nuevo contenido
         container.innerHTML = `
         <div style="text-align:center; width:100%;">
             <div id="breath-circle" style="cursor:pointer;" title="Toca para enfocar tu mente"></div>
             <div id="timer">10:00</div>
             <p id="txt-pulmon">INHALA / INHALE</p>
         </div>`;
+        
+        // Asegurar que el header con las nubes se mantenga y crezca
+        const headerWrapper = document.querySelector('.header-wrapper');
+        if (headerWrapper) {
+            headerWrapper.classList.add('casa-mode-header'); // Añadir clase para estilos especiales en modo CASA
+            document.body.classList.add('casa-mode-active'); // Añadir al body para controlar estilos globales si es necesario
+        }
 
-        this.timeLeft = 600;
-        this.relojRealSegundos = 600;
+
+        this.timeLeft = 610; // 10 minutos y 10 segundos
+        this.relojRealSegundos = 610; // 10 minutos y 10 segundos
         this.contadorToques = 0;
 
         const circleElement = document.getElementById('breath-circle');
@@ -858,8 +884,8 @@ const KERNEL = {
                 }
             }
 
-            if (this.relojRealSegundos < 600 && this.relojRealSegundos % 20 === 0) {
-                let pasoAudioIdx = Math.floor((600 - this.relojRealSegundos) / 20) - 1;
+            if (this.relojRealSegundos < 610 && this.relojRealSegundos % 20 === 0) {
+                let pasoAudioIdx = Math.floor((610 - this.relojRealSegundos) / 20) - 1;
                 let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
                 if (recordatorioTexto) {
                     window.speechSynthesis.cancel();
@@ -899,8 +925,15 @@ const KERNEL = {
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
-        // sessionStorage.clear(); // Se mantiene comentado o se elimina si no es necesario para el reinicio
-        location.reload();
+        
+        // Eliminar las clases de modo CASA del header y body al reiniciar
+        const headerWrapper = document.querySelector('.header-wrapper');
+        if (headerWrapper) {
+            headerWrapper.classList.remove('casa-mode-header');
+        }
+        document.body.classList.remove('casa-mode-active');
+
+        location.reload(); // Recargar la página para un reinicio completo
     }
 };
 
