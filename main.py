@@ -240,7 +240,7 @@ async def mando_integral(request: Request):
     # Filter for real price in short action words
     precio_real = ""
     if budget == "0":
-        precio_real = "GASTO: Cero dólares. Aprovecha lo que tienes para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
+        precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
     elif budget == "1":
         precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
     elif budget == "2":
