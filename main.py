@@ -1,337 +1,299 @@
-# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.5.5.0
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 1 DE 2
-
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-import uvicorn
-import os
-import random
-
-app = FastAPI()
-
-if not os.path.exists("static"):
-    os.makedirs("static")
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Tu base de misiones original completa + Inyección Vectorial de 19 Necesidades Humanas
-BASE_MISIONES = {
-    "CASA": [
-        {"id": 1, "titulo": "Corta el piloto automático", "descripcion": "Escanea tu cuerpo. Ubica el peso exacto en tu espalda. Míralo. Estás vivo.", "vector_necesidades": {"contemplacion":100, "descanso":80, "silencio":70}},
-        {"id": 2, "titulo": "Desconexión de biles", "descripcion": "Siente tu silla. El piso sostiene tu peso gratis. Déjate caer.", "vector_necesidades": {"descanso":90, "organizacion":60, "esperanza":70}},
-        {"id": 3, "titulo": "Aislamiento de pantalla", "descripcion": "Voltea el teléfono. Mira una esquina del techo 30 segundos. Rompe el bucle.", "vector_necesidades": {"silencio":95, "descanso":75, "contemplacion":80}},
-        {"id": 4, "titulo": "Soltar la carga", "descripcion": "Deja caer la mochila de deudas. Siente tus hombros libres. Ya no está.", "vector_necesidades": {"esperanza":90, "descanso":85, "organizacion":70}},
-        {"id": 5, "titulo": "El reset del agua", "descripcion": "Un trago pequeño de agua fría. Siente el líquido. Es la vida entrando.", "vector_necesidades": {"agua":100, "descanso":60, "aire_fresco":50}},
-        {"id": 6, "titulo": "Liberación de nudos", "descripcion": "Aprieta los puños 3 segundos. Abre de golpe. Suéltalo todo.", "vector_necesidades": {"movimiento":80, "descanso":70, "risa":30}},
-        {"id": 7, "titulo": "El aire de la calle", "descripcion": "Abre la ventana. Deja que el aire te golpee la cara. Siente el exterior.", "vector_necesidades": {"aire_fresco":100, "naturaleza":60, "contemplacion":50}},
-        {"id": 8, "titulo": "Rotación de energía", "descripcion": "Gira muñecas y tobillos. Tu cuerpo es tuyo. Tú gobiernas este motor.", "vector_necesidades": {"movimiento":90, "descanso":50, "organizacion":40}},
-        {"id": 9, "titulo": "Anclaje del presente", "descripcion": "Cierra los ojos. Di una sola cosa buena que tienes hoy. Dilo fuerte.", "vector_necesidades": {"esperanza":100, "contemplacion":80, "silencio":70}},
-        {"id": 10, "titulo": "Orden de tu espacio", "descripcion": "Alinea tres objetos de tu mesa. Orden fuera es orden dentro.", "vector_necesidades": {"organizacion":100, "descanso":50, "contemplacion":40}},
-        {"id": 11, "titulo": "Pies en la tierra", "descripcion": "Quítate zapatos. Apoya plantas en el piso. Siente el frío. Conéctate.", "vector_necesidades": {"naturaleza":80, "silencio":60, "descanso":70}},
-        {"id": 12, "titulo": "Estiramiento al cielo", "descripcion": "Brazo arriba. Toca el techo. Mantén la tensión. Suelta de golpe.", "vector_necesidades": {"movimiento":95, "descanso":65, "aire_fresco":30}},
-        {"id": 13, "titulo": "Foco en lo olvidado", "descripcion": "Elige una tarea mínima que ignorabas. Hazla ahora. Termínala.", "vector_necesidades": {"trabajo":80, "organizacion":90, "esperanza":60}},
-        {"id": 14, "titulo": "Columna recta", "descripcion": "Endereza la espalda. Un hilo invisible tira de tu cabeza. Respira.", "vector_necesidades": {"movimiento":70, "descanso":80, "silencio":50}},
-        {"id": 15, "titulo": "Contacto frío", "descripcion": "Toca una superficie fría. Siente la temperatura real. Aterriza.", "vector_necesidades": {"contemplacion":90, "silencio":70, "descanso":60}},
-        {"id": 16, "titulo": "Ventilación total", "descripcion": "Abre la puerta principal. Deja que el aire ruede. Huele el cambio.", "vector_necesidades": {"aire_fresco":100, "naturaleza":70, "esperanza":80}},
-        {"id": 17, "titulo": "Sacudida de estrés", "descripcion": "Párate y sacude manos y piernas como quitándote agua. Hazlo 10 segundos.", "vector_necesidades": {"movimiento":100, "risa":60, "juego":50}},
-        {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira el objeto más lejano por tu ventana. Descansa el enfoque.", "vector_necesidades": {"contemplacion":95, "silencio":80, "naturaleza":70}},
-        {"id": 19, "titulo": "Memoria feliz", "descripcion": "Cierra los ojos y recuerda un momento real de calma en tu niñez.", "vector_necesidades": {"esperanza":100, "descanso":90, "silencio":85}},
-        {"id": 20, "titulo": "Sonrisa forzada", "descripcion": "Sonríe 15 segundos. Cambia tu química cerebral ahora.", "vector_necesidades": {"risa":100, "esperanza":90, "descanso":70}},
-        {"id": 21, "titulo": "Agradecimiento", "descripcion": "Cierra los ojos. Agradece una cosa buena de esta semana.", "vector_necesidades": {"esperanza":95, "contemplacion":80, "silencio":75}},
-        {"id": 22, "titulo": "Relaja ojos", "descripcion": "Tápate los ojos con palmas templadas. Un minuto de oscuridad.", "vector_necesidades": {"descanso":100, "silencio":90, "contemplacion":80}},
-        {"id": 23, "titulo": "Ritmo cardíaco", "descripcion": "Mano derecha en el pecho. Siente el latido. Es tu motor.", "vector_necesidades": {"contemplacion":100, "silencio":90, "descanso":85}},
-        {"id": 24, "titulo": "Suelta cuello", "descripcion": "Círculos lentos de cabeza. Libera la tensión de pantalla.", "vector_necesidades": {"movimiento":85, "descanso":90, "silencio":70}},
-        {"id": 25, "titulo": "Ejercicio de palmas", "descripcion": "Frota manos hasta sentir calor. Colócalas en hombros.", "vector_necesidades": {"movimiento":70, "descanso":80, "silencio":60}}
-    ],
-    "CASA_EXTRA": [
-        {"id": 26, "titulo": "Sonidos lejanos", "descripcion": "Identifica el sonido más lejano fuera de casa.", "vector_necesidades": {"silencio":90, "contemplacion":95, "naturaleza":80}},
-        {"id": 27, "titulo": "Estiramiento lateral", "descripcion": "Inclina el cuerpo suavemente a cada lado.", "vector_necesidades": {"movimiento":90, "descanso":80, "silencio":60}},
-        {"id": 28, "titulo": "El vaso vacío", "descripcion": "Mira un vaso. Concéntrate en su forma un minuto.", "vector_necesidades": {"contemplacion":100, "silencio":95, "descanso":70}},
-        {"id": 29, "titulo": "Suelta mandíbula", "descripcion": "Abre grande la boca, mueve mandíbula a los lados.", "vector_necesidades": {"movimiento":85, "descanso":80, "silencio":70}},
-        {"id": 30, "titulo": "Pasos lentos", "descripcion": "Diez pasos lentos, conscientes, en tu cuarto.", "vector_necesidades": {"movimiento":70, "contemplacion":80, "silencio":90}},
-        {"id": 31, "titulo": "Masaje suave", "descripcion": "Yemas en las sienes. Círculos muy lentos.", "vector_necesidades": {"descanso":100, "silencio":90, "contemplacion":80}},
-        {"id": 32, "titulo": "Conciencia aire", "descripcion": "Siente el aire frío entrar, el cálido salir.", "vector_necesidades": {"aire_fresco":100, "contemplacion":90, "silencio":85}},
-        {"id": 33, "titulo": "Espalda firme", "descripcion": "Omóplatos atrás, abre el pecho.", "vector_necesidades": {"movimiento":80, "descanso":70, "organizacion":60}},
-        {"id": 34, "titulo": "Apoyo total", "descripcion": "Siente la silla sosteniendo tu peso total.", "vector_necesidades": {"descanso":95, "contemplacion":85, "silencio":75}},
-        {"id": 35, "titulo": "Cuenta atrás", "descripcion": "Del 20 al 1. Despacio. Calma el ruido.", "vector_necesidades": {"silencio":100, "contemplacion":90, "descanso":80}},
-        {"id": 36, "titulo": "Toca textura", "descripcion": "Pasa dedos por una textura real. Madera o tela.", "vector_necesidades": {"contemplacion":95, "silencio":80, "descanso":70}},
-        {"id": 37, "titulo": "Estira dedos", "descripcion": "Separa dedos lo más posible 5 segundos. Suelta.", "vector_necesidades": {"movimiento":90, "descanso":70, "silencio":50}},
-        {"id": 38, "titulo": "Sonido interno", "descripcion": "Escucha tu respiración. No la fuerces.", "vector_necesidades": {"silencio":100, "contemplacion":95, "descanso":90}},
-        {"id": 39, "titulo": "Mirada fija", "descripcion": "Punto pequeño en la pared. Fijo. Sin parpadear.", "vector_necesidades": {"contemplacion":100, "silencio":90, "descanso":80}},
-        {"id": 40, "titulo": "Suelta brazos", "descripcion": "Cuelga brazos. Sacúdelos suavemente.", "vector_necesidades": {"movimiento":80, "descanso":75, "silencio":60}},
-        {"id": 41, "titulo": "Contacto ropa", "descripcion": "Nota el peso de la ropa sobre tu piel.", "vector_necesidades": {"contemplacion":90, "silencio":80, "descanso":70}},
-        {"id": 42, "titulo": "Aire profundo", "descripcion": "Infla vientre, retén 3 segundos, suelta lento.", "vector_necesidades": {"aire_fresco":95, "silencio":90, "descanso":95}},
-        {"id": 43, "titulo": "Rotación hombros", "descripcion": "Hombros a orejas, cae de golpe.", "vector_necesidades": {"movimiento":90, "descanso":85, "silencio":70}},
-        {"id": 44, "titulo": "Escucha silencio", "descripcion": "Busca el silencio entre respiraciones.", "vector_necesidades": {"silencio":100, "contemplacion":95, "descanso":90}},
-        {"id": 45, "titulo": "Mirada techo", "descripcion": "Mira techo. Estira cuello sin mover hombros.", "vector_necesidades": {"movimiento":70, "descanso":80, "silencio":60}},
-        {"id": 46, "titulo": "Siente base", "descripcion": "Contacto firme de piernas con silla.", "vector_necesidades": {"descanso":90, "contemplacion":85, "silencio":75}},
-        {"id": 47, "titulo": "Puños firmes", "descripcion": "Puños con fuerza 3 segundos, abre rápido.", "vector_necesidades": {"movimiento":80, "descanso":70, "risa":30}},
-        {"id": 48, "titulo": "Limpieza mental", "descripcion": "Exhala preocupación aburrida. Fuera de ti.", "vector_necesidades": {"descanso":95, "silencio":80, "esperanza":90}},
-        {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la estabilidad.", "vector_necesidades": {"contemplacion":90, "silencio":80, "descanso":70}},
-        {"id": 50, "titulo": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control.", "vector_necesidades": {"esperanza":100, "contemplacion":95, "silencio":90}}
-    ],
-    "SALIR": {
-        # Opciones SALIR predefinidas, el motor seleccionará la más adecuada
-        "parques_naturales": {
-            "titulo": "Parque Natural Silencioso",
-            "porque": "Tu mente necesita desconectar del ruido urbano. Naturaleza y paz te esperan.",
-            "que_hacer": "Camina sin rumbo, solo escucha los sonidos del viento y los pájaros. Apaga tu móvil.",
-            "donde": "Parque Natural",
-            "gps": "quiet+nature+park+",
-            "vector_necesidades": {
-                "movimiento": 70, "naturaleza": 100, "silencio": 95, "agua": 60, "sol": 80, "sombra": 80,
-                "aire_fresco": 100, "creatividad": 50, "comunidad": 30, "aprendizaje": 40, "juego": 40,
-                "contemplacion": 90, "trabajo": 10, "descanso": 90, "organizacion": 20, "alimentacion": 10,
-                "musica": 20, "risa": 30, "esperanza": 95
-            }
-        },
-        "bibliotecas_publicas": {
-            "titulo": "Biblioteca Pública Tranquila",
-            "porque": "Necesitas un espacio de calma para reflexionar, sin presiones de consumo.",
-            "que_hacer": "Busca una esquina. Observa a la gente, lee un libro al azar o simplemente quédate en silencio.",
-            "donde": "Biblioteca Pública",
-            "gps": "quiet+public+library+study+zone+",
-            "vector_necesidades": {
-                "movimiento": 20, "naturaleza": 10, "silencio": 100, "agua": 30, "sol": 20, "sombra": 50,
-                "aire_fresco": 40, "creatividad": 70, "comunidad": 50, "aprendizaje": 100, "juego": 10,
-                "contemplacion": 95, "trabajo": 30, "descanso": 80, "organizacion": 70, "alimentacion": 0,
-                "musica": 0, "risa": 10, "esperanza": 85
-            }
-        },
-        "senderos_caminata": {
-            "titulo": "Sendero Aislado",
-            "porque": "Tu cuerpo pide moverse y tu mente despejarse. Rompe la inercia con cada paso.",
-            "que_hacer": "Usa ropa cómoda. Elige un camino con árboles y camina a tu propio ritmo. Sin prisas.",
-            "donde": "Sendero de Caminata",
-            "gps": "isolated+walking+trail+",
-            "vector_necesidades": {
-                "movimiento": 100, "naturaleza": 90, "silencio": 70, "agua": 50, "sol": 85, "sombra": 70,
-                "aire_fresco": 95, "creatividad": 30, "comunidad": 20, "aprendizaje": 30, "juego": 20,
-                "contemplacion": 80, "trabajo": 10, "descanso": 70, "organizacion": 20, "alimentacion": 10,
-                "musica": 30, "risa": 20, "esperanza": 90
-            }
-        },
-        "centros_culturales": {
-            "titulo": "Centro Cultural Gratuito",
-            "porque": "Necesitas estimular tu creatividad e intelecto sin gastar dinero. Nuevas perspectivas.",
-            "que_hacer": "Visita una exposición, asiste a un taller gratuito o simplemente observa el arte y la gente.",
-            "donde": "Centro Cultural",
-            "gps": "free+cultural+center+events+",
-            "vector_necesidades": {
-                "movimiento": 40, "naturaleza": 10, "silencio": 60, "agua": 20, "sol": 10, "sombra": 30,
-                "aire_fresco": 30, "creatividad": 100, "comunidad": 80, "aprendizaje": 90, "juego": 30,
-                "contemplacion": 70, "trabajo": 20, "descanso": 60, "organizacion": 50, "alimentacion": 10,
-                "musica": 60, "risa": 50, "esperanza": 80
-            }
-        },
-        "lugares_contemplacion": {
-            "titulo": "Punto de Contemplación",
-            "porque": "La prisa te ahoga. Encuentra un lugar donde solo puedas observar y respirar.",
-            "que_hacer": "Busca un banco con vista. Mira las nubes, los árboles o el horizonte. Permite que el tiempo pase.",
-            "donde": "Punto Panorámico",
-            "gps": "scenic+viewpoint+calm+",
-            "vector_necesidades": {
-                "movimiento": 10, "naturaleza": 90, "silencio": 90, "agua": 50, "sol": 70, "sombra": 60,
-                "aire_fresco": 90, "creatividad": 20, "comunidad": 10, "aprendizaje": 20, "juego": 10,
-                "contemplacion": 100, "trabajo": 0, "descanso": 95, "organizacion": 10, "alimentacion": 0,
-                "musica": 10, "risa": 10, "esperanza": 90
-            }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OPEN THAN GO</title>
+    <style>
+        :root {
+            --bg: #000;
+            --panel: #111;
+            --text: #fff;
+            --accent: #d84315; /* Naranja/rojo para alertas/énfasis */
+            --secondary: #0d47a1; /* Azul profundo para botones de acción */
+            --green-action: #2e7d32; /* Verde para acciones principales */
+            --light-blue: #00bcd4; /* Azul claro para elementos de calma */
         }
-    }
-}
-# Recursos de infraestructura trillonaria secuestrados para romper la monotonía
-BIG_TECH_RESOURCES = {
-    "spotify_audio": "https://open.spotify.com/search/nature%20sounds", # Enlace de búsqueda directa
-    "youtube_audio": "https://www.youtube.com/results?search_query=relaxing+nature+sounds", # Enlace de búsqueda directa
-    "staffing_agencies": "staffing+agencies"
-}
-
-@app.get("/")
-async def index():
-    return FileResponse('static/session.html')
-
-# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.5.5.0
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 2 DE 2
-
-@app.post("/api/mando-integral")
-async def mando_integral(request: Request):
-    payload = await request.json()
-    opcion_usuario = str(payload.get("modo", "")).strip().upper()
-    zip_code = str(payload.get("zip", "")).strip()
-    estado = str(payload.get("estado", "FL")).strip() # No usado directamente en el payload actual, pero mantenido por compatibilidad
-    region = str(payload.get("region", "")).strip() # No usado directamente en el payload actual, pero mantenido por compatibilidad
-   
-    # Nuevas variables capturadas desde el frontend
-    mente_seleccionada = str(payload.get("mente", "ninguno")).lower() # Estado mental (ej: "aburrido", "agotado")
-    budget_seleccionado = str(payload.get("budget", "0")) # Presupuesto (ej: "0", "1", "libre")
-    perfil_seleccionado = str(payload.get("perfil", "solo")).lower() # Contexto social (ej: "solo", "familia")
-    desahogo_texto = str(payload.get("desahogo", "")).lower() # Texto libre de agobio
-    lang = str(payload.get("lang", "es")).strip() # Extraer el idioma del payload para evitar NameError
-
-    # Captura las métricas de clics acumuladas localmente en engine.js para las 19 necesidades
-    perfil_local = payload.get("perfil_local", {})
-
-    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA ORIGINAL INTACTO)
-    if opcion_usuario == "CASA":
-        # Combina las misiones CASA y CASA_EXTRA
-        misiones_disponibles = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"]
-        
-        # Ponderación para seleccionar 3 misiones de CASA basadas en perfil_local
-        if perfil_local:
-            misiones_ponderadas = []
-            for mision in misiones_disponibles:
-                score_mision = 0
-                vector_mision = mision.get("vector_necesidades", {})
-                for necesidad, peso_usuario in perfil_local.items():
-                    score_mision += vector_mision.get(necesidad, 50) * peso_usuario
-                misiones_ponderadas.append((score_mision, mision))
-            
-            # Ordenar por score y seleccionar las 3 mejores
-            misiones_ponderadas.sort(key=lambda x: x[0], reverse=True)
-            misiones_finales = [m[1] for m in misiones_ponderadas[:3]]
-        else:
-            random.shuffle(misiones_disponibles) # Si no hay perfil, baraja como antes
-            misiones_finales = misiones_disponibles[:3] # Toma solo 3 para la intervención
-
-        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones_finales})
-
-    # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN Y TVid)
-    # Selecciona la TVid basada en mente_seleccionada y desahogo_texto
-    tvid_asignada = "Bien" # Asignación por defecto
-    if "ansioso" in mente_seleccionada or "miedo" in desahogo_texto:
-        tvid_asignada = "Mal"
-    elif "cansado" in mente_seleccionada or "estresado" in mente_seleccionada or "presion corporativa" in desahogo_texto:
-        tvid_asignada = "Beso"
-    elif "aburrido" in mente_seleccionada or "hijos" in perfil_seleccionado or "familia" in perfil_seleccionado:
-        tvid_asignada = "Niño"
-    elif "agotado" in mente_seleccionada or "directivos" in perfil_seleccionado or "empresarios" in perfil_seleccionado:
-        tvid_asignada = "Madre"
-    elif "procrastinacion" in desahogo_texto or "posponiendo" in desahogo_texto:
-        tvid_asignada = "Padre"
-    elif "veteranos" in perfil_seleccionado or len(desahogo_texto.split()) > 10 or "crisis" in desahogo_texto:
-        tvid_asignada = "Guerra"
-    
-    # LÓGICA CWRE INTEGRADA para destinos SALIR
-    # Cruza las preferencias implícitas de las 19 necesidades enviadas por el smartphone
-    opciones_salir_candidatas = list(BASE_MISIONES["SALIR"].values())
-    
-    mejor_score = -1
-    info_salida = opciones_salir_candidatas[0] # Fallback por defecto
-
-    for opc in opciones_salir_candidatas:
-        vector_lugar = opc.get("vector_necesidades", {})
-        score_coincidencia = 0
-        
-        for necesidad, peso_usuario in perfil_local.items():
-            # Peso de usuario es el contador de clicks, vector_lugar es el peso del lugar para esa necesidad
-            score_coincidencia += vector_lugar.get(necesidad, 50) * peso_usuario
-            
-        if score_coincidencia > mejor_score:
-            mejor_score = score_coincidencia
-            info_salida = opc
-
-    # Filtro de precio real en palabras cortas de acción
-    if budget_seleccionado == "0":
-        precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy."
-    elif budget_seleccionado == "1":
-        precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina."
-    else: # "libre"
-        precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy."
-   
-    # Filtro de acompañantes reales
-    if perfil_seleccionado == "solo":
-        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro."
-    elif perfil_seleccionado == "familia" or perfil_seleccionado == "hijos":
-        quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia."
-    elif perfil_seleccionado == "adultos mayores":
-        quienes_van = "ACOMPAÑAMIENTO: Considera un lugar de fácil acceso."
-    elif perfil_seleccionado == "veteranos":
-        quienes_van = "ACOMPAÑAMIENTO: Respeto y tranquilidad para tu servicio."
-    else: # directivos, trabajadores_gobierno, etc. o cualquier otro
-        quienes_van = "ACOMPAÑAMIENTO: Entorno flexible para tu necesidad."
-
-    # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO INTERCEPTOR
-    # Considera también la 'mente_seleccionada' para activar este filtro
-    palabras_criticas_finanzas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economía", "laboral", "pago", "despido", "financiero"]
-    
-    # Amplía las condiciones para activar el filtro de supervivencia laboral
-    activar_filtro_laboral = any(p in desahogo_texto for p in palabras_criticas_finanzas) or \
-                             mente_seleccionada in ["estresado", "ansioso", "agotado"] and \
-                             any(p in mente_seleccionada for p in ["trabajo", "biles", "dinero"])
-
-    canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
-
-    if activar_filtro_laboral:
-        if canal_multimedia == "SPOTIFY":
-            titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
-            donde_base = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone"
-            guia_masticada = "DESTINO: Spotify Gratis.\nQUÉ HACER: Escucha los sonidos naturales en silencio.\nPARA QUÉ: Detener el impulso de gastar dinero en cosas innecesarias hoy." if lang == "es" else "TARGET: Free Spotify.\nWHAT TO DO: Listen to nature sounds in silence.\nWHY: Stop the urge to buy unnecessary items today."
-            link_base = BIG_TECH_RESOURCES["spotify_audio"]
-            gps_query = ""
-        elif canal_multimedia == "YOUTUBE":
-            titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
-            donde_base = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency"
-            guia_masticada = "DESTINO: Video en YouTube.\nQUÉ HACER: Pon el video en pantalla completa.\nPARA QUÉ: Calmar los pensamientos rápidos del día." if lang == "es" else "TARGET: YouTube Video.\nWHAT TO DO: Play the video in full screen.\nWHY: Calm your racing thoughts right now."
-            link_base = BIG_TECH_RESOURCES["youtube_audio"]
-            gps_query = ""
-        else: # MAPS para agencias de empleo
-            titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION"
-            donde_base = "Oficinas de contratación y staffings corporativos en tu zona." if lang == "es" else "Employment Agency"
-            guia_masticada = f"DESTINO: Oficinas de empleo inmediato.\nQUÉ HACER: Entra ya con tu identificación en mano.\nPARA QUÉ: Para ganarle al agobio del dinero y tomar el control de tu economía hoy.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: Staffing Agencies.\nWHAT TO DO: Go out straight with your physical ID.\nWHY: Look for a quick job and get cash now.\n{quienes_van}\n{precio_real}"
-            link_base = "https://www.google.com/maps/search/?api=1&query="
-            gps_query = BIG_TECH_RESOURCES["staffing_agencies"]
-    else:
-        # Rutas bilingües de campo ordinarias libres de deudas
-        link_base = "https://www.google.com/maps/search/?api=1&query="
-        gps_query = info_salida["gps"]
-        donde_base = info_salida["donde"]
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container { width: 95%; max-width: 420px; padding: 15px; position: relative; z-index: 10; }
+        .lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; }
+        .btn-lang { background: #222; color: #666; border: none; padding: 6px 12px; font-weight: 900; border-radius: 4px; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; }
+        .btn-lang.active { background: #fff; color: #000; }
        
-        if lang == "en":
-            traducciones_guia = {
-                "Parque Natural Silencioso": "TARGET: Quiet Nature Park.\nWHAT TO DO: Walk aimlessly, listen to the wind and birds. Turn off your phone.\nWHY: Your mind needs to disconnect from urban noise. Nature and peace await you.",
-                "Biblioteca Pública Tranquila": "TARGET: Quiet Public Library.\nWHAT TO DO: Find a corner. Observe people, read a random book, or just stay silent.\nWHY: You need a calm space to reflect, without consumer pressure.",
-                "Sendero Aislado": "TARGET: Isolated Walking Trail.\nWHAT TO DO: Wear comfortable clothes. Choose a path with trees and walk at your own pace. No rush.\nWHY: Your body needs to move and your mind needs to clear. Break the inertia with every step.",
-                "Centro Cultural Gratuito": "TARGET: Free Cultural Center.\nWHAT TO DO: Visit an exhibition, attend a free workshop, or simply observe art and people.\nWHY: You need to stimulate your creativity and intellect without spending money. New perspectives.",
-                "Punto de Contemplación": "TARGET: Scenic Viewpoint.\nWHAT TO DO: Find a bench with a view. Look at the clouds, trees, or horizon. Allow time to pass.\nWHY: The rush suffocates you. Find a place where you can just observe and breathe."
-            }
-            guia_masticada = traducciones_guia.get(info_salida["titulo"], f"TARGET: {info_salida['donde']}.\nWHAT TO DO: {info_salida['que_hacer']}\nWHY: {info_salida['porque']}\n{quienes_van}\n{precio_real}")
-            titulo_ganador = info_salida["titulo"].upper()
-        else:
-            guia_masticada = f"DESTINO: {info_salida['titulo']}.\nPOR QUÉ: {info_salida['porque']}\nQUÉ HACER: {info_salida['que_hacer']}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Para romper el zombi urbano y recordar que la vida es más que pagar cuentas.\n{quienes_van}\n{precio_real}"
-            titulo_ganador = info_salida["titulo"].upper()
+        /* ANIMACIÓN MAESTRA DEL TÍTULO CON SENSACIÓN DE AIRE Y NUBES */
+        .header-wrapper { position: relative; text-align: center; margin-bottom: 25px; padding: 20px 0; overflow: hidden; }
+        h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; margin: 0; z-index: 2; position: relative; animation: titleFloat 6s infinite ease-in-out, colorShift 12s infinite alternate; }
+        @keyframes titleFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes colorShift {
+            0% { color: var(--light-blue); text-shadow: 0 0 10px rgba(0,188,212,0.3); }
+            100% { color: var(--green-action); text-shadow: 0 0 10px rgba(46,125,50,0.3); }
+        }
+       
+        /* ESCENARIO DE NUBES BLANCAS EN MOVIMIENTO */
+        .sky-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.25; z-index: 1; }
+        .cloud { position: absolute; background: #fff; border-radius: 100px; filter: blur(4px); animation: windMove 18s infinite linear; }
+        .cloud::before, .cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
+        .cloud.c1 { width: 60px; height: 20px; top: 10px; left: -70px; animation-duration: 22s; }
+        .cloud.c1::before { width: 30px; height: 30px; top: -15px; left: 10px; }
+        .cloud.c1::after { width: 20px; height: 20px; top: -10px; left: 30px; }
+        .cloud.c2 { width: 80px; height: 25px; top: 35px; left: -90px; animation-duration: 16s; animation-delay: 4s; }
+        .cloud.c2::before { width: 40px; height: 40px; top: -20px; left: 15px; }
+        .cloud.c2::after { width: 30px; height: 35px; top: -15px; left: 40px; }
+        @keyframes windMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(520px); }
+        }
+       
+        /* EL ORÁCULO: EFECTO CASCADA HACIA ARRIBA */
+        .oraculo-scroll-box { position: relative; min-height: 280px; overflow: hidden; margin-bottom: 20px; }
+        .oraculo-grid { display: flex; flex-direction: column; gap: 12px; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .btn-pregunta-crisis { width: 100%; background: var(--panel); color: #eee; border: 1px solid #222; padding: 16px; font-size: 1.05rem; font-weight: bold; text-align: left; border-radius: 8px; cursor: pointer; transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s; line-height: 1.4; transform-origin: top center; }
+        .btn-pregunta-crisis.fade-out { opacity: 0; transform: scale(0.8) translateY(-30px); margin-bottom: -64px; pointer-events: none; }
+       
+        .field { margin-bottom: 12px; transition: all 0.5s ease; }
+        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 4px; font-weight: bold; }
+        input, select, textarea { width: 100%; background: var(--panel); border: 1px solid #222; color: var(--text); padding: 12px; border-radius: 4px; font-size: 0.95rem; outline: none; }
+        textarea { height: 65px; resize: none; border-color: #333; }
+        textarea:focus { border-color: var(--accent); }
+       
+        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; margin-bottom: 20px; }
+        .btn-group button {
+            flex-grow: 1; /* Permitir que los botones crezcan para llenar el espacio */
+            min-width: 90px; /* Ancho mínimo para evitar que se aplasten */
+            background: var(--panel);
+            color: #ccc;
+            border: 1px solid #222;
+            padding: 10px 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-group button.selected {
+            background: var(--green-action);
+            color: #fff;
+            border-color: #4caf50;
+            box-shadow: 0 0 8px rgba(46,125,50,0.5);
+            transform: scale(1.03);
+        }
+        .btn-group button:hover:not(.selected) {
+            background: #222;
+            border-color: #444;
+        }
 
-    # Adaptabilidad del Perfil Biopsicosocial sin exclusión social
-    if perfil_seleccionado == "adultos mayores": gps_query = "accessible+for+seniors+" + gps_query
-    elif perfil_seleccionado == "familia": gps_query = "family+friendly+" + gps_query
-    elif perfil_seleccionado == "hijos": gps_query = "children+friendly+" + gps_query
-    elif perfil_seleccionado == "veteranos": gps_query = "veteran+memorials+or+quiet+parks+" + gps_query
-    elif perfil_seleccionado == "directivos" or perfil_seleccionado == "empresarios": gps_query = "quiet+isolation+retreats+or+parks+no+signal+" + gps_query
-    elif perfil_seleccionado == "trabajadores del gobierno": gps_query = "state+parks+remote+" + gps_query
+        .hidden { display: none !important; }
+       
+        #pantalla-bienvenida { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; }
+        .btn-bienvenida { background:#fff; color:#000; padding:22px 45px; font-weight:900; cursor:pointer; text-transform:uppercase; border-radius:4px; font-size: 0.95rem; border: none; letter-spacing: 1px; }
+       
+        .mision-card { border: 1px solid #222; padding: 26px; text-align: left; background: #0a0a0a; border-radius: 12px; width: 100%; }
+        .mision-card small { color: #666; font-weight: bold; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
+        .mision-card h2, .mision-card h3 { color: var(--green-action); font-size: 1.45rem; font-weight: 900; text-transform: uppercase; margin-top: 0; margin-bottom: 15px; }
+        .mision-card p, .mision-card .instruccion-text { font-size: 1.25rem; line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid var(--green-action); padding-left: 14px; text-align: left; font-weight: bold; }
+       
+        #breath-circle { width: 135px; height: 135px; background: rgba(0, 188, 212, 0.15); border: 3px solid #00bcd4; border-radius: 50%; margin: 35px auto; box-shadow: 0 0 20px rgba(0,188,212,0.2); animation: elasticLung 8s infinite ease-in-out; }
+        @keyframes elasticLung { 0% { transform: scale(0.85); } 50% { transform: scale(1.15); background: rgba(0, 188, 212, 0.3); } 100% { transform: scale(0.85); } }
+        #timer { font-weight: 900; text-align: center; font-size: 3.2rem; margin: 15px 0; color: #fff; }
+        #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: #00bcd4; text-align: center; letter-spacing: 2px; }
 
+        /* Estilos para la intervención TVid® */
+        #tvid-intervention-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            overflow: hidden;
+        }
+        #tvid-countdown {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--accent);
+            z-index: 101;
+            text-shadow: 0 0 10px rgba(216,67,21,0.5);
+        }
+        #tvid-phrase-container {
+            position: relative;
+            width: 90%;
+            height: 70%; /* Centrar y contener las frases */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .tvid-phrase {
+            position: absolute;
+            font-size: 1.8rem; /* Tamaño más grande para énfasis */
+            font-weight: 900;
+            text-align: center;
+            color: #fff;
+            padding: 10px;
+            opacity: 0;
+            will-change: transform, opacity; /* Optimización de rendimiento */
+            line-height: 1.3;
+            max-width: 80%; /* Asegurar que las frases no sean demasiado anchas */
+            text-shadow: 0 0 15px rgba(255,255,255,0.4);
+        }
+        
+        .tvid-phrase.hide {
+            animation: fadeOut 0.5s forwards;
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
 
-    # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA ORIGINAL RESTAURADA SIN RECORTE NI ALTERACIONES
-    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}" # region y estado no se usan actualmente desde el frontend
+        /* ANIMACIONES MULTIDIRECCIONALES (6 direcciones) */
+        .tvid-phrase.corner-in { animation: cornerIn 2s ease-out forwards; }
+        @keyframes cornerIn {
+            from { transform: translate(-100vw, -100vh) scale(0.5); opacity: 0; }
+            to { transform: translate(0, 0) scale(1); opacity: 1; }
+        }
+        .tvid-phrase.side-in { animation: sideIn 2s ease-out forwards; }
+        @keyframes sideIn {
+            from { transform: translateX(100vw); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .tvid-phrase.bottom-in { animation: bottomIn 2s ease-out forwards; }
+        @keyframes bottomIn {
+            from { transform: translateY(100vh); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .tvid-phrase.top-in { animation: topIn 2s ease-out forwards; }
+        @keyframes topIn {
+            from { transform: translateY(-100vh); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .tvid-phrase.center-out { animation: centerOut 2s ease-out forwards; }
+        @keyframes centerOut {
+            from { transform: scale(0.2); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .tvid-phrase.outside-in { animation: outsideIn 2s ease-out forwards; }
+        @keyframes outsideIn {
+            from { transform: scale(2); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="pantalla-bienvenida">
+        <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button>
+    </div>
+   
+    <div class="container hidden" id="wrapper-form">
+        <div class="lang-bar">
+            <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button>
+            <button class="btn-lang" id="lang-en" onclick="KERNEL.cambiarIdioma('en')">ENG</button>
+        </div>
+       
+        <!-- CABECERA CON NUBES REALES EN MOVIMIENTO -->
+        <div class="header-wrapper">
+            <div class="sky-container">
+                <div class="cloud c1"></div>
+                <div class="cloud c2"></div>
+            </div>
+            <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1>
+        </div>
+       
+        <!-- ENTRADA DE GEOLOCALIZACIÓN Y MODO -->
+        <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div style="flex: 2;">
+                <label id="lbl-zip">ZIP Code</label>
+                <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5">
+            </div>
+            <div style="flex: 1;">
+                <label id="lbl-mode">Modo</label>
+                <select id="modo-selector">
+                    <option value="SALIR" selected>SALIR</option>
+                    <option value="CASA">CASA</option>
+                </select>
+            </div>
+        </div>
 
-    if gps_query:
-        if link_base.startswith("http"): # Check if it's a full URL or just a query part
-            link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
-        else:
-            link_google_maps_vivo = link_base.replace(" ", "+") # Fallback, though link_base should always be a full URL for maps
-    else:
-        link_google_maps_vivo = link_base.replace(" ", "+") # Fallback to base link
+        <!-- NUEVOS SELECTORES PARA ESTADO MENTAL, PRESUPUESTO Y CONTEXTO SOCIAL -->
+        <div id="selectors-container">
+            <div class="field">
+                <label id="lbl-mente">Estado Mental</label>
+                <div class="btn-group">
+                    <button class="btn-selector-mente" data-value="aburrido" data-key="aburrido">Aburrido</button>
+                    <button class="btn-selector-mente" data-value="agotado" data-key="agotado">Agotado</button>
+                    <button class="btn-selector-mente" data-value="estresado" data-key="estresado">Estresado</button>
+                    <button class="btn-selector-mente" data-value="cansado" data-key="cansado">Cansado</button>
+                    <button class="btn-selector-mente" data-value="ansioso" data-key="ansioso">Ansioso</button>
+                </div>
+            </div>
 
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "destino_titulo": titulo_ganador,
-        "destino_entorno": donde_base,
-        "destino_instruccion": guia_masticada.strip(),
-        "destino_coordenadas_gps": link_google_maps_vivo,
-        "token_entorno": info_salida["titulo"] if "titulo" in info_salida else "general", # Inyecta la firma para que engine.js sume al perfil dinámico
-        "tvid_asignada": tvid_asignada # **NUEVO**: Envía la técnica TVid® asignada al frontend
-    })
+            <div class="field">
+                <label id="lbl-budget">Presupuesto</label>
+                <div class="btn-group">
+                    <button class="btn-selector-budget" data-value="0" data-key="zero">Gratis</button>
+                    <button class="btn-selector-budget" data-value="1" data-key="low">Bajo Gasto</button>
+                    <button class="btn-selector-budget" data-value="libre" data-key="free">Libre</button>
+                </div>
+            </div>
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+            <div class="field">
+                <label id="lbl-perfil">Contexto Social</label>
+                <div class="btn-group">
+                    <button class="btn-selector-perfil" data-value="solo" data-key="solo">Solo</button>
+                    <button class="btn-selector-perfil" data-value="familia" data-key="familia">Familia</button>
+                    <button class="btn-selector-perfil" data-value="hijos" data-key="hijos">Hijos</button>
+                    <button class="btn-selector-perfil" data-value="adultos mayores" data-key="adultos">Adultos Mayores</button>
+                    <button class="btn-selector-perfil" data-value="veteranos" data-key="veteranos">Veteranos de Guerra</button>
+                    <button class="btn-selector-perfil" data-value="directivos" data-key="directivos">Directivos/Empresarios</button>
+                    <button class="btn-selector-perfil" data-value="trabajadores del gobierno" data-key="gobierno">Trabajadores del Gobierno</button>
+                </div>
+            </div>
+        </div>
+       
+        <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent); font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
+       
+        <!-- CAJÓN DE DESPLAZAMIENTO CASCADA (Oracle Questions) -->
+        <div class="oraculo-scroll-box" id="oracle-container">
+            <div class="oraculo-grid" id="contenedor-preguntas-oraculo">
+                <!-- Las preguntas se inyectan dinámicamente aquí -->
+            </div>
+        </div>
+       
+        <!-- EL CAJÓN DE ESCRITURA LIBRE SANADO AL 100% -->
+        <div class="field" id="bloque-escritura-libre">
+            <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label>
+            <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea>
+            <button id="btn-activar-libre" disabled style="width: 100%; background: #111; color: #555; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
+        </div>
+
+        <input type="hidden" id="inp-text-invisible">
+    </div>
+
+    <!-- CONTENEDOR DE SALIDA INTERACTIVA PARA PARQUES, VIDEOS Y PULMÓN -->
+    <div class="container hidden" id="wrapper-interactive"></div>
+
+    <script src="/static/engine.js"></script>
+</body>
+</html>
