@@ -170,6 +170,97 @@
         }
         #timer { font-weight: 900; text-align: center; font-size: 3.2rem; margin: 15px 0; color: #fff; }
         #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: var(--cyan-inhale); text-align: center; letter-spacing: 2px; }
+
+        /* NEW: TVid® EXERCISE SCREEN STYLES */
+        #wrapper-tvid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            overflow: hidden;
+        }
+        #tvid-countdown {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent);
+            z-index: 101;
+            text-shadow: 0 0 8px rgba(216,67,21,0.5);
+        }
+        #tvid-text-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column; /* Allows stacking and relative positioning for individual texts */
+            pointer-events: none; /* Allows clicks to pass through to underlying elements if any */
+        }
+        .tvid-text {
+            position: absolute;
+            font-size: clamp(1.2rem, 5vw, 2.5rem);
+            font-weight: 900;
+            text-align: center;
+            line-height: 1.3;
+            padding: 10px 20px;
+            color: #fff;
+            opacity: 0;
+            text-shadow: 0 0 15px rgba(255,255,255,0.4);
+            animation-fill-mode: forwards; /* Keep the final state of the animation */
+            white-space: pre-wrap; /* Allows text to wrap */
+        }
+
+        /* NEW: TVid® MOVEMENT ANIMATIONS (6 DIRECTIONS) */
+        @keyframes tvid-corner-to-center {
+            0% { opacity: 0; transform: translate(-100vw, -100vh) scale(0.5) rotate(-30deg); }
+            20% { opacity: 1; transform: translate(-10vw, -10vh) scale(1) rotate(0deg); }
+            80% { opacity: 1; transform: translate(10vw, 10vh) scale(1) rotate(0deg); }
+            100% { opacity: 0; transform: translate(100vw, 100vh) scale(0.5) rotate(30deg); }
+        }
+        @keyframes tvid-side-to-center-left {
+            0% { opacity: 0; transform: translateX(-100vw) scale(0.7); }
+            20% { opacity: 1; transform: translateX(0) scale(1); }
+            80% { opacity: 1; transform: translateX(0) scale(1); }
+            100% { opacity: 0; transform: translateX(100vw) scale(0.7); }
+        }
+        @keyframes tvid-side-to-center-right {
+            0% { opacity: 0; transform: translateX(100vw) scale(0.7); }
+            20% { opacity: 1; transform: translateX(0) scale(1); }
+            80% { opacity: 1; transform: translateX(0) scale(1); }
+            100% { opacity: 0; transform: translateX(-100vw) scale(0.7); }
+        }
+        @keyframes tvid-bottom-to-center {
+            0% { opacity: 0; transform: translateY(100vh) scale(0.8); }
+            20% { opacity: 1; transform: translateY(0) scale(1); }
+            80% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100vh) scale(0.8); }
+        }
+        @keyframes tvid-top-to-center {
+            0% { opacity: 0; transform: translateY(-100vh) scale(0.8); }
+            20% { opacity: 1; transform: translateY(0) scale(1); }
+            80% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(100vh) scale(0.8); }
+        }
+        @keyframes tvid-center-out {
+            0% { opacity: 0.8; transform: scale(0.9); }
+            20% { opacity: 1; transform: scale(1.1); }
+            80% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0; transform: scale(2); }
+        }
+        @keyframes tvid-out-in {
+            0% { opacity: 0; transform: scale(3); filter: blur(10px); }
+            20% { opacity: 1; transform: scale(1.1); filter: blur(0); }
+            80% { opacity: 1; transform: scale(1.1); filter: blur(0); }
+            100% { opacity: 0; transform: scale(0.5); filter: blur(5px); }
+        }
     </style>
 </head>
 <body>
@@ -232,7 +323,11 @@
                 <select id="perfil-selector">
                     <option value="solo" id="opt-perfil-solo" selected>Solo</option>
                     <option value="familia" id="opt-perfil-familia">Familia</option>
-                    <option value="accesible" id="opt-perfil-accesible">Accesible</option>
+                    <option value="hijos" id="opt-perfil-hijos">Hijos</option>
+                    <option value="adultos_mayores" id="opt-perfil-adultos-mayores">Adultos Mayores</option>
+                    <option value="veteranos_guerra" id="opt-perfil-veteranos-guerra">Veteranos de Guerra</option>
+                    <option value="directivos_empresarios" id="opt-perfil-directivos-empresarios">Directivos/Empresarios</option>
+                    <option value="trabajadores_gobierno" id="opt-perfil-trabajadores-gobierno">Trabajadores del Gobierno</option>
                 </select>
             </div>
         </div>
@@ -258,6 +353,14 @@
 
     <!-- INTERACTIVE OUTPUT CONTAINER FOR PARKS, VIDEOS, AND LUNG -->
     <div class="container hidden" id="wrapper-interactive"></div>
+
+    <!-- NEW: TVid® EXERCISE SCREEN -->
+    <div id="wrapper-tvid" class="hidden">
+        <div id="tvid-countdown">30</div>
+        <div id="tvid-text-container">
+            <!-- Animated TVid texts will be injected here -->
+        </div>
+    </div>
 
     <script src="/static/engine.js"></script>
 </body>
