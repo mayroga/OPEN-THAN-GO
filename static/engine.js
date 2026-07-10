@@ -473,7 +473,7 @@ const KERNEL = {
             div.classList.add('tvid-text');
             div.innerText = text;
 
-            // Randomly select one of the 6 animation types
+            // Randomly select one of the 7 animation types defined in CSS
             const animations = [
                 'tvid-corner-to-center',
                 'tvid-side-to-center-left',
@@ -509,10 +509,11 @@ const KERNEL = {
             countdownElement.innerText = this.tvidTimeLeft;
 
             // Display a new text every 2-3 seconds for 30 seconds
-            if (this.tvidTimeLeft > 0 && this.tvidTimeLeft % 2 === 0 && Math.random() < 0.7) { // Chaotic burst
+            if (this.tvidTimeLeft > 0 && Math.random() < 0.7) { // Chaotic burst, random interval
                 const content = getRandomTVidContent(tvidSeleccionada);
                 displayAnimatedText(content);
-                this.hablar(content); // Speak the text
+                // Optionally speak the text, but too many might be overwhelming. The document says "bombardeo visual".
+                // KERNEL.hablar(content); 
             }
 
             if (this.tvidTimeLeft <= 0) {
@@ -536,12 +537,11 @@ const KERNEL = {
         const budget = document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0";
         const perfil = document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo";
 
-        // NEW: Select TVid and start exercise BEFORE backend call returns
+        // NEW: Select TVid and store the promise for the backend call
         const tvidSeleccionada = this.seleccionarTVid(mente, perfil, desahogo);
         
         let backendResponsePromise;
         if (modo === "SALIR") {
-            // For SALIR mode, send backend request in parallel with TVid exercise
             const payload = {
                 zip: zip,
                 modo: modo,
@@ -557,12 +557,11 @@ const KERNEL = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             }).then(r => r.json());
-        } else {
-            // For CASA mode, a simplified immediate "backend" response for the frontend flow
+        } else { // CASA mode - simulate a backend response
             backendResponsePromise = Promise.resolve({
                 DIRECCIONAMIENTO_MASTER: "INTERVENCION_DOMESTICA",
-                misiones: this.pasosMisiones.length > 0 ? this.pasosMisiones : (this.TVid_DATA["Bien"].ejercicios.map(e => ({ titulo: tvidSeleccionada, descripcion: e }))), // Placeholder
-                vector_entorno_seleccionado: this.DEFAULT_NECESSITY_PROFILE
+                misiones: this.TVid_DATA["Bien"].ejercicios.map(e => ({ titulo: `Técnica del ${tvidSeleccionada}`, descripcion: e })), // Placeholder, document says "CASA missions" are already predefined but this ensures some content
+                vector_entorno_seleccionado: this.DEFAULT_NECESSITY_PROFILE // For CASA, no specific environment is chosen, so default profile
             });
         }
         
@@ -576,8 +575,17 @@ const KERNEL = {
                 const container = document.getElementById('wrapper-interactive');
 
                 if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
-                    this.pasosMisiones = data.misiones.slice(0, 3); // Take first 3 for sequential display for CASA
-                    // Proceed with CASA flow
+                    // For CASA mode, if specific missions are returned, use them. Otherwise, use a default placeholder.
+                    if (data.misiones && data.misiones.length > 0) {
+                        this.pasosMisiones = data.misiones.slice(0, 3); // Take first 3 for sequential display for CASA
+                    } else {
+                        // Fallback: use a default set of internal exercises if backend did not return any.
+                        this.pasosMisiones = [
+                            { titulo: "Pausa y Observa", descripcion: "Detente. Mira a tu alrededor. ¿Qué tres cosas nuevas ves en tu espacio?" },
+                            { titulo: "Un Trago de Calma", descripcion: "Busca un vaso de agua. Bébelo lentamente, sintiendo cada sorbo." },
+                            { titulo: "Alinea tu Postura", descripcion: "Endereza tu espalda. Estira tu cuello. Siente cómo fluye el aire." }
+                        ];
+                    }
                     container.classList.remove('hidden');
                     this.procesarFlujoSecuencial(container);
                 } else { // ACCION_CAMPO (SALIR mode)
@@ -605,7 +613,7 @@ const KERNEL = {
                 for (const need in selectedVector) {
                     if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
                         // Increase the preference for the activated need, capping at 100
-                        perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100); // 10% of the place's score is added
+                        perfil[need] = Math.min(perfil[need] + Math.round(selectedVector[need] * 0.1), 100); // 10% of the place's score is added, rounded
                     }
                 }
                 localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
@@ -632,10 +640,8 @@ const KERNEL = {
         }[this.idiomaActual];
 
         // This block for SALIR mode is now unreachable because `activarDeepLink` handles it directly.
-        // The original `procesarFlujoSecuencial` was for both modes, now it's mainly for CASA.
+        // If it is, something went wrong, and we should just go to the link directly.
         if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
-            // This case should ideally not be hit directly anymore.
-            // If it is, something went wrong, and we should just go to the link directly.
             console.warn("procesarFlujoSecuencial called for ACCION_CAMPO, should have been handled by activarDeepLink.");
             this.activarDeepLink();
             return;
