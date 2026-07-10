@@ -185,11 +185,11 @@ async def mando_integral(request: Request):
     payload = await request.json()
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
-    estado = str(payload.get("estado", "FL")).strip() # Default to FL if not provided
-    region = str(payload.get("region", "")).strip()
+    estado = str(payload.get("estado", "FL")).strip() # Default to FL if not provided, though not used in UI now
+    region = str(payload.get("region", "")).strip() # Not used in UI now
     mente = str(payload.get("mente", "aburrido")).lower() # Default for `SALIR` mode
     budget = str(payload.get("budget", "0")) # 0: free, 1: low, 2: free
-    perfil = str(payload.get("perfil", "solo")).lower() # solo, familia, accesible
+    perfil = str(payload.get("perfil", "solo")).lower() # solo, familia, hijos, adultos_mayores, veteranos_guerra, directivos_empresarios, trabajadores_gobierno
     desahogo = str(payload.get("desahogo", "")).lower() # User's free text input
     lang = str(payload.get("lang", "es")).lower()
    
@@ -246,14 +246,23 @@ async def mando_integral(request: Request):
     elif budget == "2":
         precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
    
-    # Filter for real companions
+    # Filter for real companions - UPDATED FOR NEW PROFILE OPTIONS
     quienes_van = ""
     if perfil == "solo":
         quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
     elif perfil == "familia":
-        quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
-    elif perfil == "accesible":
-        quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
+        quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tu familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your family to unwind."
+    elif perfil == "hijos":
+        quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children to unwind."
+    elif perfil == "adultos_mayores":
+        quienes_van = "ACOMPAÑAMIENTO: Ruta plana y accesible por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat and accessible route for physical comfort or age."
+    elif perfil == "veteranos_guerra":
+        quienes_van = "ACOMPAÑAMIENTO: Vas en solitario a un lugar de paz y reflexión." if lang == "es" else "COMPANIONSHIP: You go alone to a place of peace and reflection."
+    elif perfil == "directivos_empresarios":
+        quienes_van = "ACOMPAÑAMIENTO: Vas en solitario a un destino de aislamiento total." if lang == "es" else "COMPANIONSHIP: You go alone to a destination of total isolation."
+    elif perfil == "trabajadores_gobierno":
+        quienes_van = "ACOMPAÑAMIENTO: Vas en solitario a un espacio natural amplio." if lang == "es" else "COMPANIONSHIP: You go alone to a wide natural space."
+
 
     # FINANCIAL SURVIVAL AND WELLBEING INTERCEPTOR FILTER
     palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economy", "money", "work"]
@@ -339,10 +348,16 @@ async def mando_integral(request: Request):
     # Adaptability of the Biopsychosocial Profile without social exclusion
     # These modifications should be applied only if gps_query is a map query
     if link_base.startswith("https://www.google.com/maps"):
-        if perfil == "accesible":
+        if perfil == "accesible" or perfil == "adultos_mayores":
             gps_query = "wheelchair+accessible+" + gps_query
-        elif perfil == "familia":
+        elif perfil == "familia" or perfil == "hijos":
             gps_query = "family+friendly+" + gps_query
+        elif perfil == "directivos_empresarios":
+            gps_query = "quiet+remote+places+no+signal+" + gps_query
+        elif perfil == "trabajadores_gobierno":
+            gps_query = "state+parks+secluded+areas+" + gps_query
+        elif perfil == "veteranos_guerra":
+            gps_query = "war+memorials+peaceful+reflection+" + gps_query
 
     # ORIGINAL FIXED UNIVERSAL GEOGRAPHIC FORMULA RESTORED WITHOUT CUTTING OR ALTERATIONS
     anclaje_geografico = zip_code if zip_code else f"{region}+{estado}" # Default FL for state is used
