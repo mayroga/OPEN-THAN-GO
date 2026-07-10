@@ -1,39 +1,35 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.0
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.5.0
 // Company: May Roga LLC
-// File: static/engine.js (Frontend Logic)
+// File: static/engine.js
 
 const KERNEL = {
     timerInaccion: null,
     timerClinico: null,
     temporizadorCascada: null,
-    timerTVid: null, // New timer for TVid exercise
-    timeLeft: 600, // 10 minutes for clinical timer
-    tvidTimeLeft: 30, // 30 seconds for TVid exercise
+    tvidTimer: null, // Timer para el ejercicio TVid
+    tvidContentInterval: null, // Intervalo para mostrar textos TVid
+    tvidCountdown: 30, // Duración del ejercicio TVid
+    tvidPhrasesShown: [], // Historial de frases TVid mostradas
+    currentTvidKey: "", // Técnica TVid seleccionada
+    lastDeepLinks: [], // Historial de Deep-Links para diversidad (últimos 5)
+
+    timeLeft: 600,
     isLocked: false,
     idiomaActual: 'es',
     pasosMisiones: [],
     indiceMision: 0,
-    datosLugarGlobal: null, // Stores the full response from backend for current recommendation
+    datosLugarGlobal: null,
     tipoEscapeGlobal: "",
    
-    // Time and Impatience Control Variables
+    // Variables de Control de Tiempo e Impaciencia SOLDADAS
     relojRealSegundos: 600,
     contadorToques: 0,
-    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5], // Seconds to advance clinical timer per tap
+    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
 
-    // Sequential Conversational Architecture
-    bloqueActual: 0, // Current block of questions being displayed
-    conteoInaccion: 0, // Inaction counter for advancing question blocks
-    indicePreguntaCascada: 0, // Index for fading out questions
-
-    // Default template for the 19 human needs profile (must align with backend)
-    DEFAULT_NECESSITY_PROFILE: {
-        "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
-        "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
-        "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50,
-        "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
-        "indicador_ansiedad": 0 // Special internal indicator, not a "need" for location matching
-    },
+    // ARQUITECTURA CONVERSACIONAL SECUENCIAL
+    bloqueActual: 0,
+    conteoInaccion: 0,
+    indicePreguntaCascada: 0,
    
     CATALOGO_PREGUNTAS: [
         // Bloque 1: El Bucle Digital Urbano (Facebook, YouTube, Spotify y Amazon)
@@ -101,73 +97,72 @@ const KERNEL = {
         "¿Estás listo para obedecer al mando, soltar tus indecisiones y salir de tu encierro mental hoy?"
     ],
 
-    // NEW: TVid® Methodological Content - MÁXIMA FIDELIDAD METODOLÓGICA
-    TVid_DATA: {
+    TVID_METODOLOGIA: {
         "Bien": {
-            principios: ["Si encuentro algo bueno, mi mente tendrá una dirección para avanzar."],
-            preguntas_choque: ["¿Qué puedo aprender?", "¿Qué oportunidad existe aquí?", "¿Qué sí puedo hacer hoy?"],
-            afirmaciones: ["Siempre existe un bien que puedo construir."],
-            ejercicios: [
+            "Principios": ["Si encuentro algo bueno, mi mente tendrá una dirección para avanzar."],
+            "PreguntasChoque": ["¿Qué puedo aprender?", "¿Qué oportunidad existe aquí?", "¿Qué sí puedo hacer hoy?"],
+            "Afirmaciones": ["Siempre existe un bien que puedo construir."],
+            "Ejercicios": [
                 "Observa cualquier situación que te preocupe y pregúntate: ¿Qué puedo aprender?, ¿Qué oportunidad existe aquí? y ¿Qué sí puedo hacer hoy?, para luego repetir tres veces: \"Siempre existe un bien que puedo construir.\"",
                 "Al finalizar el día escribe tres cosas buenas que ocurrieron, por pequeñas que sean, y explica qué aprendiste de cada una.",
                 "Cuando enfrentes un problema, identifica al menos una oportunidad de crecimiento y una acción concreta que puedas realizar en ese momento."
             ]
         },
         "Mal": {
-            principios: ["Ver el peligro me permite evitarlo."],
-            preguntas_choque: ["¿Qué podría salir mal?", "¿Cómo puedo prevenirlo?", "¿Tengo un plan B?"],
-            afirmaciones: ["Ver el riesgo me da el control y me permite actuar con tranquilidad."],
-            ejercicios: [
+            "Principios": ["Ver el peligro me permite evitarlo."],
+            "PreguntasChoque": ["¿Qué podría salir mal?", "¿Cómo puedo prevenirlo?", "¿Tengo un plan B?"],
+            "Afirmaciones": ["Ver el riesgo me da el control y me permite actuar con tranquilidad."],
+            "Ejercicios": [
                 "Antes de tomar una decisión importante pregúntate: ¿Qué podría salir mal?, ¿Cómo puedo prevenirlo? y ¿Tengo un plan B?, respirando profundamente y respondiendo con calma.",
                 "Antes de tomar una decisión importante, haz una lista de los tres principales riesgos y cómo podrías prevenir cada uno.",
                 "Imagina el peor escenario posible y diseña un plan alternativo que te permita actuar con tranquilidad si ese escenario llegara a ocurrir."
             ]
         },
         "Beso": {
-            principios: ["El afecto también cura."],
-            preguntas_choque: ["¡Sonríe ahora mismo!", "Agradece mentalmente a alguien", "Coloca una mano sobre tu corazón."],
-            afirmaciones: ["El afecto cura, reduce la tensión y me reconecta con el mundo."],
-            ejercicios: [
+            "Principios": ["El afecto también cura."],
+            "PreguntasChoque": ["¡Sonríe ahora mismo!", "Agradece mentalmente a alguien", "Coloca una mano sobre tu corazón."],
+            "Afirmaciones": ["El afecto cura, reduce la tensión y me reconecta con el mundo."],
+            "Ejercicios": [
                 "Durante un minuto sonríe, agradece a alguien, abraza a un familiar o amigo o, si estás solo, coloca una mano sobre tu corazón mientras sonríes.",
                 "Dedica un minuto a sonreír mientras agradeces verbalmente a una persona por algo que haya hecho por ti.",
                 "Realiza un acto de afecto sincero, como dar un abrazo, ofrecer una palabra amable o colocar una mano sobre tu corazón mientras expresas un mensaje positivo hacia ti mismo."
             ]
         },
         "Niño": {
-            principios: ["Jugar también es sanar."],
-            preguntas_choque: ["Imagina que eres un explorador", "Ríe exageradamente ahora", "Inventa una historia de un segundo."],
-            afirmaciones: ["Recupero mi curiosidad, mi creatividad y juego para despertar la alegría."],
-            ejercicios: [
+            "Principios": ["Jugar también es sanar."],
+            "PreguntasChoque": ["Imagina que eres un explorador", "Ríe exageradamente ahora", "Inventa una historia de un segundo."],
+            "Afirmaciones": ["Recupero mi curiosidad, mi creatividad y juego para despertar la alegría."],
+            "Ejercicios": [
                 "Dedica dos minutos a dibujar, bailar, inventar una historia, reír exageradamente o caminar imaginando que eres un explorador; no importa el resultado, solo juega.",
                 "Dedica cinco minutos a dibujar, colorear o crear algo sin preocuparte por el resultado.",
                 "Baila tu canción favorita o inventa un juego sencillo durante unos minutos para despertar la creatividad y la alegría."
             ]
         },
         "Madre": {
-            principios: ["Primero cuido para después poder ayudar."],
-            preguntas_choque: ["Si fuera tu hijo quien estuviera viviendo esto...", "¿Qué consejo le darías?", "Date exactamente ese mismo consejo."],
-            afirmaciones: ["Me protejo con paciencia, comprensión y autocuidado."],
-            ejercicios: [
+            "Principios": ["Primero cuido para después poder ayudar."],
+            "PreguntasChoque": ["Si fuera tu hijo quien estuviera viviendo esto...", "¿Qué consejo le darías?", "Date exactamente ese mismo consejo."],
+            "Afirmaciones": ["Me protejo con paciencia, comprensión y autocuidado."],
+            "Ejercicios": [
                 "Pregúntate: \"Si fuera mi hijo quien estuviera viviendo esto, ¿qué consejo le daría?\" y luego date exactamente ese mismo consejo.",
                 "Escribe una carta de apoyo dirigida a ti mismo utilizando palabras de comprensión y cariño, como si estuvieras consolando a un ser querido.",
                 "Reserva diez minutos para cuidar de ti realizando una actividad saludable, como descansar, hidratarte, meditar o preparar una comida nutritiva."
             ]
         },
         "Padre": {
-            principios: ["El amor también exige compromiso."],
-            preguntas_choque: ["Elige la tarea que has estado posponiendo", "Trabaja únicamente los primeros cinco minutos", "La meta es comenzar."],
-            afirmaciones: ["Acción, disciplina, límites y resultados tangibles."],
-            ejercicios: [
+            "Principios": ["El amor también exige compromiso."],
+            "PreguntasChoque": ["Elige la tarea que has estado posponiendo", "Trabaja únicamente los primeros cinco minutos", "La meta es comenzar."],
+            "Afirmaciones": ["Acción, disciplina, límites y resultados tangibles."],
+            "Ejercicios": [
                 "Elige una tarea que has estado posponiendo y trabaja únicamente los primeros cinco minutos, pues la meta es comenzar.",
                 "Selecciona una tarea pendiente y trabaja en ella durante cinco minutos sin interrupciones, enfocándote únicamente en comenzar.",
                 "Establece una meta sencilla para el día y cúmplela antes de realizar actividades de entretenimiento, reforzando así la disciplina y el compromiso."
             ]
         },
         "Guerra": {
-            principios: ["En la guerra de la vida no vence quien golpea más fuerte, sino quien mantiene el equilibrio."],
-            preguntas_choque: ["Busca algo bueno que puedas rescatar", "Identifica el mayor riesgo", "Respira y sonríe para reducir la tensión", "Piensa con creatividad como un niño", "Trátate con compasión y decide tu primera acción."],
-            afirmaciones: ["Estoy preparado. Actúo con calma, inteligencia y determinación."],
-            ejercicios: [
+            "Principios": ["En la guerra de la vida no vence quien golpea más fuerte, sino quien mantiene el equilibrio."],
+            "PreguntasChoque": ["Busca algo bueno que puedas rescatar", "Identifica el mayor riesgo", "Respira y sonríe para reducir la tensión", "Piensa con creatividad como un niño", "Trátate con compasión y decide tu primera acción."],
+            "Afirmaciones": ["Estoy preparado. Actúo con calma, inteligencia y determinación."],
+            "Ejercicios": [
                 "Su ejercicio consiste en buscar algo bueno que puedas rescatar, identificar el mayor riesgo, respirar y sonreír para reducir la tensión, pensar con creatividad como un niño, tratarte con compasión y decidir la primera acción concreta; finalmente repite: \"Estoy preparado. Actúo con calma, inteligencia y determinación.\"",
                 "Ante una situación difícil identifica un aspecto positivo, evalúa los riesgos, mantén la calma respirando profundamente, busca una solución creativa, trátate con compasión y ejecuta la primera acción necesaria.",
                 "Simula un desafío importante escribiendo en una hoja qué harías aplicando, en orden, la Técnica del Bien, la Técnica del Mal, la Técnica del Beso, la Técnica del Niño, la Técnica de la Madre y la Técnica del Padre, terminando con una decisión concreta para avanzar."
@@ -175,54 +170,80 @@ const KERNEL = {
         }
     },
 
-    /**
-     * Retrieves or initializes the user's dynamic profile from localStorage.
-     * Ensures all 19 needs are present with default values if missing.
-     * @returns {Object} The user's dynamic profile.
-     */
+    ANIMATION_CLASSES: [
+        "cornerToCenter", "sideToCenter", "bottomToCenter",
+        "topToCenter", "centerOut", "outIn"
+    ],
+    POSITION_CLASSES: [
+        "pos-center", "pos-top-left", "pos-top-right", "pos-bottom-left",
+        "pos-bottom-right", "pos-left-middle", "pos-right-middle",
+        "pos-top-middle", "pos-bottom-middle"
+    ],
+    CRITICAL_WORDS: ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "quincena", "salario"],
+
     obtenerPerfilLocal() {
         let perfilRaw = localStorage.getItem("otg_perfil_dinamico");
-        let perfil = {};
-
         if (!perfilRaw) {
-            perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
-        } else {
-            try {
-                perfil = JSON.parse(perfilRaw);
-                // Ensure all default needs are present in the loaded profile
-                for (const need in this.DEFAULT_NECESSITY_PROFILE) {
-                    if (!(need in perfil)) {
-                        perfil[need] = this.DEFAULT_NECESSITY_PROFILE[need];
-                    }
-                }
-            } catch (e) {
-                console.error("Error parsing otg_perfil_dinamico from localStorage, resetting.", e);
-                perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
-            }
+            const perfilInicial = {
+                "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
+                "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
+                "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50,
+                "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
+                "indicador_ansiedad": 0
+            };
+            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfilInicial));
+            return perfilInicial;
         }
-        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-        return perfil;
+        try {
+            return typeof perfilRaw === "string" ? JSON.parse(perfilRaw) : perfilRaw;
+        } catch (e) {
+            // Fallback a un perfil inicial si hay error de parseo
+            console.error("Error al parsear perfil local:", e);
+            const perfilInicial = {
+                "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
+                "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
+                "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50,
+                "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
+                "indicador_ansiedad": 0
+            };
+            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfilInicial));
+            return perfilInicial;
+        }
     },
 
-    /** Initializes the KERNEL on DOMContentLoaded. */
+    obtenerLastDeepLinks() {
+        try {
+            const raw = localStorage.getItem("otg_last_deep_links");
+            return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            console.error("Error al obtener Deep Links:", e);
+            return [];
+        }
+    },
+
+    guardarDeepLink(link) {
+        let links = this.obtenerLastDeepLinks();
+        links.unshift(link); // Añadir al principio
+        if (links.length > 5) links = links.slice(0, 5); // Mantener solo los últimos 5
+        localStorage.setItem("otg_last_deep_links", JSON.stringify(links));
+    },
+
     init() {
         this.bloqueActual = parseInt(localStorage.getItem("otg_bloque_secuencial")) || 0;
-        // Set initial language if not already set (e.g., from a prior session)
-        const storedLang = localStorage.getItem("otg_language");
-        if (storedLang) {
-            this.idiomaActual = storedLang;
-        } else {
-            localStorage.setItem("otg_language", this.idiomaActual);
-        }
+        this.tvidPhrasesShown = JSON.parse(localStorage.getItem("otg_tvid_phrases_shown") || "{}");
+        this.lastDeepLinks = this.obtenerLastDeepLinks();
+
+        // Event Listeners para los botones de selección
+        document.querySelectorAll('.selection-group .selection-btn').forEach(button => {
+            button.addEventListener('click', () => this.toggleSelection(button));
+        });
     },
 
-    /** Starts the initial welcome sequence after user interaction. */
     despertarInicial() {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-        this.cambiarIdioma(this.idiomaActual); // Apply language settings to UI elements
        
-        // RESTORED INITIAL WELCOME VOICE IMMEDIATELY
+        // VOZ DE BIENVENIDA RESTAURADA DE INMEDIATO
         const saludos = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
             "ópen dán go está activo. Olvida tus biles un momento. Mira las opciones en tu pantalla ya.",
@@ -234,17 +255,15 @@ const KERNEL = {
         this.iniciarMonitoreoInaccion();
     },
 
-    /** Injects a block of 6 questions into the UI. */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
        
-        clearInterval(this.temporizadorCascada); // Stop any existing cascade
-        grid.innerHTML = ""; // Clear previous questions
+        clearInterval(this.temporizadorCascada);
+        grid.innerHTML = "";
         this.indicePreguntaCascada = 0;
        
         let inicioIdx = this.bloqueActual * 6;
-        // Loop back to the start if all questions have been shown
         if (inicioIdx >= this.CATALOGO_PREGUNTAS.length) {
             this.bloqueActual = 0;
             inicioIdx = 0;
@@ -269,38 +288,38 @@ const KERNEL = {
             btnLibre.style.background = "#111";
             btnLibre.style.color = "#555";
             btnLibre.style.borderColor = "#222";
+            btnLibre.disabled = true; // Desactivar hasta que la cascada termine o haya inacción
         }
         if (lblDesahogo) lblDesahogo.style.color = "#666";
 
         this.iniciarEfectoCascada();
     },
 
-    /** Initiates the fading cascade effect for questions. */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
+        const preguntaButtons = document.querySelectorAll('.btn-pregunta-crisis');
        
         this.temporizadorCascada = setInterval(() => {
             let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
            
             if (botonParaEliminar) {
-                // REAL FADE EFFECT: Each button is removed one by one from top to bottom
+                // EFECTO DESVANECER REAL: Se elimina uno por uno de arriba a abajo
                 botonParaEliminar.classList.add('fade-out');
                
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
                 if (siguienteBoton) {
-                    let textoLimpio = siguienteBoton.innerText.substring(3); // Remove the number prefix
+                    let textoLimpio = siguienteBoton.innerText.substring(3); // Eliminar "1. "
                     this.hablar(textoLimpio);
                 }
                 this.indicePreguntaCascada++;
             } else {
                 clearInterval(this.temporizadorCascada);
-                this.liberarCajonEscrituraLibre(); // Once all questions are faded, activate free writing
+                this.liberarCajonEscrituraLibre();
             }
-        }, 8000); // 8 seconds per question exactly
+        }, 8000); // 8 segundos por pregunta exactos
     },
 
-    /** Activates the free writing input field. */
     liberarCajonEscrituraLibre() {
         const textarea = document.getElementById('inp-text-libre');
         const btnLibre = document.getElementById('btn-activar-libre');
@@ -309,7 +328,6 @@ const KERNEL = {
 
         if (instruccion) {
             instruccion.innerText = this.idiomaActual === 'es' ? "Mando libre listo. Cuéntame qué te pasa." : "Free control ready. Tell me what is happening.";
-            instruccion.style.color = "var(--green-action)"; // Make instruction stand out
         }
         if (lblDesahogo) lblDesahogo.style.color = "#fff";
         if (textarea) textarea.focus();
@@ -318,6 +336,7 @@ const KERNEL = {
             btnLibre.style.background = "var(--green-action)";
             btnLibre.style.color = "#fff";
             btnLibre.style.borderColor = "#4caf50";
+            btnLibre.disabled = false; // Habilitar el botón
             btnLibre.onclick = () => {
                 let textoEscrito = textarea.value.trim();
                 if (textoEscrito.length > 3) {
@@ -329,344 +348,374 @@ const KERNEL = {
         }
     },
 
-    /** Monitors user inaction and advances question blocks or pauses. */
     iniciarMonitoreoInaccion() {
         clearInterval(this.timerInaccion);
         this.conteoInaccion = 0;
         this.timerInaccion = setInterval(() => {
             this.conteoInaccion++;
-            if (this.conteoInaccion === 4 || this.conteoInaccion === 8) { // After 48s and 96s of inaction
+            if (this.conteoInaccion === 4 || this.conteoInaccion === 8) { // 48s y 96s de inacción
                 clearInterval(this.temporizadorCascada);
                 this.bloqueActual++;
                 this.inyectarBloquePreguntas();
                 this.hablar(this.idiomaActual === 'es' ? "Avanzamos de nivel. Mira estas otras opciones en pantalla." : "Moving up. Look at these other options on screen.");
-            } else if (this.conteoInaccion >= 12) { // After 144s of inaction
+            } else if (this.conteoInaccion >= 12) { // 144s de inacción
                 clearInterval(this.timerInaccion);
                 clearInterval(this.temporizadorCascada);
                 this.hablar(this.idiomaActual === 'es' ? "Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando." : "Apologies. I will give you time. I know your mind is tired. I will be waiting here.");
                 const instruccion = document.getElementById('lbl-oraculo-instruccion');
                 if (instruccion) {
                     instruccion.innerText = this.idiomaActual === 'es' ? "Tomando un respiro. Toca cuando estés listo..." : "Taking a breath. Tap when you are ready...";
-                    instruccion.style.color = "#666"; // Dim instruction
                 }
+                const btnLibre = document.getElementById('btn-activar-libre');
+                if (btnLibre) btnLibre.disabled = false; // Asegurar que el botón esté activo para cuando decida continuar
             }
-        }, 12000); // Check every 12 seconds
+        }, 12000); // Cada 12 segundos
     },
 
-    /** Handles user selecting a question or entering free text. */
     reaccionarPreguntaSeleccionada(textoPregunta) {
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
         this.bloqueActual++;
         localStorage.setItem("otg_bloque_secuencial", this.bloqueActual);
        
-        // Assign the value to the hidden input before the Fetch request
+        // CORRECCIÓN DE CLIC: Asigna el valor al input oculto antes de la petición Fetch
         document.getElementById('inp-text-invisible').value = textoPregunta;
         this.ejecutar();
     },
 
-    /**
-     * Converts text to speech using browser's SpeechSynthesis API.
-     * Checks for API support and uses a fixed Spanish voice for consistency as per instructions.
-     * @param {string} texto - The text to speak.
-     */
     hablar(texto) {
-        if (!('speechSynthesis' in window)) {
-            console.warn("Speech Synthesis API not supported in this browser.");
-            return;
-        }
         if (!texto) return;
-        window.speechSynthesis.cancel(); // Stop any ongoing speech
+        window.speechSynthesis.cancel();
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
-        msg.lang = 'es-US'; // Fixed Spanish voice for native stability as per instructions
-        msg.rate = 1.20; // Slightly faster for efficiency
+        msg.lang = 'es-US'; // Voz fija siempre en español por estabilidad nativa
+        msg.rate = 1.20;
         window.speechSynthesis.speak(msg);
     },
 
-    /**
-     * Changes the application's language and updates UI elements.
-     * @param {string} lang - The target language ('es' or 'en').
-     */
     cambiarIdioma(lang) {
         this.idiomaActual = lang;
-        localStorage.setItem("otg_language", lang); // Persist language choice
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
        
-        // SYNC ENGLISH BUTTON FIXED 100% and new profile options
+        // SINCRO DE BOTÓN DE INGLÉS REPARADO AL 100%
         const t = {
-            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", hijos: "Hijos", adultosMayores: "Adultos Mayores", veteranosGuerra: "Veteranos de Guerra", directivosEmpresarios: "Directivos/Empresarios", trabajadoresGobierno: "Trabajadores del Gobierno", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso" },
-            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", hijos: "Children", adultosMayores: "Seniors", veteranosGuerra: "War Veterans", directivosEmpresarios: "Executives/Entrepreneurs", trabajadoresGobierno: "Government Workers", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious" }
+            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.",
+                    mente: "Estado Mental (Vulnerabilidad Humana)", budget: "Presupuesto (Control de Consumo)", perfil: "Contexto Social e Identidad" },
+            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.",
+                    mente: "Mental State (Human Vulnerability)", budget: "Budget (Consumption Control)", perfil: "Social Context & Identity" }
         }[lang];
        
-        document.getElementById('html-title').innerText = t.title;
         document.getElementById('txt-app-title').innerText = t.title;
         document.getElementById('lbl-zip').innerText = t.zip;
         document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
         document.getElementById('lbl-desahogo').innerText = t.desahogo;
         document.getElementById('inp-text-libre').placeholder = t.placeholder;
         document.getElementById('btn-activar-libre').innerText = t.btn;
-        document.getElementById('opt-budget-0').innerText = t.budget0;
-        document.getElementById('opt-budget-1').innerText = t.budget1;
-        document.getElementById('opt-budget-2').innerText = t.budget2;
-        document.getElementById('opt-perfil-solo').innerText = t.solo;
-        document.getElementById('opt-perfil-familia').innerText = t.familia;
-        document.getElementById('opt-perfil-hijos').innerText = t.hijos;
-        document.getElementById('opt-perfil-adultos-mayores').innerText = t.adultosMayores;
-        document.getElementById('opt-perfil-veteranos-guerra').innerText = t.veteranosGuerra;
-        document.getElementById('opt-perfil-directivos-empresarios').innerText = t.directivosEmpresarios;
-        document.getElementById('opt-perfil-trabajadores-gobierno').innerText = t.trabajadoresGobierno;
-        document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido;
-        document.getElementById('opt-mente-agotado').innerText = t.menteAgotado;
-        document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
-        document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
-        document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
 
+        // Actualizar labels de los nuevos grupos de selección
+        document.querySelector('label[for="mente-group"]').innerText = t.mente;
+        document.querySelector('label[for="budget-group"]').innerText = t.budget;
+        document.querySelector('label[for="perfil-group"]').innerText = t.perfil;
+        
+        // No traducimos el texto dentro de los botones de selección, la app es nativa en español
         this.hablar(t.alert);
     },
 
-    /** NEW: Selects a TVid® based on user input for client-side routing. */
-    seleccionarTVid(mente, perfil, desahogo) {
-        // Prioritize desahogo keywords
-        if (desahogo.includes("miedo") || desahogo.includes("ansiedad") || desahogo.includes("inseguridad") || desahogo.includes("preocupacion")) {
-            return "Mal";
+    toggleSelection(button) {
+        const group = button.closest('.selection-group');
+        if (group) {
+            group.querySelectorAll('.selection-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('selected'); // Ambas clases por robustez
+            });
+            button.classList.add('active');
+            button.classList.add('selected'); // Ambas clases por robustez
         }
-        if (desahogo.includes("procrastinar") || desahogo.includes("posponer") || desahogo.includes("tarea pendiente") || desahogo.includes("disciplina")) {
-            return "Padre";
-        }
-        if (desahogo.includes("crisis") || desahogo.length > 50 || desahogo.includes("conflicto") || desahogo.includes("presion") || desahogo.includes("guerra") || perfil === "veteranos_guerra") {
-            return "Guerra";
-        }
-
-        // Then based on Estado Mental (mente)
-        if (mente === "ansioso") return "Mal";
-        if (mente === "cansado" || mente === "estresado") return "Beso";
-        if (mente === "aburrido") return "Niño";
-        if (mente === "agotado" || perfil === "directivos_empresarios") return "Madre"; // Agotamiento severo or Directivos
-
-        // Then based on Contexto Social (perfil)
-        if (perfil === "familia" || perfil === "hijos") return "Niño";
-        if (perfil === "adultos_mayores") return "Madre"; // Cuidado y paciencia
-        if (perfil === "trabajadores_gobierno") return "Padre"; // Acción y disciplina
-
-        return "Bien"; // Default
     },
 
-    /** NEW: Initiates the 30-second TVid® exercise with chaotic text animations. */
-    iniciarTVidEjercicio(tvidSeleccionada, finalActionCallback) {
-        document.getElementById('wrapper-form').classList.add('hidden');
-        document.getElementById('wrapper-interactive').classList.add('hidden'); // Ensure interactive is also hidden
-        const tvidWrapper = document.getElementById('wrapper-tvid');
-        const countdownElement = document.getElementById('tvid-countdown');
-        const textContainer = document.getElementById('tvid-text-container');
-        
-        tvidWrapper.classList.remove('hidden');
-        textContainer.innerHTML = ''; // Clear previous texts
-        
-        this.tvidTimeLeft = 30; // Reset countdown
-        countdownElement.innerText = this.tvidTimeLeft;
-
-        // Function to create and animate a single text element
-        const displayAnimatedText = (text) => {
-            const div = document.createElement('div');
-            div.classList.add('tvid-text');
-            div.innerText = text;
-
-            // Randomly select one of the 7 animation types defined in CSS
-            const animations = [
-                'tvid-corner-to-center',
-                'tvid-side-to-center-left',
-                'tvid-side-to-center-right',
-                'tvid-bottom-to-center',
-                'tvid-top-to-center',
-                'tvid-center-out',
-                'tvid-out-in'
-            ];
-            const randomAnim = animations[Math.floor(Math.random() * animations.length)];
-            div.style.animation = `${randomAnim} 5s ease-in-out forwards`; // Each text animates for 5 seconds
-
-            textContainer.appendChild(div);
-
-            // Remove the element after its animation finishes to free up RAM/GPU
-            setTimeout(() => {
-                div.remove();
-            }, 5000); // Match animation duration
-        };
-
-        // Function to select a random piece of content from the TVid
-        const getRandomTVidContent = (tvid) => {
-            const tvidData = this.TVid_DATA[tvid];
-            const contentTypes = ['principios', 'preguntas_choque', 'afirmaciones', 'ejercicios'];
-            const randomType = contentTypes[Math.floor(Math.random() * contentTypes.length)];
-            const contentArray = tvidData[randomType];
-            return contentArray[Math.floor(Math.random() * contentArray.length)];
-        };
-
-        // Start TVid exercise timer
-        this.timerTVid = setInterval(() => {
-            this.tvidTimeLeft--;
-            countdownElement.innerText = this.tvidTimeLeft;
-
-            // Display a new text every 2-3 seconds for 30 seconds
-            if (this.tvidTimeLeft > 0 && Math.random() < 0.7) { // Chaotic burst, random interval
-                const content = getRandomTVidContent(tvidSeleccionada);
-                displayAnimatedText(content);
-                // Optionally speak the text, but too many might be overwhelming. The document says "bombardeo visual".
-                // KERNEL.hablar(content); 
-            }
-
-            if (this.tvidTimeLeft <= 0) {
-                clearInterval(this.timerTVid);
-                window.speechSynthesis.cancel();
-                tvidWrapper.classList.add('hidden');
-                finalActionCallback(); // Execute the callback after TVid exercise
-            }
-        }, 1000);
+    getSelectedValue(groupId) {
+        const group = document.getElementById(groupId);
+        const selected = group ? group.querySelector('.selection-btn.active, .selection-btn.selected') : null;
+        return selected ? selected.dataset.value : null;
     },
 
-    /** Executes the main logic to fetch recommendations from the backend. */
     async ejecutar() {
-        if (this.isLocked) return; // Prevent multiple submissions
+        if (this.isLocked) return;
         this.isLocked = true;
 
-        const zip = document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "";
-        const modo = document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR";
-        const desahogo = document.getElementById('inp-text-invisible') ? document.getElementById('inp-text-invisible').value : "";
-        const mente = document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido";
-        const budget = document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0";
-        const perfil = document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo";
+        const selectedMente = this.getSelectedValue('mente-group') || "aburrido";
+        const selectedBudget = this.getSelectedValue('budget-group') || "0";
+        const selectedPerfil = this.getSelectedValue('perfil-group') || "solo";
+        const desahogoText = document.getElementById('inp-text-invisible') ? document.getElementById('inp-text-invisible').value : "";
 
-        // NEW: Select TVid and store the promise for the backend call
-        const tvidSeleccionada = this.seleccionarTVid(mente, perfil, desahogo);
-        
-        let backendResponsePromise;
-        if (modo === "SALIR") {
-            const payload = {
-                zip: zip,
-                modo: modo,
-                desahogo: desahogo,
-                lang: this.idiomaActual,
-                mente: mente,
-                budget: budget,
-                perfil: perfil,
-                perfil_local: this.obtenerPerfilLocal()
-            };
-            backendResponsePromise = fetch("/api/mando-integral", {
+        const payload = {
+            zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
+            modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR",
+            mente: selectedMente,
+            budget: selectedBudget,
+            perfil: selectedPerfil,
+            desahogo: desahogoText,
+            lang: this.idiomaActual,
+            perfil_local: this.obtenerPerfilLocal()
+        };
+
+        const container = document.getElementById('wrapper-interactive');
+        document.getElementById('wrapper-form').classList.add('hidden');
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>CONECTANDO...</h2></div>`;
+        container.classList.remove('hidden');
+
+        try {
+            const r = await fetch("/api/mando-integral", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
-            }).then(r => r.json());
-        } else { // CASA mode - simulate a backend response
-            backendResponsePromise = Promise.resolve({
-                DIRECCIONAMIENTO_MASTER: "INTERVENCION_DOMESTICA",
-                misiones: this.TVid_DATA["Bien"].ejercicios.map(e => ({ titulo: `Técnica del ${tvidSeleccionada}`, descripcion: e })), // Placeholder, document says "CASA missions" are already predefined but this ensures some content
-                vector_entorno_seleccionado: this.DEFAULT_NECESSITY_PROFILE // For CASA, no specific environment is chosen, so default profile
             });
+            const data = await r.json();
+
+            this.datosLugarGlobal = data;
+            this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
+            this.indiceMision = 0;
+
+            if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
+                this.pasosMisiones = data.misiones.slice(0, 3);
+                this.procesarFlujoSecuencial(container);
+            } else if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
+                const desahogoContieneCriticas = this.CRITICAL_WORDS.some(word => data.selected_desahogo.includes(word));
+                
+                // Si hay palabras críticas o si el Deep-Link es uno de los especiales (Spotify, Youtube, Staffing)
+                // saltamos el ejercicio TVid y vamos directo a la "Activación Laboral" o "Reset Multimedia".
+                const isSpecialLink = data.destino_coordenadas_gps.includes("spotify") ||
+                                      data.destino_coordenadas_gps.includes("youtube") ||
+                                      data.destino_coordenadas_gps.includes(this.CRITICAL_WORDS.find(w => data.destino_coordenadas_gps.includes(w)));
+                
+                if (desahogoContieneCriticas || isSpecialLink) {
+                    this.procesarFlujoDeepLinkDirecto(container, data);
+                } else {
+                    // Si no hay palabras críticas, iniciamos el ejercicio TVid
+                    this.currentTvidKey = this.determinarTvid(data.selected_mente, data.selected_perfil, data.selected_desahogo);
+                    this.iniciarTvidEjercicio(container, data);
+                }
+            }
+        } catch (error) {
+            console.error("Error de conexión:", error);
+            alert("Error de conexión. Inténtalo de nuevo.");
+            document.getElementById('wrapper-form').classList.remove('hidden');
+            container.classList.add('hidden');
+            this.isLocked = false;
+        }
+    },
+
+    // --- TVid® Metodología y Ejercicio de Choque Conductual ---
+    determinarTvid(mente, perfil, desahogo) {
+        let tvidKey = "Bien"; // Default
+
+        // Regla 1: Técnica de Guerra (Veteranos, Crisis escritas, Textos largos)
+        if (perfil.includes("veteranos_guerra") || desahogo.includes("crisis") || desahogo.length > 50) {
+            return "Guerra";
+        }
+        // Regla 2: Técnica del Mal (Ansiedad o Miedos escritos)
+        if (mente.includes("ansioso") || desahogo.includes("miedo") || desahogo.includes("preocupacion")) {
+            return "Mal";
+        }
+        // Regla 3: Técnica del Beso (Cansancio, Estrés o Presión corporativa)
+        if (mente.includes("cansado") || mente.includes("estresado") || desahogo.includes("corporativo") || desahogo.includes("presion")) {
+            return "Beso";
+        }
+        // Regla 4: Técnica del Niño (Aburrimiento o Perfil de Familia/Hijos)
+        if (mente.includes("aburrido") || perfil.includes("familia") || perfil.includes("hijos")) {
+            return "Niño";
+        }
+        // Regla 5: Técnica de la Madre (Agotamiento severo o Perfil de Directivos)
+        if (mente.includes("agotado") || perfil.includes("directivos")) {
+            return "Madre";
+        }
+        // Regla 6: Técnica del Padre (Procrastinación escrita)
+        if (desahogo.includes("posponer") || desahogo.includes("procrastinar") || desahogo.includes("pendiente")) {
+            return "Padre";
+        }
+
+        return tvidKey; // Fallback a Bien si ninguna regla específica coincide
+    },
+
+    iniciarTvidEjercicio(container, data) {
+        clearInterval(this.timerClinico); // Asegurarse de limpiar otros timers
+        clearInterval(this.tvidTimer);
+        clearInterval(this.tvidContentInterval);
+        window.speechSynthesis.cancel();
+
+        const tvidOverlay = document.getElementById('tvid-overlay');
+        const tvidCountdownElement = document.getElementById('tvid-countdown');
+        tvidOverlay.innerHTML = `<span id="tvid-countdown">30s</span>`; // Resetear overlay
+        tvidOverlay.style.display = 'flex';
+        this.tvidCountdown = 30;
+
+        const tvidData = this.TVID_METODOLOGIA[this.currentTvidKey];
+        if (!tvidData) {
+            console.error("TVid no encontrado:", this.currentTvidKey);
+            this.finalizarTvidEjercicio(container, data);
+            return;
         }
         
-        this.iniciarTVidEjercicio(tvidSeleccionada, async () => {
-            try {
-                const data = await backendResponsePromise;
-                this.datosLugarGlobal = data;
-                this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
-                this.indiceMision = 0;
+        this.tvidPhrasesShown[this.currentTvidKey] = this.tvidPhrasesShown[this.currentTvidKey] || [];
+        const currentTvidHistory = this.tvidPhrasesShown[this.currentTvidKey];
 
-                const container = document.getElementById('wrapper-interactive');
+        const getUniqueContent = (type) => {
+            const allContent = tvidData[type];
+            if (!allContent || allContent.length === 0) return null;
 
-                if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
-                    // For CASA mode, if specific missions are returned, use them. Otherwise, use a default placeholder.
-                    if (data.misiones && data.misiones.length > 0) {
-                        this.pasosMisiones = data.misiones.slice(0, 3); // Take first 3 for sequential display for CASA
-                    } else {
-                        // Fallback: use a default set of internal exercises if backend did not return any.
-                        this.pasosMisiones = [
-                            { titulo: "Pausa y Observa", descripcion: "Detente. Mira a tu alrededor. ¿Qué tres cosas nuevas ves en tu espacio?" },
-                            { titulo: "Un Trago de Calma", descripcion: "Busca un vaso de agua. Bébelo lentamente, sintiendo cada sorbo." },
-                            { titulo: "Alinea tu Postura", descripcion: "Endereza tu espalda. Estira tu cuello. Siente cómo fluye el aire." }
-                        ];
-                    }
-                    container.classList.remove('hidden');
-                    this.procesarFlujoSecuencial(container);
-                } else { // ACCION_CAMPO (SALIR mode)
-                    // Directly activate Deep-Link after TVid exercise
-                    this.activarDeepLink();
-                }
-            } catch (error) {
-                console.error("Fetch error or TVid callback error:", error);
-                alert(this.idiomaActual === 'es' ? "Error de conexión o en la intervención. Por favor, inténtalo de nuevo." : "Connection or intervention error. Please try again.");
-                this.destruirYReiniciar(); // Ensure reset
-            } finally {
-                this.isLocked = false;
+            let availableContent = allContent.filter(c => !currentTvidHistory.includes(c));
+            if (availableContent.length === 0) {
+                // Si todo se ha mostrado, resetear historial para este TVid
+                this.tvidPhrasesShown[this.currentTvidKey] = [];
+                availableContent = allContent;
             }
-        });
+            const selectedContent = availableContent[Math.floor(Math.random() * availableContent.length)];
+            
+            // Añadir al historial y limitar tamaño para evitar que crezca indefinidamente
+            this.tvidPhrasesShown[this.currentTvidKey].push(selectedContent);
+            if (this.tvidPhrasesShown[this.currentTvidKey].length > allContent.length * 2) { // Mantener un historial de doble del tamaño del contenido
+                this.tvidPhrasesShown[this.currentTvidKey] = this.tvidPhrasesShown[this.currentTvidKey].slice(allContent.length);
+            }
+            localStorage.setItem("otg_tvid_phrases_shown", JSON.stringify(this.tvidPhrasesShown));
+            return selectedContent;
+        };
+
+        const showNextTvidPhrase = () => {
+            const types = ["Principios", "PreguntasChoque", "Afirmaciones", "Ejercicios"];
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            let phrase = getUniqueContent(randomType);
+            
+            if (!phrase) return;
+
+            const span = document.createElement('span');
+            span.className = `tvid-text ${this.ANIMATION_CLASSES[Math.floor(Math.random() * this.ANIMATION_CLASSES.length)]} ${this.POSITION_CLASSES[Math.floor(Math.random() * this.POSITION_CLASSES.length)]}`;
+            span.innerText = phrase;
+            tvidOverlay.appendChild(span);
+            this.hablar(phrase);
+
+            span.addEventListener('animationend', () => {
+                span.remove();
+            });
+        };
+
+        this.tvidTimer = setInterval(() => {
+            this.tvidCountdown--;
+            const tvidCountdownElementInner = document.getElementById('tvid-countdown');
+            if (tvidCountdownElementInner) tvidCountdownElementInner.innerText = `${this.tvidCountdown}s`;
+
+            if (this.tvidCountdown <= 0) {
+                this.finalizarTvidEjercicio(container, data);
+            } else {
+                showNextTvidPhrase(); // Mostrar una nueva frase cada ~4-5 segundos
+            }
+        }, 4500); // 4.5 segundos por frase para un total de ~6-7 frases en 30 segundos
+        
+        // Mostrar la primera frase inmediatamente
+        showNextTvidPhrase();
     },
 
-    /** NEW: Activates the Deep-Link for external navigation (SALIR mode). */
-    activarDeepLink() {
-        if (this.datosLugarGlobal && this.datosLugarGlobal.destino_coordenadas_gps) {
-            try {
-                let perfil = KERNEL.obtenerPerfilLocal();
-                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
-                
-                // Dynamically update local profile based on the selected environment's needs vector
-                for (const need in selectedVector) {
-                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                        // Increase the preference for the activated need, capping at 100
-                        perfil[need] = Math.min(perfil[need] + Math.round(selectedVector[need] * 0.1), 100); // 10% of the place's score is added, rounded
-                    }
-                }
-                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-            } catch (e) {
-                console.error("Error updating local profile after action:", e);
-            }
-            window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-            this.destruirYReiniciar(); // Reset and restart app after external navigation
-        } else {
-            alert(this.idiomaActual === 'es' ? "No se pudo generar el destino de escape." : "Could not generate escape destination.");
-            this.destruirYReiniciar();
-        }
+    finalizarTvidEjercicio(container, data) {
+        clearInterval(this.tvidTimer);
+        clearInterval(this.tvidContentInterval);
+        window.speechSynthesis.cancel();
+        
+        const tvidOverlay = document.getElementById('tvid-overlay');
+        tvidOverlay.style.display = 'none';
+        tvidOverlay.innerHTML = ''; // Limpiar el overlay
+
+        this.procesarFlujoDeepLinkDirecto(container, data); // Continuar con el Deep-Link
     },
+    // --- Fin TVid® Metodología ---
 
-
-    /** Processes the sequential flow based on the recommendation type. */
     procesarFlujoSecuencial(container) {
         clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
 
         const t = {
-            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL BIG TECH YA", fieldAction: "Acción de Campo", internalMission: "Misión Interna", doItNow: "HAZLO AHORA" },
-            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW" }
+            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL BIG TECH YA", exit_now: "SALIR AHORA" },
+            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW", exit_now: "EXIT NOW" }
         }[this.idiomaActual];
 
-        // This block for SALIR mode is now unreachable because `activarDeepLink` handles it directly.
-        // If it is, something went wrong, and we should just go to the link directly.
-        if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
-            console.warn("procesarFlujoSecuencial called for ACCION_CAMPO, should have been handled by activarDeepLink.");
-            this.activarDeepLink();
-            return;
-        }
-
-        // Handles internal "Domestic Intervention" missions
+        // Esta función se llama para INTERVENCION_DOMESTICA
         if (this.indiceMision >= this.pasosMisiones.length) {
-            this.iniciarRelojClinicoCasa(container, t); // All internal missions completed, start clinical timer
+            this.iniciarRelojClinicoCasa(container, t);
             return;
         }
 
         const paso = this.pasosMisiones[this.indiceMision];
         container.innerHTML = `
         <div class="mision-card">
-            <small>${t.internalMission}</small>
+            <small>${this.idiomaActual === 'es' ? 'Misión Interna' : 'Internal Mission'}</small>
             <h3>${paso.titulo}</h3>
             <p>${paso.descripcion}</p>
-            <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
+            <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${this.idiomaActual === 'es' ? 'HAZLO AHORA' : 'DO IT NOW'}</button>
         </div>`;
 
         this.hablar(paso.titulo + " . " + paso.descripcion);
         document.getElementById('btn-next').onclick = () => this.avanzarPaso();
     },
 
-    /** Starts the 10-minute clinical breathing timer for CASA mode. */
+    // Nueva función para procesar Deep-Links directamente (saltándose TVid o después de TVid)
+    procesarFlujoDeepLinkDirecto(container, data) {
+        clearInterval(this.timerClinico);
+        window.speechSynthesis.cancel();
+
+        const t = {
+            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL BIG TECH YA", exit_now: "SALIR AHORA" },
+            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW", exit_now: "EXIT NOW" }
+        }[this.idiomaActual];
+
+        if (data) {
+            let textoFormateado = data.destino_instruccion.replace(/\n/g, '<br>');
+            container.innerHTML = `
+            <div class="mision-card">
+                <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
+                <h2>${data.destino_titulo}</h2>
+                <div class="instruccion-text">${textoFormateado}</div>
+                <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
+                <button id="btn-gps-action" class="hidden" style="width:100%; background:#0d47a1; color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+            </div>`;
+
+            this.hablar(data.destino_instruccion);
+           
+            let retencion = 35;
+            const btnCount = document.getElementById('btn-countdown-salida');
+            const btnGps = document.getElementById('btn-gps-action');
+           
+            this.timerClinico = setInterval(() => {
+                retencion--;
+                if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
+                if (retencion <= 0) {
+                    clearInterval(this.timerClinico);
+                    if (btnCount) btnCount.style.display = 'none';
+                    if (btnGps) {
+                        btnGps.classList.remove('hidden');
+                        btnGps.onclick = () => {
+                            try {
+                                let perfil = KERNEL.obtenerPerfilLocal();
+                                let token = KERNEL.datosLugarGlobal.token_entorno || "general";
+                                if (perfil) {
+                                    if (token.includes("árbol") || token.includes("Sombra")) perfil["naturaleza"] = Math.min(perfil["naturaleza"] + 10, 100);
+                                    else if (token.includes("Caminata") || token.includes("subida")) perfil["movimiento"] = Math.min(perfil["movimiento"] + 10, 100);
+                                    else if (token.includes("Paseo") || token.includes("colores")) perfil["creatividad"] = Math.min(perfil["creatividad"] + 10, 100);
+                                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                                }
+                                // Guardar Deep-Link para diversidad
+                                this.guardarDeepLink(data.destino_coordenadas_gps);
+                            } catch (e) {
+                                console.error("Error al actualizar perfil local o guardar Deep-Link:", e);
+                            }
+                            window.open(data.destino_coordenadas_gps, '_blank');
+                            KERNEL.destruirYReiniciar();
+                        };
+                    }
+                }
+            }, 1000);
+            return;
+        }
+    },
+
     iniciarRelojClinicoCasa(container, t) {
         clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
@@ -676,7 +725,7 @@ const KERNEL = {
        
         container.innerHTML = `
         <div style="text-align:center; width:100%;">
-            <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
+            <div id="breath-circle" style="cursor:pointer;" title="Toca para enfocar tu mente"></div>
             <div id="timer">10:00</div>
             <p id="txt-pulmon">INHALA / INHALE</p>
         </div>`;
@@ -688,54 +737,52 @@ const KERNEL = {
         const circleElement = document.getElementById('breath-circle');
         const timerDiv = document.getElementById('timer');
         const pulmonDiv = document.getElementById('txt-pulmon');
-
-        // COMPLETE CATALOG OF 30 FIXED SEQUENTIAL BIOPREVENTIVE AUDIOS
+        // CATÁLOGO COMPLETO DE LOS 30 AUDIOS BIOPREVENTIVOS SECUENCIALES FIJOS
         const AUDIOS_SECUENCIALES_CASA = [
-            (this.idiomaActual === 'es' ? "Sigue el pulso en tu pantalla. Concéntrate. Estás conmigo hoy." : "Follow the pulse on your screen. Concentrate. You are with me today."),
-            (this.idiomaActual === 'es' ? "Suelta los hombros despacio. Deja caer todo el peso físico de la semana." : "Slowly relax your shoulders. Let all the physical weight of the week fall away."),
-            (this.idiomaActual === 'es' ? "No mires tus biles ahora. No mires tu cartera. Respira ya." : "Don't look at your bills now. Don't look at your wallet. Breathe now."),
-            (this.idiomaActual === 'es' ? "Mantén el ritmo constante. Siente el aire fresco limpiando tu pecho." : "Maintain a constant rhythm. Feel the fresh air cleansing your chest."),
-            (this.idiomaActual === 'es' ? "Te estoy acompañando en silencio. No estás solo en esta habitación." : "I am accompanying you in silence. You are not alone in this room."),
-            (this.idiomaActual === 'es' ? "Siente tus pies firmes apoyados en el suelo. La tierra te sostiene gratis." : "Feel your feet firmly on the ground. The earth supports you for free."),
-            (this.idiomaActual === 'es' ? "El piloto automático corporativo está apagado en este segundo. Continúa así." : "The corporate autopilot is off this second. Keep going."),
-            (this.idiomaActual === 'es' ? "Quédate justo en este instante. El pasado ya pasó, el presente es tuyo." : "Stay right in this instant. The past is gone, the present is yours."),
-            (this.idiomaActual === 'es' ? "Suelta la mandíbula ahora. Libera esa carga que aprietas sin darte cuenta." : "Release your jaw now. Let go of that tension you hold without realizing."),
-            (this.idiomaActual === 'es' ? "Tu mente está despertando poco a poco. Estás ganando control real." : "Your mind is slowly awakening. You are gaining real control."),
-            (this.idiomaActual === 'es' ? "Eres mucho más grande que tus deudas. Respira hondo y despacio." : "You are much bigger than your debts. Breathe deeply and slowly."),
-            (this.idiomaActual === 'es' ? "Rompe el zombi que el sistema quiere que seas. Quédate en la sala conmigo." : "Break the zombie the system wants you to be. Stay in the room with me."),
-            (this.idiomaActual === 'es' ? "Escucha mi voz. Nota cómo tu respiración se vuelve más profunda y limpia." : "Listen to my voice. Notice how your breathing becomes deeper and cleaner."),
-            (this.idiomaActual === 'es' ? "Tus ojos están descansando finalmente de las luces artificiales de la pantalla." : "Your eyes are finally resting from the artificial lights of the screen."),
-            (this.idiomaActual === 'es' ? "Siente los latidos de tu pecho. Es tu motor vivo latiendo para ti." : "Feel your heartbeat. It's your living engine beating for you."),
-            (this.idiomaActual === 'es' ? "Siente el peso fuera de tu espalda. Imagina que dejas caer tu mochila." : "Feel the weight off your back. Imagine dropping your backpack."),
-            (this.idiomaActual === 'es' ? "No dejes que los pensamientos rápidos te saquen de este momento de paz." : "Don't let racing thoughts take you out of this peaceful moment."),
-            (this.idiomaActual === 'es' ? "Abandona la prisa de la ciudad hoy. Aquí el tiempo es tuyo." : "Abandon the city's rush today. Here, time is yours."),
-            (this.idiomaActual === 'es' ? "El dinero regresará a tus bolsillos, pero este segundo de calma no se repite." : "Money will return to your pockets, but this second of calm will not repeat."),
-            (this.idiomaActual === 'es' ? "Siente cómo tus pulmones se llenan de fuerza con cada ciclo de aire azul." : "Feel your lungs fill with strength with each cycle of blue air."),
-            (this.idiomaActual === 'es' ? "Tu familia necesita que estés fuerte por dentro. Recupérate ahora." : "Your family needs you to be strong inside. Recover now."),
-            (this.idiomaActual === 'es' ? "Olvídate de las aplicaciones de compras. Tu mente está por encima del consumo." : "Forget shopping apps. Your mind is above consumption."),
-            (this.idiomaActual === 'es' ? "Estás borrando el ruido del día. Quédate en la sala respirando conmigo." : "You are erasing the day's noise. Stay in the room breathing with me."),
-            (this.idiomaActual === 'es' ? "La rutina diaria se ha roto. Tú gobiernas tus decisiones en este instante." : "The daily routine is broken. You govern your decisions at this instant."),
-            (this.idiomaActual === 'es' ? "El suelo está firme debajo tuyo. Siente la estabilidad de la tierra." : "The ground is firm beneath you. Feel the stability of the earth."),
-            (this.idiomaActual === 'es' ? "Tu pecho está libre de agobios ahora. Expulsa todo lo malo de golpe." : "Your chest is free from worries now. Expel all negativity at once."),
-            (this.idiomaActual === 'es' ? "Estás recuperando tu centro biopsicosocial. Sigue la luz del círculo." : "You are regaining your biopsychosocial center. Follow the light of the circle."),
-            (this.idiomaActual === 'es' ? "Tu mente es fuerte. Has domado el miedo a perder el trabajo hoy." : "Your mind is strong. You have tamed the fear of losing your job today."),
-            (this.idiomaActual === 'es' ? "Faltan pocos segundos para el reinicio definitivo. Siente la esperanza." : "Only a few seconds left for the definitive reset. Feel the hope."),
-            (this.idiomaActual === 'es' ? "Estás completamente a salvo aquí. Quédate en paz absoluta en este segundo." : "You are completely safe here. Remain in absolute peace this second.")
+            "Sigue el pulso en tu pantalla. Concéntrate. Estás conmigo hoy.",
+            "Suelta los hombros despacio. Deja caer todo el peso físico de la semana.",
+            "No mires tus biles ahora. No mires tu cartera. Respira ya.",
+            "Mantén el ritmo constante. Siente el aire fresco limpiando tu pecho.",
+            "Te estoy acompañando en silencio. No estás solo en esta habitación.",
+            "Siente tus pies firmes apoyados en el suelo. La tierra te sostiene gratis.",
+            "El piloto automático corporativo está apagado en este segundo. Continúa así.",
+            "Quédate justo en este instante. El pasado ya pasó, el presente es tuyo.",
+            "Suelta la mandíbula ahora. Libera esa carga que aprietas sin darte cuenta.",
+            "Tu mente está despertando poco a poco. Estás ganando control real.",
+            "Eres mucho más grande que tus deudas. Respira hondo y despacio.",
+            "Rompe el zombi que el sistema quiere que seas. Quédate en la sala conmigo.",
+            "Escucha mi voz. Nota cómo tu respiración se vuelve más profunda y limpia.",
+            "Tus ojos están descansando finalmente de las luces artificiales de la pantalla.",
+            "Siente los latidos de tu pecho. Es tu motor vivo latiendo para ti.",
+            "Siente el peso fuera de tu espalda. Imagina que dejas caer tu mochila.",
+            "No dejes que los pensamientos rápidos te saquen de este momento de paz.",
+            "Abandona la prisa de la ciudad hoy. Aquí el tiempo es tuyo.",
+            "El dinero regresará a tus bolsillos, pero este segundo de calma no se repite.",
+            "Siente cómo tus pulmones se llenan de fuerza con cada ciclo de aire azul.",
+            "Tu familia necesita que estés fuerte por dentro. Recupérate ahora.",
+            "Olvídate de las aplicaciones de compras. Tu mente está por encima del consumo.",
+            "Estás borrando el ruido del día. Quédate en la sala respirando conmigo.",
+            "La rutina diaria se ha roto. Tú gobiernas tus decisiones en este instante.",
+            "El suelo está firme debajo tuyo. Siente la estabilidad de la tierra.",
+            "Tu pecho está libre de agobios ahora. Expulsa todo lo malo de golpe.",
+            "Estás recuperando tu centro biopsicosocial. Sigue la luz del círculo.",
+            "Tu mente es fuerte. Has domado el miedo a perder el trabajo hoy.",
+            "Faltan pocos segundos para el reinicio definitivo. Siente la esperanza.",
+            "Estás completamente a salvo aquí. Quédate en paz absoluta en este segundo."
         ];
 
         if (circleElement) {
             circleElement.onclick = () => {
-                if (this.contadorToques < this.secuenciaAdelantos.length) {
+                if (this.contadorToques < 10) {
                     let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
-                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0); // Decrement actual timer
+                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
                     this.contadorToques++;
                     try {
                         let perfil = this.obtenerPerfilLocal();
-                        // Increase anxiety indicator when user taps, as it suggests impatience/seeking relief
                         perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 10, 100);
                         localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
                     } catch (e) {
-                        console.error("Error updating anxiety indicator:", e);
+                        console.error("Error al actualizar indicador_ansiedad:", e);
                     }
                     let m = Math.floor(this.timeLeft / 60);
                     let s = this.timeLeft % 60;
@@ -747,36 +794,36 @@ const KERNEL = {
         }
 
         this.timerClinico = setInterval(() => {
-            this.relojRealSegundos--; // This timer runs independently for audio triggers
-            if (this.timeLeft > 0) this.timeLeft--; // This is the user-facing countdown
-
+            this.relojRealSegundos--;
+            if (this.timeLeft > 0) this.timeLeft--;
+           
             let m = Math.floor(this.timeLeft / 60);
             let s = this.timeLeft % 60;
             if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
            
-            // Breathing animation text update
             if (pulmonDiv) {
                 let ciclo = this.relojRealSegundos % 8;
                 if (ciclo >= 4) {
                     pulmonDiv.innerText = t.inspira.toUpperCase();
-                    pulmonDiv.style.color = "var(--cyan-inhale)"; // Cyan for inhale
+                    pulmonDiv.style.color = "#00bcd4";
                 } else {
                     pulmonDiv.innerText = t.expira.toUpperCase();
-                    pulmonDiv.style.color = "var(--accent)"; // Orange for exhale
+                    pulmonDiv.style.color = "#d84315";
                 }
             }
 
-            // Play sequential audio messages every 20 seconds
             if (this.relojRealSegundos < 600 && this.relojRealSegundos % 20 === 0) {
-                // Calculate index based on how many 20-second intervals have passed
                 let pasoAudioIdx = Math.floor((600 - this.relojRealSegundos) / 20) - 1;
                 let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
                 if (recordatorioTexto) {
-                    this.hablar(recordatorioTexto); // Use the common hablar function
+                    window.speechSynthesis.cancel();
+                    let msgFlotante = new SpeechSynthesisUtterance(recordatorioTexto);
+                    msgFlotante.lang = 'es-US';
+                    msgFlotante.rate = 1.20;
+                    window.speechSynthesis.speak(msgFlotante);
                 }
             }
 
-            // End condition for the clinical timer
             if (this.relojRealSegundos <= 0) {
                 clearInterval(this.timerClinico);
                 window.speechSynthesis.cancel();
@@ -785,35 +832,69 @@ const KERNEL = {
                     circleElement.style.transform = "scale(1)";
                 }
                 this.hablar(t.fin);
+                alert(t.fin);
                 this.destruirYReiniciar();
             }
-        }, 1000); // Update every second
+        }, 1000);
     },
 
-    /** Advances to the next internal mission step. */
     avanzarPaso() {
         this.indiceMision++;
         const container = document.getElementById('wrapper-interactive');
         this.procesarFlujoSecuencial(container);
     },
 
-    /** Clears session data and restarts the application. */
     destruirYReiniciar() {
         clearInterval(this.timerInaccion);
         clearInterval(this.timerClinico);
         clearInterval(this.temporizadorCascada);
-        clearInterval(this.timerTVid); // Clear TVid timer
+        clearInterval(this.tvidTimer);
+        clearInterval(this.tvidContentInterval);
         window.speechSynthesis.cancel();
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
-        // localStorage for otg_perfil_dinamico and otg_bloque_secuencial, otg_language remains
-        location.reload(); // Reload the page to reset the UI
+        // No borrar todo el localStorage, solo session, y el historial de frases si es necesario
+        // sessionStorage.clear(); // Eliminar solo si hay datos de sesión que no queremos persistir
+        location.reload();
     }
 };
 
-// Initialize KERNEL when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => KERNEL.init());
 
-// Expose KERNEL to global scope for HTML onclick events (e.g., KERNEL.despertarInicial())
-window.KERNEL = KERNEL;
+// Asigna las etiquetas label a los grupos de botones para la funcionalidad de traducción
+document.addEventListener('DOMContentLoaded', () => {
+    // Labels para los grupos de selección
+    const menteGroup = document.getElementById('mente-group');
+    if (menteGroup) {
+        const labelMente = document.createElement('label');
+        labelMente.setAttribute('for', 'mente-group');
+        labelMente.id = 'lbl-mente-group'; // Añadir ID para fácil acceso en JS
+        labelMente.innerText = 'Estado Mental (Vulnerabilidad Humana)';
+        menteGroup.parentNode.insertBefore(labelMente, menteGroup);
+    }
+
+    const budgetGroup = document.getElementById('budget-group');
+    if (budgetGroup) {
+        const labelBudget = document.createElement('label');
+        labelBudget.setAttribute('for', 'budget-group');
+        labelBudget.id = 'lbl-budget-group'; // Añadir ID para fácil acceso en JS
+        labelBudget.innerText = 'Presupuesto (Control de Consumo)';
+        budgetGroup.parentNode.insertBefore(labelBudget, budgetGroup);
+    }
+
+    const perfilGroup = document.getElementById('perfil-group');
+    if (perfilGroup) {
+        const labelPerfil = document.createElement('label');
+        labelPerfil.setAttribute('for', 'perfil-group');
+        labelPerfil.id = 'lbl-perfil-group'; // Añadir ID para fácil acceso en JS
+        labelPerfil.innerText = 'Contexto Social e Identidad';
+        perfilGroup.parentNode.insertBefore(labelPerfil, perfilGroup);
+    }
+    
+    // Asigna el ID 'lbl-zip' al label del zip code
+    const labelZip = document.querySelector('label[for="inp-zip"]');
+    if(labelZip) labelZip.id = 'lbl-zip';
+    
+    KERNEL.init(); // Inicializar KERNEL después de configurar los labels
+});
