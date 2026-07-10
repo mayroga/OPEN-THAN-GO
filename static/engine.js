@@ -4,27 +4,35 @@
 
 const KERNEL = {
     timerInaccion: null,
-    timerClinico: null, // Para el modo CASA
-    timerChoqueSensorial: null, // Para el modo SALIR
-    temporizadorCascada: null, // Para las preguntas del Oraculo
-    tiempoRestanteChoque: 30, // Segundos para el choque sensorial
-    tiempoRestanteCasa: 600, // Segundos para el modo CASA (10 minutos)
+    timerClinico: null,
+    temporizadorCascada: null,
+    temporizadorTVid: null, // Nuevo temporizador para la intervención TVid
+    timeLeft: 600,
     isLocked: false,
     idiomaActual: 'es',
-    pasosMisiones: [], // Para modo CASA
-    indiceMision: 0, // Para modo CASA
-    datosAccionCampo: null, // Datos recibidos de main.py para modo SALIR
-   
-    // Variables de Control de Tiempo e Impaciencia SOLDADAS
-    relojRealSegundos: 600, // Para modo CASA
-    contadorToques: 0, // Para modo CASA
-    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5], // Para modo CASA
+    pasosMisiones: [],
+    indiceMision: 0,
+    datosLugarGlobal: null,
+    tipoEscapeGlobal: "",
+    tvidAsignadaGlobal: "", // Nueva variable para almacenar la TVid asignada
 
-    // ARQUITECTURA CONVERSACIONAL SECUENCIAL (Oráculo)
+    // Variables de Control de Tiempo e Impaciencia SOLDADAS
+    relojRealSegundos: 600,
+    contadorToques: 0,
+    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
+
+    // ARQUITECTURA CONVERSACIONAL SECUENCIAL
     bloqueActual: 0,
     conteoInaccion: 0,
     indicePreguntaCascada: 0,
-   
+    
+    // Almacena el estado actual de los selectores para enviarlos al backend
+    estadoSeleccionado: {
+        mente: '',
+        budget: '',
+        perfil: ''
+    },
+
     CATALOGO_PREGUNTAS: [
         // Bloque 1: El Bucle Digital Urbano (Facebook, YouTube, Spotify y Amazon)
         "¿Abres Facebook por inercia para ver vidas falsas y compararlas con tu rutina gris?",
@@ -90,80 +98,122 @@ const KERNEL = {
         "¿Te cuesta creer que exista un espacio gratis en tu zona capaz de devolverte la esperanza?",
         "¿Estás listo para obedecer al mando, soltar tus indecisiones y salir de tu encierro mental hoy?"
     ],
-    // METODOLOGÍA OFICIAL DE BIENESTAR INTEGRAL DE MAY ROGA LLC (TVid®)
+
+    // MÁXIMA FIDELIDAD METODOLÓGICA: Objeto Javascript de datos con las 7 Técnicas de Vida (TVid®)
     TVID_DATA: {
-        "bien": {
+        "Bien": {
+            objetivo: "Entrenar al cerebro para identificar oportunidades, soluciones y aspectos positivos incluso en situaciones difíciles, sin negar la realidad.",
             principio: "Si encuentro algo bueno, mi mente tendrá una dirección para avanzar.",
-            preguntas: ["¿Qué puedo aprender?", "¿Qué oportunidad existe aquí?", "¿Qué sí puedo hacer hoy?"],
+            preguntas_choque: [
+                "¿Qué puedo aprender?",
+                "¿Qué oportunidad existe aquí?",
+                "¿Qué sí puedo hacer hoy?"
+            ],
             afirmacion: "Siempre existe un bien que puedo construir.",
             ejercicios: [
-                "Observa cualquier situación que te preocupe, hazte las tres preguntas y repite tres veces la afirmación.",
-                "Escribe al final del día tres cosas buenas ocurridas (por pequeñas que sean) y su aprendizaje.",
-                "Identifica una oportunidad de crecimiento y una acción concreta inmediata ante un problema."
+                "Observa cualquier situación que te preocupe. Pregúntate: ¿Qué puedo aprender? ¿Qué oportunidad existe aquí? ¿Qué sí puedo hacer hoy? Repite 3 veces: Siempre existe un bien que puedo construir.",
+                "Al finalizar el día, escribe tres cosas buenas que ocurrieron. Por pequeñas que sean. Explica qué aprendiste de cada una.",
+                "Frente a un problema específico, identifica al menos una oportunidad de crecimiento personal y una acción física concreta que puedas ejecutar inmediatamente."
             ]
         },
-        "mal": {
+        "Mal": {
+            objetivo: "Preparar la mente para reconocer riesgos, errores y consecuencias antes de actuar. No para vivir con miedo sino para prevenir.",
             principio: "Ver el peligro me permite evitarlo.",
-            preguntas: ["¿Qué podría salir mal?", "¿Cómo puedo prevenirlo?", "¿Tengo un plan B?"],
+            preguntas_choque: [
+                "¿Qué podría salir mal?",
+                "¿Cómo puedo prevenirlo?",
+                "¿Tengo un plan B?"
+            ],
             afirmacion: "Ver el riesgo me da el control y me permite actuar con tranquilidad.",
             ejercicios: [
-                "Antes de decidir, hazte las tres preguntas respirando profundamente y responde con calma.",
-                "Haz una lista de los tres principales riesgos de una situación y cómo prevenir cada uno.",
-                "Imagina el peor escenario posible y diseña un plan alternativo de tranquilidad."
+                "Antes de tomar una decisión importante, pregúntate: ¿Qué podría salir mal? ¿Cómo puedo prevenirlo? ¿Tengo un plan B? Respira profundamente y responde con calma.",
+                "Antes de tomar una decisión importante, haz una lista de los tres principales riesgos. Detalla cómo podrías prevenir cada uno de ellos.",
+                "Imagina el peor escenario destructivo posible. Diseña un plan de contingencia alternativo que te dé control y tranquilidad emocional si ocurriera."
             ]
         },
-        "beso": {
+        "Beso": {
+            objetivo: "Activar emociones positivas mediante gestos de afecto, gratitud y conexión humana. No necesariamente implica un beso físico, sino una sonrisa, un abrazo, una palabra amable o cualquier gesto de cariño.",
             principio: "El afecto también cura.",
-            preguntas: ["¡Sonríe ahora mismo!", "Agradece mentalmente a alguien", "Coloca una mano sobre tu corazón"],
+            preguntas_choque: [
+                "¡Sonríe ahora mismo!",
+                "Agradece mentalmente a alguien",
+                "Coloca una mano sobre tu corazón"
+            ],
             afirmacion: "El afecto cura, reduce la tensión y me reconecta con el mundo.",
             ejercicios: [
-                "Sonríe durante un minuto, agradece a alguien, abraza a un amigo o pon la mano en el corazón si estás solo.",
-                "Dedica un minuto a sonreír y agradecer verbalmente a una persona por algo realizado.",
-                "Realiza un acto de afecto sincero: un abrazo, una palabra amable o un mensaje positivo propio con la mano al pecho."
+                "Durante un minuto entero, sonríe genuinamente. Expresa un agradecimiento verbal directo hacia otra persona por una acción específica que realizó en el pasado.",
+                "Realiza un acto de afecto sincero: un abrazo físico, una palabra amable o, en aislamiento, coloca la mano derecha sobre el corazón mientras sonríes conscientemente.",
+                "Realiza un acto de cariño interiorizado: manteniendo la mano en el pecho, exprésate un mensaje positivo de validación y afecto hacia ti mismo para reducir la tensión biológica."
             ]
         },
-        "nino": {
+        "Niño": {
+            objetivo: "Recuperar la creatividad, la curiosidad, el juego y la capacidad de sorprenderse, recordando que vivir también significa disfrutar.",
             principio: "Jugar también es sanar.",
-            preguntas: ["Imagina que eres un explorador", "Ríe exageradamente ahora", "Inventa una historia de un segundo"],
+            preguntas_choque: [
+                "Imagina que eres un explorador",
+                "Ríe exageradamente ahora",
+                "Inventa una historia de un segundo"
+            ],
             afirmacion: "Recupero mi curiosidad, mi creatividad y juego para despertar la alegría.",
             ejercicios: [
-                "Dedica dos minutos a dibujar, bailar, inventar una historia, reír exageradamente o caminar imaginando ser un explorador sin importar el resultado.",
-                "Dedica cinco minutos a dibujar, colorear o crear algo sin preocuparse por el producto final.",
-                "Baila tu canción favorita o inventa un juego sencillo para despertar la alegría."
+                "Dedica dos minutos a dibujar libremente, bailar, inventar una historia fantástica, reír de forma exagerada o caminar imaginando que eres un explorador en territorio desconocido.",
+                "Destina cinco minutos ininterrumpidos a dibujar, colorear o modelar una creación abstracta con las manos, cancelando cualquier juicio crítico o racional sobre la calidad del producto.",
+                "Reproduce tu canción favorita para bailarla intensamente o inventa una dinámica de juego manual simple durante unos minutos para reactivar los canales neuronales de la alegría y la curiosidad."
             ]
         },
-        "madre": {
+        "Madre": {
+            objetivo: "Desarrollar protección, cuidado, paciencia y compasión hacia uno mismo y hacia los demás.",
             principio: "Primero cuido para después poder ayudar.",
-            preguntas: ["Si fuera tu hijo quien estuviera viviendo esto...", "¿Qué consejo le darías?", "Date exactamente ese mismo consejo"],
+            preguntas_choque: [
+                "Si fuera tu hijo quien viviera esto...",
+                "¿Qué consejo tierno le darías?",
+                "Date exactamente ese mismo consejo"
+            ],
             afirmacion: "Me protejo con paciencia, comprensión y autocuidado.",
             ejercicios: [
-                "Pregúntate qué consejo le darías a un hijo en la misma situación y aplícatelo a ti mismo.",
-                "Escribe una carta de apoyo dirigida a ti mismo con palabras de comprensión y cariño para consolarte como a un ser querido.",
-                "Reserva diez minutos para el autocuidado mediante una actividad saludable como descansar, hidratarse, meditar o preparar comida nutritiva."
+                "Fuerza al individuo a distanciarse del problema. Pregúntate: 'Si fuera mi propio hijo quien estuviera viviendo este sufrimiento exacto, ¿qué consejo tierno le daría?'. Procede a aplicarte y obedecer exactamente ese mismo consejo.",
+                "Redacta una carta de apoyo y compasión dirigida a ti mismo, utilizando términos de profundo cuidado, consuelo y comprensión amorosa, tratándote como a un ser querido en crisis.",
+                "Reserva un bloque obligatorio de diez minutos en tu agenda para realizar una acción saludable de preservación biológica: descanso absoluto, hidratación consciente, meditación guiada o preparación de un alimento nutritivo."
             ]
         },
-        "padre": {
+        "Padre": {
+            objetivo: "Fortalecer la disciplina, la responsabilidad, los límites y la acción, convirtiendo las buenas intenciones en resultados.",
             principio: "El amor también exige compromiso.",
-            preguntas: ["Elige la tarea que has estado posponiendo", "Trabaja únicamente los primeros cinco minutos", "La meta es comenzar"],
+            preguntas_choque: [
+                "Elige la tarea que has pospuesto",
+                "Trabaja solo los primeros 5 minutos",
+                "La meta es comenzar"
+            ],
             afirmacion: "Acción, disciplina, límites y resultados tangibles.",
             ejercicios: [
-                "Elige una tarea postergada y trabaja en ella únicamente los primeros cinco minutos con enfoque total en romper la inercia.",
-                "Selecciona una tarea pendiente y labora en ella cinco minutos sin ningún tipo de interrupción.",
-                "Establece una meta sencilla para el día y cúmplela estrictamente antes de realizar cualquier actividad de entretenimiento."
+                "Selecciona una responsabilidad o proyecto que has postergado crónicamente. Fúerzate a trabajar en ella únicamente los primeros cinco minutos, con el único objetivo de romper la inercia del reposo.",
+                "Refina el enfoque instruyendo la selección de una tarea pendiente. Labora en ella durante cinco minutos bajo condiciones de cero distracciones y aislamiento tecnológico.",
+                "Establece la regla conductual de fijar una meta diaria elemental y cumplirla de forma obligatoria antes de permitirte acceder a cualquier plataforma de entretenimiento o gratificación instantánea."
             ]
         },
-        "guerra": {
+        "Guerra": {
+            objetivo: "Integrar las seis técnicas anteriores para responder con inteligencia, equilibrio y fortaleza cuando la vida presenta crisis, conflictos o momentos de alta presión. Combina Bien, Mal, Beso, Niño, Madre y Padre.",
             principio: "En la guerra de la vida no vence quien golpea más fuerte, sino quien mantiene el equilibrio.",
-            preguntas: ["Identifica lo positivo", "Evalúa riesgos", "Respira profundo", "Busca solución creativa", "Actúa con compasión", "Ejecuta primera acción"], // Consolidado para el ejercicio
+            preguntas_choque: [
+                "Busca algo bueno que rescatar",
+                "Identifica el mayor riesgo",
+                "Respira, sonríe y baja el cortisol",
+                "Piensa con creatividad de niño",
+                "Trátate con compasión",
+                "Decide tu primera acción"
+            ],
             afirmacion: "Estoy preparado. Actúo con calma, inteligencia y determinación.",
             ejercicios: [
-                "Identifica un aspecto positivo ante la dificultad, evalúa los riesgos, mantén la calma respirando profundo, busca soluciones creativas, trátate con compasión y ejecuta la primera acción necesaria.",
-                "Simula un desafío escribiendo y aplicando en orden estricto: Bien, Mal, Beso, Niño, Madre y Padre, terminando en una decisión concreta.",
-                "Recopila las declaraciones de los derechos civiles limpios y la fuerza del carácter."
+                "Ante crisis extremas, fuerza a la mente a rescatar un aspecto positivo (Bien), evaluar los riesgos (Mal), respirar y sonreír (Beso), procesar una salida creativa (Niño), tratarse con compasión (Madre) y ejecutar la primera acción táctica (Padre).",
+                "Simula un combate: escribe un desafío complejo y detalla las acciones aplicando en orden inflexible las técnicas del Bien, Mal, Beso, Niño, Madre y Padre. Cierra con una determinación concreta para avanzar.",
+                "Recopila de manera solemne la declaración de poseer los derechos civiles limpios, la estabilidad mental y la fortaleza del carácter, cerrando el ciclo con la afirmación imperativa: 'Estoy preparado. Actúo con calma, inteligencia y determinación'."
             ]
         }
     },
-
+    
+    // Almacena frases TVid ya mostradas para evitar repetición inmediata
+    frasesTVidMostradas: [],
+    
     obtenerPerfilLocal() {
         let perfilRaw = localStorage.getItem("otg_perfil_dinamico");
         if (!perfilRaw) {
@@ -172,7 +222,7 @@ const KERNEL = {
                 "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
                 "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50,
                 "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
-                "indicador_ansiedad": 0 // Nuevo indicador para TVid del mal
+                "indicador_ansiedad": 0
             };
             localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfilInicial));
             return perfilInicial;
@@ -180,48 +230,113 @@ const KERNEL = {
         try {
             return typeof perfilRaw === "string" ? JSON.parse(perfilRaw) : perfilRaw;
         } catch (e) {
-            console.error("Error al parsear perfil local, reiniciando:", e);
-            localStorage.removeItem("otg_perfil_dinamico"); // Limpiar dato corrupto
-            return this.obtenerPerfilLocal(); // Reintentar con un perfil inicial
+            // En caso de error de parseo, retorna un perfil base para evitar fallos.
+            return {
+                "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
+                "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
+                "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50,
+                "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
+                "indicador_ansiedad": 0
+            };
         }
-    },
-
-    actualizarPerfilLocal(tokenEntorno) {
-        let perfil = this.obtenerPerfilLocal();
-        // Lógica de actualización de perfil basada en el "token_entorno"
-        // Estos tokens vienen de main.py, representando la "intención" del lugar sugerido
-        if (tokenEntorno.includes("árbol") || tokenEntorno.includes("Sombra") || tokenEntorno.includes("Jardín") || tokenEntorno.includes("Sendero")) perfil["naturaleza"] = Math.min(perfil["naturaleza"] + 15, 100);
-        if (tokenEntorno.includes("Caminata") || tokenEntorno.includes("subida") || tokenEntorno.includes("Sendero")) perfil["movimiento"] = Math.min(perfil["movimiento"] + 15, 100);
-        if (tokenEntorno.includes("Paseo") || tokenEntorno.includes("colores") || tokenEntorno.includes("Mercado")) perfil["creatividad"] = Math.min(perfil["creatividad"] + 15, 100);
-        if (tokenEntorno.includes("Biblioteca") || tokenEntorno.includes("Fuente")) perfil["silencio"] = Math.min(perfil["silencio"] + 15, 100);
-        if (tokenEntorno.includes("Banqueta") || tokenEntorno.includes("Mirador")) perfil["contemplacion"] = Math.min(perfil["contemplacion"] + 15, 100);
-        if (tokenEntorno.includes("Mercado")) perfil["comunidad"] = Math.min(perfil["comunidad"] + 15, 100);
-        if (tokenEntorno.includes("ACTIVACIÓN LABORAL") || tokenEntorno.includes("ECONOMIC ACTION")) perfil["trabajo"] = Math.min(perfil["trabajo"] + 20, 100); // Fuerte impacto si es laboral
-        if (tokenEntorno.includes("RESET AUDITIVO") || tokenEntorno.includes("REINICIO VISUAL")) perfil["descanso"] = Math.min(perfil["descanso"] + 10, 100); // Descanso mental
-
-        // Se guarda el perfil actualizado en localStorage
-        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
     },
 
     init() {
         this.bloqueActual = parseInt(localStorage.getItem("otg_bloque_secuencial")) || 0;
-        // Restaurar idioma si estaba guardado
-        const storedLang = localStorage.getItem("otg_lang") || 'es';
-        this.cambiarIdioma(storedLang);
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                // El usuario ha cambiado de pestaña/app
-                if (this.isLocked && this.timerChoqueSensorial) {
-                    this.hablar(this.idiomaActual === 'es' ? "¡ATENCIÓN! El mando libre detectó que saliste de pantalla. Regresa ahora." : "ATTENTION! Free control detected you left the screen. Return now.");
-                    // Implementar una penalización o pausa si se desea
-                }
+        this.setupEventListeners();
+        this.restaurarEstadoUI(); // Asegura que los botones de selección estén marcados
+    },
+
+    setupEventListeners() {
+        // Event Listeners para los botones de estado (Mente, Gasto, Perfil)
+        document.querySelectorAll('.btn-selector-mente').forEach(btn => {
+            btn.onclick = () => this.seleccionarBoton('mente', btn.dataset.value);
+        });
+        document.querySelectorAll('.btn-selector-budget').forEach(btn => {
+            btn.onclick = () => this.seleccionarBoton('budget', btn.dataset.value);
+        });
+        document.querySelectorAll('.btn-selector-perfil').forEach(btn => {
+            btn.onclick = () => this.seleccionarBoton('perfil', btn.dataset.value);
+        });
+        document.getElementById('btn-activar-libre').onclick = () => this.ejecutarDesdeMandoLibre();
+
+        // Monitorear cambios en el selector de modo
+        document.getElementById('modo-selector').addEventListener('change', (event) => {
+            const selectedMode = event.target.value;
+            const selectorsContainer = document.getElementById('selectors-container');
+            const oracleContainer = document.getElementById('oracle-container');
+            const libreContainer = document.getElementById('bloque-escritura-libre');
+
+            if (selectedMode === 'CASA') {
+                selectorsContainer.classList.add('hidden');
+                oracleContainer.classList.add('hidden');
+                libreContainer.classList.add('hidden');
+            } else { // SALIR
+                selectorsContainer.classList.remove('hidden');
+                oracleContainer.classList.remove('hidden');
+                libreContainer.classList.remove('hidden');
             }
         });
+    },
+
+    seleccionarBoton(tipo, valor) {
+        // Desmarcar todos los botones del mismo tipo
+        document.querySelectorAll(`.btn-selector-${tipo}`).forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        // Marcar el botón clickeado
+        const clickedBtn = document.querySelector(`.btn-selector-${tipo}[data-value="${valor}"]`);
+        if (clickedBtn) {
+            clickedBtn.classList.add('selected');
+            this.estadoSeleccionado[tipo] = valor;
+            // Guardar el estado en localStorage para persistencia
+            localStorage.setItem(`otg_selected_${tipo}`, valor);
+        }
+        // console.log(`Selector ${tipo} establecido a: ${valor}`);
+        clearInterval(this.timerInaccion); // Reiniciar el contador de inacción
+        this.iniciarMonitoreoInaccion(); // O iniciar el monitoreo si no está activo
+    },
+
+    restaurarEstadoUI() {
+        // Restaurar idioma
+        const savedLang = localStorage.getItem('otg_lang') || 'es';
+        this.cambiarIdioma(savedLang, false); // false para evitar hablar al inicio
+
+        // Restaurar selecciones de mente, budget, perfil
+        ['mente', 'budget', 'perfil'].forEach(tipo => {
+            const savedValue = localStorage.getItem(`otg_selected_${tipo}`);
+            if (savedValue) {
+                this.seleccionarBoton(tipo, savedValue);
+            }
+        });
+
+        // Asegurar que el modo selector se refleje en la UI inicial
+        const modoSelector = document.getElementById('modo-selector');
+        if (modoSelector) {
+            const savedMode = localStorage.getItem('otg_mode') || 'SALIR';
+            modoSelector.value = savedMode;
+            // Disparar el evento change para actualizar la visibilidad de los contenedores
+            modoSelector.dispatchEvent(new Event('change'));
+        }
     },
 
     despertarInicial() {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
+
+        const modoSelector = document.getElementById('modo-selector');
+        if (modoSelector) {
+             // Asegurarse de que el modo por defecto (SALIR) muestre los selectores
+            if (modoSelector.value === 'SALIR') {
+                document.getElementById('selectors-container').classList.remove('hidden');
+                document.getElementById('oracle-container').classList.remove('hidden');
+                document.getElementById('bloque-escritura-libre').classList.remove('hidden');
+            } else {
+                 document.getElementById('selectors-container').classList.add('hidden');
+                 document.getElementById('oracle-container').classList.add('hidden');
+                 document.getElementById('bloque-escritura-libre').classList.add('hidden');
+            }
+        }
        
         // VOZ DE BIENVENIDA RESTAURADA DE INMEDIATO
         const saludos = [
@@ -245,10 +360,10 @@ const KERNEL = {
        
         let inicioIdx = this.bloqueActual * 6;
         if (inicioIdx >= this.CATALOGO_PREGUNTAS.length) {
-            this.bloqueActual = 0; // Reinicia el ciclo de preguntas si se acaban
+            this.bloqueActual = 0;
             inicioIdx = 0;
+            localStorage.setItem("otg_bloque_secuencial", 0);
         }
-        localStorage.setItem("otg_bloque_secuencial", this.bloqueActual);
 
         for (let i = 0; i < 6; i++) {
             let preguntaTexto = this.CATALOGO_PREGUNTAS[inicioIdx + i];
@@ -262,70 +377,74 @@ const KERNEL = {
             grid.appendChild(btn);
         }
 
-        const btnLibre = document.getElementById('btn-activar-libre');
-        const lblDesahogo = document.getElementById('lbl-desahogo');
-        if (btnLibre) {
-            btnLibre.style.background = "#111";
-            btnLibre.style.color = "#555";
-            btnLibre.style.borderColor = "#222";
-            btnLibre.onclick = null; // Desactivar hasta que las preguntas desaparezcan o se escriba algo
-        }
-        if (lblDesahogo) lblDesahogo.style.color = "#666";
-
+        this.liberarCajonEscrituraLibre(false); // Mantener el cajón de escritura activo
         this.iniciarEfectoCascada();
     },
 
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
-       
+        const preguntasActuales = Array.from(document.querySelectorAll('.btn-pregunta-crisis'));
+        
+        if (preguntasActuales.length === 0) {
+            this.liberarCajonEscrituraLibre(true); // Activa el botón de mando libre si no hay preguntas
+            return;
+        }
+
         this.temporizadorCascada = setInterval(() => {
-            let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
+            let botonParaDesvanecer = preguntasActuales[this.indicePreguntaCascada];
            
-            if (botonParaEliminar) {
-                // EFECTO DESVANECER REAL: Se elimina uno por uno de arriba a abajo
-                botonParaEliminar.classList.add('fade-out');
-               
-                let siguienteIdx = this.indicePreguntaCascada + 1;
-                let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
-                if (siguienteBoton) {
-                    let textoLimpio = siguienteBoton.innerText.substring(3);
-                    this.hablar(textoLimpio);
-                }
+            if (botonParaDesvanecer) {
+                // EFECTO DESVANECER REAL: Se desvanece uno por uno
+                botonParaDesvanecer.classList.add('fade-out');
+                
+                let textoLimpio = botonParaDesvanecer.innerText.substring(3); // Obtener texto sin el número
+                // Hablar la pregunta que se está desvaneciendo
+                this.hablar(textoLimpio);
+
                 this.indicePreguntaCascada++;
-            } else {
-                clearInterval(this.temporizadorCascada);
-                this.liberarCajonEscrituraLibre();
             }
-        }, 6000); // 6 segundos por pregunta exactos, más rápido para interacción fluida
+           
+            if (this.indicePreguntaCascada >= preguntasActuales.length) {
+                clearInterval(this.temporizadorCascada);
+                this.liberarCajonEscrituraLibre(true); // Activar el botón de mando libre al finalizar la cascada
+            }
+        }, 8000); // 8 segundos por pregunta exactos
     },
 
-    liberarCajonEscrituraLibre() {
+    liberarCajonEscrituraLibre(activarMando) {
         const textarea = document.getElementById('inp-text-libre');
         const btnLibre = document.getElementById('btn-activar-libre');
         const lblDesahogo = document.getElementById('lbl-desahogo');
         const instruccion = document.getElementById('lbl-oraculo-instruccion');
 
         if (instruccion) {
-            instruccion.innerText = this.idiomaActual === 'es' ? "Mando libre listo. Cuéntame qué te pasa." : "Free control ready. Tell me what is happening.";
+            instruccion.innerText = this.idiomaActual === 'es' ? "Mando libre listo. O elige arriba." : "Free control ready. Or choose above.";
         }
         if (lblDesahogo) lblDesahogo.style.color = "#fff";
         if (textarea) textarea.focus();
 
         if (btnLibre) {
-            btnLibre.style.background = "var(--green-action)";
-            btnLibre.style.color = "#fff";
-            btnLibre.style.borderColor = "#4caf50";
-            btnLibre.onclick = () => {
-                let textoEscrito = textarea.value.trim();
-                // Si el usuario no escribió nada, o solo espacios, toma la última pregunta como "desahogo"
-                if (textoEscrito.length < 3) {
-                    const ultimaPreguntaActiva = this.CATALOGO_PREGUNTAS[this.bloqueActual * 6 + this.indicePreguntaCascada - 1] || "Estoy aburrido."; // Fallback si no hay preguntas activas
-                    this.hablar(this.idiomaActual === 'es' ? "No te preocupes. Tomo tu última preocupación. Activando el mando." : "No worries. Taking your last concern. Activating control.");
-                    this.reaccionarPreguntaSeleccionada(ultimaPreguntaActiva);
-                } else {
-                    this.reaccionarPreguntaSeleccionada(textoEscrito);
-                }
-            };
+            if (activarMando) {
+                btnLibre.style.background = "var(--green-action)";
+                btnLibre.style.color = "#fff";
+                btnLibre.style.borderColor = "#4caf50";
+                btnLibre.disabled = false;
+            } else {
+                btnLibre.style.background = "#111";
+                btnLibre.style.color = "#555";
+                btnLibre.style.borderColor = "#222";
+                btnLibre.disabled = true; // Deshabilitar inicialmente
+            }
+        }
+    },
+
+    ejecutarDesdeMandoLibre() {
+        const textarea = document.getElementById('inp-text-libre');
+        let textoEscrito = textarea.value.trim();
+        if (textoEscrito.length > 3) {
+            this.reaccionarPreguntaSeleccionada(textoEscrito);
+        } else {
+            this.hablar(this.idiomaActual === 'es' ? "Escribe tu problema en el cuadro antes de activar el mando." : "Write your problem in the box before activating control.");
         }
     },
 
@@ -334,12 +453,12 @@ const KERNEL = {
         this.conteoInaccion = 0;
         this.timerInaccion = setInterval(() => {
             this.conteoInaccion++;
-            if (this.conteoInaccion === 2 || this.conteoInaccion === 4) { // Más rápido para forzar interacción
+            if (this.conteoInaccion === 4 || this.conteoInaccion === 8) {
                 clearInterval(this.temporizadorCascada);
-                this.bloqueActual = (this.bloqueActual + 1) % (this.CATALOGO_PREGUNTAS.length / 6); // Cicla los bloques
+                this.bloqueActual++;
                 this.inyectarBloquePreguntas();
                 this.hablar(this.idiomaActual === 'es' ? "Avanzamos de nivel. Mira estas otras opciones en pantalla." : "Moving up. Look at these other options on screen.");
-            } else if (this.conteoInaccion >= 6) { // Después de 6 ciclos de 12 segundos (72s)
+            } else if (this.conteoInaccion >= 12) {
                 clearInterval(this.timerInaccion);
                 clearInterval(this.temporizadorCascada);
                 this.hablar(this.idiomaActual === 'es' ? "Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando." : "Apologies. I will give you time. I know your mind is tired. I will be waiting here.");
@@ -348,16 +467,16 @@ const KERNEL = {
                     instruccion.innerText = this.idiomaActual === 'es' ? "Tomando un respiro. Toca cuando estés listo..." : "Taking a breath. Tap when you are ready...";
                 }
             }
-        }, 12000);
+        }, 12000); // 12 segundos por ciclo de inacción
     },
 
     reaccionarPreguntaSeleccionada(textoPregunta) {
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
-        // this.bloqueActual se actualiza en inyectarBloquePreguntas()
-        // localStorage.setItem("otg_bloque_secuencial", this.bloqueActual); // Ya se hace en inyectarBloquePreguntas
+        this.bloqueActual++;
+        localStorage.setItem("otg_bloque_secuencial", this.bloqueActual);
        
-        // CORRECCIÓN DE CLIC: Asigna el valor al input oculto antes de la petición Fetch
+        // Asigna el valor al input oculto antes de la petición Fetch
         document.getElementById('inp-text-invisible').value = textoPregunta;
         this.ejecutar();
     },
@@ -372,54 +491,74 @@ const KERNEL = {
         window.speechSynthesis.speak(msg);
     },
 
-    cambiarIdioma(lang) {
+    cambiarIdioma(lang, speak = true) {
         this.idiomaActual = lang;
-        localStorage.setItem("otg_lang", lang); // Guardar idioma preferido
+        localStorage.setItem('otg_lang', lang); // Persistir idioma
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
        
-        // SINCRO DE BOTÓN DE INGLÉS REPARADO AL 100%
         const t = {
-            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español." },
-            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English." }
+            es: { title: "OPEN THAN GO", zip: "Código Postal", mode: "Modo", mentalState: "Estado Mental", budget: "Presupuesto", socialContext: "Contexto Social", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.",
+                    menteOptions: {aburrido: "Aburrido", agotado: "Agotado", estresado: "Estresado", cansado: "Cansado", ansioso: "Ansioso"},
+                    budgetOptions: {zero: "Gratis", low: "Bajo Gasto", free: "Libre"},
+                    perfilOptions: {solo: "Solo", familia: "Familia", hijos: "Hijos", adultos: "Adultos Mayores", veteranos: "Veteranos de Guerra", directivos: "Directivos/Empresarios", gobierno: "Trabajadores del Gobierno"}
+                },
+            en: { title: "OPEN THAN GO", zip: "ZIP Code", mode: "Mode", mentalState: "Mental State", budget: "Budget", socialContext: "Social Context", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.",
+                    menteOptions: {aburrido: "Bored", agotado: "Exhausted", estresado: "Stressed", cansado: "Tired", ansioso: "Anxious"},
+                    budgetOptions: {zero: "Free", low: "Low Cost", free: "Any Cost"},
+                    perfilOptions: {solo: "Alone", familia: "Family", hijos: "Children", adultos: "Seniors", veteranos: "Veterans", directivos: "Executives/Entrepreneurs", gobierno: "Government Workers"}
+                }
         }[lang];
        
         document.getElementById('txt-app-title').innerText = t.title;
         document.getElementById('lbl-zip').innerText = t.zip;
+        document.getElementById('lbl-mode').innerText = t.mode;
+        document.getElementById('lbl-mente').innerText = t.mentalState;
+        document.getElementById('lbl-budget').innerText = t.budget;
+        document.getElementById('lbl-perfil').innerText = t.socialContext;
         document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
         document.getElementById('lbl-desahogo').innerText = t.desahogo;
         document.getElementById('inp-text-libre').placeholder = t.placeholder;
         document.getElementById('btn-activar-libre').innerText = t.btn;
-        this.hablar(t.alert);
-    },
 
+        // Actualizar textos de los botones de selección
+        document.querySelectorAll('.btn-selector-mente').forEach(btn => {
+            btn.innerText = t.menteOptions[btn.dataset.value] || btn.dataset.value;
+        });
+        document.querySelectorAll('.btn-selector-budget').forEach(btn => {
+            btn.innerText = t.budgetOptions[btn.dataset.key] || btn.dataset.value;
+        });
+        document.querySelectorAll('.btn-selector-perfil').forEach(btn => {
+            btn.innerText = t.perfilOptions[btn.dataset.key] || btn.dataset.value;
+        });
+
+        if (speak) {
+            this.hablar(t.alert);
+        }
+    },
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
 
+        const modoSelector = document.getElementById('modo-selector');
+        const currentMode = modoSelector ? modoSelector.value : "SALIR";
+        localStorage.setItem('otg_mode', currentMode); // Persistir modo
+
         const payload = {
             zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
-            modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR",
-            mente: document.querySelector('.btn-mente.selected')?.dataset.mente || 'aburrido', // Captura estado mental seleccionado
-            budget: document.querySelector('.btn-budget.selected')?.dataset.budget || '0', // Captura presupuesto
-            perfil: document.querySelector('.btn-social.selected')?.dataset.perfil || 'solo', // Captura perfil social
+            modo: currentMode,
             desahogo: document.getElementById('inp-text-invisible') ? document.getElementById('inp-text-invisible').value : "",
             lang: this.idiomaActual,
-            perfil_local: this.obtenerPerfilLocal()
+            perfil_local: this.obtenerPerfilLocal(),
+            mente: this.estadoSeleccionado.mente,
+            budget: this.estadoSeleccionado.budget,
+            perfil: this.estadoSeleccionado.perfil
         };
 
-        const containerForm = document.getElementById('wrapper-form');
-        const containerInteractive = document.getElementById('wrapper-interactive');
-        const pantallaChoque = document.getElementById('pantalla-choque');
-       
-        containerForm.classList.add('hidden');
-        containerInteractive.classList.add('hidden'); // Asegura que la interactiva esté oculta por si acaso
-        pantallaChoque.classList.add('hidden'); // Asegura que la pantalla de choque esté oculta
-
-        // Muestra un mensaje de "Conectando..." mientras se carga
-        containerInteractive.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>CONECTANDO...</h2></div>`;
-        containerInteractive.classList.remove('hidden');
-
+        const container = document.getElementById('wrapper-interactive');
+        document.getElementById('wrapper-form').classList.add('hidden');
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>CONECTANDO...</h2></div>`;
+        container.classList.remove('hidden');
 
         try {
             const r = await fetch("/api/mando-integral", {
@@ -429,213 +568,26 @@ const KERNEL = {
             });
             const data = await r.json();
 
-            // KERNEL.datosLugarGlobal = data; // Renombrado a datosAccionCampo para claridad
+            this.datosLugarGlobal = data;
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
+            this.tvidAsignadaGlobal = data.tvid_asignada; // Captura la TVid asignada
+            this.indiceMision = 0;
 
             if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
                 this.pasosMisiones = data.misiones.slice(0, 3);
-                this.indiceMision = 0;
-                this.procesarFlujoSecuencialCasa(containerInteractive); // Llama a la lógica de Casa
-            } else { // ACCION_CAMPO - Aquí es donde entra el choque sensorial
-                this.datosAccionCampo = data; // Guarda todos los datos de main.py
-                this.iniciarChoqueSensorial(); // Inicia el choque sensorial
+                this.procesarFlujoSecuencial(container);
+            } else { // ACCION_CAMPO - Incluye la intervención TVid
+                this.iniciarIntervencionTVid();
             }
         } catch (error) {
-            console.error("Error de conexión:", error);
-            alert("Error de conexión. Intenta de nuevo.");
-            containerForm.classList.remove('hidden');
-            containerInteractive.classList.add('hidden');
+            alert(this.idiomaActual === 'es' ? "Error de conexión." : "Connection error.");
+            document.getElementById('wrapper-form').classList.remove('hidden');
+            container.classList.add('hidden');
             this.isLocked = false;
         }
     },
 
-    // --- LÓGICA DEL CHOQUE SENSORIAL Y TVid® (MODO SALIR) ---
-    selectTvid(mente, perfil, desahogo) {
-        mente = mente.toLowerCase();
-        perfil = perfil.toLowerCase();
-        desahogo = desahogo.toLowerCase();
-
-        // Orden de prioridad para la asignación de TVid®
-        if (perfil === "veteranos de guerra" || desahogo.includes("crisis profundas") || desahogo.length > 100) return "guerra";
-        if (mente === "ansioso" || desahogo.includes("miedo") || desahogo.includes("susto")) return "mal";
-        if (mente === "cansado" || mente === "estresado" || desahogo.includes("presión corporativa") || desahogo.includes("trabajo")) return "beso";
-        if (mente === "aburrido" || perfil === "familia" || perfil === "hijos") return "nino";
-        if (mente === "agotado" || perfil === "directivos/empresarios") return "madre";
-        if (desahogo.includes("procrastinacion") || desahogo.includes("vagancia") || desahogo.includes("retrasos") || desahogo.includes("posponer")) return "padre";
-        
-        return "bien"; // Default si no coincide con los anteriores
-    },
-
-    iniciarChoqueSensorial() {
-        clearInterval(this.timerClinico);
-        clearInterval(this.temporizadorCascada);
-        window.speechSynthesis.cancel();
-        
-        document.getElementById('wrapper-form').classList.add('hidden');
-        document.getElementById('wrapper-interactive').classList.add('hidden'); // Oculta la de "Conectando..."
-        const pantallaChoque = document.getElementById('pantalla-choque');
-        pantallaChoque.classList.remove('hidden');
-        pantallaChoque.innerHTML = `
-            <div id="choque-countdown">${this.tiempoRestanteChoque}</div>
-            <div id="choque-content"></div>
-        `;
-
-        const t = {
-            es: { fin: "¡MANDO CUMPLIDO! ¡LIBERTAD AHORA!", final_voz: "Mando cumplido. Te expulso de la pantalla. Busca tu libertad en los mapas. Es tu momento. ¡Ahora!" },
-            en: { fin: "COMMAND FULFILLED! FREEDOM NOW!", final_voz: "Command fulfilled. Expelling you from the screen. Find your freedom on the maps. It's your moment. Now!" }
-        }[this.idiomaActual];
-
-        const tvidKey = this.selectTvid(
-            this.datosAccionCampo.selected_mente,
-            this.datosAccionCampo.selected_perfil,
-            this.datosAccionCampo.user_desahogo
-        );
-        const tvid = this.TVID_DATA[tvidKey];
-        const frasesTvid = [
-            tvid.principio,
-            ...tvid.preguntas,
-            tvid.afirmacion,
-            ...tvid.ejercicios
-        ].filter(Boolean); // Eliminar cualquier elemento nulo o indefinido
-
-        let fraseIndex = 0;
-        const totalFrases = frasesTvid.length;
-        const intervalTime = 3000; // 3 segundos por frase
-        let maxTextDisplayTime = 4000; // Cuánto tiempo dura cada ráfaga de texto en pantalla
-
-        if (tvidKey === "guerra") { // Guerra puede tener frases más largas, dale más tiempo
-            maxTextDisplayTime = 5000;
-        }
-
-        const injectPhrase = () => {
-            if (this.tiempoRestanteChoque <= 0) {
-                clearInterval(this.timerChoqueSensorial);
-                pantallaChoque.innerHTML = `<h2 style="color:var(--green-action); font-size:1.8rem;">${t.fin}</h2>`;
-                this.hablar(t.final_voz);
-                setTimeout(() => this.ejecutarEdgeHijacking(), 2000); // Ejecuta el hijack después de un breve mensaje
-                return;
-            }
-
-            const frase = frasesTvid[fraseIndex % totalFrases];
-            fraseIndex++;
-
-            const phraseDiv = document.createElement('div');
-            phraseDiv.className = 'shock-text';
-            phraseDiv.innerText = frase;
-
-            const animations = [
-                'anim-corner-tl', 'anim-corner-tr', 'anim-corner-bl', 'anim-corner-br',
-                'anim-side-l', 'anim-side-r', 'anim-bottom', 'anim-top',
-                'anim-center-out', 'anim-out-in' // Añadidas las de concentración
-            ];
-            phraseDiv.classList.add(animations[Math.floor(Math.random() * animations.length)]);
-            phraseDiv.style.color = `hsl(${Math.random() * 360}, 100%, 70%)`; // Colores vibrantes aleatorios
-
-            document.getElementById('choque-content').appendChild(phraseDiv);
-            this.hablar(frase); // Lee la frase
-           
-            // Eliminar la frase después de unos segundos
-            setTimeout(() => {
-                phraseDiv.remove();
-            }, maxTextDisplayTime);
-        };
-
-        this.tiempoRestanteChoque = 30; // Reset
-        document.getElementById('choque-countdown').innerText = this.tiempoRestanteChoque;
-
-        this.timerChoqueSensorial = setInterval(() => {
-            this.tiempoRestanteChoque--;
-            if (document.getElementById('choque-countdown')) {
-                document.getElementById('choque-countdown').innerText = this.tiempoRestanteChoque;
-            }
-            if (this.tiempoRestanteChoque <= 0) {
-                clearInterval(this.timerChoqueSensorial);
-                pantallaChoque.innerHTML = `<h2 style="color:var(--green-action); font-size:1.8rem;">${t.fin}</h2>`;
-                this.hablar(t.final_voz);
-                setTimeout(() => this.ejecutarEdgeHijacking(), 2000);
-            } else {
-                injectPhrase();
-            }
-        }, intervalTime); // Inyecta una frase cada X segundos
-
-        injectPhrase(); // Inyecta la primera frase inmediatamente
-    },
-
-    generarEdgeHijackingUrl() {
-        const data = this.datosAccionCampo;
-        let gpsQuery = data.destino_gps_keywords_sugeridas || "places+of+interest+";
-        const zip = data.user_zip;
-        const mente = data.selected_mente.toLowerCase();
-        const perfil = data.selected_perfil.toLowerCase();
-        const desahogo = data.user_desahogo.toLowerCase();
-        const budget = data.user_budget; // '0' para gratis, '1' para bajo gasto
-
-        let finalKeywords = [];
-
-        // Lógica de Edge-Hijacking basada en cruce psicológico y rol de USA
-        // PRIORIDAD: Interceptor Financiero si está activo
-        if (data.financial_interceptor_active) {
-            if (data.financial_interceptor_channel === "SPOTIFY") return "https://open.spotify.com/genre/mood"; // Playlist de ánimo
-            if (data.financial_interceptor_channel === "YOUTUBE") return "https://www.youtube.com/results?search_query=nature+sounds+relaxing"; // Sonidos de naturaleza
-            if (data.financial_interceptor_channel === "MAPS") { // Agencias de empleo
-                finalKeywords.push("staffing+agencies");
-            }
-        } else {
-            // Sino, genera keywords basadas en TVid, mente, perfil
-            // Puedes refinar gpsQuery original de main.py o usarlo como base
-
-            // Refinamiento por mente
-            if (mente === "aburrido") finalKeywords.push("creative+outlets", "local+events+free");
-            else if (mente === "agotado") finalKeywords.push("quiet+retreats", "peaceful+places+relax");
-            else if (mente === "estresado") finalKeywords.push("stress+relief+activities", "calming+environments");
-            else if (mente === "cansado") finalKeywords.push("restorative+places", "slow+paced+activities");
-            else if (mente === "ansioso") finalKeywords.push("mindfulness+spots", "breathing+spaces");
-            
-            // Refinamiento por perfil
-            if (perfil === "solo") finalKeywords.push("solitary+nature+walks", "meditation+spots");
-            else if (perfil === "familia" || perfil === "hijos") finalKeywords.push("family+parks+free", "kid+friendly+activities");
-            else if (perfil === "adultos mayores") finalKeywords.push("accessible+gentle+walks", "senior+friendly+parks");
-            else if (perfil === "veteranos de guerra") finalKeywords.push("veterans+memorial+parks", "healing+gardens");
-            else if (perfil === "directivos/empresarios") finalKeywords.push("isolated+nature+retreats+no+wifi", "executive+wellness+destinations");
-            else if (perfil === "trabajadores del gobierno") finalKeywords.push("public+parks+government+employees+relax", "quiet+public+spaces");
-
-            // Refinamiento por presupuesto
-            if (budget === '0') finalKeywords.push("free+activities", "no+cost+places");
-            else if (budget === '1') finalKeywords.push("low+cost+experiences", "affordable+outings");
-
-            // Si ya hay keywords sugeridas por main.py, las añadimos
-            if (gpsQuery && !gpsQuery.includes("places+of+interest+")) {
-                finalKeywords.unshift(gpsQuery.replace(/\+/g, ' ')); // Añade la sugerencia de main.py al principio
-            }
-
-            // Elimina duplicados y concatena
-            finalKeywords = [...new Set(finalKeywords)].map(k => k.replace(/ /g, '+'));
-            gpsQuery = finalKeywords.join("+") || "wellness+escape+"; // Fallback
-        }
-
-
-        // FÓRMULA GEOGRÁFICA UNIVERSAL FIJA ORIGINAL RESTAURADA SIN RECORTE NI ALTERACIONES
-        const anclaje_geografico = zip ? zip : "USA"; // Si no hay ZIP, busca en todo USA por defecto
-       
-        let finalUrl = "";
-        if (data.financial_interceptor_active && (data.financial_interceptor_channel === "SPOTIFY" || data.financial_interceptor_channel === "YOUTUBE")) {
-             finalUrl = gpsQuery; // Ya es una URL completa
-        } else {
-             finalUrl = `${data.destino_base_url}${gpsQuery}+in+${anclaje_geografico}`.replace(" ", "+");
-        }
-       
-        return finalUrl;
-    },
-
-    ejecutarEdgeHijacking() {
-        const finalUrl = this.generarEdgeHijackingUrl();
-        this.actualizarPerfilLocal(this.datosAccionCampo.token_entorno); // Actualiza el perfil basado en la sugerencia inicial de main.py
-        window.open(finalUrl, "_self");
-        this.destruirYReiniciar(); // Recarga la aplicación después de la expulsión
-    },
-
-    // --- LÓGICA MODO CASA (INTERVENCION_DOMESTICA) ---
-    procesarFlujoSecuencialCasa(container) {
+    procesarFlujoSecuencial(container) {
         clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
 
@@ -644,23 +596,163 @@ const KERNEL = {
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW" }
         }[this.idiomaActual];
 
-        if (this.indiceMision >= this.pasosMisiones.length) {
-            this.iniciarRelojClinicoCasa(container, t);
+        // MODO CASA
+        if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
+            if (this.indiceMision >= this.pasosMisiones.length) {
+                this.iniciarRelojClinicoCasa(container, t);
+                return;
+            }
+
+            const paso = this.pasosMisiones[this.indiceMision];
+            container.innerHTML = `
+            <div class="mision-card">
+                <small>${this.idiomaActual === 'es' ? 'Misión Interna' : 'Internal Mission'}</small>
+                <h3>${paso.titulo}</h3>
+                <p>${paso.descripcion}</p>
+                <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${this.idiomaActual === 'es' ? 'HAZLO AHORA' : 'DO IT NOW'}</button>
+            </div>`;
+
+            this.hablar(paso.titulo + " . " + paso.descripcion);
+            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
             return;
         }
-
-        const paso = this.pasosMisiones[this.indiceMision];
-        container.innerHTML = `
-        <div class="mision-card">
-            <small>${this.idiomaActual === 'es' ? 'Misión Interna' : 'Internal Mission'}</small>
-            <h3>${paso.titulo}</h3>
-            <p>${paso.descripcion}</p>
-            <button id="btn-next" style="width:100%; background:#2e7d32; color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${this.idiomaActual === 'es' ? 'HAZLO AHORA' : 'DO IT NOW'}</button>
-        </div>`;
-
-        this.hablar(paso.titulo + " . " + paso.descripcion);
-        document.getElementById('btn-next').onclick = () => this.avanzarPaso();
     },
+
+    iniciarIntervencionTVid() {
+        const container = document.getElementById('wrapper-interactive');
+        container.innerHTML = `
+            <div id="tvid-intervention-screen">
+                <div id="tvid-countdown">30</div>
+                <div id="tvid-phrase-container"></div>
+            </div>`;
+        
+        const phraseContainer = document.getElementById('tvid-phrase-container');
+        const countdownElement = document.getElementById('tvid-countdown');
+        let tvidTimeLeft = 30; // 30 segundos forzados
+        this.frasesTVidMostradas = []; // Reiniciar el registro de frases
+        
+        const tvid = this.TVID_DATA[this.tvidAsignadaGlobal] || this.TVID_DATA["Bien"];
+        let allPhrases = [];
+        allPhrases.push(tvid.principio);
+        allPhrases.push(tvid.afirmacion);
+        allPhrases = allPhrases.concat(tvid.preguntas_choque, tvid.ejercicios);
+        
+        const directions = [
+            'corner-in', 'side-in', 'bottom-in', 'top-in', 'center-out', 'outside-in'
+        ];
+        let currentPhraseIndex = 0;
+
+        // Función para mostrar la siguiente frase TVid
+        const showNextPhrase = () => {
+            if (tvidTimeLeft <= 0) return;
+
+            // Selección de frase sin repetición en el ciclo de 30 segundos
+            let availablePhrases = allPhrases.filter(p => !this.frasesTVidMostradas.includes(p));
+            if (availablePhrases.length === 0) {
+                this.frasesTVidMostradas = []; // Reiniciar si todas se han mostrado
+                availablePhrases = allPhrases;
+            }
+            
+            const phrase = availablePhrases[Math.floor(Math.random() * availablePhrases.length)];
+            this.frasesTVidMostradas.push(phrase); // Marcar como mostrada
+
+            // Eliminar frase anterior si existe
+            const oldPhrase = phraseContainer.querySelector('.tvid-phrase');
+            if (oldPhrase) {
+                oldPhrase.classList.remove('show');
+                oldPhrase.classList.add('hide'); // Iniciar animación de salida
+                oldPhrase.addEventListener('animationend', () => oldPhrase.remove(), { once: true });
+            }
+
+            // Crear y mostrar nueva frase
+            setTimeout(() => { // Pequeña pausa para evitar solapamiento visual/auditivo
+                const newPhrase = document.createElement('div');
+                newPhrase.className = 'tvid-phrase';
+                newPhrase.textContent = phrase;
+                
+                // Asignar dirección de animación aleatoria
+                const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+                newPhrase.classList.add(randomDirection);
+                phraseContainer.appendChild(newPhrase);
+                
+                // Hablar la frase
+                this.hablar(phrase);
+
+                // Esperar un poco antes de mostrar la siguiente (ajustar para lectura y audio)
+                // Usamos un tiempo basado en la longitud de la frase
+                const readingTime = Math.max(phrase.length * 80, 4000); // 80ms por caracter, mínimo 4 segundos
+                
+                if (tvidTimeLeft > 0) {
+                    this.temporizadorTVid = setTimeout(showNextPhrase, readingTime);
+                }
+            }, 500); // Retraso de 0.5s para la entrada de la nueva frase
+        };
+
+        // Iniciar el ciclo de frases
+        showNextPhrase();
+
+        // Temporizador regresivo principal
+        let countdownTimer = setInterval(() => {
+            tvidTimeLeft--;
+            if (countdownElement) countdownElement.textContent = tvidTimeLeft;
+
+            if (tvidTimeLeft <= 0) {
+                clearInterval(countdownTimer);
+                clearTimeout(this.temporizadorTVid); // Detener el temporizador de frases
+                window.speechSynthesis.cancel(); // Cancelar cualquier voz en curso
+                
+                // Mostrar el destino final de acción de campo
+                this.mostrarDestinoAccionCampo();
+            }
+        }, 1000);
+    },
+
+    mostrarDestinoAccionCampo() {
+        const container = document.getElementById('wrapper-interactive');
+        const t = {
+            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL BIG TECH YA" },
+            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW" }
+        }[this.idiomaActual];
+
+        if (this.datosLugarGlobal) {
+            let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
+            container.innerHTML = `
+            <div class="mision-card">
+                <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
+                <h2>${this.datosLugarGlobal.destino_titulo}</h2>
+                <div class="instruccion-text">${textoFormateado}</div>
+                <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>0s ${t.listen}</button>
+                <button id="btn-gps-action" style="width:100%; background:#0d47a1; color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+            </div>`;
+
+            this.hablar(this.datosLugarGlobal.destino_instruccion);
+           
+            const btnGps = document.getElementById('btn-gps-action');
+            if (btnGps) {
+                btnGps.onclick = () => {
+                    try {
+                        let perfil = KERNEL.obtenerPerfilLocal();
+                        let token = KERNEL.datosLugarGlobal.token_entorno || "general";
+                        // Aquí se podrían añadir más lógicas para actualizar el perfil basado en el token_entorno
+                        // Por ejemplo, si el token es "Parque Natural Silencioso", incrementar naturaleza y silencio
+                        if (perfil) {
+                            if (token.includes("Parque Natural") || token.includes("nature")) perfil["naturaleza"] = Math.min(perfil["naturaleza"] + 15, 100);
+                            if (token.includes("Biblioteca") || token.includes("library")) perfil["aprendizaje"] = Math.min(perfil["aprendizaje"] + 15, 100);
+                            if (token.includes("Sendero") || token.includes("trail")) perfil["movimiento"] = Math.min(perfil["movimiento"] + 15, 100);
+                            if (token.includes("Centro Cultural") || token.includes("cultural")) perfil["creatividad"] = Math.min(perfil["creatividad"] + 15, 100);
+                            if (token.includes("Contemplación") || token.includes("viewpoint")) perfil["contemplacion"] = Math.min(perfil["contemplacion"] + 15, 100);
+                            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                        }
+                    } catch (e) {
+                        console.error("Error al actualizar perfil local:", e);
+                    }
+                    window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+                    KERNEL.destruirYReiniciar();
+                };
+            }
+        }
+    },
+
 
     iniciarRelojClinicoCasa(container, t) {
         clearInterval(this.timerClinico);
@@ -676,7 +768,7 @@ const KERNEL = {
             <p id="txt-pulmon">INHALA / INHALE</p>
         </div>`;
 
-        this.tiempoRestanteCasa = 600; // 10 minutos
+        this.timeLeft = 600;
         this.relojRealSegundos = 600;
         this.contadorToques = 0;
 
@@ -719,17 +811,17 @@ const KERNEL = {
 
         if (circleElement) {
             circleElement.onclick = () => {
-                if (this.contadorToques < this.secuenciaAdelantos.length) {
+                if (this.contadorToques < 10) {
                     let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
-                    this.tiempoRestanteCasa = Math.max(this.tiempoRestanteCasa - adelantoSegundos, 0);
+                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
                     this.contadorToques++;
                     try {
                         let perfil = this.obtenerPerfilLocal();
                         perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 10, 100);
                         localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                    } catch (e) { console.error("Error al actualizar indicador_ansiedad", e); }
-                    let m = Math.floor(this.tiempoRestanteCasa / 60);
-                    let s = this.tiempoRestanteCasa % 60;
+                    } catch (e) {}
+                    let m = Math.floor(this.timeLeft / 60);
+                    let s = this.timeLeft % 60;
                     if (timerDiv) {
                         timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
                     }
@@ -739,10 +831,10 @@ const KERNEL = {
 
         this.timerClinico = setInterval(() => {
             this.relojRealSegundos--;
-            if (this.tiempoRestanteCasa > 0) this.tiempoRestanteCasa--;
+            if (this.timeLeft > 0) this.timeLeft--;
            
-            let m = Math.floor(this.tiempoRestanteCasa / 60);
-            let s = this.tiempoRestanteCasa % 60;
+            let m = Math.floor(this.timeLeft / 60);
+            let s = this.timeLeft % 60;
             if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
            
             if (pulmonDiv) {
@@ -785,51 +877,34 @@ const KERNEL = {
     avanzarPaso() {
         this.indiceMision++;
         const container = document.getElementById('wrapper-interactive');
-        this.procesarFlujoSecuencialCasa(container);
+        this.procesarFlujoSecuencial(container);
     },
 
     destruirYReiniciar() {
         clearInterval(this.timerInaccion);
         clearInterval(this.timerClinico);
         clearInterval(this.temporizadorCascada);
-        clearInterval(this.timerChoqueSensorial);
+        clearInterval(this.temporizadorTVid); // Asegurar que el temporizador TVid también se detenga
         window.speechSynthesis.cancel();
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
-        // sessionStorage.clear(); // No es necesario borrar toda la sesión, solo recargar
+        // sessionStorage.clear(); // No borrar el local storage, solo reiniciar la app
         location.reload();
-    },
-
-    // Funciones para manejar la selección de filtros (mente, budget, social)
-    seleccionarFiltro(tipo, valor, element) {
-        const parent = element.parentElement;
-        parent.querySelectorAll(`.btn-${tipo}`).forEach(btn => btn.classList.remove('selected'));
-        element.classList.add('selected');
-       
-        // Opcional: Hablar el nombre del filtro
-        if (this.idiomaActual === 'es') {
-            const nombreMente = {
-                'aburrido': 'Aburrido', 'agotado': 'Agotado', 'estresado': 'Estresado', 'cansado': 'Cansado', 'ansioso': 'Ansioso',
-                '0': 'Gratis', '1': 'Bajo Gasto',
-                'solo': 'Solo', 'familia': 'Familia', 'hijos': 'Hijos', 'adultos mayores': 'Adultos Mayores', 'veteranos de guerra': 'Veteranos de Guerra',
-                'directivos/empresarios': 'Directivos y Empresarios', 'trabajadores del gobierno': 'Trabajadores del Gobierno'
-            }[valor] || valor;
-            this.hablar(`${nombreMente} seleccionado.`);
-        }
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    KERNEL.init();
-    // Inicializar listeners para los botones de filtro
-    document.querySelectorAll('.btn-mente').forEach(btn => {
-        btn.onclick = () => KERNEL.seleccionarFiltro('mente', btn.dataset.mente, btn);
-    });
-    document.querySelectorAll('.btn-budget').forEach(btn => {
-        btn.onclick = () => KERNEL.seleccionarFiltro('budget', btn.dataset.budget, btn);
-    });
-    document.querySelectorAll('.btn-social').forEach(btn => {
-        btn.onclick = () => KERNEL.seleccionarFiltro('social', btn.dataset.perfil, btn);
-    });
+document.addEventListener('DOMContentLoaded', () => KERNEL.init());
+
+// Asegurarse de que el botón de mando libre se habilite cuando hay texto
+document.addEventListener('input', (event) => {
+    if (event.target.id === 'inp-text-libre') {
+        const btnLibre = document.getElementById('btn-activar-libre');
+        if (btnLibre) {
+            btnLibre.disabled = event.target.value.trim().length < 3;
+            btnLibre.style.background = event.target.value.trim().length >= 3 ? "var(--green-action)" : "#111";
+            btnLibre.style.color = event.target.value.trim().length >= 3 ? "#fff" : "#555";
+            btnLibre.style.borderColor = event.target.value.trim().length >= 3 ? "#4caf50" : "#222";
+        }
+    }
 });
