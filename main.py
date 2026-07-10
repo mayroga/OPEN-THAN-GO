@@ -11,9 +11,11 @@ import random
 
 app = FastAPI()
 
+# Asegura que el directorio 'static' exista
 if not os.path.exists("static"):
     os.makedirs("static")
 
+# Monta el directorio 'static' para servir archivos estáticos
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Tu base de misiones original completa + Inyección Vectorial de 19 Necesidades Humanas
@@ -40,7 +42,7 @@ BASE_MISIONES = {
         {"id": 19, "titulo": "Memoria feliz", "descripcion": "Cierra los ojos y recuerda un momento real de calma en tu niñez."},
         {"id": 20, "titulo": "Sonrisa forzada", "descripcion": "Sonríe 15 segundos. Cambia tu química cerebral ahora."},
         {"id": 21, "titulo": "Agradecimiento", "descripcion": "Cierra los ojos. Agradece una cosa buena de esta semana."},
-        {"id": 22, "titulo": "Relaja ojos", "descripcion": "Tápate los ojos con palmas templadas. Un minuto de oscuridad."},
+        {"id": 22, "titulo": "Relaxa ojos", "descripcion": "Tápate los ojos con palmas templadas. Un minuto de oscuridad."},
         {"id": 23, "titulo": "Ritmo cardíaco", "descripcion": "Mano derecha en el pecho. Siente el latido. Es tu motor."},
         {"id": 24, "titulo": "Suelta cuello", "descripcion": "Círculos lentos de cabeza. Libera la tensión de pantalla."},
         {"id": 25, "titulo": "Ejercicio de palmas", "descripcion": "Frota manos hasta sentir calor. Colócalas en hombros."}
@@ -86,6 +88,19 @@ BASE_MISIONES = {
                     "contemplacion": 95, "trabajo": 10, "descanso": 90, "organizacion": 20, "alimentacion": 0,
                     "musica": 10, "risa": 30, "esperanza": 85
                 }
+            },
+            {
+                "titulo": "Biblioteca tranquila",
+                "porque": "Necesitas un espacio para la concentración y el silencio.",
+                "que_hacer": "Encuentra una biblioteca pública cercana. Siéntate y solo observa.",
+                "donde": "Biblioteca pública.",
+                "gps": "public+library+quiet+zone+",
+                "vector_necesidades": {
+                    "movimiento": 20, "naturaleza": 10, "silencio": 100, "agua": 0, "sol": 10, "sombra": 90,
+                    "aire_fresco": 50, "creatividad": 70, "comunidad": 40, "aprendizaje": 80, "juego": 10,
+                    "contemplacion": 90, "trabajo": 60, "descanso": 80, "organizacion": 70, "alimentacion": 0,
+                    "musica": 0, "risa": 10, "esperanza": 70
+                }
             }
         ],
         "estresado": [
@@ -100,6 +115,19 @@ BASE_MISIONES = {
                     "aire_fresco": 85, "creatividad": 10, "comunidad": 30, "aprendizaje": 10, "juego": 20,
                     "contemplacion": 60, "trabajo": 20, "descanso": 10, "organizacion": 30, "alimentacion": 0,
                     "musica": 20, "risa": 20, "esperanza": 75
+                }
+            },
+            {
+                "titulo": "Mirador de la ciudad",
+                "porque": "Necesitas perspectiva y sentir que el mundo sigue su curso.",
+                "que_hacer": "Encuentra un punto alto con vista panorámica. Mira el horizonte y respira.",
+                "donde": "Mirador.",
+                "gps": "city+viewpoint+overlook+",
+                "vector_necesidades": {
+                    "movimiento": 40, "naturaleza": 50, "silencio": 60, "agua": 0, "sol": 80, "sombra": 30,
+                    "aire_fresco": 90, "creatividad": 50, "comunidad": 30, "aprendizaje": 20, "juego": 10,
+                    "contemplacion": 100, "trabajo": 10, "descanso": 50, "organizacion": 20, "alimentacion": 0,
+                    "musica": 10, "risa": 20, "esperanza": 90
                 }
             }
         ],
@@ -116,17 +144,87 @@ BASE_MISIONES = {
                     "contemplacion": 85, "trabajo": 10, "descanso": 30, "organizacion": 20, "alimentacion": 20,
                     "musica": 30, "risa": 60, "esperanza": 95
                 }
+            },
+            {
+                "titulo": "Mercado local",
+                "porque": "Tu mente busca estímulos y una conexión humana genuina.",
+                "que_hacer": "Visita un mercado de agricultores. Observa colores, olores, pregunta precios sin comprar.",
+                "donde": "Mercado de agricultores.",
+                "gps": "farmers+market+",
+                "vector_necesidades": {
+                    "movimiento": 70, "naturaleza": 60, "silencio": 30, "agua": 0, "sol": 70, "sombra": 40,
+                    "aire_fresco": 80, "creatividad": 60, "comunidad": 100, "aprendizaje": 50, "juego": 40,
+                    "contemplacion": 70, "trabajo": 20, "descanso": 20, "organizacion": 50, "alimentacion": 70,
+                    "musica": 20, "risa": 70, "esperanza": 80
+                }
+            }
+        ],
+        "cansado": [
+            {
+                "titulo": "Banqueta con vista",
+                "porque": "Necesitas sentarte sin presión, solo observar y recargar.",
+                "que_hacer": "Busca una banqueta pública en un lugar con gente y árboles. Siéntate y no hagas nada.",
+                "donde": "Banqueta pública.",
+                "gps": "public+bench+park+trees+",
+                "vector_necesidades": {
+                    "movimiento": 30, "naturaleza": 80, "silencio": 50, "agua": 10, "sol": 60, "sombra": 70,
+                    "aire_fresco": 90, "creatividad": 40, "comunidad": 60, "aprendizaje": 30, "juego": 20,
+                    "contemplacion": 90, "trabajo": 10, "descanso": 95, "organizacion": 10, "alimentacion": 0,
+                    "musica": 20, "risa": 30, "esperanza": 85
+                }
+            },
+            {
+                "titulo": "Jardín comunitario",
+                "porque": "El contacto con la tierra y las plantas te devuelve energía.",
+                "que_hacer": "Visita un jardín comunitario. Observa las plantas, siéntate en un banco tranquilo.",
+                "donde": "Jardín comunitario.",
+                "gps": "community+garden+quiet+",
+                "vector_necesidades": {
+                    "movimiento": 50, "naturaleza": 100, "silencio": 70, "agua": 30, "sol": 70, "sombra": 80,
+                    "aire_fresco": 100, "creatividad": 80, "comunidad": 70, "aprendizaje": 60, "juego": 30,
+                    "contemplacion": 95, "trabajo": 20, "descanso": 90, "organizacion": 40, "alimentacion": 0,
+                    "musica": 10, "risa": 40, "esperanza": 90
+                }
+            }
+        ],
+        "ansioso": [
+            {
+                "titulo": "Sendero natural",
+                "porque": "Tu mente acelerada necesita un ritmo constante y la calma de la naturaleza.",
+                "que_hacer": "Busca un sendero natural cercano. Camina a paso lento, prestando atención a los sonidos.",
+                "donde": "Sendero natural.",
+                "gps": "nature+trail+walk+",
+                "vector_necesidades": {
+                    "movimiento": 90, "naturaleza": 100, "silencio": 80, "agua": 20, "sol": 70, "sombra": 60,
+                    "aire_fresco": 100, "creatividad": 40, "comunidad": 10, "aprendizaje": 50, "juego": 30,
+                    "contemplacion": 95, "trabajo": 10, "descanso": 70, "organizacion": 20, "alimentacion": 0,
+                    "musica": 0, "risa": 20, "esperanza": 90
+                }
+            },
+            {
+                "titulo": "Fuente de agua pública",
+                "porque": "El sonido del agua calma la mente y te ancla al presente.",
+                "que_hacer": "Encuentra una fuente o cascada de agua pública. Siéntate y solo escucha el sonido.",
+                "donde": "Fuente pública.",
+                "gps": "public+fountain+waterfall+",
+                "vector_necesidades": {
+                    "movimiento": 10, "naturaleza": 70, "silencio": 90, "agua": 100, "sol": 50, "sombra": 60,
+                    "aire_fresco": 80, "creatividad": 30, "comunidad": 20, "aprendizaje": 10, "juego": 10,
+                    "contemplacion": 100, "trabajo": 0, "descanso": 95, "organizacion": 0, "alimentacion": 0,
+                    "musica": 0, "risa": 10, "esperanza": 80
+                }
             }
         ]
     }
 }
 # Recursos de infraestructura trillonaria secuestrados para romper la monotonía
 BIG_TECH_RESOURCES = {
-    "spotify_audio": "https://open.spotify.com/search/nature%20sounds", # Enlace actualizado
-    "youtube_audio": "https://www.youtube.com/results?search_query=calming+nature+sounds+for+relaxation", # Enlace actualizado
+    "spotify_audio": "https://spotify.com",
+    "youtube_audio": "https://youtube.com",
     "staffing_agencies": "staffing+agencies"
 }
 
+# Sirve el archivo HTML principal
 @app.get("/")
 async def index():
     return FileResponse('static/session.html')
@@ -140,12 +238,9 @@ async def mando_integral(request: Request):
     payload = await request.json()
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
-    # estado y region no se usan en este backend, pero se mantienen para compatibilidad con la estructura original
-    # de tu sistema si se usaran más adelante.
-    estado = str(payload.get("estado", "FL")).strip() # No usado directamente en lógica actual
-    region = str(payload.get("region", "")).strip() # No usado directamente en lógica actual
-
-    mente = str(payload.get("mente", "aburrido")).lower() # Se usará para elegir el tipo de salida
+    estado = str(payload.get("estado", "FL")).strip() # No usado en este diseño pero mantenido por compat
+    region = str(payload.get("region", "")).strip() # No usado en este diseño pero mantenido por compat
+    mente = str(payload.get("mente", "aburrido")).lower() # Default changed to 'aburrido'
     budget = str(payload.get("budget", "0"))
     perfil = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
@@ -158,138 +253,106 @@ async def mando_integral(request: Request):
     if opcion_usuario == "CASA":
         misiones = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"]
         random.shuffle(misiones)  # Evita la monotonía barajando los retos locales
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-            "misiones": misiones,
-            "selected_mente": mente, # Añadido para router psicológico en cliente
-            "selected_budget": budget, # Añadido para router psicológico en cliente
-            "selected_perfil": perfil, # Añadido para router psicológico en cliente
-            "selected_desahogo": desahogo # Añadido para router psicológico en cliente
-        })
+        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones})
 
-    # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN)
-    # Selecciona opciones de SALIR basadas en el estado mental, con un fallback a "aburrido"
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
+    # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN Y FILTROS)
+    opciones_salir_para_mente = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
    
     # LÓGICA CWRE INTEGRADA: Ponderación matemática basada en el rastro de clics dentro de tu app
     # Cruza las preferencias implícitas de las 19 necesidades enviadas por el smartphone
     info = None
-    if opciones_salir_candidatas:
-        if len(opciones_salir_candidatas) >= 2:
+    if opciones_salir_para_mente:
+        if len(opciones_salir_para_mente) >= 2:
             mejor_score = -1
-           
-            for opc in opciones_salir_candidatas:
+            
+            for opc in opciones_salir_para_mente:
                 vector_lugar = opc.get("vector_necesidades", {})
                 score_coincidencia = 0
-               
+            
                 # Suma los pesos del historial interno del usuario contra la puntuación del entorno
                 for necesidad, peso_usuario in perfil_local.items():
                     score_coincidencia += vector_lugar.get(necesidad, 50) * peso_usuario
-                   
+                
                 if score_coincidencia > mejor_score:
                     mejor_score = score_coincidencia
                     info = opc
-        else: # Si solo hay una opción o si el array es vacío
-            info = random.choice(opciones_salir_candidatas)
-    else: # Fallback si no hay opciones candidatas
-        info = BASE_MISIONES["SALIR"]["aburrido"][0]
-
+        else:
+            info = opciones_salir_para_mente[0]
+    
+    if not info: # Fallback si no se encontró ninguna opción
+        info = random.choice(list(BASE_MISIONES["SALIR"].values())[0]) # Toma una opción random de cualquier mente
 
     # Filtro de precio real en palabras cortas de acción
-    precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if budget == "0" else \
-                  "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if budget == "1" else \
-                  "GASTO: Libre. El dinero es tu herramienta de escape hoy."
+    # Esta variable se envía al cliente para que la muestre si es necesario
+    precio_real_txt = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if budget == "0" else \
+                      "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if budget == "1" else \
+                      "GASTO: Libre. El dinero es tu herramienta de escape hoy."
    
     # Filtro de acompañantes reales
-    quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if perfil == "solo" else \
-                  "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if perfil == "familia" or perfil == "hijos" else \
-                  "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if perfil == "adultos_mayores" else \
-                  "ACOMPAÑAMIENTO: Un espacio de respeto para veteranos y reflexión." if perfil == "veteranos_guerra" else \
-                  "ACOMPAÑAMIENTO: Entorno que permite el enfoque o la desconexión total para directivos." if perfil == "directivos" else \
-                  "ACOMPAÑAMIENTO: Espacio abierto y seguro para trabajadores del gobierno." if perfil == "trabajadores_gobierno" else \
-                  "ACOMPAÑAMIENTO: Tu contexto personal definido, listo para la acción."
+    # Esta variable se envía al cliente para que la muestre si es necesario
+    quienes_van_txt = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if perfil == "solo" else \
+                      "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if perfil == "familia" or perfil == "hijos" else \
+                      "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if perfil == "adultos mayores" else \
+                      "ACOMPAÑAMIENTO: Entorno apto para un respiro." # General para otros perfiles
 
+    # Valores por defecto que pueden ser modificados por el interceptor financiero
+    destino_titulo_sugerido = info.get("titulo", "Acción de Campo")
+    destino_entorno_sugerido = info.get("donde", "Tu Zona")
+    destino_gps_keywords_sugeridas = info.get("gps", "places+of+interest+")
+    link_base = "https://www.google.com/maps/search/?api=1&query="
+    financial_interceptor_active = False
+    financial_interceptor_channel = None
+    
     # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO INTERCEPTOR
-    palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "quincena", "salario"]
+    palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero"]
     
-    # Determinar si hay palabras críticas y ajustar el canal multimedia de forma aleatoria si es necesario
-    es_ruta_critica = any(p in desahogo for p in palabras_criticas)
-    
-    canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
+    if any(p in desahogo for p in palabras_criticas):
+        financial_interceptor_active = True
+        canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
+        financial_interceptor_channel = canal_multimedia
 
-    if es_ruta_critica:
         if canal_multimedia == "SPOTIFY":
-            titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
-            donde_base = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone"
-            guia_masticada = "DESTINO: Spotify Gratis.\nQUÉ HACER: Escucha los sonidos naturales en silencio.\nPARA QUÉ: Detener el impulso de gastar dinero en cosas innecesarias hoy." if lang == "es" else "TARGET: Free Spotify.\nWHAT TO DO: Listen to nature sounds in silence.\nWHY: Stop the urge to buy unnecessary items today."
+            destino_titulo_sugerido = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
+            destino_entorno_sugerido = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone"
+            destino_gps_keywords_sugeridas = "" # No GPS para Spotify/Youtube
             link_base = BIG_TECH_RESOURCES["spotify_audio"]
-            gps_query = "" # No hay query GPS específico para Spotify
         elif canal_multimedia == "YOUTUBE":
-            titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
-            donde_base = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency"
-            guia_masticada = "DESTINO: Video en YouTube.\nQUÉ HACER: Pon el video en pantalla completa.\nPARA QUÉ: Calmar los pensamientos rápidos del día." if lang == "es" else "TARGET: YouTube Video.\nWHAT TO DO: Play the video in full screen.\nWHY: Calm your racing thoughts right now."
+            destino_titulo_sugerido = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
+            destino_entorno_sugerido = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency"
+            destino_gps_keywords_sugeridas = ""
             link_base = BIG_TECH_RESOURCES["youtube_audio"]
-            gps_query = "" # No hay query GPS específico para YouTube
-        else: # Canal "MAPS" para búsqueda de empleo
-            titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION"
-            donde_base = "Oficinas de contratación y staffings corporativos en tu zona." if lang == "es" else "Employment Agency"
-            guia_masticada = f"DESTINO: Oficinas de empleo inmediato.\nQUÉ HACER: Entra ya con tu identificación en mano.\nPARA QUÉ: Para ganarle al agobio del dinero y tomar el control de tu economía hoy.\n{quienes_van}\n{precio_real}" if lang == "es" else f"TARGET: Google Maps.\nWHAT TO DO: Go out straight with your physical ID.\nWHY: Look for a quick job and get cash now.\n{quienes_van}\n{precio_real}"
+        else: # MAPS for staffing agencies
+            destino_titulo_sugerido = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION"
+            destino_entorno_sugerido = "Oficinas de contratación y staffings corporativos en tu zona." if lang == "es" else "Employment Agency"
+            destino_gps_keywords_sugeridas = BIG_TECH_RESOURCES["staffing_agencies"]
             link_base = "https://www.google.com/maps/search/?api=1&query="
-            gps_query = BIG_TECH_RESOURCES["staffing_agencies"]
-    else:
-        # Rutas bilingües de campo ordinarias libres de deudas
-        link_base = "https://www.google.com/maps/search/?api=1&query="
-        if info and "gps" in info:
-            gps_query = info["gps"]
-        else:
-            gps_query = "" # Default si no se encuentra info
-        
-        donde_base = info["donde"] if info and "donde" in info else "Lugar sin nombre" # Default si no se encuentra info
-       
-        if lang == "en":
-            traducciones_guia = {
-                "Sombra de árbol": "TARGET: Tree Shade.\nWHAT TO DO: Touch the bark. Stay under its fresh shade.\nWHY: Your eyes need a rest from screen lights.",
-                "Caminata en subida": "TARGET: Public Stairs.\nWHAT TO DO: Walk up firmly using your strength.\nWHY: Release the physical stress from your body.",
-                "Paseo de colores": "TARGET: Street Art.\nWHAT TO DO: Look at murals in silence. Find hidden details.\nWHY: Break your daily routine with something new."
-            }
-            titulo_ganador_es = info["titulo"] if info and "titulo" in info else "Ruta General"
-            guia_masticada = traducciones_guia.get(titulo_ganador_es, f"TARGET: {donde_base}.\nWHAT TO DO: {info.get('que_hacer', 'Follow the instructions')}\nWHY: {info.get('porque', 'To improve your wellbeing')}\n{quienes_van}\n{precio_real}")
-            titulo_ganador = titulo_ganador_es.upper() # Mantiene el título original en español, solo la guía se traduce
-        else:
-            titulo_ganador_es = info["titulo"] if info and "titulo" in info else "Ruta General"
-            guia_masticada = f"DESTINO: {titulo_ganador_es}.\nPOR QUÉ: {info.get('porque', 'Para recuperar tu centro')}\nQUÉ HACER: {info.get('que_hacer', 'Sigue las instrucciones')}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Para romper el zombi urbano y recordar que la vida es más que pagar cuentas.\n{quienes_van}\n{precio_real}"
-            titulo_ganador = titulo_ganador_es.upper()
-
+    
     # Adaptabilidad del Perfil Biopsicosocial sin exclusión social
-    if perfil == "adultos_mayores": gps_query = "accessible+" + gps_query # Se enfoca en accesibilidad
-    elif perfil == "familia" or perfil == "hijos": gps_query = "family+friendly+" + gps_query
-    elif perfil == "veteranos_guerra": gps_query = "veterans+memorials+" + gps_query
-    elif perfil == "directivos": gps_query = "quiet+places+no+signal+" + gps_query # Lugares tranquilos sin señal
-    elif perfil == "trabajadores_gobierno": gps_query = "state+parks+isolated+" + gps_query # Parques estatales alejados
+    if perfil == "adultos mayores": destino_gps_keywords_sugeridas = "wheelchair+accessible+" + destino_gps_keywords_sugeridas
+    elif perfil == "familia" or perfil == "hijos": destino_gps_keywords_sugeridas = "family+friendly+" + destino_gps_keywords_sugeridas
 
-    # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA ORIGINAL RESTAURADA SIN RECORTE NI ALTERACIONES
-    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
-   
-    if gps_query:
-        if link_base.startswith("http"): # Si link_base es una URL completa (ej. Google Maps)
-            link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
-        else: # Si link_base es solo una base (ej. "staffing+agencies")
-            link_google_maps_vivo = link_base.replace(" ", "+")
-    else: # Si no hay gps_query (ej. Spotify, Youtube)
-        link_google_maps_vivo = link_base.replace(" ", "+")
+    # NOTA: La URL final de window.open se construirá en engine.js después del choque sensorial.
+    # main.py solo proporciona las piezas necesarias para que engine.js lo haga.
+    # El zip_code se usará en engine.js para anclar la búsqueda.
 
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "destino_titulo": titulo_ganador,
-        "destino_entorno": donde_base,
-        "destino_instruccion": guia_masticada.strip(),
-        "destino_coordenadas_gps": link_google_maps_vivo,
-        "token_entorno": info["titulo"] if info and "titulo" in info else "general", # Inyecta la firma para que engine.js sume al perfil dinámico
-        "selected_mente": mente, # Añadido para router psicológico en cliente
-        "selected_budget": budget, # Añadido para router psicológico en cliente
-        "selected_perfil": perfil, # Añadido para router psicológico en cliente
-        "selected_desahogo": desahogo # Añadido para router psicológico en cliente
+        "destino_titulo_sugerido": destino_titulo_sugerido,
+        "destino_entorno_sugerido": destino_entorno_sugerido,
+        "destino_gps_keywords_sugeridas": destino_gps_keywords_sugeridas,
+        "destino_base_url": link_base,
+        "selected_mente": mente,
+        "selected_perfil": perfil,
+        "user_desahogo": desahogo,
+        "user_zip": zip_code,
+        "user_budget": budget,
+        "financial_interceptor_active": financial_interceptor_active,
+        "financial_interceptor_channel": financial_interceptor_channel,
+        "token_entorno": info.get("titulo", "general"), # Para que engine.js sume al perfil dinámico
+        "precio_real_txt": precio_real_txt, # Texto descriptivo para el cliente
+        "quienes_van_txt": quienes_van_txt # Texto descriptivo para el cliente
     })
 
 if __name__ == "__main__":
+    # Configuración para permitir el despliegue en entornos como Heroku con el puerto de la variable de entorno
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
