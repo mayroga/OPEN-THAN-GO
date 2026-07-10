@@ -574,8 +574,10 @@ const KERNEL = {
             this.indiceMision = 0;
 
             if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
-                this.pasosMisiones = data.misiones.slice(0, 3);
-                this.procesarFlujoSecuencial(container);
+                // Para CASA mode, directamente iniciar el reloj clínico (ejercicio de respiración).
+                // Las misiones individuales para CASA ya no se procesan secuencialmente aquí
+                // ya que el usuario desea el círculo respiratorio inmediatamente.
+                this.iniciarRelojClinicoCasa(container, t);
             } else { // ACCION_CAMPO - Incluye la intervención TVid
                 this.iniciarIntervencionTVid();
             }
@@ -587,6 +589,10 @@ const KERNEL = {
         }
     },
 
+    // La función procesarFlujoSecuencial ahora solo se usaría para misiones si se reintroducen,
+    // pero para INTERVENCION_DOMESTICA (CASA) el flujo se ha modificado en ejecutar().
+    // Por lo tanto, el contenido existente de esta función (que antes procesaba misiones) ya no se usa directamente para CASA.
+    // Se mantiene por si hay lógica de ACCION_CAMPO que deba ir aquí, aunque el flujo actual la redirige a tvid.
     procesarFlujoSecuencial(container) {
         clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
@@ -596,7 +602,9 @@ const KERNEL = {
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW" }
         }[this.idiomaActual];
 
-        // MODO CASA
+        // Este bloque ya no se alcanzará para "INTERVENCION_DOMESTICA"
+        // dado el cambio en la función `ejecutar`.
+        // Si se desea reintroducir misiones para CASA, esta lógica debería ser revisada.
         if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
             if (this.indiceMision >= this.pasosMisiones.length) {
                 this.iniciarRelojClinicoCasa(container, t);
@@ -622,13 +630,13 @@ const KERNEL = {
         const container = document.getElementById('wrapper-interactive');
         container.innerHTML = `
             <div id="tvid-intervention-screen">
-                <div id="tvid-countdown">30</div>
+                <div id="tvid-countdown">55</div> <!-- Aumentado a 55 segundos (35 + 20) -->
                 <div id="tvid-phrase-container"></div>
             </div>`;
         
         const phraseContainer = document.getElementById('tvid-phrase-container');
         const countdownElement = document.getElementById('tvid-countdown');
-        let tvidTimeLeft = 30; // 30 segundos forzados
+        let tvidTimeLeft = 55; // Aumentado a 55 segundos (35 + 20)
         this.frasesTVidMostradas = []; // Reiniciar el registro de frases
         
         const tvid = this.TVID_DATA[this.tvidAsignadaGlobal] || this.TVID_DATA["Bien"];
@@ -640,12 +648,13 @@ const KERNEL = {
         const directions = [
             'corner-in', 'side-in', 'bottom-in', 'top-in', 'center-out', 'outside-in'
         ];
-        
-        // Función para crear y mostrar la siguiente frase TVid
-        const createAndDisplayNextPhrase = () => {
+        let currentPhraseIndex = 0;
+
+        // Función para mostrar la siguiente frase TVid
+        const showNextPhrase = () => {
             if (tvidTimeLeft <= 0) return;
 
-            // Selección de frase sin repetición en el ciclo de 30 segundos
+            // Selección de frase sin repetición en el ciclo de 55 segundos
             let availablePhrases = allPhrases.filter(p => !this.frasesTVidMostradas.includes(p));
             if (availablePhrases.length === 0) {
                 this.frasesTVidMostradas = []; // Reiniciar si todas se han mostrado
@@ -655,38 +664,38 @@ const KERNEL = {
             const phrase = availablePhrases[Math.floor(Math.random() * availablePhrases.length)];
             this.frasesTVidMostradas.push(phrase); // Marcar como mostrada
 
-            const newPhrase = document.createElement('div');
-            newPhrase.className = 'tvid-phrase';
-            newPhrase.textContent = phrase;
-            
-            // Asignar dirección de animación aleatoria
-            const randomDirection = directions[Math.floor(Math.random() * directions.length)];
-            newPhrase.classList.add(randomDirection);
-            phraseContainer.appendChild(newPhrase);
-            
-            // Hablar la frase
-            this.hablar(phrase);
-
-            // Esperar un poco antes de mostrar la siguiente (ajustar para lectura y audio)
-            const readingTime = Math.max(phrase.length * 80, 4000); // 80ms por caracter, mínimo 4 segundos
-            
-            if (tvidTimeLeft > 0) {
-                this.temporizadorTVid = setTimeout(showNextPhrase, readingTime);
-            }
-        };
-
-        // Función para gestionar el ciclo de frases, incluyendo la eliminación de la anterior
-        const showNextPhrase = () => {
+            // Eliminar frase anterior si existe
             const oldPhrase = phraseContainer.querySelector('.tvid-phrase');
             if (oldPhrase) {
+                oldPhrase.classList.remove('show');
                 oldPhrase.classList.add('hide'); // Iniciar animación de salida
-                oldPhrase.addEventListener('animationend', () => {
-                    oldPhrase.remove(); // Eliminar la frase anterior después de la animación
-                    createAndDisplayNextPhrase(); // Luego, crear y mostrar la nueva
-                }, { once: true });
-            } else {
-                createAndDisplayNextPhrase(); // Si no hay frase anterior, crear y mostrar la nueva inmediatamente
+                oldPhrase.addEventListener('animationend', () => oldPhrase.remove(), { once: true });
             }
+
+            // Crear y mostrar nueva frase
+            setTimeout(() => { // Pequeña pausa para evitar solapamiento visual/auditivo
+                const newPhrase = document.createElement('div');
+                newPhrase.className = 'tvid-phrase';
+                newPhrase.textContent = phrase;
+                
+                // Asignar dirección de animación aleatoria
+                const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+                newPhrase.classList.add(randomDirection);
+                phraseContainer.appendChild(newPhrase);
+                
+                // Hablar la frase
+                this.hablar(phrase);
+
+                // Esperar un poco antes de mostrar la siguiente (ajustar para lectura y audio)
+                // Usamos un tiempo basado en la longitud de la frase
+                // Se mantiene el cálculo de readingTime, el pedido era por "ejercicios más cortos" (texto)
+                // y "pantalla dinámica", lo cual se logra con las animaciones y el cambio de frase.
+                const readingTime = Math.max(phrase.length * 80, 4000); // 80ms por caracter, mínimo 4 segundos
+                
+                if (tvidTimeLeft > 0) {
+                    this.temporizadorTVid = setTimeout(showNextPhrase, readingTime);
+                }
+            }, 500); // Retraso de 0.5s para la entrada de la nueva frase
         };
 
         // Iniciar el ciclo de frases
@@ -702,9 +711,6 @@ const KERNEL = {
                 clearTimeout(this.temporizadorTVid); // Detener el temporizador de frases
                 window.speechSynthesis.cancel(); // Cancelar cualquier voz en curso
                 
-                // Asegurar que todas las frases se eliminen al finalizar el conteo
-                phraseContainer.innerHTML = ''; 
-
                 // Mostrar el destino final de acción de campo
                 this.mostrarDestinoAccionCampo();
             }
@@ -893,7 +899,7 @@ const KERNEL = {
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
-        // sessionStorage.clear(); // No borrar el local storage, solo reiniciar la app
+        // sessionStorage.clear(); // Se mantiene comentado o se elimina si no es necesario para el reinicio
         location.reload();
     }
 };
