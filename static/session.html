@@ -66,25 +66,24 @@
 
         /* Header persistente en modo CASA */
         body.casa-mode-active .header-wrapper {
-            position: fixed; /* O fixed si quieres que flote */
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            padding: 25px 0; /* Aumentar padding para más tamaño */
-            background-color: rgba(0,0,0,0.6); /* Fondo semi-transparente */
-            z-index: 1000; /* Asegurar que esté por encima de otros elementos */
+            padding: 25px 0;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 1000;
             transition: all 0.5s ease;
         }
         body.casa-mode-active .header-wrapper h1.dynamic-title {
-            font-size: 1.8rem; /* Aumentar tamaño del título */
+            font-size: 1.8rem;
             letter-spacing: 0.4em;
-            text-shadow: 0 0 15px rgba(0,188,212,0.5), 0 0 20px rgba(46,125,50,0.5); /* Aumentar sombra */
+            text-shadow: 0 0 15px rgba(0,188,212,0.5), 0 0 20px rgba(46,125,50,0.5);
         }
         body.casa-mode-active .header-wrapper .sky-container {
-            opacity: 0.4; /* Hacer las nubes más visibles */
-            filter: blur(2px); /* Menos blur para más presencia */
+            opacity: 0.4;
+            filter: blur(2px);
         }
-        /* Ajustar el cuerpo para que el contenido no quede debajo del header fijo */
         body.casa-mode-active {
             padding-top: 100px; /* Altura aproximada del header en modo CASA */
         }
@@ -143,7 +142,7 @@
         #breath-circle { width: 135px; height: 135px; background: rgba(0, 188, 212, 0.15); border: 3px solid #00bcd4; border-radius: 50%; margin: 35px auto; box-shadow: 0 0 20px rgba(0,188,212,0.2); animation: elasticLung 8s infinite ease-in-out; }
         @keyframes elasticLung { 0% { transform: scale(0.85); } 50% { transform: scale(1.15); background: rgba(0, 188, 212, 0.3); } 100% { transform: scale(0.85); } }
         #timer { font-weight: 900; text-align: center; font-size: 3.2rem; margin: 15px 0; color: #fff; }
-        #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: #00bcd4; text-align: center; letter-spacing: 2px; }
+        #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: var(--light-blue); text-align: center; letter-spacing: 2px; }
 
         /* Estilos para la intervención TVid® */
         #tvid-intervention-screen {
