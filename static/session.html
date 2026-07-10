@@ -162,18 +162,11 @@
             max-width: 80%; /* Asegurar que las frases no sean demasiado anchas */
             text-shadow: 0 0 15px rgba(255,255,255,0.4);
         }
-        .tvid-phrase.show {
-            animation: fadeInOut 5s forwards; /* Animación de entrada y salida general */
-        }
+        
         .tvid-phrase.hide {
             animation: fadeOut 0.5s forwards;
         }
-        @keyframes fadeInOut {
-            0% { opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { opacity: 0; }
-        }
+        
         @keyframes fadeOut {
             0% { opacity: 1; }
             100% { opacity: 0; }
