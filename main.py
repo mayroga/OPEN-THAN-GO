@@ -11,9 +11,11 @@ import random
 
 app = FastAPI()
 
+# Crear el directorio 'static' si no existe
 if not os.path.exists("static"):
     os.makedirs("static")
 
+# Montar StaticFiles para servir archivos estáticos
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Tu base de misiones original completa + Inyección Vectorial de 19 Necesidades Humanas
@@ -150,13 +152,19 @@ BIG_TECH_RESOURCES = {
 
 @app.get("/")
 async def index():
+    """Sirve el archivo HTML principal de la aplicación."""
     return FileResponse('static/session.html')
 
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
+    """
+    Gestiona las peticiones del frontend para direccionar al usuario
+    ya sea a una intervención doméstica o una acción de campo.
+    """
     payload = await request.json()
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
+    # Estas variables no se usan en el frontend actual, pero se mantienen por si se añaden.
     estado = str(payload.get("estado", "FL")).strip()
     region = str(payload.get("region", "")).strip()
     
@@ -170,18 +178,22 @@ async def mando_integral(request: Request):
     # Captura las métricas de clics acumuladas localmente en engine.js para las 19 necesidades
     perfil_local = payload.get("perfil_local", {})
 
-    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA ORIGINAL INTACTO)
+    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
-        # Combina las misiones CASA y CASA_EXTRA
+        # Combina las misiones CASA y CASA_EXTRA para la selección
         misiones_disponibles = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"]
         
         # Ponderación para seleccionar 3 misiones de CASA basadas en perfil_local
+        # Esto es solo un ejemplo de cómo se podría usar el perfil local para CASA
+        # El frontend actual para CASA salta directamente al ejercicio de respiración,
+        # pero esta lógica estaría lista si se volvieran a usar misiones individuales.
         if perfil_local:
             misiones_ponderadas = []
             for mision in misiones_disponibles:
                 score_mision = 0
                 vector_mision = mision.get("vector_necesidades", {})
                 for necesidad, peso_usuario in perfil_local.items():
+                    # Multiplicar el peso del usuario por el peso del lugar para esa necesidad
                     score_mision += vector_mision.get(necesidad, 50) * peso_usuario
                 misiones_ponderadas.append((score_mision, mision))
             
@@ -190,73 +202,75 @@ async def mando_integral(request: Request):
             misiones_finales = [m[1] for m in misiones_ponderadas[:3]]
         else:
             random.shuffle(misiones_disponibles)
-            misiones_finales = misiones_disponibles[:3]
+            misiones_finales = misiones_disponibles[:3] # Seleccionar 3 aleatorias si no hay perfil
 
+        # Actualmente, el modo CASA en el frontend salta directo al reloj clínico,
+        # por lo que las misiones_finales aquí podrían no ser directamente utilizadas
+        # salvo que se modifique el frontend para reintroducir pasos de misión.
         return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones_finales})
 
     # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN Y TVid)
     # Selecciona la TVid basada en mente_seleccionada y desahogo_texto
     tvid_asignada = "Bien" # Asignación por defecto
-    if "ansioso" in mente_seleccionada or "miedo" in desahogo_texto:
-        tvid_asignada = "Mal"
-    elif "cansado" in mente_seleccionada or "estresado" in mente_seleccionada or "presion corporativa" in desahogo_texto:
-        tvid_asignada = "Beso"
-    elif "aburrido" in mente_seleccionada or "hijos" in perfil_seleccionado or "familia" in perfil_seleccionado:
-        tvid_asignada = "Niño"
-    elif "agotado" in mente_seleccionada or "directivos" in perfil_seleccionado or "empresarios" in perfil_seleccionado:
-        tvid_asignada = "Madre"
-    elif "procrastinacion" in desahogo_texto or "posponiendo" in desahogo_texto:
-        tvid_asignada = "Padre"
-    elif "veteranos" in perfil_seleccionado or len(desahogo_texto.split()) > 10 or "crisis" in desahogo_texto:
-        tvid_asignada = "Guerra"
-    
+    if "ansioso" in mente_seleccionada or "miedo" in desahogo_texto or "nervios" in desahogo_texto:
+        tvid_asignada = "Mal" # Enfocarse en prevención y planes B
+    elif "cansado" in mente_seleccionada or "estresado" in mente_seleccionada or "presion corporativa" in desahogo_texto or "agotamiento" in desahogo_texto:
+        tvid_asignada = "Beso" # Activar afecto y gratitud para reducir tensión
+    elif "aburrido" in mente_seleccionada or "hijos" in perfil_seleccionado or "familia" in perfil_seleccionado or "monotonía" in desahogo_texto:
+        tvid_asignada = "Niño" # Recuperar la creatividad y el juego
+    elif "agotado" in mente_seleccionada or "directivos" in perfil_seleccionado or "empresarios" in perfil_seleccionado or "carga" in desahogo_texto:
+        tvid_asignada = "Madre" # Cuidado, paciencia y autocompasión
+    elif "procrastinacion" in desahogo_texto or "posponiendo" in desahogo_texto or "flojera" in desahogo_texto:
+        tvid_asignada = "Padre" # Disciplina, responsabilidad y acción
+    elif "veteranos" in perfil_seleccionado or len(desahogo_texto.split()) > 10 or "crisis" in desahogo_texto or "guerra" in desahogo_texto:
+        tvid_asignada = "Guerra" # Combinación de todas las técnicas para situaciones extremas
+
     # LÓGICA CWRE INTEGRADA para destinos SALIR
-    # Cruza las preferencias implícitas de las 19 necesidades enviadas por el smartphone
     opciones_salir_candidatas = list(BASE_MISIONES["SALIR"].values())
     
     mejor_score = -1
-    info_salida = opciones_salir_candidatas[0] # Fallback por defecto
+    info_salida = opciones_salir_candidatas[0] # Fallback por defecto si no hay coincidencia
 
     for opc in opciones_salir_candidatas:
         vector_lugar = opc.get("vector_necesidades", {})
         score_coincidencia = 0
         
         for necesidad, peso_usuario in perfil_local.items():
-            # Peso de usuario es el contador de clicks, vector_lugar es el peso del lugar para esa necesidad
+            # Sumar los pesos del historial interno del usuario contra la puntuación del entorno
+            # Asumiendo que `peso_usuario` ya es un valor ponderado o contador de clics
             score_coincidencia += vector_lugar.get(necesidad, 50) * peso_usuario
             
         if score_coincidencia > mejor_score:
             mejor_score = score_coincidencia
             info_salida = opc
 
-    # Filtro de precio real en palabras cortas de acción
+    # Filtro de precio real en palabras cortas de acción (bilingüe)
     if budget_seleccionado == "0":
-        precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy."
+        precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
     elif budget_seleccionado == "1":
-        precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina."
-    else: # "libre"
-        precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy."
+        precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
+    else: # "libre" o cualquier otro
+        precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
     
-    # Filtro de acompañantes reales
+    # Filtro de acompañantes reales (bilingüe)
     if perfil_seleccionado == "solo":
-        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro."
+        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to recover your center."
     elif perfil_seleccionado == "familia" or perfil_seleccionado == "hijos":
-        quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia."
+        quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for the relief of your children and family."
     elif perfil_seleccionado == "adultos mayores":
-        quienes_van = "ACOMPAÑAMIENTO: Considera un lugar de fácil acceso."
+        quienes_van = "ACOMPAÑAMIENTO: Considera un lugar de fácil acceso." if lang == "es" else "COMPANIONSHIP: Consider an easily accessible place."
     elif perfil_seleccionado == "veteranos":
-        quienes_van = "ACOMPAÑAMIENTO: Respeto y tranquilidad para tu servicio."
+        quienes_van = "ACOMPAÑAMIENTO: Respeto y tranquilidad para tu servicio." if lang == "es" else "COMPANIONSHIP: Respect and tranquility for your service."
     else: # directivos, trabajadores_gobierno, etc. o cualquier otro
-        quienes_van = "ACOMPAÑAMIENTO: Entorno flexible para tu necesidad."
+        quienes_van = "ACOMPAÑAMIENTO: Entorno flexible para tu necesidad." if lang == "es" else "COMPANIONSHIP: Flexible environment for your needs."
 
     # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO INTERCEPTOR
-    # Considera también la 'mente_seleccionada' para activar este filtro
     palabras_criticas_finanzas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economía", "laboral", "pago", "despido", "financiero"]
     
     # Amplía las condiciones para activar el filtro de supervivencia laboral
     activar_filtro_laboral = any(p in desahogo_texto for p in palabras_criticas_finanzas) or \
                              (mente_seleccionada in ["estresado", "ansioso", "agotado"] and \
-                             any(p in mente_seleccionada for p in ["trabajo", "biles", "dinero"]))
+                             any(p in mente_seleccionada for p in ["trabajo", "biles", "dinero", "empleo"]))
 
     canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
 
@@ -299,7 +313,7 @@ async def mando_integral(request: Request):
             guia_masticada = f"DESTINO: {info_salida['titulo']}.\nPOR QUÉ: {info_salida['porque']}\nQUÉ HACER: {info_salida['que_hacer']}\nCUÁNDO: Ahora mismo. Levántate de la silla ya.\nPARA QUÉ: Para romper el zombi urbano y recordar que la vida es más que pagar cuentas.\n{quienes_van}\n{precio_real}"
             titulo_ganador = info_salida["titulo"].upper()
 
-    # Adaptabilidad del Perfil Biopsicosocial sin exclusión social
+    # Adaptabilidad del Perfil Biopsicosocial sin exclusión social para la búsqueda GPS
     if perfil_seleccionado == "adultos mayores": gps_query = "accessible+for+seniors+" + gps_query
     elif perfil_seleccionado == "familia": gps_query = "family+friendly+" + gps_query
     elif perfil_seleccionado == "hijos": gps_query = "children+friendly+" + gps_query
@@ -309,7 +323,7 @@ async def mando_integral(request: Request):
 
     # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA ORIGINAL RESTAURADA SIN RECORTE NI ALTERACIONES
     anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
-
+   
     if gps_query:
         if link_base.startswith("http"):
             link_google_maps_vivo = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
@@ -324,8 +338,8 @@ async def mando_integral(request: Request):
         "destino_entorno": donde_base,
         "destino_instruccion": guia_masticada.strip(),
         "destino_coordenadas_gps": link_google_maps_vivo,
-        "token_entorno": info_salida["titulo"] if "titulo" in info_salida else "general",
-        "tvid_asignada": tvid_asignada
+        "token_entorno": info_salida["titulo"] if "titulo" in info_salida else "general", # Inyecta la firma para que engine.js sume al perfil dinámico
+        "tvid_asignada": tvid_asignada # Devuelve la TVid asignada al frontend
     })
 
 if __name__ == "__main__":
