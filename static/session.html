@@ -13,16 +13,12 @@
             --bg: #000;
             --panel: #111;
             --text: #fff;
-            --accent: #d84315; /* Naranja/Rojo para énfasis */
-            --secondary: #0d47a1; /* Azul profundo */
-            --green-action: #2e7d32; /* Verde para acciones */
-            --cyan-active: #00bcd4; /* Cian para elementos activos */
-            --red-alert: #d84315; /* Rojo para alertas */
-            --grey-text: #666;
-            --dark-border: #222;
+            --accent: #d84315; /* Naranja/rojo para alertas/énfasis */
+            --secondary: #0d47a1; /* Azul profundo para botones de acción */
+            --green-action: #2e7d32; /* Verde para acciones principales */
+            --light-blue: #00bcd4; /* Azul claro para elementos de calma */
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { height: 100%; overflow: hidden; } /* Previene scroll no deseado */
         body {
             background-color: var(--bg);
             color: var(--text);
@@ -33,11 +29,10 @@
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
-            position: relative;
         }
         .container { width: 95%; max-width: 420px; padding: 15px; position: relative; z-index: 10; }
         .lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; }
-        .btn-lang { background: var(--dark-border); color: var(--grey-text); border: none; padding: 6px 12px; font-weight: 900; border-radius: 4px; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; }
+        .btn-lang { background: #222; color: #666; border: none; padding: 6px 12px; font-weight: 900; border-radius: 4px; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; }
         .btn-lang.active { background: #fff; color: #000; }
        
         /* ANIMACIÓN MAESTRA DEL TÍTULO CON SENSACIÓN DE AIRE Y NUBES */
@@ -49,7 +44,7 @@
             100% { transform: translateY(0px); }
         }
         @keyframes colorShift {
-            0% { color: var(--cyan-active); text-shadow: 0 0 10px rgba(0,188,212,0.3); }
+            0% { color: var(--light-blue); text-shadow: 0 0 10px rgba(0,188,212,0.3); }
             100% { color: var(--green-action); text-shadow: 0 0 10px rgba(46,125,50,0.3); }
         }
        
@@ -71,172 +66,150 @@
         /* EL ORÁCULO: EFECTO CASCADA HACIA ARRIBA */
         .oraculo-scroll-box { position: relative; min-height: 280px; overflow: hidden; margin-bottom: 20px; }
         .oraculo-grid { display: flex; flex-direction: column; gap: 12px; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
-        .btn-pregunta-crisis { width: 100%; background: var(--panel); color: #eee; border: 1px solid var(--dark-border); padding: 16px; font-size: 1.05rem; font-weight: bold; text-align: left; border-radius: 8px; cursor: pointer; transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s; line-height: 1.4; transform-origin: top center; }
+        .btn-pregunta-crisis { width: 100%; background: var(--panel); color: #eee; border: 1px solid #222; padding: 16px; font-size: 1.05rem; font-weight: bold; text-align: left; border-radius: 8px; cursor: pointer; transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s; line-height: 1.4; transform-origin: top center; }
         .btn-pregunta-crisis.fade-out { opacity: 0; transform: scale(0.8) translateY(-30px); margin-bottom: -64px; pointer-events: none; }
        
         .field { margin-bottom: 12px; transition: all 0.5s ease; }
-        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: var(--grey-text); margin-bottom: 4px; font-weight: bold; }
-        input, select, textarea { width: 100%; background: var(--panel); border: 1px solid var(--dark-border); color: var(--text); padding: 12px; border-radius: 4px; font-size: 0.95rem; outline: none; }
+        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 4px; font-weight: bold; }
+        input, select, textarea { width: 100%; background: var(--panel); border: 1px solid #222; color: var(--text); padding: 12px; border-radius: 4px; font-size: 0.95rem; outline: none; }
         textarea { height: 65px; resize: none; border-color: #333; }
         textarea:focus { border-color: var(--accent); }
        
+        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; margin-bottom: 20px; }
+        .btn-group button {
+            flex-grow: 1; /* Permitir que los botones crezcan para llenar el espacio */
+            min-width: 90px; /* Ancho mínimo para evitar que se aplasten */
+            background: var(--panel);
+            color: #ccc;
+            border: 1px solid #222;
+            padding: 10px 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-group button.selected {
+            background: var(--green-action);
+            color: #fff;
+            border-color: #4caf50;
+            box-shadow: 0 0 8px rgba(46,125,50,0.5);
+            transform: scale(1.03);
+        }
+        .btn-group button:hover:not(.selected) {
+            background: #222;
+            border-color: #444;
+        }
+
         .hidden { display: none !important; }
        
-        #pantalla-bienvenida { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); display:flex; justify-content:center; align-items:center; z-index:9999; }
+        #pantalla-bienvenida { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; }
         .btn-bienvenida { background:#fff; color:#000; padding:22px 45px; font-weight:900; cursor:pointer; text-transform:uppercase; border-radius:4px; font-size: 0.95rem; border: none; letter-spacing: 1px; }
        
-        .mision-card { border: 1px solid var(--dark-border); padding: 26px; text-align: left; background: #0a0a0a; border-radius: 12px; width: 100%; }
-        .mision-card small { color: var(--grey-text); font-weight: bold; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
+        .mision-card { border: 1px solid #222; padding: 26px; text-align: left; background: #0a0a0a; border-radius: 12px; width: 100%; }
+        .mision-card small { color: #666; font-weight: bold; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
         .mision-card h2, .mision-card h3 { color: var(--green-action); font-size: 1.45rem; font-weight: 900; text-transform: uppercase; margin-top: 0; margin-bottom: 15px; }
         .mision-card p, .mision-card .instruccion-text { font-size: 1.25rem; line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid var(--green-action); padding-left: 14px; text-align: left; font-weight: bold; }
        
-        #breath-circle { width: 135px; height: 135px; background: rgba(0, 188, 212, 0.15); border: 3px solid var(--cyan-active); border-radius: 50%; margin: 35px auto; box-shadow: 0 0 20px rgba(0,188,212,0.2); animation: elasticLung 8s infinite ease-in-out; }
+        #breath-circle { width: 135px; height: 135px; background: rgba(0, 188, 212, 0.15); border: 3px solid #00bcd4; border-radius: 50%; margin: 35px auto; box-shadow: 0 0 20px rgba(0,188,212,0.2); animation: elasticLung 8s infinite ease-in-out; }
         @keyframes elasticLung { 0% { transform: scale(0.85); } 50% { transform: scale(1.15); background: rgba(0, 188, 212, 0.3); } 100% { transform: scale(0.85); } }
         #timer { font-weight: 900; text-align: center; font-size: 3.2rem; margin: 15px 0; color: #fff; }
-        #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: var(--cyan-active); text-align: center; letter-spacing: 2px; }
+        #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: #00bcd4; text-align: center; letter-spacing: 2px; }
 
-        /* Filtros interactivos */
-        .filter-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-        .filter-group label { width: 100%; margin-bottom: 5px; }
-        .filter-button { background: var(--panel); color: #aaa; border: 1px solid #333; padding: 10px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s ease; }
-        .filter-button.selected { background: var(--green-action); color: #fff; border-color: var(--green-action); box-shadow: 0 0 8px rgba(46,125,50,0.5); }
-        .filter-button:hover:not(.selected) { background: #1a1a1a; border-color: #555; }
-       
-        /* PANTALLA DE CHOQUE SENSORIAL */
-        #pantalla-choque {
+        /* Estilos para la intervención TVid® */
+        #tvid-intervention-screen {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: var(--bg); /* Fondo negro absoluto */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9990;
-            overflow: hidden; /* Importante para el texto que entra y sale */
+            z-index: 100;
+            overflow: hidden;
         }
-        #choque-countdown {
+        #tvid-countdown {
             position: absolute;
-            top: 40px; /* Arriba */
-            right: 40px; /* Derecha */
-            font-size: 2.5rem;
+            top: 20px;
+            right: 20px;
+            font-size: 3rem;
             font-weight: 900;
-            color: var(--accent); /* Color llamativo */
+            color: var(--accent);
+            z-index: 101;
             text-shadow: 0 0 10px rgba(216,67,21,0.5);
-            z-index: 10000;
         }
-        #choque-content {
+        #tvid-phrase-container {
             position: relative;
             width: 90%;
-            height: 90%;
+            height: 70%; /* Centrar y contener las frases */
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1000px; /* Para efectos 3D si se añaden */
         }
-        .shock-text {
+        .tvid-phrase {
             position: absolute;
-            font-size: 1.8rem; /* Tamaño de ráfaga */
+            font-size: 1.8rem; /* Tamaño más grande para énfasis */
             font-weight: 900;
             text-align: center;
-            line-height: 1.3;
+            color: #fff;
             padding: 10px;
             opacity: 0;
-            animation: fadeInOut 4s forwards; /* Animación base de fade */
-            text-shadow: 0 0 10px rgba(255,255,255,0.3);
-            max-width: 80%; /* Para que no se salga del ancho */
+            will-change: transform, opacity; /* Optimización de rendimiento */
+            line-height: 1.3;
+            max-width: 80%; /* Asegurar que las frases no sean demasiado anchas */
+            text-shadow: 0 0 15px rgba(255,255,255,0.4);
         }
-
-        /* @keyframes para los movimientos en seis direcciones espaciales exactas */
+        .tvid-phrase.show {
+            animation: fadeInOut 5s forwards; /* Animación de entrada y salida general */
+        }
+        .tvid-phrase.hide {
+            animation: fadeOut 0.5s forwards;
+        }
         @keyframes fadeInOut {
-            0% { opacity: 0; transform: translate(0,0) scale(0.8); }
-            20% { opacity: 1; transform: translate(0,0) scale(1); }
-            80% { opacity: 1; transform: translate(0,0) scale(1); }
-            100% { opacity: 0; transform: translate(0,0) scale(0.8); }
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
         }
 
-        /* 1. De una esquina al centro (ej. Top-Left) */
-        .anim-corner-tl { animation: cornerTlToCenter 4s forwards; }
-        @keyframes cornerTlToCenter {
-            0% { opacity: 0; transform: translate(-100vw, -100vh); }
-            20% { opacity: 1; transform: translate(0, 0); }
-            80% { opacity: 1; transform: translate(0, 0); }
-            100% { opacity: 0; transform: translate(100vw, 100vh); } /* sale por la esquina opuesta */
+        /* ANIMACIONES MULTIDIRECCIONALES (6 direcciones) */
+        .tvid-phrase.corner-in { animation: cornerIn 2s ease-out forwards; }
+        @keyframes cornerIn {
+            from { transform: translate(-100vw, -100vh) scale(0.5); opacity: 0; }
+            to { transform: translate(0, 0) scale(1); opacity: 1; }
         }
-        .anim-corner-tr { animation: cornerTrToCenter 4s forwards; }
-        @keyframes cornerTrToCenter {
-            0% { opacity: 0; transform: translate(100vw, -100vh); }
-            20% { opacity: 1; transform: translate(0, 0); }
-            80% { opacity: 1; transform: translate(0, 0); }
-            100% { opacity: 0; transform: translate(-100vw, 100vh); }
+        .tvid-phrase.side-in { animation: sideIn 2s ease-out forwards; }
+        @keyframes sideIn {
+            from { transform: translateX(100vw); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-        .anim-corner-bl { animation: cornerBlToCenter 4s forwards; }
-        @keyframes cornerBlToCenter {
-            0% { opacity: 0; transform: translate(-100vw, 100vh); }
-            20% { opacity: 1; transform: translate(0, 0); }
-            80% { opacity: 1; transform: translate(0, 0); }
-            100% { opacity: 0; transform: translate(100vw, -100vh); }
+        .tvid-phrase.bottom-in { animation: bottomIn 2s ease-out forwards; }
+        @keyframes bottomIn {
+            from { transform: translateY(100vh); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
-        .anim-corner-br { animation: cornerBrToCenter 4s forwards; }
-        @keyframes cornerBrToCenter {
-            0% { opacity: 0; transform: translate(100vw, 100vh); }
-            20% { opacity: 1; transform: translate(0, 0); }
-            80% { opacity: 1; transform: translate(0, 0); }
-            100% { opacity: 0; transform: translate(-100vw, -100vh); }
+        .tvid-phrase.top-in { animation: topIn 2s ease-out forwards; }
+        @keyframes topIn {
+            from { transform: translateY(-100vh); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
-
-        /* 2. De un lado al centro (ej. Izquierda) */
-        .anim-side-l { animation: sideLToCenter 4s forwards; }
-        @keyframes sideLToCenter {
-            0% { opacity: 0; transform: translateX(-100vw); }
-            20% { opacity: 1; transform: translateX(0); }
-            80% { opacity: 1; transform: translateX(0); }
-            100% { opacity: 0; transform: translateX(100vw); }
-        }
-        .anim-side-r { animation: sideRToCenter 4s forwards; }
-        @keyframes sideRToCenter {
-            0% { opacity: 0; transform: translateX(100vw); }
-            20% { opacity: 1; transform: translateX(0); }
-            80% { opacity: 1; transform: translateX(0); }
-            100% { opacity: 0; transform: translateX(-100vw); }
-        }
-
-        /* 3. De abajo al centro */
-        .anim-bottom { animation: bottomToCenter 4s forwards; }
-        @keyframes bottomToCenter {
-            0% { opacity: 0; transform: translateY(100vh); }
-            20% { opacity: 1; transform: translateY(0); }
-            80% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-100vh); }
-        }
-
-        /* 4. De arriba al centro */
-        .anim-top { animation: topToCenter 4s forwards; }
-        @keyframes topToCenter {
-            0% { opacity: 0; transform: translateY(-100vh); }
-            20% { opacity: 1; transform: translateY(0); }
-            80% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(100vh); }
-        }
-
-        /* 5. Del centro hacia afuera */
-        .anim-center-out { animation: centerOut 4s forwards; }
+        .tvid-phrase.center-out { animation: centerOut 2s ease-out forwards; }
         @keyframes centerOut {
-            0% { opacity: 0; transform: scale(0.1); }
-            20% { opacity: 1; transform: scale(1); }
-            80% { opacity: 1; transform: scale(1.2); }
-            100% { opacity: 0; transform: scale(2); }
+            from { transform: scale(0.2); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
-
-        /* 6. De afuera hacia adentro (concentración) */
-        .anim-out-in { animation: outIn 4s forwards; }
-        @keyframes outIn {
-            0% { opacity: 0; transform: scale(3); }
-            20% { opacity: 1; transform: scale(1); }
-            80% { opacity: 1; transform: scale(0.8); }
-            100% { opacity: 0; transform: scale(0.5); }
+        .tvid-phrase.outside-in { animation: outsideIn 2s ease-out forwards; }
+        @keyframes outsideIn {
+            from { transform: scale(2); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
-
     </style>
 </head>
 <body>
@@ -259,56 +232,63 @@
             <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1>
         </div>
        
-        <!-- ENTRADA DE GEOLOCALIZACIÓN CORREGIDA -->
+        <!-- ENTRADA DE GEOLOCALIZACIÓN Y MODO -->
         <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
             <div style="flex: 2;">
                 <label id="lbl-zip">ZIP Code</label>
                 <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5">
             </div>
             <div style="flex: 1;">
-                <label>Modo</label>
+                <label id="lbl-mode">Modo</label>
                 <select id="modo-selector">
                     <option value="SALIR" selected>SALIR</option>
                     <option value="CASA">CASA</option>
                 </select>
             </div>
         </div>
-       
-        <!-- BOTONES DE FILTRO DE ESTADO MENTAL -->
-        <div class="filter-group">
-            <label>Estado Mental:</label>
-            <button class="filter-button btn-mente" data-mente="aburrido">Aburrido</button>
-            <button class="filter-button btn-mente" data-mente="agotado">Agotado</button>
-            <button class="filter-button btn-mente" data-mente="estresado">Estresado</button>
-            <button class="filter-button btn-mente" data-mente="cansado">Cansado</button>
-            <button class="filter-button btn-mente" data-mente="ansioso">Ansioso</button>
-        </div>
 
-        <!-- BOTONES DE FILTRO DE CONTROL DE CONSUMO -->
-        <div class="filter-group">
-            <label>Control de Consumo:</label>
-            <button class="filter-button btn-budget" data-budget="0">Gratis</button>
-            <button class="filter-button btn-budget" data-budget="1">Bajo Gasto</button>
-        </div>
+        <!-- NUEVOS SELECTORES PARA ESTADO MENTAL, PRESUPUESTO Y CONTEXTO SOCIAL -->
+        <div id="selectors-container">
+            <div class="field">
+                <label id="lbl-mente">Estado Mental</label>
+                <div class="btn-group">
+                    <button class="btn-selector-mente" data-value="aburrido" data-key="aburrido">Aburrido</button>
+                    <button class="btn-selector-mente" data-value="agotado" data-key="agotado">Agotado</button>
+                    <button class="btn-selector-mente" data-value="estresado" data-key="estresado">Estresado</button>
+                    <button class="btn-selector-mente" data-value="cansado" data-key="cansado">Cansado</button>
+                    <button class="btn-selector-mente" data-value="ansioso" data-key="ansioso">Ansioso</button>
+                </div>
+            </div>
 
-        <!-- MENÚ DE CONTEXTO SOCIAL E IDENTIDAD -->
-        <div class="filter-group">
-            <label>Contexto Social:</label>
-            <button class="filter-button btn-social" data-perfil="solo">Solo</button>
-            <button class="filter-button btn-social" data-perfil="familia">Familia</button>
-            <button class="filter-button btn-social" data-perfil="hijos">Hijos</button>
-            <button class="filter-button btn-social" data-perfil="adultos mayores">Adultos Mayores</button>
-            <button class="filter-button btn-social" data-perfil="veteranos de guerra">Veteranos de Guerra</button>
-            <button class="filter-button btn-social" data-perfil="directivos/empresarios">Directivos/Empresarios</button>
-            <button class="filter-button btn-social" data-perfil="trabajadores del gobierno">Trabajadores del Gobierno</button>
+            <div class="field">
+                <label id="lbl-budget">Presupuesto</label>
+                <div class="btn-group">
+                    <button class="btn-selector-budget" data-value="0" data-key="zero">Gratis</button>
+                    <button class="btn-selector-budget" data-value="1" data-key="low">Bajo Gasto</button>
+                    <button class="btn-selector-budget" data-value="libre" data-key="free">Libre</button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label id="lbl-perfil">Contexto Social</label>
+                <div class="btn-group">
+                    <button class="btn-selector-perfil" data-value="solo" data-key="solo">Solo</button>
+                    <button class="btn-selector-perfil" data-value="familia" data-key="familia">Familia</button>
+                    <button class="btn-selector-perfil" data-value="hijos" data-key="hijos">Hijos</button>
+                    <button class="btn-selector-perfil" data-value="adultos mayores" data-key="adultos">Adultos Mayores</button>
+                    <button class="btn-selector-perfil" data-value="veteranos" data-key="veteranos">Veteranos de Guerra</button>
+                    <button class="btn-selector-perfil" data-value="directivos" data-key="directivos">Directivos/Empresarios</button>
+                    <button class="btn-selector-perfil" data-value="trabajadores del gobierno" data-key="gobierno">Trabajadores del Gobierno</button>
+                </div>
+            </div>
         </div>
        
         <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent); font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
        
-        <!-- CAJÓN DE DESPLAZAMIENTO CASCADA -->
-        <div class="oraculo-scroll-box">
+        <!-- CAJÓN DE DESPLAZAMIENTO CASCADA (Oracle Questions) -->
+        <div class="oraculo-scroll-box" id="oracle-container">
             <div class="oraculo-grid" id="contenedor-preguntas-oraculo">
-                <!-- Las preguntas se inyectan dinámicamente -->
+                <!-- Las preguntas se inyectan dinámicamente aquí -->
             </div>
         </div>
        
@@ -316,19 +296,14 @@
         <div class="field" id="bloque-escritura-libre">
             <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label>
             <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea>
-            <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
+            <button id="btn-activar-libre" disabled style="width: 100%; background: #111; color: #555; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
         </div>
 
         <input type="hidden" id="inp-text-invisible">
     </div>
 
-    <!-- CONTENEDOR DE SALIDA INTERACTIVA PARA MISIONES CASA (PULMÓN) -->
+    <!-- CONTENEDOR DE SALIDA INTERACTIVA PARA PARQUES, VIDEOS Y PULMÓN -->
     <div class="container hidden" id="wrapper-interactive"></div>
-
-    <!-- PANTALLA DE CHOQUE SENSORIAL PARA MODO SALIR -->
-    <div id="pantalla-choque" class="hidden">
-        <!-- Contenido inyectado dinámicamente por engine.js -->
-    </div>
 
     <script src="/static/engine.js"></script>
 </body>
