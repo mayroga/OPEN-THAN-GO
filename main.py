@@ -1,4 +1,4 @@
-# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.5.5.0
+# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.5.0
 # Company: May Roga LLC
 # File: main.py
 
@@ -164,8 +164,9 @@ async def mando_integral(request: Request):
     payload = await request.json()
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
-    # Estas variables no se usan en el frontend actual, pero se mantienen por si se añaden.
-    estado = str(payload.get("estado", "FL")).strip()
+    # Estas variables no se usan en el frontend actual para definir la ubicación exacta de la búsqueda,
+    # pero se mantienen por si se añaden funcionalidades de región/estado más complejas.
+    estado = str(payload.get("estado", "FL")).strip() # Por defecto 'FL'
     region = str(payload.get("region", "")).strip()
     
     # Nuevas variables capturadas desde el frontend
@@ -180,37 +181,20 @@ async def mando_integral(request: Request):
 
     # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
-        # Combina las misiones CASA y CASA_EXTRA para la selección
+        # Para el modo CASA, el frontend inicia directamente el reloj clínico
+        # sin necesidad de misiones secuenciales, pero el backend aún podría
+        # generar misiones si el frontend las reintroduce.
         misiones_disponibles = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"]
         
-        # Ponderación para seleccionar 3 misiones de CASA basadas en perfil_local
-        # Esto es solo un ejemplo de cómo se podría usar el perfil local para CASA
-        # El frontend actual para CASA salta directamente al ejercicio de respiración,
-        # pero esta lógica estaría lista si se volvieran a usar misiones individuales.
-        if perfil_local:
-            misiones_ponderadas = []
-            for mision in misiones_disponibles:
-                score_mision = 0
-                vector_mision = mision.get("vector_necesidades", {})
-                for necesidad, peso_usuario in perfil_local.items():
-                    # Multiplicar el peso del usuario por el peso del lugar para esa necesidad
-                    score_mision += vector_mision.get(necesidad, 50) * peso_usuario
-                misiones_ponderadas.append((score_mision, mision))
-            
-            # Ordenar por score y seleccionar las 3 mejores
-            misiones_ponderadas.sort(key=lambda x: x[0], reverse=True)
-            misiones_finales = [m[1] for m in misiones_ponderadas[:3]]
-        else:
-            random.shuffle(misiones_disponibles)
-            misiones_finales = misiones_disponibles[:3] # Seleccionar 3 aleatorias si no hay perfil
+        # En este flujo, las misiones_finales no se usan directamente por el frontend
+        # para mostrar pasos, sino que se retorna por si se necesita en futuras iteraciones.
+        random.shuffle(misiones_disponibles)
+        misiones_finales = misiones_disponibles[:3] 
 
-        # Actualmente, el modo CASA en el frontend salta directo al reloj clínico,
-        # por lo que las misiones_finales aquí podrían no ser directamente utilizadas
-        # salvo que se modifique el frontend para reintroducir pasos de misión.
         return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones_finales})
 
     # 2. ACCIÓN DE CAMPO (MODO SALIR CON MOTOR DE SELECCIÓN ANTI-REPETICIÓN Y TVid)
-    # Selecciona la TVid basada en mente_seleccionada y desahogo_texto
+    # Asigna la Técnica de Vida (TVid) basada en la mente_seleccionada y desahogo_texto
     tvid_asignada = "Bien" # Asignación por defecto
     if "ansioso" in mente_seleccionada or "miedo" in desahogo_texto or "nervios" in desahogo_texto:
         tvid_asignada = "Mal" # Enfocarse en prevención y planes B
@@ -231,13 +215,14 @@ async def mando_integral(request: Request):
     mejor_score = -1
     info_salida = opciones_salir_candidatas[0] # Fallback por defecto si no hay coincidencia
 
+    # Ponderación matemática basada en el rastro de clics del usuario
     for opc in opciones_salir_candidatas:
         vector_lugar = opc.get("vector_necesidades", {})
         score_coincidencia = 0
         
         for necesidad, peso_usuario in perfil_local.items():
             # Sumar los pesos del historial interno del usuario contra la puntuación del entorno
-            # Asumiendo que `peso_usuario` ya es un valor ponderado o contador de clics
+            # Asumiendo que `peso_usuario` es un valor de 0-100 para la necesidad
             score_coincidencia += vector_lugar.get(necesidad, 50) * peso_usuario
             
         if score_coincidencia > mejor_score:
@@ -249,7 +234,7 @@ async def mando_integral(request: Request):
         precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
     elif budget_seleccionado == "1":
         precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
-    else: # "libre" o cualquier otro
+    else: # "libre" o cualquier otro valor
         precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
     
     # Filtro de acompañantes reales (bilingüe)
@@ -261,16 +246,16 @@ async def mando_integral(request: Request):
         quienes_van = "ACOMPAÑAMIENTO: Considera un lugar de fácil acceso." if lang == "es" else "COMPANIONSHIP: Consider an easily accessible place."
     elif perfil_seleccionado == "veteranos":
         quienes_van = "ACOMPAÑAMIENTO: Respeto y tranquilidad para tu servicio." if lang == "es" else "COMPANIONSHIP: Respect and tranquility for your service."
-    else: # directivos, trabajadores_gobierno, etc. o cualquier otro
+    else: # directivos, trabajadores_gobierno, etc.
         quienes_van = "ACOMPAÑAMIENTO: Entorno flexible para tu necesidad." if lang == "es" else "COMPANIONSHIP: Flexible environment for your needs."
 
     # FILTRO DE SUPERVIVENCIA LABORAL Y BIENESTAR FINANCIERO INTERCEPTOR
-    palabras_criticas_finanzas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economía", "laboral", "pago", "despido", "financiero"]
+    palabras_criticas_finanzas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economía", "laboral", "pago", "despido", "financiero", "empresa", "jefe"]
     
     # Amplía las condiciones para activar el filtro de supervivencia laboral
     activar_filtro_laboral = any(p in desahogo_texto for p in palabras_criticas_finanzas) or \
                              (mente_seleccionada in ["estresado", "ansioso", "agotado"] and \
-                             any(p in mente_seleccionada for p in ["trabajo", "biles", "dinero", "empleo"]))
+                             any(p in ["trabajo", "biles", "dinero", "empleo", "economía"] for p in [desahogo_texto]))
 
     canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "MAPS"])
 
@@ -322,7 +307,7 @@ async def mando_integral(request: Request):
     elif perfil_seleccionado == "trabajadores del gobierno": gps_query = "state+parks+remote+" + gps_query
 
     # FÓRMULA GEOGRÁFICA UNIVERSAL FIJA ORIGINAL RESTAURADA SIN RECORTE NI ALTERACIONES
-    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
+    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}" # Prioriza ZIP, si no, usa región/estado
    
     if gps_query:
         if link_base.startswith("http"):
@@ -330,7 +315,7 @@ async def mando_integral(request: Request):
         else:
             link_google_maps_vivo = link_base.replace(" ", "+")
     else:
-        link_google_maps_vivo = link_base.replace(" ", "+")
+        link_google_maps_vivo = link_base.replace(" ", "+") # Fallback si no hay gps_query
 
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
@@ -343,4 +328,4 @@ async def mando_integral(request: Request):
     })
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000))
