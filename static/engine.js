@@ -6,7 +6,9 @@ const KERNEL = {
     timerInaccion: null,
     timerClinico: null,
     temporizadorCascada: null,
+    timerTVid: null, // New timer for TVid exercise
     timeLeft: 600, // 10 minutes for clinical timer
+    tvidTimeLeft: 30, // 30 seconds for TVid exercise
     isLocked: false,
     idiomaActual: 'es',
     pasosMisiones: [],
@@ -98,6 +100,80 @@ const KERNEL = {
         "¿Te cuesta creer que exista un espacio gratis en tu zona capaz de devolverte la esperanza?",
         "¿Estás listo para obedecer al mando, soltar tus indecisiones y salir de tu encierro mental hoy?"
     ],
+
+    // NEW: TVid® Methodological Content - MÁXIMA FIDELIDAD METODOLÓGICA
+    TVid_DATA: {
+        "Bien": {
+            principios: ["Si encuentro algo bueno, mi mente tendrá una dirección para avanzar."],
+            preguntas_choque: ["¿Qué puedo aprender?", "¿Qué oportunidad existe aquí?", "¿Qué sí puedo hacer hoy?"],
+            afirmaciones: ["Siempre existe un bien que puedo construir."],
+            ejercicios: [
+                "Observa cualquier situación que te preocupe y pregúntate: ¿Qué puedo aprender?, ¿Qué oportunidad existe aquí? y ¿Qué sí puedo hacer hoy?, para luego repetir tres veces: \"Siempre existe un bien que puedo construir.\"",
+                "Al finalizar el día escribe tres cosas buenas que ocurrieron, por pequeñas que sean, y explica qué aprendiste de cada una.",
+                "Cuando enfrentes un problema, identifica al menos una oportunidad de crecimiento y una acción concreta que puedas realizar en ese momento."
+            ]
+        },
+        "Mal": {
+            principios: ["Ver el peligro me permite evitarlo."],
+            preguntas_choque: ["¿Qué podría salir mal?", "¿Cómo puedo prevenirlo?", "¿Tengo un plan B?"],
+            afirmaciones: ["Ver el riesgo me da el control y me permite actuar con tranquilidad."],
+            ejercicios: [
+                "Antes de tomar una decisión importante pregúntate: ¿Qué podría salir mal?, ¿Cómo puedo prevenirlo? y ¿Tengo un plan B?, respirando profundamente y respondiendo con calma.",
+                "Antes de tomar una decisión importante, haz una lista de los tres principales riesgos y cómo podrías prevenir cada uno.",
+                "Imagina el peor escenario posible y diseña un plan alternativo que te permita actuar con tranquilidad si ese escenario llegara a ocurrir."
+            ]
+        },
+        "Beso": {
+            principios: ["El afecto también cura."],
+            preguntas_choque: ["¡Sonríe ahora mismo!", "Agradece mentalmente a alguien", "Coloca una mano sobre tu corazón."],
+            afirmaciones: ["El afecto cura, reduce la tensión y me reconecta con el mundo."],
+            ejercicios: [
+                "Durante un minuto sonríe, agradece a alguien, abraza a un familiar o amigo o, si estás solo, coloca una mano sobre tu corazón mientras sonríes.",
+                "Dedica un minuto a sonreír mientras agradeces verbalmente a una persona por algo que haya hecho por ti.",
+                "Realiza un acto de afecto sincero, como dar un abrazo, ofrecer una palabra amable o colocar una mano sobre tu corazón mientras expresas un mensaje positivo hacia ti mismo."
+            ]
+        },
+        "Niño": {
+            principios: ["Jugar también es sanar."],
+            preguntas_choque: ["Imagina que eres un explorador", "Ríe exageradamente ahora", "Inventa una historia de un segundo."],
+            afirmaciones: ["Recupero mi curiosidad, mi creatividad y juego para despertar la alegría."],
+            ejercicios: [
+                "Dedica dos minutos a dibujar, bailar, inventar una historia, reír exageradamente o caminar imaginando que eres un explorador; no importa el resultado, solo juega.",
+                "Dedica cinco minutos a dibujar, colorear o crear algo sin preocuparte por el resultado.",
+                "Baila tu canción favorita o inventa un juego sencillo durante unos minutos para despertar la creatividad y la alegría."
+            ]
+        },
+        "Madre": {
+            principios: ["Primero cuido para después poder ayudar."],
+            preguntas_choque: ["Si fuera tu hijo quien estuviera viviendo esto...", "¿Qué consejo le darías?", "Date exactamente ese mismo consejo."],
+            afirmaciones: ["Me protejo con paciencia, comprensión y autocuidado."],
+            ejercicios: [
+                "Pregúntate: \"Si fuera mi hijo quien estuviera viviendo esto, ¿qué consejo le daría?\" y luego date exactamente ese mismo consejo.",
+                "Escribe una carta de apoyo dirigida a ti mismo utilizando palabras de comprensión y cariño, como si estuvieras consolando a un ser querido.",
+                "Reserva diez minutos para cuidar de ti realizando una actividad saludable, como descansar, hidratarte, meditar o preparar una comida nutritiva."
+            ]
+        },
+        "Padre": {
+            principios: ["El amor también exige compromiso."],
+            preguntas_choque: ["Elige la tarea que has estado posponiendo", "Trabaja únicamente los primeros cinco minutos", "La meta es comenzar."],
+            afirmaciones: ["Acción, disciplina, límites y resultados tangibles."],
+            ejercicios: [
+                "Elige una tarea que has estado posponiendo y trabaja únicamente los primeros cinco minutos, pues la meta es comenzar.",
+                "Selecciona una tarea pendiente y trabaja en ella durante cinco minutos sin interrupciones, enfocándote únicamente en comenzar.",
+                "Establece una meta sencilla para el día y cúmplela antes de realizar actividades de entretenimiento, reforzando así la disciplina y el compromiso."
+            ]
+        },
+        "Guerra": {
+            principios: ["En la guerra de la vida no vence quien golpea más fuerte, sino quien mantiene el equilibrio."],
+            preguntas_choque: ["Busca algo bueno que puedas rescatar", "Identifica el mayor riesgo", "Respira y sonríe para reducir la tensión", "Piensa con creatividad como un niño", "Trátate con compasión y decide tu primera acción."],
+            afirmaciones: ["Estoy preparado. Actúo con calma, inteligencia y determinación."],
+            ejercicios: [
+                "Su ejercicio consiste en buscar algo bueno que puedas rescatar, identificar el mayor riesgo, respirar y sonreír para reducir la tensión, pensar con creatividad como un niño, tratarte con compasión y decidir la primera acción concreta; finalmente repite: \"Estoy preparado. Actúo con calma, inteligencia y determinación.\"",
+                "Ante una situación difícil identifica un aspecto positivo, evalúa los riesgos, mantén la calma respirando profundamente, busca una solución creativa, trátate con compasión y ejecuta la primera acción necesaria.",
+                "Simula un desafío importante escribiendo en una hoja qué harías aplicando, en orden, la Técnica del Bien, la Técnica del Mal, la Técnica del Beso, la Técnica del Niño, la Técnica de la Madre y la Técnica del Padre, terminando con una decisión concreta para avanzar."
+            ]
+        }
+    },
 
     /**
      * Retrieves or initializes the user's dynamic profile from localStorage.
@@ -284,7 +360,7 @@ const KERNEL = {
         this.bloqueActual++;
         localStorage.setItem("otg_bloque_secuencial", this.bloqueActual);
        
-        // CLICK CORRECTION: Assign the value to the hidden input before the Fetch request
+        // Assign the value to the hidden input before the Fetch request
         document.getElementById('inp-text-invisible').value = textoPregunta;
         this.ejecutar();
     },
@@ -318,13 +394,13 @@ const KERNEL = {
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
        
-        // SYNC ENGLISH BUTTON FIXED 100%
+        // SYNC ENGLISH BUTTON FIXED 100% and new profile options
         const t = {
-            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso" },
-            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious" }
+            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", hijos: "Hijos", adultosMayores: "Adultos Mayores", veteranosGuerra: "Veteranos de Guerra", directivosEmpresarios: "Directivos/Empresarios", trabajadoresGobierno: "Trabajadores del Gobierno", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso" },
+            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", hijos: "Children", adultosMayores: "Seniors", veteranosGuerra: "War Veterans", directivosEmpresarios: "Executives/Entrepreneurs", trabajadoresGobierno: "Government Workers", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious" }
         }[lang];
        
-        document.getElementById('html-title').innerText = t.title; // Updated title ID
+        document.getElementById('html-title').innerText = t.title;
         document.getElementById('txt-app-title').innerText = t.title;
         document.getElementById('lbl-zip').innerText = t.zip;
         document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
@@ -336,15 +412,116 @@ const KERNEL = {
         document.getElementById('opt-budget-2').innerText = t.budget2;
         document.getElementById('opt-perfil-solo').innerText = t.solo;
         document.getElementById('opt-perfil-familia').innerText = t.familia;
-        document.getElementById('opt-perfil-accesible').innerText = t.accesible;
+        document.getElementById('opt-perfil-hijos').innerText = t.hijos;
+        document.getElementById('opt-perfil-adultos-mayores').innerText = t.adultosMayores;
+        document.getElementById('opt-perfil-veteranos-guerra').innerText = t.veteranosGuerra;
+        document.getElementById('opt-perfil-directivos-empresarios').innerText = t.directivosEmpresarios;
+        document.getElementById('opt-perfil-trabajadores-gobierno').innerText = t.trabajadoresGobierno;
         document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido;
         document.getElementById('opt-mente-agotado').innerText = t.menteAgotado;
         document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
         document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
         document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
 
-
         this.hablar(t.alert);
+    },
+
+    /** NEW: Selects a TVid® based on user input for client-side routing. */
+    seleccionarTVid(mente, perfil, desahogo) {
+        // Prioritize desahogo keywords
+        if (desahogo.includes("miedo") || desahogo.includes("ansiedad") || desahogo.includes("inseguridad") || desahogo.includes("preocupacion")) {
+            return "Mal";
+        }
+        if (desahogo.includes("procrastinar") || desahogo.includes("posponer") || desahogo.includes("tarea pendiente") || desahogo.includes("disciplina")) {
+            return "Padre";
+        }
+        if (desahogo.includes("crisis") || desahogo.length > 50 || desahogo.includes("conflicto") || desahogo.includes("presion") || desahogo.includes("guerra") || perfil === "veteranos_guerra") {
+            return "Guerra";
+        }
+
+        // Then based on Estado Mental (mente)
+        if (mente === "ansioso") return "Mal";
+        if (mente === "cansado" || mente === "estresado") return "Beso";
+        if (mente === "aburrido") return "Niño";
+        if (mente === "agotado" || perfil === "directivos_empresarios") return "Madre"; // Agotamiento severo or Directivos
+
+        // Then based on Contexto Social (perfil)
+        if (perfil === "familia" || perfil === "hijos") return "Niño";
+        if (perfil === "adultos_mayores") return "Madre"; // Cuidado y paciencia
+        if (perfil === "trabajadores_gobierno") return "Padre"; // Acción y disciplina
+
+        return "Bien"; // Default
+    },
+
+    /** NEW: Initiates the 30-second TVid® exercise with chaotic text animations. */
+    iniciarTVidEjercicio(tvidSeleccionada, finalActionCallback) {
+        document.getElementById('wrapper-form').classList.add('hidden');
+        document.getElementById('wrapper-interactive').classList.add('hidden'); // Ensure interactive is also hidden
+        const tvidWrapper = document.getElementById('wrapper-tvid');
+        const countdownElement = document.getElementById('tvid-countdown');
+        const textContainer = document.getElementById('tvid-text-container');
+        
+        tvidWrapper.classList.remove('hidden');
+        textContainer.innerHTML = ''; // Clear previous texts
+        
+        this.tvidTimeLeft = 30; // Reset countdown
+        countdownElement.innerText = this.tvidTimeLeft;
+
+        // Function to create and animate a single text element
+        const displayAnimatedText = (text) => {
+            const div = document.createElement('div');
+            div.classList.add('tvid-text');
+            div.innerText = text;
+
+            // Randomly select one of the 6 animation types
+            const animations = [
+                'tvid-corner-to-center',
+                'tvid-side-to-center-left',
+                'tvid-side-to-center-right',
+                'tvid-bottom-to-center',
+                'tvid-top-to-center',
+                'tvid-center-out',
+                'tvid-out-in'
+            ];
+            const randomAnim = animations[Math.floor(Math.random() * animations.length)];
+            div.style.animation = `${randomAnim} 5s ease-in-out forwards`; // Each text animates for 5 seconds
+
+            textContainer.appendChild(div);
+
+            // Remove the element after its animation finishes to free up RAM/GPU
+            setTimeout(() => {
+                div.remove();
+            }, 5000); // Match animation duration
+        };
+
+        // Function to select a random piece of content from the TVid
+        const getRandomTVidContent = (tvid) => {
+            const tvidData = this.TVid_DATA[tvid];
+            const contentTypes = ['principios', 'preguntas_choque', 'afirmaciones', 'ejercicios'];
+            const randomType = contentTypes[Math.floor(Math.random() * contentTypes.length)];
+            const contentArray = tvidData[randomType];
+            return contentArray[Math.floor(Math.random() * contentArray.length)];
+        };
+
+        // Start TVid exercise timer
+        this.timerTVid = setInterval(() => {
+            this.tvidTimeLeft--;
+            countdownElement.innerText = this.tvidTimeLeft;
+
+            // Display a new text every 2-3 seconds for 30 seconds
+            if (this.tvidTimeLeft > 0 && this.tvidTimeLeft % 2 === 0 && Math.random() < 0.7) { // Chaotic burst
+                const content = getRandomTVidContent(tvidSeleccionada);
+                displayAnimatedText(content);
+                this.hablar(content); // Speak the text
+            }
+
+            if (this.tvidTimeLeft <= 0) {
+                clearInterval(this.timerTVid);
+                window.speechSynthesis.cancel();
+                tvidWrapper.classList.add('hidden');
+                finalActionCallback(); // Execute the callback after TVid exercise
+            }
+        }, 1000);
     },
 
     /** Executes the main logic to fetch recommendations from the backend. */
@@ -352,48 +529,97 @@ const KERNEL = {
         if (this.isLocked) return; // Prevent multiple submissions
         this.isLocked = true;
 
-        const payload = {
-            zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
-            modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR",
-            desahogo: document.getElementById('inp-text-invisible') ? document.getElementById('inp-text-invisible').value : "",
-            lang: this.idiomaActual,
-            mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido", // Added mente selector
-            budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0", // Added budget selector
-            perfil: document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo", // Added perfil selector
-            perfil_local: this.obtenerPerfilLocal() // Send the user's dynamic profile
-        };
+        const zip = document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "";
+        const modo = document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR";
+        const desahogo = document.getElementById('inp-text-invisible') ? document.getElementById('inp-text-invisible').value : "";
+        const mente = document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido";
+        const budget = document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0";
+        const perfil = document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo";
 
-        const container = document.getElementById('wrapper-interactive');
-        document.getElementById('wrapper-form').classList.add('hidden');
-        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO...' : 'CONNECTING...'}</h2></div>`;
-        container.classList.remove('hidden');
-
-        try {
-            const r = await fetch("/api/mando-integral", {
+        // NEW: Select TVid and start exercise BEFORE backend call returns
+        const tvidSeleccionada = this.seleccionarTVid(mente, perfil, desahogo);
+        
+        let backendResponsePromise;
+        if (modo === "SALIR") {
+            // For SALIR mode, send backend request in parallel with TVid exercise
+            const payload = {
+                zip: zip,
+                modo: modo,
+                desahogo: desahogo,
+                lang: this.idiomaActual,
+                mente: mente,
+                budget: budget,
+                perfil: perfil,
+                perfil_local: this.obtenerPerfilLocal()
+            };
+            backendResponsePromise = fetch("/api/mando-integral", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
+            }).then(r => r.json());
+        } else {
+            // For CASA mode, a simplified immediate "backend" response for the frontend flow
+            backendResponsePromise = Promise.resolve({
+                DIRECCIONAMIENTO_MASTER: "INTERVENCION_DOMESTICA",
+                misiones: this.pasosMisiones.length > 0 ? this.pasosMisiones : (this.TVid_DATA["Bien"].ejercicios.map(e => ({ titulo: tvidSeleccionada, descripcion: e }))), // Placeholder
+                vector_entorno_seleccionado: this.DEFAULT_NECESSITY_PROFILE
             });
-            const data = await r.json();
+        }
+        
+        this.iniciarTVidEjercicio(tvidSeleccionada, async () => {
+            try {
+                const data = await backendResponsePromise;
+                this.datosLugarGlobal = data;
+                this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
+                this.indiceMision = 0;
 
-            this.datosLugarGlobal = data; // Store full backend response
-            this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
-            this.indiceMision = 0;
+                const container = document.getElementById('wrapper-interactive');
 
-            if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
-                this.pasosMisiones = data.misiones.slice(0, 3); // Take first 3 for sequential display
-            } else {
-                this.pasosMisiones = []; // No internal missions for field action
+                if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
+                    this.pasosMisiones = data.misiones.slice(0, 3); // Take first 3 for sequential display for CASA
+                    // Proceed with CASA flow
+                    container.classList.remove('hidden');
+                    this.procesarFlujoSecuencial(container);
+                } else { // ACCION_CAMPO (SALIR mode)
+                    // Directly activate Deep-Link after TVid exercise
+                    this.activarDeepLink();
+                }
+            } catch (error) {
+                console.error("Fetch error or TVid callback error:", error);
+                alert(this.idiomaActual === 'es' ? "Error de conexión o en la intervención. Por favor, inténtalo de nuevo." : "Connection or intervention error. Please try again.");
+                this.destruirYReiniciar(); // Ensure reset
+            } finally {
+                this.isLocked = false;
             }
-            this.procesarFlujoSecuencial(container);
-        } catch (error) {
-            console.error("Fetch error:", error);
-            alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
-            document.getElementById('wrapper-form').classList.remove('hidden');
-            container.classList.add('hidden');
-            this.isLocked = false;
+        });
+    },
+
+    /** NEW: Activates the Deep-Link for external navigation (SALIR mode). */
+    activarDeepLink() {
+        if (this.datosLugarGlobal && this.datosLugarGlobal.destino_coordenadas_gps) {
+            try {
+                let perfil = KERNEL.obtenerPerfilLocal();
+                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+                
+                // Dynamically update local profile based on the selected environment's needs vector
+                for (const need in selectedVector) {
+                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                        // Increase the preference for the activated need, capping at 100
+                        perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100); // 10% of the place's score is added
+                    }
+                }
+                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+            } catch (e) {
+                console.error("Error updating local profile after action:", e);
+            }
+            window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+            this.destruirYReiniciar(); // Reset and restart app after external navigation
+        } else {
+            alert(this.idiomaActual === 'es' ? "No se pudo generar el destino de escape." : "Could not generate escape destination.");
+            this.destruirYReiniciar();
         }
     },
+
 
     /** Processes the sequential flow based on the recommendation type. */
     procesarFlujoSecuencial(container) {
@@ -405,57 +631,14 @@ const KERNEL = {
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN BIG TECH CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW" }
         }[this.idiomaActual];
 
-        // Handles external "Field Action" recommendations
+        // This block for SALIR mode is now unreachable because `activarDeepLink` handles it directly.
+        // The original `procesarFlujoSecuencial` was for both modes, now it's mainly for CASA.
         if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
-            if (this.datosLugarGlobal) {
-                let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
-                container.innerHTML = `
-                <div class="mision-card">
-                    <small>${t.fieldAction}</small>
-                    <h2>${this.datosLugarGlobal.destino_titulo}</h2>
-                    <div class="instruccion-text">${textoFormateado}</div>
-                    <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
-                    <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
-                </div>`;
-
-                this.hablar(this.datosLugarGlobal.destino_instruccion);
-               
-                let retencion = 35; // Countdown for listening to the guide
-                const btnCount = document.getElementById('btn-countdown-salida');
-                const btnGps = document.getElementById('btn-gps-action');
-               
-                this.timerClinico = setInterval(() => {
-                    retencion--;
-                    if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
-                    if (retencion <= 0) {
-                        clearInterval(this.timerClinico);
-                        if (btnCount) btnCount.style.display = 'none';
-                        if (btnGps) {
-                            btnGps.classList.remove('hidden');
-                            btnGps.onclick = () => {
-                                try {
-                                    let perfil = KERNEL.obtenerPerfilLocal();
-                                    const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
-                                    
-                                    // Dynamically update local profile based on the selected environment's needs vector
-                                    for (const need in selectedVector) {
-                                        if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                                            // Increase the preference for the activated need, capping at 100
-                                            perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100); // 10% of the place's score is added
-                                        }
-                                    }
-                                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                                } catch (e) {
-                                    console.error("Error updating local profile after action:", e);
-                                }
-                                window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                                KERNEL.destruirYReiniciar(); // Reset and restart app after external navigation
-                            };
-                        }
-                    }
-                }, 1000);
-                return;
-            }
+            // This case should ideally not be hit directly anymore.
+            // If it is, something went wrong, and we should just go to the link directly.
+            console.warn("procesarFlujoSecuencial called for ACCION_CAMPO, should have been handled by activarDeepLink.");
+            this.activarDeepLink();
+            return;
         }
 
         // Handles internal "Domestic Intervention" missions
@@ -613,6 +796,7 @@ const KERNEL = {
         clearInterval(this.timerInaccion);
         clearInterval(this.timerClinico);
         clearInterval(this.temporizadorCascada);
+        clearInterval(this.timerTVid); // Clear TVid timer
         window.speechSynthesis.cancel();
         this.pasosMisiones = [];
         this.indiceMision = 0;
