@@ -205,7 +205,7 @@ async def mando_integral(request: Request):
     if opcion_usuario == "CASA":
         misiones = BASE_MISIONES["CASA"] + BASE_MISIONES["CASA_EXTRA"]
         random.shuffle(misiones)  # Avoid monotony by shuffling local challenges
-        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones})
+        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones, "vector_entorno_seleccionado": DEFAULT_NECESSITY_VECTOR}) # Ensure vector is returned
 
     # 2. FIELD ACTION (SALIR MODE WITH ANTI-REPETITION SELECTION ENGINE)
     # Get initial options based on 'mente', default to 'aburrido' if 'mente' is not found
