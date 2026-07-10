@@ -169,6 +169,7 @@ async def mando_integral(request: Request):
     budget_seleccionado = str(payload.get("budget", "0")) # Presupuesto (ej: "0", "1", "libre")
     perfil_seleccionado = str(payload.get("perfil", "solo")).lower() # Contexto social (ej: "solo", "familia")
     desahogo_texto = str(payload.get("desahogo", "")).lower() # Texto libre de agobio
+    lang = str(payload.get("lang", "es")).strip() # Extraer el idioma del payload para evitar NameError
 
     # Captura las métricas de clics acumuladas localmente en engine.js para las 19 necesidades
     perfil_local = payload.get("perfil_local", {})
