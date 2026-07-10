@@ -640,10 +640,9 @@ const KERNEL = {
         const directions = [
             'corner-in', 'side-in', 'bottom-in', 'top-in', 'center-out', 'outside-in'
         ];
-        let currentPhraseIndex = 0;
-
-        // Función para mostrar la siguiente frase TVid
-        const showNextPhrase = () => {
+        
+        // Función para crear y mostrar la siguiente frase TVid
+        const createAndDisplayNextPhrase = () => {
             if (tvidTimeLeft <= 0) return;
 
             // Selección de frase sin repetición en el ciclo de 30 segundos
@@ -656,36 +655,38 @@ const KERNEL = {
             const phrase = availablePhrases[Math.floor(Math.random() * availablePhrases.length)];
             this.frasesTVidMostradas.push(phrase); // Marcar como mostrada
 
-            // Eliminar frase anterior si existe
+            const newPhrase = document.createElement('div');
+            newPhrase.className = 'tvid-phrase';
+            newPhrase.textContent = phrase;
+            
+            // Asignar dirección de animación aleatoria
+            const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+            newPhrase.classList.add(randomDirection);
+            phraseContainer.appendChild(newPhrase);
+            
+            // Hablar la frase
+            this.hablar(phrase);
+
+            // Esperar un poco antes de mostrar la siguiente (ajustar para lectura y audio)
+            const readingTime = Math.max(phrase.length * 80, 4000); // 80ms por caracter, mínimo 4 segundos
+            
+            if (tvidTimeLeft > 0) {
+                this.temporizadorTVid = setTimeout(showNextPhrase, readingTime);
+            }
+        };
+
+        // Función para gestionar el ciclo de frases, incluyendo la eliminación de la anterior
+        const showNextPhrase = () => {
             const oldPhrase = phraseContainer.querySelector('.tvid-phrase');
             if (oldPhrase) {
-                oldPhrase.classList.remove('show');
                 oldPhrase.classList.add('hide'); // Iniciar animación de salida
-                oldPhrase.addEventListener('animationend', () => oldPhrase.remove(), { once: true });
+                oldPhrase.addEventListener('animationend', () => {
+                    oldPhrase.remove(); // Eliminar la frase anterior después de la animación
+                    createAndDisplayNextPhrase(); // Luego, crear y mostrar la nueva
+                }, { once: true });
+            } else {
+                createAndDisplayNextPhrase(); // Si no hay frase anterior, crear y mostrar la nueva inmediatamente
             }
-
-            // Crear y mostrar nueva frase
-            setTimeout(() => { // Pequeña pausa para evitar solapamiento visual/auditivo
-                const newPhrase = document.createElement('div');
-                newPhrase.className = 'tvid-phrase';
-                newPhrase.textContent = phrase;
-                
-                // Asignar dirección de animación aleatoria
-                const randomDirection = directions[Math.floor(Math.random() * directions.length)];
-                newPhrase.classList.add(randomDirection);
-                phraseContainer.appendChild(newPhrase);
-                
-                // Hablar la frase
-                this.hablar(phrase);
-
-                // Esperar un poco antes de mostrar la siguiente (ajustar para lectura y audio)
-                // Usamos un tiempo basado en la longitud de la frase
-                const readingTime = Math.max(phrase.length * 80, 4000); // 80ms por caracter, mínimo 4 segundos
-                
-                if (tvidTimeLeft > 0) {
-                    this.temporizadorTVid = setTimeout(showNextPhrase, readingTime);
-                }
-            }, 500); // Retraso de 0.5s para la entrada de la nueva frase
         };
 
         // Iniciar el ciclo de frases
@@ -701,6 +702,9 @@ const KERNEL = {
                 clearTimeout(this.temporizadorTVid); // Detener el temporizador de frases
                 window.speechSynthesis.cancel(); // Cancelar cualquier voz en curso
                 
+                // Asegurar que todas las frases se eliminen al finalizar el conteo
+                phraseContainer.innerHTML = ''; 
+
                 // Mostrar el destino final de acción de campo
                 this.mostrarDestinoAccionCampo();
             }
