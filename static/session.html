@@ -93,7 +93,7 @@
        
         /* EL ORÁCULO: EFECTO CASCADA HACIA ARRIBA */
         .oraculo-scroll-box { position: relative; min-height: 280px; overflow: hidden; margin-bottom: 20px; }
-        .oraculo-grid { display: flex; flex-direction: column; gap: 12px; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .oraculo-grid { display: flex; flex-direction: column; gap: 12px; /* Transición gestionada por JS directamente */ }
         .btn-pregunta-crisis { width: 100%; background: var(--panel); color: #eee; border: 1px solid #222; padding: 16px; font-size: 1.05rem; font-weight: bold; text-align: left; border-radius: 8px; cursor: pointer; transition: opacity 0.4s ease, transform 0.4s ease, margin-bottom 0.4s ease, border-color 0.2s; line-height: 1.4; transform-origin: top center; }
         .btn-pregunta-crisis.fade-out { opacity: 0; transform: scale(0.8) translateY(-30px); margin-bottom: -64px; /* Ocultar y comprimir el espacio */ pointer-events: none; }
        
