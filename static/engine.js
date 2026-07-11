@@ -9,7 +9,7 @@ const KERNEL = {
     timeLeft: 600, // 10 minutes for clinical timer (unified with relojRealSegundos)
     isLocked: false,
     idiomaActual: 'es',
-    pasosMisiones: [],
+    pasosMisiones: [], // Will store the 3 CASA missions or be empty for SALIR
     indiceMision: 0,
     datosLugarGlobal: null, // Stores the full response from backend for current recommendation
     tipoEscapeGlobal: "",
@@ -527,10 +527,10 @@ const KERNEL = {
         document.getElementById('opt-perfil-familia').innerText = t.familia;
         document.getElementById('opt-perfil-accesible').innerText = t.accesible;
         document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido;
-        document.getElementById('opt-mente-agotado').innerText = t.menteAgotado;
-        document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
-        document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
-        document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
+        document.getElementById('opt-mente-agotado').innerText = t.agotado;
+        document.getElementById('opt-mente-estresado').innerText = t.estresado;
+        document.getElementById('opt-mente-cansado').innerText = t.cansado;
+        document.getElementById('opt-mente-ansioso').innerText = t.ansioso;
         document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
         document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
 
@@ -582,16 +582,31 @@ const KERNEL = {
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
             
-            // Check if backend requests to reset seen_ids (e.g., all items in a category were exhausted)
+            // If backend requests a global reset of seen_ids, clear locally
             if (data.reset_seen_ids) {
                 this.seenIds = [];
                 localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
             }
 
             if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
-                this.pasosMisiones = data.misiones.slice(0, 3); // Take first 3 for sequential display
-            } else {
+                this.pasosMisiones = data.misiones; // Backend now sends a list of 3 missions for CASA
+                // Add the IDs of these 3 missions to seenIds immediately
+                this.pasosMisiones.forEach(m => {
+                    if (m.id !== undefined && m.id !== null && !this.seenIds.includes(m.id)) {
+                        this.seenIds.push(m.id);
+                    }
+                });
+                localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
+            } else { // ACCION_CAMPO (SALIR)
                 this.pasosMisiones = []; // No internal missions for field action
+                // Add the single SALIR recommendation ID to seenIds
+                // For intercepted ones (Spotify, YouTube, Staffing), they don't have a numeric ID in BASE_MISIONES
+                // and should not be added to seen_ids for non-repetition purposes as they are generic actions.
+                const currentId = this.datosLugarGlobal.destino_id;
+                if (currentId !== undefined && currentId !== null && !this.seenIds.includes(currentId) && currentId > 100) { // IDs < 100 are CASA, >100 are SALIR
+                    this.seenIds.push(currentId);
+                    localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
+                }
             }
             this.procesarFlujoSecuencial(container);
         } catch (error) {
@@ -616,13 +631,6 @@ const KERNEL = {
         // Handles external "Field Action" recommendations
         if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
             if (this.datosLugarGlobal) {
-                // Add the new recommendation's ID to seenIds before displaying
-                const currentId = this.datosLugarGlobal.destino_id;
-                if (currentId !== undefined && currentId !== null && !this.seenIds.includes(currentId)) {
-                    this.seenIds.push(currentId);
-                    localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
-                }
-
                 let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
                 container.innerHTML = `
                 <div class="mision-card">
@@ -675,28 +683,25 @@ const KERNEL = {
         }
 
         // Handles internal "Domestic Intervention" missions
-        if (this.indiceMision >= this.pasosMisiones.length) {
-            this.iniciarRelojClinicoCasa(container, t); // All internal missions completed, start clinical timer
+        if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
+            if (this.indiceMision >= this.pasosMisiones.length) {
+                this.iniciarRelojClinicoCasa(container, t); // All 3 internal missions completed, start clinical timer
+                return;
+            }
+
+            const paso = this.pasosMisiones[this.indiceMision];
+            container.innerHTML = `
+            <div class="mision-card">
+                <small>${t.internalMission}</small>
+                <h3>${paso.titulo}</h3>
+                <p>${paso.descripcion}</p>
+                <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
+            </div>`;
+
+            this.hablar(paso.titulo + " . " + paso.descripcion);
+            document.getElementById('btn-next').onclick = () => this.avanzarPaso();
             return;
         }
-
-        const paso = this.pasosMisiones[this.indiceMision];
-        // Add the current mission's ID to seenIds before displaying
-        if (paso.id !== undefined && paso.id !== null && !this.seenIds.includes(paso.id)) {
-            this.seenIds.push(paso.id);
-            localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
-        }
-
-        container.innerHTML = `
-        <div class="mision-card">
-            <small>${t.internalMission}</small>
-            <h3>${paso.titulo}</h3>
-            <p>${paso.descripcion}</p>
-            <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
-        </div>`;
-
-        this.hablar(paso.titulo + " . " + paso.descripcion);
-        document.getElementById('btn-next').onclick = () => this.avanzarPaso();
     },
 
     /** Starts the 10-minute clinical breathing timer for CASA mode. */
@@ -756,6 +761,9 @@ const KERNEL = {
         // Fetch SALIR suggestion for CASA mode after some time
         let salidaSugeridaTimeout = setTimeout(async () => {
             try {
+                // IMPORTANT: When fetching a SALIR suggestion from CASA mode, ensure the backend logic for SALIR mode
+                // correctly filters by `seen_ids` AND correctly signals `reset_seen_ids` if its category is exhausted.
+                // The client's `seen_ids` should always be sent as is, and the client will handle the reset if signaled.
                 const r = await fetch("/api/mando-integral", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -775,8 +783,9 @@ const KERNEL = {
                 
                 if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && linkSalidaSugerida && salidaSugeridaDiv) {
                     // Add the suggested SALIR ID to seenIds
+                    // IDs < 100 are CASA, >=100 are SALIR. Intercepted missions might not have a numeric ID.
                     const suggestedId = data.destino_id;
-                    if (suggestedId !== undefined && suggestedId !== null && !this.seenIds.includes(suggestedId)) {
+                    if (suggestedId !== undefined && suggestedId !== null && !this.seenIds.includes(suggestedId) && suggestedId >= 100) { 
                         this.seenIds.push(suggestedId);
                         localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
                     }
@@ -785,6 +794,11 @@ const KERNEL = {
                     linkSalidaSugerida.href = data.destino_coordenadas_gps;
                     salidaSugeridaDiv.classList.remove('hidden');
                     this.hablar(this.idiomaActual === 'es' ? `Considera también: ${data.destino_titulo}` : `Also consider: ${data.destino_titulo_en || data.destino_titulo}`);
+                    // If the suggestion itself triggers a global seen_ids reset (e.g., all SALIR options were exhausted)
+                    if (data.reset_seen_ids) {
+                        this.seenIds = [];
+                        localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
+                    }
                 }
             } catch (e) {
                 console.error("Error fetching SALIR suggestion in CASA mode:", e);
@@ -852,9 +866,9 @@ const KERNEL = {
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
-        // Clear seenIds from localStorage upon restart
-        localStorage.removeItem("otg_seen_ids");
-        this.seenIds = []; // Reset the in-memory list
+        // SeenIds are intentionally *not* cleared here directly, as they persist across soft resets.
+        // They are only cleared when the backend explicitly signals a full "memory loop" reset,
+        // which happens within `ejecutar()` when `data.reset_seen_ids` is true.
         location.reload(); // Reload the page to reset the UI
     }
 };
