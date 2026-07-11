@@ -17,16 +17,14 @@ const KERNEL = {
     // Time and Impatience Control Variables
     contadorToques: 0,
     secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5], // Seconds to advance clinical timer per tap
-    lastRecommendationId: null, // Corrected: Store the ID of the last recommendation
-   
+    seenIds: [], // Stores IDs of all displayed recommendations for anti-repetition across modes
+
     // Sequential Conversational Architecture
     bloqueActual: 0, // Current block of questions being displayed
     conteoInaccion: 0, // Inaction counter for advancing question blocks
     indicePreguntaCascada: 0, // Index for fading out questions
 
     // Default template for the 19 human needs profile (must align with backend)
-    // NOTE: This is duplicated in backend for quick access. For larger projects,
-    // consider a shared configuration file or API endpoint to ensure canonical definition.
     DEFAULT_NECESSITY_PROFILE: {
         "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
         "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
@@ -271,8 +269,14 @@ const KERNEL = {
         } else {
             localStorage.setItem("otg_language", this.idiomaActual);
         }
-        // Corrected: Load last recommendation ID
-        this.lastRecommendationId = localStorage.getItem("otg_last_rec_id");
+        // Load seenIds from localStorage
+        try {
+            this.seenIds = JSON.parse(localStorage.getItem("otg_seen_ids") || "[]");
+        } catch (e) {
+            console.error("Error parsing otg_seen_ids from localStorage, resetting.", e);
+            this.seenIds = [];
+            localStorage.removeItem("otg_seen_ids"); // Clear bad data
+        }
     },
 
     /** Starts the initial welcome sequence after user interaction. */
@@ -280,10 +284,10 @@ const KERNEL = {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
        
-        // Corrected: Apply language settings to UI elements *before* initial speech
+        // Apply language settings to UI elements *before* initial speech
         this.cambiarIdioma(this.idiomaActual);
        
-        // Corrected: Translate initial greetings based on selected language
+        // Translate initial greetings based on selected language
         const saludos_es = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
             "ópen dán go está activo. Concéntrate un momento. Mira las opciones en tu pantalla ya.",
@@ -300,7 +304,7 @@ const KERNEL = {
         this.inyectarBloquePreguntas();
         this.iniciarMonitoreoInaccion();
        
-        // Corrected: Ensure free writing button is always active, but only triggers if text is present
+        // Ensure free writing button is always active, but only triggers if text is present
         this.activarBotonMandoLibreInicial();
     },
 
@@ -316,7 +320,7 @@ const KERNEL = {
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
         let inicioIdx = this.bloqueActual * 6;
        
-        // Corrected: Loop back to the start if all questions have been shown
+        // Loop back to the start if all questions have been shown
         if (inicioIdx >= catalogo.length) {
             this.bloqueActual = 0;
             inicioIdx = 0;
@@ -367,7 +371,7 @@ const KERNEL = {
         }, 8000); // 8 seconds per question exactly
     },
 
-    /** Corrected: Activates the free writing input field and button from start. */
+    /** Activates the free writing input field and button from start. */
     activarBotonMandoLibreInicial() {
         const textarea = document.getElementById('inp-text-libre');
         const btnLibre = document.getElementById('btn-activar-libre');
@@ -397,7 +401,9 @@ const KERNEL = {
         }
         // Add input event listener to textarea for immediate visual feedback and button activation
         if (textarea) {
-            textarea.removeEventListener('input', this.textareaInputHandler); // Prevent duplicate listeners
+            // Remove previous listener to prevent duplicates after language change or re-init
+            textarea.removeEventListener('input', this.textareaInputHandler);
+            // Store the handler reference for removal
             this.textareaInputHandler = () => {
                 if (textarea.value.trim().length > 3) {
                     if (btnLibre) {
@@ -466,7 +472,7 @@ const KERNEL = {
         this.bloqueActual++;
         localStorage.setItem("otg_bloque_secuencial", this.bloqueActual);
        
-        // Corrected: Use inp-text-libre value directly
+        // Use inp-text-libre value directly
         document.getElementById('inp-text-libre').value = textoPregunta;
         this.ejecutar();
     },
@@ -485,7 +491,7 @@ const KERNEL = {
         window.speechSynthesis.cancel(); // Stop any ongoing speech
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
-        // Corrected: Dynamically set language for speech synthesis
+        // Dynamically set language for speech synthesis
         msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
         msg.rate = 1.20; // Slightly faster for efficiency
         window.speechSynthesis.speak(msg);
@@ -530,8 +536,8 @@ const KERNEL = {
 
 
         this.hablar(t.alert);
-        this.inyectarBloquePreguntas(); // Corrected: Re-inject questions in new language
-        this.activarBotonMandoLibreInicial(); // Corrected: Re-initialize free writing button in new language
+        this.inyectarBloquePreguntas(); // Re-inject questions in new language
+        this.activarBotonMandoLibreInicial(); // Re-initialize free writing button in new language
     },
 
     /** Executes the main logic to fetch recommendations from the backend. */
@@ -542,13 +548,13 @@ const KERNEL = {
         const payload = {
             zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
             modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR",
-            desahogo: document.getElementById('inp-text-libre') ? document.getElementById('inp-text-libre').value.trim() : "", // Corrected: Use inp-text-libre
+            desahogo: document.getElementById('inp-text-libre') ? document.getElementById('inp-text-libre').value.trim() : "",
             lang: this.idiomaActual,
             mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido",
             budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0",
             perfil: document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo",
             perfil_local: this.obtenerPerfilLocal(), // Send the user's dynamic profile
-            last_recommendation_id: this.lastRecommendationId // Corrected: Send last recommendation ID
+            seen_ids: this.seenIds // Send the full list of seen IDs to the backend
         };
 
         const container = document.getElementById('wrapper-interactive');
@@ -575,15 +581,12 @@ const KERNEL = {
             this.datosLugarGlobal = data; // Store full backend response
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
-            // Corrected: Store the ID of the current recommendation for next request
-            if (data.destino_id) {
-                this.lastRecommendationId = data.destino_id;
-                localStorage.setItem("otg_last_rec_id", data.destino_id);
-            } else {
-                this.lastRecommendationId = null;
-                localStorage.removeItem("otg_last_rec_id");
+            
+            // Check if backend requests to reset seen_ids (e.g., all items in a category were exhausted)
+            if (data.reset_seen_ids) {
+                this.seenIds = [];
+                localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
             }
-
 
             if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
                 this.pasosMisiones = data.misiones.slice(0, 3); // Take first 3 for sequential display
@@ -613,6 +616,13 @@ const KERNEL = {
         // Handles external "Field Action" recommendations
         if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
             if (this.datosLugarGlobal) {
+                // Add the new recommendation's ID to seenIds before displaying
+                const currentId = this.datosLugarGlobal.destino_id;
+                if (currentId !== undefined && currentId !== null && !this.seenIds.includes(currentId)) {
+                    this.seenIds.push(currentId);
+                    localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
+                }
+
                 let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
                 container.innerHTML = `
                 <div class="mision-card">
@@ -671,6 +681,12 @@ const KERNEL = {
         }
 
         const paso = this.pasosMisiones[this.indiceMision];
+        // Add the current mission's ID to seenIds before displaying
+        if (paso.id !== undefined && paso.id !== null && !this.seenIds.includes(paso.id)) {
+            this.seenIds.push(paso.id);
+            localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
+        }
+
         container.innerHTML = `
         <div class="mision-card">
             <small>${t.internalMission}</small>
@@ -737,7 +753,7 @@ const KERNEL = {
             };
         }
 
-        // Corrected: Fetch SALIR suggestion for CASA mode after some time
+        // Fetch SALIR suggestion for CASA mode after some time
         let salidaSugeridaTimeout = setTimeout(async () => {
             try {
                 const r = await fetch("/api/mando-integral", {
@@ -746,17 +762,25 @@ const KERNEL = {
                     body: JSON.stringify({
                         modo: "SALIR",
                         lang: this.idiomaActual,
-                        mente: "aburrido", // Default mood for initial suggestion
+                        mente: "aburrido", // Default mood for initial suggestion, can be dynamic
                         budget: "0",
                         perfil: "solo",
                         desahogo: "",
                         zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
                         perfil_local: this.obtenerPerfilLocal(),
-                        last_recommendation_id: this.lastRecommendationId
+                        seen_ids: this.seenIds // Send the full list of seen IDs for SALIR suggestion
                     })
                 });
                 const data = await r.json();
+                
                 if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && linkSalidaSugerida && salidaSugeridaDiv) {
+                    // Add the suggested SALIR ID to seenIds
+                    const suggestedId = data.destino_id;
+                    if (suggestedId !== undefined && suggestedId !== null && !this.seenIds.includes(suggestedId)) {
+                        this.seenIds.push(suggestedId);
+                        localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
+                    }
+
                     linkSalidaSugerida.innerText = data.destino_titulo;
                     linkSalidaSugerida.href = data.destino_coordenadas_gps;
                     salidaSugeridaDiv.classList.remove('hidden');
@@ -828,8 +852,9 @@ const KERNEL = {
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
-        // Corrected: Clear lastRecommendationId from localStorage upon restart
-        localStorage.removeItem("otg_last_rec_id");
+        // Clear seenIds from localStorage upon restart
+        localStorage.removeItem("otg_seen_ids");
+        this.seenIds = []; // Reset the in-memory list
         location.reload(); // Reload the page to reset the UI
     }
 };
