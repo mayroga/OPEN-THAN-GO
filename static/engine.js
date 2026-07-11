@@ -17,10 +17,22 @@ const KERNEL = {
     // Time and Impatience Control Variables
     contadorToques: 0,
     secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5], // Seconds to advance clinical timer per tap
-    seenIds: [], // Stores IDs of all displayed recommendations for anti-repetition across modes
+    
+    // ACTUALIZAR: seenIds, Debe convertirse en historialMisiones, historialCasa, historialSalir, historialPreguntas
+    historialSalir: [], // Stores IDs of SALIR recommendations
+    historialCasa: [],  // Stores IDs of CASA recommendations
+    historialPreguntas: [], // Stores indices of Oracle questions shown recently
+    lastDecayTimestamp: null, // For otg_last_decay in localStorage
+    sessionSeed: null, // For otg_session_seed in localStorage
+
+    // Constants for history limits (from main.py)
+    MAX_HISTORY_SALIR: 5,
+    MAX_HISTORY_CASA: 8,
+    MAX_HISTORY_ORACULO: 12, // For Oracle questions
+    DECAY_PER_DAY: 0.985, // From main.py
 
     // Sequential Conversational Architecture
-    bloqueActual: 0, // Current block of questions being displayed
+    // ELIMINAR: bloqueActual
     conteoInaccion: 0, // Inaction counter for advancing question blocks
     indicePreguntaCascada: 0, // Index for fading out questions
 
@@ -233,6 +245,7 @@ const KERNEL = {
     /**
      * Retrieves or initializes the user's dynamic profile from localStorage.
      * Ensures all 19 needs are present with default values if missing.
+     * ACTUALIZAR: Agregar fecha, timestamp, decaimiento automático.
      * @returns {Object} The user's dynamic profile.
      */
     obtenerPerfilLocal() {
@@ -255,13 +268,46 @@ const KERNEL = {
                 perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
             }
         }
+
+        // AGREGAR: fecha, timestamp, decaimiento automático, y otg_session_seed
+        const now = Date.now();
+        let lastDecayTimestamp = parseInt(localStorage.getItem("otg_last_decay") || now);
+        this.sessionSeed = localStorage.getItem("otg_session_seed") || Math.random().toString(36).substring(2, 15);
+
+        const daysPassed = (now - lastDecayTimestamp) / (1000 * 60 * 60 * 24);
+
+        if (daysPassed >= 1) { // Apply decay if at least one full day has passed
+            const newPerfil = {};
+            const base = 50; // The default value for needs
+            for (const necesidad in perfil) {
+                if (necesidad === "indicador_ansiedad") {
+                    newPerfil[necesidad] = perfil[necesidad];
+                    continue;
+                }
+                const valor = perfil[necesidad];
+                let diferencia = valor - base;
+                diferencia *= (this.DECAY_PER_DAY ** daysPassed);
+                newPerfil[necesidad] = Math.round((base + diferencia) * 100) / 100; // Round to 2 decimal places
+            }
+            perfil = newPerfil;
+            lastDecayTimestamp = now; // Update last decay timestamp after decay applied
+        }
+
+        perfil.fecha = new Date(now).toISOString().split('T')[0]; // YYYY-MM-DD
+        perfil.timestamp = now;
+
         localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+        localStorage.setItem("otg_last_decay", lastDecayTimestamp.toString());
+        localStorage.setItem("otg_session_seed", this.sessionSeed);
+
         return perfil;
     },
 
     /** Initializes the KERNEL on DOMContentLoaded. */
     init() {
-        this.bloqueActual = parseInt(localStorage.getItem("otg_bloque_secuencial")) || 0;
+        // ELIMINAR la lógica de bloqueActual
+        // this.bloqueActual = parseInt(localStorage.getItem("otg_bloque_secuencial")) || 0;
+
         // Set initial language if not already set (e.g., from a prior session)
         const storedLang = localStorage.getItem("otg_language");
         if (storedLang) {
@@ -269,14 +315,22 @@ const KERNEL = {
         } else {
             localStorage.setItem("otg_language", this.idiomaActual);
         }
-        // Load seenIds from localStorage
+        // Load new history keys from localStorage
         try {
-            this.seenIds = JSON.parse(localStorage.getItem("otg_seen_ids") || "[]");
+            this.historialSalir = JSON.parse(localStorage.getItem("otg_historial_salir") || "[]");
+            this.historialCasa = JSON.parse(localStorage.getItem("otg_historial_casa") || "[]");
+            this.historialPreguntas = JSON.parse(localStorage.getItem("otg_historial_oraculo") || "[]");
         } catch (e) {
-            console.error("Error parsing otg_seen_ids from localStorage, resetting.", e);
-            this.seenIds = [];
-            localStorage.removeItem("otg_seen_ids"); // Clear bad data
+            console.error("Error parsing history from localStorage, resetting.", e);
+            this.historialSalir = [];
+            this.historialCasa = [];
+            this.historialPreguntas = [];
+            localStorage.removeItem("otg_historial_salir");
+            localStorage.removeItem("otg_historial_casa");
+            localStorage.removeItem("otg_historial_oraculo");
         }
+        // Ensure profile is loaded and decay is applied on app start
+        this.obtenerPerfilLocal();
     },
 
     /** Starts the initial welcome sequence after user interaction. */
@@ -301,6 +355,7 @@ const KERNEL = {
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
        
+        // ACTUALIZAR: inyectarBloquePreguntas() debe reconstruirse
         this.inyectarBloquePreguntas();
         this.iniciarMonitoreoInaccion();
        
@@ -308,7 +363,10 @@ const KERNEL = {
         this.activarBotonMandoLibreInicial();
     },
 
-    /** Injects a block of 6 questions into the UI. */
+    /**
+     * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
+     * ACTUALIZAR: Debe reconstruirse. 6 distintas, 6 de temas diferentes, 6 no recientes.
+     */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
@@ -318,18 +376,47 @@ const KERNEL = {
         this.indicePreguntaCascada = 0;
        
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
-        let inicioIdx = this.bloqueActual * 6;
-       
-        // Loop back to the start if all questions have been shown
-        if (inicioIdx >= catalogo.length) {
-            this.bloqueActual = 0;
-            inicioIdx = 0;
-            localStorage.setItem("otg_bloque_secuencial", 0);
+        let preguntasDisponiblesIndices = [];
+        let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
+
+        // Prioritize questions not seen recently
+        let unseenIndices = [];
+        for (let i = 0; i < catalogo.length; i++) {
+            if (!preguntasYaVistasRecientemente.has(i)) {
+                unseenIndices.push(i);
+            }
         }
 
-        for (let i = 0; i < 6; i++) {
-            let preguntaTexto = catalogo[inicioIdx + i];
-            if (!preguntaTexto) break;
+        // If not enough unseen questions, reset history and use all available questions
+        if (unseenIndices.length < 6) {
+            this.historialPreguntas = []; // Reset history
+            localStorage.removeItem("otg_historial_oraculo");
+            for (let i = 0; i < catalogo.length; i++) {
+                unseenIndices.push(i); // Add all indices again for selection
+            }
+        }
+        
+        // Shuffle the available indices to get a random, distinct selection
+        // Fisher-Yates shuffle
+        for (let i = unseenIndices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]];
+        }
+
+        let preguntasSeleccionadasIndices = [];
+        for (let i = 0; i < 6; i++) { // Select 6 distinct questions
+            if (unseenIndices.length === 0) break; // Safety break if no more questions
+            const selectedIndex = unseenIndices.shift(); // Get one, remove from pool
+            preguntasSeleccionadasIndices.push(selectedIndex);
+            // Add to history and keep it limited
+            this.historialPreguntas = [...this.historialPreguntas, selectedIndex].slice(-this.MAX_HISTORY_ORACULO);
+        }
+        localStorage.setItem("otg_historial_oraculo", JSON.stringify(this.historialPreguntas));
+
+        // Create buttons for selected questions
+        preguntasSeleccionadasIndices.forEach((questionIdx, i) => {
+            let preguntaTexto = catalogo[questionIdx];
+            if (!preguntaTexto) return; // Should not happen with robust selection
 
             let btn = document.createElement('button');
             btn.className = 'btn-pregunta-crisis';
@@ -337,7 +424,9 @@ const KERNEL = {
             btn.innerText = `${i + 1}. ${preguntaTexto}`;
             btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto);
             grid.appendChild(btn);
-        }
+        });
+
+        // ACTUALIZAR: iniciarEfectoCascada() - no cambiar la animación. Solo cambiar la forma en que recibe las preguntas.
         this.iniciarEfectoCascada();
     },
 
@@ -441,7 +530,10 @@ const KERNEL = {
         // This ensures it becomes green as soon as text is typed, and can be clicked.
     },
 
-    /** Monitors user inaction and advances question blocks or pauses. */
+    /**
+     * Monitors user inaction and advances question blocks or pauses.
+     * Reconstruido para no depender de bloqueActual.
+     */
     iniciarMonitoreoInaccion() {
         clearInterval(this.timerInaccion);
         this.conteoInaccion = 0;
@@ -449,7 +541,7 @@ const KERNEL = {
             this.conteoInaccion++;
             if (this.conteoInaccion === 4 || this.conteoInaccion === 8) { // After 48s and 96s of inaction (4 or 8 * 12s)
                 clearInterval(this.temporizadorCascada);
-                this.bloqueActual++;
+                // Ya no se usa bloqueActual, simplemente se recargan nuevas preguntas
                 this.inyectarBloquePreguntas();
                 this.hablar(this.idiomaActual === 'es' ? "Avanzamos de nivel. Mira estas otras opciones en pantalla." : "Moving up. Look at these other options on screen.");
             } else if (this.conteoInaccion >= 12) { // After 144s of inaction (12 * 12s)
@@ -465,12 +557,15 @@ const KERNEL = {
         }, 12000); // Check every 12 seconds
     },
 
-    /** Handles user selecting a question or entering free text. */
+    /**
+     * Handles user selecting a question or entering free text.
+     * Reconstruido para no depender de bloqueActual.
+     */
     reaccionarPreguntaSeleccionada(textoPregunta) {
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
-        this.bloqueActual++;
-        localStorage.setItem("otg_bloque_secuencial", this.bloqueActual);
+        // Eliminado: this.bloqueActual++;
+        // Eliminado: localStorage.setItem("otg_bloque_secuencial", this.bloqueActual);
        
         // Use inp-text-libre value directly
         document.getElementById('inp-text-libre').value = textoPregunta;
@@ -540,22 +635,33 @@ const KERNEL = {
         this.activarBotonMandoLibreInicial(); // Re-initialize free writing button in new language
     },
 
-    /** Executes the main logic to fetch recommendations from the backend. */
+    /**
+     * Executes the main logic to fetch recommendations from the backend.
+     * Modificado para enviar historial_salir y historial_casa según el modo.
+     */
     async ejecutar() {
         if (this.isLocked) return; // Prevent multiple submissions
         this.isLocked = true;
 
+        const modoActual = document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR";
+
         const payload = {
             zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
-            modo: document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR",
+            modo: modoActual,
             desahogo: document.getElementById('inp-text-libre') ? document.getElementById('inp-text-libre').value.trim() : "",
             lang: this.idiomaActual,
             mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido",
             budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0",
             perfil: document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo",
             perfil_local: this.obtenerPerfilLocal(), // Send the user's dynamic profile
-            seen_ids: this.seenIds // Send the full list of seen IDs to the backend
         };
+
+        // Enviar historial específico según el modo, compatible con las claves que espera main.py
+        if (modoActual === "CASA") {
+            payload.seen_ids_casa = this.historialCasa; // Usar historialCasa para modo CASA
+        } else { // Default to SALIR
+            payload.seen_ids = this.historialSalir; // Usar historialSalir para modo SALIR
+        }
 
         const container = document.getElementById('wrapper-interactive');
         document.getElementById('wrapper-form').classList.add('hidden');
@@ -582,11 +688,18 @@ const KERNEL = {
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
            
-            // Check if backend requests to reset seen_ids (e.g., all items in a category were exhausted)
-            if (data.reset_seen_ids) {
-                this.seenIds = [];
-                localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
+            // Si el backend devuelve un historial actualizado, usarlo.
+            // Para SALIR, el backend ahora devuelve 'historial_salir_actualizado'
+            if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
+                this.historialSalir = data.historial_salir_actualizado;
+                localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
             }
+            // Para CASA, el backend ahora devuelve 'historial_casa_actualizado'
+            else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
+                this.historialCasa = data.historial_casa_actualizado;
+                localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+            }
+
 
             if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
                 this.pasosMisiones = data.misiones.slice(0, 3); // Take first 3 for sequential display
@@ -603,7 +716,10 @@ const KERNEL = {
         }
     },
 
-    /** Processes the sequential flow based on the recommendation type. */
+    /**
+     * Processes the sequential flow based on the recommendation type.
+     * Modificado para actualizar los historiales específicos.
+     */
     procesarFlujoSecuencial(container) {
         clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
@@ -616,12 +732,9 @@ const KERNEL = {
         // Handles external "Field Action" recommendations
         if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
             if (this.datosLugarGlobal) {
-                // Add the new recommendation's ID to seenIds before displaying
-                const currentId = this.datosLugarGlobal.destino_id;
-                if (currentId !== undefined && currentId !== null && !this.seenIds.includes(currentId)) {
-                    this.seenIds.push(currentId);
-                    localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
-                }
+                // historialSalir ya se actualiza en ejecutar() si el backend lo devuelve.
+                // Si no, el frontend podría replicar la lógica aquí para seguridad.
+                // Sin embargo, ahora el backend lo devuelve explícitamente.
 
                 let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
                 container.innerHTML = `
@@ -681,11 +794,10 @@ const KERNEL = {
         }
 
         const paso = this.pasosMisiones[this.indiceMision];
-        // Add the current mission's ID to seenIds before displaying
-        if (paso.id !== undefined && paso.id !== null && !this.seenIds.includes(paso.id)) {
-            this.seenIds.push(paso.id);
-            localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
-        }
+        // historialCasa ya se actualiza en ejecutar() si el backend lo devuelve.
+        // Si no, el frontend podría replicar la lógica aquí para seguridad.
+        // Sin embargo, ahora el backend lo devuelve explícitamente.
+       
 
         container.innerHTML = `
         <div class="mision-card">
@@ -739,7 +851,7 @@ const KERNEL = {
                     try {
                         let perfil = this.obtenerPerfilLocal();
                         // Increase anxiety indicator when user taps, as it suggests impatience/seeking relief
-                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 10, 100);
+                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100); // Slight increase, capped at 100
                         localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
                     } catch (e) {
                         console.error("Error updating anxiety indicator:", e);
@@ -768,17 +880,16 @@ const KERNEL = {
                         desahogo: "",
                         zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
                         perfil_local: this.obtenerPerfilLocal(),
-                        seen_ids: this.seenIds // Send the full list of seen IDs for SALIR suggestion
+                        seen_ids: this.historialSalir // Send the correct history for SALIR suggestion
                     })
                 });
                 const data = await r.json();
                
                 if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && linkSalidaSugerida && salidaSugeridaDiv) {
-                    // Add the suggested SALIR ID to seenIds
-                    const suggestedId = data.destino_id;
-                    if (suggestedId !== undefined && suggestedId !== null && !this.seenIds.includes(suggestedId)) {
-                        this.seenIds.push(suggestedId);
-                        localStorage.setItem("otg_seen_ids", JSON.stringify(this.seenIds));
+                    // Update historialSalir if backend returned it (for consistency)
+                    if (data.historial_salir_actualizado) {
+                        this.historialSalir = data.historial_salir_actualizado;
+                        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
                     }
 
                     linkSalidaSugerida.innerText = data.destino_titulo;
@@ -843,7 +954,10 @@ const KERNEL = {
         this.procesarFlujoSecuencial(container);
     },
 
-    /** Clears session data and restarts the application. */
+    /**
+     * Clears session data and restarts the application.
+     * Modificado para limpiar las nuevas claves de historial de localStorage.
+     */
     destruirYReiniciar() {
         clearInterval(this.timerInaccion);
         clearInterval(this.timerClinico);
@@ -852,9 +966,23 @@ const KERNEL = {
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
-        // Clear seenIds from localStorage upon restart
+        // Clear all specific history keys from localStorage upon restart
+        localStorage.removeItem("otg_historial_salir");
+        localStorage.removeItem("otg_historial_casa");
+        localStorage.removeItem("otg_historial_oraculo");
+        localStorage.removeItem("otg_last_decay");
+        localStorage.removeItem("otg_session_seed");
+        // Clear old, unused keys for good measure
+        localStorage.removeItem("otg_bloque_secuencial");
+        // And the old seen_ids key if it somehow persists
         localStorage.removeItem("otg_seen_ids");
-        this.seenIds = []; // Reset the in-memory list
+
+
+        // Reset in-memory lists
+        this.historialSalir = [];
+        this.historialCasa = [];
+        this.historialPreguntas = [];
+
         location.reload(); // Reload the page to reset the UI
     }
 };
