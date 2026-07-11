@@ -1,44 +1,91 @@
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 1 DE 2 (Backend Core)
-
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 import os
 import random
-import re # Import for basic validation
-
+import re
 app = FastAPI()
-
-# Ensure 'static' directory exists for serving static files
 if not os.path.exists("static"):
     os.makedirs("static")
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Default vector for 19 Human Needs, used when a specific environment doesn't define all
-# This ensures all dimensions are present for scoring and learning
-# NOTE: This is duplicated in frontend for quick access. For larger projects,
-# consider a shared configuration file or API endpoint to ensure canonical definition.
 DEFAULT_NECESSITY_VECTOR = {
     "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
     "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
     "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50,
     "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50
 }
-
-# Constants for standard phrases in SALIR missions (for conciseness and consistency)
+# ============================================================
+# MOTOR DE HISTORIAL INTELIGENTE CWRE V2
+# Anti-Repetición + Exploración Controlada
+# ============================================================
+MAX_HISTORY_SALIR = 5
+MAX_HISTORY_CASA = 8
+MAX_HISTORY_ORACULO = 12
+EXPLORATION_RATE = 0.20
+HISTORY_PENALTY = 40
+DECAY_PER_DAY = 0.985
+def limitar_historial(historial, limite):
+    if historial is None:
+        return []
+    return historial[-limite:]
+def penalizacion_historial(mision_id, historial):
+    if not historial:
+        return 0
+    historial = list(reversed(historial))
+    for posicion, antiguo in enumerate(historial):
+        if antiguo == mision_id:
+            if posicion == 0:
+                return HISTORY_PENALTY
+            elif posicion == 1:
+                return HISTORY_PENALTY * 0.85
+            elif posicion == 2:
+                return HISTORY_PENALTY * 0.70
+            elif posicion == 3:
+                return HISTORY_PENALTY * 0.50
+            else:
+                return HISTORY_PENALTY * 0.30
+    return 0
+def bonus_exploracion(mision_id, historial):
+    if not historial:
+        return 20
+    if mision_id not in historial:
+        return 20
+    return 0
+def actualizar_historial(historial, nuevo_id, limite):
+    historial = historial or []
+    if nuevo_id in historial:
+        historial.remove(nuevo_id)
+    historial.append(nuevo_id)
+    return historial[-limite:]
+def diversidad_vector(vector1, vector2):
+    distancia = 0
+    for k in DEFAULT_NECESSITY_VECTOR.keys():
+        distancia += abs(
+            vector1.get(k, 50) -
+            vector2.get(k, 50)
+        )
+    return distancia
+def decay_profile(profile, dias):
+    nuevo = {}
+    for necesidad, valor in profile.items():
+        if necesidad == "indicador_ansiedad":
+            nuevo[necesidad] = valor
+            continue
+        base = 50
+        diferencia = valor - base
+        diferencia *= (DECAY_PER_DAY ** dias)
+        nuevo[necesidad] = round(base + diferencia, 2)
+    return nuevo
 WHEN_ES = "Ahora mismo. Levántate de la silla ya."
 WHEN_EN = "Right now. Get out of your chair immediately."
 FOR_WHAT_ES = "Para romper el zombi urbano y recordar que la vida es más que pagar cuentas."
 FOR_WHAT_EN = "To break the urban zombie and remember that life is more than paying bills."
-
-# Your complete original mision base + Vector Injection of 19 Human Needs
-# Corrected: Now includes English translations for SALIR mode for full bilingual support
 BASE_MISIONES = {
-    "CASA_ES": [ # Separate list for Spanish CASA missions
+    "CASA_ES": [
         {"id": 1, "titulo": "Corta el piloto automático", "descripcion": "Escanea tu cuerpo. Ubica el peso exacto en tu espalda. Míralo. Estás vivo."},
         {"id": 2, "titulo": "Desconexión de biles", "descripcion": "Siente tu silla. El piso sostiene tu peso gratis. Déjate caer."},
         {"id": 3, "titulo": "Aislamiento de pantalla", "descripcion": "Voltea el teléfono. Mira una esquina del techo 30 segundos. Rompe el bucle."},
@@ -65,7 +112,7 @@ BASE_MISIONES = {
         {"id": 24, "titulo": "Suelta cuello", "descripcion": "Círculos lentos de cabeza. Libera la tensión de pantalla."},
         {"id": 25, "titulo": "Ejercicio de palmas", "descripcion": "Frota manos hasta sentir calor. Colócalas en hombros."}
     ],
-    "CASA_EN": [ # Separate list for English CASA missions
+    "CASA_EN": [
         {"id": 1, "titulo": "Cut the autopilot", "descripcion": "Scan your body. Pinpoint the exact weight on your back. See it. You are alive."},
         {"id": 2, "titulo": "Bill Disconnection", "descripcion": "Feel your chair. The floor supports your weight for free. Let yourself fall."},
         {"id": 3, "titulo": "Screen Isolation", "descripcion": "Flip your phone. Look at a corner of the ceiling for 30 seconds. Break the loop."},
@@ -92,7 +139,7 @@ BASE_MISIONES = {
         {"id": 24, "titulo": "Release Neck", "descripcion": "Slow head circles. Release screen tension."},
         {"id": 25, "titulo": "Palm Exercise", "descripcion": "Rub hands until warm. Place them on shoulders."}
     ],
-    "CASA_EXTRA_ES": [ # Extra missions, also separate by language
+    "CASA_EXTRA_ES": [
         {"id": 26, "titulo": "Sonidos lejanos", "descripcion": "Identifica el sonido más lejano fuera de casa."},
         {"id": 27, "titulo": "Estiramiento lateral", "descripcion": "Inclina el cuerpo suavemente a cada lado."},
         {"id": 28, "titulo": "El vaso vacío", "descripcion": "Mira un vaso. Concéntrate en su forma un minuto."},
@@ -116,10 +163,10 @@ BASE_MISIONES = {
         {"id": 46, "titulo": "Siente base", "descripcion": "Contacto firme de piernas con silla."},
         {"id": 47, "titulo": "Puños firmes", "descripcion": "Puños con fuerza 3 segundos, abre rápido."},
         {"id": 48, "titulo": "Limpieza mental", "descripcion": "Exhala preocupación aburrida. Fuera de ti."},
-        {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la estabilidad."},
+        {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la stability."},
         {"id": 50, "titulo": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control."}
     ],
-    "CASA_EXTRA_EN": [ # Extra missions in English
+    "CASA_EXTRA_EN": [
         {"id": 26, "titulo": "Distant Sounds", "descripcion": "Identify the farthest sound outside your home."},
         {"id": 27, "titulo": "Side Stretch", "descripcion": "Gently lean your body to each side."},
         {"id": 28, "titulo": "The Empty Glass", "descripcion": "Look at a glass. Focus on its shape for one minute."},
@@ -143,10 +190,10 @@ BASE_MISIONES = {
         {"id": 46, "titulo": "Feel Base", "descripcion": "Firm contact of legs with chair."},
         {"id": 47, "titulo": "Firm Fists", "descripcion": "Fists tightly for 3 seconds, open quickly."},
         {"id": 48, "titulo": "Mental Cleanse", "descripcion": "Exhale boring worry. Out of you."},
-        {"id": 49, "titulo": "Touch Table", "descripcion": "Palms on table. Note the stability."},
+        {"id": 49, "titulo": "Touch Table", "descripcion": "Palms on table. Nota la stability."},
         {"id": 50, "titulo": "Total Presence", "descripcion": "You are here. You are safe. You are in control."}
     ],
-    "SALIR": { # SALIR missions now include English translations and new destinations
+    "SALIR": {
         "agotado": [
             {
                 "id": 101,
@@ -559,25 +606,247 @@ BASE_MISIONES = {
         ]
     }
 }
-# Billion-dollar infrastructure resources hijacked to break monotony
 BIG_TECH_RESOURCES = {
-    "spotify_audio_es": "https://open.spotify.com/genre/mood/relax-stress-relief", # More specific
-    "spotify_audio_en": "https://open.spotify.com/genre/mood/relax-stress-relief",
+    "spotify_audio_es": "https://open.spotify.com/genre/mood/relax-stress-relief",
     "youtube_audio_es": "https://www.youtube.com/results?search_query=sonidos+naturaleza+relajantes",
+    "spotify_audio_en": "https://open.spotify.com/genre/mood/relax-stress-relief",
     "youtube_audio_en": "https://www.youtube.com/results?search_query=nature+sounds+relaxing",
     "staffing_agencies_es": "agencias+de+empleo",
     "staffing_agencies_en": "employment+agencies"
 }
-
+# ============================================================
+# CWRE V2
+# SCORE INTELIGENTE
+# ============================================================
+def score_coincidencia(
+    perfil_local,
+    vector_necesidades,
+    historial=None,
+    mission_id=None
+):
+    historial = historial or []
+    score = 0
+    # --------------------------------------------------
+    # Coincidencia principal
+    # --------------------------------------------------
+    for necesidad, objetivo in vector_necesidades.items():
+        usuario = perfil_local.get(necesidad, 50)
+        diferencia = abs(usuario - objetivo)
+        score += (100 - diferencia)
+    # --------------------------------------------------
+    # Priorizar necesidades altas
+    # --------------------------------------------------
+    for necesidad, valor in perfil_local.items():
+        if necesidad not in vector_necesidades:
+            continue
+        if valor >= 80:
+            score += (
+                vector_necesidades.get(necesidad, 50) / 4
+            )
+    # --------------------------------------------------
+    # Priorizar ansiedad
+    # --------------------------------------------------
+    ansiedad = perfil_local.get("indicador_ansiedad", 0)
+    if ansiedad >= 80:
+        score += (
+            vector_necesidades.get("silencio", 0) * 0.40
+        )
+        score += (
+            vector_necesidades.get("descanso", 0) * 0.40
+        )
+        score += (
+            vector_necesidades.get("esperanza", 0) * 0.35
+        )
+        score += (
+            vector_necesidades.get("naturaleza", 0) * 0.25
+        )
+    elif ansiedad >= 60:
+        score += (
+            vector_necesidades.get("descanso", 0) * 0.25
+        )
+        score += (
+            vector_necesidades.get("silencio", 0) * 0.25
+        )
+    # --------------------------------------------------
+    # Penalización por repetición
+    # --------------------------------------------------
+    if mission_id is not None:
+        score -= penalizacion_historial(
+            mission_id,
+            historial
+        )
+        score += bonus_exploracion(
+            mission_id,
+            historial
+        )
+    return round(score, 2)
+# ============================================================
+# Selección por Ranking Inteligente
+# ============================================================
+def seleccionar_por_ranking(candidatos):
+    if not candidatos:
+        return None
+    candidatos = sorted(
+        candidatos,
+        key=lambda x: x["score"],
+        reverse=True
+    )
+    mejor = candidatos[0]["score"]
+    margen = 20
+    mejores = [
+        c
+        for c in candidatos
+        if c["score"] >= (mejor - margen)
+    ]
+    if len(mejores) == 1:
+        return mejores[0]
+    pesos = []
+    for m in mejores:
+        pesos.append(max(m["score"], 1))
+    return random.choices(
+        mejores,
+        weights=pesos,
+        k=1
+    )[0]
+# ============================================================
+# CWRE V2
+# Selector Universal de Misiones
+# ============================================================
+def seleccionar_mision_inteligente(
+    misiones,
+    perfil_local,
+    historial=None
+):
+    historial = historial or []
+    candidatos = []
+    for mision in misiones:
+        score = score_coincidencia(
+            perfil_local=perfil_local,
+            vector_necesidades=mision.get(
+                "vector_necesidades",
+                DEFAULT_NECESSITY_VECTOR
+            ),
+            historial=historial,
+            mission_id=mision["id"]
+        )
+        candidatos.append({
+            "mision": mision,
+            "score": score
+        })
+    seleccion = seleccionar_por_ranking(candidatos)
+    if seleccion is None:
+        return None
+    return seleccion["mision"]
+# ============================================================
+# Filtrar historial
+# ============================================================
+def filtrar_historial(misiones, historial):
+    historial = historial or []
+    disponibles = [
+        m
+        for m in misiones
+        if m["id"] not in historial
+    ]
+    if disponibles:
+        return disponibles
+    return misiones
+# ============================================================
+# Actualizar historial automáticamente
+# ============================================================
+# Se inlinará la llamada a actualizar_historial directamente en los modos CASA y SALIR
+# para usar el límite de historial correcto, eliminando la necesidad de esta función genérica.
+# def registrar_recomendacion(
+#     historial,
+#     mision
+# ):
+#     historial = actualizar_historial(
+#         historial,
+#         mision["id"],
+#         MAX_HISTORY_SALIR
+#     )
+#     return historial
+# ============================================================
+# CASA V2
+# Selección inteligente de misiones domésticas
+# ============================================================
+def seleccionar_misiones_casa_inteligente(
+    misiones,
+    perfil_local,
+    historial_casa=None,
+    cantidad=3
+):
+    historial_casa = historial_casa or []
+    # Evitar repetir las últimas CASA
+    disponibles = filtrar_historial(
+        misiones,
+        historial_casa
+    )
+    # Si quedan pocas opciones,
+    # ampliar catálogo nuevamente
+    if len(disponibles) < cantidad:
+        disponibles = misiones
+    candidatos = []
+    for mision in disponibles:
+        score = score_coincidencia(
+            perfil_local=perfil_local,
+            vector_necesidades=mision.get(
+                "vector_necesidades",
+                DEFAULT_NECESSITY_VECTOR
+            ),
+            historial=historial_casa,
+            mission_id=mision.get("id")
+        )
+        candidatos.append({
+            "mision": mision,
+            "score": score
+        })
+    # Ordenar por relevancia
+    candidatos.sort(
+        key=lambda x:x["score"],
+        reverse=True
+    )
+    resultado = []
+    for candidato in candidatos:
+        mision = candidato["mision"]
+        # Control de diversidad
+        diferente = True
+        for anterior in resultado:
+            distancia = diversidad_vector(
+                mision.get(
+                    "vector_necesidades",
+                    DEFAULT_NECESSITY_VECTOR
+                ),
+                anterior.get(
+                    "vector_necesidades",
+                    DEFAULT_NECESSITY_VECTOR
+                )
+            )
+            # evita tres misiones casi iguales
+            if distancia < 80:
+                diferente = False
+                break
+        if diferente:
+            resultado.append(mision)
+        if len(resultado) >= cantidad:
+            break
+    # Seguridad:
+    # si no encontró 3 diferentes
+    # completa con las mejores
+    if len(resultado) < cantidad:
+        for candidato in candidatos:
+            mision = candidato["mision"]
+            if mision not in resultado:
+                resultado.append(mision)
+            if len(resultado) >= cantidad:
+                break
+    return resultado
 @app.get("/")
 async def index():
     """Serves the main HTML page."""
     return FileResponse('static/session.html')
-
 # OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 2 DE 2 (CWRE Logic)
-
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
     """
@@ -587,75 +856,75 @@ async def mando_integral(request: Request):
     payload = await request.json()
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
-    estado = str(payload.get("estado", "FL")).strip() # Default to FL if not provided
+    estado = str(payload.get("estado", "FL")).strip()
     region = str(payload.get("region", "")).strip()
-    mente = str(payload.get("mente", "aburrido")).lower() # Default for `SALIR` mode
-    budget = str(payload.get("budget", "0")) # 0: free, 1: low, 2: free
-    perfil_tipo = str(payload.get("perfil", "solo")).lower() # solo, familia, accesible (renamed to perfil_tipo to avoid conflict with perfil_local)
-    desahogo = str(payload.get("desahogo", "")).lower() # User's free text input
+    mente = str(payload.get("mente", "aburrido")).lower()
+    budget = str(payload.get("budget", "0"))
+    perfil_tipo = str(payload.get("perfil", "solo")).lower()
+    desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
-    last_recommendation_id = payload.get("last_recommendation_id", None) # Corrected: For anti-repetition
-
-    # Basic ZIP code validation
+    last_recommendation_id = payload.get("last_recommendation_id", None)
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
         return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
-   
-    # Capture locally accumulated click metrics for the 19 needs from engine.js
-    perfil_local = payload.get("perfil_local", DEFAULT_NECESSITY_VECTOR)
-    # Ensure all 19 needs are present in perfil_local, with defaults if missing
-    for need, default_val in DEFAULT_NECESSITY_VECTOR.items():
-        if need not in perfil_local:
-            perfil_local[need] = default_val
-
+    perfil_local = payload.get("perfil_local", {})
+    if not isinstance(perfil_local, dict):
+        perfil_local = {}
+    perfil_local = {
+        **DEFAULT_NECESSITY_VECTOR,
+        **perfil_local
+    }
     # 1. DOMESTIC INTERVENTION (ORIGINAL CASA MODE INTACT)
     if opcion_usuario == "CASA":
-        misiones = BASE_MISIONES[f"CASA_{lang.upper()}"] + BASE_MISIONES[f"CASA_EXTRA_{lang.upper()}"]
-        random.shuffle(misiones)  # Avoid monotony by shuffling local challenges
-        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones})
-
-    # 2. FIELD ACTION (SALIR MODE WITH ANTI-REPETITION SELECTION ENGINE)
-    # Get initial options based on 'mente', default to 'aburrido' if 'mente' is not found
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-   
-    # CWRE Logic Integrated: Mathematical weighting based on user's click trail within your app
-    # Crosses implicit preferences of the 19 needs sent by the smartphone
-    info_seleccionada = None
-    mejor_score = -1
-   
-    # Corrected: Implement anti-repetition logic for SALIR mode
-    candidatos_validos = []
-    for opc in opciones_salir_candidatas:
-        if opc.get("id") != last_recommendation_id or len(opciones_salir_candidatas) == 1:
-            candidatos_validos.append(opc)
-   
-    # If all candidates were the last one, or no other options, use the original list
-    if not candidatos_validos:
-        candidatos_validos = opciones_salir_candidatas
-
-    # Now score from the valid candidates
-    for opc in candidatos_validos:
-        # Ensure the environment's vector is complete, merging with defaults
-        vector_lugar = {**DEFAULT_NECESSITY_VECTOR, **opc.get("vector_necesidades", {})}
-        score_coincidencia = 0
-       
-        # Sum the weights of the user's internal history against the environment's score
-        for necesidad, peso_usuario in perfil_local.items():
-            # Ensure "indicador_ansiedad" is skipped, as it's an internal metric for engine.js only
-            if necesidad != "indicador_ansiedad":
-                score_coincidencia += vector_lugar.get(necesidad, DEFAULT_NECESSITY_VECTOR.get(necesidad, 50)) * peso_usuario
-           
-        if score_coincidencia > mejor_score:
-            mejor_score = score_coincidencia
-            info_seleccionada = opc
-
-    # Fallback if no matching options or candidates are empty (shouldn't happen with defaults, but for safety)
+        idioma = "EN" if lang.lower() == "en" else "ES"
+        misiones = (
+            BASE_MISIONES[f"CASA_{idioma}"] +
+            BASE_MISIONES[f"CASA_EXTRA_{idioma}"]
+        )
+        historial_casa = payload.get("seen_ids_casa", []) # frontend should send this key for CASA mode
+        misiones_casa = seleccionar_misiones_casa_inteligente(
+            misiones,
+            perfil_local,
+            historial_casa,
+            cantidad=3
+        )
+        # CORRECCIÓN MECÁNICA: Usar actualizar_historial directamente con MAX_HISTORY_CASA
+        # en lugar de registrar_recomendacion que usa un límite incorrecto.
+        for m in misiones_casa:
+            historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
+        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA", "misiones": misiones_casa, "historial_casa_actualizado": historial_casa})
+    # ============================================================
+    # 2. FIELD ACTION (SALIR MODE - CWRE INTELLIGENT ENGINE V2)
+    # ============================================================
+    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(
+        mente,
+        BASE_MISIONES["SALIR"]["aburrido"]
+    )
+    historial_salir = payload.get(
+        "seen_ids", # frontend should send this key for SALIR mode
+        []
+    )
+    opciones_disponibles = filtrar_historial(
+        opciones_salir_candidatas,
+        historial_salir
+    )
+    if not opciones_disponibles:
+        opciones_disponibles = opciones_salir_candidatas
+    info_seleccionada = seleccionar_mision_inteligente(
+        misiones=opciones_disponibles,
+        perfil_local=perfil_local,
+        historial=historial_salir
+    )
     if not info_seleccionada:
-        # This takes a random item from the first list in BASE_MISIONES["SALIR"]
-        # which is typically 'agotado' but robust enough.
-        first_category_options = list(BASE_MISIONES["SALIR"].values())[0]
-        info_seleccionada = random.choice(first_category_options)
-
-    # Filter for real price in short action words
+        info_seleccionada = random.choice(
+            opciones_disponibles
+        )
+    # CORRECCIÓN MECÁNICA: Usar actualizar_historial directamente con MAX_HISTORY_SALIR
+    # en lugar de registrar_recomendacion.
+    historial_salir = actualizar_historial(
+        historial_salir,
+        info_seleccionada["id"],
+        MAX_HISTORY_SALIR
+    )
     precio_real = ""
     if budget == "0":
         precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
@@ -663,8 +932,6 @@ async def mando_integral(request: Request):
         precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
     elif budget == "2":
         precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
-   
-    # Filter for real companions
     quienes_van = ""
     if perfil_tipo == "solo":
         quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
@@ -672,20 +939,19 @@ async def mando_integral(request: Request):
         quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
     elif perfil_tipo == "accesible":
         quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
-
     # FINANCIAL SURVIVAL AND WELLBEING INTERCEPTOR FILTER
     palabras_criticas = ["trabajo", "empleo", "compañia", "compañía", "job", "biles", "deudas", "bills", "miseria", "explotacion", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economy", "money", "work"]
-   
-    # Default values for external recommendations
-    titulo_ganador = info_seleccionada[f"titulo_{lang}"] if lang == "en" else info_seleccionada["titulo"]
-    donde_base = info_seleccionada[f"donde_{lang}"] if lang == "en" else info_seleccionada["donde"]
+    if lang == "en":
+        titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"])
+        donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"])
+    else:
+        titulo_ganador = info_seleccionada["titulo"]
+        donde_base = info_seleccionada["donde"]
     link_base = "https://www.google.com/maps/search/?api=1&query="
     gps_query = info_seleccionada["gps"]
     guia_masticada = ""
-
-    # Check for critical keywords in 'desahogo' to activate the interceptor
     if any(p in desahogo for p in palabras_criticas):
-        canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "STAFFING"]) # Added STAFFING as option
+        canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "STAFFING"])
         if canal_multimedia == "SPOTIFY":
             titulo_ganador = "RESET AUDITIVO" if lang == "es" else "AUDIO RESET"
             donde_base = "Zona Libre de Consumo" if lang == "es" else "Store-Free Zone"
@@ -699,7 +965,7 @@ async def mando_integral(request: Request):
                 "WHY: Stop the urge to buy unnecessary items today."
             )
             link_base = BIG_TECH_RESOURCES[f"spotify_audio_{lang}"]
-            gps_query = "" # No GPS query for Spotify
+            gps_query = ""
         elif canal_multimedia == "YOUTUBE":
             titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
             donde_base = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency"
@@ -713,8 +979,8 @@ async def mando_integral(request: Request):
                 "WHY: Calm your racing thoughts right now."
             )
             link_base = BIG_TECH_RESOURCES[f"youtube_audio_{lang}"]
-            gps_query = "" # No GPS query for YouTube
-        else: # STAFFING
+            gps_query = ""
+        else:
             titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION"
             donde_base = (
                 ("Oficinas de contratación y staffings corporativos en tu zona." if lang == "es" else
@@ -734,7 +1000,6 @@ async def mando_integral(request: Request):
             link_base = "https://www.google.com/maps/search/?api=1&query="
             gps_query = BIG_TECH_RESOURCES[f"staffing_agencies_{lang}"]
     else:
-        # Regular bilingual field routes, debt-free
         if lang == "en":
             guia_masticada = (
                 f"TARGET: {info_seleccionada['titulo_en']}.\n"
@@ -744,7 +1009,10 @@ async def mando_integral(request: Request):
                 f"FOR WHAT: {info_seleccionada['para_que_en']}\n"
                 f"{quienes_van}\n{precio_real}"
             )
-            titulo_ganador = info_seleccionada["titulo_en"].upper()
+            titulo_ganador = info_seleccionada.get(
+                "titulo_en",
+                info_seleccionada["titulo"]
+            ).upper()
         else:
             guia_masticada = (
                 f"DESTINO: {info_seleccionada['titulo']}.\n"
@@ -755,44 +1023,33 @@ async def mando_integral(request: Request):
                 f"{quienes_van}\n{precio_real}"
             )
             titulo_ganador = info_seleccionada["titulo"].upper()
-
-    # Adaptability of the Biopsychosocial Profile without social exclusion
-    # These modifications should be applied only if gps_query is a map query
     if link_base.startswith("https://www.google.com/maps"):
         if perfil_tipo == "accesible":
             gps_query = "wheelchair+accessible+" + gps_query
         elif perfil_tipo == "familia":
             gps_query = "family+friendly+" + gps_query
-
-    # ORIGINAL FIXED UNIVERSAL GEOGRAPHIC FORMULA RESTORED WITHOUT CUTTING OR ALTERATIONS
-    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}" # Default FL for state is used
-   
+    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}"
     final_link = ""
     if gps_query:
-        if link_base.startswith("http") and "google.com/maps" in link_base: # Ensure it's a map link for geo
+        if link_base.startswith("http") and "google.com/maps" in link_base:
             final_link = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
-        else: # For Spotify/YouTube or Staffing where link_base is already the full URL, or staffing with generic geo
-            # If gps_query is not empty, it implies we want to append it to link_base (e.g., for staffing agencies with anclaje_geografico)
-            # Otherwise, link_base is already the complete URL (Spotify/YouTube)
-            if "staffing" in gps_query: # Specific case for staffing agencies
+        else:
+            if "staffing" in gps_query:
                 final_link = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
-            else: # For spotify/youtube, link_base is already complete
+            else:
                 final_link = link_base.replace(" ", "+")
     else:
-        final_link = link_base.replace(" ", "+") # For Spotify/YouTube, link_base is already the full URL
-
-    # Merge environment's vector_necesidades with DEFAULT_NECESSITY_VECTOR to ensure all 19 are present
+        final_link = link_base.replace(" ", "+")
     final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
-
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "destino_id": info_seleccionada.get("id"), # Corrected: Send back the ID for anti-repetition
+        "destino_id": info_seleccionada.get("id"),
         "destino_titulo": titulo_ganador,
         "destino_entorno": donde_base,
         "destino_instruccion": guia_masticada.strip(),
         "destino_coordenadas_gps": final_link,
-        "vector_entorno_seleccionado": final_vector_necesidades # Inject the full vector for engine.js to add to the dynamic profile
+        "vector_entorno_seleccionado": final_vector_necesidades,
+        "historial_salir_actualizado": historial_salir # Devolver el historial actualizado para que el frontend lo guarde
     })
-
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
