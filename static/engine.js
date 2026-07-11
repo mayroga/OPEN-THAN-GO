@@ -128,7 +128,6 @@ const KERNEL = {
 
         // Block 4: Family Environment and Emotional Distance
         "Do you constantly argue with your loved ones over differences that prevent harmony at home?",
-        "Do you feel disinterest or apathy before inevitable family gatherings?",
         "Do you live under the same roof with your family but emotional distance makes you feel like strangers?",
         "Does a family visit generate tension instead of true peace and connection?",
         "Does longing for those far away paralyze you and prevent you from living your present?",
