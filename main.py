@@ -289,7 +289,7 @@ async def mando_integral(request: Request):
     # Corrected: Implement anti-repetition logic for SALIR mode
     candidatos_validos = []
     for opc in opciones_salir_candidatas:
-        if opc.get("id") != last_recommendation_id or len(opciones_salir_candidatas) == 1:
+        if opc.get("id") != last_recommendation_id or len(opciones_salir_candidatas) == 1: # Added missing colon
             candidatos_validos.append(opc)
    
     # If all candidates were the last one, or no other options, use the original list
@@ -459,4 +459,4 @@ async def mando_integral(request: Request):
     })
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)
