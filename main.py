@@ -181,7 +181,7 @@ BASE_MISIONES = {
         {"id": 3, "titulo": "Screen Isolation", "descripcion": "Flip your phone. Look at a corner of the ceiling for 30 seconds. Break the loop.", "vector_necesidades": {"silencio": 95, "descanso": 85, "contemplacion": 90, "organizacion": 60, "creatividad": 20}},
         {"id": 4, "titulo": "Release the Burden", "descripcion": "Feel your shoulders free. That invisible backpack of weight is gone.", "vector_necesidades": {"descanso": 90, "movimiento": 60, "risa": 40, "esperanza": 80, "organizacion": 30}},
         {"id": 5, "titulo": "The Water Reset", "descripcion": "A small sip of cold water. Feel the liquid. It's life entering.", "vector_necesidades": {"agua": 100, "descanso": 70, "silencio": 50, "movimiento": 20, "salud": 80}},
-        {"id": 7, "titulo": "Street Air", "descripcion": "Open the window. Let the air hit your face. Feel the outside.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 80, "contemplacion": 70, "descanso": 60, "movimiento": 30}},
+        {"id": 7, "titulo": "Street Air", "descripcion": "Open the window. Let the air hit your face. Siente the outside.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 80, "contemplacion": 70, "descanso": 60, "movimiento": 30}},
         {"id": 8, "titulo": "Energy Rotation", "descripcion": "Rotate wrists and ankles. Your body is yours. You govern this engine.", "vector_necesidades": {"movimiento": 95, "descanso": 60, "juego": 40, "salud": 80, "creatividad": 20}},
         {"id": 9, "titulo": "Present Anchor", "descripcion": "Close your eyes. Say one good thing you have today. Say it loud.", "vector_necesidades": {"contemplacion": 100, "silencio": 90, "esperanza": 95, "aprendizaje": 70, "risa": 30}},
         {"id": 11, "titulo": "Feet on the Ground", "descripcion": "Take off your shoes. Rest soles on the floor. Feel the cold. Connect.", "vector_necesidades": {"naturaleza": 90, "movimiento": 70, "contemplacion": 80, "silencio": 60, "descanso": 70}},
@@ -234,7 +234,7 @@ BASE_MISIONES = {
         {"id": 61, "titulo": "Look at your hands", "descripcion": "Observe the lines and details of your hands. They are powerful tools.", "vector_necesidades": {"contemplacion": 95, "aprendizaje": 70, "silencio": 80, "esperanza": 60, "creatividad": 50}},
         {"id": 62, "titulo": "Imagine a landscape", "descripcion": "Close your eyes and imagine your favorite natural landscape for 30 seconds.", "vector_necesidades": {"naturaleza": 100, "contemplacion": 95, "silencio": 90, "descanso": 85, "creatividad": 80}},
         {"id": 63, "titulo": "Stretch your back", "descripcion": "Sit on the floor with your legs straight and try to touch your feet.", "vector_necesidades": {"movimiento": 90, "salud": 85, "descanso": 70, "organizacion": 40, "silencio": 50}},
-        {"id": 64, "titulo": "Breathe through your nose", "descripcion": "Take 5 deep breaths, only through your nose, noticing the air.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "aire_fresco": 80, "contemplacion": 90}},
+        {"id": 64, "titulo": "Breathe through your nose", "descripcion": "Make 5 deep breaths, only through your nose, noticing the air.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "aire_fresco": 80, "contemplacion": 90}},
         {"id": 65, "titulo": "Shadow play", "descripcion": "With your hands, create a shape on the wall with the light of a lamp.", "vector_necesidades": {"juego": 100, "creatividad": 90, "risa": 70, "contemplacion": 60, "descanso": 50}},
         {"id": 66, "titulo": "An imaginary hug", "descripcion": "Hug your arms tightly, imagining it's a loved one.", "vector_necesidades": {"comunidad": 90, "esperanza": 80, "descanso": 70, "risa": 60, "silencio": 50}},
         {"id": 67, "titulo": "Find a blue object", "descripcion": "Quickly find 5 blue objects in your surroundings. Focus your sight.", "vector_necesidades": {"organizacion": 80, "aprendizaje": 70, "juego": 60, "creatividad": 50, "contemplacion": 70}},
@@ -335,7 +335,7 @@ BASE_MISIONES = {
             {
                 "id": 112, "titulo": "Sendero Corto Natural", "titulo_en": "Short Nature Trail",
                 "porque": "Sobrecarga de estímulos. Desconéctate un momento. Camina en paz.", "porque_en": "Overload of stimuli. Disconnect for a moment. Walk in peace.",
-                "que_hacer": "Encuentra un sendero. Camina a paso ligero. Observa el entorno natural.", "que_hacer_en": "Find a trail. Walk briskly. Observe the natural surroundings.",
+                "que_hacer": "Encuentra rastro. Camina a paso ligero. Observa el entorno natural.", "que_hacer_en": "Find a trail. Walk briskly. Observe the natural surroundings.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Sendero natural o bosque.", "donde_en": "Nature trail or forest.", "gps": "short nature trail",
                 "vector_necesidades": {"movimiento": 85, "naturaleza": 100, "silencio": 80, "agua": 40, "sol": 60, "sombra": 70, "aire_fresco": 100, "creatividad": 40, "comunidad": 20, "aprendizaje": 50, "juego": 20, "contemplacion": 90, "descanso": 60, "organizacion": 20, "alimentacion": 0, "musica": 20, "risa": 10, "esperanza": 85}
@@ -493,8 +493,7 @@ BASE_MISIONES = {
             {
                 "id": 130, "titulo": "Piscina Pública", "titulo_en": "Public Pool",
                 "porque": "Cuerpo tenso, mente agitada. El agua relaja y el movimiento controlado calma. Flota tus preocupaciones.", "porque_en": "Tense body, agitated mind. Water relaxes and controlled movement calms. Float your worries away.",
-                "que_hacer": "Visita una piscina pública, date un chapuzón o simplemente relájate en el agua.", "que_hacer_en": "Visit a public pool, take a dip or just relax in the water.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "que_hacer": "Visita una piscina pública, date un chapuzón o simplemente relájate en el agua.", "que_hacer_en": "Visit a public pool, take a dip or just relax in the water.", "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Piscina municipal o comunitaria.", "donde_en": "Municipal or community pool.", "gps": "public swimming pool",
                 "vector_necesidades": {"movimiento": 90, "naturaleza": 40, "silencio": 50, "agua": 100, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 30, "comunidad": 70, "aprendizaje": 20, "juego": 80, "contemplacion": 70, "descanso": 90, "organizacion": 20, "alimentacion": 10, "musica": 40, "risa": 60, "esperanza": 85}
             },
@@ -557,14 +556,14 @@ def score_coincidencia(
     elif ansiedad >= 40:
         score += vector_necesidades.get("descanso", 0) * 0.2
         score += vector_necesidades.get("silencio", 0) * 0.2
-    
+   
     # --------------------------------------------------
     # Penalización por repetición histórica y bonus por exploración
     # --------------------------------------------------
     if mission_id is not None:
         score -= penalizacion_historial(mission_id, historial)
         score += bonus_exploracion(mission_id, historial)
-    
+   
     return round(max(0, score), 2)
 
 # ============================================================
@@ -573,30 +572,30 @@ def score_coincidencia(
 def seleccionar_por_ranking(candidatos):
     if not candidatos:
         return None
-    
+   
     candidatos = sorted(candidatos, key=lambda x: x["score"], reverse=True)
-    
+   
     if not candidatos:
         return None
 
     mejor_score = candidatos[0]["score"]
-    
+   
     if mejor_score <= 100:
         scores_unicos = {c["score"] for c in candidatos}
         if len(scores_unicos) == 1:
              return random.choice(candidatos)
 
     score_umbral = max(mejor_score * 0.8, mejor_score - 150)
-    
+   
     mejores_candidatos_para_eleccion = [
         c for c in candidatos if c["score"] >= score_umbral
     ]
-    
+   
     if len(mejores_candidatos_para_eleccion) == 1:
         return mejores_candidatos_para_eleccion[0]
 
     pesos = [c["score"] for c in mejores_candidatos_para_eleccion]
-    pesos = [max(1, p) for p in pesos] 
+    pesos = [max(1, p) for p in pesos]
 
     return random.choices(mejores_candidatos_para_eleccion, weights=pesos, k=1)[0]
 
@@ -614,7 +613,7 @@ def seleccionar_mision_inteligente(
     candidatos = []
     for mision in misiones:
         mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
-        
+       
         score = score_coincidencia(
             perfil_local=perfil_local,
             vector_necesidades=mission_vector,
@@ -653,12 +652,12 @@ def seleccionar_misiones_casa_inteligente(
     cantidad=3
 ):
     historial_casa = historial_casa or []
-    
+   
     disponibles = filtrar_historial(
         misiones,
         historial_casa
     )
-    
+   
     if len(disponibles) < cantidad * 2:
         disponibles = misiones
 
@@ -676,15 +675,15 @@ def seleccionar_misiones_casa_inteligente(
             "mision": mision,
             "score": score
         })
-    
+   
     candidatos.sort(
         key=lambda x: x["score"],
         reverse=True
     )
-    
+   
     resultado = []
     ids_en_resultado = set()
-    
+   
     for candidato in candidatos:
         mision = candidato["mision"]
         if mision["id"] in ids_en_resultado:
@@ -696,17 +695,17 @@ def seleccionar_misiones_casa_inteligente(
                 mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
                 anterior_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
             )
-            if distancia < 60: 
+            if distancia < 60:
                 diferente = False
                 break
-        
+       
         if diferente:
             resultado.append(mision)
             ids_en_resultado.add(mision["id"])
-        
+       
         if len(resultado) >= cantidad:
             break
-            
+           
     if len(resultado) < cantidad:
         for candidato in candidatos:
             mision = candidato["mision"]
@@ -715,10 +714,10 @@ def seleccionar_misiones_casa_inteligente(
                 ids_en_resultado.add(mision["id"])
             if len(resultado) >= cantidad:
                 break
-    
+   
     if len(resultado) < cantidad and len(misiones) >= cantidad:
         resultado = [c["mision"] for c in candidatos[:cantidad]]
-        
+       
     return resultado
 
 @app.get("/")
@@ -745,14 +744,14 @@ async def mando_integral(request: Request):
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
-    
+   
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
         return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
-    
+   
     perfil_local = payload.get("perfil_local", {})
     if not isinstance(perfil_local, dict):
         perfil_local = {}
-    
+   
     perfil_local = {
         **DEFAULT_NECESSITY_VECTOR,
         **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
@@ -766,188 +765,4 @@ async def mando_integral(request: Request):
     # Si el desahogo contiene palabras críticas, se fuerza una microacción de recuperación mental.
     # ============================================================
     sensitive_keywords = [
-        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum",
-        "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income",
-        "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades",
-        "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo",
-        "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica",
-        "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco",
-        "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo",
-        "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales",
-        "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
-    ]
-
-    force_recovery_mission = False
-    if desahogo:
-        desahogo_lower = desahogo.lower()
-        if any(keyword in desahogo_lower for keyword in sensitive_keywords):
-            force_recovery_mission = True
-            opcion_usuario = "CASA" # Force CASA mode for recovery mission
-
-    if force_recovery_mission:
-        idioma = "EN" if lang.lower() == "en" else "ES"
-        # Seleccionar una de las 10 nuevas microacciones (IDs 151 a 160)
-        microacciones_ids = list(range(151, 161))
-        
-        # Filtrar misiones_completas para incluir solo las microacciones
-        misiones_completas_casa = [m for m in BASE_MISIONES[f"CASA_{idioma}"] if m["id"] in microacciones_ids]
-        
-        if not misiones_completas_casa: # Fallback if for some reason no microactions are found
-            misiones_completas_casa = BASE_MISIONES[f"CASA_{idioma}"] 
-
-        historial_casa = payload.get("historial_casa", []) 
-        
-        info_seleccionada = seleccionar_mision_inteligente(
-            misiones=misiones_completas_casa,
-            perfil_local=perfil_local,
-            historial=historial_casa # Use CASA history for this selection
-        )
-        
-        if not info_seleccionada: # Fallback just in case
-            info_seleccionada = random.choice(misiones_completas_casa)
-            
-        historial_casa = actualizar_historial(historial_casa, info_seleccionada["id"], MAX_HISTORY_CASA)
-
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-            "misiones": [info_seleccionada], # Return as a list for consistency with normal CASA flow
-            "historial_casa_actualizado": historial_casa,
-            "forced_recovery": True # Indicate that this was a forced recovery
-        })
-
-    # 1. DOMESTIC INTERVENTION (CASA MODE)
-    if opcion_usuario == "CASA":
-        idioma = "EN" if lang.lower() == "en" else "ES"
-        misiones_completas = (
-            BASE_MISIONES[f"CASA_{idioma}"] 
-        )
-        
-        historial_casa = payload.get("historial_casa", []) 
-        
-        misiones_casa = seleccionar_misiones_casa_inteligente(
-            misiones_completas,
-            perfil_local,
-            historial_casa,
-            cantidad=3
-        )
-        
-        for m in misiones_casa:
-            historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
-        
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-            "misiones": misiones_casa,
-            "historial_casa_actualizado": historial_casa
-        })
-
-    # ============================================================
-    # 2. FIELD ACTION (SALIR MODE - CWRE INTELLIGENT ENGINE V2)
-    # ============================================================
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(
-        mente,
-        BASE_MISIONES["SALIR"]["aburrido"]
-    )
-    
-    historial_salir = payload.get(
-        "historial_salir", 
-        []
-    )
-    
-    opciones_disponibles = filtrar_historial(
-        opciones_salir_candidatas,
-        historial_salir
-    )
-    
-    if len(opciones_disponibles) < 3:
-        opciones_disponibles = opciones_salir_candidatas
-    
-    info_seleccionada = seleccionar_mision_inteligente(
-        misiones=opciones_disponibles,
-        perfil_local=perfil_local,
-        historial=historial_salir
-    )
-    
-    if not info_seleccionada:
-        info_seleccionada = random.choice(opciones_salir_candidatas)
-    
-    historial_salir = actualizar_historial(
-        historial_salir,
-        info_seleccionada["id"],
-        MAX_HISTORY_SALIR
-    )
-    
-    precio_real = ""
-    if budget == "0":
-        precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
-    elif budget == "1":
-        precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
-    elif budget == "2":
-        precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
-    
-    quienes_van = ""
-    if perfil_tipo == "solo":
-        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
-    elif perfil_tipo == "familia":
-        quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
-    elif perfil_tipo == "accesible":
-        quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
-    
-    titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
-    donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-    
-    anclaje_geografico = zip_code
-    map_base_url = "https://www.google.com/maps/search/?api=1&query="
-    target_link = ""
-
-    # Standard SALIR mission
-    if lang == "en":
-        guia_masticada = (
-            f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-            f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-            f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-            f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-            f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-            f"{quienes_van}\n{precio_real}"
-        )
-        titulo_ganador = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
-    else:
-        guia_masticada = (
-            f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
-            f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
-            f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
-            f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
-            f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
-            f"{quienes_van}\n{precio_real}"
-        )
-        titulo_ganador = (info_seleccionada["titulo"] or "").upper()
-    
-    search_query_parts = []
-    if perfil_tipo == "accesible":
-        search_query_parts.append("wheelchair accessible")
-    elif perfil_tipo == "familia":
-        search_query_parts.append("family friendly")
-    
-    search_query_parts.append(info_seleccionada["gps"])
-    search_query_parts.append(f"in {anclaje_geografico}")
-    
-    full_map_query_string = " ".join(search_query_parts)
-    target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-    
-    final_link = target_link
-
-            
-    final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
-    
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "destino_id": info_seleccionada.get("id"),
-        "destino_titulo": titulo_ganador,
-        "destino_entorno": donde_base,
-        "destino_instruccion": guia_masticada.strip(),
-        "destino_coordenadas_gps": final_link,
-        "vector_entorno_seleccionado": final_vector_necesidades,
-        "historial_salir_actualizado": historial_salir
-    })
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "
