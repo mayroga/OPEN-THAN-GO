@@ -18,6 +18,7 @@
             --secondary: #0d47a1; /* Dark blue for action buttons */
             --green-action: #2e7d32; /* Green for positive action */
             --cyan-inhale: #00bcd4; /* Cyan for inhale */
+            --cierre-bg-gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); /* Calming gradient for closure */
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
@@ -175,7 +176,130 @@
         }
         #timer { font-weight: 900; text-align: center; font-size: 3.2rem; margin: 15px 0; color: #fff; }
         #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: var(--cyan-inhale); text-align: center; letter-spacing: 2px; }
+
+        /* CIERRE CONSCIENTE STYLING */
+        #pantalla-cierre {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg); /* Dark background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            z-index: 9998;
+            padding: 20px;
+        }
+
+        .cierre-content {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            position: relative; /* For cloud animations */
+            overflow: hidden; /* To contain cloud animations */
+        }
+        .cierre-content .sky-container {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0.15;
+            z-index: 1;
+        }
+        .cierre-content > * { z-index: 2; position: relative; } /* Ensure text/buttons are above clouds */
+
+        #cierre-logo {
+            font-size: 1.4rem;
+            letter-spacing: 0.3em;
+            font-weight: 900;
+            margin: 0 0 20px 0;
+            color: var(--cyan-inhale);
+            text-shadow: 0 0 10px rgba(0,188,212,0.3);
+        }
+
+        #cierre-message {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            min-height: 100px; /* Ensure space for challenges */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #reto-img {
+            max-width: 80px;
+            height: auto;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+        }
+
+        #reto-titulo {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--green-action);
+            margin-bottom: 10px;
+        }
+
+        #reto-descripcion {
+            font-size: 1rem;
+            color: #eee;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        #cierre-timer {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            margin: 20px 0;
+        }
+
+        #cierre-mensaje-final {
+            font-size: 1.2rem;
+            color: #fff;
+            margin: 25px 0;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        #btn-recomenzar-experiencia {
+            width: 100%;
+            background: var(--secondary);
+            color: #fff;
+            padding: 17px;
+            font-weight: bold;
+            border: none;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            transition: background-color 0.3s, opacity 0.3s;
+        }
+
+        #btn-recomenzar-experiencia:disabled {
+            background: #333;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
     </style>
+    <!-- Placeholder images for retos in static/ directory -->
+    <img src="/static/silence.svg" class="hidden" alt="Silence">
+    <img src="/static/observe.svg" class="hidden" alt="Observe">
+    <img src="/static/words.svg" class="hidden" alt="Words">
+    <img src="/static/laugh.svg" class="hidden" alt="Laugh">
+    <img src="/static/stretch.svg" class="hidden" alt="Stretch">
+    <img src="/static/nature_sound.svg" class="hidden" alt="Nature Sound">
+    <img src="/static/gratitude.svg" class="hidden" alt="Gratitude">
+    <img src="/static/square_breath.svg" class="hidden" alt="Square Breath">
 </head>
 <body>
     <div id="pantalla-bienvenida">
@@ -201,7 +325,6 @@
         <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
             <div style="flex: 2;">
                 <label id="lbl-zip">ZIP Code</label>
-                <!-- Corrected: Added pattern and oninput for client-side validation -->
                 <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5" pattern="[0-9]{5}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
             </div>
             <div style="flex: 1;">
@@ -262,6 +385,25 @@
 
     <!-- INTERACTIVE OUTPUT CONTAINER FOR PARKS, VIDEOS, AND LUNG -->
     <div class="container hidden" id="wrapper-interactive"></div>
+
+    <!-- PANTALLA DE CIERRE CONSCIENTE / REINICIO INTELIGENTE -->
+    <div id="pantalla-cierre" class="hidden">
+        <div class="cierre-content">
+            <div class="sky-container">
+                <div class="cloud c1"></div>
+                <div class="cloud c2"></div>
+            </div>
+            <h1 id="cierre-logo">OPEN THAN GO</h1>
+            <div id="cierre-message">
+                <img id="reto-img" src="" alt="Reto Image" class="hidden">
+                <h3 id="reto-titulo" style="text-transform: uppercase;"></h3>
+                <p id="reto-descripcion"></p>
+            </div>
+            <div id="cierre-timer">60</div>
+            <p id="cierre-mensaje-final" class="hidden"></p>
+            <button id="btn-recomenzar-experiencia" class="hidden"></button>
+        </div>
+    </div>
 
     <script src="/static/engine.js"></script>
 </body>
