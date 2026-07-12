@@ -51,7 +51,7 @@ def penalizacion_historial(mision_id, historial):
             if posicion == 0: # Última misión
                 return HISTORY_PENALTY_BASE
             elif posicion == 1: # Penúltima
-                return HISTORY_PENALIZATION_BASE * 0.85
+                return HISTORY_PENALTY_BASE * 0.85 # CORRECCIÓN MECÁNICA: Typo HISTORY_PENALIZATION_BASE a HISTORY_PENALTY_BASE
             elif posicion == 2: # Antepenúltima
                 return HISTORY_PENALTY_BASE * 0.70
             elif posicion <= (len(historial) - 1): # Más allá de las 3, pero aún en historial
@@ -897,6 +897,9 @@ async def mando_integral(request: Request):
     titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
     donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
     
+    # CORRECCIÓN MECÁNICA: Definir anclaje_geografico para evitar NameError
+    anclaje_geografico = zip_code # Utiliza el código postal como anclaje geográfico principal
+
     # MODIFIED: Secure Google Maps link construction using urllib.parse.quote_plus()
     # No manual string concatenations with "+"
     map_base_url = "https://www.google.com/maps/search/?api=1&query="
