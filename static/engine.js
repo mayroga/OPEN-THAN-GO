@@ -7,6 +7,7 @@ const KERNEL = {
     timerClinico: null,
     temporizadorCascada: null,
     temporizadorCierre: null, // New timer for the closing phase
+    salidaSugeridaTimeoutId: null, // To store the ID of the setTimeout for SALIR suggestion
     timeLeft: 600, // 10 minutes for clinical timer (unified with relojRealSegundos)
     timeLeftCierre: 60, // 60 seconds for the closing challenge
     isLocked: false,
@@ -752,6 +753,16 @@ const KERNEL = {
         if (this.isLocked) return;
         this.isLocked = true;
 
+        // CRITICAL CORRECTION: Ensure all question-related timers and speech are cleared BEFORE fetching a new mission
+        clearInterval(this.timerInaccion);
+        clearInterval(this.temporizadorCascada);
+        clearInterval(this.timerClinico); 
+        window.speechSynthesis.cancel(); 
+        if (this.salidaSugeridaTimeoutId) { // Clear pending SALIR suggestion timeout
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+
         const modoActual = document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR";
         const zipInput = document.getElementById('inp-zip');
         const desahogoInput = document.getElementById('inp-text-libre');
@@ -994,8 +1005,14 @@ const KERNEL = {
             };
         }
 
+        // Clear any previous salidaSugeridaTimeout if it wasn't cleared by the timer ending
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+
         // Fetch SALIR suggestion for CASA mode after some time
-        let salidaSugeridaTimeout = setTimeout(async () => {
+        this.salidaSugeridaTimeoutId = setTimeout(async () => {
             try {
                 const r = await fetch("/api/mando-integral", {
                     method: "POST",
@@ -1027,6 +1044,8 @@ const KERNEL = {
                 }
             } catch (e) {
                 console.error("Error fetching SALIR suggestion in CASA mode:", e);
+            } finally {
+                this.salidaSugeridaTimeoutId = null; // Clear ID after it runs
             }
         }, 180000); // Fetch after 3 minutes (180 seconds)
 
@@ -1061,7 +1080,8 @@ const KERNEL = {
             // End condition for the clinical timer: call new closing challenge
             if (this.timeLeft <= 0) {
                 clearInterval(this.timerClinico);
-                clearTimeout(salidaSugeridaTimeout);
+                clearTimeout(this.salidaSugeridaTimeoutId); // Ensure this is cleared
+                this.salidaSugeridaTimeoutId = null;
                 window.speechSynthesis.cancel();
                 if (circleElement) {
                     circleElement.style.animation = "none";
@@ -1211,6 +1231,10 @@ const KERNEL = {
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
         window.speechSynthesis.cancel();
+        if (this.salidaSugeridaTimeoutId) { // NEW: Clear pending SALIR suggestion timeout
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
 
         this.pasosMisiones = [];
         this.indiceMision = 0;
@@ -1244,6 +1268,10 @@ const KERNEL = {
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
         window.speechSynthesis.cancel();
+        if (this.salidaSugeridaTimeoutId) { // Clear pending SALIR suggestion timeout
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
 
         localStorage.clear(); // Clear all localStorage for a complete reset
 
