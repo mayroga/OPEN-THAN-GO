@@ -51,7 +51,7 @@ def penalizacion_historial(mision_id, historial):
             if posicion == 0: # Última misión
                 return HISTORY_PENALTY_BASE
             elif posicion == 1: # Penúltima
-                return HISTORY_PENALTY_BASE * 0.85 # CORRECCIÓN MECÁNICA: Typo HISTORY_PENALIZATION_BASE a HISTORY_PENALTY_BASE
+                return HISTORY_PENALTY_BASE * 0.85 
             elif posicion == 2: # Antepenúltima
                 return HISTORY_PENALTY_BASE * 0.70
             elif posicion <= (len(historial) - 1): # Más allá de las 3, pero aún en historial
