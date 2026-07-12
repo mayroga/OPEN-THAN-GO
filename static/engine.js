@@ -1,6 +1,205 @@
+const DRIVER_MATRIX = {
+  Aburrido: {
+    CASA: {
+      Gratis: [
+        { name: "YouTube Entertainment", url: "https://youtube.com" },
+        { name: "TikTok Trends", url: "https://tiktok.com" },
+        { name: "Twitch Live", url: "https://twitch.tv" },
+        { name: "Internet Archive Games", url: "https://archive.org" },
+        { name: "Wikipedia Random", url: "https://wikipedia.org" }
+      ],
+      Bajo: [
+        { name: "Netflix", url: "https://netflix.com" },
+        { name: "Disney Plus", url: "https://disneyplus.com" },
+        { name: "Spotify Podcasts", url: "https://spotify.com" },
+        { name: "Hulu", url: "https://hulu.com" },
+        { name: "Amazon Prime Video", url: "https://amazon.com" },
+        { name: "Audible Audiobooks", url: "https://audible.com" },
+        { name: "Duolingo Learning", url: "https://duolingo.com" },
+        { name: "Apple Music", url: "https://apple.com" }
+      ],
+      Gasto: [
+        { name: "Amazon Retail Hobbies", url: "https://amazon.com" },
+        { name: "Etsy Artisan", url: "https://etsy.com" },
+        { name: "Best Buy Electronics", url: "https://bestbuy.com" },
+        { name: "Target Trends", url: "https://target.com" },
+        { name: "eBay Auctions", url: "https://ebay.com" },
+        { name: "Poshmark Fashion", url: "https://poshmark.com" },
+        { name: "StockX Hypebeast", url: "https://stockx.com" },
+        { name: "Newegg Gaming PC", url: "https://newegg.com" },
+        { name: "Reverb Instruments", url: "https://reverb.com" },
+        { name: "Chewy Pet Luxury", url: "https://chewy.com" },
+        { name: "Wayfair Decor", url: "https://wayfair.com" },
+        { name: "Home Depot Tools", url: "https://homedepot.com" },
+        { name: "Lowe's Hardware", url: "https://lowes.com" },
+        { name: "Macy's Department", url: "https://macys.com" },
+        { name: "Costco Wholesale", url: "https://costco.com" }
+      ]
+    },
+    Mente: {
+      Gratis: [
+        { name: "AllTrails Local Hiking", url: "https://alltrails.com{{ZIP}}" },
+        { name: "National Park Service State", url: "https://nps.gov{{STATE}}/index.htm" },
+        { name: "State Parks National Portal", url: "https://stateparks.org" },
+        { name: "Smithsonian Museums", url: "https://si.edu" },
+        { name: "MuseumFinder Local Database", url: "https://museumsusa.org{{ZIP}}%2c1" },
+        { name: "Surfline Live Beach Cameras", url: "https://surfline.com{{ZIP}}" },
+        { name: "Recreation gov Public Lands", url: "https://recreation.gov{{ZIP}}" }
+      ],
+      Bajo: [
+        { name: "AMC Theatres Showtimes", url: "https://amctheatres.com{{ZIP}}" },
+        { name: "Regal Cinemas Tickets", url: "https://regalcinemas.com{{ZIP}}" },
+        { name: "Cinemark Theatres Matrix", url: "https://cinemark.com{{ZIP}}" },
+        { name: "Planet Fitness Local Gym", url: "https://planetfitness.com{{ZIP}}" },
+        { name: "YMCA Regional Centers", url: "https://ymca.org{{ZIP}}" },
+        { name: "KOA Campgrounds Map", url: "https://koa.com" },
+        { name: "Broadway local listings", url: "https://broadway.com" }
+      ],
+      Gasto: [
+        { name: "Ticketmaster Live Shows", url: "https://ticketmaster.com{{STATE}}&postalCode={{ZIP}}" },
+        { name: "StubHub Last Minute Events", url: "https://stubhub.com{{ZIP}}" },
+        { name: "Dave & Buster's Arcade Night", url: "https://daveandbusters.com" },
+        { name: "Topgolf Entertainment Hub", url: "https://topgolf.com" },
+        { name: "Resident Advisor Electronic Clubs", url: "https://residentadvisor.net{{CITY}}" },
+        { name: "Yelp Nightlife Top Spots", url: "https://yelp.com{{ZIP}}" }
+      ]
+    }
+  },
+  Agotado: {
+    CASA: {
+      Gratis: [
+        { name: "YouTube Nature Relax", url: "https://youtube.com" },
+        { name: "Calm Ambient Sessions", url: "https://youtube.com" }
+      ],
+      Bajo: [
+        { name: "HelloFresh Delivery Box", url: "https://hellofresh.com" },
+        { name: "Thrive Market Organics", url: "https://thrivemarket.com" }
+      ],
+      Gasto: [
+        { name: "DoorDash Local Restaurants", url: "https://doordash.com" },
+        { name: "Uber Eats Instant Delivery", url: "https://ubereats.com" },
+        { name: "Instacart Supermarket Dissector", url: "https://instacart.com" },
+        { name: "McDonald's Digital Order", url: "https://mcdonalds.com" },
+        { name: "Starbucks Rapid Pickup", url: "https://starbucks.com" },
+        { name: "Domino's Tracker Delivery", url: "https://dominos.com" },
+        { name: "Grubhub City Delivery", url: "https://grubhub.com" },
+        { name: "Subway App Order", url: "https://subway.com" },
+        { name: "Chipotle Digital Assembly", url: "https://chipotle.com" },
+        { name: "Kroger Home Delivery Network", url: "https://kroger.com" },
+        { name: "Shipt Target Ecosystem", url: "https://shipt.com" },
+        { name: "Pizza Hut Delivery Network", url: "https://pizzahut.com" },
+        { name: "KFC Online Delivery", url: "https://kfc.com" },
+        { name: "Burger King Mobile System", url: "https://bk.com" },
+        { name: "Dunkin Donuts Pickup", url: "https://dunkindonuts.com" }
+      ]
+    },
+    Mente: {
+      Gratis: [
+        { name: "Google Maps Silent Parks", url: "https://google.com+{{ZIP}}" }
+      ],
+      Bajo: [
+        { name: "Olive Garden Comfort Food", url: "https://olivegarden.com" },
+        { name: "Applebee's Neighborhood Grill", url: "https://applebees.com" },
+        { name: "Buffalo Wild Wings Center", url: "https://buffalowildwings.com" },
+        { name: "The Cheesecake Factory Mass Menu", url: "https://thecheesecakefactory.com" },
+        { name: "Taco Bell Drive Thru Finder", url: "https://tacobell.com" },
+        { name: "Papa Johns Local Pizza", url: "https://papajohns.com" }
+      ],
+      Gasto: [
+        { name: "OpenTable Regional Reservations", url: "https://opentable.com{{ZIP}}" },
+        { name: "Resy High End Dining Gastronomy", url: "https://resy.com{{CITY}}" },
+        { name: "Uber Black Ride", url: "https://uber.com" },
+        { name: "Lyft Lux Ride", url: "https://lyft.com" }
+      ]
+    }
+  },
+  Estresado: {
+    CASA: {
+      Gratis: [
+        { name: "HRSA Federal Free Clinics", url: "https://hrsa.gov" },
+        { name: "Credit Karma Financial Exposure", url: "https://creditkarma.com" },
+        { name: "Experian Credit Bureau Audit", url: "https://experian.com" },
+        { name: "Credit Sesame Monitoring", url: "https://creditsesame.com" }
+      ],
+      Bajo: [
+        { name: "BetterHelp Online Therapy", url: "https://betterhelp.com" },
+        { name: "Talkspace Clinical Psychiatry", url: "https://talkspace.com" },
+        { name: "Sesame Care No Insurance Cash Doctor", url: "https://sesamecare.com" },
+        { name: "GoodRx Prescription Discounter", url: "https://goodrx.com" },
+        { name: "SingleCare Medical Vouchers", url: "https://singlecare.com" },
+        { name: "Chime Mobile Banking Fees Zero", url: "https://chime.com" },
+        { name: "Venmo Social Financial Link", url: "https://venmo.com" },
+        { name: "Cash App Instataneous Processing", url: "https://cash.app" },
+        { name: "Acorns Micro Savings Engine", url: "https://acorns.com" },
+        { name: "Ally Bank High Yield Portal", url: "https://ally.com" },
+        { name: "SoFi Financial Suites", url: "https://sofi.com" }
+      ],
+      Gasto: [
+        { name: "Zocdoc Instant Doctor Booking", url: "https://zocdoc.com{{ZIP}}" },
+        { name: "CVS MinuteClinic Urgent Finder", url: "https://cvs.com{{ZIP}}" },
+        { name: "Walgreens Pharmacy Network", url: "https://walgreens.com" },
+{ name: "Chase Corporate Portals", url: "chase.com" },{ name: "Bank of America Network", url: "bankofamerica.com" },{ name: "PayPal Mass Transactions", url: "paypal.com" },{ name: "Wells Fargo Retail Banking", url: "wellsfargo.com" },{ name: "Citibank Global Banking", url: "citibank.com" }]},Mente: {Gratis: [{ name: "AllTrails Stress Relief Trails", url: "alltrails.com{{ZIP}}&diff=easy" }],Bajo: [{ name: "Zillow Housing Market Rentals", url: "zillow.com{{ZIP}}_rb/" },{ name: "Apartments com Residential Search", url: "apartments.com{{CITY}}-{{STATE}}/" },{ name: "Realtor com Regional Listings", url: "realtor.com{{ZIP}}" },{ name: "Trulia Real Estate Engine", url: "trulia.com" },{ name: "Redfin Home Database", url: "redfin.com" },{ name: "Instawork Day Shift Staffing", url: "instawork.com" },{ name: "Wonolo Instant Labor Dispatch", url: "wonolo.com" },{ name: "TaskRabbit Freelance Handyman", url: "taskrabbit.com" },{ name: "Indeed Job Database", url: "indeed.com" },{ name: "ZipRecruiter Rapid Application", url: "ziprecruiter.com" },{ name: "LinkedIn Professional Systems", url: "linkedin.com" },{ name: "Fiverr Freelance Output", url: "fiverr.com" },{ name: "Upwork Global Contracting", url: "upwork.com" },{ name: "ShiftSmart Hourly Operations", url: "shiftsmart.com" }],Gasto: [{ name: "U-Haul Logistics Relocation", url: "uhaul.com{{STATE}}/{{ZIP}}/" },{ name: "PODS Containerized Moving", url: "pods.com" },{ name: "Airbnb Instant Escape", url: "airbnb.com{{CITY}}/homes" },{ name: "Booking com Global Accommodations", url: "booking.com{{CITY}}" },{ name: "Expedia Metasearch Travel", url: "expedia.com" },{ name: "Delta Air Lines Routes", url: "delta.com" },{ name: "American Airlines Network", url: "aa.com" },{ name: "United Airlines Operations", url: "united.com" },{ name: "Southwest Airlines Low Cost", url: "southwest.com" },{ name: "JetBlue Airways", url: "jetblue.com" },{ name: "Royal Caribbean International Cruise", url: "royalcaribbean.com" },{ name: "Carnival Cruise Line Fun Ships", url: "carnival.com" },{ name: "Norwegian Cruise Line Logistics", url: "ncl.com" },{ name: "Amtrak Rail Network US", url: "amtrak.com" },{ name: "Greyhound Intercity Bus lines", url: "greyhound.com" }]}},Cansado: {CASA: {Gratis: [{ name: "YouTube Somatic Rest Meditation", url: "youtube.com" }],Bajo: [{ name: "Chewy Rapid Pet Consumables", url: "chewy.com" }],Gasto: [{ name: "Walmart Grocery Logistics", url: "walmart.com" }, { name: "Amazon Fresh Instant Food", url: "amazon.com" }]},Mente: {Gratis: [{ name: "Google Maps Silent Zones", url: "google.com+{{ZIP}}" }],Bajo: [{ name: "YMCA Spa and Pool Access", url: "ymca.org" }],Gasto: [{ name: "Uber Comfort Transit", url: "uber.com" }, { name: "Lyft Personal Transport", url: "lyft.com" }]}},Ansioso: {CASA: {Gratis: [{ name: "HRSA Community Clinical Support", url: "hrsa.gov" },{ name: "Remitly Global Remittance Systems", url: "remitly.com" },{ name: "Western Union International", url: "westernunion.com" }],Bajo: [{ name: "GoodRx Medication Shield", url: "goodrx.com" },{ name: "BetterHelp Clinical Support", url: "betterhelp.com" },{ name: "Wise Multi Currency Ledger", url: "https://wise.com" },{ name: "Intermex Remittance Network", url: "intermexonline.com" }],Gasto: [{ name: "Zocdoc Psychiatry Direct Booking", url: "zocdoc.com" },{ name: "Teladoc Video Medicine Platform", url: "teladoc.com" },{ name: "Amwell Emergency Telehealth", url: "amwell.com" }]},Mente: {Gratis: [{ name: "AllTrails Breathing Walks", url: "alltrails.com" }],Bajo: [{ name: "Indeed Job Acceleration Protocol", url: "indeed.com" },{ name: "ZipRecruiter Rapid Matrix Apply", url: "ziprecruiter.com" }],Gasto: [{ name: "Booking com Absolute Remote Insulation", url: "booking.com" },{ name: "TripAdvisor Excursion Filters", url: "tripadvisor.com" },{ name: "Hopper Predictive Travel Flights", url: "hopper.com" }]}}};const INFANT_LEVEL_ANTIDOTE_PHRASES = ["Baja tus hombros ahora mismo. Todo va a estar bien.","No tienes que arreglar todo tu mundo en este minuto.","Tú eres más importante que cualquier tarea o dinero.","Toma aire con fuerza. Suelta el ruido de la calle.","Tus pies están en el suelo. El suelo te sostiene. Estás a salvo.","El dinero viene y va, pero tu sonrisa se cuida.","No pienses en mañana. Piensa en el aire que entra a tu cuerpo.","Estás haciendo un buen trabajo hoy. Date un abrazo.","Ningún papel o pantalla te dice cuánto vales. Vales mucho.","Deja que los problemas se queden afuera un ratito.","Hacer lo mismo siempre aburre. Vamos a ver algo nuevo.","Tu mente quiere jugar hoy. Vamos a buscar un camino diferente.","Estás a un solo botón de ver un lugar hermoso.","Si cambias lo que miras, cambia cómo te sientes hoy.","No naciste solo para trabajar. Naciste para explorar el mapa.","Vamos a enseñarle a tu cerebro una idea que no conoce.","Caminar por otra calle puede alegrar todo tu día.","La rutina es una caja cerrada. Abre la puerta hoy.","Tu cuerpo no es un juguete con pilas infinitas. Descansa.","Estar cansado está bien. Es la forma en que tu cuerpo pide paz.","Hoy dejamos que las tiendas grandes se muevan por ti.","Apaga las luces de tu cabeza un momento. El mundo espera.","No hacer nada productivo hoy también es ganar un premio.","Cierra los ojos tres segundos. Siente tu corazón latir.","Si estás muy cansado, para. Las soluciones vienen después.","Tu energía es un tesoro. No la gastes en tener miedo.","Suelta el control. Deja que el día ruede solo por un rato."];
+
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
 // Company: May Roga LLC
 // File: static/engine.js (Frontend Logic)
+
+class AntiStressAudioBroker {
+constructor() {
+this.intervalId = null;
+this.pool = [...INFANT_LEVEL_ANTIDOTE_PHRASES];
+this.history = JSON.parse(localStorage.getItem('otg_audio_history')) || [];
+}
+comenzarTerapiaAuditiva() {
+if (this.intervalId) clearInterval(this.intervalId);
+this.emitirFraseLimpia();
+this.intervalId = setInterval(() => {
+this.emitirFraseLimpia();
+}, 15000);
+}
+cancelarTerapiaAuditiva() {
+if (this.intervalId) {
+clearInterval(this.intervalId);
+this.intervalId = null;
+}
+window.speechSynthesis.cancel();
+}
+emitirFraseLimpia() {
+let limpias = this.pool.filter(frase => !this.history.includes(frase));
+if (limpias.length === 0) {
+this.history = [];
+localStorage.removeItem('otg_audio_history');
+limpias = [...this.pool];
+}
+const seleccionada = limpias[Math.floor(Math.random() * limpias.length)];
+this.history.push(seleccionada);
+localStorage.setItem('otg_audio_history', JSON.stringify(this.history));
+window.speechSynthesis.cancel();
+const enunciado = new SpeechSynthesisUtterance(seleccionada);
+enunciado.lang = document.documentElement.lang === 'en' ? 'en-US' : 'es-US';
+enunciado.rate = 0.82;
+enunciado.pitch = 1.0;
+window.speechSynthesis.speak(enunciado);
+}}
+const motorAudioOTG = new AntiStressAudioBroker();
+
+function calcularEstadoPorPostal(zip) {
+const digitosBase = parseInt(zip.substring(0, 2));
+if (digitosBase >= 10 && digitosBase <= 14) return "NY";
+if (digitosBase >= 32 && digitosBase <= 34) return "FL";
+if (digitosBase >= 90 && digitosBase <= 96) return "CA";
+if (digitosBase >= 60 && digitosBase <= 62) return "IL";
+if (digitosBase >= 70 && digitosBase <= 89) return "TX";
+const primerNumero = zip.charAt(0);
+const mapaNacional = { "0": "NJ", "1": "PA", "2": "VA", "3": "GA", "4": "OH", "5": "IA", "6": "MO", "7": "LA", "8": "CO", "9": "WA" };
+return mapaNacional[primerNumero] || "NY";
+}
+function calcularCiudadPorPostal(zip) {
+if (zip.startsWith("331")) return "miami";
+if (zip.startsWith("100")) return "newyork";
+if (zip.startsWith("900")) return "losangeles";
+if (zip.startsWith("606")) return "chicago";
+return "default";}
 
 const KERNEL = {
     timerInaccion: null,
@@ -16,10 +215,16 @@ const KERNEL = {
     indiceMision: 0,
     datosLugarGlobal: null,
     tipoEscapeGlobal: "",
-    
+   
+    // Propiedades para la captura de control corporativo
+    corporateSelectedEmotion: "",
+    corporateSelectedEnvironment: "",
+    corporateSelectedBudget: "",
+    corporateSelectedZip: "",
+
     contadorToques: 0,
     secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
-    
+   
     historialSalir: [],
     historialCasa: [],
     historialPreguntas: [],
@@ -44,7 +249,7 @@ const KERNEL = {
         "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
         "indicador_ansiedad": 0
     },
-    
+   
     CATALOGO_PREGUNTAS_ES: [
         // Bloque 1: El Bucle Digital Urbano (Redes, Contenido y Consumo)
         "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?",
@@ -350,9 +555,9 @@ const KERNEL = {
     despertarInicial() {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-        
+       
         this.cambiarIdioma(this.idiomaActual);
-        
+       
         const saludos_es = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
             "ópen dán go está activo. Concéntrate un momento. Mira las opciones en tu pantalla ya.",
@@ -365,10 +570,10 @@ const KERNEL = {
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-        
+       
         this.inyectarBloquePreguntas();
         this.iniciarMonitoreoInaccion();
-        
+       
         this.activarBotonMandoLibreInicial();
     },
 
@@ -378,11 +583,11 @@ const KERNEL = {
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
-        
+       
         clearInterval(this.temporizadorCascada);
         grid.innerHTML = "";
         this.indicePreguntaCascada = 0;
-        
+       
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
         let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
 
@@ -393,13 +598,13 @@ const KERNEL = {
             }
         }
 
-        if (unseenIndices.length < 6) { 
+        if (unseenIndices.length < 6) {
             console.warn("Not enough unseen questions. Resetting Oracle history.");
             this.historialPreguntas = [];
             localStorage.removeItem("otg_historial_oraculo");
             unseenIndices = Array.from({length: catalogo.length}, (_, i) => i);
         }
-        
+       
         for (let i = unseenIndices.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]];
@@ -407,7 +612,7 @@ const KERNEL = {
 
         let preguntasSeleccionadasIndices = [];
         let blocksUsedInCurrentSelection = new Set();
-        
+       
         for (let i = 0; i < 6; i++) {
             if (unseenIndices.length === 0) break;
 
@@ -427,10 +632,10 @@ const KERNEL = {
                 const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6);
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
-            
+           
             const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0];
             preguntasSeleccionadasIndices.push(selectedIndex);
-            
+           
             this.historialPreguntas.push(selectedIndex);
         }
         this.historialPreguntas = this.historialPreguntas.slice(-this.MAX_HISTORY_ORACULO);
@@ -454,7 +659,7 @@ const KERNEL = {
     /** Initiates the fading cascade effect for questions. */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
-        
+       
         const totalButtons = document.querySelectorAll('.btn-pregunta-crisis').length;
         if (totalButtons === 0) {
             this.liberarCajonEscrituraLibre();
@@ -463,10 +668,10 @@ const KERNEL = {
 
         this.temporizadorCascada = setInterval(() => {
             let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
-            
+           
             if (botonParaEliminar) {
                 botonParaEliminar.classList.add('fade-out');
-                
+               
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
                 if (siguienteBoton) {
@@ -531,7 +736,7 @@ const KERNEL = {
             textarea.removeEventListener('input', this.textareaInputHandler);
             this.textareaInputHandler = () => {
                 const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
-                
+               
                 if (textarea.value.trim().length > 3 && !isZipInvalid) {
                     if (btnLibre) {
                         btnLibre.style.background = "var(--green-action)";
@@ -547,7 +752,7 @@ const KERNEL = {
                         btnLibre.disabled = true;
                     }
                 }
-                this.validarZip(); 
+                this.validarZip();
             };
             textarea.addEventListener('input', this.textareaInputHandler);
         }
@@ -634,7 +839,7 @@ const KERNEL = {
     reaccionarPreguntaSeleccionada(textoPregunta) {
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
-        
+       
         document.getElementById('inp-text-libre').value = textoPregunta;
         this.ejecutar();
     },
@@ -667,12 +872,12 @@ const KERNEL = {
         localStorage.setItem("otg_language", lang);
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-        
+       
         const t = {
             es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?" },
             en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?" }
         }[lang];
-        
+       
         document.getElementById('html-title').innerText = t.title;
         document.getElementById('txt-app-title').innerText = t.title;
         document.getElementById('lbl-zip').innerText = t.zip;
@@ -693,7 +898,7 @@ const KERNEL = {
         document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
         document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
         document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
-        
+       
         const cierreLogo = document.getElementById('cierre-logo');
         if (cierreLogo) cierreLogo.innerText = t.title;
         const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
@@ -716,8 +921,8 @@ const KERNEL = {
 
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
-        clearInterval(this.timerClinico); 
-        window.speechSynthesis.cancel(); 
+        clearInterval(this.timerClinico);
+        window.speechSynthesis.cancel();
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
             this.salidaSugeridaTimeoutId = null;
@@ -726,6 +931,18 @@ const KERNEL = {
         const modoActual = document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR";
         const zipInput = document.getElementById('inp-zip');
         const desahogoInput = document.getElementById('inp-text-libre');
+
+        // Capture corporate redirection criteria from active selectors
+        const zipIngresadoValue = zipInput ? zipInput.value.trim() : "";
+        const emocionRawValue = document.getElementById('mente-selector')?.value || "aburrido";
+        const entornoRawValue = document.getElementById('modo-selector')?.value || "SALIR";
+        const presupuestoRawValue = document.getElementById('budget-selector')?.value || "0";
+
+        // Map values to DRIVER_MATRIX keys
+        this.corporateSelectedEmotion = emocionRawValue.charAt(0).toUpperCase() + emocionRawValue.slice(1); // e.g., "aburrido" -> "Aburrido"
+        this.corporateSelectedEnvironment = entornoRawValue === "CASA" ? "CASA" : "Mente"; // Map 'SALIR' to 'Mente' for DRIVER_MATRIX
+        this.corporateSelectedBudget = { "0": "Gratis", "1": "Bajo", "2": "Gasto" }[presupuestoRawValue];
+        this.corporateSelectedZip = zipIngresadoValue || "10001"; // Default ZIP
 
         if (zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity()) {
             alert(this.idiomaActual === 'es' ? "Error: Código Postal inválido. Por favor, corrígelo." : "Error: Invalid ZIP Code. Please correct it.");
@@ -777,7 +994,7 @@ const KERNEL = {
             this.datosLugarGlobal = data;
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
-            
+           
             if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
                 this.historialSalir = data.historial_salir_actualizado;
                 localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
@@ -831,11 +1048,11 @@ const KERNEL = {
 
                 let speechText = this.datosLugarGlobal.destino_titulo + ". " + this.datosLugarGlobal.destino_instruccion;
                 this.hablar(speechText);
-                
+               
                 let retencion = 35;
                 const btnCount = document.getElementById('btn-countdown-salida');
                 const btnGps = document.getElementById('btn-gps-action');
-                
+               
                 this.timerClinico = setInterval(() => {
                     retencion--;
                     if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
@@ -848,19 +1065,19 @@ const KERNEL = {
                                 try {
                                     let perfil = KERNEL.obtenerPerfilLocal();
                                     const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
-                                    
+                                   
                                     for (const need in selectedVector) {
                                         if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
                                             perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
                                         }
                                     }
-                                    perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10); 
+                                    perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
                                     localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
                                 } catch (e) {
                                     console.error("Error updating local profile after action:", e);
                                 }
                                 window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                                KERNEL.reiniciarExperiencia(); 
+                                KERNEL.reiniciarExperiencia();
                             };
                         }
                     }
@@ -876,7 +1093,7 @@ const KERNEL = {
         }
 
         const paso = this.pasosMisiones[this.indiceMision];
-        
+       
         container.innerHTML = `
         <div class="mision-card">
             <small>${t.internalMission}</small>
@@ -895,7 +1112,7 @@ const KERNEL = {
                         perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
                     }
                 }
-                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5); 
+                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
                 localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
             } catch (e) {
                 console.error("Error updating local profile after CASA mission:", e);
@@ -908,10 +1125,10 @@ const KERNEL = {
     iniciarRelojClinicoCasa(container, t) {
         clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
-        
+       
         let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
         this.hablar(msg);
-        
+       
         container.innerHTML = `
         <div style="text-align:center; width:100%;">
             <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
@@ -978,7 +1195,7 @@ const KERNEL = {
                     })
                 });
                 const data = await r.json();
-                
+               
                 if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && linkSalidaSugerida && salidaSugeridaDiv) {
                     if (data.historial_salir_actualizado) {
                         this.historialSalir = data.historial_salir_actualizado;
@@ -1003,7 +1220,7 @@ const KERNEL = {
             let m = Math.floor(this.timeLeft / 60);
             let s = this.timeLeft % 60;
             if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-            
+           
             if (pulmonDiv) {
                 let ciclo = this.timeLeft % 8;
                 if (ciclo >= 4) {
@@ -1070,7 +1287,7 @@ const KERNEL = {
 
         container.classList.add('hidden');
         cierrePantalla.classList.remove('hidden');
-        
+       
         cierreMensajeFinal.classList.add('hidden');
         btnRecomenzar.classList.add('hidden');
         btnRecomenzar.disabled = true;
@@ -1078,10 +1295,10 @@ const KERNEL = {
         this.timeLeftCierre = 60;
 
         const catalogoRetos = this.idiomaActual === 'es' ? this.CATALOGO_RETOS_ES : this.CATALOGO_RETOS_EN;
-        
+       
         let secuenciaRetos = [];
         let numRetos = 3;
-        
+       
         let candidateSequenceIds;
         let sequenceString;
         let maxAttempts = 10;
@@ -1095,23 +1312,23 @@ const KERNEL = {
             }
 
             for (let i = 0; i < numRetos; i++) {
-                if (tempRetos.length === 0) break; 
+                if (tempRetos.length === 0) break;
                 secuenciaRetos.push(tempRetos.shift());
             }
-            
-            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-'); 
-            
+           
+            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-');
+           
             if (!this.historialRetosSecuencias.includes(candidateSequenceIds)) {
                 sequenceString = candidateSequenceIds;
                 break;
             }
             maxAttempts--;
-            if (maxAttempts === 0) { 
+            if (maxAttempts === 0) {
                 console.warn("Could not find a unique challenge sequence after multiple attempts, reusing one.");
                 sequenceString = candidateSequenceIds;
             }
         }
-        
+       
         if (sequenceString) {
             this.historialRetosSecuencias.push(sequenceString);
             this.historialRetosSecuencias = this.historialRetosSecuencias.slice(-this.MAX_HISTORY_RETOS_SECUENCIAS);
@@ -1147,12 +1364,46 @@ const KERNEL = {
                     if (retoTitulo) retoTitulo.innerText = "";
                     if (retoDescripcion) retoDescripcion.innerText = "";
                     if (retoImg) retoImg.src = "";
+                   
+                    // --- INJECTED CORPORATE REDIRECTION LOGIC ---
+                    const zipIngresado = this.corporateSelectedZip;
+                    const emocionActiva = this.corporateSelectedEmotion;
+                    const entornoActivo = this.corporateSelectedEnvironment;
+                    const presupuestoActivo = this.corporateSelectedBudget;
+
+                    // Ensure default values in case of null/undefined from selectors, or mapping issues
+                    const defaultEmocion = "Estresado";
+                    const defaultEntorno = "CASA";
+                    const defaultPresupuesto = "Gratis";
                     
+                    const actualEmocion = DRIVER_MATRIX[emocionActiva] ? emocionActiva : defaultEmocion;
+                    const actualEntorno = DRIVER_MATRIX[actualEmocion]?.[entornoActivo] ? entornoActivo : defaultEntorno;
+                    const actualPresupuesto = DRIVER_MATRIX[actualEmocion]?.[actualEntorno]?.[presupuestoActivo] ? presupuestoActivo : defaultPresupuesto;
+                    
+                    const grupoEmpresas = DRIVER_MATRIX[actualEmocion][actualEntorno][actualPresupuesto];
+                    const destinoElegido = grupoEmpresas[Math.floor(Math.random() * grupoEmpresas.length)];
+                    
+                    const estadoTraducido = calcularEstadoPorPostal(zipIngresado);
+                    const ciudadTraducida = calcularCiudadPorPostal(zipIngresado);
+                    
+                    let urlResultado = destinoElegido.url
+                        .replace(/{{ZIP}}/g, zipIngresado)
+                        .replace(/{{STATE}}/g, estadoTraducido)
+                        .replace(/{{CITY}}/g, ciudadTraducida);
+                    
+                    window.open(urlResultado, '_blank', 'noopener,noreferrer');
+                    // Activa las microfrases robóticas continuas cada 15 segundos
+                    motorAudioOTG.comenzarTerapiaAuditiva();
+                    // --- END INJECTED CORPORATE REDIRECTION LOGIC ---
+
                     cierreTimer.classList.add('hidden');
                     cierreMensajeFinal.classList.remove('hidden');
                     btnRecomenzar.classList.remove('hidden');
                     btnRecomenzar.disabled = false;
-                    this.hablar(t.puertaAbierta);
+                    // Delay speaking the final message to let audio therapy start without immediate interruption
+                    setTimeout(() => {
+                        this.hablar(t.puertaAbierta);
+                    }, 1000);
                 }
             }, 1000);
         }, 5000);
@@ -1184,11 +1435,11 @@ const KERNEL = {
         document.getElementById('pantalla-cierre').classList.add('hidden');
         document.getElementById('wrapper-interactive').classList.add('hidden');
         document.getElementById('wrapper-form').classList.remove('hidden');
-        
+       
         document.getElementById('inp-text-libre').value = "";
         this.inyectarBloquePreguntas();
         this.activarBotonMandoLibreInicial();
-        
+       
         const saludos_es = ["Bienvenido de nuevo. Tu escape inteligente. Escucha mis preguntas en pantalla.", "Ópen Dán Go activo. Toca lo que sientes hoy para continuar."];
         const saludos_en = ["Welcome back. Your smart escape. Listen to my questions on screen.", "Open Than Go active. Tap what you feel today to continue."];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
@@ -1199,6 +1450,9 @@ const KERNEL = {
      * Clears ALL session data and reloads the application.
      */
     destruirYReiniciar() {
+        // Por último, localiza el evento de clic de tu botón 'SALIR' (btnSalirApp) e inserta la línea 'motorAudioOTG.cancelarTerapiaAuditiva();'
+        motorAudioOTG.cancelarTerapiaAuditiva();
+        
         clearInterval(this.timerInaccion);
         clearInterval(this.timerClinico);
         clearInterval(this.temporizadorCascada);
