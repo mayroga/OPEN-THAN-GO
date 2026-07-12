@@ -732,8 +732,8 @@ const KERNEL = {
         document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
         
         // Update elements in the closing screen
-        const cierreTitulo = document.getElementById('cierre-titulo');
-        if (cierreTitulo) cierreTitulo.innerText = t.title;
+        const cierreLogo = document.getElementById('cierre-logo'); // CORRECCIÓN MECÁNICA: 'cierre-titulo' no existe, debería ser 'cierre-logo'
+        if (cierreLogo) cierreLogo.innerText = t.title;
         const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
         if (cierreBoton) cierreBoton.innerText = t.recomenzar;
         const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
@@ -861,10 +861,9 @@ const KERNEL = {
                     <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
                 </div>`;
 
-                // MODIFIED: Use appropriate title based on language for speech
-                let speechText = (this.idiomaActual === 'en' && this.datosLugarGlobal.destino_titulo_en) ? 
-                                  `${this.datosLugarGlobal.destino_titulo_en}. ${this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion}` :
-                                  `${this.datosLugarGlobal.destino_titulo}. ${this.datosLugarGlobal.destino_instruccion}`;
+                // CORRECCIÓN MECÁNICA: main.py ya devuelve 'destino_titulo' y 'destino_instruccion' en el idioma correcto.
+                // No es necesario buscar 'destino_titulo_en' o 'destino_instruccion_en' aquí.
+                let speechText = this.datosLugarGlobal.destino_titulo + ". " + this.datosLugarGlobal.destino_instruccion;
                 this.hablar(speechText);
                 
                 let retencion = 35; // Countdown for listening to the guide
