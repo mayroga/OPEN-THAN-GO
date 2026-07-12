@@ -291,6 +291,15 @@
             opacity: 0.6;
         }
     </style>
+    <!-- Placeholder images for retos in static/ directory -->
+    <img src="/static/silence.svg" class="hidden" alt="Silence">
+    <img src="/static/observe.svg" class="hidden" alt="Observe">
+    <img src="/static/words.svg" class="hidden" alt="Words">
+    <img src="/static/laugh.svg" class="hidden" alt="Laugh">
+    <img src="/static/stretch.svg" class="hidden" alt="Stretch">
+    <img src="/static/nature_sound.svg" class="hidden" alt="Nature Sound">
+    <img src="/static/gratitude.svg" class="hidden" alt="Gratitude">
+    <img src="/static/square_breath.svg" class="hidden" alt="Square Breath">
 </head>
 <body>
     <div id="pantalla-bienvenida">
@@ -312,12 +321,11 @@
             <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1>
         </div>
        
-        <!-- GEOLOCATION INPUTS CORRECTED FOR UX -->
+        <!-- GEOLOCATION INPUTS CORRECTED -->
         <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
             <div style="flex: 2;">
-                <label id="lbl-zip">Código Postal</label>
-                <!-- MODIFIED: Added pattern, inputmode, and maxlength for smart validation -->
-                <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5" pattern="[0-9]{5}" inputmode="numeric">
+                <label id="lbl-zip">ZIP Code</label>
+                <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5" pattern="[0-9]{5}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
             </div>
             <div style="flex: 1;">
                 <label>Modo</label>
@@ -343,4 +351,60 @@
             <div style="flex: 1;">
                 <label>Gasto</label>
                 <select id="budget-selector">
-                    <option value="0" id="opt-budget-0"
+                    <option value="0" id="opt-budget-0" selected>Gratis</option>
+                    <option value="1" id="opt-budget-1">Bajo</option>
+                    <option value="2" id="opt-budget-2">Abierto</option>
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label>Perfil</label>
+                <select id="perfil-selector">
+                    <option value="solo" id="opt-perfil-solo" selected>Solo</option>
+                    <option value="familia" id="opt-perfil-familia">Familia</option>
+                    <option value="accesible" id="opt-perfil-accesible">Accesible</option>
+                </select>
+            </div>
+        </div>
+       
+        <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent); font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
+       
+        <!-- CASCADING SCROLL BOX -->
+        <div class="oraculo-scroll-box">
+            <div class="oraculo-grid" id="contenedor-preguntas-oraculo">
+                <!-- Questions are dynamically injected here by engine.js -->
+            </div>
+        </div>
+       
+        <!-- THE FREE WRITING BOX HEALED 100% -->
+        <div class="field" id="bloque-escritura-libre">
+            <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label>
+            <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea>
+            <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE OUTPUT CONTAINER FOR PARKS, VIDEOS, AND LUNG -->
+    <div class="container hidden" id="wrapper-interactive"></div>
+
+    <!-- PANTALLA DE CIERRE CONSCIENTE / REINICIO INTELIGENTE -->
+    <div id="pantalla-cierre" class="hidden">
+        <div class="cierre-content">
+            <div class="sky-container">
+                <div class="cloud c1"></div>
+                <div class="cloud c2"></div>
+            </div>
+            <h1 id="cierre-logo">OPEN THAN GO</h1>
+            <div id="cierre-message">
+                <img id="reto-img" src="" alt="Reto Image" class="hidden">
+                <h3 id="reto-titulo" style="text-transform: uppercase;"></h3>
+                <p id="reto-descripcion"></p>
+            </div>
+            <div id="cierre-timer">60</div>
+            <p id="cierre-mensaje-final" class="hidden"></p>
+            <button id="btn-recomenzar-experiencia" class="hidden"></button>
+        </div>
+    </div>
+
+    <script src="/static/engine.js"></script>
+</body>
+</html>
