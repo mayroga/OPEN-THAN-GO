@@ -1061,6 +1061,8 @@ async def mando_integral(request: Request):
     
     # Add mind states that are highly indicative of stress for this filter
     stress_mind_states = ["agotado", "cansado", "stand by", "estresado", "desesperado", "ansioso", "alterado", "deprimido", "monotonia", "atrapado", "rutina"]
+    
+    force_recovery_mission = False # Initialize to False
     if mente in stress_mind_states:
         force_recovery_mission = True
 
