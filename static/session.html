@@ -79,4 +79,332 @@
         .cloud.c1::before { width: 30px; height: 30px; top: -15px; left: 10px; }
         .cloud.c1::after { width: 20px; height: 20px; top: -10px; left: 30px; }
         .cloud.c2 { width: 80px; height: 25px; top: 35px; left: -90px; animation-duration: 16s; animation-delay: 4s; }
-        .cloud.c2::before { width: 40px; height: 40px; top: -20px; left: 15px;
+        .cloud.c2::before { width: 40px; height: 40px; top: -20px; left: 15px; }
+        .cloud.c2::after { width: 30px; height: 35px; top: -15px; left: 40px; }
+        @keyframes windMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(520px); } /* Cloud should move across the full width + some */
+        }
+       
+        /* THE ORACLE: CASCADE UP EFFECT */
+        .oraculo-scroll-box { position: relative; min-height: 280px; overflow: hidden; margin-bottom: 20px; }
+        .oraculo-grid { display: flex; flex-direction: column; gap: 12px; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        .btn-pregunta-crisis {
+            width: 100%;
+            background: var(--panel);
+            color: #eee;
+            border: 1px solid #222;
+            padding: 16px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s;
+            line-height: 1.4;
+            transform-origin: top center;
+        }
+        .btn-pregunta-crisis:hover { border-color: var(--accent); }
+        .btn-pregunta-crisis.fade-out { opacity: 0; transform: scale(0.8) translateY(-30px); margin-bottom: -64px; pointer-events: none; }
+       
+        .field { margin-bottom: 12px; transition: all 0.5s ease; }
+        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 4px; font-weight: bold; }
+        input, select, textarea {
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid #222;
+            color: var(--text);
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            outline: none;
+            -webkit-appearance: none; /* For consistent select styling on iOS */
+            -moz-appearance: none;
+            appearance: none;
+            transition: border-color 0.3s ease; /* Added transition for border color */
+        }
+        /* Corrected: Visual feedback for textarea on focus */
+        textarea:focus {
+            border-color: var(--green-action); /* CORRECCIÓN MECÁNICA: Añadido color de borde al hacer focus en textarea */
+        }
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 30px; /* Make space for the arrow */
+        }
+        input:focus, select:focus { border-color: var(--green-action); }
+        textarea { height: 65px; resize: vertical; border-color: #333; max-height: 150px; } /* Allow vertical resize */
+       
+        .hidden { display: none !important; }
+       
+        #pantalla-bienvenida { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; }
+        .btn-bienvenida {
+            background:#fff;
+            color:#000;
+            padding:22px 45px;
+            font-weight:900;
+            cursor:pointer;
+            text-transform:uppercase;
+            border-radius:4px;
+            font-size: 0.95rem;
+            border: none;
+            letter-spacing: 1px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-bienvenida:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
+
+        /* INTERACTIVE CONTENT STYLING */
+        .mision-card { border: 1px solid #222; padding: 26px; text-align: left; background: #0a0a0a; border-radius: 12px; width: 100%; }
+        .mision-card small { color: #666; font-weight: bold; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
+        .mision-card h2, .mision-card h3 { color: var(--green-action); font-size: 1.45rem; font-weight: 900; text-transform: uppercase; margin-top: 0; margin-bottom: 15px; }
+        .mision-card p, .mision-card .instruccion-text { font-size: 1.25rem; line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid var(--green-action); padding-left: 14px; text-align: left; font-weight: bold; }
+       
+        #breath-circle {
+            width: 135px; height: 135px;
+            background: rgba(0, 188, 212, 0.15); /* Light cyan */
+            border: 3px solid var(--cyan-inhale); /* Cyan border */
+            border-radius: 50%;
+            margin: 35px auto;
+            box-shadow: 0 0 20px rgba(0,188,212,0.2);
+            animation: elasticLung 8s infinite ease-in-out;
+        }
+        @keyframes elasticLung {
+            0% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); } /* Inhale state */
+            50% { transform: scale(1.15); background: rgba(216, 67, 21, 0.3); border-color: var(--accent); } /* Exhale state with orange tint */
+            100% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); }
+        }
+        #timer { font-weight: 900; text-align: center; font-size: 3.2rem; margin: 15px 0; color: #fff; }
+        #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: var(--cyan-inhale); text-align: center; letter-spacing: 2px; }
+
+        /* CIERRE CONSCIENTE STYLING */
+        #pantalla-cierre {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg); /* Dark background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            z-index: 9998;
+            padding: 20px;
+        }
+
+        .cierre-content {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            position: relative; /* For cloud animations */
+            overflow: hidden; /* To contain cloud animations */
+        }
+        .cierre-content .sky-container {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0.15;
+            z-index: 1;
+        }
+        .cierre-content > * { z-index: 2; position: relative; } /* Ensure text/buttons are above clouds */
+
+        #cierre-logo {
+            font-size: 1.4rem;
+            letter-spacing: 0.3em;
+            font-weight: 900;
+            margin: 0 0 20px 0;
+            color: var(--cyan-inhale);
+            text-shadow: 0 0 10px rgba(0,188,212,0.3);
+        }
+
+        #cierre-message {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            min-height: 100px; /* Ensure space for challenges */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #reto-img {
+            max-width: 80px;
+            height: auto;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+        }
+
+        #reto-titulo {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--green-action);
+            margin-bottom: 10px;
+        }
+
+        #reto-descripcion {
+            font-size: 1rem;
+            color: #eee;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        #cierre-timer {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--accent);
+            margin: 20px 0;
+        }
+
+        #cierre-mensaje-final {
+            font-size: 1.2rem;
+            color: #fff;
+            margin: 25px 0;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        #btn-recomenzar-experiencia {
+            width: 100%;
+            background: var(--secondary);
+            color: #fff;
+            padding: 17px;
+            font-weight: bold;
+            border: none;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            transition: background-color 0.3s, opacity 0.3s;
+        }
+
+        #btn-recomenzar-experiencia:disabled {
+            background: #333;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
+    <!-- Placeholder images for retos in static/ directory -->
+    <img src="/static/silence.svg" class="hidden" alt="Silence">
+    <img src="/static/observe.svg" class="hidden" alt="Observe">
+    <img src="/static/words.svg" class="hidden" alt="Words">
+    <img src="/static/laugh.svg" class="hidden" alt="Laugh">
+    <img src="/static/stretch.svg" class="hidden" alt="Stretch">
+    <img src="/static/nature_sound.svg" class="hidden" alt="Nature Sound">
+    <img src="/static/gratitude.svg" class="hidden" alt="Gratitude">
+    <img src="/static/square_breath.svg" class="hidden" alt="Square Breath">
+</head>
+<body>
+    <div id="pantalla-bienvenida">
+        <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button>
+    </div>
+   
+    <div class="container hidden" id="wrapper-form">
+        <div class="lang-bar">
+            <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button>
+            <button class="btn-lang" id="lang-en" onclick="KERNEL.cambiarIdioma('en')">ENG</button>
+        </div>
+       
+        <!-- HEADER WITH REAL MOVING CLOUDS -->
+        <div class="header-wrapper">
+            <div class="sky-container">
+                <div class="cloud c1"></div>
+                <div class="cloud c2"></div>
+            </div>
+            <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1>
+        </div>
+       
+        <!-- GEOLOCATION INPUTS CORRECTED -->
+        <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div style="flex: 2;">
+                <label id="lbl-zip">ZIP Code</label>
+                <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5" pattern="[0-9]{5}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div style="flex: 1;">
+                <label>Modo</label>
+                <select id="modo-selector">
+                    <option value="SALIR" selected>SALIR</option>
+                    <option value="CASA">CASA</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- NEW SELECTORS FOR MENTE, BUDGET, PERFIL -->
+        <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label>Mente</label>
+                <select id="mente-selector">
+                    <option value="aburrido" id="opt-mente-aburrido" selected>Aburrido</option>
+                    <option value="agotado" id="opt-mente-agotado">Agotado</option>
+                    <option value="estresado" id="opt-mente-estresado">Estresado</option>
+                    <option value="cansado" id="opt-mente-cansado">Cansado</option>
+                    <option value="ansioso" id="opt-mente-ansioso">Ansioso</option>
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label>Gasto</label>
+                <select id="budget-selector">
+                    <option value="0" id="opt-budget-0" selected>Gratis</option>
+                    <option value="1" id="opt-budget-1">Bajo</option>
+                    <option value="2" id="opt-budget-2">Abierto</option>
+                </select>
+            </div>
+            <div style="flex: 1;">
+                <label>Perfil</label>
+                <select id="perfil-selector">
+                    <option value="solo" id="opt-perfil-solo" selected>Solo</option>
+                    <option value="familia" id="opt-perfil-familia">Familia</option>
+                    <option value="accesible" id="opt-perfil-accesible">Accesible</option>
+                </select>
+            </div>
+        </div>
+       
+        <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent); font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
+       
+        <!-- CASCADING SCROLL BOX -->
+        <div class="oraculo-scroll-box">
+            <div class="oraculo-grid" id="contenedor-preguntas-oraculo">
+                <!-- Questions are dynamically injected here by engine.js -->
+            </div>
+        </div>
+       
+        <!-- THE FREE WRITING BOX HEALED 100% -->
+        <div class="field" id="bloque-escritura-libre">
+            <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label>
+            <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea>
+            <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE OUTPUT CONTAINER FOR PARKS, VIDEOS, AND LUNG -->
+    <div class="container hidden" id="wrapper-interactive"></div>
+
+    <!-- PANTALLA DE CIERRE CONSCIENTE / REINICIO INTELIGENTE -->
+    <div id="pantalla-cierre" class="hidden">
+        <div class="cierre-content">
+            <div class="sky-container">
+                <div class="cloud c1"></div>
+                <div class="cloud c2"></div>
+            </div>
+            <h1 id="cierre-logo">OPEN THAN GO</h1>
+            <div id="cierre-message">
+                <img id="reto-img" src="" alt="Reto Image" class="hidden">
+                <h3 id="reto-titulo" style="text-transform: uppercase;"></h3>
+                <p id="reto-descripcion"></p>
+            </div>
+            <div id="cierre-timer">60</div>
+            <p id="cierre-mensaje-final" class="hidden"></p>
+            <button id="btn-recomenzar-experiencia" class="hidden"></button>
+        </div>
+    </div>
+
+    <script src="/static/engine.js"></script>
+</body>
+</html>
