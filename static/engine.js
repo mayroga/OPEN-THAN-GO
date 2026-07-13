@@ -138,7 +138,114 @@ const DRIVER_MATRIX = {
         { name: "Zocdoc Instant Doctor Booking", url: "https://zocdoc.com{{ZIP}}" },
         { name: "CVS MinuteClinic Urgent Finder", url: "https://cvs.com{{ZIP}}" },
         { name: "Walgreens Pharmacy Network", url: "https://walgreens.com" },
-{ name: "Chase Corporate Portals", url: "chase.com" },{ name: "Bank of America Network", url: "bankofamerica.com" },{ name: "PayPal Mass Transactions", url: "paypal.com" },{ name: "Wells Fargo Retail Banking", url: "wellsfargo.com" },{ name: "Citibank Global Banking", url: "citibank.com" }]},Mente: {Gratis: [{ name: "AllTrails Stress Relief Trails", url: "alltrails.com{{ZIP}}&diff=easy" }],Bajo: [{ name: "Zillow Housing Market Rentals", url: "zillow.com{{ZIP}}_rb/" },{ name: "Apartments com Residential Search", url: "apartments.com{{CITY}}-{{STATE}}/" },{ name: "Realtor com Regional Listings", url: "realtor.com{{ZIP}}" },{ name: "Trulia Real Estate Engine", url: "trulia.com" },{ name: "Redfin Home Database", url: "redfin.com" },{ name: "Instawork Day Shift Staffing", url: "instawork.com" },{ name: "Wonolo Instant Labor Dispatch", url: "wonolo.com" },{ name: "TaskRabbit Freelance Handyman", url: "taskrabbit.com" },{ name: "Indeed Job Database", url: "indeed.com" },{ name: "ZipRecruiter Rapid Application", url: "ziprecruiter.com" },{ name: "LinkedIn Professional Systems", url: "linkedin.com" },{ name: "Fiverr Freelance Output", url: "fiverr.com" },{ name: "Upwork Global Contracting", url: "upwork.com" },{ name: "ShiftSmart Hourly Operations", url: "shiftsmart.com" }],Gasto: [{ name: "U-Haul Logistics Relocation", url: "uhaul.com{{STATE}}/{{ZIP}}/" },{ name: "PODS Containerized Moving", url: "pods.com" },{ name: "Airbnb Instant Escape", url: "airbnb.com{{CITY}}/homes" },{ name: "Booking com Global Accommodations", url: "booking.com{{CITY}}" },{ name: "Expedia Metasearch Travel", url: "expedia.com" },{ name: "Delta Air Lines Routes", url: "delta.com" },{ name: "American Airlines Network", url: "aa.com" },{ name: "United Airlines Operations", url: "united.com" },{ name: "Southwest Airlines Low Cost", url: "southwest.com" },{ name: "JetBlue Airways", url: "jetblue.com" },{ name: "Royal Caribbean International Cruise", url: "royalcaribbean.com" },{ name: "Carnival Cruise Line Fun Ships", url: "carnival.com" },{ name: "Norwegian Cruise Line Logistics", url: "ncl.com" },{ name: "Amtrak Rail Network US", url: "amtrak.com" },{ name: "Greyhound Intercity Bus lines", url: "greyhound.com" }]}},Cansado: {CASA: {Gratis: [{ name: "YouTube Somatic Rest Meditation", url: "youtube.com" }],Bajo: [{ name: "Chewy Rapid Pet Consumables", url: "chewy.com" }],Gasto: [{ name: "Walmart Grocery Logistics", url: "walmart.com" }, { name: "Amazon Fresh Instant Food", url: "amazon.com" }]},Mente: {Gratis: [{ name: "Google Maps Silent Zones", url: "google.com+{{ZIP}}" }],Bajo: [{ name: "YMCA Spa and Pool Access", url: "ymca.org" }],Gasto: [{ name: "Uber Comfort Transit", url: "uber.com" }, { name: "Lyft Personal Transport", url: "lyft.com" }]}},Ansioso: {CASA: {Gratis: [{ name: "HRSA Community Clinical Support", url: "hrsa.gov" },{ name: "Remitly Global Remittance Systems", url: "remitly.com" },{ name: "Western Union International", url: "westernunion.com" }],Bajo: [{ name: "GoodRx Medication Shield", url: "goodrx.com" },{ name: "BetterHelp Clinical Support", url: "betterhelp.com" },{ name: "Wise Multi Currency Ledger", url: "https://wise.com" },{ name: "Intermex Remittance Network", url: "intermexonline.com" }],Gasto: [{ name: "Zocdoc Psychiatry Direct Booking", url: "zocdoc.com" },{ name: "Teladoc Video Medicine Platform", url: "teladoc.com" },{ name: "Amwell Emergency Telehealth", url: "amwell.com" }]},Mente: {Gratis: [{ name: "AllTrails Breathing Walks", url: "alltrails.com" }],Bajo: [{ name: "Indeed Job Acceleration Protocol", url: "indeed.com" },{ name: "ZipRecruiter Rapid Matrix Apply", url: "ziprecruiter.com" }],Gasto: [{ name: "Booking com Absolute Remote Insulation", url: "booking.com" },{ name: "TripAdvisor Excursion Filters", url: "tripadvisor.com" },{ name: "Hopper Predictive Travel Flights", url: "hopper.com" }]}}};const INFANT_LEVEL_ANTIDOTE_PHRASES = ["Baja tus hombros ahora mismo. Todo va a estar bien.","No tienes que arreglar todo tu mundo en este minuto.","Tú eres más importante que cualquier tarea o dinero.","Toma aire con fuerza. Suelta el ruido de la calle.","Tus pies están en el suelo. El suelo te sostiene. Estás a salvo.","El dinero viene y va, pero tu sonrisa se cuida.","No pienses en mañana. Piensa en el aire que entra a tu cuerpo.","Estás haciendo un buen trabajo hoy. Date un abrazo.","Ningún papel o pantalla te dice cuánto vales. Vales mucho.","Deja que los problemas se queden afuera un ratito.","Hacer lo mismo siempre aburre. Vamos a ver algo nuevo.","Tu mente quiere jugar hoy. Vamos a buscar un camino diferente.","Estás a un solo botón de ver un lugar hermoso.","Si cambias lo que miras, cambia cómo te sientes hoy.","No naciste solo para trabajar. Naciste para explorar el mapa.","Vamos a enseñarle a tu cerebro una idea que no conoce.","Caminar por otra calle puede alegrar todo tu día.","La rutina es una caja cerrada. Abre la puerta hoy.","Tu cuerpo no es un juguete con pilas infinitas. Descansa.","Estar cansado está bien. Es la forma en que tu cuerpo pide paz.","Hoy dejamos que las tiendas grandes se muevan por ti.","Apaga las luces de tu cabeza un momento. El mundo espera.","No hacer nada productivo hoy también es ganar un premio.","Cierra los ojos tres segundos. Siente tu corazón latir.","Si estás muy cansado, para. Las soluciones vienen después.","Tu energía es un tesoro. No la gastes en tener miedo.","Suelta el control. Deja que el día ruede solo por un rato."];
+        { name: "Chase Corporate Portals", url: "chase.com" },
+        { name: "Bank of America Network", url: "bankofamerica.com" },
+        { name: "PayPal Mass Transactions", url: "paypal.com" },
+        { name: "Wells Fargo Retail Banking", url: "wellsfargo.com" },
+        { name: "Citibank Global Banking", url: "citibank.com" }
+      ]
+    },
+    Mente: {
+      Gratis: [
+        { name: "AllTrails Stress Relief Trails", url: "alltrails.com{{ZIP}}&diff=easy" }
+      ],
+      Bajo: [
+        { name: "Zillow Housing Market Rentals", url: "zillow.com{{ZIP}}_rb/" },
+        { name: "Apartments com Residential Search", url: "apartments.com{{CITY}}-{{STATE}}/" },
+        { name: "Realtor com Regional Listings", url: "realtor.com{{ZIP}}" },
+        { name: "Trulia Real Estate Engine", url: "trulia.com" },
+        { name: "Redfin Home Database", url: "redfin.com" },
+        { name: "Instawork Day Shift Staffing", url: "instawork.com" },
+        { name: "Wonolo Instant Labor Dispatch", url: "wonolo.com" },
+        { name: "TaskRabbit Freelance Handyman", url: "taskrabbit.com" },
+        { name: "Indeed Job Database", url: "indeed.com" },
+        { name: "ZipRecruiter Rapid Application", url: "ziprecruiter.com" },
+        { name: "LinkedIn Professional Systems", url: "linkedin.com" },
+        { name: "Fiverr Freelance Output", url: "fiverr.com" },
+        { name: "Upwork Global Contracting", url: "upwork.com" },
+        { name: "ShiftSmart Hourly Operations", url: "shiftsmart.com" }
+      ],
+      Gasto: [
+        { name: "U-Haul Logistics Relocation", url: "uhaul.com{{STATE}}/{{ZIP}}/" },
+        { name: "PODS Containerized Moving", url: "pods.com" },
+        { name: "Airbnb Instant Escape", url: "airbnb.com{{CITY}}/homes" },
+        { name: "Booking com Global Accommodations", url: "booking.com{{CITY}}" },
+        { name: "Expedia Metasearch Travel", url: "expedia.com" },
+        { name: "Delta Air Lines Routes", url: "delta.com" },
+        { name: "American Airlines Network", url: "aa.com" },
+        { name: "United Airlines Operations", url: "united.com" },
+        { name: "Southwest Airlines Low Cost", url: "southwest.com" },
+        { name: "JetBlue Airways", url: "jetblue.com" },
+        { name: "Royal Caribbean International Cruise", url: "royalcaribbean.com" },
+        { name: "Carnival Cruise Line Fun Ships", url: "carnival.com" },
+        { name: "Norwegian Cruise Line Logistics", url: "ncl.com" },
+        { name: "Amtrak Rail Network US", url: "amtrak.com" },
+        { name: "Greyhound Intercity Bus lines", url: "greyhound.com" }
+      ]
+    }
+  },
+  Cansado: {
+    CASA: {
+      Gratis: [
+        { name: "YouTube Somatic Rest Meditation", url: "youtube.com" }
+      ],
+      Bajo: [
+        { name: "Chewy Rapid Pet Consumables", url: "chewy.com" }
+      ],
+      Gasto: [
+        { name: "Walmart Grocery Logistics", url: "walmart.com" },
+        { name: "Amazon Fresh Instant Food", url: "amazon.com" }
+      ]
+    },
+    Mente: {
+      Gratis: [
+        { name: "Google Maps Silent Zones", url: "google.com+{{ZIP}}" }
+      ],
+      Bajo: [
+        { name: "YMCA Spa and Pool Access", url: "ymca.org" }
+      ],
+      Gasto: [
+        { name: "Uber Comfort Transit", url: "uber.com" },
+        { name: "Lyft Personal Transport", url: "lyft.com" }
+      ]
+    }
+  },
+  Ansioso: {
+    CASA: {
+      Gratis: [
+        { name: "HRSA Community Clinical Support", url: "hrsa.gov" },
+        { name: "Remitly Global Remittance Systems", url: "remitly.com" },
+        { name: "Western Union International", url: "westernunion.com" }
+      ],
+      Bajo: [
+        { name: "GoodRx Medication Shield", url: "goodrx.com" },
+        { name: "BetterHelp Clinical Support", url: "betterhelp.com" },
+        { name: "Wise Multi Currency Ledger", url: "https://wise.com" },
+        { name: "Intermex Remittance Network", url: "intermexonline.com" }
+      ],
+      Gasto: [
+        { name: "Zocdoc Psychiatry Direct Booking", url: "zocdoc.com" },
+        { name: "Teladoc Video Medicine Platform", url: "teladoc.com" },
+        { name: "Amwell Emergency Telehealth", url: "amwell.com" }
+      ]
+    },
+    Mente: {
+      Gratis: [
+        { name: "AllTrails Breathing Walks", url: "alltrails.com" }
+      ],
+      Bajo: [
+        { name: "Indeed Job Acceleration Protocol", url: "indeed.com" },
+        { name: "ZipRecruiter Rapid Matrix Apply", url: "ziprecruiter.com" }
+      ],
+      Gasto: [
+        { name: "Booking com Absolute Remote Insulation", url: "booking.com" },
+        { name: "TripAdvisor Excursion Filters", url: "tripadvisor.com" },
+        { name: "Hopper Predictive Travel Flights", url: "hopper.com" }
+      ]
+    }
+  }
+};
+const INFANT_LEVEL_ANTIDOTE_PHRASES = ["Baja tus hombros ahora mismo. Todo va a estar bien.","No tienes que arreglar todo tu mundo en este minuto.","Tú eres más importante que cualquier tarea o dinero.","Toma aire con fuerza. Suelta el ruido de la calle.","Tus pies están en el suelo. El suelo te sostiene. Estás a salvo.","El dinero viene y va, pero tu sonrisa se cuida.","No pienses en mañana. Piensa en el aire que entra a tu cuerpo.","Estás haciendo un buen trabajo hoy. Date un abrazo.","Ningún papel o pantalla te dice cuánto vales. Vales mucho.","Deja que los problemas se queden afuera un ratito.","Hacer lo mismo siempre aburre. Vamos a ver algo nuevo.","Tu mente quiere jugar hoy. Vamos a buscar un camino diferente.","Estás a un solo botón de ver un lugar hermoso.","Si cambias lo que miras, cambia cómo te sientes hoy.","No naciste solo para trabajar. Naciste para explorar el mapa.","Vamos a enseñarle a tu cerebro una idea que no conoce.","Caminar por otra calle puede alegrar todo tu día.","La rutina es una caja cerrada. Abre la puerta hoy.","Tu cuerpo no es un juguete con pilas infinitas. Descansa.","Estar cansado está bien. Es la forma en que tu cuerpo pide paz.","Hoy dejamos que las tiendas grandes se muevan por ti.","Apaga las luces de tu cabeza un momento. El mundo espera.","No hacer nada productivo hoy también es ganar un premio.","Cierra los ojos tres segundos. Siente tu corazón latir.","Si estás muy cansado, para. Las soluciones vienen después.","Tu energía es un tesoro. No la gastes en tener miedo.","Suelta el control. Deja que el día ruede solo por un rato."];
 
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
 // Company: May Roga LLC
