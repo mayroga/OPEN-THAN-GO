@@ -765,4 +765,5 @@ async def mando_integral(request: Request):
     # Si el desahogo contiene palabras críticas, se fuerza una microacción de recuperación mental.
     # ============================================================
     sensitive_keywords = [
-        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume" ] 
+        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume"
+    ]
