@@ -794,7 +794,7 @@ def seleccionar_mision_inteligente(
             "score": score
         })
     seleccion = seleccionar_por_ranking(candidatos)
-    if seleccion is None:
+    if seleccion == None:
         return random.choice(misiones) if misiones else None
     return seleccion["mision"]
 
