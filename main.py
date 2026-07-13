@@ -633,7 +633,7 @@ def seleccionar_mision_inteligente(
             "score": score
         })
     seleccion = seleccionar_por_ranking(candidatos)
-    if seleccion === None: # Error mecánico: '==' en vez de 'is' o '=='
+    if seleccion is None: # Error mecánico: '==' en vez de 'is' o '=='
         return random.choice(misiones) if misiones else None
     return seleccion["mision"]
 
