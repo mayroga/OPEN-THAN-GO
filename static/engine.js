@@ -702,8 +702,8 @@ const KERNEL = {
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
        
         const t = {
-            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App" },
-            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App" }
+            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App", audioSuggest: "Sugerencia de Audio" },
+            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App", audioSuggest: "Audio Suggestion" }
         }[lang];
        
         document.getElementById('html-title').innerText = t.title;
@@ -822,14 +822,14 @@ const KERNEL = {
                 this.historialCasa = data.historial_casa_actualizado;
                 localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
                 this.pasosMisiones = data.misiones;
-                this.procesarFlujoSecuencial(container);
+                this.procesarFlujoSecuencial(container, data.suggested_audio_link); // Pass suggested_audio_link
             }
 
 
         } catch (error) {
             console.error("Fetch error:", error);
             alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
-            document.getElementById('wrapper-form').classList.remove('hidden');
+            document.getElementById('wrapper-form').classList.add('hidden');
             container.classList.add('hidden');
             this.isLocked = false;
             this.validarZip();
@@ -893,7 +893,7 @@ const KERNEL = {
 
         const container = document.getElementById('wrapper-interactive');
         let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
-        
+       
         container.innerHTML = `
         <div class="mision-card">
             <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
@@ -904,4 +904,456 @@ const KERNEL = {
             <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
         </div>`;
 
-        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datos
+        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
+        this.hablar(speechText);
+       
+        let retencion = 35;
+        const btnCount = document.getElementById('btn-countdown-salida');
+        const btnGps = document.getElementById('btn-gps-action');
+        const phrasesDiv = document.getElementById('salida-countdown-phrases');
+        const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
+        let phraseIndex = 0;
+
+        this.salidaTimerId = setInterval(() => {
+            if (retencion > 0) {
+                retencion--;
+                if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
+                if (retencion === 0) {
+                    // Transition to 45s phrase injection
+                    retencion = -45; // Use negative to denote this phase
+                    if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                    phraseIndex++;
+                }
+            } else if (retencion < 0) {
+                retencion++; // Count up towards 0
+                if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+                if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
+                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                    phraseIndex++;
+                }
+                if (retencion === 0) {
+                    // 45 seconds are over
+                    clearInterval(this.salidaTimerId);
+                    window.speechSynthesis.cancel();
+                    if (btnCount) btnCount.style.display = 'none';
+                    if (phrasesDiv) phrasesDiv.innerText = "";
+                    if (btnGps) {
+                        btnGps.classList.remove('hidden');
+                        btnGps.onclick = () => {
+                            try {
+                                let perfil = KERNEL.obtenerPerfilLocal();
+                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+                               
+                                for (const need in selectedVector) {
+                                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                                        perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
+                                    }
+                                }
+                                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
+                                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                            } catch (e) {
+                                console.error("Error updating local profile after action:", e);
+                            }
+                            window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+                            // KERNEL.reiniciarExperiencia(); // Keep the app in background, ready for return
+                        };
+                    }
+                }
+            }
+        }, 1000);
+    },
+
+
+    /**
+     * Processes the sequential flow based on the recommendation type (only for CASA mode now).
+     */
+    procesarFlujoSecuencial(container, suggestedAudioLink = null) { // Added suggestedAudioLink parameter
+        clearInterval(this.timerEnfocado);
+        window.speechSynthesis.cancel();
+
+        const t = {
+            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo", internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido", audioSuggest: "Sugerencia de Audio" },
+            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape", audioSuggest: "Audio Suggestion" }
+        }[this.idiomaActual];
+
+        // This function now only handles INTERVENCION_DOMESTICA (CASA mode)
+        if (this.indiceMision >= this.pasosMisiones.length) {
+            this.iniciarRelojEnfocadoCasa(container, t, suggestedAudioLink); // Pass suggestedAudioLink
+            return;
+        }
+
+        const paso = this.pasosMisiones[this.indiceMision];
+       
+        container.innerHTML = `
+        <div class="mision-card">
+            <small>${t.internalMission}</small>
+            <h3>${paso.titulo}</h3>
+            <p>${paso.descripcion}</p>
+            <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
+        </div>`;
+
+        this.hablar(paso.titulo + " . " + paso.descripcion);
+        document.getElementById('btn-next').onclick = () => {
+            try {
+                let perfil = this.obtenerPerfilLocal();
+                const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
+                for (const need in missionVector) {
+                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                        perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
+                    }
+                }
+                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
+                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+            } catch (e) {
+                console.error("Error updating local profile after CASA mission:", e);
+            }
+            this.avanzarPaso();
+        };
+    },
+
+    /** Starts the 10-minute clinical breathing timer for CASA mode. */
+    iniciarRelojEnfocadoCasa(container, t, suggestedAudioLink = null) { // Renamed from iniciarRelojClinicoCasa, added suggestedAudioLink
+        clearInterval(this.timerEnfocado);
+        window.speechSynthesis.cancel();
+       
+        let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
+        this.hablar(msg);
+       
+        container.innerHTML = `
+        <div style="text-align:center; width:100%;">
+            <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
+            <div id="timer">10:00</div>
+            <p id="txt-pulmon">INHALA / INHALE</p>
+            <div id="additional-suggestions" style="margin-top:30px;">
+                <div id="salida-sugerida" class="hidden" style="margin-bottom: 10px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888; text-align:left;">
+                    <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
+                </div>
+                <div id="audio-sugerida" class="hidden" style="padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888; text-align:left;">
+                    <p style="margin:0;">${t.audioSuggest}: <a href="#" id="link-audio-sugerida" style="color: var(--cyan-inhale); text-decoration: none; font-weight: bold;">Cargando...</a></p>
+                </div>
+            </div>
+        </div>`;
+
+        this.timeLeft = 600;
+        this.contadorToques = 0;
+
+        const circleElement = document.getElementById('breath-circle');
+        const timerDiv = document.getElementById('timer');
+        const pulmonDiv = document.getElementById('txt-pulmon');
+        const salidaSugeridaDiv = document.getElementById('salida-sugerida');
+        const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
+        const audioSugeridaDiv = document.getElementById('audio-sugerida'); // New
+        const linkAudioSugerida = document.getElementById('link-audio-sugerida'); // New
+
+        const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
+
+        if (circleElement) {
+            circleElement.onclick = () => {
+                if (this.contadorToques < this.secuenciaAdelantos.length) {
+                    let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
+                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
+                    this.contadorToques++;
+                    try {
+                        let perfil = this.obtenerPerfilLocal();
+                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
+                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                    } catch (e) {
+                        console.error("Error updating anxiety indicator:", e);
+                    }
+                    let m = Math.floor(this.timeLeft / 60);
+                    let s = this.timeLeft % 60;
+                    if (timerDiv) {
+                        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                    }
+                }
+            };
+        }
+
+        // Display suggested audio link immediately if available (Mejora 2)
+        if (suggestedAudioLink && linkAudioSugerida && audioSugeridaDiv) {
+            linkAudioSugerida.innerText = this.idiomaActual === 'es' ? "Haz click aquí para escuchar" : "Click here to listen";
+            linkAudioSugerida.href = suggestedAudioLink;
+            audioSugeridaDiv.classList.remove('hidden');
+            this.hablar(this.idiomaActual === 'es' ? `Una sugerencia de audio para ti: ${linkAudioSugerida.innerText}` : `An audio suggestion for you: ${linkAudioSugerida.innerText}`);
+        }
+
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+
+        this.salidaSugeridaTimeoutId = setTimeout(async () => {
+            try {
+                const r = await fetch("/api/mando-integral", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        modo: "SALIR",
+                        lang: this.idiomaActual,
+                        mente: "agotado", // Default 'agotado' for this suggestion
+                        budget: "0",
+                        perfil: "solo",
+                        desahogo: "",
+                        zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
+                        perfil_local: this.obtenerPerfilLocal(),
+                        historial_salir: this.historialSalir
+                    })
+                });
+                const data = await r.json();
+               
+                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
+                    const suggestedMission = data.misiones[0]; // Take the first one as suggestion
+                    if (data.historial_salir_actualizado) {
+                        this.historialSalir = data.historial_salir_actualizado;
+                        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+                    }
+
+                    linkSalidaSugerida.innerText = this.idiomaActual === 'es' ? suggestedMission.destino_titulo : (suggestedMission.destino_titulo_en || suggestedMission.destino_titulo);
+                    linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
+                    salidaSugeridaDiv.classList.remove('hidden');
+                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
+                }
+            } catch (e) {
+                console.error("Error fetching SALIR suggestion in CASA mode:", e);
+            } finally {
+                this.salidaSugeridaTimeoutId = null;
+            }
+        }, 180000); // 3 minutes for SALIR suggestion
+
+        this.timerEnfocado = setInterval(() => {
+            if (this.timeLeft > 0) this.timeLeft--;
+
+            let m = Math.floor(this.timeLeft / 60);
+            let s = this.timeLeft % 60;
+            if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+           
+            if (pulmonDiv) {
+                let ciclo = this.timeLeft % 8;
+                if (ciclo >= 4) {
+                    pulmonDiv.innerText = t.inspira.toUpperCase();
+                    pulmonDiv.style.color = "var(--cyan-inhale)";
+                } else {
+                    pulmonDiv.innerText = t.expira.toUpperCase();
+                    pulmonDiv.style.color = "var(--accent)";
+                }
+            }
+
+            if (this.timeLeft < 600 && (600 - this.timeLeft) % 20 === 0 && (600 - this.timeLeft) !== 0) {
+                let pasoAudioIdx = Math.floor((600 - this.timeLeft) / 20) - 1;
+                if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
+                    let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
+                    if (recordatorioTexto) {
+                        this.hablar(recordatorioTexto);
+                    }
+                }
+            }
+
+            if (this.timeLeft <= 0) {
+                clearInterval(this.timerEnfocado);
+                clearTimeout(this.salidaSugeridaTimeoutId);
+                this.salidaSugeridaTimeoutId = null;
+                window.speechSynthesis.cancel();
+                if (circleElement) {
+                    circleElement.style.animation = "none";
+                    circleElement.style.transform = "scale(1)";
+                }
+                this.iniciarRetoCierre60Segundos();
+            }
+        }, 1000);
+    },
+
+    /** Advances to the next internal mission step. */
+    avanzarPaso() {
+        this.indiceMision++;
+        const container = document.getElementById('wrapper-interactive');
+        this.procesarFlujoSecuencial(container);
+    },
+
+    /**
+     * Initiates the 60-second closing challenge phase.
+     */
+    iniciarRetoCierre60Segundos() {
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCierre);
+        window.speechSynthesis.cancel();
+
+        const t = {
+            es: { logo: "OPEN THAN GO", cierreMensaje: "Gracias por tu presencia.", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", retoInicial: "Prepárate para un reto combinado en 3, 2, 1..." },
+            en: { logo: "OPEN THAN GO", cierreMensaje: "Thank you for your presence.", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", retoInicial: "Get ready for a combined challenge in 3, 2, 1..." }
+        }[this.idiomaActual];
+
+        const container = document.getElementById('wrapper-interactive');
+        const cierrePantalla = document.getElementById('pantalla-cierre');
+        const retoTitulo = document.getElementById('reto-titulo');
+        const retoDescripcion = document.getElementById('reto-descripcion');
+        const retoImg = document.getElementById('reto-img');
+        const cierreTimer = document.getElementById('cierre-timer');
+        const btnRecomenzar = document.getElementById('btn-recomenzar-experiencia');
+        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
+
+        container.classList.add('hidden');
+        cierrePantalla.classList.remove('hidden');
+       
+        cierreMensajeFinal.classList.add('hidden');
+        btnRecomenzar.classList.add('hidden');
+        btnRecomenzar.disabled = true;
+
+        this.timeLeftCierre = 60;
+
+        const catalogoRetos = this.idiomaActual === 'es' ? this.CATALOGO_RETOS_ES : this.CATALOGO_RETOS_EN;
+       
+        let secuenciaRetos = [];
+        let numRetos = 3;
+       
+        let candidateSequenceIds;
+        let sequenceString;
+        let maxAttempts = 10;
+
+        while(maxAttempts > 0) {
+            secuenciaRetos = [];
+            let tempRetos = [...catalogoRetos];
+            for (let i = tempRetos.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tempRetos[i], tempRetos[j]] = [tempRetos[j], tempRetos[i]];
+            }
+
+            for (let i = 0; i < numRetos; i++) {
+                if (tempRetos.length === 0) break;
+                secuenciaRetos.push(tempRetos.shift());
+            }
+           
+            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-');
+           
+            if (!this.historialRetosSecuencias.includes(candidateSequenceIds)) {
+                sequenceString = candidateSequenceIds;
+                break;
+            }
+            maxAttempts--;
+            if (maxAttempts === 0) {
+                console.warn("Could not find a unique challenge sequence after multiple attempts, reusing one.");
+                sequenceString = candidateSequenceIds;
+            }
+        }
+       
+        if (sequenceString) {
+            this.historialRetosSecuencias.push(sequenceString);
+            this.historialRetosSecuencias = this.historialRetosSecuencias.slice(-this.MAX_HISTORY_RETOS_SECUENCIAS);
+            localStorage.setItem("otg_historial_retos_secuencias", JSON.stringify(this.historialRetosSecuencias));
+        }
+
+        let currentRetoIndex = 0;
+        const displayNextReto = () => {
+            if (currentRetoIndex < secuenciaRetos.length) {
+                const reto = secuenciaRetos[currentRetoIndex];
+                if (retoTitulo) retoTitulo.innerText = reto.titulo;
+                if (retoDescripcion) retoDescripcion.innerText = reto.descripcion;
+                if (retoImg) retoImg.src = `/static/${reto.img}`;
+                this.hablar(reto.descripcion);
+                currentRetoIndex++;
+            }
+        };
+
+        this.hablar(t.retoInicial);
+        setTimeout(() => {
+            displayNextReto();
+            this.temporizadorCierre = setInterval(() => {
+                this.timeLeftCierre--;
+                if (cierreTimer) cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0');
+
+                if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) {
+                    displayNextReto();
+                }
+
+                if (this.timeLeftCierre <= 0) {
+                    clearInterval(this.temporizadorCierre);
+                    window.speechSynthesis.cancel();
+                    if (retoTitulo) retoTitulo.innerText = "";
+                    if (retoDescripcion) retoDescripcion.innerText = "";
+                    if (retoImg) retoImg.src = "";
+                   
+                    cierreTimer.classList.add('hidden');
+                    cierreMensajeFinal.classList.remove('hidden');
+                    btnRecomenzar.classList.remove('hidden');
+                    btnRecomenzar.disabled = false;
+                    this.hablar(t.puertaAbierta);
+                }
+            }, 1000);
+        }, 5000);
+
+        btnRecomenzar.onclick = () => {
+            this.reiniciarExperiencia();
+        };
+    },
+
+    /**
+     * Resets the UI to the initial form state without clearing persistent data.
+     */
+    reiniciarExperiencia() {
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCascada);
+        clearInterval(this.temporizadorCierre);
+        clearInterval(this.salidaTimerId); // Clear SALIR specific timer
+        window.speechSynthesis.cancel();
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+
+        this.pasosMisiones = [];
+        this.indiceMision = 0;
+        this.isLocked = false;
+        this.contadorToques = 0;
+        this.datosLugarGlobal = null; // Clear selected mission
+
+        document.getElementById('pantalla-cierre').classList.add('hidden');
+        document.getElementById('wrapper-interactive').classList.add('hidden');
+        document.getElementById('wrapper-form').classList.remove('hidden');
+       
+        document.getElementById('inp-text-libre').value = "";
+        this.inyectarBloquePreguntas();
+        this.activarBotonMandoLibreInicial();
+       
+        const saludos_es = ["Bienvenido de nuevo. Tu escape inteligente. Escucha mis preguntas en pantalla.", "Ópen Dán Go activo. Toca lo que sientes hoy para continuar."];
+        const saludos_en = ["Welcome back. Your smart escape. Listen to my questions on screen.", "Open Than Go active. Tap what you feel today to continue."];
+        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
+        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
+    },
+
+    /**
+     * Clears ALL session data and reloads the application.
+     */
+    destruirYReiniciar() {
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCascada);
+        clearInterval(this.temporizadorCierre);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+
+        localStorage.clear();
+
+        this.historialSalir = [];
+        this.historialCasa = [];
+        this.historialPreguntas = [];
+        this.historialRetosSecuencias = [];
+        this.pasosMisiones = [];
+        this.indiceMision = 0;
+        this.isLocked = false;
+        this.contadorToques = 0;
+        this.datosLugarGlobal = null;
+
+        location.reload();
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => KERNEL.init());
+
+window.KERNEL = KERNEL;
