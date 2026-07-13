@@ -88,7 +88,7 @@ CORPORATE_BRAND_MEANINGS = {
 }
 
 
-# FASE 5: BIOLOGICAL PROTOCOL MISSIONS (new missions based on specific triggers)
+# FASE 5: BIOLOGICAL PROTOCOLS MISSIONS (new missions based on specific triggers)
 BIOLOGICAL_PROTOCOLS_MISSIONS = [
     {
         "id": "BIO_ELIM_001",
