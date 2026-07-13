@@ -65,6 +65,10 @@ def bonus_exploracion(mision_id, historial):
     return 0
 
 def actualizar_historial(historial, nuevo_id, limite):
+    # This function is not used in the backend for SALIR mode anymore,
+    # as SALIR history update is now handled on the frontend client-side
+    # once a mission is *selected* and its external link is opened.
+    # It is still used for CASA mode.
     historial = historial or []
     if nuevo_id in historial:
         historial.remove(nuevo_id)
@@ -215,46 +219,46 @@ BASE_MISIONES = {
         {"id": 40, "titulo": "Release Arms", "descripcion": "Hang arms. Shake them gently.", "vector_necesidades": {"movimiento": 95, "descanso": 80, "salud": 85, "risa": 60, "juego": 50}},
         {"id": 41, "titulo": "Clothes Contact", "descripcion": "Notice the weight of clothes on your skin.", "vector_necesidades": {"contemplacion": 90, "silencio": 80, "descanso": 70, "naturaleza": 30, "movimiento": 10}},
         {"id": 42, "titulo": "Deep Air", "descripcion": "Inflate belly, hold 3 seconds, release slowly.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "aire_fresco": 80, "contemplacion": 90}},
-        {"id": 43, "titulo": "Shoulder Rotation", "descripcion": "Shoulders to ears, drop suddenly.", "vector_necesidades": {"movimiento": 90, "salud": 85, "descanso": 80, "risa": 50, "organizacion": 40}},
+        {"id": 43, "titulo": "Shoulder Rotation", "descripcion": "Hombros a orejas, cae de golpe.", "vector_necesidades": {"movimiento": 90, "salud": 85, "descanso": 80, "risa": 50, "organizacion": 40}},
         {"id": 44, "titulo": "Listen to Silence", "descripcion": "Search for silence between breaths.", "vector_necesidades": {"silencio": 100, "contemplacion": 95, "descanso": 90, "aprendizaje": 80, "naturaleza": 70}},
         {"id": 45, "titulo": "Ceiling Gaze", "descripcion": "Look at the ceiling. Stretch neck without moving shoulders.", "vector_necesidades": {"movimiento": 70, "descanso": 80, "salud": 80, "contemplacion": 70, "silencio": 60}},
         {"id": 46, "titulo": "Feel Base", "descripcion": "Firm contact of legs with chair.", "vector_necesidades": {"descanso": 90, "contemplacion": 85, "silencio": 75, "naturaleza": 40, "movimiento": 20}},
         {"id": 48, "titulo": "Mental Cleanse", "descripcion": "Exhale boring worry. Out of you.", "vector_necesidades": {"esperanza": 90, "silencio": 80, "descanso": 85, "risa": 50, "creatividad": 60}},
-        {"id": 49, "titulo": "Touch Table", "descripcion": "Palms on table. Nota la stability.", "vector_necesidades": {"contemplacion": 90, "organizacion": 80, "silencio": 70, "descanso": 60, "naturaleza": 30}},
-        {"id": 50, "titulo": "Total Presence", "descripcion": "You are here. You are safe. You are in control.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "silencio": 90, "descanso": 85, "organizacion": 70}},
-        {"id": 51, "titulo": "Hum a melody", "descripcion": "Hum your favorite song softly. Don't think, just feel the sound.", "vector_necesidades": {"musica": 100, "risa": 70, "creatividad": 80, "descanso": 60, "juego": 50}},
-        {"id": 52, "titulo": "Write 3 wishes", "descripcion": "On a piece of paper, write down three simple wishes you'd like to fulfill today.", "vector_necesidades": {"creatividad": 90, "aprendizaje": 70, "organizacion": 80, "esperanza": 95, "contemplacion": 70}},
-        {"id": 53, "titulo": "Hallway walk", "descripcion": "Walk slowly down your house's hallway, feeling each step.", "vector_necesidades": {"movimiento": 70, "contemplacion": 80, "silencio": 70, "descanso": 60, "organizacion": 50}},
-        {"id": 54, "titulo": "Look at a plant", "descripcion": "If you have a houseplant, observe it carefully for one minute.", "vector_necesidades": {"naturaleza": 90, "contemplacion": 95, "silencio": 80, "descanso": 70, "aprendizaje": 60}},
-        {"id": 55, "titulo": "Draw a circle", "descripcion": "Take a pen and paper. Draw perfect circles without thinking about anything else.", "vector_necesidades": {"creatividad": 100, "juego": 80, "contemplacion": 70, "silencio": 60, "descanso": 50}},
-        {"id": 57, "titulo": "Open a random book", "descripcion": "Pick up a book, open it to a random page, and read the first sentence.", "vector_necesidades": {"aprendizaje": 90, "creatividad": 70, "contemplacion": 80, "silencio": 70, "descanso": 60}},
-        {"id": 58, "titulo": "Listen to the rain", "descripcion": "If it's raining, open the window and listen to the sound of raindrops falling.", "vector_necesidades": {"naturaleza": 100, "silencio": 95, "agua": 90, "contemplacion": 90, "descanso": 85}},
-        {"id": 59, "titulo": "Dance without music", "descripcion": "Move your body freely for a minute, as if no one is watching.", "vector_necesidades": {"movimiento": 100, "juego": 90, "risa": 80, "creatividad": 70, "musica": 50}},
-        {"id": 60, "titulo": "Drink an infusion", "descripcion": "Prepare a hot infusion and drink it slowly, feeling the warmth.", "vector_necesidades": {"alimentacion": 90, "descanso": 100, "silencio": 80, "salud": 70, "contemplacion": 70}},
-        {"id": 61, "titulo": "Look at your hands", "descripcion": "Observe the lines and details of your hands. They are powerful tools.", "vector_necesidades": {"contemplacion": 95, "aprendizaje": 70, "silencio": 80, "esperanza": 60, "creatividad": 50}},
-        {"id": 62, "titulo": "Imagine a landscape", "descripcion": "Close your eyes and imagine your favorite natural landscape for 30 seconds.", "vector_necesidades": {"naturaleza": 100, "contemplacion": 95, "silencio": 90, "descanso": 85, "creatividad": 80}},
-        {"id": 63, "titulo": "Stretch your back", "descripcion": "Sit on the floor with your legs straight and try to touch your feet.", "vector_necesidades": {"movimiento": 90, "salud": 85, "descanso": 70, "organizacion": 40, "silencio": 50}},
-        {"id": 64, "titulo": "Breathe through your nose", "descripcion": "Take 5 deep breaths, only through your nose, noticing the air.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "aire_fresco": 80, "contemplacion": 90}},
-        {"id": 65, "titulo": "Shadow play", "descripcion": "With your hands, create a shape on the wall with the light of a lamp.", "vector_necesidades": {"juego": 100, "creatividad": 90, "risa": 70, "contemplacion": 60, "descanso": 50}},
-        {"id": 66, "titulo": "An imaginary hug", "descripcion": "Hug your arms tightly, imagining it's a loved one.", "vector_necesidades": {"comunidad": 90, "esperanza": 80, "descanso": 70, "risa": 60, "silencio": 50}},
-        {"id": 67, "titulo": "Find a blue object", "descripcion": "Quickly find 5 blue objects in your surroundings. Focus your sight.", "vector_necesidades": {"organizacion": 80, "aprendizaje": 70, "juego": 60, "creatividad": 50, "contemplacion": 70}},
-        {"id": 69, "titulo": "Observe the sky", "descripcion": "Open the window or go to the balcony. Observe the sky for a minute.", "vector_necesidades": {"naturaleza": 95, "contemplacion": 100, "aire_fresco": 90, "silencio": 80, "descanso": 70}},
-        {"id": 70, "titulo": "Facial massage", "descripcion": "With your fingertips, gently massage your forehead and cheeks.", "vector_necesidades": {"descanso": 100, "salud": 90, "silencio": 85, "movimiento": 50, "contemplacion": 70}},
-        {"id": 71, "titulo": "Close your eyes and listen", "descripcion": "Sit comfortably, close your eyes, and just listen to the sounds of your house.", "vector_necesidades": {"silencio": 100, "contemplacion": 95, "descanso": 90, "aprendizaje": 70, "naturaleza": 60}},
-        {"id": 72, "titulo": "Tense and relax feet", "descripcion": "Squeeze your toes for 5 seconds and then relax them.", "vector_necesidades": {"movimiento": 90, "descanso": 80, "salud": 70, "organizacion": 40, "silencio": 50}},
-        {"id": 74, "titulo": "Conscious smell", "descripcion": "Smell a flower, coffee, or spice. Concentrate on the aroma.", "vector_necesidades": {"naturaleza": 80, "alimentacion": 70, "contemplacion": 90, "silencio": 80, "descanso": 70}},
-        {"id": 75, "titulo": "Change chairs", "descripcion": "Sit in a different chair or spot in the house for 5 minutes. Small change.", "vector_necesidades": {"movimiento": 60, "creatividad": 50, "descanso": 70, "organizacion": 40, "contemplacion": 60}},
-        # NEW MENTAL RECOVERY MICRO-ACTIONS (ID 151-160)
-        {"id": 151, "titulo": "THE FORGOTTEN SUBSCRIPTION CHALLENGE", "descripcion": "Open your email or banking app. Search for 'Subscription', 'Invoice', or 'Payment' and cancel a single subscription you no longer use. Regaining control is also saving.", "vector_necesidades": {"organizacion": 90, "aprendizaje": 70, "descanso": 80, "esperanza": 85, "contemplacion": 60}},
-        {"id": 152, "titulo": "THE THREE EXPENSES CHALLENGE", "descripcion": "Open a note on your phone and write down only the three unavoidable expenses for this week. Don't think about the whole month. Just this week.", "vector_necesidades": {"organizacion": 100, "descanso": 90, "silencio": 70, "aprendizaje": 60, "contemplacion": 80}},
-        {"id": 153, "titulo": "THE DIGITAL ORDER CHALLENGE", "descripcion": "Delete twenty screenshots, files, or documents you no longer need. Digital order also reduces mental load.", "vector_necesidades": {"organizacion": 100, "silencio": 80, "descanso": 85, "creatividad": 50, "contemplacion": 70}},
-        {"id": 154, "titulo": "THE SILENCE CHALLENGE", "descripcion": "Silence the apps that generate the most anxiety for an hour. Your attention also needs rest.", "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "organizacion": 70, "esperanza": 80}},
-        {"id": 155, "titulo": "THE GRATITUDE CHALLENGE", "descripcion": "Write down three things you have today that you wished for a few years ago. Your mind needs to remember that you have also made progress.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "creatividad": 80, "aprendizaje": 70, "silencio": 60}},
-        {"id": 156, "titulo": "THE WATER CHALLENGE", "descripcion": "Slowly stand up, drink a full glass of water, and return, breathing calmly.", "vector_necesidades": {"agua": 100, "movimiento": 70, "descanso": 90, "salud": 85, "silencio": 50}},
-        {"id": 157, "titulo": "THE WINDOW CHALLENGE", "descripcion": "Open a window for two minutes and observe the sky without looking at your phone.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "contemplacion": 95, "descanso": 80, "silencio": 70}},
-        {"id": 158, "titulo": "THE ORDER CHALLENGE", "descripcion": "Put away only five objects that are out of place. Five are enough for today.", "vector_necesidades": {"organizacion": 100, "descanso": 70, "contemplacion": 60, "movimiento": 30, "silencio": 50}},
-        {"id": 159, "titulo": "THE BREATHING CHALLENGE", "descripcion": "Take five deep breaths following a slow rhythm. You don't have to do anything else.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
-        {"id": 160, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "For two minutes, look at a distant point to allow your eyes to rest from the screen.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}},
+        {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la stability.", "vector_necesidades": {"contemplacion": 90, "organizacion": 80, "silencio": 70, "descanso": 60, "naturaleza": 30}},
+        {"id": 50, "titulo": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "silencio": 90, "descanso": 85, "organizacion": 70}},
+        {"id": 51, "titulo": "Canta una melodía", "descripcion": "Tararea tu canción favorita suavemente. No pienses, solo siente el sonido.", "vector_necesidades": {"musica": 100, "risa": 70, "creatividad": 80, "descanso": 60, "juego": 50}},
+        {"id": 52, "titulo": "Escribe 3 deseos", "descripcion": "En un papel, anota tres deseos simples que te gustaría cumplir hoy.", "vector_necesidades": {"creatividad": 90, "aprendizaje": 70, "organizacion": 80, "esperanza": 95, "contemplacion": 70}},
+        {"id": 53, "titulo": "Paseo por el pasillo", "descripcion": "Camina lentamente por el pasillo de tu casa, sintiendo cada paso.", "vector_necesidades": {"movimiento": 70, "contemplacion": 80, "silencio": 70, "descanso": 60, "organizacion": 50}},
+        {"id": 54, "titulo": "Mira una planta", "descripcion": "Si tienes una planta en casa, obsérvala con atención durante un minuto.", "vector_necesidades": {"naturaleza": 90, "contemplacion": 95, "silencio": 80, "descanso": 70, "aprendizaje": 60}},
+        {"id": 55, "titulo": "Dibuja un círculo", "descripcion": "Toma un lápiz y papel. Dibuja círculos perfectos sin pensar en nada más.", "vector_necesidades": {"creatividad": 100, "juego": 80, "contemplacion": 70, "silencio": 60, "descanso": 50}},
+        {"id": 57, "titulo": "Abre un libro al azar", "descripcion": "Toma un libro, ábrelo en una página aleatoria y lee la primera frase.", "vector_necesidades": {"aprendizaje": 90, "creatividad": 70, "contemplacion": 80, "silencio": 70, "descanso": 60}},
+        {"id": 58, "titulo": "Escucha la lluvia", "descripcion": "Si llueve, abre la ventana y escucha el sonido de las gotas caer.", "vector_necesidades": {"naturaleza": 100, "silencio": 95, "agua": 90, "contemplacion": 90, "descanso": 85}},
+        {"id": 59, "titulo": "Baila sin música", "descripcion": "Mueve tu cuerpo libremente por un minuto, como si nadie te viera.", "vector_necesidades": {"movimiento": 100, "juego": 90, "risa": 80, "creatividad": 70, "musica": 50}},
+        {"id": 60, "titulo": "Bebe una infusión", "descripcion": "Prepara una infusión caliente y bébela lentamente, sintiendo el calor.", "vector_necesidades": {"alimentacion": 90, "descanso": 100, "silencio": 80, "salud": 70, "contemplacion": 70}},
+        {"id": 61, "titulo": "Mira tus manos", "descripcion": "Observa las líneas y detalles de tus manos. Son herramientas poderosas.", "vector_necesidades": {"contemplacion": 95, "aprendizaje": 70, "silencio": 80, "esperanza": 60, "creatividad": 50}},
+        {"id": 62, "titulo": "Imagina un paisaje", "descripcion": "Cierra los ojos e imagina tu paisaje natural favorito por 30 segundos.", "vector_necesidades": {"naturaleza": 100, "contemplacion": 95, "silencio": 90, "descanso": 85, "creatividad": 80}},
+        {"id": 63, "titulo": "Estira la espalda", "descripcion": "Siéntate en el suelo con las piernas estiradas y trata de tocar tus pies.", "vector_necesidades": {"movimiento": 90, "salud": 85, "descanso": 70, "organizacion": 40, "silencio": 50}},
+        {"id": 64, "titulo": "Respira por la nariz", "descripcion": "Haz 5 respiraciones profundas, solo por la nariz, notando el aire.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "aire_fresco": 80, "contemplacion": 90}},
+        {"id": 65, "titulo": "Juego de sombras", "descripcion": "Con las manos, crea una forma en la pared con la luz de una lámpara.", "vector_necesidades": {"juego": 100, "creatividad": 90, "risa": 70, "contemplacion": 60, "descanso": 50}},
+        {"id": 66, "titulo": "Un abrazo imaginario", "descripcion": "Abraza tus brazos fuertemente, imaginando que es un ser querido.", "vector_necesidades": {"comunidad": 90, "esperanza": 80, "descanso": 70, "risa": 60, "silencio": 50}},
+        {"id": 67, "titulo": "Encuentra un objeto azul", "descripcion": "Busca rápidamente 5 objetos azules en tu entorno. Enfoca tu vista.", "vector_necesidades": {"organizacion": 80, "aprendizaje": 70, "juego": 60, "creatividad": 50, "contemplacion": 70}},
+        {"id": 69, "titulo": "Observa el cielo", "descripcion": "Abre la ventana o sal al balcón. Observa el cielo por un minuto.", "vector_necesidades": {"naturaleza": 95, "contemplacion": 100, "aire_fresco": 90, "silencio": 80, "descanso": 70}},
+        {"id": 70, "titulo": "Masaje facial", "descripcion": "Con las yemas de los dedos, masajea suavemente tu frente y mejillas.", "vector_necesidades": {"descanso": 100, "salud": 90, "silencio": 85, "movimiento": 50, "contemplacion": 70}},
+        {"id": 71, "titulo": "Cierra los ojos y escucha", "descripcion": "Siéntate cómodo, cierra los ojos y solo escucha los sonidos de tu casa.", "vector_necesidades": {"silencio": 100, "contemplacion": 95, "descanso": 90, "aprendizaje": 70, "naturaleza": 60}},
+        {"id": 72, "titulo": "Tensa y relaja los pies", "descripcion": "Aprieta los dedos de tus pies durante 5 segundos y luego relájalos.", "vector_necesidades": {"movimiento": 90, "descanso": 80, "salud": 70, "organizacion": 40, "silencio": 50}},
+        {"id": 74, "titulo": "Olor consciente", "descripcion": "Huelea una flor, café o especia. Concéntrate en el aroma.", "vector_necesidades": {"naturaleza": 80, "alimentacion": 70, "contemplacion": 90, "silencio": 80, "descanso": 70}},
+        {"id": 75, "titulo": "Cambia de silla", "descripcion": "Siéntate en otra silla o lugar de la casa por 5 minutos. Pequeño cambio.", "vector_necesidades": {"movimiento": 60, "creatividad": 50, "descanso": 70, "organizacion": 40, "contemplacion": 60}},
+        # NUEVAS MICROACCIONES DE RECUPERACIÓN MENTAL (ID 151-160)
+        {"id": 151, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Abre tu correo o tu aplicación bancaria. Busca 'Subscription', 'Invoice' o 'Payment' y cancela una sola suscripción que ya no utilices. Recuperar el control también es ahorrar.", "vector_necesidades": {"organizacion": 90, "aprendizaje": 70, "descanso": 80, "esperanza": 85, "contemplacion": 60}},
+        {"id": 152, "titulo": "EL RETO DE LOS TRES GASTOS", "descripcion": "Abre una nota en tu teléfono y escribe únicamente los tres gastos inevitables de esta semana. No pienses en todo el mes. Solo en esta semana.", "vector_necesidades": {"organizacion": 100, "descanso": 90, "silencio": 70, "aprendizaje": 60, "contemplacion": 80}},
+        {"id": 153, "titulo": "EL RETO DEL ORDEN DIGITAL", "descripcion": "Borra veinte capturas de pantalla, archivos o documentos que ya no necesites. El orden digital también reduce la carga mental.", "vector_necesidades": {"organizacion": 100, "silencio": 80, "descanso": 85, "creatividad": 50, "contemplacion": 70}},
+        {"id": 154, "titulo": "EL RETO DEL SILENCIO", "descripcion": "Silencia durante una hora las aplicaciones que más ansiedad te generan. Tu atención también necesita descansar.", "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "organizacion": 70, "esperanza": 80}},
+        {"id": 155, "titulo": "EL RETO DE LA GRATITUD", "descripcion": "Escribe tres cosas que hoy tienes y que hace algunos años deseabas. Tu mente necesita recordar que también has avanzado.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "creatividad": 80, "aprendizaje": 70, "silencio": 60}},
+        {"id": 156, "titulo": "EL RETO DEL AGUA", "descripcion": "Levántate despacio, bebe un vaso completo de agua y vuelve respirando con calma.", "vector_necesidades": {"agua": 100, "movimiento": 70, "descanso": 90, "salud": 85, "silencio": 50}},
+        {"id": 157, "titulo": "EL RETO DE LA VENTANA", "descripcion": "Abre una ventana durante dos minutos y observa el cielo sin mirar el teléfono.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "contemplacion": 95, "descanso": 80, "silencio": 70}},
+        {"id": 158, "titulo": "EL RETO DEL ORDEN", "descripcion": "Guarda únicamente cinco objetos que estén fuera de lugar. Cinco son suficientes por hoy.", "vector_necesidades": {"organizacion": 100, "descanso": 70, "contemplacion": 60, "movimiento": 30, "silencio": 50}},
+        {"id": 159, "titulo": "EL RETO DE LA RESPIRACIÓN", "descripcion": "Realiza cinco respiraciones profundas siguiendo un ritmo lento. No tienes que hacer nada más.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
+        {"id": 160, "titulo": "EL RETO DEL DESCANSO VISUAL", "descripcion": "Durante dos minutos mira un punto lejano para permitir que tus ojos descansen de la pantalla.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}},
     ],
     "SALIR": {
         "agotado": [
@@ -581,6 +585,8 @@ def seleccionar_por_ranking(candidatos):
 
     mejor_score = candidatos[0]["score"]
    
+    # Si todos tienen un score bajo, y todos son iguales, elige uno al azar.
+    # Esto evita que un score bajo pero único siempre gane por poco.
     if mejor_score <= 100:
         scores_unicos = {c["score"] for c in candidatos}
         if len(scores_unicos) == 1:
@@ -596,6 +602,7 @@ def seleccionar_por_ranking(candidatos):
         return mejores_candidatos_para_eleccion[0]
 
     pesos = [c["score"] for c in mejores_candidatos_para_eleccion]
+    # Asegúrate de que ningún peso sea cero o negativo para random.choices
     pesos = [max(1, p) for p in pesos]
 
     return random.choices(mejores_candidatos_para_eleccion, weights=pesos, k=1)[0]
@@ -631,6 +638,86 @@ def seleccionar_mision_inteligente(
     return seleccion["mision"]
 
 # ============================================================
+# CWRE V2.1
+# Seleccionar N misiones inteligentes y diversas (para modo SALIR)
+# ============================================================
+def seleccionar_n_misiones_inteligentes(
+    n,
+    misiones,
+    perfil_local,
+    historial_actual=None
+):
+    historial_actual = historial_actual or []
+    candidatos_base = []
+    for mision in misiones:
+        mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
+        score = score_coincidencia(
+            perfil_local=perfil_local,
+            vector_necesidades=mission_vector,
+            historial=historial_actual,
+            mission_id=mision["id"]
+        )
+        candidatos_base.append({
+            "mision": mision,
+            "score": score
+        })
+
+    candidatos_base.sort(key=lambda x: x["score"], reverse=True)
+    
+    seleccionadas = []
+    ids_seleccionados = set()
+    
+    # Prioriza las de mayor score y las que no estén en el historial
+    for cand in candidatos_base:
+        if len(seleccionadas) >= n:
+            break
+        if cand["mision"]["id"] not in ids_seleccionados and cand["mision"]["id"] not in historial_actual:
+            es_diversa = True
+            for sel_mision in seleccionadas:
+                distancia = diversidad_vector(
+                    cand["mision"].get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
+                    sel_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
+                )
+                # Define un umbral de diversidad. Si son muy parecidas, no la elijas.
+                if distancia < 100: # Ajusta este umbral según sea necesario para la diversidad
+                    es_diversa = False
+                    break
+            if es_diversa:
+                seleccionadas.append(cand["mision"])
+                ids_seleccionados.add(cand["mision"]["id"])
+    
+    # Si aún no tenemos suficientes, toma las siguientes mejores aunque no sean tan diversas
+    for cand in candidatos_base:
+        if len(seleccionadas) >= n:
+            break
+        if cand["mision"]["id"] not in ids_seleccionados and cand["mision"]["id"] not in historial_actual:
+            seleccionadas.append(cand["mision"])
+            ids_seleccionados.add(cand["mision"]["id"])
+
+    # Si todavía no tenemos suficientes, y el historial se ha agotado, reinicia y toma al azar
+    if len(seleccionadas) < n and len(misiones) >= n:
+        temp_misiones = [m for m in misiones if m["id"] not in ids_seleccionados]
+        if len(temp_misiones) < n - len(seleccionadas):
+            temp_misiones = misiones # Si no hay suficientes nuevas, recicla todo el catálogo
+        random.shuffle(temp_misiones)
+        for mision in temp_misiones:
+            if len(seleccionadas) >= n:
+                break
+            if mision["id"] not in ids_seleccionados:
+                seleccionadas.append(mision)
+                ids_seleccionados.add(mision["id"])
+
+    # Asegúrate de que el resultado final sea exactamente 'n' misiones si es posible
+    while len(seleccionadas) < n and len(misiones) > len(seleccionadas):
+        mision_aleatoria = random.choice(misiones)
+        if mision_aleatoria["id"] not in ids_seleccionados:
+            seleccionadas.append(mision_aleatoria)
+            ids_seleccionados.add(mision_aleatoria["id"])
+
+    return seleccionadas[:n]
+
+
+# ============================================================
 # Filtrar historial (para disponibilidad de misiones)
 # ============================================================
 def filtrar_historial(misiones, historial):
@@ -659,7 +746,7 @@ def seleccionar_misiones_casa_inteligente(
         historial_casa
     )
    
-    if len(disponibles) < cantidad * 2:
+    if len(disponibles) < cantidad * 2: # Si quedan muy pocas sin repetir, considera todo el catálogo de nuevo
         disponibles = misiones
 
     candidatos = []
@@ -685,28 +772,30 @@ def seleccionar_misiones_casa_inteligente(
     resultado = []
     ids_en_resultado = set()
    
+    # Intenta seleccionar misiones diversas y de alto score
     for candidato in candidatos:
         mision = candidato["mision"]
         if mision["id"] in ids_en_resultado:
             continue
 
-        diferente = True
+        es_diversa = True
         for anterior_mision in resultado:
             distancia = diversidad_vector(
                 mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
                 anterior_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
             )
-            if distancia < 60:
-                diferente = False
+            if distancia < 60: # Umbral de diversidad para misiones CASA
+                es_diversa = False
                 break
        
-        if diferente:
+        if es_diversa:
             resultado.append(mision)
             ids_en_resultado.add(mision["id"])
        
         if len(resultado) >= cantidad:
             break
            
+    # Si no se alcanzan las 'cantidad' requeridas con diversidad, añade las siguientes mejores
     if len(resultado) < cantidad:
         for candidato in candidatos:
             mision = candidato["mision"]
@@ -716,6 +805,7 @@ def seleccionar_misiones_casa_inteligente(
             if len(resultado) >= cantidad:
                 break
    
+    # Fallback final: si aún no hay suficientes, toma las primeras 'cantidad'
     if len(resultado) < cantidad and len(misiones) >= cantidad:
         resultado = [c["mision"] for c in candidatos[:cantidad]]
        
@@ -738,8 +828,8 @@ async def mando_integral(request: Request):
     payload = await request.json()
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
-    estado = str(payload.get("estado", "FL")).strip()
-    region = str(payload.get("region", "")).strip()
+    estado = str(payload.get("estado", "FL")).strip() # Estado no se utiliza directamente en el motor de URL query params, es un placeholder
+    region = str(payload.get("region", "")).strip() # Region no se utiliza directamente en el motor de URL query params, es un placeholder
     mente = str(payload.get("mente", "aburrido")).lower()
     budget = str(payload.get("budget", "0"))
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
@@ -762,7 +852,7 @@ async def mando_integral(request: Request):
 
     # ============================================================
     # TERAPEUTIC STRESS INTERCEPTOR FILTER
-    # Eliminar cualquier elemento que pueda aumentar el estrés del usuario.
+    # Eliminar cualquier elemento que pueda aumentar el estrés del cliente.
     # Si el desahogo contiene palabras críticas, se fuerza una microacción de recuperación mental.
     # ============================================================
     sensitive_keywords = [
@@ -778,7 +868,10 @@ async def mando_integral(request: Request):
     ]
 
     force_recovery_mission = False
-    if desahogo:
+    # Check if *explicitly* asking for work, as per rule
+    explicitly_seeking_job = any(phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"])
+    
+    if desahogo and not explicitly_seeking_job: # Only apply stress filter if not explicitly seeking job
         desahogo_lower = desahogo.lower()
         if any(keyword in desahogo_lower for keyword in sensitive_keywords):
             force_recovery_mission = True
@@ -842,6 +935,7 @@ async def mando_integral(request: Request):
 
     # ============================================================
     # 2. FIELD ACTION (SALIR MODE - CWRE INTELLIGENT ENGINE V2)
+    #    Ahora devuelve 3 opciones para que el frontend elija.
     # ============================================================
     opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(
         mente,
@@ -852,101 +946,102 @@ async def mando_integral(request: Request):
         "historial_salir",
         []
     )
-   
-    opciones_disponibles = filtrar_historial(
-        opciones_salir_candidatas,
-        historial_salir
-    )
-   
-    if len(opciones_disponibles) < 3:
-        opciones_disponibles = opciones_salir_candidatas
-   
-    info_seleccionada = seleccionar_mision_inteligente(
-        misiones=opciones_disponibles,
+    
+    # Selecciona 3 misiones diversas y de alto score
+    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
+        n=3,
+        misiones=opciones_salir_candidatas,
         perfil_local=perfil_local,
-        historial=historial_salir
+        historial_actual=historial_salir # Usa historial para penalización
     )
-   
-    if not info_seleccionada:
-        info_seleccionada = random.choice(opciones_salir_candidatas)
-   
-    historial_salir = actualizar_historial(
-        historial_salir,
-        info_seleccionada["id"],
-        MAX_HISTORY_SALIR
-    )
-   
-    precio_real = ""
-    if budget == "0":
-        precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
-    elif budget == "1":
-        precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
-    elif budget == "2":
-        precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
-   
-    quienes_van = ""
-    if perfil_tipo == "solo":
-        quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
-    elif perfil_tipo == "familia":
-        quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
-    elif perfil_tipo == "accesible":
-        quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
-   
-    titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
-    donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-   
-    anclaje_geografico = zip_code
-    map_base_url = "https://www.google.com/maps/search/?api=1&query="
-    target_link = ""
 
-    # Standard SALIR mission
-    if lang == "en":
-        guia_masticada = (
-            f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-            f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-            f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-            f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-            f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-            f"{quienes_van}\n{precio_real}"
-        )
-        titulo_ganador = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
-    else:
-        guia_masticada = (
-            f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
-            f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
-            f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
-            f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
-            f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
-            f"{quienes_van}\n{precio_real}"
-        )
-        titulo_ganador = (info_seleccionada["titulo"] or "").upper()
-   
-    search_query_parts = []
-    if perfil_tipo == "accesible":
-        search_query_parts.append("wheelchair accessible")
-    elif perfil_tipo == "familia":
-        search_query_parts.append("family friendly")
-   
-    search_query_parts.append(info_seleccionada["gps"])
-    search_query_parts.append(f"in {anclaje_geografico}")
-   
-    full_map_query_string = " ".join(search_query_parts)
-    target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-   
-    final_link = target_link
+    final_misiones_para_frontend = []
 
-           
-    final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
+    for info_seleccionada in misiones_seleccionadas_raw:
+        precio_real = ""
+        if budget == "0":
+            precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
+        elif budget == "1":
+            precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
+        elif budget == "2":
+            precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
+       
+        quienes_van = ""
+        if perfil_tipo == "solo":
+            quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
+        elif perfil_tipo == "familia":
+            quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
+        elif perfil_tipo == "accesible":
+            quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
+       
+        titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
+        donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
+       
+        anclaje_geografico = zip_code
+        map_base_url = "https://www.google.com/maps/search/?api=1&query="
+        target_link = ""
+
+        if lang == "en":
+            guia_masticada = (
+                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
+                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
+                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
+                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
+                f"{quienes_van}\n{precio_real}"
+            )
+            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
+            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
+        else:
+            guia_masticada = (
+                f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
+                f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
+                f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
+                f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
+                f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
+                f"{quienes_van}\n{precio_real}"
+            )
+            titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
+            que_hacer_lang = info_seleccionada['que_hacer'] or ''
+       
+        search_query_parts = []
+        if perfil_tipo == "accesible":
+            search_query_parts.append("wheelchair accessible")
+        elif perfil_tipo == "familia":
+            search_query_parts.append("family friendly")
+       
+        search_query_parts.append(info_seleccionada["gps"])
+        search_query_parts.append(f"in {anclaje_geografico}")
+       
+        full_map_query_string = " ".join(search_query_parts)
+        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
+       
+        final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
+
+        final_misiones_para_frontend.append({
+            "destino_id": info_seleccionada.get("id"),
+            "destino_titulo": titulo_ganador_lang,
+            "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]), # Incluir ambos para frontend
+            "que_hacer": info_seleccionada["que_hacer"], # Incluir ambos para frontend
+            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]), # Incluir ambos para frontend
+            "destino_entorno": donde_base,
+            "destino_instruccion": guia_masticada.strip(),
+            "destino_instruccion_en": (
+                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
+                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
+                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
+                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
+                f"{quienes_van}\n{precio_real}"
+            ).strip(),
+            "destino_coordenadas_gps": target_link,
+            "vector_entorno_seleccionado": final_vector_necesidades,
+        })
    
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "destino_id": info_seleccionada.get("id"),
-        "destino_titulo": titulo_ganador,
-        "destino_entorno": donde_base,
-        "destino_instruccion": guia_masticada.strip(),
-        "destino_coordenadas_gps": final_link,
-        "vector_entorno_seleccionado": final_vector_necesidades,
-        "historial_salir_actualizado": historial_salir
+        "misiones": final_misiones_para_frontend,
+        "historial_salir_actualizado": historial_salir # Se devuelve, pero la actualización principal se hará en el frontend.
     })
 
 if __name__ == "__main__":
