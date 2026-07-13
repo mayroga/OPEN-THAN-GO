@@ -290,6 +290,111 @@
             cursor: not-allowed;
             opacity: 0.6;
         }
+
+        /* NEW STYLES for "3 Caminos Variados" in SALIR mode */
+        .salida-main-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 10px;
+            color: var(--cyan-inhale);
+            letter-spacing: 0.05em;
+        }
+        .salida-choose-instruction {
+            font-size: 1.05rem;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ccc;
+            font-weight: bold;
+        }
+        .salida-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        .salida-option-card {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+        }
+        .salida-option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            border-color: var(--green-action);
+        }
+        .salida-option-title {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--green-action);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .salida-option-desc {
+            font-size: 0.9rem;
+            color: #bbb;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            min-height: 50px; /* Ensure consistent card height for brief descriptions */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        .btn-select-salida {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.2s;
+        }
+        .btn-select-salida:hover { background: #0b3a8a; }
+
+        /* Floating buttons for return and chat */
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--panel);
+            color: var(--text);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            cursor: pointer;
+            z-index: 1000;
+            transition: background-color 0.2s, transform 0.2s ease;
+            border: 1px solid #333;
+        }
+        .floating-btn:hover {
+            transform: translateY(-2px);
+            background: #222;
+        }
+        #btn-volver-app { left: 20px; font-size: 1.2rem; }
+        #btn-whatsapp { right: 75px; background-color: #25d366; border-color: #25d366; }
+        #btn-whatsapp:hover { background-color: #128c7e; }
+        #btn-messenger { right: 20px; background-color: #0078FF; border-color: #0078FF; }
+        #btn-messenger:hover { background-color: #0056b3; }
+
+        @media (min-width: 480px) {
+            .salida-grid { grid-template-columns: 1fr 1fr; } /* Two columns for larger screens */
+        }
+        @media (min-width: 768px) {
+            .salida-grid { grid-template-columns: 1fr 1fr 1fr; } /* Three columns on wider screens */
+        }
     </style>
     <!-- Placeholder images for retos in static/ directory -->
     <img src="/static/silence.svg" class="hidden" alt="Silence">
@@ -324,7 +429,7 @@
         <!-- GEOLOCATION INPUTS CORRECTED -->
         <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
             <div style="flex: 2;">
-                <label id="lbl-zip">ZIP Code</label>
+                <label id="lbl-zip">Código Postal</label>
                 <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5" pattern="[0-9]{5}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
             </div>
             <div style="flex: 1;">
@@ -404,6 +509,17 @@
             <button id="btn-recomenzar-experiencia" class="hidden"></button>
         </div>
     </div>
+
+    <!-- Floating Buttons for Golpe Maestro and Communication -->
+    <button id="btn-volver-app" class="floating-btn hidden" title="Volver a la App">
+        &#x2190;
+    </button>
+    <a id="btn-whatsapp" class="floating-btn hidden" href="https://wa.me/" target="_blank" title="Chatear por WhatsApp">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24px" height="24px"><path d="M12.04 2C6.58 2 2.11 6.47 2.11 11.93C2.11 13.66 2.59 15.26 3.44 16.63L2 22L7.61 20.61C8.98 21.46 10.58 21.94 12.31 21.94H12.04C17.5 21.94 21.97 17.47 21.97 12C21.97 7.08 18.06 2 12.04 2ZM17.15 15.35C16.92 15.78 16.39 15.89 16.03 15.79C15.67 15.69 15.39 15.26 15.16 14.8C14.73 13.94 14.1 13.62 14.07 13.48C14.03 13.34 14.05 13.38 13.88 13.04C13.71 12.7 13.15 12.35 12.98 12.18C12.81 12.01 12.65 11.93 12.42 11.75C12.2 11.57 11.95 11.45 11.66 11.3C11.37 11.14 11.02 11.01 10.74 10.97C10.45 10.93 10.16 10.93 9.94 11.05C9.71 11.17 9.47 11.44 9.24 11.75C9.01 12.07 8.52 12.68 8.41 12.93C8.3 13.18 8.19 13.31 8.08 13.43C7.97 13.55 7.82 13.61 7.68 13.61C7.54 13.61 7.27 13.54 7.05 13.27C6.84 13 6.48 12.22 6.35 12.02C6.22 11.82 6.1 11.77 5.99 11.77C5.88 11.77 5.76 11.77 5.6 11.77C5.45 11.77 5.25 11.94 5.09 12.11C4.94 12.29 4.67 12.57 4.67 13.11C4.67 13.66 5.06 14.24 5.16 14.36C5.26 14.48 5.62 14.97 5.92 15.32C6.22 15.68 6.55 16 6.94 16.14C7.33 16.27 7.74 16.39 8.16 16.39C8.58 16.39 9.07 16.36 9.49 16.11C9.91 15.86 10.3 15.22 10.56 14.89C10.74 14.66 11.16 14.07 11.34 14.28C11.52 14.49 11.74 15.11 11.92 15.34C12.1 15.58 12.31 15.75 12.55 15.84C12.78 15.93 13.23 16 13.65 15.98C14.06 15.96 14.68 15.65 15.01 15.48C15.34 15.31 16.89 14.56 17.15 14.21C17.41 13.86 17.57 13.65 17.65 13.53C17.73 13.4 17.73 13.34 17.61 13.22C17.5 13.1 17.29 12.78 17.15 12.57L17.15 12.57C17.01 12.36 16.89 12.24 16.78 12.24C16.67 12.24 16.58 12.24 16.48 12.24C16.38 12.24 16.25 12.26 16.14 12.27C16.03 12.28 15.91 12.31 15.79 12.34C15.67 12.37 15.57 12.41 15.48 12.44L15.48 12.44Z"/></svg>
+    </a>
+    <a id="btn-messenger" class="floating-btn hidden" href="https://m.me/" target="_blank" title="Chatear por Messenger">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24px" height="24px"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13.06 17.65L10.02 11.2L16.28 6.35L13.06 17.65Z"/></svg>
+    </a>
 
     <script src="/static/engine.js"></script>
 </body>
