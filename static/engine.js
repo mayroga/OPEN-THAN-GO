@@ -4,17 +4,18 @@
 
 const KERNEL = {
     timerInaccion: null,
-    timerClinico: null,
+    timerEnfocado: null, // Renamed from timerClinico to avoid medical connotations
     temporizadorCascada: null,
     temporizadorCierre: null,
     salidaSugeridaTimeoutId: null,
+    salidaTimerId: null, // New timer for SALIR mode 45s phrases
     timeLeft: 600,
     timeLeftCierre: 60,
     isLocked: false,
     idiomaActual: 'es',
     pasosMisiones: [],
     indiceMision: 0,
-    datosLugarGlobal: null,
+    datosLugarGlobal: null, // Now stores the *selected* mission for SALIR
     tipoEscapeGlobal: "",
    
     contadorToques: 0,
@@ -53,7 +54,7 @@ const KERNEL = {
         "¿Sientes que lo digital te desconectó de la capacidad de observar el mundo real en calma?",
 
         // Bloque 2: Evasión y Rutina Física (Comida, Descanso y Movimiento)
-        "¿Inviertes mucho en experiencias pasajeras buscando una satisfacción que se desvanece rápido?",
+        "¿Invierdes mucho en experiencias pasajeras buscando una satisfacción que se desvanece rápido?",
         "¿Te refugias en espacios ajenos huyendo de situaciones que te acompañan a todas partes?",
         "¿Conduces sin destino solo para escapar del encierro en tu propio entorno?",
         "¿Mantienes hábitos por costumbre, sintiendo que te anestesian de tu realidad?",
@@ -228,6 +229,32 @@ const KERNEL = {
         "You are completely safe here. Remain in absolute peace this second."
     ],
 
+    // NEW AUDIOS_SECUENCIALES for SALIR mode (45-second phrase injection)
+    AUDIOS_SECUENCIALES_SALIR_ES: [
+        "Respira hondo. El mundo exterior espera, pero tú controlas tu paz.",
+        "Cada segundo es una oportunidad para soltar lo que no te sirve.",
+        "Visualiza tu destino. Siente la libertad de ir hacia él con propósito.",
+        "Elige tu camino. No hay errores, solo nuevas rutas de bienestar.",
+        "Estás en control. Tu decisión te guía a un nuevo espacio de calma.",
+        "Siente la expectativa. La aventura te espera, sin agobios ni prisa.",
+        "Estás a punto de romper el patrón. Un nuevo aire te revitaliza.",
+        "Concéntrate en el momento. Tu mente es libre para explorar y disfrutar.",
+        "Suelta las cadenas mentales. Tu cuerpo te pide movimiento y libertad.",
+        "Estás eligiendo tu bienestar. Cada paso es un acto de amor propio."
+    ],
+    AUDIOS_SECUENCIALES_SALIR_EN: [
+        "Breathe deeply. The outside world waits, but you control your peace.",
+        "Every second is an opportunity to release what doesn't serve you.",
+        "Visualize your destination. Feel the freedom of moving towards it with purpose.",
+        "Choose your path. There are no mistakes, only new routes to well-being.",
+        "You are in control. Your decision guides you to a new space of calm.",
+        "Feel the anticipation. Adventure awaits you, without worries or rush.",
+        "You are about to break the pattern. A fresh air revitalizes you.",
+        "Focus on the moment. Your mind is free to explore and enjoy.",
+        "Release mental chains. Your body craves movement and freedom.",
+        "You are choosing your well-being. Every step is an act of self-love."
+    ],
+
     // NUEVO CATÁLOGO DE RETOS DE CIERRE (Microacciones de Recuperación Mental)
     CATALOGO_RETOS_ES: [
         {"id": 201, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Abre tu correo o tu aplicación bancaria. Busca 'Subscription', 'Invoice' o 'Payment' y cancela una sola suscripción que ya no utilices. Recuperar el control también es ahorrar.", "img": "gratitude.svg"},
@@ -344,12 +371,18 @@ const KERNEL = {
             zipInput.addEventListener('input', () => this.validarZip());
             this.validarZip();
         }
+
+        // Add event listeners for the new floating buttons
+        document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
     },
 
     /** Starts the initial welcome sequence after user interaction. */
     despertarInicial() {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
+        document.getElementById('btn-volver-app').classList.remove('hidden'); // Show return button
+        document.getElementById('btn-whatsapp').classList.remove('hidden'); // Show WhatsApp button
+        document.getElementById('btn-messenger').classList.remove('hidden'); // Show Messenger button
        
         this.cambiarIdioma(this.idiomaActual);
        
@@ -669,8 +702,8 @@ const KERNEL = {
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
        
         const t = {
-            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?" },
-            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?" }
+            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App" },
+            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App" }
         }[lang];
        
         document.getElementById('html-title').innerText = t.title;
@@ -700,7 +733,8 @@ const KERNEL = {
         if (cierreBoton) cierreBoton.innerText = t.recomenzar;
         const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
         if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
-
+        const btnVolverApp = document.getElementById('btn-volver-app');
+        if (btnVolverApp) btnVolverApp.title = t.volverApp;
 
         this.hablar(t.alert);
         this.inyectarBloquePreguntas();
@@ -716,7 +750,8 @@ const KERNEL = {
 
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
-        clearInterval(this.timerClinico);
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.salidaTimerId);
         window.speechSynthesis.cancel();
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
@@ -754,7 +789,7 @@ const KERNEL = {
         const container = document.getElementById('wrapper-interactive');
         document.getElementById('wrapper-form').classList.add('hidden');
         document.getElementById('pantalla-cierre').classList.add('hidden');
-        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO...' : 'CONNECTING...'}</h2></div>`;
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
         container.classList.remove('hidden');
 
         try {
@@ -774,26 +809,23 @@ const KERNEL = {
                 return;
             }
 
-            this.datosLugarGlobal = data;
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
            
             if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
                 this.historialSalir = data.historial_salir_actualizado;
                 localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+                this.pasosMisiones = data.misiones; // Now an array of 3 for SALIR
+                this.mostrarOpcionesSalir(container);
             }
             else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
                 this.historialCasa = data.historial_casa_actualizado;
                 localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+                this.pasosMisiones = data.misiones;
+                this.procesarFlujoSecuencial(container);
             }
 
 
-            if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
-                this.pasosMisiones = data.misiones; // Now data.misiones will be 1 for forced or 3 for normal CASA
-            } else {
-                this.pasosMisiones = [];
-            }
-            this.procesarFlujoSecuencial(container);
         } catch (error) {
             console.error("Fetch error:", error);
             alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
@@ -805,10 +837,141 @@ const KERNEL = {
     },
 
     /**
-     * Processes the sequential flow based on the recommendation type.
+     * Displays the 3 options for SALIR mode and waits for user selection.
+     */
+    mostrarOpcionesSalir(container) {
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+
+        const t = {
+            es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" },
+            en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:" }
+        }[this.idiomaActual];
+
+        container.innerHTML = `
+        <div class="mision-choices-container">
+            <h2 class="salida-main-title">${t.choosePath}</h2>
+            <p class="salida-choose-instruction">${t.chooseOne}</p>
+            <div id="salida-options-grid" class="salida-grid">
+                <!-- Options will be injected here -->
+            </div>
+        </div>`;
+
+        const optionsGrid = document.getElementById('salida-options-grid');
+        this.pasosMisiones.forEach((mission, index) => {
+            const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
+            const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
+            const card = document.createElement('div');
+            card.className = 'salida-option-card';
+            card.innerHTML = `
+                <h3 class="salida-option-title">${missionTitle}</h3>
+                <p class="salida-option-desc">${missionWhatToDo}</p>
+                <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button>
+            `;
+            card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
+            optionsGrid.appendChild(card);
+        });
+
+        this.hablar(t.chooseOne);
+    },
+
+    /**
+     * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
+     * @param {Object} selectedMission - The mission object chosen by the client.
+     */
+    iniciarSalidaConcreta(selectedMission) {
+        this.datosLugarGlobal = selectedMission; // Store the selected mission
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+
+        const t = {
+            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
+            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
+        }[this.idiomaActual];
+
+        const container = document.getElementById('wrapper-interactive');
+        let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
+        
+        container.innerHTML = `
+        <div class="mision-card">
+            <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
+            <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
+            <div class="instruccion-text">${textoFormateado}</div>
+            <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
+            <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
+            <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+        </div>`;
+
+        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
+        this.hablar(speechText);
+       
+        let retencion = 35;
+        const btnCount = document.getElementById('btn-countdown-salida');
+        const btnGps = document.getElementById('btn-gps-action');
+        const phrasesDiv = document.getElementById('salida-countdown-phrases');
+        const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
+        let phraseIndex = 0;
+
+        this.salidaTimerId = setInterval(() => {
+            if (retencion > 0) {
+                retencion--;
+                if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
+                if (retencion === 0) {
+                    // Transition to 45s phrase injection
+                    retencion = -45; // Use negative to denote this phase
+                    if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                    phraseIndex++;
+                }
+            } else if (retencion < 0) {
+                retencion++; // Count up towards 0
+                if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+                if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
+                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                    phraseIndex++;
+                }
+                if (retencion === 0) {
+                    // 45 seconds are over
+                    clearInterval(this.salidaTimerId);
+                    window.speechSynthesis.cancel();
+                    if (btnCount) btnCount.style.display = 'none';
+                    if (phrasesDiv) phrasesDiv.innerText = "";
+                    if (btnGps) {
+                        btnGps.classList.remove('hidden');
+                        btnGps.onclick = () => {
+                            try {
+                                let perfil = KERNEL.obtenerPerfilLocal();
+                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+                               
+                                for (const need in selectedVector) {
+                                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                                        perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
+                                    }
+                                }
+                                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
+                                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                            } catch (e) {
+                                console.error("Error updating local profile after action:", e);
+                            }
+                            window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+                            // KERNEL.reiniciarExperiencia(); // Keep the app in background, ready for return
+                        };
+                    }
+                }
+            }
+        }, 1000);
+    },
+
+
+    /**
+     * Processes the sequential flow based on the recommendation type (only for CASA mode now).
      */
     procesarFlujoSecuencial(container) {
-        clearInterval(this.timerClinico);
+        clearInterval(this.timerEnfocado);
         window.speechSynthesis.cancel();
 
         const t = {
@@ -816,62 +979,9 @@ const KERNEL = {
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" }
         }[this.idiomaActual];
 
-        // Handles external "Field Action" recommendations
-        if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
-            if (this.datosLugarGlobal) {
-                let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
-                container.innerHTML = `
-                <div class="mision-card">
-                    <small>${t.fieldAction}</small>
-                    <h2>${this.datosLugarGlobal.destino_titulo}</h2>
-                    <div class="instruccion-text">${textoFormateado}</div>
-                    <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
-                    <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
-                </div>`;
-
-                let speechText = this.datosLugarGlobal.destino_titulo + ". " + this.datosLugarGlobal.destino_instruccion;
-                this.hablar(speechText);
-               
-                let retencion = 35;
-                const btnCount = document.getElementById('btn-countdown-salida');
-                const btnGps = document.getElementById('btn-gps-action');
-               
-                this.timerClinico = setInterval(() => {
-                    retencion--;
-                    if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
-                    if (retencion <= 0) {
-                        clearInterval(this.timerClinico);
-                        if (btnCount) btnCount.style.display = 'none';
-                        if (btnGps) {
-                            btnGps.classList.remove('hidden');
-                            btnGps.onclick = () => {
-                                try {
-                                    let perfil = KERNEL.obtenerPerfilLocal();
-                                    const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
-                                   
-                                    for (const need in selectedVector) {
-                                        if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                                            perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
-                                        }
-                                    }
-                                    perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
-                                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                                } catch (e) {
-                                    console.error("Error updating local profile after action:", e);
-                                }
-                                window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                                KERNEL.reiniciarExperiencia();
-                            };
-                        }
-                    }
-                }, 1000);
-                return;
-            }
-        }
-
-        // Handles internal "Domestic Intervention" missions
+        // This function now only handles INTERVENCION_DOMESTICA (CASA mode)
         if (this.indiceMision >= this.pasosMisiones.length) {
-            this.iniciarRelojClinicoCasa(container, t);
+            this.iniciarRelojEnfocadoCasa(container, t);
             return;
         }
 
@@ -905,8 +1015,8 @@ const KERNEL = {
     },
 
     /** Starts the 10-minute clinical breathing timer for CASA mode. */
-    iniciarRelojClinicoCasa(container, t) {
-        clearInterval(this.timerClinico);
+    iniciarRelojEnfocadoCasa(container, t) { // Renamed from iniciarRelojClinicoCasa
+        clearInterval(this.timerEnfocado);
         window.speechSynthesis.cancel();
        
         let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
@@ -979,16 +1089,17 @@ const KERNEL = {
                 });
                 const data = await r.json();
                
-                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && linkSalidaSugerida && salidaSugeridaDiv) {
+                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
+                    const suggestedMission = data.misiones[0]; // Take the first one as suggestion
                     if (data.historial_salir_actualizado) {
                         this.historialSalir = data.historial_salir_actualizado;
                         localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
                     }
 
-                    linkSalidaSugerida.innerText = data.destino_titulo;
-                    linkSalidaSugerida.href = data.destino_coordenadas_gps;
+                    linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
+                    linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
                     salidaSugeridaDiv.classList.remove('hidden');
-                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${data.destino_titulo}` : `Also consider: ${data.destino_titulo_en || data.destino_titulo}`);
+                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
                 }
             } catch (e) {
                 console.error("Error fetching SALIR suggestion in CASA mode:", e);
@@ -997,7 +1108,7 @@ const KERNEL = {
             }
         }, 180000);
 
-        this.timerClinico = setInterval(() => {
+        this.timerEnfocado = setInterval(() => {
             if (this.timeLeft > 0) this.timeLeft--;
 
             let m = Math.floor(this.timeLeft / 60);
@@ -1026,7 +1137,7 @@ const KERNEL = {
             }
 
             if (this.timeLeft <= 0) {
-                clearInterval(this.timerClinico);
+                clearInterval(this.timerEnfocado);
                 clearTimeout(this.salidaSugeridaTimeoutId);
                 this.salidaSugeridaTimeoutId = null;
                 window.speechSynthesis.cancel();
@@ -1050,7 +1161,7 @@ const KERNEL = {
      * Initiates the 60-second closing challenge phase.
      */
     iniciarRetoCierre60Segundos() {
-        clearInterval(this.timerClinico);
+        clearInterval(this.timerEnfocado);
         clearInterval(this.temporizadorCierre);
         window.speechSynthesis.cancel();
 
@@ -1167,9 +1278,10 @@ const KERNEL = {
      */
     reiniciarExperiencia() {
         clearInterval(this.timerInaccion);
-        clearInterval(this.timerClinico);
+        clearInterval(this.timerEnfocado);
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
+        clearInterval(this.salidaTimerId); // Clear SALIR specific timer
         window.speechSynthesis.cancel();
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
@@ -1180,6 +1292,7 @@ const KERNEL = {
         this.indiceMision = 0;
         this.isLocked = false;
         this.contadorToques = 0;
+        this.datosLugarGlobal = null; // Clear selected mission
 
         document.getElementById('pantalla-cierre').classList.add('hidden');
         document.getElementById('wrapper-interactive').classList.add('hidden');
@@ -1200,9 +1313,10 @@ const KERNEL = {
      */
     destruirYReiniciar() {
         clearInterval(this.timerInaccion);
-        clearInterval(this.timerClinico);
+        clearInterval(this.timerEnfocado);
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
+        clearInterval(this.salidaTimerId);
         window.speechSynthesis.cancel();
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
@@ -1219,6 +1333,7 @@ const KERNEL = {
         this.indiceMision = 0;
         this.isLocked = false;
         this.contadorToques = 0;
+        this.datosLugarGlobal = null;
 
         location.reload();
     }
