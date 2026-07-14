@@ -924,124 +924,131 @@ async def mando_integral(request: Request):
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
         })
-
+        
     # ==============================================================================
-    # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL RESTAURADA)
+    # 2. ACCIÓN DE CAMPO TOTAL: MOTOR DE INVERSIÓN INFRAESTRUCTURAL DE USA (MODO SALIR)
     # ==============================================================================
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     historial_salir = payload.get("historial_salir", [])
+    anclaje_geografico = zip_code
+    map_base_url = "https://google.com"
+
+    # DICCIONARIO MAESTRO DE MAPEO COMERCIAL E INSTITUCIONAL DE LOS ESTADOS UNIDOS
+    # Clasificación omnipresente para interceptar cualquier entorno del cliente
+    BASE_PALABRAS_CLAVE = {
+        "ENTRETENIMIENTO_DIGITAL": ["spotify", "youtube", "netflix", "disney", "tiktok", "instagram", "facebook", "twitter", "twitch", "redes"],
+        "TRANSPORTE_URBANO": ["uber", "lyft", "taxi", "metro", "subway", "bus", "tren", "train", "transporte", "trafico", "carretera"],
+        "AERO_CRUCEROS": ["delta", "american", "united", "jetblue", "vuelo", "flight", "aeropuerto", "airport", "crucero", "cruise", "royal caribbean", "carnival", "aerolinea"],
+        "HOSPEDAJE": ["hotel", "motel", "airbnb", "resort", "hilton", "marriott", "hospedaje", "alojamiento"],
+        "VIDA_NOCTURNA": ["discoteca", "club", "bar", "pub", "lounge", "nightclub", "fiesta", "party", "antro", "baile"],
+        "DEPORTE_RECREACION": ["gimnasio", "gym", "fitness", "stadium", "estadio", "piscina", "pool", "skate park", "parque", "park", "trail", "playa", "beach", "cancha"],
+        "CULTURALES": ["museo", "museum", "galeria", "art", "cine", "cinema", "teatro", "theater", "libreria", "bookstore", "exposicion"],
+        "SALUD_CLINICA": ["hospital", "clinica", "clinic", "emergencias", "er", "farmacia", "cvs", "walgreens", "doctor", "dentista", "salud", "medico"],
+        "EDUCACION_BUROCRACIA": ["escuela", "school", "universidad", "university", "college", "dmv", "juzgado", "court", "correo", "usps", "clase", "estudio"]
+    }
+
+    # Escáner de texto para identificar en qué sector de la civilización está el cliente
+    sector_detectado = "CIVILIZACION_URBANA"
+    marca_o_lugar = "Entorno Local"
+    desahogo_clean = desahogo.lower()
+
+    for sector, keywords in BASE_PALABRAS_CLAVE.items():
+        for kw in keywords:
+            if kw in desahogo_clean:
+                sector_detectado = sector
+                marca_o_lugar = kw.capitalize()
+                break
+        if sector_detectado != "CIVILIZACION_URBANA":
+            break
+
+    # GENERACIÓN MATRICIAL DINÁMICA DE LAS 3 OPCIONES PARA EL FRONTEND
+    # El algoritmo crea tres enfoques diferentes (Fisiológico, Sensorial y Conciencial) según el sector detectado
+    misiones_dinamicas_usa = []
     
-    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
-        n=3, 
-        misiones=opciones_salir_candidatas, 
-        perfil_local=perfil_local, 
-        historial_actual=historial_salir
-    )
+    # --- OPCIÓN 1: CONTRAATAQUE FISIOLÓGICO DE ELIMINACIÓN Y PRESENCIA ---
+    if sector_detectado == "ENTRETENIMIENTO_DIGITAL" or sector_detectado == "VIDA_NOCTURNA":
+        retar_instruccion = f"El entorno de {marca_o_lugar} está saturando tus receptores de dopamina y acelerando tu sistema nervioso. Hackea el perímetro: bloquea la pantalla o sal un momento al pasillo exterior. Ejecuta el Módulo de Ventilación Celular: realiza 5 exhalaciones diafragmáticas lentas expulsando el CO2. Tu mente retoma el control."
+        gps_target = f"quiet park near {anclaje_geografico}"
+    elif sector_detectado == "TRANSPORTE_URBANO" or sector_detectado == "AERO_CRUCEROS":
+        retar_instruccion = f"Viajar o estar atrapado en el tránsito de {marca_o_lugar} inyecta cortisol y fatiga tus músculos. Sabotea la tensión: si vas manejando mantén la vista fija pero estira los dedos sobre el volante; si vas de pasajero suelta el teléfono. Apoya firme los pies y siente la gravedad sosteniendo tu peso gratis."
+        gps_target = f"rest area near {anclaje_geografico}"
+    elif sector_detectado == "HOSPEDAJE" or sector_detectado == "DEPORTE_RECREACION":
+        retar_instruccion = f"Usa la infraestructura física de este {marca_o_lugar} para purificar tu máquina biológica. Quítate los zapatos, camina a paso firme forzando la contracción muscular para mover tu sistema linfático. Activa tus glándulas sudoríparas (`Sudar`) liberando sales pesadas y toxinas acumuladas por el agobio."
+        gps_target = f"{marca_o_lugar} near {anclaje_geografico}"
+    else: # Salud, Educación, Burocracia, Culturales
+        retar_instruccion = f"Las atmósferas institucionales de {marca_o_lugar} devoran tus segundos en rutinas estresantes. Rompe el zombi urbano: busca agua limpia, ejecuta el Módulo de Hidratación consciente saboreando cada molécula del líquido. Tus órganos se limpian mientras el sistema espera."
+        gps_target = f"public library near {anclaje_geografico}"
+
+    misiones_dinamicas_usa.append({
+        "id": 701, "titulo": f"HACKEO BIOLÓGICO: MÓDULO {marca_o_lugar.upper()}", "titulo_en": f"BIOLOGICAL HACK: {marca_o_lugar.upper()}",
+        "que_hacer": "Interrupción de rutina y retorno inmediato a los procesos de la anatomía viva.",
+        "que_hacer_en": "Routine interruption and immediate return to living anatomy functions.",
+        "destino_entorno": "PERÍMETRO DE ACCIÓN BIOLÓGICA", "destino_instruccion": retar_instruccion,
+        "destino_coordenadas_gps": f"{map_base_url}{urllib.parse.quote_plus(gps_target)}",
+        "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "descanso": 95, "silencio": 80}
+    })
+
+    # --- OPCIÓN 2: CONTRAATAQUE SENSORIAL DE ENTORNO Y RECREACIÓN ---
+    retar_instruccion_2 = f"Estás interactuando con la infraestructura económica de {marca_o_lugar}. No seas el producto que ellos consumen. Hackea el espacio: levántate, busca el ventanal más cercano o sal a la intemperie. Nota la textura del aire de tu región, mira las nubes o el sol. Pásale la factura al paisaje absorbiendo su inmensidad gratis."
+    gps_target_2 = f"scenic overlook near {anclaje_geografico}" if sector_detectado in ["TRANSPORTE_URBANO", "AERO_CRUCEROS"] else f"public plaza near {anclaje_geografico}"
     
+    misiones_dinamicas_usa.append({
+        "id": 702, "titulo": f"INVERSIÓN SENSORIAL: PISA EL PERÍMETRO", "titulo_en": f"SENSORY INVERSION: WALK THE PERIMETER",
+        "que_hacer": "Apropiación de la propiedad material y ambiental a costo cero para sanación del Yo.",
+        "que_hacer_en": "Austerity appropriation of physical surroundings for mind healing.",
+        "destino_entorno": "INFRAESTRUCTURA PÚBLICA DE USA", "destino_instruccion": retar_instruccion_2,
+        "destino_coordenadas_gps": f"{map_base_url}{urllib.parse.quote_plus(gps_target_2)}",
+        "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "naturaleza": 90, "aire_fresco": 100}
+    })
+
+    # --- OPCIÓN 3: CONTRAATAQUE SOCIAL Y DE CONEXIÓN CON EL TEJIDO HUMANO ---
+    retar_instruccion_3 = f"El control mental de la rutina en {marca_o_lugar} te hace sentir aislado e individualizado. Rompe la monotonía del éxito o la escasez: despega los ojos del reflejo digital. Identifica a tres seres humanos desconocidos a tu alrededor. Míralos con compasión, comprende que sufren la misma monotonía. Envíales un deseo mental de paz mental."
+    gps_target_3 = f"coffee shop near {anclaje_geografico}" if sector_detectado in ["ENTRETENIMIENTO_DIGITAL", "CULTURALES"] else f"community center near {anclaje_geografico}"
+
+    misiones_dinamicas_usa.append({
+        "id": 703, "titulo": f"CONEXIÓN HUMANA: SABOTAJE AL AISLAMIENTO", "titulo_en": f"HUMAN CONNECTION: SABOTAGING ISOLATION",
+        "que_hacer": "Despertar de la conciencia y empatía recíproca con el tejido social presente.",
+        "que_hacer_en": "Consciousness awakening and social tejido integration.",
+        "destino_entorno": "ENTORNO HUMANO INMEDIATO", "destino_instruccion": retar_instruccion_3,
+        "destino_coordenadas_gps": f"{map_base_url}{urllib.parse.quote_plus(gps_target_3)}",
+        "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "comunidad": 100, "esperanza": 90}
+    })
+
+    # FORMATEAR LAS MISIONES FINALES PARA EL FRONTEND DE FORMA ULTRA PROFESIONAL
     final_misiones_para_frontend = []
-    
-    for info_seleccionada in misiones_seleccionadas_raw:
-        precio_real = ""
-        if budget == "0":
-            precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
-        elif budget == "1":
-            precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
-        elif budget == "2":
-            precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
-
-        quienes_van = ""
-        if perfil_tipo == "solo":
-            quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
-        elif perfil_tipo == "familia":
-            quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
-        elif perfil_tipo == "accesible":
-            quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
-
-        titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
-        donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-        anclaje_geografico = zip_code
-        map_base_url = "https://google.com"
-                if lang == "en":
-            guia_masticada = (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (
-                info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or ""
-            ).upper()
-            que_hacer_lang = (
-                info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]) or ""
-            )
-
-        else:
-            guia_masticada = (
-                f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
-                f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
-                f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
-                f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
-                f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
-            que_hacer_lang = info_seleccionada["que_hacer"] or ""
-
-        # === CORRECCIÓN ESTRICTA DE SANGRÍA (8 ESPACIOS DENTRO DEL LOOP) ===
-
-        search_query_parts = []
-
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
-
-        search_query_parts.append(info_seleccionada["gps"])
-        search_query_parts.append(f"in {anclaje_geografico}")
-
-        full_map_query_string = " ".join(search_query_parts)
-        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-
-        final_vector_necesidades = {
-            **DEFAULT_NECESSITY_VECTOR,
-            **info_seleccionada.get("vector_necesidades", {})
-        }
+    for info_mision in misiones_dinamicas_usa:
+        precio_real = "GASTO: Cero dólares. Inversión absoluta en tu propia infraestructura interna hoy."
+        quienes_van = "ACOMPAÑAMIENTO: Vas en un viaje de soberanía mental contigo mismo a recuperar tu centro."
+        
+        guia_masticada = (
+            f"DESTINO PERÍMETRO: {info_mision['destino_entorno']}.\n"
+            f"MÓDULO ACCIÓN: {info_mision['que_hacer']}\n"
+            f"ESTRATEGIA BIOPSICOSOCIAL: {info_mision['destino_instruccion']}\n"
+            f"{quienes_van}\n{precio_real}"
+        )
 
         final_misiones_para_frontend.append({
-            "destino_id": info_seleccionada.get("id"),
-            "destino_titulo": titulo_ganador_lang,
-            "destino_titulo_en": info_seleccionada.get(
-                "titulo_en",
-                info_seleccionada["titulo"]
-            ),
-            "que_hacer": info_seleccionada["que_hacer"],
-            "que_hacer_en": info_seleccionada.get(
-                "que_hacer_en",
-                info_seleccionada["que_hacer"]
-            ),
-            "destino_entorno": donde_base,
+            "destino_id": info_mision["id"],
+            "destino_titulo": info_mision["titulo"],
+            "destino_titulo_en": info_mision["titulo_en"],
+            "que_hacer": info_mision["que_hacer"],
+            "que_hacer_en": info_mision["que_hacer_en"],
+            "destino_entorno": info_mision["destino_entorno"],
             "destino_instruccion": guia_masticada.strip(),
             "destino_instruccion_en": (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
+                f"TARGET SECTOR: {marca_o_lugar.upper()}.\n"
+                f"ACTION REQUIRED: {info_mision['que_hacer_en']}\n"
+                f"COMMAND: Visual interface locked. Use Zip Code {anclaje_geografico} physical surroundings to execute hydration, deep exhalation, or waste elimination. Regain your time."
             ).strip(),
-            "destino_coordenadas_gps": target_link,
-            "vector_entorno_seleccionado": final_vector_necesidades,
+            "destino_coordenadas_gps": info_mision["destino_coordenadas_gps"],
+            "vector_entorno_seleccionado": info_mision["vector_enve_seleccionado"] if "vector_enve_seleccionado" in info_mision else info_mision["vector_entorno_seleccionado"],
         })
 
-    # Retorno final limpio del endpoint (alineado a la función principal)
+    # El retorno unificado que alimenta tus tres tarjetas (cards) profesionales del demo
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
         "historial_salir_actualizado": historial_salir
     })
-
 
 # ==============================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI
