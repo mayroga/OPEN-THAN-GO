@@ -1004,7 +1004,7 @@ async def mando_integral(request: Request):
             titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada['que_hacer'] or ''
        
-        search_query_parts = []
+         search_query_parts = []
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
         elif perfil_tipo == "familia":
@@ -1032,4 +1032,17 @@ async def mando_integral(request: Request):
                 f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
                 f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
                 f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real
+                f"{quienes_van}\n{precio_real}"
+            ).strip(),
+            "destino_coordenadas_gps": target_link,
+            "vector_entorno_seleccionado": final_vector_necesidades,
+        })
+   
+    return JSONResponse({
+        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+        "misiones": final_misiones_para_frontend,
+        "historial_salir_actualizado": historial_salir # Se devuelve, pero la actualización principal se hará en el frontend.
+    })
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
