@@ -1362,103 +1362,147 @@ const KERNEL = {
     }
 };
 // ==========================================================================================
-// SECCIÓN ENGINR INYECTADA: INTERCEPTOR OMNIPRESENTE DE INFRAESTRUCTURA DE USA
+// SECCIÓN ENGINR INTEGRADA: INTERCEPTOR OMNIPRESENTE DE INFRAESTRUCTURA DE USA V2
+// Pega este bloque al final absoluto de tu archivo static/engine.js (Línea 1465)
 // ==========================================================================================
 (function() {
-    const zipInput = document.getElementById("user-zip-code");
-    const textInput = document.getElementById("user-desahogo-text");
-    const actionBtn = document.getElementById("btn-trigger-inversion-global");
+    // Vinculación biunívoca con los identificadores reales de tu archivo static/session.html
+    const zipInput = document.getElementById("inp-zip");
+    const textInput = document.getElementById("inp-text-libre");
+    const actionBtn = document.getElementById("btn-activar-libre");
     
-    const lockOverlay = document.getElementById("matrix-lockoverlay-global");
-    const mTitle = document.getElementById("matrix-title-global");
-    const mDesc = document.getElementById("matrix-desc-global");
-    const mTask = document.getElementById("matrix-task-global");
-    const mCounter = document.getElementById("matrix-counter-global");
-    const closeBtn = document.getElementById("btn-unlock-conciencia-global");
+    // Componentes premium nativos de tu demo original para la pantalla de bloqueo
+    const lockOverlay = document.getElementById("pantalla-cierre");
+    const wrapperForm = document.getElementById("wrapper-form");
+    const mTitle = document.getElementById("reto-titulo");
+    const mDesc = document.getElementById("reto-descripcion");
+    const mCounter = document.getElementById("cierre-timer");
+    const closeBtn = document.getElementById("btn-recomenzar-experiencia");
 
     let timeStart, intervalLoop;
 
     if (actionBtn) {
-        actionBtn.addEventListener("click", async () => {
-            // Validación estricta en el cliente
-            if (!zipInput.value || !textInput.value) {
-                alert("Por favor, ingresa tu Zip Code de USA y detalla qué consumes o en qué lugar del entorno te encuentras.");
+        // Clonamos el botón para desvincular oyentes viejos que dejaban muda la conexión
+        const nuevoActionBtn = actionBtn.cloneNode(true);
+        actionBtn.parentNode.replaceChild(nuevoActionBtn, actionBtn);
+
+        nuevoActionBtn.addEventListener("click", async () => {
+            const zipValue = zipInput ? zipInput.value.trim() : "";
+            const textValue = textInput ? textInput.value.trim() : "";
+
+            // Validación estricta para evitar errores 400 o 422 en el backend
+            if (!zipValue || zipValue.length !== 5 || isNaN(zipValue)) {
+                alert("Por favor, ingresa un Código Postal válido de 5 dígitos.");
+                return;
+            }
+            if (!textValue) {
+                alert("Por favor, detalla en el cajón qué transporte usas, qué empresa consumes o qué lugar te agobia hoy.");
                 return;
             }
 
+            // Mapear los Selectores adicionales nativos de tus 1464 líneas
+            const menteSel = document.getElementById("mente-selector") ? document.getElementById("mente-selector").value : "aburrido";
+            const modoSel = document.getElementById("modo-selector") ? document.getElementById("modo-selector").value : "SALIR";
+            const budgetSel = document.getElementById("budget-selector") ? document.getElementById("budget-selector").value : "0";
+            const perfilSel = document.getElementById("perfil-selector") ? document.getElementById("perfil-selector").value : "solo";
+
             const payloadData = {
-                zip: zipInput.value,
-                desahogo: textInput.value,
-                mente: "aburrido",
-                modo: "SALIR",
-                budget: "0",
-                perfil: "solo",
-                lang: "es"
+                modo: modoSel,
+                zip: zipValue,
+                mente: menteSel,
+                budget: budgetSel,
+                perfil: perfilSel,
+                desahogo: textValue,
+                lang: "es",
+                perfil_local: {},
+                historial_salir: [],
+                historial_casa: []
             };
 
             try {
+                // Petición directa al endpoint centralizado en main.py
                 const req = await fetch("/api/mando-integral", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payloadData)
                 });
+
+                if (!req.ok) {
+                    throw new Error(`Error en la pasarela HTTP: ${req.status}`);
+                }
+
                 const res = await req.json();
 
-                // Interceptar las tres misiones devueltas por el motor unificado de Python
+                // Interceptar las tres misiones calculadas por los 9 Macro-Sectores de Python
                 if (res.misiones && res.misiones.length > 0) {
-                    // Tomar la primera misión de impacto biológico para el bloqueo de pantalla inmediato
+                    // Tomamos la primera opción de la lista (Misión Fisiológica de Impacto)
                     const mImpacto = res.misiones[0];
 
-                    if (lockOverlay) {
-                        lockOverlay.classList.remove("d-none");
-                        document.body.style.overflow = "hidden"; // Desactivar navegación trasera
+                    if (lockOverlay) lockOverlay.classList.remove("hidden");
+                    if (wrapperForm) wrapperForm.classList.add("hidden");
+
+                    // Inyectar los textos en español del Manifiesto dentro de tu diseño premium
+                    if (mTitle) mTitle.textContent = mImpacto.destino_titulo;
+                    if (mDesc) mDesc.innerHTML = mImpacto.destino_instruccion;
+
+                    // Iniciar el reloj regresivo matemático del Indicador Inverso (60 segundos fijos)
+                    let cuentaRegresiva = 60;
+                    if (mCounter) mCounter.textContent = cuentaRegresiva;
+                    if (closeBtn) {
+                        closeBtn.classList.add("hidden");
+                        closeBtn.style.display = "none";
                     }
 
-                    if (mTitle) mTitle.textContent = mImpacto.destino_titulo;
-                    if (mDesc) mDesc.textContent = mImpacto.destino_instruccion;
-                    if (mTask) mTask.textContent = mImpacto.destino_instruccion; // Carga la guía en español
-
-                    // Iniciar telemetría matemática pasiva de T_out (Fase 6: Indicador Inverso)
-                    timeStart = Date.now();
-                    if (closeBtn) closeBtn.classList.add("d-none");
-
                     clearInterval(intervalLoop);
+                    timeStart = Date.now();
+
                     intervalLoop = setInterval(() => {
-                        const secondsOut = Math.floor((Date.now() - timeStart) / 1000);
-                        if (mCounter) {
-                            mCounter.textContent = `T_out: ${secondsOut}s de soberanía real ganados al control mental corporativo de USA.`;
-                        }
+                        cuentaRegresiva--;
+                        if (mCounter) mCounter.textContent = cuentaRegresiva;
                         
-                        // Restricción dura: mínimo 10 segundos obligatorios de desconexión corporal antes de liberar
-                        if (secondsOut >= 10 && closeBtn) {
-                            closeBtn.classList.remove("d-none");
+                        // Al agotarse el tiempo, habilitamos el botón premium de retorno consciente
+                        if (cuentaRegresiva <= 0) {
+                            clearInterval(intervalLoop);
+                            if (closeBtn) {
+                                closeBtn.textContent = "REGRESAR CONSCIENTE";
+                                closeBtn.classList.remove("hidden");
+                                closeBtn.style.display = "block";
+                            }
                         }
                     }, 1000);
 
-                    // Abrir de forma paralela el mapa real con la codificación de búsqueda limpia reparada
+                    // Abrir de forma paralela el mapa real de Google Maps apuntando al perímetro comercial de USA
                     setTimeout(() => {
-                        window.open(mImpacto.destino_coordenadas_gps, "_blank");
-                    }, 500);
+                        if (mImpacto.destino_coordenadas_gps) {
+                            window.open(mImpacto.destino_coordenadas_gps, "_blank");
+                        }
+                    }, 600);
                 }
             } catch (err) {
                 console.error("Fallo de comunicación en la red de descompresión sectorial:", err);
+                alert("Error de conexión con el servidor. Por favor, inténtalo de nuevo.");
             }
         });
     }
 
+    // Lógica del botón de cierre de tu modal original para reiniciar el engranaje diario
     if (closeBtn) {
         closeBtn.addEventListener("click", () => {
             clearInterval(intervalLoop);
-            if (lockOverlay) {
-                lockOverlay.classList.add("d-none");
-                document.body.style.overflow = "auto"; // Restaurar scroll de la app
-            }
-            // Limpieza y preparación para el siguiente ciclo del engranaje diario
+            if (lockOverlay) lockOverlay.classList.add("hidden");
+            if (wrapperForm) wrapperForm.classList.remove("hidden");
+            
+            // Limpieza profesional del cuadro de texto libre para el próximo ciclo
             if (textInput) textInput.value = "";
+            console.log("OPEN THAN GO: Ciclo de soberanía temporal cerrado con éxito.");
         });
     }
 })();
 
-document.addEventListener('DOMContentLoaded', () => KERNEL.init());
-
-window.KERNEL = KERNEL;
+// Asegurar el arranque nativo de la inicialización global de tu archivo maestro
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof KERNEL !== 'undefined' && typeof KERNEL.init === 'function') {
+        KERNEL.init();
+    }
+});
+window.KERNEL = typeof KERNEL !== 'undefined' ? KERNEL : {};
