@@ -1362,16 +1362,16 @@ const KERNEL = {
     }
 };
 // ==========================================================================================
-// SECCIÓN ENGINR INTEGRADA: INTERCEPTOR OMNIPRESENTE DE INFRAESTRUCTURA DE USA V2
-// Pega este bloque al final absoluto de tu archivo static/engine.js (Línea 1465)
+// REPARACIÓN MAESTRA ABSOLUTA: INTERCEPTOR BIUNÍVOCO DE RED (ORÁCULO + MANDO LIBRE)
+// Pega este bloque al final absoluto de tu archivo static/engine.js (Reemplazando el anterior)
 // ==========================================================================================
 (function() {
-    // Vinculación biunívoca con los identificadores reales de tu archivo static/session.html
+    // 1. SELECTORES NATIVOS COMPLEMENTARIOS DE TU ARCHIVO STATIC/SESSION.HTML
     const zipInput = document.getElementById("inp-zip");
     const textInput = document.getElementById("inp-text-libre");
     const actionBtn = document.getElementById("btn-activar-libre");
     
-    // Componentes premium nativos de tu demo original para la pantalla de bloqueo
+    // Componentes del modal de bloqueo originales de May Roga LLC
     const lockOverlay = document.getElementById("pantalla-cierre");
     const wrapperForm = document.getElementById("wrapper-form");
     const mTitle = document.getElementById("reto-titulo");
@@ -1379,127 +1379,141 @@ const KERNEL = {
     const mCounter = document.getElementById("cierre-timer");
     const closeBtn = document.getElementById("btn-recomenzar-experiencia");
 
-    let timeStart, intervalLoop;
+    let intervalLoop;
 
+    // 2. FUNCIÓN MAESTRA UNIFICADA PARA DESPACHAR LA PETICIÓN AL BACKEND DE FASTAPI
+    async function despacharHaciaMandoIntegral(textoDesahogo) {
+        const zipValue = zipInput ? zipInput.value.trim() : "33167";
+
+        // Validación de Código Postal en caliente para blindar el canal
+        if (!zipValue || zipValue.length !== 5 || isNaN(zipValue)) {
+            alert("Por favor, ingresa un Código Postal válido de 5 dígitos en la parte superior.");
+            return;
+        }
+
+        // Captura dinámica de los selectores premium nativos de tu demo
+        const menteSel = document.getElementById("mente-selector") ? document.getElementById("mente-selector").value : "aburrido";
+        const modoSel = document.getElementById("modo-selector") ? document.getElementById("modo-selector").value : "SALIR";
+        const budgetSel = document.getElementById("budget-selector") ? document.getElementById("budget-selector").value : "0";
+        const perfilSel = document.getElementById("perfil-selector") ? document.getElementById("perfil-selector").value : "solo";
+
+        const payloadMatricial = {
+            modo: modoSel,
+            zip: zipValue,
+            mente: menteSel,
+            budget: budgetSel,
+            perfil: perfilSel,
+            desahogo: textoDesahogo,
+            lang: "es",
+            perfil_local: {},
+            historial_salir: [],
+            historial_casa: []
+        };
+
+        try {
+            // Fetch directo y forzado a la ruta estable de Python en Render
+            const req = await fetch("/api/mando-integral", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payloadMatricial)
+            });
+
+            if (!req.ok) throw new Error(`HTTP Status Error: ${req.status}`);
+            const res = await req.json();
+
+            if (res.misiones && res.misiones.length > 0) {
+                const mImpacto = res.misiones[0];
+
+                // Activar visualmente tu pantalla de cierre original de forma profesional
+                if (lockOverlay) lockOverlay.classList.remove("hidden");
+                if (wrapperForm) wrapperForm.classList.add("hidden");
+
+                if (mTitle) mTitle.textContent = mImpacto.destino_titulo;
+                if (mDesc) mDesc.innerHTML = mImpacto.destino_instruccion;
+
+                // Lanzar la telemetría del indicador regresivo inverso (60 segundos obligatorios)
+                let cuentaRegresiva = 60;
+                if (mCounter) mCounter.textContent = cuentaRegresiva;
+                if (closeBtn) {
+                    closeBtn.classList.add("hidden");
+                    closeBtn.style.display = "none";
+                }
+
+                clearInterval(intervalLoop);
+                intervalLoop = setInterval(() => {
+                    cuentaRegresiva--;
+                    if (mCounter) mCounter.textContent = cuentaRegresiva;
+                    
+                    if (cuentaRegresiva <= 0) {
+                        clearInterval(intervalLoop);
+                        if (closeBtn) {
+                            closeBtn.textContent = "REGRESAR CONSCIENTE";
+                            closeBtn.classList.remove("hidden");
+                            closeBtn.style.display = "block";
+                        }
+                    }
+                }, 1000);
+
+                // Forzar de forma asíncrona la apertura de Google Maps del perímetro comercial de USA
+                setTimeout(() => {
+                    if (mImpacto.destino_coordenadas_gps) {
+                        window.open(mImpacto.destino_coordenadas_gps, "_blank");
+                    }
+                }, 600);
+            }
+        } catch (err) {
+            console.error("Fallo crítico interceptado en la red CWRE:", err);
+            alert("Error de conexión con el servidor. Por favor, inténtalo de nuevo.");
+        }
+    }
+
+    // 3. SECCIÓN A: ESCUCHA Y DESVÍO INTELIGENTE DE CLICS EN EL ORÁCULO DE PREGUNTAS
+    document.addEventListener("click", function(e) {
+        // Intercepta de forma global si el elemento presionado es un botón del oráculo o una pregunta en cascada
+        const targetBoton = e.target.closest(".btn-pregunta-crisis") || e.target.closest("#contenedor-preguntas-oraculo button");
+        
+        if (targetBoton) {
+            // Detenemos de golpe la ejecución de la función interna vieja rota de tus 1464 líneas
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            const textoPregunta = targetBoton.innerText || targetBoton.textContent;
+            console.log("OPEN THAN GO: Interceptando pregunta del oráculo ->", textoPregunta);
+            
+            // Enviamos el texto de forma limpia al nuevo canal seguro de red
+            despacharHaciaMandoIntegral(textoPregunta);
+        }
+    }, true); // El parámetro 'true' fuerza a JavaScript a capturar el clic antes que tu script viejo
+
+    // 4. SECCIÓN B: LOGÍSTICA PARA EL BOTÓN DE ACCIÓN DEL MANDO LIBRE
     if (actionBtn) {
-        // Clonamos el botón para desvincular oyentes viejos que dejaban muda la conexión
         const nuevoActionBtn = actionBtn.cloneNode(true);
         actionBtn.parentNode.replaceChild(nuevoActionBtn, actionBtn);
 
-        nuevoActionBtn.addEventListener("click", async () => {
-            const zipValue = zipInput ? zipInput.value.trim() : "";
+        nuevoActionBtn.addEventListener("click", () => {
             const textValue = textInput ? textInput.value.trim() : "";
-
-            // Validación estricta para evitar errores 400 o 422 en el backend
-            if (!zipValue || zipValue.length !== 5 || isNaN(zipValue)) {
-                alert("Por favor, ingresa un Código Postal válido de 5 dígitos.");
-                return;
-            }
             if (!textValue) {
                 alert("Por favor, detalla en el cajón qué transporte usas, qué empresa consumes o qué lugar te agobia hoy.");
                 return;
             }
-
-            // Mapear los Selectores adicionales nativos de tus 1464 líneas
-            const menteSel = document.getElementById("mente-selector") ? document.getElementById("mente-selector").value : "aburrido";
-            const modoSel = document.getElementById("modo-selector") ? document.getElementById("modo-selector").value : "SALIR";
-            const budgetSel = document.getElementById("budget-selector") ? document.getElementById("budget-selector").value : "0";
-            const perfilSel = document.getElementById("perfil-selector") ? document.getElementById("perfil-selector").value : "solo";
-
-            const payloadData = {
-                modo: modoSel,
-                zip: zipValue,
-                mente: menteSel,
-                budget: budgetSel,
-                perfil: perfilSel,
-                desahogo: textValue,
-                lang: "es",
-                perfil_local: {},
-                historial_salir: [],
-                historial_casa: []
-            };
-
-            try {
-                // Petición directa al endpoint centralizado en main.py
-                const req = await fetch("/api/mando-integral", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payloadData)
-                });
-
-                if (!req.ok) {
-                    throw new Error(`Error en la pasarela HTTP: ${req.status}`);
-                }
-
-                const res = await req.json();
-
-                // Interceptar las tres misiones calculadas por los 9 Macro-Sectores de Python
-                if (res.misiones && res.misiones.length > 0) {
-                    // Tomamos la primera opción de la lista (Misión Fisiológica de Impacto)
-                    const mImpacto = res.misiones[0];
-
-                    if (lockOverlay) lockOverlay.classList.remove("hidden");
-                    if (wrapperForm) wrapperForm.classList.add("hidden");
-
-                    // Inyectar los textos en español del Manifiesto dentro de tu diseño premium
-                    if (mTitle) mTitle.textContent = mImpacto.destino_titulo;
-                    if (mDesc) mDesc.innerHTML = mImpacto.destino_instruccion;
-
-                    // Iniciar el reloj regresivo matemático del Indicador Inverso (60 segundos fijos)
-                    let cuentaRegresiva = 60;
-                    if (mCounter) mCounter.textContent = cuentaRegresiva;
-                    if (closeBtn) {
-                        closeBtn.classList.add("hidden");
-                        closeBtn.style.display = "none";
-                    }
-
-                    clearInterval(intervalLoop);
-                    timeStart = Date.now();
-
-                    intervalLoop = setInterval(() => {
-                        cuentaRegresiva--;
-                        if (mCounter) mCounter.textContent = cuentaRegresiva;
-                        
-                        // Al agotarse el tiempo, habilitamos el botón premium de retorno consciente
-                        if (cuentaRegresiva <= 0) {
-                            clearInterval(intervalLoop);
-                            if (closeBtn) {
-                                closeBtn.textContent = "REGRESAR CONSCIENTE";
-                                closeBtn.classList.remove("hidden");
-                                closeBtn.style.display = "block";
-                            }
-                        }
-                    }, 1000);
-
-                    // Abrir de forma paralela el mapa real de Google Maps apuntando al perímetro comercial de USA
-                    setTimeout(() => {
-                        if (mImpacto.destino_coordenadas_gps) {
-                            window.open(mImpacto.destino_coordenadas_gps, "_blank");
-                        }
-                    }, 600);
-                }
-            } catch (err) {
-                console.error("Fallo de comunicación en la red de descompresión sectorial:", err);
-                alert("Error de conexión con el servidor. Por favor, inténtalo de nuevo.");
-            }
+            despacharHaciaMandoIntegral(textValue);
         });
     }
 
-    // Lógica del botón de cierre de tu modal original para reiniciar el engranaje diario
+    // 5. MANEJADOR DE APERTURA PARA EL BOTÓN PREMIUM DE RECOMIENZO
     if (closeBtn) {
         closeBtn.addEventListener("click", () => {
             clearInterval(intervalLoop);
             if (lockOverlay) lockOverlay.classList.add("hidden");
             if (wrapperForm) wrapperForm.classList.remove("hidden");
-            
-            // Limpieza profesional del cuadro de texto libre para el próximo ciclo
             if (textInput) textInput.value = "";
-            console.log("OPEN THAN GO: Ciclo de soberanía temporal cerrado con éxito.");
+            console.log("OPEN THAN GO: Sistema reiniciado limpiamente para el próximo ciclo.");
         });
     }
 })();
 
-// Asegurar el arranque nativo de la inicialización global de tu archivo maestro
+// Asegurar que la lógica de arranque de tu inicialización base continúe viva
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof KERNEL !== 'undefined' && typeof KERNEL.init === 'function') {
         KERNEL.init();
