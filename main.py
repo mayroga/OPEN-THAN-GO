@@ -1004,45 +1004,89 @@ async def mando_integral(request: Request):
             titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada['que_hacer'] or ''
        
-        search_query_parts = []
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
-       
-        search_query_parts.append(info_seleccionada["gps"])
-        search_query_parts.append(f"in {anclaje_geografico}")
-       
-        full_map_query_string = " ".join(search_query_parts)
-        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-       
-        final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
+           # === CORRECCIÓN MILIMÉTRICA DE SANGRÍA (LÍNEA 1007) ===
+    search_query_parts = []
+    if perfil_tipo == "accesible":
+        search_query_parts.append("wheelchair accessible")
+    elif perfil_tipo == "familia":
+        search_query_parts.append("family friendly")
 
-        final_misiones_para_frontend.append({
-            "destino_id": info_seleccionada.get("id"),
-            "destino_titulo": titulo_ganador_lang,
-            "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]), # Incluir ambos para frontend
-            "que_hacer": info_seleccionada["que_hacer"], # Incluir ambos para frontend
-            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]), # Incluir ambos para frontend
-            "destino_entorno": donde_base,
-            "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            ).strip(),
-            "destino_coordenadas_gps": target_link,
-            "vector_entorno_seleccionado": final_vector_necesidades,
-        })
-   
+    search_query_parts.append(info_seleccionada["gps"])
+    search_query_parts.append(f"in {anclaje_geografico}")
+
+    full_map_query_string = " ".join(search_query_parts)
+    target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
+
+    # Fusión nativa del vector de necesidades con la matriz de eliminación biológica
+    final_vector_necesidades = {
+        **DEFAULT_NECESSITY_VECTOR, 
+        **info_seleccionada.get("vector_necesidades", {}),
+        "homeostasis_urgente": True
+    }
+
+    # MATRIZ OMNIPRESENTE DE ESTADOS EMOCIONALES Y SÍNTOMAS DE CONSUMO DE USA
+    # Inyectados directamente en el diccionario global para que el frontend los renderice de forma profesional
+    DICCIONARIO_SISTEMA_MATRIZ = {
+        "estados_emocionales": [
+            "AGOTADO", "CANSADO", "ABURRIDO", "ESTRESADO", "DESESPERADO", "ANSIOSO", 
+            "DEPRIMIDO", "ALTERADO", "MONOTONIA", "AISLADO", "SIN DIRECCION", "SIN SABER QUE HACER", 
+            "STAND BY", "PARALIZADO", "PERDIDO", "SIN IDEAS", "ATRAPADO", "ENGANADO", 
+            "ENAMORADO", "TRAICIONADO", "DESCONTENTO", "CONTENTO", "FELIZ", "INFELIZ", 
+            "AFORTUNADO", "DESAFORTUNADO"
+        ],
+        "marcas_usa": [
+            "TikTok", "Instagram", "Facebook", "YouTube Shorts", "X (Twitter)", "Netflix", "Disney+", "Apple", "Microsoft",
+            "Amazon", "Temu", "eBay", "Walmart", "Target", "Costco", "Starbucks", "McDonald's", "Burger King", "Wendy's",
+            "Coca-Cola", "Pepsi", "Uber", "Lyft", "Google Search", "ChatGPT", "CVS Pharmacy", "Walgreens", "Home Depot"
+        ],
+        "infraestructura_usa": [
+            "Oficina Corporativa / Rascacielos / Complejo Financiero / Wall Street",
+            "Fábrica / Planta Industrial / Refinería / Astillero",
+            "Hospital Universitario / Hospital Público / Clínica Privada / Sala de Emergencias",
+            "Oficina del DMV / Juzgado Federal / Dependencia de Gobierno / Estación de Policía",
+            "Oficina de Correos (USPS) / Prisión Estatal / Base de la Guardia Nacional",
+            "Carretera Interestatal / Autopista de Alta Velocidad / Tráfico US / Puentes Monumentales",
+            "Aeropuerto Internacional / Estación de Metro / Terminal de Autobuses",
+            "Centro Comercial / Megatienda de Consumo / Pasos Peatonales / Bodega de Vecindario",
+            "Playa Oceánica Pública / Costa Atlántica / Costa Pacífica / Lagos / Ríos",
+            "Parque Nacional / Parque Comunitario / Bosques / Montañas / Desiertos / Piscinas Públicas",
+            "Exposición Directa Bajo el Sol / Luna / Cielo Abierto / Aire Libre"
+        ]
+    }
+
+    # Construcción avanzada de la misión uniendo tu lógica técnica con el contraataque biológico
+    final_misiones_para_frontend.append({
+        "destino_id": info_seleccionada.get("id"),
+        "destino_titulo": titulo_ganador_lang,
+        "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]),
+        "que_hacer": info_seleccionada["que_hacer"],
+        "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
+        "destino_entorno": donde_base,
+        "destino_instruccion": guia_masticada.strip(),
+        "destino_instruccion_en": (
+            f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
+            f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
+            f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+            f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or FOR_WHAT_EN}\n"
+            f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or FOR_WHAT_EN}\n"
+            f"{quienes_van}\n{precio_real}\n"
+            f"HACK STATUS: Active inversion matrix for biopsychosocial balance. Expel user to physical anatomy."
+        ).strip(),
+        "destino_coordenadas_gps": target_link,
+        "vector_entorno_seleccionado": final_vector_necesidades,
+        "matriz_conciencial_config": DICCIONARIO_SISTEMA_MATRIZ
+    })
+
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
-        "historial_salir_actualizado": historial_salir # Se devuelve, pero la actualización principal se hará en el frontend.
+        "historial_salir_actualizado": historial_salir,
+        "matriz_global": DICCIONARIO_SISTEMA_MATRIZ
     })
 
+# Cierre de ejecución estándar de tu servidor web
 if __name__ == "__main__":
+    import uvicorn
+    import os
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+ 
