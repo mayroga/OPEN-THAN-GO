@@ -1003,22 +1003,21 @@ async def mando_integral(request: Request):
             )
             titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada['que_hacer'] or ''
-       
-             search_query_parts = []
+            
+    search_query_parts = []
     if perfil_tipo == "accesible":
         search_query_parts.append("wheelchair accessible")
     elif perfil_tipo == "familia":
         search_query_parts.append("family friendly")
-        
+
     search_query_parts.append(info_seleccionada["gps"])
     search_query_parts.append(f"in {anclaje_geografico}")
-    
+
     full_map_query_string = " ".join(search_query_parts)
     target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-    
+
     final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
-    
-    # CORRECCIÓN DE ATRIBUTOS E INVERSIÓN LOGÍSTICA PARA LA RESPUESTA EN INGLÉS
+
     final_misiones_para_frontend.append({
         "destino_id": info_seleccionada.get("id"),
         "destino_titulo": titulo_ganador_lang,
@@ -1038,7 +1037,7 @@ async def mando_integral(request: Request):
         "destino_coordenadas_gps": target_link,
         "vector_entorno_seleccionado": final_vector_necesidades,
     })
-    
+
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
@@ -1090,12 +1089,11 @@ MATRIZ_ELIMINACION_HOMEOSTASIS = {
     "ELIMINACION_SALIVAL": "Escupir o tragar para la depuración de toxinas salivales o deglución de enzimas digestivas.",
     "ELIMINACION_GASTRICA": "Mecanismos de emergencia gástrica, expulsión de gases, eructos o vómitos protectores.",
     "OXIGENACION_TISULAR": "Respiración consciente profunda para regular el pH de la sangre y anular el pánico mental.",
-    "NUTRICION_REAL": "Alimentarse e hidratarse de forma celular real, anulando la ansiedad compulsiva por ultraprocesados.",
+    "NUTRICION_REAL": "Alimentarse e hidratarse de forma celular real, aunlando la ansiedad compulsiva por ultraprocesados.",
     "REGENERACION_NEURONAL": "Pausas de silencio mental absoluto y preparación para el descanso y el sueño REM/No REM.",
     "BIOMECANICA_LINFATICA": "Motilidad musculoesquelética forzada mediante movimiento y estiramiento para mover la linfa."
 }
 
-# Diccionario unificado que compila la infraestructura y variables para la interfaz
 DICCIONARIO_SISTEMA_MATRIZ = {
     "estados_emocionales": ESTADOS_IDENTIFICACION_CLIENTE,
     "marcas_usa": MATRIZ_CONSUMO_EMPRESAS,
@@ -1103,13 +1101,8 @@ DICCIONARIO_SISTEMA_MATRIZ = {
     "procesos_biologicos": MATRIZ_ELIMINACION_HOMEOSTASIS
 }
 
-# ==========================================================================================
-# ENDPOINTS ADICIONALES PARA EL NUEVO MÓDULO DE INTERFACCIÓN CONCIENCIAL
-# ==========================================================================================
-
 @app.get("/api/v1/algoritmo-captura")
 async def obtener_matriz_captura():
-    """Retorna las nuevas capas del manifiesto conceptual para el frontend dinámico."""
     return {
         "status": "success",
         "data": DICCIONARIO_SISTEMA_MATRIZ
@@ -1117,10 +1110,6 @@ async def obtener_matriz_captura():
 
 @app.post("/api/v1/algoritmo-procesar-inversion")
 async def procesar_inversion_sistemica(datos_captura: dict):
-    """
-    Recibe el cruce voluntario en pantalla (Estado + Empresa/Infraestructura + Zip Code público).
-    Mapea la carencia biopsicosocial y devuelve el comando de desconexión obligatoria de 60s.
-    """
     estado_actual = datos_captura.get("estado", "").upper()
     elemento_sistema = datos_captura.get("elemento", "")
     zip_code = datos_captura.get("zip_code", "00000")
@@ -1143,3 +1132,4 @@ if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+    
