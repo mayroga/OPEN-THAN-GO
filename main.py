@@ -13,6 +13,7 @@ import urllib.parse
 
 app = FastAPI()
 
+# Ensure the 'static' directory exists before mounting
 if not os.path.exists("static"):
     os.makedirs("static")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -31,10 +32,9 @@ DEFAULT_NECESSITY_VECTOR = {
 # ============================================================
 MAX_HISTORY_SALIR = 5
 MAX_HISTORY_CASA = 8
-MAX_HISTORY_ORACULO = 12
+MAX_HISTORY_ORACULO = 12 # This is handled by frontend (engine.js)
 EXPLORATION_RATE = 0.20
 HISTORY_PENALTY_BASE = 40
-DECAY_PER_DAY = 0.985
 
 def limitar_historial(historial, limite):
     if historial is None:
@@ -44,13 +44,13 @@ def limitar_historial(historial, limite):
 def penalizacion_historial(mision_id, historial):
     if not historial:
         return 0
-    historial = list(reversed(historial))
-    for posicion, antiguo in enumerate(historial):
-        if antiguo == mision_id:
-            if posicion == 0:
-                return HISTORY_PENALTY_BASE
+    historial = list(reversed(historial)) # Prioriza las más recientes
+    for posicion, antiguo_id in enumerate(historial):
+        if antiguo_id == mision_id:
+            if posicion == 0: # Última misión
+                return HISTORY_PENALTY_BASE * 1.5 # Más penalización para la última
             elif posicion == 1:
-                return HISTORY_PENALTY_BASE * 0.85
+                return HISTORY_PENALTY_BASE
             elif posicion == 2:
                 return HISTORY_PENALTY_BASE * 0.70
             elif posicion <= (len(historial) - 1):
@@ -58,17 +58,14 @@ def penalizacion_historial(mision_id, historial):
     return 0
 
 def bonus_exploracion(mision_id, historial):
-    if not historial:
-        return 20
-    if mision_id not in historial:
-        return 15
+    if not historial or mision_id not in historial:
+        return 20 # Bonificación significativa si nunca se ha visto
+    # Reducir bonificación si ya se ha visto pero no está en el historial reciente
+    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)):
+        return 5
     return 0
 
 def actualizar_historial(historial, nuevo_id, limite):
-    # This function is not used in the backend for SALIR mode anymore,
-    # as SALIR history update is now handled on the frontend client-side
-    # once a mission is *selected* and its external link is opened.
-    # It is still used for CASA mode.
     historial = historial or []
     if nuevo_id in historial:
         historial.remove(nuevo_id)
@@ -79,14 +76,12 @@ def diversidad_vector(vector1, vector2):
     distancia = 0
     needs_to_consider = [k for k in DEFAULT_NECESSITY_VECTOR.keys() if k != "indicador_ansiedad"]
     for k in needs_to_consider:
+        # Suma las diferencias absolutas de cada necesidad
         distancia += abs(
-            vector1.get(k, 50) -
-            vector2.get(k, 50)
+            vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) -
+            vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
         )
     return distancia
-
-def decay_profile(profile, dias):
-    return profile
 
 WHEN_ES = "Ahora mismo. Levántate de la silla ya."
 WHEN_EN = "Right now. Get out of your chair immediately."
@@ -223,7 +218,7 @@ BASE_MISIONES = {
         {"id": 44, "titulo": "Listen to Silence", "descripcion": "Search for silence between breaths.", "vector_necesidades": {"silencio": 100, "contemplacion": 95, "descanso": 90, "aprendizaje": 80, "naturaleza": 70}},
         {"id": 45, "titulo": "Ceiling Gaze", "descripcion": "Look at the ceiling. Stretch neck without moving shoulders.", "vector_necesidades": {"movimiento": 70, "descanso": 80, "salud": 80, "contemplacion": 70, "silencio": 60}},
         {"id": 46, "titulo": "Feel Base", "descripcion": "Firm contact of legs with chair.", "vector_necesidades": {"descanso": 90, "contemplacion": 85, "silencio": 75, "naturaleza": 40, "movimiento": 20}},
-        {"id": 48, "titulo": "Mental Cleanse", "descripcion": "Exhale boring worry. Out of you.", "vector_necesidades": {"esperanza": 90, "silencio": 80, "descanso": 85, "risa": 50, "creatividad": 60}},
+        {"id": 48, "titulo": "Limpieza mental", "descripcion": "Exhala preocupación aburrida. Fuera de ti.", "vector_necesidades": {"esperanza": 90, "silencio": 80, "descanso": 85, "risa": 50, "creatividad": 60}},
         {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la stability.", "vector_necesidades": {"contemplacion": 90, "organizacion": 80, "silencio": 70, "descanso": 60, "naturaleza": 30}},
         {"id": 50, "titulo": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "silencio": 90, "descanso": 85, "organizacion": 70}},
         {"id": 51, "titulo": "Canta una melodía", "descripcion": "Tararea tu canción favorita suavemente. No pienses, solo siente el sonido.", "vector_necesidades": {"musica": 100, "risa": 70, "creatividad": 80, "descanso": 60, "juego": 50}},
@@ -534,7 +529,7 @@ def score_coincidencia(
             continue
         usuario = perfil_local.get(necesidad, DEFAULT_NECESSITY_VECTOR.get(necesidad, 50))
         diferencia = abs(usuario - objetivo)
-        score += (100 - diferencia) * 0.5
+        score += (100 - diferencia) * 0.5 # Ponderación base
 
     # --------------------------------------------------
     # Priorizar necesidades insatisfechas (altas en perfil)
@@ -543,22 +538,23 @@ def score_coincidencia(
     for necesidad, valor_usuario in perfil_local.items():
         if necesidad == "indicador_ansiedad":
             continue
+        # Si la necesidad del usuario es alta (insatisfecha) y la misión también tiene un alto objetivo para esa necesidad
         if valor_usuario > 70 and vector_necesidades.get(necesidad, 0) > 70:
-            score += (valor_usuario * 0.3)
+            score += (valor_usuario * 0.3) # Bonificación fuerte
         elif valor_usuario > 50 and vector_necesidades.get(necesidad, 0) > 50:
-             score += (valor_usuario * 0.1)
+             score += (valor_usuario * 0.1) # Bonificación moderada
 
     # --------------------------------------------------
     # Priorizar ansiedad: Misiones que atienden directamente la ansiedad.
     # --------------------------------------------------
     ansiedad = perfil_local.get("indicador_ansiedad", 0)
-    if ansiedad >= 70:
+    if ansiedad >= 70: # Nivel alto de ansiedad
         score += vector_necesidades.get("silencio", 0) * 0.5
         score += vector_necesidades.get("descanso", 0) * 0.5
         score += vector_necesidades.get("esperanza", 0) * 0.4
         score += vector_necesidades.get("naturaleza", 0) * 0.3
         score += vector_necesidades.get("agua", 0) * 0.3
-    elif ansiedad >= 40:
+    elif ansiedad >= 40: # Nivel medio de ansiedad
         score += vector_necesidades.get("descanso", 0) * 0.2
         score += vector_necesidades.get("silencio", 0) * 0.2
    
@@ -586,20 +582,21 @@ def seleccionar_por_ranking(candidatos):
     mejor_score = candidatos[0]["score"]
    
     # Si todos tienen un score bajo, y todos son iguales, elige uno al azar.
-    # Esto evita que un score bajo pero único siempre gane por poco.
-    if mejor_score <= 100:
+    if mejor_score <= 100: # Umbral para considerar que los scores son "bajos"
         scores_unicos = {c["score"] for c in candidatos}
         if len(scores_unicos) == 1:
              return random.choice(candidatos)
 
-    score_umbral = max(mejor_score * 0.8, mejor_score - 150)
+    # Considerar un umbral dinámico para seleccionar entre los mejores
+    score_umbral = max(mejor_score * 0.8, mejor_score - 150) # El 80% del mejor o 150 puntos menos que el mejor
    
     mejores_candidatos_para_eleccion = [
         c for c in candidatos if c["score"] >= score_umbral
     ]
    
-    if len(mejores_candidatos_para_eleccion) == 1:
-        return mejores_candidatos_para_eleccion[0]
+    if not mejores_candidatos_para_eleccion: # Si el umbral fue demasiado estricto, relaja y toma del top 3
+        mejores_candidatos_para_eleccion = candidatos[:min(3, len(candidatos))]
+        if not mejores_candidatos_para_eleccion: return None
 
     pesos = [c["score"] for c in mejores_candidatos_para_eleccion]
     # Asegúrate de que ningún peso sea cero o negativo para random.choices
@@ -633,7 +630,7 @@ def seleccionar_mision_inteligente(
             "score": score
         })
     seleccion = seleccionar_por_ranking(candidatos)
-    if seleccion is None: # Error mecánico: '==' en vez de 'is' o '=='
+    if seleccion is None:
         return random.choice(misiones) if misiones else None
     return seleccion["mision"]
 
