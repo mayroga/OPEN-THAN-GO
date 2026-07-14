@@ -680,14 +680,14 @@ def score_coincidencia(
     elif ansiedad >= 40: # Nivel medio de ansiedad
         score += vector_necesidades.get("descanso", 0) * 0.2
         score += vector_necesidades.get("silencio", 0) * 0.2
-    
+   
     # --------------------------------------------------
     # Penalización por repetición histórica y bonus por exploración
     # --------------------------------------------------
     if mission_id is not None:
         score -= penalizacion_historial(mission_id, historial)
         score += bonus_exploracion(mission_id, historial)
-    
+   
     return round(max(0, score), 2)
 
 # ============================================================
@@ -696,14 +696,14 @@ def score_coincidencia(
 def seleccionar_por_ranking(candidatos):
     if not candidatos:
         return None
-    
+   
     candidatos = sorted(candidatos, key=lambda x: x["score"], reverse=True)
-    
+   
     if not candidatos:
         return None
 
     mejor_score = candidatos[0]["score"]
-    
+   
     # Si todos tienen un score bajo, y todos son iguales, elige uno al azar.
     if mejor_score <= 100: # Umbral para considerar que los scores son "bajos"
         scores_unicos = {c["score"] for c in candidatos}
@@ -712,11 +712,11 @@ def seleccionar_por_ranking(candidatos):
 
     # Considerar un umbral dinámico para seleccionar entre los mejores
     score_umbral = max(mejor_score * 0.8, mejor_score - 150) # El 80% del mejor o 150 puntos menos que el mejor
-    
+   
     mejores_candidatos_para_eleccion = [
         c for c in candidatos if c["score"] >= score_umbral
     ]
-    
+   
     if not mejores_candidatos_para_eleccion: # Si el umbral fue demasiado estricto, relaja y toma del top 3
         mejores_candidatos_para_eleccion = candidatos[:min(3, len(candidatos))]
         if not mejores_candidatos_para_eleccion: return None
@@ -741,7 +741,7 @@ def seleccionar_mision_inteligente(
     candidatos = []
     for mision in misiones:
         mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
-        
+       
         score = score_coincidencia(
             perfil_local=perfil_local,
             vector_necesidades=mission_vector,
@@ -783,10 +783,10 @@ def seleccionar_n_misiones_inteligentes(
         })
 
     candidatos_base.sort(key=lambda x: x["score"], reverse=True)
-    
+   
     seleccionadas = []
     ids_seleccionados = set()
-    
+   
     # Prioriza las de mayor score y las que no estén en el historial
     for cand in candidatos_base:
         if len(seleccionadas) >= n:
@@ -805,7 +805,7 @@ def seleccionar_n_misiones_inteligentes(
             if es_diversa:
                 seleccionadas.append(cand["mision"])
                 ids_seleccionados.add(cand["mision"]["id"])
-    
+   
     # Si aún no tenemos suficientes, toma las siguientes mejores aunque no sean tan diversas
     for cand in candidatos_base:
         if len(seleccionadas) >= n:
@@ -860,12 +860,12 @@ def seleccionar_misiones_casa_inteligente(
     cantidad=3
 ):
     historial_casa = historial_casa or []
-    
+   
     disponibles = filtrar_historial(
         misiones,
         historial_casa
     )
-    
+   
     if len(disponibles) < cantidad * 2: # Si quedan muy pocas sin repetir, considera todo el catálogo de nuevo
         disponibles = misiones
 
@@ -883,15 +883,15 @@ def seleccionar_misiones_casa_inteligente(
             "mision": mision,
             "score": score
         })
-    
+   
     candidatos.sort(
         key=lambda x: x["score"],
         reverse=True
     )
-    
+   
     resultado = []
     ids_en_resultado = set()
-    
+   
     # Intenta seleccionar misiones diversas y de alto score
     for candidato in candidatos:
         mision = candidato["mision"]
@@ -907,14 +907,14 @@ def seleccionar_misiones_casa_inteligente(
             if distancia < 60: # Umbral de diversidad para misiones CASA
                 es_diversa = False
                 break
-        
+       
         if es_diversa:
             resultado.append(mision)
             ids_en_resultado.add(mision["id"])
-        
+       
         if len(resultado) >= cantidad:
             break
-            
+           
     # Si no se alcanzan las 'cantidad' requeridas con diversidad, añade las siguientes mejores
     if len(resultado) < cantidad:
         for candidato in candidatos:
@@ -924,11 +924,11 @@ def seleccionar_misiones_casa_inteligente(
                 ids_en_resultado.add(mision["id"])
             if len(resultado) >= cantidad:
                 break
-    
+   
     # Fallback final: si aún no hay suficientes, toma las primeras 'cantidad'
     if len(resultado) < cantidad and len(misiones) >= cantidad:
         resultado = [c["mision"] for c in candidatos[:cantidad]]
-        
+       
     return resultado
 
 @app.get("/")
@@ -955,21 +955,21 @@ async def mando_integral(request: Request):
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
-    
+   
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
         return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
-    
+   
     perfil_local = payload.get("perfil_local", {})
     if not isinstance(perfil_local, dict):
         perfil_local = {}
-    
+   
     perfil_local = {
         **DEFAULT_NECESSITY_VECTOR,
         **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
     }
     if "indicador_ansiedad" not in perfil_local:
         perfil_local["indicador_ansiedad"] = 0
-        
+       
     # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
     # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
@@ -977,10 +977,10 @@ async def mando_integral(request: Request):
     sensitive_keywords = [
         "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum", "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income", "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades", "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo", "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica", "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo", "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales", "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
     ]
-    
+   
     force_recovery_mission = False
     explicitly_seeking_job = any(phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"])
-    
+   
     # DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
     marca_detectada = None
     if desahogo and not explicitly_seeking_job:
@@ -995,14 +995,14 @@ async def mando_integral(request: Request):
     # INVERSIÓN SISTÉMICA CRÍTICA: SI HAY SÍNTOMA CORPORATIVO, NO HUYES A CASA, EJECUTAS UN CONTRAATAQUE DE CAMPO
     if force_recovery_mission and marca_detectada:
         mente_str_es = mente.upper()
-        mente_str_en = mente.upper() 
+        mente_str_en = mente.upper()
 
         diagnostico_sintoma_es = f"Diagnóstico: El cliente experimenta [{mente_str_es}] en relación al estímulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
         diagnostico_sintoma_en = f"Diagnostic: Client experiences [{mente_str_en}] linked to corporate stimulus [{marca_detectada}] in Zip Code {zip_code}."
 
         instruccion_fisiologica_es = ""
         instruccion_fisiologica_en = ""
-        
+       
         if marca_detectada == "Walmart":
             instruccion_fisiologica_es = "Estás en el templo del consumo. Hackea: detén tu marcha, inhala/exhala profundo. Repite: 'Yo soy el único producto que importa hoy'. Sal de la rutina."
             instruccion_fisiologica_en = "You are in the consumption temple. Hack it: stop, inhale/exhale deeply. Repeat: 'I am the only product that matters today'. Exit routine."
@@ -1058,22 +1058,22 @@ async def mando_integral(request: Request):
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
         })
-        
+       
     # ==============================================================================
     # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
     # ==============================================================================
     opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     historial_salir = payload.get("historial_salir", [])
-    
+   
     misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
-        n=3, 
-        misiones=opciones_salir_candidatas, 
-        perfil_local=perfil_local, 
+        n=3,
+        misiones=opciones_salir_candidatas,
+        perfil_local=perfil_local,
         historial_actual=historial_salir
     )
-    
+   
     final_misiones_para_frontend = []
-    
+   
     for info_seleccionada in misiones_seleccionadas_raw:
         # === MODIFICACIÓN: MENSAJES DE ACOMPAÑAMIENTO Y GASTO ACORTADOS ===
         precio_real = ""
