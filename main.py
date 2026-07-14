@@ -9,7 +9,6 @@ import os
 import random
 import re
 from datetime import datetime
-import urllib.parse # NEW: Import para codificación segura de URLs
 
 app = FastAPI()
 
@@ -31,7 +30,7 @@ DEFAULT_NECESSITY_VECTOR = {
 # ============================================================
 MAX_HISTORY_SALIR = 5
 MAX_HISTORY_CASA = 8
-MAX_HISTORY_ORACULO = 12 # Not used directly in backend, but good to keep consistent for frontend reference
+MAX_HISTORY_ORACULO = 12 # Not used directly in backend, but good to keep consistent
 EXPLORATION_RATE = 0.20 # Added, but not explicitly used in scoring for this version.
 HISTORY_PENALTY_BASE = 40
 DECAY_PER_DAY = 0.985
@@ -99,7 +98,6 @@ FOR_WHAT_EN = "To break the urban zombie and remember that life is more than pay
 # CATÁLOGO DE MISIONES CWRE V2.1
 # Expandido a >100 misiones CASA y 6+ por estado mental en SALIR
 # Cada misión CASA ahora tiene un vector_necesidades
-# MODIFIED: 'gps' values now use spaces instead of '+' to be correctly encoded by urllib.parse.quote_plus
 # ============================================================
 BASE_MISIONES = {
     "CASA_ES": [
@@ -118,7 +116,7 @@ BASE_MISIONES = {
         {"id": 13, "titulo": "Foco en lo olvidado", "descripcion": "Elige una tarea mínima que ignorabas. Hazla ahora. Termínala.", "vector_necesidades": {"organizacion": 100, "trabajo": 80, "aprendizaje": 70, "movimiento": 30, "esperanza": 60}},
         {"id": 14, "titulo": "Columna recta", "descripcion": "Endereza la espalda. Un hilo invisible tira de tu cabeza. Respira.", "vector_necesidades": {"salud": 90, "movimiento": 70, "descanso": 80, "silencio": 60, "contemplacion": 70}},
         {"id": 15, "titulo": "Contacto frío", "descripcion": "Toca una superficie fría. Siente la temperatura real. Aterriza.", "vector_necesidades": {"naturaleza": 80, "silencio": 70, "contemplacion": 90, "descanso": 60, "movimiento": 20}},
-        {"id": 16, "titulo": "Ventilación total", "descripcion": "Abre la ventana. Deja que el aire ruede. Huele el cambio.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "creatividad": 70, "contemplacion": 80, "movimiento": 40}},
+        {"id": 16, "titulo": "Ventilación total", "descripcion": "Abre la puerta principal. Deja que el aire ruede. Huele el cambio.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "creatividad": 70, "contemplacion": 80, "movimiento": 40}},
         {"id": 17, "titulo": "Sacudida de estrés", "descripcion": "Párate y sacude manos y piernas como quitándote agua. Hazlo 10 segundos.", "vector_necesidades": {"movimiento": 100, "risa": 80, "descanso": 70, "juego": 60, "esperanza": 70}},
         {"id": 18, "titulo": "Mirada lejana", "descripcion": "Mira el objeto más lejano por tu ventana. Descansa el enfoque.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "naturaleza": 70, "descanso": 80, "creatividad": 40}},
         {"id": 19, "titulo": "Memoria feliz", "descripcion": "Cierra los ojos y recuerda un momento real de calma en tu niñez.", "vector_necesidades": {"esperanza": 90, "contemplacion": 95, "risa": 70, "silencio": 80, "descanso": 85}},
@@ -265,7 +263,7 @@ BASE_MISIONES = {
                 "porque": "Mente cansada de pantallas. Necesitas desconectar.", "porque_en": "Screen-tired mind. You need to disconnect.",
                 "que_hacer": "Busca un gran árbol. Toca su corteza. Siente la sombra fresca.", "que_hacer_en": "Find a large tree. Touch its bark. Feel the cool shade.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Un parque verde.", "donde_en": "A green park.", "gps": "parks with shade", # MODIFIED: spaces instead of +
+                "donde": "Un parque verde.", "donde_en": "A green park.", "gps": "parks+with+shade+",
                 "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 80, "agua": 20, "sol": 40, "sombra": 100, "aire_fresco": 100, "creatividad": 30, "comunidad": 20, "aprendizaje": 40, "juego": 30, "contemplacion": 95, "trabajo": 10, "descanso": 90, "organizacion": 20, "alimentacion": 0, "musica": 10, "risa": 30, "esperanza": 85}
             },
             {
@@ -273,7 +271,7 @@ BASE_MISIONES = {
                 "porque": "Necesitas un respiro mental. Evita ruidos. Busca paz.", "porque_en": "Need a mental break. Avoid noise. Seek peace.",
                 "que_hacer": "Visita una cafetería tranquila. Pide tu bebida. Observa sin distracciones.", "que_hacer_en": "Visit a quiet cafe. Order your drink. Observe without distractions.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Cafetería local tranquila.", "donde_en": "Quiet local cafe.", "gps": "quiet cafe", # MODIFIED
+                "donde": "Cafetería local tranquila.", "donde_en": "Quiet local cafe.", "gps": "quiet+cafe+",
                 "vector_necesidades": {"movimiento": 20, "naturaleza": 10, "silencio": 90, "agua": 30, "sol": 30, "sombra": 80, "aire_fresco": 40, "creatividad": 60, "comunidad": 50, "aprendizaje": 70, "juego": 10, "contemplacion": 95, "trabajo": 20, "descanso": 85, "organizacion": 70, "alimentacion": 60, "musica": 40, "risa": 20, "esperanza": 70}
             },
             {
@@ -281,7 +279,7 @@ BASE_MISIONES = {
                 "porque": "Mente agotada. Reconéctate con lo natural. Aire puro.", "porque_en": "Exhausted mind. Reconnect with nature. Pure air.",
                 "que_hacer": "Pasea sin prisa por senderos. Observa plantas y flores. Respira hondo.", "que_hacer_en": "Stroll leisurely on paths. Observe plants and flowers. Breathe deeply.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Jardín botánico público.", "donde_en": "Public botanical garden.", "gps": "botanical garden", # MODIFIED
+                "donde": "Jardín botánico público.", "donde_en": "Public botanical garden.", "gps": "botanical+garden+",
                 "vector_necesidades": {"movimiento": 70, "naturaleza": 100, "silencio": 75, "agua": 50, "sol": 70, "sombra": 90, "aire_fresco": 100, "creatividad": 80, "comunidad": 40, "aprendizaje": 80, "juego": 30, "contemplacion": 90, "trabajo": 10, "descanso": 80, "organizacion": 30, "alimentacion": 10, "musica": 50, "risa": 30, "esperanza": 90}
             },
             {
@@ -289,7 +287,7 @@ BASE_MISIONES = {
                 "porque": "Necesitas perspectiva. Eleva tu mirada. Rompe la rutina visual.", "porque_en": "Need perspective. Elevate your gaze. Break visual routine.",
                 "que_hacer": "Encuentra un punto alto con vista. Observa el horizonte. Siente la inmensidad.", "que_hacer_en": "Find a high point with a view. Observe the horizon. Feel the immensity.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Mirador público.", "donde_en": "Public overlook.", "gps": "scenic overlook", # MODIFIED
+                "donde": "Mirador público.", "donde_en": "Public overlook.", "gps": "scenic+overlook+",
                 "vector_necesidades": {"movimiento": 40, "naturaleza": 90, "silencio": 85, "agua": 60, "sol": 80, "sombra": 50, "aire_fresco": 95, "creatividad": 70, "comunidad": 30, "aprendizaje": 50, "juego": 10, "contemplacion": 100, "trabajo": 5, "descanso": 70, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 95}
             },
             {
@@ -297,7 +295,7 @@ BASE_MISIONES = {
                 "porque": "Mente sobrecargada. Busca herramientas para la calma interna. Regula tu ser.", "porque_en": "Overloaded mind. Seek tools for inner calm. Regulate your being.",
                 "que_hacer": "Asiste a una sesión de meditación guiada. Concéntrate en la respiración. Suelta.", "que_hacer_en": "Attend a guided meditation session. Focus on breathing. Let go.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Centro de yoga o meditación.", "donde_en": "Yoga or meditation center.", "gps": "meditation class", # MODIFIED
+                "donde": "Centro de yoga o meditación.", "donde_en": "Yoga or meditation center.", "gps": "meditation+class+",
                 "vector_necesidades": {"movimiento": 10, "naturaleza": 20, "silencio": 100, "agua": 0, "sol": 10, "sombra": 100, "aire_fresco": 60, "creatividad": 50, "comunidad": 60, "aprendizaje": 90, "juego": 5, "contemplacion": 100, "trabajo": 0, "descanso": 100, "organizacion": 80, "alimentacion": 0, "musica": 70, "risa": 5, "esperanza": 90}
             },
             {   # Added for 6+ missions
@@ -305,7 +303,7 @@ BASE_MISIONES = {
                 "porque": "Mente agitada. Enfoca tu mirada en la inmensidad. Deja que los pensamientos pasen.", "porque_en": "Agitated mind. Focus your gaze on vastness. Let thoughts pass.",
                 "que_hacer": "Busca un lugar abierto, recuéstate y observa el movimiento de las nubes.", "que_hacer_en": "Find an open space, lie down, and watch the clouds move.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Parque o campo abierto.", "donde_en": "Park or open field.", "gps": "open field for cloud gazing", # MODIFIED
+                "donde": "Parque o campo abierto.", "donde_en": "Park or open field.", "gps": "open+field+for+cloud+gazing+",
                 "vector_necesidades": {"movimiento": 20, "naturaleza": 95, "silencio": 90, "agua": 10, "sol": 70, "sombra": 30, "aire_fresco": 90, "creatividad": 60, "comunidad": 10, "aprendizaje": 40, "juego": 20, "contemplacion": 100, "trabajo": 5, "descanso": 95, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 85}
             },
         ],
@@ -315,7 +313,7 @@ BASE_MISIONES = {
                 "porque": "Cuerpo tenso. Libera estrés al caminar. Siente tu fuerza.", "porque_en": "Tense body. Release stress by walking. Feel your strength.",
                 "que_hacer": "Encuentra rampa o escaleras públicas. Sube a paso firme. Usa tu energía.", "que_hacer_en": "Find public ramp or stairs. Climb steadily. Use your energy.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Escalera pública.", "donde_en": "Public stairs.", "gps": "public stairs", # MODIFIED
+                "donde": "Escalera pública.", "donde_en": "Public stairs.", "gps": "public+stairs+",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 20, "aire_fresco": 85, "creatividad": 10, "comunidad": 30, "aprendizaje": 10, "juego": 20, "contemplacion": 60, "trabajo": 20, "descanso": 10, "organizacion": 30, "alimentacion": 0, "musica": 20, "risa": 20, "esperanza": 75}
             },
             {
@@ -323,7 +321,7 @@ BASE_MISIONES = {
                 "porque": "Mente acelerada. Conecta cuerpo y naturaleza. Respira consciente.", "porque_en": "Racing mind. Connect body and nature. Conscious breath.",
                 "que_hacer": "Busca un parque. Extiende tu mat. Sigue una rutina de yoga o estiramientos.", "que_hacer_en": "Find a park. Lay your mat. Follow a yoga or stretching routine.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Parque tranquilo.", "donde_en": "Quiet park.", "gps": "outdoor yoga park", # MODIFIED
+                "donde": "Parque tranquilo.", "donde_en": "Quiet park.", "gps": "outdoor+yoga+park+",
                 "vector_necesidades": {"movimiento": 90, "naturaleza": 90, "silencio": 70, "agua": 20, "sol": 70, "sombra": 60, "aire_fresco": 95, "creatividad": 60, "comunidad": 40, "aprendizaje": 50, "juego": 10, "contemplacion": 80, "trabajo": 10, "descanso": 70, "organizacion": 50, "alimentacion": 0, "musica": 40, "risa": 20, "esperanza": 80}
             },
             {
@@ -331,7 +329,7 @@ BASE_MISIONES = {
                 "porque": "Necesitas liberar energía. Convierte el estrés en fuerza. Activa tu cuerpo.", "porque_en": "Need to release energy. Convert stress to strength. Activate your body.",
                 "que_hacer": "Visita un gimnasio público o de bajo costo. Enfócate en tu rutina. Suda.", "que_hacer_en": "Visit a public or low-cost gym. Focus on your routine. Sweat.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Gimnasio o centro deportivo.", "donde_en": "Gym or sports center.", "gps": "community gym", # MODIFIED
+                "donde": "Gimnasio o centro deportivo.", "donde_en": "Gym or sports center.", "gps": "community+gym+",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 5, "silencio": 20, "agua": 10, "sol": 20, "sombra": 80, "aire_fresco": 60, "creatividad": 20, "comunidad": 70, "aprendizaje": 40, "juego": 30, "contemplacion": 5, "trabajo": 50, "descanso": 0, "organizacion": 80, "alimentacion": 0, "musica": 80, "risa": 40, "esperanza": 60}
             },
             {
@@ -339,7 +337,7 @@ BASE_MISIONES = {
                 "porque": "Sobrecarga de estímulos. Desconéctate un momento. Camina en paz.", "porque_en": "Overload of stimuli. Disconnect for a moment. Walk in peace.",
                 "que_hacer": "Encuentra un sendero. Camina a paso ligero. Observa el entorno natural.", "que_hacer_en": "Find a trail. Walk briskly. Observe the natural surroundings.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Sendero natural o bosque.", "donde_en": "Nature trail or forest.", "gps": "short nature trail", # MODIFIED
+                "donde": "Sendero natural o bosque.", "donde_en": "Nature trail or forest.", "gps": "short+nature+trail+",
                 "vector_necesidades": {"movimiento": 85, "naturaleza": 100, "silencio": 80, "agua": 40, "sol": 60, "sombra": 70, "aire_fresco": 100, "creatividad": 40, "comunidad": 20, "aprendizaje": 50, "juego": 20, "contemplacion": 90, "trabajo": 10, "descanso": 60, "organizacion": 20, "alimentacion": 0, "musica": 20, "risa": 10, "esperanza": 85}
             },
             {
@@ -347,7 +345,7 @@ BASE_MISIONES = {
                 "porque": "Mente acelerada. Quema esa energía extra. Enfoca tu ritmo.", "porque_en": "Racing mind. Burn off extra energy. Focus your rhythm.",
                 "que_hacer": "Dirígete a una pista pública. Corre o camina a tu propio paso. Libera.", "que_hacer_en": "Go to a public track. Run or walk at your own pace. Release.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Pista de atletismo pública.", "donde_en": "Public running track.", "gps": "public running track", # MODIFIED
+                "donde": "Pista de atletismo pública.", "donde_en": "Public running track.", "gps": "public+running+track+",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 30, "silencio": 40, "agua": 10, "sol": 80, "sombra": 30, "aire_fresco": 90, "creatividad": 10, "comunidad": 50, "aprendizaje": 20, "juego": 30, "contemplacion": 50, "trabajo": 30, "descanso": 10, "organizacion": 70, "alimentacion": 0, "musica": 50, "risa": 20, "esperanza": 70}
             },
             {   # Added for 6+ missions
@@ -355,17 +353,17 @@ BASE_MISIONES = {
                 "porque": "Necesitas liberar tensión y moverte rápido. Siente el viento. Explora tu entorno.", "porque_en": "Need to release tension and move fast. Feel the wind. Explore your surroundings.",
                 "que_hacer": "Encuentra un carril bici seguro y pedalea. Siente la velocidad y el control.", "que_hacer_en": "Find a safe bike lane and pedal. Feel the speed and control.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Carril bici o parque con ruta.", "donde_en": "Bike lane or park with route.", "gps": "bike lane or route", # MODIFIED
+                "donde": "Carril bici o parque con ruta.", "donde_en": "Bike lane or park with route.", "gps": "bike+lane+or+route+",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 60, "silencio": 30, "agua": 10, "sol": 80, "sombra": 40, "aire_fresco": 95, "creatividad": 30, "comunidad": 50, "aprendizaje": 40, "juego": 70, "contemplacion": 60, "trabajo": 20, "descanso": 30, "organizacion": 60, "alimentacion": 0, "musica": 50, "risa": 40, "esperanza": 80}
             },
         ],
-        "aburrido": [ # FIRST & ONLY occurrence for 'aburrido'
+        "aburrido": [
             {
                 "id": 103, "titulo": "Paseo de colores", "titulo_en": "Color Walk",
                 "porque": "Días repetitivos. Busca novedad. Despierta tu visión.", "porque_en": "Repetitive days. Seek novelty. Awaken your sight.",
                 "que_hacer": "Camina lento. Busca murales y dibujos grandes en tu zona.", "que_hacer_en": "Walk slowly. Find large murals and drawings in your area.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Calle con murales.", "donde_en": "Street with murals.", "gps": "street art", # MODIFIED
+                "donde": "Calle con murales.", "donde_en": "Street with murals.", "gps": "street+art+",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 20, "silencio": 40, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 100, "comunidad": 60, "aprendizaje": 70, "juego": 55, "contemplacion": 85, "trabajo": 10, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 30, "risa": 60, "esperanza": 95}
             },
             {
@@ -373,7 +371,7 @@ BASE_MISIONES = {
                 "porque": "Necesitas nuevos estímulos. Sabores y olores frescos. Apoya lo local.", "porque_en": "Need new stimuli. Fresh tastes and smells. Support local.",
                 "que_hacer": "Visita un mercado local. Prueba algo nuevo. Habla con los vendedores.", "que_hacer_en": "Visit a local market. Try something new. Talk to vendors.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Mercado de agricultores.", "donde_en": "Farmers market.", "gps": "farmers market", # MODIFIED
+                "donde": "Mercado de agricultores.", "donde_en": "Farmers market.", "gps": "farmers+market+",
                 "vector_necesidades": {"movimiento": 60, "naturaleza": 50, "silencio": 30, "agua": 10, "sol": 70, "sombra": 40, "aire_fresco": 80, "creatividad": 70, "comunidad": 90, "aprendizaje": 60, "juego": 40, "contemplacion": 50, "trabajo": 20, "descanso": 30, "organizacion": 50, "alimentacion": 100, "musica": 30, "risa": 70, "esperanza": 80}
             },
             {
@@ -381,7 +379,7 @@ BASE_MISIONES = {
                 "porque": "Mente en bucle. Busca inspiración. Despierta tu creatividad.", "porque_en": "Mind in a loop. Seek inspiration. Awaken your creativity.",
                 "que_hacer": "Visita una galería o museo local. Observa el arte. Reflexiona en silencio.", "que_hacer_en": "Visit a local gallery or museum. Observe the art. Reflect in silence.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Galería de arte o museo.", "donde_en": "Art gallery or museum.", "gps": "art gallery", # MODIFIED
+                "donde": "Galería de arte o museo.", "donde_en": "Art gallery or museum.", "gps": "art+gallery+",
                 "vector_necesidades": {"movimiento": 40, "naturaleza": 10, "silencio": 70, "agua": 0, "sol": 10, "sombra": 90, "aire_fresco": 30, "creatividad": 100, "comunidad": 50, "aprendizaje": 90, "juego": 10, "contemplacion": 95, "trabajo": 10, "descanso": 60, "organizacion": 70, "alimentacion": 0, "musica": 60, "risa": 20, "esperanza": 85}
             },
             {
@@ -389,7 +387,7 @@ BASE_MISIONES = {
                 "porque": "Necesitas energía visual. Observa la libertad y el movimiento. Conéctate con el juego.", "porque_en": "Need visual energy. Observe freedom and movement. Connect with play.",
                 "que_hacer": "Acércate a un skate park. Observa a los patinadores. Siente la vitalidad.", "que_hacer_en": "Go to a skate park. Watch the skaters. Feel the vitality.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Skate park público.", "donde_en": "Public skate park.", "gps": "skate park", # MODIFIED
+                "donde": "Skate park público.", "donde_en": "Public skate park.", "gps": "skate+park+",
                 "vector_necesidades": {"movimiento": 70, "naturaleza": 30, "silencio": 20, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 80, "comunidad": 80, "aprendizaje": 30, "juego": 100, "contemplacion": 60, "trabajo": 10, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 70, "risa": 90, "esperanza": 90}
             },
             {
@@ -397,7 +395,7 @@ BASE_MISIONES = {
                 "porque": "Busca historias y conocimiento. Desconéctate del mundo digital. Nutre tu mente.", "porque_en": "Seek stories and knowledge. Disconnect from digital. Nourish your mind.",
                 "que_hacer": "Explora una librería de segunda mano. Busca títulos inesperados. Disfruta el aroma.", "que_hacer_en": "Explore a used bookstore. Look for unexpected titles. Enjoy the scent.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Librería de segunda mano.", "donde_en": "Used bookstore.", "gps": "used bookstore", # MODIFIED
+                "donde": "Librería de segunda mano.", "donde_en": "Used bookstore.", "gps": "used+bookstore+",
                 "vector_necesidades": {"movimiento": 30, "naturaleza": 10, "silencio": 85, "agua": 0, "sol": 20, "sombra": 95, "aire_fresco": 40, "creatividad": 90, "comunidad": 30, "aprendizaje": 100, "juego": 20, "contemplacion": 90, "trabajo": 20, "descanso": 80, "organizacion": 70, "alimentacion": 0, "musica": 10, "risa": 5, "esperanza": 75}
             },
             {   # Added for 6+ missions
@@ -405,7 +403,7 @@ BASE_MISIONES = {
                 "porque": "Necesitas un cambio de ambiente y una nueva perspectiva. Disfruta una historia en un entorno diferente.", "porque_en": "Need a change of scenery and new perspective. Enjoy a story in a different setting.",
                 "que_hacer": "Asiste a una proyección de cine al aire libre. Sumérgete en la película y el ambiente.", "que_hacer_en": "Attend an outdoor cinema screening. Immerse yourself in the film and atmosphere.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Parque o plaza con proyecciones.", "donde_en": "Park or plaza with screenings.", "gps": "outdoor cinema", # MODIFIED
+                "donde": "Parque o plaza con proyecciones.", "donde_en": "Park or plaza with screenings.", "gps": "outdoor+cinema+",
                 "vector_necesidades": {"movimiento": 30, "naturaleza": 60, "silencio": 40, "agua": 10, "sol": 50, "sombra": 70, "aire_fresco": 80, "creatividad": 90, "comunidad": 80, "aprendizaje": 70, "juego": 50, "contemplacion": 80, "trabajo": 10, "descanso": 70, "organizacion": 20, "alimentacion": 60, "musica": 70, "risa": 70, "esperanza": 85}
             },
         ],
@@ -415,7 +413,7 @@ BASE_MISIONES = {
                 "porque": "Necesitas calma. Aprende sin distracciones. Recarga tu energía.", "porque_en": "Need calm. Learn without distractions. Recharge your energy.",
                 "que_hacer": "Visita tu biblioteca local. Busca un libro o disfruta el silencio.", "que_hacer_en": "Visit your local library. Find a book or enjoy the silence.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Biblioteca pública.", "donde_en": "Public library.", "gps": "public library", # MODIFIED
+                "donde": "Biblioteca pública.", "donde_en": "Public library.", "gps": "public+library+",
                 "vector_necesidades": {"movimiento": 30, "naturaleza": 10, "silencio": 100, "agua": 0, "sol": 10, "sombra": 80, "aire_fresco": 50, "creatividad": 70, "comunidad": 50, "aprendizaje": 95, "juego": 10, "contemplacion": 90, "trabajo": 40, "descanso": 85, "organizacion": 70, "alimentacion": 0, "musica": 0, "risa": 10, "esperanza": 70}
             },
             {
@@ -423,7 +421,7 @@ BASE_MISIONES = {
                 "porque": "Mente dispersa. Necesitas un foco. Organiza tus ideas.", "porque_en": "Scattered mind. Need a focus. Organize your thoughts.",
                 "que_hacer": "Encuentra un espacio de coworking tranquilo. Trabaja en algo pendiente. Siente la productividad.", "que_hacer_en": "Find a quiet coworking space. Work on pending tasks. Feel productive.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Espacio de coworking.", "donde_en": "Coworking space.", "gps": "coworking space", # MODIFIED
+                "donde": "Espacio de coworking.", "donde_en": "Coworking space.", "gps": "coworking+space+",
                 "vector_necesidades": {"movimiento": 30, "naturaleza": 5, "silencio": 80, "agua": 10, "sol": 20, "sombra": 90, "aire_fresco": 50, "creatividad": 80, "comunidad": 60, "aprendizaje": 90, "juego": 5, "contemplacion": 70, "trabajo": 100, "descanso": 50, "organizacion": 100, "alimentacion": 30, "musica": 30, "risa": 10, "esperanza": 80}
             },
             {
@@ -431,7 +429,7 @@ BASE_MISIONES = {
                 "porque": "Necesitas despejar la mente. Aire fresco y vistas al agua. Caminata relajante.", "porque_en": "Need to clear mind. Fresh air and water views. Relaxing walk.",
                 "que_hacer": "Camina por el muelle o puerto. Observa los barcos. Escucha el agua.", "que_hacer_en": "Walk along the dock or harbor. Watch the boats. Listen to the water.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Puerto o muelle.", "donde_en": "Harbor or pier.", "gps": "harbor walk or pier", # MODIFIED
+                "donde": "Puerto o muelle.", "donde_en": "Harbor or pier.", "gps": "harbor+walk+or+pier+",
                 "vector_necesidades": {"movimiento": 70, "naturaleza": 80, "silencio": 60, "agua": 100, "sol": 70, "sombra": 50, "aire_fresco": 95, "creatividad": 50, "comunidad": 60, "aprendizaje": 40, "juego": 30, "contemplacion": 90, "trabajo": 10, "descanso": 80, "organizacion": 20, "alimentacion": 20, "musica": 50, "risa": 40, "esperanza": 90}
             },
             {
@@ -439,7 +437,7 @@ BASE_MISIONES = {
                 "porque": "Mente ansiosa. Busca perspectiva universal. Maravíllate con el cosmos.", "porque_en": "Anxious mind. Seek universal perspective. Marvel at the cosmos.",
                 "que_hacer": "Visita un observatorio. Aprende sobre el universo. Observa las estrellas (si es posible).", "que_hacer_en": "Visit an observatory. Learn about the universe. Stargaze (if possible).",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Observatorio astronómico.", "donde_en": "Astronomical observatory.", "gps": "astronomical observatory", # MODIFIED
+                "donde": "Observatorio astronómico.", "donde_en": "Astronomical observatory.", "gps": "astronomical+observatory+",
                 "vector_necesidades": {"movimiento": 10, "naturaleza": 70, "silencio": 90, "agua": 0, "sol": 10, "sombra": 100, "aire_fresco": 70, "creatividad": 80, "comunidad": 40, "aprendizaje": 100, "juego": 10, "contemplacion": 100, "trabajo": 0, "descanso": 90, "organizacion": 60, "alimentacion": 0, "musica": 30, "risa": 5, "esperanza": 95}
             },
             {
@@ -447,7 +445,7 @@ BASE_MISIONES = {
                 "porque": "Necesitas observar. Conéctate con la vida urbana. Descansa y reflexiona.", "porque_en": "Need to observe. Connect with urban life. Rest and reflect.",
                 "que_hacer": "Siéntate en un banco. Observa a la gente pasar. Siente el pulso de la ciudad.", "que_hacer_en": "Sit on a bench. Watch people pass by. Feel the city's pulse.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Plaza pública o parque.", "donde_en": "Public plaza or park.", "gps": "public plaza", # MODIFIED
+                "donde": "Plaza pública o parque.", "donde_en": "Public plaza or park.", "gps": "public+plaza+",
                 "vector_necesidades": {"movimiento": 20, "naturaleza": 60, "silencio": 30, "agua": 10, "sol": 90, "sombra": 70, "aire_fresco": 80, "creatividad": 50, "comunidad": 80, "aprendizaje": 40, "juego": 30, "contemplacion": 90, "trabajo": 10, "descanso": 100, "organizacion": 20, "alimentacion": 10, "musica": 60, "risa": 50, "esperanza": 85}
             },
             {   # Added for 6+ missions
@@ -455,7 +453,7 @@ BASE_MISIONES = {
                 "porque": "Mente agotada de lo predecible. Necesitas una inyección de conocimiento y un suave movimiento. Aprende mientras caminas.", "porque_en": "Mind tired of predictability. Need an injection of knowledge and gentle movement. Learn as you walk.",
                 "que_hacer": "Busca un tour a pie gratuito o de bajo costo por tu ciudad. Descubre historias locales.", "que_hacer_en": "Find a free or low-cost walking tour of your city. Discover local stories.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour", # MODIFIED
+                "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free+walking+tour+",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "trabajo": 10, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
             },
         ],
@@ -465,7 +463,7 @@ BASE_MISIONES = {
                 "porque": "Agua en movimiento. Calma tu mente. Relaja tensiones.", "porque_en": "Moving water. Calm your mind. Release tensions.",
                 "que_hacer": "Busca fuente, lago o río cercano. Observa el flujo. Déjate llevar.", "que_hacer_en": "Find nearby fountain, lake, or river. Observe the flow. Let go.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Fuente de agua o lago.", "donde_en": "Water fountain or lake.", "gps": "public fountain or lake", # MODIFIED
+                "donde": "Fuente de agua o lago.", "donde_en": "Water fountain or lake.", "gps": "public+fountain+or+lake+",
                 "vector_necesidades": {"movimiento": 40, "naturaleza": 80, "silencio": 70, "agua": 100, "sol": 60, "sombra": 50, "aire_fresco": 90, "creatividad": 20, "comunidad": 30, "aprendizaje": 10, "juego": 20, "contemplacion": 90, "trabajo": 0, "descanso": 80, "organizacion": 10, "alimentacion": 0, "musica": 50, "risa": 10, "esperanza": 80}
             },
             {
@@ -473,7 +471,7 @@ BASE_MISIONES = {
                 "porque": "Estrés acumulado. Necesitas desconexión total. Flota y relájate.", "porque_en": "Accumulated stress. Need total disconnection. Float and relax.",
                 "que_hacer": "Realiza un paseo corto en bote. Siente la brisa. Observa la inmensidad del agua.", "que_hacer_en": "Take a short boat ride. Feel the breeze. Observe the vastness of water.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Lago o río con alquiler de botes.", "donde_en": "Lake or river with boat rentals.", "gps": "boat rentals lake or river", # MODIFIED
+                "donde": "Lago o río con alquiler de botes.", "donde_en": "Lake or river with boat rentals.", "gps": "boat+rentals+lake+or+river+",
                 "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 80, "agua": 100, "sol": 80, "sombra": 60, "aire_fresco": 100, "creatividad": 50, "comunidad": 50, "aprendizaje": 30, "juego": 60, "contemplacion": 95, "trabajo": 0, "descanso": 90, "organizacion": 10, "alimentacion": 20, "musica": 60, "risa": 30, "esperanza": 90}
             },
             {
@@ -481,7 +479,7 @@ BASE_MISIONES = {
                 "porque": "Mente agitada. Busca orden y armonía. Centra tus pensamientos.", "porque_en": "Agitated mind. Seek order and harmony. Center your thoughts.",
                 "que_hacer": "Encuentra un jardín de rocas. Observa las formas y la disposición. Medita en su calma.", "que_hacer_en": "Find a rock garden. Observe the shapes and arrangement. Meditate in its calm.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Jardín de rocas o japonés.", "donde_en": "Rock or Japanese garden.", "gps": "zen garden", # MODIFIED
+                "donde": "Jardín de rocas o japonés.", "donde_en": "Rock or Japanese garden.", "gps": "zen+garden+",
                 "vector_necesidades": {"movimiento": 10, "naturaleza": 90, "silencio": 100, "agua": 50, "sol": 50, "sombra": 80, "aire_fresco": 90, "creatividad": 70, "comunidad": 20, "aprendizaje": 60, "juego": 5, "contemplacion": 100, "trabajo": 0, "descanso": 95, "organizacion": 100, "alimentacion": 0, "musica": 20, "risa": 5, "esperanza": 90}
             },
             {
@@ -489,7 +487,7 @@ BASE_MISIONES = {
                 "porque": "Necesitas risas y alegría. Observa el juego inocente. Contagia la energía positiva.", "porque_en": "Need laughter and joy. Observe innocent play. Catch positive energy.",
                 "que_hacer": "Visita un parque de perros. Observa su interacción. Siente la diversión.", "que_hacer_en": "Visit a dog park. Observe their interaction. Feel the fun.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Parque de perros local.", "donde_en": "Local dog park.", "gps": "dog park", # MODIFIED
+                "donde": "Parque de perros local.", "donde_en": "Local dog park.", "gps": "dog+park+",
                 "vector_necesidades": {"movimiento": 70, "naturaleza": 70, "silencio": 30, "agua": 20, "sol": 80, "sombra": 40, "aire_fresco": 90, "creatividad": 60, "comunidad": 90, "aprendizaje": 10, "juego": 100, "contemplacion": 40, "trabajo": 0, "descanso": 60, "organizacion": 10, "alimentacion": 10, "musica": 20, "risa": 100, "esperanza": 90}
             },
             {
@@ -497,7 +495,7 @@ BASE_MISIONES = {
                 "porque": "Mente estresada. Necesitas una experiencia sensorial. Permite que la música te calme.", "porque_en": "Stressed mind. Need a sensory experience. Let music calm you.",
                 "que_hacer": "Encuentra un lugar con música en vivo tranquila. Escucha, relájate y disfruta.", "que_hacer_en": "Find a place with calm live music. Listen, relax, and enjoy.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Bar o cafetería con música suave.", "donde_en": "Bar or cafe with calm music.", "gps": "live jazz bar", # MODIFIED
+                "donde": "Bar o cafetería con música suave.", "donde_en": "Bar or cafe with calm music.", "gps": "live+jazz+bar+",
                 "vector_necesidades": {"movimiento": 10, "naturaleza": 10, "silencio": 10, "agua": 0, "sol": 10, "sombra": 90, "aire_fresco": 50, "creatividad": 90, "comunidad": 70, "aprendizaje": 20, "juego": 20, "contemplacion": 90, "trabajo": 0, "descanso": 80, "organizacion": 10, "alimentacion": 50, "musica": 100, "risa": 40, "esperanza": 85}
             },
             {   # Added for 6+ missions
@@ -505,8 +503,58 @@ BASE_MISIONES = {
                 "porque": "Cuerpo tenso, mente agitada. El agua relaja y el movimiento controlado calma. Flota tus preocupaciones.", "porque_en": "Tense body, agitated mind. Water relaxes and controlled movement calms. Float your worries away.",
                 "que_hacer": "Visita una piscina pública, date un chapuzón o simplemente relájate en el agua.", "que_hacer_en": "Visit a public pool, take a dip or just relax in the water.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Piscina municipal o comunitaria.", "donde_en": "Municipal or community pool.", "gps": "public swimming pool", # MODIFIED
+                "donde": "Piscina municipal o comunitaria.", "donde_en": "Municipal or community pool.", "gps": "public+swimming+pool+",
                 "vector_necesidades": {"movimiento": 90, "naturaleza": 40, "silencio": 50, "agua": 100, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 30, "comunidad": 70, "aprendizaje": 20, "juego": 80, "contemplacion": 70, "trabajo": 10, "descanso": 90, "organizacion": 20, "alimentacion": 10, "musica": 40, "risa": 60, "esperanza": 85}
+            },
+        ],
+        "aburrido": [ # Duplicated for the last state as it was not present
+            {
+                "id": 103, "titulo": "Paseo de colores", "titulo_en": "Color Walk",
+                "porque": "Días repetitivos. Busca novedad. Despierta tu visión.", "porque_en": "Repetitive days. Seek novelty. Awaken your sight.",
+                "que_hacer": "Camina lento. Busca murales y dibujos grandes en tu zona.", "que_hacer_en": "Walk slowly. Find large murals and drawings in your area.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Calle con murales.", "donde_en": "Street with murals.", "gps": "street+art+",
+                "vector_necesidades": {"movimiento": 80, "naturaleza": 20, "silencio": 40, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 100, "comunidad": 60, "aprendizaje": 70, "juego": 55, "contemplacion": 85, "trabajo": 10, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 30, "risa": 60, "esperanza": 95}
+            },
+            {
+                "id": 114, "titulo": "Mercado de Agricultores", "titulo_en": "Farmers Market",
+                "porque": "Necesitas nuevos estímulos. Sabores y olores frescos. Apoya lo local.", "porque_en": "Need new stimuli. Fresh tastes and smells. Support local.",
+                "que_hacer": "Visita un mercado local. Prueba algo nuevo. Habla con los vendedores.", "que_hacer_en": "Visit a local market. Try something new. Talk to vendors.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Mercado de agricultores.", "donde_en": "Farmers market.", "gps": "farmers+market+",
+                "vector_necesidades": {"movimiento": 60, "naturaleza": 50, "silencio": 30, "agua": 10, "sol": 70, "sombra": 40, "aire_fresco": 80, "creatividad": 70, "comunidad": 90, "aprendizaje": 60, "juego": 40, "contemplacion": 50, "trabajo": 20, "descanso": 30, "organizacion": 50, "alimentacion": 100, "musica": 30, "risa": 70, "esperanza": 80}
+            },
+            {
+                "id": 115, "titulo": "Exposición de Arte", "titulo_en": "Art Exhibition",
+                "porque": "Mente en bucle. Busca inspiración. Despierta tu creatividad.", "porque_en": "Mind in a loop. Seek inspiration. Awaken your creativity.",
+                "que_hacer": "Visita una galería o museo local. Observa el arte. Reflexiona en silencio.", "que_hacer_en": "Visit a local gallery or museum. Observe the art. Reflect in silence.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Galería de arte o museo.", "donde_en": "Art gallery or museum.", "gps": "art+gallery+",
+                "vector_necesidades": {"movimiento": 40, "naturaleza": 10, "silencio": 70, "agua": 0, "sol": 10, "sombra": 90, "aire_fresco": 30, "creatividad": 100, "comunidad": 50, "aprendizaje": 90, "juego": 10, "contemplacion": 95, "trabajo": 10, "descanso": 60, "organizacion": 70, "alimentacion": 0, "musica": 60, "risa": 20, "esperanza": 85}
+            },
+            {
+                "id": 116, "titulo": "Parque de Patinaje", "titulo_en": "Skate Park",
+                "porque": "Necesitas energía visual. Observa la libertad y el movimiento. Conéctate con el juego.", "porque_en": "Need visual energy. Observe freedom and movement. Connect with play.",
+                "que_hacer": "Acércate a un skate park. Observa a los patinadores. Siente la vitalidad.", "que_hacer_en": "Go to a skate park. Watch the skaters. Feel the vitality.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Skate park público.", "donde_en": "Public skate park.", "gps": "skate+park+",
+                "vector_necesidades": {"movimiento": 70, "naturaleza": 30, "silencio": 20, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 80, "comunidad": 80, "aprendizaje": 30, "juego": 100, "contemplacion": 60, "trabajo": 10, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 70, "risa": 90, "esperanza": 90}
+            },
+            {
+                "id": 117, "titulo": "Librería de Segunda Mano", "titulo_en": "Used Bookstore",
+                "porque": "Busca historias y conocimiento. Desconéctate del mundo digital. Nutre tu mente.", "porque_en": "Seek stories and knowledge. Disconnect from digital. Nourish your mind.",
+                "que_hacer": "Explora una librería de segunda mano. Busca títulos inesperados. Disfruta el aroma.", "que_hacer_en": "Explore a used bookstore. Look for unexpected titles. Enjoy the scent.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Librería de segunda mano.", "donde_en": "Used bookstore.", "gps": "used+bookstore+",
+                "vector_necesidades": {"movimiento": 30, "naturaleza": 10, "silencio": 85, "agua": 0, "sol": 20, "sombra": 95, "aire_fresco": 40, "creatividad": 90, "comunidad": 30, "aprendizaje": 100, "juego": 20, "contemplacion": 90, "trabajo": 20, "descanso": 80, "organizacion": 70, "alimentacion": 0, "musica": 10, "risa": 5, "esperanza": 75}
+            },
+            {   # Added for 6+ missions
+                "id": 128, "titulo": "Cine al aire libre", "titulo_en": "Outdoor Cinema",
+                "porque": "Necesitas un cambio de ambiente y una nueva perspectiva. Disfruta una historia en un entorno diferente.", "porque_en": "Need a change of scenery and new perspective. Enjoy a story in a different setting.",
+                "que_hacer": "Asiste a una proyección de cine al aire libre. Sumérgete en la película y el ambiente.", "que_hacer_en": "Attend an outdoor cinema screening. Immerse yourself in the film and atmosphere.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Parque o plaza con proyecciones.", "donde_en": "Park or plaza with screenings.", "gps": "outdoor+cinema+",
+                "vector_necesidades": {"movimiento": 30, "naturaleza": 60, "silencio": 40, "agua": 10, "sol": 50, "sombra": 70, "aire_fresco": 80, "creatividad": 90, "comunidad": 80, "aprendizaje": 70, "juego": 50, "contemplacion": 80, "trabajo": 10, "descanso": 70, "organizacion": 20, "alimentacion": 60, "musica": 70, "risa": 70, "esperanza": 85}
             },
         ],
     }
@@ -517,8 +565,8 @@ BIG_TECH_RESOURCES = {
     "youtube_audio_es": "https://www.youtube.com/results?search_query=sonidos+naturaleza+relajantes",
     "spotify_audio_en": "https://open.spotify.com/genre/mood/relax-stress-relief",
     "youtube_audio_en": "https://www.youtube.com/results?search_query=nature+sounds+relaxing",
-    "staffing_agencies_es": "agencias de empleo", # MODIFIED: spaces instead of +
-    "staffing_agencies_en": "employment agencies" # MODIFIED: spaces instead of +
+    "staffing_agencies_es": "agencias+de+empleo",
+    "staffing_agencies_en": "employment+agencies"
 }
 
 # ============================================================
@@ -786,7 +834,6 @@ async def mando_integral(request: Request):
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
    
-    # MODIFIED: Backend ZIP validation remains, but frontend prevents invalid data.
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
         return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
    
@@ -811,8 +858,7 @@ async def mando_integral(request: Request):
             BASE_MISIONES[f"CASA_{idioma}"]
         ) # All CASA missions are now combined in one key for brevity
        
-        # MODIFIED: Frontend now sends 'historial_casa' directly.
-        historial_casa = payload.get("historial_casa", [])
+        historial_casa = payload.get("seen_ids_casa", []) # frontend should send this key for CASA mode
        
         misiones_casa = seleccionar_misiones_casa_inteligente(
             misiones_completas,
@@ -839,9 +885,8 @@ async def mando_integral(request: Request):
         BASE_MISIONES["SALIR"]["aburrido"] # Fallback to 'aburrido' if mental state is unknown
     )
    
-    # MODIFIED: Frontend now sends 'historial_salir' directly.
     historial_salir = payload.get(
-        "historial_salir",
+        "seen_ids", # frontend should send this key for SALIR mode
         []
     )
    
@@ -896,14 +941,9 @@ async def mando_integral(request: Request):
 
     titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
     donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-   
-    # CORRECCIÓN MECÁNICA: Definir anclaje_geografico para evitar NameError
-    anclaje_geografico = zip_code # Utiliza el código postal como anclaje geográfico principal
-
-    # MODIFIED: Secure Google Maps link construction using urllib.parse.quote_plus()
-    # No manual string concatenations with "+"
-    map_base_url = "https://www.google.com/maps/search/?api=1&query="
-    target_link = ""
+    link_base = "https://www.google.com/maps/search/?api=1&query="
+    gps_query = info_seleccionada["gps"]
+    guia_masticada = ""
 
     if any(p in desahogo for p in palabras_criticas):
         canal_multimedia = random.choice(["SPOTIFY", "YOUTUBE", "STAFFING"])
@@ -919,8 +959,8 @@ async def mando_integral(request: Request):
                 "WHAT TO DO: Listen to nature sounds in silence.\n"
                 "WHY: Stop the urge to buy unnecessary items today."
             )
-            target_link = BIG_TECH_RESOURCES[f"spotify_audio_{lang}"]
-            gps_query = "" # Ensure no GPS query for Spotify/Youtube
+            link_base = BIG_TECH_RESOURCES[f"spotify_audio_{lang}"]
+            gps_query = ""
         elif canal_multimedia == "YOUTUBE":
             titulo_ganador = "REINICIO VISUAL" if lang == "es" else "VISUAL SHOCK"
             donde_base = "Frecuencia de Alivio" if lang == "es" else "Relief Frequency"
@@ -933,8 +973,8 @@ async def mando_integral(request: Request):
                 "WHAT TO DO: Play the video in full screen.\n"
                 "WHY: Calm your racing thoughts right now."
             )
-            target_link = BIG_TECH_RESOURCES[f"youtube_audio_{lang}"]
-            gps_query = "" # Ensure no GPS query for Spotify/Youtube
+            link_base = BIG_TECH_RESOURCES[f"youtube_audio_{lang}"]
+            gps_query = ""
         else: # STAFFING
             titulo_ganador = "ACTIVACIÓN LABORAL" if lang == "es" else "ECONOMIC ACTION"
             donde_base = (
@@ -952,13 +992,9 @@ async def mando_integral(request: Request):
                 f"WHY: Look for a quick job and get cash now.\n"
                 f"{quienes_van}\n{precio_real}"
             )
-            # For staffing, gps_query is the string from BIG_TECH_RESOURCES (e.g. "agencias de empleo")
+            link_base = "https://www.google.com/maps/search/?api=1&query="
             gps_query = BIG_TECH_RESOURCES[f"staffing_agencies_{lang}"]
-           
-            full_staffing_search = f"{gps_query} in {anclaje_geografico}"
-            target_link = f"{map_base_url}{urllib.parse.quote_plus(full_staffing_search)}"
     else:
-        # Standard SALIR mission
         if lang == "en":
             guia_masticada = (
                 f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
@@ -979,22 +1015,24 @@ async def mando_integral(request: Request):
                 f"{quienes_van}\n{precio_real}"
             )
             titulo_ganador = (info_seleccionada["titulo"] or "").upper()
-       
-        # Build the map query string using the cleaned gps_query
-        search_query_parts = []
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
-       
-        search_query_parts.append(info_seleccionada["gps"]) # This already has spaces now
-        search_query_parts.append(f"in {anclaje_geografico}")
-       
-        full_map_query_string = " ".join(search_query_parts)
-        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
    
-    final_link = target_link # Final assignment
-
+    # Construcción del enlace GPS
+    if link_base.startswith("https://www.google.com/maps"):
+        if perfil_tipo == "accesible":
+            gps_query = "wheelchair+accessible+" + gps_query
+        elif perfil_tipo == "familia":
+            gps_query = "family+friendly+" + gps_query
+   
+    anclaje_geografico = zip_code if zip_code else f"{region}+{estado}" # Fallback for geolocation
+   
+    final_link = ""
+    if gps_query:
+        if link_base.startswith("http") and "google.com/maps" in link_base:
+            final_link = f"{link_base}{gps_query}+in+{anclaje_geografico}".replace(" ", "+")
+        else: # For spotify/youtube/staffing, link_base already contains the full URL
+            final_link = link_base
+    else:
+        final_link = link_base
            
     final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
    
