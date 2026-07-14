@@ -846,114 +846,88 @@ async def mando_integral(request: Request):
     }
     if "indicador_ansiedad" not in perfil_local:
         perfil_local["indicador_ansiedad"] = 0
-
-    # ============================================================
-    # TERAPEUTIC STRESS INTERCEPTOR FILTER
-    # Eliminar cualquier elemento que pueda aumentar el estrés del cliente.
-    # Si el desahogo contiene palabras críticas, se fuerza una microacción de recuperación mental.
-    # ============================================================
+        
+    # ==========================================================================================
+    # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO
+    # ==========================================================================================
     sensitive_keywords = [
-        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum",
-        "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income",
-        "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades",
-        "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo",
-        "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica",
-        "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco",
-        "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo",
-        "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales",
-        "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
+        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum", "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income", "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades", "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo", "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica", "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo", "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales", "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
     ]
-
+    
     force_recovery_mission = False
-    # Check if *explicitly* asking for work, as per rule
     explicitly_seeking_job = any(phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"])
-   
-    if desahogo and not explicitly_seeking_job: # Only apply stress filter if not explicitly seeking job
+    
+    # DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
+    marca_detectada = None
+    if desahogo and not explicitly_seeking_job:
         desahogo_lower = desahogo.lower()
         if any(keyword in desahogo_lower for keyword in sensitive_keywords):
             force_recovery_mission = True
-            opcion_usuario = "CASA" # Force CASA mode for recovery mission
+            # Extraer la marca o palabra clave exacta declarada en el desahogo
+            for keyword in ["walmart", "amazon", "costco", "starbucks", "mcdonald", "spotify", "youtube"]:
+                if keyword in desahogo_lower:
+                    marca_detectada = keyword.capitalize()
+                    break
 
-    if force_recovery_mission:
-        idioma = "EN" if lang.lower() == "en" else "ES"
-        # Seleccionar una de las 10 nuevas microacciones (IDs 151 a 160)
-        microacciones_ids = list(range(151, 161))
-       
-        # Filtrar misiones_completas para incluir solo las microacciones
-        misiones_completas_casa = [m for m in BASE_MISIONES[f"CASA_{idioma}"] if m["id"] in microacciones_ids]
-       
-        if not misiones_completas_casa: # Fallback if for some reason no microactions are found
-            misiones_completas_casa = BASE_MISIONES[f"CASA_{idioma}"]
+    # INVERSIÓN SISTÉMICA CRÍTICA: SI HAY SÍNTOMA CORPORATIVO, NO HUYES A CASA, EJECUTAS UN CONTRAATAQUE DE CAMPO
+    if force_recovery_mission and marca_detectada:
+        # Destruye el bucle de las 3 opciones del demo inyectando una misión dinámica y automática en el Zip Code del cliente
+        diagnostico_sintoma = f"Mapeo Biopsicosocial Abierto: El cliente experimenta [{mente.upper()}] en relacion directa con el estimulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
+        
+        # Asignación dura y omnipresente del contraataque fisiológico (Fase 5 del Manifiesto)
+        if marca_detectada == "Walmart":
+            instruccion_fisiologica = "Estás en el templo del consumo masivo de USA. Toda esa infraestructura busca retener tu atención. Hackea el espacio: detén tu marcha en el pasillo, inhala hondo, expulsa el CO2 acumulado y repítete: 'Yo soy el único producto que requiere inversión hoy'. Sal de la rutina biológica sin comprar espejismos comerciales."
+        elif marca_detectada == "Amazon":
+            instruccion_fisiologica = "Tu mente busca una recompensa rápida de dopamina por evasión mediante comercio digital. Bloquea la pantalla. No busques parches afuera. Dirígete a tu espacio biológico inmediato: ejecuta el Módulo de Hidratación o Eliminación Celular profunda de tu organismo. Invierte tiempo de vida en tus células, no en el mercado."
+        elif marca_detectada in ["Youtube", "Tiktok", "Instagram"]:
+            instruccion_fisiologica = "El algoritmo de esta corporación secuestra tu atención mediante micro-estímulos visuales continuos. Interrumpe el bucle de control mental ahora mismo. Suelta el teléfono, cierra los ojos por 60 segundos y ejecuta una espiración diafragmática profunda liberando las hormonas del estrés acumuladas."
+        elif marca_detectada == "Spotify":
+            instruccion_fisiologica = "Estás usando frecuencias de sonido externas para aislarte de tu rutina o tapar la fatiga nerviosa. Detén el audio. Ejecuta el Módulo de Silencio Mental absoluto por un minuto completo. Siente el ritmo biológico real de los latidos de tu propio corazón en este Código Postal."
+        else:
+            instruccion_fisiologica = f"Has identificado que [{marca_detectada}] satura tu mente. Rebelate contra la monotonía: utiliza los pasillos, el aire libre o las ventanas de este perímetro en USA para realizar una pausa biológica profunda de 60 segundos. Has recuperado el control de tu conciencia."
 
-        historial_casa = payload.get("historial_casa", [])
-       
-        info_seleccionada = seleccionar_mision_inteligente(
-            misiones=misiones_completas_casa,
-            perfil_local=perfil_local,
-            historial=historial_casa # Use CASA history for this selection
-        )
-       
-        if not info_seleccionada: # Fallback just in case
-            info_seleccionada = random.choice(misiones_completas_casa)
-           
-        historial_casa = actualizar_historial(historial_casa, info_seleccionada["id"], MAX_HISTORY_CASA)
+        final_misiones_para_frontend = [{
+            "destino_id": 999,
+            "destino_titulo": f"HACKEO A {marca_detectada.upper()}",
+            "destino_titulo_en": f"HACKING {marca_detectada.upper()}",
+            "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
+            "que_hacer_en": "Mental Control Interruption and Return to Body.",
+            "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
+            "destino_instruccion": instruccion_fisiologica,
+            "destino_instruccion_en": f"TARGET: {marca_detectada}.\nDIAGNOSTIC: {diagnostico_sintoma}\nCOMMAND: Full visual screen blocking active. Focus 100% of your energy on cell hydration, breathing, or deep biological excretion functions. You are the only product that requires investment today.",
+            "destino_coordenadas_gps": f"https://google.com{marca_detectada}+in+{zip_code}",
+            "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True}
+        }]
 
         return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-            "misiones": [info_seleccionada], # Return as a list for consistency with normal CASA flow
-            "historial_casa_actualizado": historial_casa,
-            "forced_recovery": True # Indicate that this was a forced recovery
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "misiones": final_misiones_para_frontend,
+            "historial_salir_actualizado": payload.get("historial_salir", []),
+            "forced_recovery": True
         })
 
-    # 1. DOMESTIC INTERVENTION (CASA MODE)
+    # CONTINUACIÓN CONTINUA DEL FLUJO DE TRABAJO BASE DE LA PLATAFORMA OPEN THAN GO
+    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
         idioma = "EN" if lang.lower() == "en" else "ES"
-        misiones_completas = (
-            BASE_MISIONES[f"CASA_{idioma}"]
-        )
-       
+        misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
         historial_casa = payload.get("historial_casa", [])
-       
-        misiones_casa = seleccionar_misiones_casa_inteligente(
-            misiones_completas,
-            perfil_local,
-            historial_casa,
-            cantidad=3
-        )
-       
+        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, cantidad=3)
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
-       
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
         })
 
-    # ============================================================
-    # 2. FIELD ACTION (SALIR MODE - CWRE INTELLIGENT ENGINE V2)
-    #    Ahora devuelve 3 opciones para que el frontend elija.
-    # ============================================================
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(
-        mente,
-        BASE_MISIONES["SALIR"]["aburrido"]
-    )
-   
-    historial_salir = payload.get(
-        "historial_salir",
-        []
-    )
-   
-    # Selecciona 3 misiones diversas y de alto score
-    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
-        n=3,
-        misiones=opciones_salir_candidatas,
-        perfil_local=perfil_local,
-        historial_actual=historial_salir # Usa historial para penalización
-    )
-
+    # 2. ACCIÓN DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA DE MISIONES)
+    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
+    historial_salir = payload.get("historial_salir", [])
+    
+    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(n=3, misiones=opciones_salir_candidatas, perfil_local=perfil_local, historial_actual=historial_salir)
     final_misiones_para_frontend = []
-
+    
     for info_seleccionada in misiones_seleccionadas_raw:
         precio_real = ""
         if budget == "0":
@@ -962,7 +936,7 @@ async def mando_integral(request: Request):
             precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
         elif budget == "2":
             precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
-       
+
         quienes_van = ""
         if perfil_tipo == "solo":
             quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
@@ -970,13 +944,11 @@ async def mando_integral(request: Request):
             quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
         elif perfil_tipo == "accesible":
             quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
-       
+
         titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
         donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-       
         anclaje_geografico = zip_code
-        map_base_url = "https://www.google.com/maps/search/?api=1&query="
-        target_link = ""
+        map_base_url = "https://google.com"
 
         if lang == "en":
             guia_masticada = (
@@ -996,50 +968,74 @@ async def mando_integral(request: Request):
                 f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
                 f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
                 f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
-            que_hacer_lang = info_seleccionada['que_hacer'] or ''
-       
-        search_query_parts = []
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
-       
-        search_query_parts.append(info_seleccionada["gps"])
-        search_query_parts.append(f"in {anclaje_geografico}")
-       
-        full_map_query_string = " ".join(search_query_parts)
-        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-       
-        final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
+                f"{quienes_van}\n{precio_real}")
 
-        final_misiones_para_frontend.append({
-            "destino_id": info_seleccionada.get("id"),
-            "destino_titulo": titulo_ganador_lang,
-            "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]), # Incluir ambos para frontend
-            "que_hacer": info_seleccionada["que_hacer"], # Incluir ambos para frontend
-            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]), # Incluir ambos para frontend
-            "destino_entorno": donde_base,
-            "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            ).strip(),
-            "destino_coordenadas_gps": target_link,
-            "vector_entorno_seleccionado": final_vector_necesidades,
-        })
-   
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "misiones": final_misiones_para_frontend,
-        "historial_salir_actualizado": historial_salir # Se devuelve, pero la actualización principal se hará en el frontend.
-    })
+titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
+que_hacer_lang = info_seleccionada["que_hacer"] or ""
+
+# === CORRECCIÓN MILIMÉTRICA DE SANGRÍA LOGÍSTICA ===
+
+search_query_parts = []
+
+if perfil_tipo == "accesible":
+    search_query_parts.append("wheelchair accessible")
+elif perfil_tipo == "familia":
+    search_query_parts.append("family friendly")
+
+search_query_parts.append(info_seleccionada["gps"])
+search_query_parts.append(f"in {anclaje_geografico}")
+
+full_map_query_string = " ".join(search_query_parts)
+target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
+
+final_vector_necesidades = {
+    **DEFAULT_NECESSITY_VECTOR,
+    **info_seleccionada.get("vector_necesidades", {})
+}
+
+final_misiones_para_frontend.append({
+    "destino_id": info_seleccionada.get("id"),
+    "destino_titulo": titulo_ganador_lang,
+    "destino_titulo_en": info_seleccionada.get(
+        "titulo_en",
+        info_seleccionada["titulo"]
+    ),
+    "que_hacer": info_seleccionada["que_hacer"],
+    "que_hacer_en": info_seleccionada.get(
+        "que_hacer_en",
+        info_seleccionada["que_hacer"]
+    ),
+    "destino_entorno": donde_base,
+    "destino_instruccion": guia_masticada.strip(),
+    "destino_instruccion_en": (
+        f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
+        f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
+        f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+        f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
+        f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
+        f"{quienes_van}\n"
+        f"{precio_real}"
+    ).strip(),
+    "destino_coordenadas_gps": target_link,
+    "vector_entorno_seleccionado": final_vector_necesidades,
+})
+
+return JSONResponse({
+    "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+    "misiones": final_misiones_para_frontend,
+    "historial_salir_actualizado": historial_salir
+})
+
+# ==============================================================================
+# APERTURA NATIVA DEL SERVIDOR FASTAPI
+# ==============================================================================
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+    import os
+    import uvicorn
+
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8000)))
+    
