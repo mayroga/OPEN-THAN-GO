@@ -1338,6 +1338,161 @@ const KERNEL = {
         location.reload();
     }
 };
+// ==========================================================================================
+// OPEN THAN GO - LOGÍSTICA DE INVERSIÓN SISTÉMICA PREMIUM Y TELEMETRÍA DE T_OUT
+// ==========================================================================================
+(function() {
+    // Selectores del DOM integrados nativamente
+    const selectEmotion = document.getElementById("user-emotional-state");
+    const selectElement = document.getElementById("user-environment-element");
+    const zipCodeInput = document.getElementById("user-zip-code");
+    const submitBtn = document.getElementById("matrix-investment-form-submit");
+    
+    const overlay = document.getElementById("matrix-fullscreen-overlay");
+    const matrixHeadline = document.getElementById("matrix-headline");
+    const matrixDiagnostic = document.getElementById("matrix-diagnostic");
+    const matrixInstruction = document.getElementById("matrix-instruction");
+    const matrixTimer = document.getElementById("matrix-timer");
+    const btnCompleteInvestment = document.getElementById("btn-complete-investment");
+
+    let startTimeOut;
+    let timerInterval;
+
+    // 1. CARGA OMNIPRESENTE DE VARIABLES DE USA EN SELECTORES PREMIUM
+    async function inicializarMatrizConciencial() {
+        if (!selectEmotion || !selectElement) return;
+        try {
+            const response = await fetch("/api/v1/algoritmo-captura");
+            const dataResponse = await response.json();
+            
+            if (dataResponse.status === "success") {
+                const matriz = dataResponse.data;
+
+                // Limpiar opciones previas manteniendo la primera por defecto
+                selectEmotion.innerHTML = '<option value="" disabled selected>Identifica tu estado real...</option>';
+                selectElement.innerHTML = '<option value="" disabled selected>Identifica la marca o lugar...</option>';
+
+                // Inyectar nativamente los 26 estados emocionales de agonía o expansión
+                matriz.estados_emocionales.forEach(estado => {
+                    const opt = document.createElement("option");
+                    opt.value = estado;
+                    opt.textContent = `[${estado}]`;
+                    selectEmotion.appendChild(opt);
+                });
+
+                // Inyectar las marcas corporativas americanas (Síntomas de consumo)
+                matriz.marcas_usa.forEach(marca => {
+                    const opt = document.createElement("option");
+                    opt.value = marca;
+                    opt.textContent = `Consumo: ${marca}`;
+                    selectElement.appendChild(opt);
+                });
+
+                // Inyectar capas de infraestructura y entornos públicos/gubernamentales de USA
+                matriz.infraestructura_usa.forEach(entorno => {
+                    const opt = document.createElement("option");
+                    opt.value = entorno;
+                    opt.textContent = `Entorno: ${entorno}`;
+                    selectElement.appendChild(opt);
+                });
+            }
+        } catch (error) {
+            console.error("Fallo crítico inicializando la telemetría matricial de OPEN THAN GO:", error);
+        }
+    }
+
+    // 2. DISPARADOR DE COMPULSIÓN FÍSICA Y ACTIVACIÓN DE CAPA FLOTANTE DE BLOQUEO
+    if (submitBtn) {
+        // Encontrar el formulario padre si existe, o escuchar el click directo en tu botón premium
+        const formPadre = submitBtn.closest("form") || document.getElementById("matrix-investment-form");
+        const eventoEscucha = formPadre ? formPadre : submitBtn;
+        const tipoEvento = formPadre ? "submit" : "click";
+
+        eventoEscucha.addEventListener(tipoEvento, async (e) => {
+            if (formPadre) e.preventDefault();
+
+            // Validación estricta de campos obligatorios
+            if (!selectEmotion.value || !selectElement.value || !zipCodeInput.value) {
+                alert("Por favor, completa el Zip Code, tu Estado Real y el Consumo antes de hackear el sistema.");
+                return;
+            }
+
+            const datosCaptura = {
+                estado: selectEmotion.value,
+                elemento: selectElement.value,
+                zip_code: zipCodeInput.value
+            };
+
+            try {
+                const response = await fetch("/api/v1/algoritmo-procesar-inversion", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(datosCaptura)
+                });
+                const res = await response.json();
+
+                if (res.status === "success") {
+                    // Desplegar la capa flotante de pantalla completa imponente
+                    if (overlay) {
+                        overlay.classList.remove("d-none");
+                        document.body.style.overflow = "hidden"; // Bloquear scroll de la app de fondo
+                    }
+                    
+                    if (matrixHeadline) matrixHeadline.textContent = res.comando_sistema;
+                    if (matrixDiagnostic) matrixDiagnostic.textContent = res.diagnostico_sintoma;
+                    if (matrixInstruction) matrixInstruction.textContent = res.ejecucion_fisiologica_obligatoria;
+                    
+                    // Iniciar registro matemático pasivo de T_out (Indicador Inverso de Éxito)
+                    startTimeOut = Date.now();
+                    if (btnCompleteInvestment) btnCompleteInvestment.classList.add("d-none");
+                    
+                    clearInterval(timerInterval);
+                    timerInterval = setInterval(() => {
+                        const segundosFuera = Math.floor((Date.now() - startTimeOut) / 1000);
+                        if (matrixTimer) {
+                            matrixTimer.textContent = `T_out: ${segundosFuera}s de soberanía temporal en el mundo real.`;
+                        }
+                        
+                        // Restricción dura: Obligar un mínimo de 10 segundos de desconexión antes de liberar la pantalla
+                        if (segundosFuera >= 10 && btnCompleteInvestment) {
+                            btnCompleteInvestment.classList.remove("d-none");
+                        }
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error("Error en el despacho del contraataque parásito:", error);
+            }
+        });
+    }
+
+    // 3. RETORNO CONSCIENTE Y ACUMULACIÓN DE SOBERANÍA TEMPORAL
+    if (btnCompleteInvestment) {
+        btnCompleteInvestment.addEventListener("click", () => {
+            clearInterval(timerInterval);
+            const totalSoberaniaReal = Math.floor((Date.now() - startTimeOut) / 1000);
+            
+            alert(`Soberanía Temporal Lograda: Has invertido ${totalSoberaniaReal} segundos reales en la homeostasis de tus órganos fuera de la pantalla.`);
+            
+            // Ocultar capa de bloqueo flotante y restaurar el ecosistema de la app
+            if (overlay) {
+                overlay.classList.add("d-none");
+                document.body.style.overflow = "auto"; // Devolver el scroll a la app
+            }
+            
+            // Limpiar campos de forma profesional para el próximo ciclo
+            if (zipCodeInput) zipCodeInput.value = "";
+            if (selectEmotion) selectEmotion.value = "";
+            if (selectElement) selectElement.value = "";
+        });
+    }
+
+    // Inicialización nativa segura respetando la carga asíncrona del DOM actual
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", inicializarMatrizConciencial);
+    } else {
+        inicializarMatrizConciencial();
+    }
+})();
 
 document.addEventListener('DOMContentLoaded', () => KERNEL.init());
 
