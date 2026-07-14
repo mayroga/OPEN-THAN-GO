@@ -919,14 +919,14 @@ async def mando_integral(request: Request):
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
-        })
-        
+        })   
     # ==============================================================================
-    # 2. ACCIÓN DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA DE MISIONES)
+    # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
     # ==============================================================================
     opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     historial_salir = payload.get("historial_salir", [])
     
+    # Restauración del motor de selección probabilístico por ranking original
     misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
         n=3, 
         misiones=opciones_salir_candidatas, 
@@ -981,21 +981,21 @@ async def mando_integral(request: Request):
             titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada["que_hacer"] or ""
 
-        # === ALINEACIÓN CORRECTA DE INDENTACIÓN (8 ESPACIOS DENTRO DEL LOOP) ===
+        # === CORRECCIÓN ESTRICTA DE SANGRE (8 ESPACIOS PERFECTOS EN EL BUCLE) ===
         search_query_parts = []
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
         elif perfil_tipo == "familia":
             search_query_parts.append("family friendly")
-            
+
         search_query_parts.append(info_seleccionada["gps"])
         search_query_parts.append(f"in {anclaje_geografico}")
-        
+
         full_map_query_string = " ".join(search_query_parts)
         target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-        
+
         final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
-        
+
         final_misiones_para_frontend.append({
             "destino_id": info_seleccionada.get("id"),
             "destino_titulo": titulo_ganador_lang,
@@ -1007,7 +1007,7 @@ async def mando_integral(request: Request):
             "destino_instruccion_en": (
                 f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
                 f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+                f"WHY: {info_reversible.get('porque_en', info_seleccionada['porque']) if 'info_reversible' in locals() else info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
                 f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
                 f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
                 f"{quienes_van}\n{precio_real}"
@@ -1016,7 +1016,7 @@ async def mando_integral(request: Request):
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
 
-    # Cierre de la función de la ruta mando_integral (Alineado con el flujo base a 4 espacios)
+    # Retorno final limpio del endpoint (Alineado a 4 espacios con la función principal)
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
@@ -1024,7 +1024,7 @@ async def mando_integral(request: Request):
     })
 
 # ==============================================================================
-# APERTURA NATIVA DEL SERVIDOR FASTAPI (AL FINAL DEL ARCHIVO)
+# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==============================================================================
 if __name__ == "__main__":
     import os
