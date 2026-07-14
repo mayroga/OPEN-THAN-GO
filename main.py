@@ -926,71 +926,73 @@ async def mando_integral(request: Request):
         })
         
     # ==============================================================================
-    # 2. ACCIÓN DE CAMPO TOTAL: MOTOR DE INVERSIÓN INFRAESTRUCTURAL DE USA (MODO SALIR)
+    # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
     # ==============================================================================
+    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     historial_salir = payload.get("historial_salir", [])
-    anclaje_geografico = zip_code
-    map_base_url = "https://google.com"
-
-    # DICCIONARIO MAESTRO DE MAPEO COMERCIAL E INSTITUCIONAL DE LOS ESTADOS UNIDOS
-    # Clasificación omnipresente para interceptar cualquier entorno del cliente
-    BASE_PALABRAS_CLAVE = {
-        "ENTRETENIMIENTO_DIGITAL": ["spotify", "youtube", "netflix", "disney", "tiktok", "instagram", "facebook", "twitter", "twitch", "redes"],
-        "TRANSPORTE_URBANO": ["uber", "lyft", "taxi", "metro", "subway", "bus", "tren", "train", "transporte", "trafico", "carretera"],
-        "AERO_CRUCEROS": ["delta", "american", "united", "jetblue", "vuelo", "flight", "aeropuerto", "airport", "crucero", "cruise", "royal caribbean", "carnival", "aerolinea"],
-        "HOSPEDAJE": ["hotel", "motel", "airbnb", "resort", "hilton", "marriott", "hospedaje", "alojamiento"],
-        "VIDA_NOCTURNA": ["discoteca", "club", "bar", "pub", "lounge", "nightclub", "fiesta", "party", "antro", "baile"],
-        "DEPORTE_RECREACION": ["gimnasio", "gym", "fitness", "stadium", "estadio", "piscina", "pool", "skate park", "parque", "park", "trail", "playa", "beach", "cancha"],
-        "CULTURALES": ["museo", "museum", "galeria", "art", "cine", "cinema", "teatro", "theater", "libreria", "bookstore", "exposicion"],
-        "SALUD_CLINICA": ["hospital", "clinica", "clinic", "emergencias", "er", "farmacia", "cvs", "walgreens", "doctor", "dentista", "salud", "medico"],
-        "EDUCACION_BUROCRACIA": ["escuela", "school", "universidad", "university", "college", "dmv", "juzgado", "court", "correo", "usps", "clase", "estudio"]
-    }
     
-        # === INTERCEPTOR DE INFRAESTRUCTURA TOTAL CORREGIDO (DENTRO DEL BUCLE FOR) ===
+    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
+        n=3, 
+        misiones=opciones_salir_candidatas, 
+        perfil_local=perfil_local, 
+        historial_actual=historial_salir
+    )
+    
+    final_misiones_para_frontend = []
+    
+    for info_seleccionada in misiones_seleccionadas_raw:
+        precio_real = ""
+        if budget == "0":
+            precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
+        elif budget == "1":
+            precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
+        elif budget == "2":
+            precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
+
+        quienes_van = ""
+        if perfil_tipo == "solo":
+            quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
+        elif perfil_tipo == "familia":
+            quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
+        elif perfil_tipo == "accesible":
+            quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
+
+        titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
+        donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
+        anclaje_geografico = zip_code
+        map_base_url = "https://google.com"
+
+        if lang == "en":
+            guia_masticada = (
+                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
+                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
+                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
+                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
+                f"{quienes_van}\n{precio_real}"
+            )
+            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
+            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
+        else:
+            guia_masticada = (
+                f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
+                f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
+                f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
+                f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
+                f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
+                f"{quienes_van}\n{precio_real}"
+            )
+            titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
+            que_hacer_lang = info_seleccionada["que_hacer"] or ""
+
+        # === CORRECCIÓN ESTRICTA DE SANGRÍA: EXACTAMENTE 8 ESPACIOS DESDE EL MARGEN ===
         search_query_parts = []
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
         elif perfil_tipo == "familia":
             search_query_parts.append("family friendly")
 
-        # Diccionario de palabras clave para escanear el desahogo del cliente de forma nativa
-        BASE_PALABRAS_CLAVE = {
-            "ENTRETENIMIENTO": ["spotify", "youtube", "netflix", "disney", "tiktok", "instagram", "facebook", "twitter", "twitch", "discoteca", "club", "bar", "fiesta", "cine", "cinema", "teatro"],
-            "TRANSPORTE_LOGISTICA": ["uber", "lyft", "taxi", "metro", "subway", "bus", "tren", "train", "trafico", "carretera", "delta", "american", "united", "vuelo", "flight", "aeropuerto", "airport", "crucero", "cruise"],
-            "ESTANCIAS_BIENESTAR": ["hotel", "motel", "airbnb", "resort", "gimnasio", "gym", "fitness", "piscina", "pool", "hospital", "clinica", "clinic", "emergencias", "farmacia", "escuela", "school", "universidad", "university", "dmv", "usps"]
-        }
-
-        sector_detectado = None
-        marca_usuario = "Entorno"
-        desahogo_lower = desahogo.lower()
-        
-        for sector, keywords in BASE_PALABRAS_CLAVE.items():
-            for kw in keywords:
-                if kw in desahogo_lower:
-                    sector_detectado = sector
-                    marca_usuario = kw.capitalize()
-                    break
-            if sector_detectado:
-                break
-
-        # REESCRITURA DINÁMICA: Si hay coincidencia de infraestructura, la misión se adapta para lograr el bienestar
-        titulo_mision_final = titulo_ganador_lang
-        instruccion_final = guia_masticada.strip()
-        gps_final = info_seleccionada["gps"]
-
-        if sector_detectado:
-            gps_final = f"{marca_usuario} near me"
-            if sector_detectado == "ENTRETENIMIENTO":
-                titulo_mision_final = f"INVERSIÓN MENTAL: HACKEO A {marca_usuario.upper()}"
-                instruccion_final = f"El entorno digital o recreativo de {marca_usuario} está saturando tus receptores sensoriales. Hackea el perímetro: bloquea la pantalla o sal un momento al pasillo exterior. Siente tus hombros libres y ejecuta una exhalación diafragmática profunda expulsando el cortisol acumulado. Eres el único producto que requiere inversión en este segundo."
-            elif sector_detectado == "TRANSPORTE_LOGISTICA":
-                titulo_mision_final = f"SOBERANÍA DE TRÁNSITO: MÓDULO {marca_usuario.upper()}"
-                instruccion_final = f"Estar atrapado en la logística de {marca_usuario} te desconecta de tu máquina biológica. Rompe el automatismo: si vas conduciendo, relaja los dedos sobre el volante; si vas de pasajero, suelta el reflejo digital. Apoya firme las plantas de tus pies en el suelo y respira de forma consciente regulando tu ritmo cardíaco."
-            elif sector_detectado == "ESTANCIAS_BIENESTAR":
-                titulo_mision_final = f"DEPURACIÓN EN INFRAESTRUCTURA ({marca_usuario.upper()})"
-                instruccion_final = f"Las atmósferas de {marca_usuario} devoran tu tiempo en esperas o rutinas industriales. Sabotea el espacio público ya pagado: busca agua limpia, ejecuta tu hidratación celular consciente saboreando el líquido, camina a paso firme y usa este perímetro de USA como tu laboratorio de presencia mental."
-
-        search_query_parts.append(gps_final)
+        search_query_parts.append(info_seleccionada["gps"])
         search_query_parts.append(f"in {anclaje_geografico}")
 
         full_map_query_string = " ".join(search_query_parts)
@@ -1000,21 +1002,25 @@ async def mando_integral(request: Request):
 
         final_misiones_para_frontend.append({
             "destino_id": info_seleccionada.get("id"),
-            "destino_titulo": titulo_mision_final,
+            "destino_titulo": titulo_ganador_lang,
             "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]),
             "que_hacer": info_seleccionada["que_hacer"],
             "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
             "destino_entorno": donde_base,
-            "destino_instruccion": instruccion_final,
+            "destino_instruccion": guia_masticada.strip(),
             "destino_instruccion_en": (
-                f"TARGET: {marca_usuario.upper()}.\n"
-                f"ACTION REQUIREMENT: Interrupt visual dependency. Use Zip Code {anclaje_geografico} perimeter to process lung ventilation, cell hydration, or active lymphatic mechanics."
+                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
+                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
+                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
+                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
+                f"{quienes_van}\n{precio_real}"
             ).strip(),
             "destino_coordenadas_gps": target_link,
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
 
-    # El return del JSONResponse finaliza la función principal mando_integral de forma nativa (Alineado a 4 espacios)
+    # El return del JSONResponse finaliza la función principal (Alineado a 4 espacios con el def)
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
@@ -1022,7 +1028,7 @@ async def mando_integral(request: Request):
     })
 
 # ==============================================================================
-# APERTURA NATIVA DEL SERVIDOR FASTAPI (LÍNEA FINAL DEL ARCHIVO)
+# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==============================================================================
 if __name__ == "__main__":
     import os
