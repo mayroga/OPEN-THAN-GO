@@ -85,10 +85,11 @@ def diversidad_vector(vector1, vector2):
         )
     return distancia
 
-WHEN_ES = "Ahora mismo. Levántate de la silla ya."
-WHEN_EN = "Right now. Get out of your chair immediately."
-FOR_WHAT_ES = "Para romper el zombi urbano y recordar que la vida es más que pagar cuentas."
-FOR_WHAT_EN = "To break the urban zombie and remember that life is more than paying bills."
+# === MODIFICACIÓN: CONSTANTES DE TIEMPO Y PROPÓSITO ACORTADAS PARA LECTURA RÁPIDA ===
+WHEN_ES = "Ahora. Levántate."
+WHEN_EN = "Now. Move."
+FOR_WHAT_ES = "Romper rutina. Recuérdate vivo."
+FOR_WHAT_EN = "Break routine. Remember life."
 
 # ============================================================
 # CATÁLOGO DE MISIONES CWRE V2.1
@@ -164,17 +165,17 @@ BASE_MISIONES = {
         {"id": 72, "titulo": "Tensa y relaja los pies", "descripcion": "Aprieta los dedos de tus pies durante 5 segundos y luego relájalos.", "vector_necesidades": {"movimiento": 90, "descanso": 80, "salud": 70, "organizacion": 40, "silencio": 50}},
         {"id": 74, "titulo": "Olor consciente", "descripcion": "Huelea una flor, café o especia. Concéntrate en el aroma.", "vector_necesidades": {"naturaleza": 80, "alimentacion": 70, "contemplacion": 90, "silencio": 80, "descanso": 70}},
         {"id": 75, "titulo": "Cambia de silla", "descripcion": "Siéntate en otra silla o lugar de la casa por 5 minutos. Pequeño cambio.", "vector_necesidades": {"movimiento": 60, "creatividad": 50, "descanso": 70, "organizacion": 40, "contemplacion": 60}},
-        # NUEVAS MICROACCIONES DE RECUPERACIÓN MENTAL (ID 151-160)
-        {"id": 151, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Abre tu correo o tu aplicación bancaria. Busca 'Subscription', 'Invoice' o 'Payment' y cancela una sola suscripción que ya no utilices. Recuperar el control también es ahorrar.", "vector_necesidades": {"organizacion": 90, "aprendizaje": 70, "descanso": 80, "esperanza": 85, "contemplacion": 60}},
-        {"id": 152, "titulo": "EL RETO DE LOS TRES GASTOS", "descripcion": "Abre una nota en tu teléfono y escribe únicamente los tres gastos inevitables de esta semana. No pienses en todo el mes. Solo en esta semana.", "vector_necesidades": {"organizacion": 100, "descanso": 90, "silencio": 70, "aprendizaje": 60, "contemplacion": 80}},
-        {"id": 153, "titulo": "EL RETO DEL ORDEN DIGITAL", "descripcion": "Borra veinte capturas de pantalla, archivos o documentos que ya no necesites. El orden digital también reduce la carga mental.", "vector_necesidades": {"organizacion": 100, "silencio": 80, "descanso": 85, "creatividad": 50, "contemplacion": 70}},
-        {"id": 154, "titulo": "EL RETO DEL SILENCIO", "descripcion": "Silencia durante una hora las aplicaciones que más ansiedad te generan. Tu atención también necesita descansar.", "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "organizacion": 70, "esperanza": 80}},
-        {"id": 155, "titulo": "EL RETO DE LA GRATITUD", "descripcion": "Escribe tres cosas que hoy tienes y que hace algunos años deseabas. Tu mente necesita recordar que también has avanzado.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "creatividad": 80, "aprendizaje": 70, "silencio": 60}},
-        {"id": 156, "titulo": "EL RETO DEL AGUA", "descripcion": "Levántate despacio, bebe un vaso completo de agua y vuelve respirando con calma.", "vector_necesidades": {"agua": 100, "movimiento": 70, "descanso": 90, "salud": 85, "silencio": 50}},
-        {"id": 157, "titulo": "EL RETO DE LA VENTANA", "descripcion": "Abre una ventana durante dos minutos y observa el cielo sin mirar el teléfono.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "contemplacion": 95, "descanso": 80, "silencio": 70}},
-        {"id": 158, "titulo": "EL RETO DEL ORDEN", "descripcion": "Guarda únicamente cinco objetos que estén fuera de lugar. Cinco son suficientes por hoy.", "vector_necesidades": {"organizacion": 100, "descanso": 70, "contemplacion": 60, "movimiento": 30, "silencio": 50}},
-        {"id": 159, "titulo": "EL RETO DE LA RESPIRACIÓN", "descripcion": "Realiza cinco respiraciones profundas siguiendo un ritmo lento. No tienes que hacer nada más.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
-        {"id": 160, "titulo": "EL RETO DEL DESCANSO VISUAL", "descripcion": "Durante dos minutos mira un punto lejano para permitir que tus ojos descansen de la pantalla.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}},
+        # === MODIFICACIÓN: MICROACCIONES DE RECUPERACIÓN MENTAL (ID 151-160) - DESCRIPCIONES ACORTADAS ===
+        {"id": 151, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Revisa tu email/banco. Cancela una suscripción olvidada. Recupera control y ahorra.", "vector_necesidades": {"organizacion": 90, "aprendizaje": 70, "descanso": 80, "esperanza": 85, "contemplacion": 60}},
+        {"id": 152, "titulo": "EL RETO DE LOS TRES GASTOS", "descripcion": "En tu teléfono, anota solo los 3 gastos clave de esta semana. Enfócate solo hoy.", "vector_necesidades": {"organizacion": 100, "descanso": 90, "silencio": 70, "aprendizaje": 60, "contemplacion": 80}},
+        {"id": 153, "titulo": "EL RETO DEL ORDEN DIGITAL", "descripcion": "Borra 20 capturas/archivos inútiles. El orden digital reduce la carga mental.", "vector_necesidades": {"organizacion": 100, "silencio": 80, "descanso": 85, "creatividad": 50, "contemplacion": 70}},
+        {"id": 154, "titulo": "EL RETO DEL SILENCIO", "descripcion": "Silencia apps que te causan ansiedad 1 hora. Tu atención necesita descanso.", "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "organizacion": 70, "esperanza": 80}},
+        {"id": 155, "titulo": "EL RETO DE LA GRATITUD", "descripcion": "Escribe 3 cosas que hoy tienes y antes deseabas. Recuerda tu progreso.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "creatividad": 80, "aprendizaje": 70, "silencio": 60}},
+        {"id": 156, "titulo": "EL RETO DEL AGUA", "descripcion": "Levántate lento, bebe un vaso de agua. Vuelve respirando en calma.", "vector_necesidades": {"agua": 100, "movimiento": 70, "descanso": 90, "salud": 85, "silencio": 50}},
+        {"id": 157, "titulo": "EL RETO DE LA VENTANA", "descripcion": "Abre ventana 2 min. Observa el cielo. Sin teléfono.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "contemplacion": 95, "descanso": 80, "silencio": 70}},
+        {"id": 158, "titulo": "EL RETO DEL ORDEN", "descripcion": "Guarda 5 objetos desordenados. Cinco bastan hoy.", "vector_necesidades": {"organizacion": 100, "descanso": 70, "contemplacion": 60, "movimiento": 30, "silencio": 50}},
+        {"id": 159, "titulo": "EL RETO DE LA RESPIRACIÓN", "descripcion": "Haz 5 respiraciones profundas, lentas. Nada más.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
+        {"id": 160, "titulo": "EL RETO DEL DESCANSO VISUAL", "descripcion": "2 min: mira un punto lejano. Descansa tus ojos de la pantalla.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}},
     ],
     "CASA_EN": [
         {"id": 1, "titulo": "Cut the autopilot", "descripcion": "Scan your body. Pinpoint the exact weight on your back. See it. You are alive.", "vector_necesidades": {"contemplacion": 90, "descanso": 80, "silencio": 70, "organizacion": 50, "movimiento": 30}},
@@ -245,370 +246,294 @@ BASE_MISIONES = {
         {"id": 72, "titulo": "Tensa y relaja los pies", "descripcion": "Aprieta los dedos de tus pies durante 5 segundos y luego relájalos.", "vector_necesidades": {"movimiento": 90, "descanso": 80, "salud": 70, "organizacion": 40, "silencio": 50}},
         {"id": 74, "titulo": "Olor consciente", "descripcion": "Huelea una flor, café o especia. Concéntrate en el aroma.", "vector_necesidades": {"naturaleza": 80, "alimentacion": 70, "contemplacion": 90, "silencio": 80, "descanso": 70}},
         {"id": 75, "titulo": "Cambia de silla", "descripcion": "Siéntate en otra silla o lugar de la casa por 5 minutos. Pequeño cambio.", "vector_necesidades": {"movimiento": 60, "creatividad": 50, "descanso": 70, "organizacion": 40, "contemplacion": 60}},
-        # NUEVAS MICROACCIONES DE RECUPERACIÓN MENTAL (ID 151-160)
-        {"id": 151, "titulo": "THE FORGOTTEN SUBSCRIPTION CHALLENGE", "descripcion": "Open your email or banking app. Search for 'Subscription', 'Invoice', or 'Payment' and cancel a single subscription you no longer use. Regaining control is also saving.", "vector_necesidades": {"organizacion": 90, "aprendizaje": 70, "descanso": 80, "esperanza": 85, "contemplacion": 60}},
-        {"id": 152, "titulo": "THE THREE EXPENSES CHALLENGE", "descripcion": "Open a note on your phone and write down only the three unavoidable expenses for this week. Don't think about the whole month. Just this week.", "vector_necesidades": {"organizacion": 100, "descanso": 90, "silencio": 70, "aprendizaje": 60, "contemplacion": 80}},
-        {"id": 153, "titulo": "THE DIGITAL ORDER CHALLENGE", "descripcion": "Delete twenty screenshots, files, or documents you no longer need. Digital order also reduces mental load.", "vector_necesidades": {"organizacion": 100, "silencio": 80, "descanso": 85, "creatividad": 50, "contemplacion": 70}},
-        {"id": 154, "titulo": "THE SILENCE CHALLENGE", "descripcion": "Silence the apps that generate the most anxiety for an hour. Your attention also needs rest.", "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "organizacion": 70, "esperanza": 80}},
-        {"id": 155, "titulo": "THE GRATITUDE CHALLENGE", "descripcion": "Write down three things you have today that you wished for a few years ago. Your mind needs to remember that you have also made progress.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "creatividad": 80, "aprendizaje": 70, "silencio": 60}},
-        {"id": 156, "titulo": "THE WATER CHALLENGE", "descripcion": "Slowly stand up, drink a full glass of water, and return, breathing calmly.", "vector_necesidades": {"agua": 100, "movimiento": 70, "descanso": 90, "salud": 85, "silencio": 50}},
-        {"id": 157, "titulo": "THE WINDOW CHALLENGE", "descripcion": "Open a window for two minutes and observe the sky without looking at your phone.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "contemplacion": 95, "descanso": 80, "silencio": 70}},
-        {"id": 158, "titulo": "THE ORDER CHALLENGE", "descripcion": "Put away only five objects that are out of place. Five are enough for today.", "vector_necesidades": {"organizacion": 100, "descanso": 70, "contemplacion": 60, "movimiento": 30, "silencio": 50}},
-        {"id": 159, "titulo": "THE BREATHING CHALLENGE", "descripcion": "Take five deep breaths following a slow rhythm. You don't have to do anything else.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
-        {"id": 160, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "For two minutes, look at a distant point to allow your eyes to rest from the screen.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}},
+        # === MODIFICACIÓN: MICROACCIONES DE RECUPERACIÓN MENTAL (ID 151-160) - DESCRIPCIONES ACORTADAS ===
+        {"id": 151, "titulo": "THE FORGOTTEN SUBSCRIPTION CHALLENGE", "descripcion": "Check email/banking app. Cancel forgotten subscription. Regain control and save.", "vector_necesidades": {"organizacion": 90, "aprendizaje": 70, "descanso": 80, "esperanza": 85, "contemplacion": 60}},
+        {"id": 152, "titulo": "THE THREE EXPENSES CHALLENGE", "descripcion": "On your phone, list only 3 key expenses for this week. Focus only today.", "vector_necesidades": {"organizacion": 100, "descanso": 90, "silencio": 70, "aprendizaje": 60, "contemplacion": 80}},
+        {"id": 153, "titulo": "THE DIGITAL ORDER CHALLENGE", "descripcion": "Delete 20 useless screenshots/files. Digital order reduces mental load.", "vector_necesidades": {"organizacion": 100, "silencio": 80, "descanso": 85, "creatividad": 50, "contemplacion": 70}},
+        {"id": 154, "titulo": "THE SILENCE CHALLENGE", "descripcion": "Silence anxiety-inducing apps for 1 hour. Your attention needs rest.", "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "organizacion": 70, "esperanza": 80}},
+        {"id": 155, "titulo": "THE GRATITUDE CHALLENGE", "descripcion": "List 3 things you have today you once desired. Remember your progress.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "creatividad": 80, "aprendizaje": 70, "silencio": 60}},
+        {"id": 156, "titulo": "THE WATER CHALLENGE", "descripcion": "Slowly stand, drink a glass of water. Return breathing calmly.", "vector_necesidades": {"agua": 100, "movimiento": 70, "descanso": 90, "salud": 85, "silencio": 50}},
+        {"id": 157, "titulo": "THE WINDOW CHALLENGE", "descripcion": "Open window 2 min. Observe the sky. No phone.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "contemplacion": 95, "descanso": 80, "silencio": 70}},
+        {"id": 158, "titulo": "THE ORDER CHALLENGE", "descripcion": "Put away 5 misplaced items. Five are enough today.", "vector_necesidades": {"organizacion": 100, "descanso": 70, "contemplacion": 60, "movimiento": 30, "silencio": 50}},
+        {"id": 159, "titulo": "THE BREATHING CHALLENGE", "descripcion": "Take 5 deep, slow breaths. Nothing else.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
+        {"id": 160, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "2 min: look at a distant point. Rest your eyes from the screen.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}},
     ],
     "SALIR": {
         "agotado": [
-            {
-                "id": 101, "titulo": "Sombra de árbol", "titulo_en": "Tree Shade",
-                "porque": "Mente cansada de pantallas. Necesitas desconectar.", "porque_en": "Screen-tired mind. You need to disconnect.",
+            {"id": 101, "titulo": "Sombra de árbol", "titulo_en": "Tree Shade",
+                "porque": "Mente cansada de pantallas. Necesitas desconectar.", "porque_en": "Screen-tired. Need to disconnect.",
                 "que_hacer": "Busca un gran árbol. Toca su corteza. Siente la sombra fresca.", "que_hacer_en": "Find a large tree. Touch its bark. Feel the cool shade.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Un parque verde.", "donde_en": "A green park.", "gps": "parks with shade",
                 "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 80, "agua": 20, "sol": 40, "sombra": 100, "aire_fresco": 100, "creatividad": 30, "comunidad": 20, "aprendizaje": 40, "juego": 30, "contemplacion": 95, "descanso": 90, "organizacion": 20, "alimentacion": 0, "musica": 10, "risa": 30, "esperanza": 85}
             },
-            {
-                "id": 106, "titulo": "Café en silencio", "titulo_en": "Quiet Cafe",
-                "porque": "Necesitas un respiro mental. Evita ruidos. Busca paz.", "porque_en": "Need a mental break. Avoid noise. Seek peace.",
-                "que_hacer": "Visita una cafetería tranquila. Pide tu bebida. Observa sin distracciones.", "que_hacer_en": "Visit a quiet cafe. Order your drink. Observe without distractions.",
+            {"id": 106, "titulo": "Café en silencio", "titulo_en": "Quiet Cafe",
+                "porque": "Necesitas un respiro mental. Evita ruidos. Busca paz.", "porque_en": "Mental break needed. Avoid noise. Seek peace.",
+                "que_hacer": "Visita una cafetería tranquila. Pide tu bebida. Observa sin distracciones.", "que_hacer_en": "Visit a quiet cafe. Order. Observe without distractions.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Cafetería local tranquila.", "donde_en": "Quiet local cafe.", "gps": "quiet cafe",
                 "vector_necesidades": {"movimiento": 20, "naturaleza": 10, "silencio": 90, "agua": 30, "sol": 30, "sombra": 80, "aire_fresco": 40, "creatividad": 60, "comunidad": 50, "aprendizaje": 70, "juego": 10, "contemplacion": 95, "descanso": 85, "organizacion": 70, "alimentacion": 60, "musica": 40, "risa": 20, "esperanza": 70}
             },
-            {
-                "id": 107, "titulo": "Jardín Botánico", "titulo_en": "Botanical Garden",
+            {"id": 107, "titulo": "Jardín Botánico", "titulo_en": "Botanical Garden",
                 "porque": "Mente agotada. Reconéctate con lo natural. Aire puro.", "porque_en": "Exhausted mind. Reconnect with nature. Pure air.",
-                "que_hacer": "Pasea sin prisa por senderos. Observa plantas y flores. Respira hondo.", "que_hacer_en": "Stroll leisurely on paths. Observe plants and flowers. Breathe deeply.",
+                "que_hacer": "Pasea sin prisa por senderos. Observa plantas y flores. Respira hondo.", "que_hacer_en": "Stroll leisurely. Observe plants and flowers. Breathe deeply.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Jardín botánico público.", "donde_en": "Public botanical garden.", "gps": "botanical garden",
                 "vector_necesidades": {"movimiento": 70, "naturaleza": 100, "silencio": 75, "agua": 50, "sol": 70, "sombra": 90, "aire_fresco": 100, "creatividad": 80, "comunidad": 40, "aprendizaje": 80, "juego": 30, "contemplacion": 90, "descanso": 80, "organizacion": 30, "alimentacion": 10, "musica": 50, "risa": 30, "esperanza": 90}
             },
-            {
-                "id": 108, "titulo": "Mirador Panorámico", "titulo_en": "Scenic Overlook",
-                "porque": "Necesitas perspectiva. Eleva tu mirada. Rompe la rutina visual.", "porque_en": "Need perspective. Elevate your gaze. Break visual routine.",
-                "que_hacer": "Encuentra un punto alto con vista. Observa el horizonte. Siente la inmensidad.", "que_hacer_en": "Find a high point with a view. Observe the horizon. Feel the immensity.",
+            {"id": 108, "titulo": "Mirador Panorámico", "titulo_en": "Scenic Overlook",
+                "porque": "Necesitas perspectiva. Eleva tu mirada. Rompe la rutina visual.", "porque_en": "Need perspective. Elevate gaze. Break visual routine.",
+                "que_hacer": "Encuentra un punto alto con vista. Observa el horizonte. Siente la inmensidad.", "que_hacer_en": "Find a high point with view. Observe the horizon. Feel the immensity.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Mirador público.", "donde_en": "Public overlook.", "gps": "scenic overlook",
                 "vector_necesidades": {"movimiento": 40, "naturaleza": 90, "silencio": 85, "agua": 60, "sol": 80, "sombra": 50, "aire_fresco": 95, "creatividad": 70, "comunidad": 30, "aprendizaje": 50, "juego": 10, "contemplacion": 100, "descanso": 70, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 95}
             },
-            {
-                "id": 109, "titulo": "Clase de Meditación", "titulo_en": "Meditation Class",
-                "porque": "Mente sobrecargada. Busca herramientas para la calma interna. Regula tu ser.", "porque_en": "Overloaded mind. Seek tools for inner calm. Regulate your being.",
-                "que_hacer": "Asiste a una sesión de meditación guiada. Concéntrate en la respiración. Suelta.", "que_hacer_en": "Attend a guided meditation session. Focus on breathing. Let go.",
+            {"id": 109, "titulo": "Clase de Meditación", "titulo_en": "Meditation Class",
+                "porque": "Mente sobrecargada. Busca herramientas para la calma interna. Regula tu ser.", "porque_en": "Overloaded mind. Seek inner calm tools. Regulate your being.",
+                "que_hacer": "Asiste a una sesión de meditación guiada. Concéntrate en la respiración. Suelta.", "que_hacer_en": "Attend guided meditation. Focus on breathing. Let go.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Centro de yoga o meditación.", "donde_en": "Yoga or meditation center.", "gps": "meditation class",
                 "vector_necesidades": {"movimiento": 10, "naturaleza": 20, "silencio": 100, "agua": 0, "sol": 10, "sombra": 100, "aire_fresco": 60, "creatividad": 50, "comunidad": 60, "aprendizaje": 90, "juego": 5, "contemplacion": 100, "descanso": 100, "organizacion": 80, "alimentacion": 0, "musica": 70, "risa": 5, "esperanza": 90}
             },
-            {
-                "id": 126, "titulo": "Observación de Nubes", "titulo_en": "Cloud Gazing",
-                "porque": "Mente agitada. Enfoca tu mirada en la inmensidad. Deja que los pensamientos pasen.", "porque_en": "Agitated mind. Focus your gaze on vastness. Let thoughts pass.",
-                "que_hacer": "Busca un lugar abierto, recuéstate y observa el movimiento de las nubes.", "que_hacer_en": "Find an open space, lie down, and watch the clouds move.",
+            {"id": 126, "titulo": "Observación de Nubes", "titulo_en": "Cloud Gazing",
+                "porque": "Mente agitada. Enfoca tu mirada en la inmensidad. Deja que los pensamientos pasen.", "porque_en": "Agitated mind. Focus on vastness. Let thoughts pass.",
+                "que_hacer": "Busca un lugar abierto, recuéstate y observa el movimiento de las nubes.", "que_hacer_en": "Find open space, lie down, watch clouds move.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Parque o campo abierto.", "donde_en": "Park or open field.", "gps": "open field for cloud gazing",
                 "vector_necesidades": {"movimiento": 20, "naturaleza": 95, "silencio": 90, "agua": 10, "sol": 70, "sombra": 30, "aire_fresco": 90, "creatividad": 60, "comunidad": 10, "aprendizaje": 40, "juego": 20, "contemplacion": 100, "descanso": 95, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 85}
             },
-            {
-            "id": 201,
-            "titulo": "Soberanía en Tránsito: Uber/Lyft Relax",
-            "titulo_en": "Transit Sovereignty: Uber/Lyft Relax",
-            "porque": "Cuerpo al límite y mente saturada de conducir o moverte en tráfico continuo.",
-            "porque_en": "Body at the limit and mind saturated from driving or moving in continuous traffic.",
-            "que_hacer": "Abre tu aplicación de transporte (Uber/Lyft). Solicita un viaje corto hacia un perímetro tranquilo. Si ya estás dentro de uno, cierra los ojos, suelta el teléfono, apoya tus palmas sobre tus rodillas y ejecuta el Módulo de Silencio Auditivo por un minuto.",
-            "que_hacer_en": "Open your ride app (Uber/Lyft). Request a short ride to a quiet area. If inside one, close your eyes, drop the phone, place your palms on your knees, and execute a one-minute Auditory Silence Module.",
-            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-            "donde": "Cabina de transporte o asiento de pasajero.", "donde_en": "Rideshare cabin or passenger seat.",
-            "gps": "quiet park bench",
-            "vector_necesidades": {"descanso": 100, "silencio": 90, "movimiento": 10, "contemplacion": 80, "esperanza": 80, "naturaleza": 20, "aire_fresco": 50}
-        },
-        {
-            "id": 202,
-            "titulo": "Módulo Auditivo: Spotify Reset",
-            "titulo_en": "Auditory Reset: Spotify",
-            "porque": "Agotamiento mental agudo por ruidos industriales y pantallas.",
-            "porque_en": "Acute mental exhaustion from industrial noise and screens.",
-            "que_hacer": "Abre Spotify. Busca frecuencias binaurales o sonidos de lluvia. Colócate auriculares, cierra los ojos un minuto completo y deja que las frecuencias limpien la fatiga acumulada en tu lóbulo temporal.",
-            "que_hacer_en": "Open Spotify. Search for binaural beats or rain sounds. Put on headphones, close your eyes for a full minute, and let the frequencies clear the fatigue in your temporal lobe.",
-            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-            "donde": "Cualquier rincón cómodo o dentro de tu auto.", "donde_en": "Any comfortable spot or inside your car.",
-            "gps": "quiet library space",
-            "vector_necesidades": {"musica": 100, "descanso": 95, "silencio": 60, "contemplacion": 90, "esperanza": 85, "creatividad": 40}
-        },
-        {
-            "id": 203,
-            "titulo": "Descompresión de Entorno: Lobby de Hotel",
-            "titulo_en": "Environment Decompression: Hotel Lobby",
-            "porque": "Saturación del espacio habitual. Necesitas un perímetro diseñado para el confort.",
-            "porque_en": "Saturation of your usual space. You need a perimeter designed for comfort.",
-            "que_hacer": "Ubica un hotel o resort cercano (Hilton, Marriott). Dirígete a su sala de descanso o lobby público a costo cero. Siéntate de forma recta, nota la estabilidad del piso y descansa la vista mirando un punto lejano por dos minutos.",
-            "que_hacer_en": "Locate a nearby hotel or resort (Hilton, Marriott). Head to its lounge or public lobby at zero cost. Sit up straight, notice the stability of the floor, and rest your eyes by looking at a distant point for two minutes.",
-            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-            "donde": "Lobby o zona de descanso de un hotel local.", "donde_en": "Lobby or lounge area of a local hotel.",
-            "gps": "hotel lobby",
-            "vector_necesidades": {"descanso": 100, "silencio": 85, "contemplacion": 95, "organizacion": 70, "esperanza": 80, "movimiento": 20}
-        },
-        {
-            "id": 204,
-            "titulo": "Sabotaje de Espera: Espacio Universitario",
-            "titulo_en": "Waiting Sabotage: University Space",
-            "porque": "Falta de nutrición intelectual real y exceso de micro-estímulos vacíos.",
-            "porque_en": "Lack of real intellectual nourishment and excess of empty micro-stimuli.",
-            "que_hacer": "Dirígete al campus, escuela o biblioteca universitaria pública más cercana. Camina en silencio por los pasillos o áreas verdes. Usa esta infraestructura estatal ya pagada para respirar aire fresco y observar el entorno con absoluta calma.",
-            "que_hacer_en": "Head to the nearest campus, school, or public university library. Walk silently through the corridors or green spaces. Use this pre-paid state infrastructure to breathe fresh air and observe with absolute calm.",
-            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-            "donde": "Campus universitario o biblioteca pública.", "donde_en": "University campus or public library.",
-            "gps": "university library",
-            "vector_necesidades": {"aprendizaje": 100, "silencio": 90, "contemplacion": 85, "descanso": 70, "aire_fresco": 75, "movimiento": 40}
-        },
+            # === MODIFICACIÓN: NUEVAS MICROACCIONES DE RECUPERACIÓN (ID 201-204) - DESCRIPCIONES ACORTADAS ===
+            {"id": 201, "titulo": "Soberanía en Tránsito: Uber/Lyft Relax", "titulo_en": "Transit Sovereignty: Uber/Lyft Relax",
+                "porque": "Cuerpo al límite y mente saturada de conducir o moverte en tráfico continuo.", "porque_en": "Body/mind saturated from driving/traffic.",
+                "que_hacer": "Abre tu app de transporte. Solicita viaje corto a zona tranquila. Cierra ojos, suelta teléfono, apoya palmas en rodillas. Ejecuta Módulo Silencio Auditivo 1 min.",
+                "que_hacer_en": "Open ride app. Request short ride to quiet area. Close eyes, drop phone, palms on knees. Execute 1-min Auditory Silence Module.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Cabina de transporte o asiento de pasajero.", "donde_en": "Rideshare cabin or passenger seat.",
+                "gps": "quiet park bench",
+                "vector_necesidades": {"descanso": 100, "silencio": 90, "movimiento": 10, "contemplacion": 80, "esperanza": 80, "naturaleza": 20, "aire_fresco": 50}
+            },
+            {"id": 202, "titulo": "Módulo Auditivo: Spotify Reset", "titulo_en": "Auditory Reset: Spotify",
+                "porque": "Agotamiento mental agudo por ruidos industriales y pantallas.", "porque_en": "Acute mental exhaustion from industrial noise/screens.",
+                "que_hacer": "Abre Spotify. Busca binaurales/sonidos lluvia. Auriculares. Cierra ojos 1 min. Deja frecuencias limpien fatiga temporal.",
+                "que_hacer_en": "Open Spotify. Search binaural beats/rain sounds. Headphones. Close eyes 1 min. Let frequencies clear temporal fatigue.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Cualquier rincón cómodo o dentro de tu auto.", "donde_en": "Any comfortable spot or inside your car.",
+                "gps": "quiet library space",
+                "vector_necesidades": {"musica": 100, "descanso": 95, "silencio": 60, "contemplacion": 90, "esperanza": 85, "creatividad": 40}
+            },
+            {"id": 203, "titulo": "Descompresión de Entorno: Lobby de Hotel", "titulo_en": "Environment Decompression: Hotel Lobby",
+                "porque": "Saturación del espacio habitual. Necesitas un perímetro diseñado para el confort.", "porque_en": "Usual space saturation. Need comfort perimeter.",
+                "que_hacer": "Ubica hotel/resort cercano. Ve a su lobby/sala descanso (costo cero). Siéntate recto, nota el piso. Descansa vista mirando un punto lejano 2 min.",
+                "que_hacer_en": "Locate nearby hotel/resort. Go to lobby/lounge (zero cost). Sit straight, feel floor. Rest eyes on distant point 2 min.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Lobby o zona de descanso de un hotel local.", "donde_en": "Lobby or lounge area of a local hotel.",
+                "gps": "hotel lobby",
+                "vector_necesidades": {"descanso": 100, "silencio": 85, "contemplacion": 95, "organizacion": 70, "esperanza": 80, "movimiento": 20}
+            },
+            {"id": 204, "titulo": "Sabotaje de Espera: Espacio Universitario", "titulo_en": "Waiting Sabotage: University Space",
+                "porque": "Falta de nutrición intelectual real y exceso de micro-estímulos vacíos.", "porque_en": "Lack of real intellectual nourishment, excess empty stimuli.",
+                "que_hacer": "Ve al campus/biblioteca uni cercana. Camina en silencio por pasillos/áreas verdes. Usa esta infraestructura para respirar aire fresco y observar en calma.",
+                "que_hacer_en": "Go to nearest campus/university library. Walk silently through corridors/green spaces. Use this infrastructure to breathe fresh air, observe calmly.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Campus universitario o biblioteca pública.", "donde_en": "University campus or public library.",
+                "gps": "university library",
+                "vector_necesidades": {"aprendizaje": 100, "silencio": 90, "contemplacion": 85, "descanso": 70, "aire_fresco": 75, "movimiento": 40}
+            },
         ],
         "estresado": [
-            {
-                "id": 102, "titulo": "Caminata en subida", "titulo_en": "Uphill Walk",
+            {"id": 102, "titulo": "Caminata en subida", "titulo_en": "Uphill Walk",
                 "porque": "Cuerpo tenso. Libera estrés al caminar. Siente tu fuerza.", "porque_en": "Tense body. Release stress by walking. Feel your strength.",
                 "que_hacer": "Encuentra rampa o escaleras públicas. Sube a paso firme. Usa tu energía.", "que_hacer_en": "Find public ramp or stairs. Climb steadily. Use your energy.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Escalera pública.", "donde_en": "Public stairs.", "gps": "public stairs",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 20, "aire_fresco": 85, "creatividad": 10, "comunidad": 30, "aprendizaje": 10, "juego": 20, "contemplacion": 60, "descanso": 10, "organizacion": 30, "alimentacion": 0, "musica": 20, "risa": 20, "esperanza": 75}
             },
-            {
-                "id": 110, "titulo": "Yoga al Aire Libre", "titulo_en": "Outdoor Yoga",
+            {"id": 110, "titulo": "Yoga al Aire Libre", "titulo_en": "Outdoor Yoga",
                 "porque": "Mente acelerada. Conecta cuerpo y naturaleza. Respira consciente.", "porque_en": "Racing mind. Connect body and nature. Conscious breath.",
                 "que_hacer": "Busca un parque. Extiende tu mat. Sigue una rutina de yoga o estiramientos.", "que_hacer_en": "Find a park. Lay your mat. Follow a yoga or stretching routine.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Parque tranquilo.", "donde_en": "Quiet park.", "gps": "outdoor yoga park",
                 "vector_necesidades": {"movimiento": 90, "naturaleza": 90, "silencio": 70, "agua": 20, "sol": 70, "sombra": 60, "aire_fresco": 95, "creatividad": 60, "comunidad": 40, "aprendizaje": 50, "juego": 10, "contemplacion": 80, "descanso": 70, "organizacion": 50, "alimentacion": 0, "musica": 40, "risa": 20, "esperanza": 80}
             },
-            {
-                "id": 111, "titulo": "Gimnasio Comunitario", "titulo_en": "Community Gym",
+            {"id": 111, "titulo": "Gimnasio Comunitario", "titulo_en": "Community Gym",
                 "porque": "Necesitas liberar energía. Convierte la tensión en fuerza. Activa tu cuerpo.", "porque_en": "Need to release energy. Convert tension to strength. Activate your body.",
                 "que_hacer": "Visita un gimnasio público o de bajo costo. Enfócate en tu rutina. Suda.", "que_hacer_en": "Visit a public or low-cost gym. Focus on your routine. Sweat.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Gimnasio o centro deportivo.", "donde_en": "Gym or sports center.", "gps": "community gym",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 5, "silencio": 20, "agua": 10, "sol": 20, "sombra": 80, "aire_fresco": 60, "creatividad": 20, "comunidad": 70, "aprendizaje": 40, "juego": 30, "contemplacion": 5, "descanso": 0, "organizacion": 80, "alimentacion": 0, "musica": 80, "risa": 40, "esperanza": 60}
             },
-            {
-                "id": 112, "titulo": "Sendero Corto Natural", "titulo_en": "Short Nature Trail",
-                "porque": "Sobrecarga de estímulos. Desconéctate un momento. Camina en paz.", "porque_en": "Overload of stimuli. Disconnect for a moment. Walk in peace.",
-                "que_hacer": "Encuentra un sendero. Camina a paso ligero. Observa el entorno natural.", "que_hacer_en": "Find a trail. Walk briskly. Observe the natural surroundings.",
+            {"id": 112, "titulo": "Sendero Corto Natural", "titulo_en": "Short Nature Trail",
+                "porque": "Sobrecarga de estímulos. Desconéctate un momento. Camina en paz.", "porque_en": "Stimuli overload. Disconnect. Walk in peace.",
+                "que_hacer": "Encuentra un sendero. Camina a paso ligero. Observa el entorno natural.", "que_hacer_en": "Find a trail. Walk briskly. Observe natural surroundings.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Sendero natural o bosque.", "donde_en": "Nature trail or forest.", "gps": "short nature trail",
                 "vector_necesidades": {"movimiento": 85, "naturaleza": 100, "silencio": 80, "agua": 40, "sol": 60, "sombra": 70, "aire_fresco": 100, "creatividad": 40, "comunidad": 20, "aprendizaje": 50, "juego": 20, "contemplacion": 90, "descanso": 60, "organizacion": 20, "alimentacion": 0, "musica": 20, "risa": 10, "esperanza": 85}
             },
-            {
-                "id": 113, "titulo": "Pista de Atletismo", "titulo_en": "Running Track",
-                "porque": "Mente acelerada. Quema esa energía extra. Enfoca tu ritmo.", "porque_en": "Racing mind. Burn off extra energy. Focus your rhythm.",
-                "que_hacer": "Dirígete a una pista pública. Corre o camina a tu propio paso. Libera.", "que_hacer_en": "Go to a public track. Run or walk at your own pace. Release.",
+            {"id": 113, "titulo": "Pista de Atletismo", "titulo_en": "Running Track",
+                "porque": "Mente acelerada. Quema esa energía extra. Enfoca tu ritmo.", "porque_en": "Racing mind. Burn extra energy. Focus rhythm.",
+                "que_hacer": "Dirígete a una pista pública. Corre o camina a tu propio paso. Libera.", "que_hacer_en": "Go to a public track. Run or walk your pace. Release.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Pista de atletismo pública.", "donde_en": "Public running track.", "gps": "public running track",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 30, "silencio": 40, "agua": 10, "sol": 80, "sombra": 30, "aire_fresco": 90, "creatividad": 10, "comunidad": 50, "aprendizaje": 20, "juego": 30, "contemplacion": 50, "descanso": 10, "organizacion": 70, "alimentacion": 0, "musica": 50, "risa": 20, "esperanza": 70}
             },
-            {
-                "id": 127, "titulo": "Ruta en Bicicleta Urbana", "titulo_en": "Urban Bike Route",
-                "porque": "Necesitas liberar tensión y moverte rápido. Siente el viento. Explora tu entorno.", "porque_en": "Need to release tension and move fast. Feel the wind. Explore your surroundings.",
-                "que_hacer": "Encuentra un carril bici seguro y pedalea. Siente la velocidad y el control.", "que_hacer_en": "Find a safe bike lane and pedal. Feel the speed and control.",
+            {"id": 127, "titulo": "Ruta en Bicicleta Urbana", "titulo_en": "Urban Bike Route",
+                "porque": "Necesitas liberar tensión y moverte rápido. Siente el viento. Explora tu entorno.", "porque_en": "Need to release tension, move fast. Feel wind. Explore.",
+                "que_hacer": "Encuentra un carril bici seguro y pedalea. Siente la velocidad y el control.", "que_hacer_en": "Find a safe bike lane and pedal. Feel speed and control.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Carril bici o parque con ruta.", "donde_en": "Bike lane or park with route.", "gps": "bike lane or route",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 60, "silencio": 30, "agua": 10, "sol": 80, "sombra": 40, "aire_fresco": 95, "creatividad": 30, "comunidad": 50, "aprendizaje": 40, "juego": 70, "contemplacion": 60, "descanso": 30, "organizacion": 60, "alimentacion": 0, "musica": 50, "risa": 40, "esperanza": 80}
             },
-            {
-            "id": 211,
-            "titulo": "Soberanía de Cabina: Terminal Aérea / Vuelos",
-            "titulo_en": "Cabin Sovereignty: Air Terminal / Flights",
-            "porque": "Saturación nerviosa por presiones y ruidos de tránsito masivo.",
-            "porque_en": "Nervous saturation from pressures and mass transit noises.",
-            "que_hacer": "Si estás en un aeropuerto (Delta, American) o cerca de uno, busca la ventana más grande con vista al cielo. Realiza tres inhalaciones diafragmáticas profundas. Siente el viento exterior. Tu organismo no pertenece a la prisa de las industrias.",
-            "que_hacer_en": "If at an airport (Delta, American) or nearby, find the largest window facing the sky. Take three deep diaphragmatic breaths. Feel the outside wind. Your body does not belong to industrial haste.",
-            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-            "donde": "Terminal de aeropuerto o zona de observación abierta.", "donde_en": "Airport terminal or open observation zone.",
-            "gps": "airport observation area",
-            "vector_necesidades": {"aire_fresco": 100, "contemplacion": 95, "silencio": 60, "descanso": 50, "movimiento": 30, "esperanza": 80}
-        },
-        {
-            "id": 212,
-            "titulo": "Depuración Exocrina: Complejo Deportivo / Gym",
-            "titulo_en": "Exocrine Cleansing: Sports Complex / Gym",
-            "porque": "Exceso de adrenalina retenida en los músculos por estrés laboral.",
-            "porque_en": "Excess adrenaline retained in muscles from work stress.",
-            "que_hacer": "Dirígete al centro recreativo, gimnasio o piscina pública más cercana. Fuerza a tu cuerpo a realizar contracción voluntaria continua por 60 segundos. Activa tus glándulas para elevar tu temperatura térmica y (`Sudar`), liberando sales pesadas y toxinas.",
-            "que_hacer_en": "Go to the nearest recreation center, gym, or public pool. Force your body into continuous voluntary contraction for 60 seconds. Activate your glands to raise thermal temperature and sweat, releasing heavy salts and toxins.",
-            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-            "donde": "Gimnasio público, cancha o alberca comunitaria.", "donde_en": "Public gym, court, or community pool.",
-            "gps": "community fitness center",
-            "vector_necesidades": {"movimiento": 100, "agua": 80, "salud": 90, "juego": 50, "descanso": 0, "silencio": 20, "risa": 40}
-        },
-        {
-            "id": 213,
-            "titulo": "Estabilización Somática: Farmacia / Clínica",
-            "titulo_en": "Somatic Stabilization: Pharmacy / Clinic",
-            "porque": "Aceleración del ritmo cardíaco y sensación física de vulnerabilidad o pánico.",
-            "porque_en": "Accelerated heart rate and physical feeling of vulnerability or panic.",
-            "que_hacer": "Visita una clínica pública o un centro de salud (CVS, Walgreens). Busca la estación de agua potable. Ejecuta el Módulo de Hidratación consciente: toma un vaso pequeño saboreando cada molécula del líquido. Siente cómo rehidrata tus células.",
-            "que_hacer_en": "Visit a public clinic or health center (CVS, Walgreens). Find the drinking water station. Execute the conscious Hydration Module: sip a small cup, tasting every molecule of liquid. Feel it rehydrating your cells.",
-            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-            "donde": "Área de descanso de una farmacia o clínica local.", "donde_en": "Lounge area of a local pharmacy or clinic.",
-            "gps": "pharmacy health lounge",
-            "vector_necesidades": {"agua": 100, "salud": 95, "descanso": 80, "silencio": 70, "organizacion": 80, "esperanza": 85}
-        },
+            # === MODIFICACIÓN: NUEVAS MICROACCIONES DE RECUPERACIÓN (ID 211-213) - DESCRIPCIONES ACORTADAS ===
+            {"id": 211, "titulo": "Soberanía de Cabina: Terminal Aérea / Vuelos", "titulo_en": "Cabin Sovereignty: Air Terminal / Flights",
+                "porque": "Saturación nerviosa por presiones y ruidos de tránsito masivo.", "porque_en": "Nervous saturation from mass transit pressures/noise.",
+                "que_hacer": "En aeropuerto/cerca, busca la ventana más grande con vista al cielo. Haz 3 inhalaciones diafragmáticas profundas. Siente el viento. Tu organismo no pertenece a la prisa industrial.",
+                "que_hacer_en": "At/near airport, find largest sky-view window. Take 3 deep diaphragmatic breaths. Feel the wind. Your body is not for industrial haste.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Terminal de aeropuerto o zona de observación abierta.", "donde_en": "Airport terminal or open observation zone.",
+                "gps": "airport observation area",
+                "vector_necesidades": {"aire_fresco": 100, "contemplacion": 95, "silencio": 60, "descanso": 50, "movimiento": 30, "esperanza": 80}
+            },
+            {"id": 212, "titulo": "Depuración Exocrina: Complejo Deportivo / Gym", "titulo_en": "Exocrine Cleansing: Sports Complex / Gym",
+                "porque": "Exceso de adrenalina retenida en los músculos por estrés laboral.", "porque_en": "Excess adrenaline retained from work stress.",
+                "que_hacer": "Ve al gym/piscina pública más cercana. Haz contracción voluntaria 60 seg. Suda para liberar sales y toxinas. Activa tu cuerpo.",
+                "que_hacer_en": "Go to nearest gym/public pool. Force continuous voluntary contraction for 60 secs. Sweat to release heavy salts/toxins. Activate your body.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Gimnasio público, cancha o alberca comunitaria.", "donde_en": "Public gym, court, or community pool.",
+                "gps": "community fitness center",
+                "vector_necesidades": {"movimiento": 100, "agua": 80, "salud": 90, "juego": 50, "descanso": 0, "silencio": 20, "risa": 40}
+            },
+            {"id": 213, "titulo": "Estabilización Somática: Farmacia / Clínica", "titulo_en": "Somatic Stabilization: Pharmacy / Clinic",
+                "porque": "Aceleración del ritmo cardíaco y sensación física de vulnerabilidad o pánico.", "porque_en": "Accelerated heart rate, physical vulnerability/panic.",
+                "que_hacer": "Visita clínica/farmacia. Busca agua potable. Hidratación consciente: bebe un vaso pequeño saboreando. Siente cómo rehidrata tus células.",
+                "que_hacer_en": "Visit public clinic/pharmacy. Find drinking water. Conscious Hydration: sip small cup, taste every molecule. Feel cells rehydrate.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Área de descanso de una farmacia o clínica local.", "donde_en": "Lounge area of a local pharmacy or clinic.",
+                "gps": "pharmacy health lounge",
+                "vector_necesidades": {"agua": 100, "salud": 95, "descanso": 80, "silencio": 70, "organizacion": 80, "esperanza": 85}
+            },
         ],
         "aburrido": [
-            {
-                "id": 103, "titulo": "Paseo de colores", "titulo_en": "Color Walk",
-                "porque": "Días repetitivos. Busca novedad. Despierta tu visión.", "porque_en": "Repetitive days. Seek novelty. Awaken your sight.",
-                "que_hacer": "Camina lento. Busca murales y dibujos grandes en tu zona.", "que_hacer_en": "Walk slowly. Find large murals and drawings in your area.",
+            {"id": 103, "titulo": "Paseo de colores", "titulo_en": "Color Walk",
+                "porque": "Días repetitivos. Busca novedad. Despierta tu visión.", "porque_en": "Repetitive days. Seek novelty. Awaken sight.",
+                "que_hacer": "Camina lento. Busca murales y dibujos grandes en tu zona.", "que_hacer_en": "Walk slowly. Find large murals/drawings in your area.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Calle con murales.", "donde_en": "Street with murals.", "gps": "street art",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 20, "silencio": 40, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 100, "comunidad": 60, "aprendizaje": 70, "juego": 55, "contemplacion": 85, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 30, "risa": 60, "esperanza": 95}
             },
-            {
-                "id": 114, "titulo": "Mercado de Agricultores", "titulo_en": "Farmers Market",
-                "porque": "Necesitas nuevos estímulos. Sabores y olores frescos. Apoya lo local.", "porque_en": "Need new stimuli. Fresh tastes and smells. Support local.",
-                "que_hacer": "Visita un mercado local. Prueba algo nuevo. Habla con los vendedores.", "que_hacer_en": "Visit a local market. Try something new. Talk to vendors.",
+            {"id": 114, "titulo": "Mercado de Agricultores", "titulo_en": "Farmers Market",
+                "porque": "Necesitas nuevos estímulos. Sabores y olores frescos. Apoya lo local.", "porque_en": "Need new stimuli. Fresh tastes/smells. Support local.",
+                "que_hacer": "Visita un mercado local. Prueba algo nuevo. Habla con los vendedores.", "que_hacer_en": "Visit local market. Try something new. Talk to vendors.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Mercado de agricultores.", "donde_en": "Farmers market.", "gps": "farmers market",
                 "vector_necesidades": {"movimiento": 60, "naturaleza": 50, "silencio": 30, "agua": 10, "sol": 70, "sombra": 40, "aire_fresco": 80, "creatividad": 70, "comunidad": 90, "aprendizaje": 60, "juego": 40, "contemplacion": 50, "descanso": 30, "organizacion": 50, "alimentacion": 100, "musica": 30, "risa": 70, "esperanza": 80}
             },
-            {
-                "id": 115, "titulo": "Exposición de Arte", "titulo_en": "Art Exhibition",
-                "porque": "Mente en bucle. Busca inspiración. Despierta tu creatividad.", "porque_en": "Mind in a loop. Seek inspiration. Awaken your creativity.",
-                "que_hacer": "Visita una galería o museo local. Observa el arte. Reflexiona en silencio.", "que_hacer_en": "Visit a local gallery or museum. Observe the art. Reflect in silence.",
+            {"id": 115, "titulo": "Exposición de Arte", "titulo_en": "Art Exhibition",
+                "porque": "Mente en bucle. Busca inspiración. Despierta tu creatividad.", "porque_en": "Mind in a loop. Seek inspiration. Awaken creativity.",
+                "que_hacer": "Visita una galería o museo local. Observa el arte. Reflexiona en silencio.", "que_hacer_en": "Visit local gallery/museum. Observe art. Reflect in silence.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Galería de arte o museo.", "donde_en": "Art gallery or museum.", "gps": "art gallery",
                 "vector_necesidades": {"movimiento": 40, "naturaleza": 10, "silencio": 70, "agua": 0, "sol": 10, "sombra": 90, "aire_fresco": 30, "creatividad": 100, "comunidad": 50, "aprendizaje": 90, "juego": 10, "contemplacion": 95, "descanso": 60, "organizacion": 70, "alimentacion": 0, "musica": 60, "risa": 20, "esperanza": 85}
             },
-            {
-                "id": 116, "titulo": "Parque de Patinaje", "titulo_en": "Skate Park",
-                "porque": "Necesitas energía visual. Observa la libertad y el movimiento. Conéctate con el juego.", "porque_en": "Need visual energy. Observe freedom and movement. Connect with play.",
-                "que_hacer": "Acércate a un skate park. Observa a los patinadores. Siente la vitalidad.", "que_hacer_en": "Go to a skate park. Watch the skaters. Feel the vitality.",
+            {"id": 116, "titulo": "Parque de Patinaje", "titulo_en": "Skate Park",
+                "porque": "Necesitas energía visual. Observa la libertad y el movimiento. Conéctate con el juego.", "porque_en": "Need visual energy. Observe freedom/movement. Connect with play.",
+                "que_hacer": "Acércate a un skate park. Observa a los patinadores. Siente la vitalidad.", "que_hacer_en": "Go to a skate park. Watch skaters. Feel the vitality.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Skate park público.", "donde_en": "Public skate park.", "gps": "skate park",
                 "vector_necesidades": {"movimiento": 70, "naturaleza": 30, "silencio": 20, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 80, "comunidad": 80, "aprendizaje": 30, "juego": 100, "contemplacion": 60, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 70, "risa": 90, "esperanza": 90}
             },
-            {
-                "id": 117, "titulo": "Librería de Segunda Mano", "titulo_en": "Used Bookstore",
-                "porque": "Busca historias y conocimiento. Desconéctate del mundo digital. Nutre tu mente.", "porque_en": "Seek stories and knowledge. Disconnect from digital. Nourish your mind.",
-                "que_hacer": "Explora una librería de segunda mano. Busca títulos inesperados. Disfruta el aroma.", "que_hacer_en": "Explore a used bookstore. Look for unexpected titles. Enjoy the scent.",
+            {"id": 117, "titulo": "Librería de Segunda Mano", "titulo_en": "Used Bookstore",
+                "porque": "Busca historias y conocimiento. Desconéctate del mundo digital. Nutre tu mente.", "porque_en": "Seek stories/knowledge. Disconnect from digital. Nourish mind.",
+                "que_hacer": "Explora una librería de segunda mano. Busca títulos inesperados. Disfruta el aroma.", "que_hacer_en": "Explore used bookstore. Look for unexpected titles. Enjoy scent.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Librería de segunda mano.", "donde_en": "Used bookstore.", "gps": "used bookstore",
                 "vector_necesidades": {"movimiento": 30, "naturaleza": 10, "silencio": 85, "agua": 0, "sol": 20, "sombra": 95, "aire_fresco": 40, "creatividad": 90, "comunidad": 30, "aprendizaje": 100, "juego": 20, "contemplacion": 90, "descanso": 80, "organizacion": 70, "alimentacion": 0, "musica": 10, "risa": 5, "esperanza": 75}
             },
-            {
-                "id": 128, "titulo": "Cine al aire libre", "titulo_en": "Outdoor Cinema",
-                "porque": "Necesitas un cambio de ambiente y una nueva perspectiva. Disfruta una historia en un entorno diferente.", "porque_en": "Need a change of scenery and new perspective. Enjoy a story in a different setting.",
-                "que_hacer": "Asiste a una proyección de cine al aire libre. Sumérgete en la película y el ambiente.", "que_hacer_en": "Attend an outdoor cinema screening. Immerse yourself in the film and atmosphere.",
+            {"id": 128, "titulo": "Cine al aire libre", "titulo_en": "Outdoor Cinema",
+                "porque": "Necesitas un cambio de ambiente y una nueva perspectiva. Disfruta una historia en un entorno diferente.", "porque_en": "Need scene/perspective change. Enjoy story in new setting.",
+                "que_hacer": "Asiste a una proyección de cine al aire libre. Sumérgete en la película y el ambiente.", "que_hacer_en": "Attend outdoor cinema. Immerse in film/atmosphere.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Parque o plaza con proyecciones.", "donde_en": "Park or plaza with screenings.", "gps": "outdoor cinema",
                 "vector_necesidades": {"movimiento": 30, "naturaleza": 60, "silencio": 40, "agua": 10, "sol": 50, "sombra": 70, "aire_fresco": 80, "creatividad": 90, "comunidad": 80, "aprendizaje": 70, "juego": 50, "contemplacion": 80, "descanso": 70, "organizacion": 20, "alimentacion": 60, "musica": 70, "risa": 70, "esperanza": 85}
             },
-            {
-            "id": 221,
-            "titulo": "Auditoría de Frecuencias: Discoteca / Club",
-            "titulo_en": "Frequency Audit: Nightclub / Club",
-            "porque": "Monotonía extrema y falta de estímulos rítmicos o sociales en tu semana.",
-            "porque_en": "Extreme monotony and lack of rhythmic or social stimuli in your week.",
-            "que_hacer": "Visita un club, bar o zona de entretenimiento nocturno. Sal un momento al perímetro exterior del local. Siente el quiebre de la música de fondo golpeando tus sentidos. Nota el cambio de temperatura del aire exterior y libérate de la inercia mental de la rutina.",
-            "que_hacer_en": "Visit a nightclub, bar, or nightlife district. Step outside to the outer perimeter of the venue for a moment. Feel the background music hit your senses. Notice the temperature change of the outside air and break free from routine inertia.",
-            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-            "donde": "Perímetro exterior o zona abierta de un club nocturno.", "donde_en": "Outer perimeter or open area of a nightclub.",
-            "gps": "nightlife district lounge",
-            "vector_necesidades": {"juego": 100, "comunidad": 90, "musica": 90, "risa": 80, "creatividad": 70, "movimiento": 60, "silencio": 10, "descanso": 30}
-        },
-        {
-            "id": 222,
-            "titulo": "Hackeo Cognitivo: Galería / Cine / Teatro",
-            "titulo_en": "Cognitive Hack: Gallery / Cinema / Theater",
-            "porque": "Falta de inspiración y embotamiento por consumir contenido basura repetitivo.",
-            "porque_en": "Lack of inspiration and dullness from consuming repetitive junk content.",
-            "que_hacer": "Dirígete a un cine, museo o teatro local. Ingresa al vestíbulo o sala pública. Elige un solo cartel, imagen o folleto informativo. Obsérvalo fijamente aislando tu mente del ruido. Usa este espacio cultural como tu laboratorio de enfoque visual.",
-            "que_hacer_en": "Head to a local cinema, museum, or theater. Enter the lobby or public hall. Choose a single poster, image, or informational brochure. Stare at it, isolating your mind from the noise. Use this cultural space as your visual focus lab.",
-            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-            "donde": "Entrada pública de un centro cultural o cine.", "donde_en": "Public entrance of a cultural center or cinema.",
-            "gps": "local cinema or museum",
-            "vector_necesidades": {"creatividad": 100, "aprendizaje": 90, "contemplacion": 95, "juego": 60, "comunidad": 50, "descanso": 60, "silencio": 70}
-        },
-        {
-            "id": 223,
-            "titulo": "Sabotaje de Rutina: Salir a Comer / Fast Food",
-            "titulo_en": "Routine Sabotage: Dining Out / Fast Food",
-            "porque": "Falta de variedad sensorial. Salir por un antojo físico rompe la inercia del día de forma inmediata.",
-            "porque_en": "Lack of sensory variety. Going out for a physical treat immediately breaks the day's inertia.",
-            "que_hacer": "Dirígete al restaurante o cadena de comida rápida más cercana (McDonald's, Starbucks). Pide un menú o un antojo dulce/amargo. Disfrútalo bocado a bocado, lejos de cualquier pantalla, prestando atención exclusiva al sabor y la textura real.",
-            "que_hacer_en": "Head to the nearest restaurant or fast-food chain (McDonald's, Starbucks). Order a menu or a specific sweet/bitter treat. Enjoy it bite by bite, completely away from any screens, paying exclusive attention to the real taste and texture.",
-            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-            "donde": "Cadena de comida rápida o restaurante del vecindario.", "donde_en": "Fast food chain or neighborhood restaurant.",
-            "gps": "fast food or local restaurant",
-            "vector_necesidades": {"alimentacion": 100, "risa": 75, "juego": 70, "comunidad": 80, "movimiento": 30, "descanso": 50, "esperanza": 85, "silencio": 20}
-        }
+            # === MODIFICACIÓN: NUEVAS MICROACCIONES DE RECUPERACIÓN (ID 221-223) - DESCRIPCIONES ACORTADAS ===
+            {"id": 221, "titulo": "Auditoría de Frecuencias: Discoteca / Club", "titulo_en": "Frequency Audit: Nightclub / Club",
+                "porque": "Monotonía extrema y falta de estímulos rítmicos o sociales en tu semana.", "porque_en": "Extreme monotony, lack of rhythmic/social stimuli.",
+                "que_hacer": "Visita un club/bar. Sal al exterior. Siente la música. Nota el aire y libérate de la inercia mental de la rutina.",
+                "que_hacer_en": "Visit a club/bar. Step outside. Feel the music. Notice the air and break free from routine mental inertia.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Perímetro exterior o zona abierta de un club nocturno.", "donde_en": "Outer perimeter or open area of a nightclub.",
+                "gps": "nightlife district lounge",
+                "vector_necesidades": {"juego": 100, "comunidad": 90, "musica": 90, "risa": 80, "creatividad": 70, "movimiento": 60, "silencio": 10, "descanso": 30}
+            },
+            {"id": 222, "titulo": "Hackeo Cognitivo: Galería / Cine / Teatro", "titulo_en": "Cognitive Hack: Gallery / Cinema / Theater",
+                "porque": "Falta de inspiración y embotamiento por consumir contenido basura repetitivo.", "porque_en": "Lack of inspiration, dullness from repetitive junk content.",
+                "que_hacer": "Ve al cine/museo/teatro local. Entra al vestíbulo. Elige un cartel/imagen. Obsérvalo fijamente, aislando tu mente del ruido. Usa el espacio como laboratorio de enfoque.",
+                "que_hacer_en": "Head to local cinema/museum/theater. Enter lobby. Choose a poster/image. Stare, isolating mind from noise. Use space as visual focus lab.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Entrada pública de un centro cultural o cine.", "donde_en": "Public entrance of a cultural center or cinema.",
+                "gps": "local cinema or museum",
+                "vector_necesidades": {"creatividad": 100, "aprendizaje": 90, "contemplacion": 95, "juego": 60, "comunidad": 50, "descanso": 60, "silencio": 70}
+            },
+            {"id": 223, "titulo": "Sabotaje de Rutina: Salir a Comer / Fast Food", "titulo_en": "Routine Sabotage: Dining Out / Fast Food",
+                "porque": "Falta de variedad sensorial. Salir por un antojo físico rompe la inercia del día de forma inmediata.", "porque_en": "Lack of sensory variety. A physical treat immediately breaks day's inertia.",
+                "que_hacer": "Ve a un restaurante/fast food. Pide algo. Disfrútalo bocado a bocado, sin pantallas. Atiende al sabor y textura real.",
+                "que_hacer_en": "Head to nearest restaurant/fast food. Order a treat. Enjoy bite by bite, no screens. Focus on real taste/texture.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Cadena de comida rápida o restaurante del vecindario.", "donde_en": "Fast food chain or neighborhood restaurant.",
+                "gps": "fast food or local restaurant",
+                "vector_necesidades": {"alimentacion": 100, "risa": 75, "juego": 70, "comunidad": 80, "movimiento": 30, "descanso": 50, "esperanza": 85, "silencio": 20}
+            }
         ],
         "cansado": [
-            {
-                "id": 104, "titulo": "Lectura en biblioteca", "titulo_en": "Library Reading",
-                "porque": "Necesitas calma. Aprende sin distracciones. Recarga tu energía.", "porque_en": "Need calm. Learn without distractions. Recharge your energy.",
-                "que_hacer": "Visita tu biblioteca local. Busca un libro o disfruta el silencio.", "que_hacer_en": "Visit your local library. Find a book or enjoy the silence.",
+            {"id": 104, "titulo": "Lectura en biblioteca", "titulo_en": "Library Reading",
+                "porque": "Necesitas calma. Aprende sin distracciones. Recarga tu energía.", "porque_en": "Need calm. Learn without distractions. Recharge energy.",
+                "que_hacer": "Visita tu biblioteca local. Busca un libro o disfruta el silencio.", "que_hacer_en": "Visit your local library. Find a book or enjoy silence.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Biblioteca pública.", "donde_en": "Public library.", "gps": "public library",
                 "vector_necesidades": {"movimiento": 30, "naturaleza": 10, "silencio": 100, "agua": 0, "sol": 10, "sombra": 80, "aire_fresco": 50, "creatividad": 70, "comunidad": 50, "aprendizaje": 95, "juego": 10, "contemplacion": 90, "descanso": 85, "organizacion": 70, "alimentacion": 0, "musica": 0, "risa": 10, "esperanza": 70}
             },
-            {
-                "id": 119, "titulo": "Paseo por el Puerto", "titulo_en": "Harbor Walk",
-                "porque": "Necesitas despejar la mente. Aire fresco y vistas al agua. Caminata relajante.", "porque_en": "Need to clear mind. Fresh air and water views. Relaxing walk.",
-                "que_hacer": "Camina por el muelle o puerto. Observa los barcos. Escucha el agua.", "que_hacer_en": "Walk along the dock or harbor. Watch the boats. Listen to the water.",
+            {"id": 119, "titulo": "Paseo por el Puerto", "titulo_en": "Harbor Walk",
+                "porque": "Necesitas despejar la mente. Aire fresco y vistas al agua. Caminata relajante.", "porque_en": "Need to clear mind. Fresh air, water views. Relaxing walk.",
+                "que_hacer": "Camina por el muelle o puerto. Observa los barcos. Escucha el agua.", "que_hacer_en": "Walk along dock/harbor. Watch boats. Listen to water.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Puerto o muelle.", "donde_en": "Harbor or pier.", "gps": "harbor walk or pier",
                 "vector_necesidades": {"movimiento": 70, "naturaleza": 80, "silencio": 60, "agua": 100, "sol": 70, "sombra": 50, "aire_fresco": 95, "creatividad": 50, "comunidad": 60, "aprendizaje": 40, "juego": 30, "contemplacion": 90, "descanso": 80, "organizacion": 20, "alimentacion": 20, "musica": 50, "risa": 40, "esperanza": 90}
             },
-            {
-                "id": 120, "titulo": "Observatorio Local", "titulo_en": "Local Observatory",
-                "porque": "Mente ansiosa. Busca perspectiva universal. Maravíllate con el cosmos.", "porque_en": "Anxious mind. Seek universal perspective. Marvel at the cosmos.",
-                "que_hacer": "Visita un observatorio. Aprende sobre el universo. Observa las estrellas (si es posible).", "que_hacer_en": "Visit an observatory. Learn about the universe. Stargaze (if possible).",
+            {"id": 120, "titulo": "Observatorio Local", "titulo_en": "Local Observatory",
+                "porque": "Mente ansiosa. Busca perspectiva universal. Maravíllate con el cosmos.", "porque_en": "Anxious mind. Seek universal perspective. Marvel at cosmos.",
+                "que_hacer": "Visita un observatorio. Aprende sobre el universo. Observa las estrellas (si es posible).", "que_hacer_en": "Visit observatory. Learn about universe. Stargaze (if possible).",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Observatorio astronómico.", "donde_en": "Astronomical observatory.", "gps": "astronomical observatory",
                 "vector_necesidades": {"movimiento": 10, "naturaleza": 70, "silencio": 90, "agua": 0, "sol": 10, "sombra": 100, "aire_fresco": 70, "creatividad": 80, "comunidad": 40, "aprendizaje": 100, "juego": 10, "contemplacion": 100, "descanso": 90, "organizacion": 60, "alimentacion": 0, "musica": 30, "risa": 5, "esperanza": 95}
             },
-            {
-                "id": 121, "titulo": "Banco en Plaza Céntrica", "titulo_en": "Bench in Central Plaza",
+            {"id": 121, "titulo": "Banco en Plaza Céntrica", "titulo_en": "Bench in Central Plaza",
                 "porque": "Necesitas observar. Conéctate con la vida urbana. Descansa y reflexiona.", "porque_en": "Need to observe. Connect with urban life. Rest and reflect.",
-                "que_hacer": "Siéntate en un banco. Observa a la gente pasar. Siente el pulso de la ciudad.", "que_hacer_en": "Sit on a bench. Watch people pass by. Feel the city's pulse.",
+                "que_hacer": "Siéntate en un banco. Observa a la gente pasar. Siente el pulso de la ciudad.", "que_hacer_en": "Sit on bench. Watch people pass. Feel city's pulse.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Plaza pública o parque.", "donde_en": "Public plaza or park.", "gps": "public plaza",
                 "vector_necesidades": {"movimiento": 20, "naturaleza": 60, "silencio": 30, "agua": 10, "sol": 90, "sombra": 70, "aire_fresco": 80, "creatividad": 50, "comunidad": 80, "aprendizaje": 40, "juego": 30, "contemplacion": 90, "descanso": 100, "organizacion": 20, "alimentacion": 10, "musica": 60, "risa": 50, "esperanza": 85}
             },
-            {
-                "id": 129, "titulo": "Tour Histórico a Pie", "titulo_en": "Historical Walking Tour",
-                "porque": "Mente agotada de lo predecible. Necesitas una inyección de conocimiento y un suave movimiento. Aprende mientras caminas.", "porque_en": "Mind tired of predictability. Need an injection of knowledge and gentle movement. Learn as you walk.",
-                "que_hacer": "Busca un tour a pie gratuito o de bajo costo por tu ciudad. Descubre historias locales.", "que_hacer_en": "Find a free or low-cost walking tour of your city. Discover local stories.",
+            {"id": 129, "titulo": "Tour Histórico a Pie", "titulo_en": "Historical Walking Tour", # ID 129 duplicada eliminada
+                "porque": "Mente agotada de lo predecible. Necesitas una inyección de conocimiento y un suave movimiento. Aprende mientras caminas.", "porque_en": "Mind tired of predictable. Need knowledge injection, gentle movement. Learn as you walk.",
+                "que_hacer": "Busca un tour a pie gratuito o de bajo costo por tu ciudad. Descubre historias locales.", "que_hacer_en": "Find free/low-cost walking tour. Discover local stories.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
-            }, # <--- COMA DE ENLACE NATIVA
-            {
-                "id": 129,
-                "titulo": "Tour Histórico a Pie", "titulo_en": "Historical Walking Tour",
-                "porque": "Mente agotada de lo predecible. Necesitas una inyección de conocimiento y un suave movimiento. Aprende mientras caminas.", "porque_en": "Mind tired of predictability. Need an injection of knowledge and gentle movement. Learn as you walk.",
-                "que_hacer": "Busca un tour a pie gratuito o de bajo costo por tu ciudad. Descubre historias locales.", "que_hacer_en": "Find a free or low-cost walking tour of your city. Discover local stories.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
-                "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
-            }, # <--- COMA DE ENLACE NATIVA
-            {
-                "id": 231,
-                "titulo": "Inversión Marítima: Perímetro de Cruceros",
-                "titulo_en": "Maritime Inversion: Cruise Line Perimeter",
-                "porque": "Cansancio monótono. Tu mente requiere el estímulo visual de la inmensidad del agua para romper el encierro urbano.",
-                "porque_en": "Monotonous fatigue. Your mind requires the visual stimulus of the vast water to break the urban confinement.",
-                "que_hacer": "Dirígete al puerto, muelle o agencia turística de cruceros más cercana (Royal Caribbean, Carnival). Observa las naves o el horizonte marítimo. Deja que el reflejo del agua limpie tus pensamientos pesados.",
-                "que_hacer_en": "Head to the nearest port, pier, or cruise agency (Royal Caribbean, Carnival). Observe the vessels or the marine horizon. Let the reflection of the water clear away your heavy thoughts.",
+            },
+            # === MODIFICACIÓN: NUEVAS MICROACCIONES DE RECUPERACIÓN (ID 231-232) - DESCRIPCIONES ACORTADAS ===
+            {"id": 231, "titulo": "Inversión Marítima: Perímetro de Cruceros", "titulo_en": "Maritime Inversion: Cruise Line Perimeter",
+                "porque": "Cansancio monótono. Tu mente requiere el estímulo visual de la inmensidad del agua para romper el encierro urbano.", "porque_en": "Monotonous fatigue. Mind needs vast water stimulus to break urban confinement.",
+                "que_hacer": "Ve al puerto/muelle/agencia de cruceros. Observa naves/horizonte marítimo. Deja que el reflejo del agua limpie tus pensamientos.",
+                "que_hacer_en": "Head to nearest port/pier/cruise agency. Observe vessels/marine horizon. Let water reflection clear heavy thoughts.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Muelle, puerto o zona costera abierta.", "donde_en": "Dock, pier, or open coastal zone.",
                 "gps": "cruise terminal or pier",
                 "vector_necesidades": {"agua": 100, "contemplacion": 95, "descanso": 90, "aire_fresco": 90, "naturaleza": 80, "silencio": 60}
             },
-            {
-                "id": 232,
-                "titulo": "Quiebre de Inercia: Discoteca / Club Nocturno",
-                "titulo_en": "Inertia Break: Nightclub / Dance Club",
-                "porque": "Cansancio cerebral por exceso de rutinas repetitivas y falta de estímulos rítmicos reales.",
-                "porque_en": "Brain fatigue from excessive repetitive routines and lack of real rhythmic stimuli.",
-                "que_hacer": "Visita una zona de clubs o discotecas de la ciudad. Sal un momento al área abierta del local. Escucha la vibración del bajo golpeando el entorno urbano, siente la música y deja que el pulso de la noche rompa el automatismo diurno.",
-                "que_hacer_en": "Visit a club or nightlife district in the city. Step out to the venue's open area for a moment. Listen to the bass vibration hitting the urban environment, feel the music, and let the pulse of the night break daytime automatism.",
+            {"id": 232, "titulo": "Quiebre de Inercia: Discoteca / Club Nocturno", "titulo_en": "Inertia Break: Nightclub / Dance Club",
+                "porque": "Cansancio cerebral por exceso de rutinas repetitivas y falta de estímulos rítmicos reales.", "porque_en": "Brain fatigue from repetitive routines, lack of real rhythmic stimuli.",
+                "que_hacer": "Visita clubs/discotecas. Sal al área abierta. Escucha la vibración del bajo, siente la música. Deja que el pulso nocturno rompa el automatismo diurno.",
+                "que_hacer_en": "Visit city clubs/nightlife. Step out to open area. Listen to bass, feel music. Let night's pulse break daytime automatism.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Perímetro exterior o terraza de un club céntrico.", "donde_en": "Outer perimeter or terrace of a central club.",
                 "gps": "dance club or nightclub",
@@ -616,105 +541,80 @@ BASE_MISIONES = {
             }
         ],
         "ansioso": [
-            {
-                "id": 105, "titulo": "Mirar el agua", "titulo_en": "Watch the Water",
-                "porque": "Agua en movimiento. Calma tu mente. Relaja tensiones.", "porque_en": "Moving water. Calm your mind. Release tensions.",
-                "que_hacer": "Busca fuente, lago o río cercano. Observa el flujo. Déjate llevar.", "que_hacer_en": "Find nearby fountain, lake, or river. Observe the flow. Let go.",
+            {"id": 105, "titulo": "Mirar el agua", "titulo_en": "Watch the Water",
+                "porque": "Agua en movimiento. Calma tu mente. Relaja tensiones.", "porque_en": "Moving water. Calm mind. Release tensions.",
+                "que_hacer": "Busca fuente, lago o río cercano. Observa el flujo. Déjate llevar.", "que_hacer_en": "Find nearby fountain/lake/river. Observe flow. Let go.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Fuente de agua o lago.", "donde_en": "Water fountain or lake.", "gps": "public fountain or lake",
                 "vector_necesidades": {"movimiento": 40, "naturaleza": 80, "silencio": 70, "agua": 100, "sol": 60, "sombra": 50, "aire_fresco": 90, "creatividad": 20, "comunidad": 30, "aprendizaje": 10, "juego": 20, "contemplacion": 90, "descanso": 80, "organizacion": 10, "alimentacion": 0, "musica": 50, "risa": 10, "esperanza": 80}
             },
-            {
-                "id": 122, "titulo": "Paseo en Bote", "titulo_en": "Boat Ride",
+            {"id": 122, "titulo": "Paseo en Bote", "titulo_en": "Boat Ride",
                 "porque": "Estrés acumulado. Necesitas desconexión total. Flota y relájate.", "porque_en": "Accumulated stress. Need total disconnection. Float and relax.",
-                "que_hacer": "Realiza un paseo corto en bote. Siente la brisa. Observa la inmensidad del agua.", "que_hacer_en": "Take a short boat ride. Feel the breeze. Observe the vastness of water.",
+                "que_hacer": "Realiza un paseo corto en bote. Siente la brisa. Observa la inmensidad del agua.", "que_hacer_en": "Take a short boat ride. Feel the breeze. Observe vast water.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Lago o río con alquiler de botes.", "donde_en": "Lake or river with boat rentals.", "gps": "boat rentals lake or river",
                 "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 80, "agua": 100, "sol": 80, "sombra": 60, "aire_fresco": 100, "creatividad": 50, "comunidad": 50, "aprendizaje": 30, "juego": 60, "contemplacion": 95, "descanso": 90, "organizacion": 10, "alimentacion": 20, "musica": 60, "risa": 30, "esperanza": 90}
             },
-            {
-                "id": 123, "titulo": "Jardín de Rocas/Zen", "titulo_en": "Rock/Zen Garden",
-                "porque": "Mente agitada. Busca orden y armonía. Centra tus pensamientos.", "porque_en": "Agitated mind. Seek order and harmony. Center your thoughts.",
-                "que_hacer": "Encuentra un jardín de rocas. Observa las formas y la disposición. Medita en su calma.", "que_hacer_en": "Find a rock garden. Observe the shapes and arrangement. Meditate in its calm.",
+            {"id": 123, "titulo": "Jardín de Rocas/Zen", "titulo_en": "Rock/Zen Garden",
+                "porque": "Mente agitada. Busca orden y armonía. Centra tus pensamientos.", "porque_en": "Agitated mind. Seek order/harmony. Center thoughts.",
+                "que_hacer": "Encuentra un jardín de rocas. Observa las formas y la disposición. Medita en su calma.", "que_hacer_en": "Find rock garden. Observe shapes/arrangement. Meditate in its calm.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Jardín de rocas o japonés.", "donde_en": "Rock or Japanese garden.", "gps": "zen garden",
                 "vector_necesidades": {"movimiento": 10, "naturaleza": 90, "silencio": 100, "agua": 50, "sol": 50, "sombra": 80, "aire_fresco": 90, "creatividad": 70, "comunidad": 20, "aprendizaje": 60, "juego": 5, "contemplacion": 100, "descanso": 95, "organizacion": 100, "alimentacion": 0, "musica": 20, "risa": 5, "esperanza": 90}
             },
-            {
-                "id": 124, "titulo": "Parque de Perros", "titulo_en": "Dog Park",
-                "porque": "Necesitas risas y alegría. Observa el juego inocente. Contagia la energía positiva.", "porque_en": "Need laughter and joy. Observe innocent play. Catch positive energy.",
-                "que_hacer": "Visita un parque de perros. Observa su interacción. Siente la diversión.", "que_hacer_en": "Visit a dog park. Observe their interaction. Feel the fun.",
+            {"id": 124, "titulo": "Parque de Perros", "titulo_en": "Dog Park",
+                "porque": "Necesitas risas y alegría. Observa el juego inocente. Contagia la energía positiva.", "porque_en": "Need laughter/joy. Observe innocent play. Catch positive energy.",
+                "que_hacer": "Visita un parque de perros. Observa su interacción. Siente la diversión.", "que_hacer_en": "Visit a dog park. Observe interaction. Feel the fun.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Parque de perros local.", "donde_en": "Local dog park.", "gps": "dog park",
                 "vector_necesidades": {"movimiento": 70, "naturaleza": 70, "silencio": 30, "agua": 20, "sol": 80, "sombra": 40, "aire_fresco": 90, "creatividad": 60, "comunidad": 90, "aprendizaje": 10, "juego": 100, "contemplacion": 40, "descanso": 60, "organizacion": 10, "alimentacion": 10, "musica": 20, "risa": 100, "esperanza": 90}
             },
-            {
-                "id": 125, "titulo": "Música en Vivo Suave", "titulo_en": "Calm Live Music",
-                "porque": "Mente estresada. Necesitas una experiencia sensorial. Permite que la música te calme.", "porque_en": "Stressed mind. Need a sensory experience. Let music calm you.",
-                "que_hacer": "Encuentra un lugar con música en vivo tranquila. Escucha, relájate y disfruta.", "que_hacer_en": "Find a place with calm live music. Listen, relax, and enjoy.",
+            {"id": 125, "titulo": "Música en Vivo Suave", "titulo_en": "Calm Live Music",
+                "porque": "Mente estresada. Necesitas una experiencia sensorial. Permite que la música te calme.", "porque_en": "Stressed mind. Need sensory experience. Let music calm you.",
+                "que_hacer": "Encuentra un lugar con música en vivo tranquila. Escucha, relájate y disfruta.", "que_hacer_en": "Find place with calm live music. Listen, relax, enjoy.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Bar o cafetería con música suave.", "donde_en": "Bar or cafe with calm music.", "gps": "live jazz bar",
                 "vector_necesidades": {"movimiento": 10, "naturaleza": 10, "silencio": 10, "agua": 0, "sol": 10, "sombra": 90, "aire_fresco": 50, "creatividad": 90, "comunidad": 70, "aprendizaje": 20, "juego": 20, "contemplacion": 90, "descanso": 80, "organizacion": 10, "alimentacion": 50, "musica": 100, "risa": 40, "esperanza": 85}
             },
-            {
-                "id": 130, "titulo": "Piscina Pública", "titulo_en": "Public Pool",
-                "porque": "Cuerpo tenso, mente agitada. El agua relaja y el movimiento controlado calma. Flota tus preocupaciones.", "porque_en": "Tense body, agitated mind. Water relaxes and controlled movement calms. Float your worries away.",
-                "que_hacer": "Visita una piscina pública, date un chapuzón o simplemente relájate en el agua.", "que_hacer_en": "Visit a public pool, take a dip or just relax in the water.",
+            {"id": 130, "titulo": "Piscina Pública", "titulo_en": "Public Pool",
+                "porque": "Cuerpo tenso, mente agitada. El agua relaja y el movimiento controlado calma. Flota tus preocupaciones.", "porque_en": "Tense body, agitated mind. Water relaxes, movement calms. Float worries away.",
+                "que_hacer": "Visita una piscina pública, date un chapuzón o simplemente relájate en el agua.", "que_hacer_en": "Visit public pool, take a dip or just relax in water.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Piscina municipal o comunitaria.", "donde_en": "Municipal or community pool.", "gps": "public swimming pool",
                 "vector_necesidades": {"movimiento": 90, "naturaleza": 40, "silencio": 50, "agua": 100, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 30, "comunidad": 70, "aprendizaje": 20, "juego": 80, "contemplacion": 70, "descanso": 90, "organizacion": 20, "alimentacion": 10, "musica": 40, "risa": 60, "esperanza": 85}
             },
-            {
-                "id": 241,
-                "titulo": "Distracción Absoluta: Centro de Recreación / Parque Temático",
-                "titulo_en": "Absolute Distraction: Recreation Center / Theme Park",
-                "porque": "Ansiedad cíclica y rumiación mental masiva. Necesitas un shock de juego y risas para apagar el pánico del ego.",
-                "porque_en": "Cyclic anxiety and massive mental rumination. You need a shock of play and laughter to quiet ego panic.",
-                "que_hacer": "Dirígete al parque de atracciones, centro de entretenimiento familiar o zona recreativa más cercana. Observa los colores, escucha las risas del perímetro urbano y permítete conectar con el juego inocente de los niños.",
-                "que_hacer_en": "Head to the nearest amusement park, family entertainment center, or recreation zone. Observe the colors, listen to the laughter of the urban perimeter, and allow yourself to connect with innocent play.",
+            # === MODIFICACIÓN: NUEVAS MICROACCIONES DE RECUPERACIÓN (ID 241-244) - DESCRIPCIONES ACORTADAS ===
+            {"id": 241, "titulo": "Distracción Absoluta: Centro de Recreación / Parque Temático", "titulo_en": "Absolute Distraction: Recreation Center / Theme Park",
+                "porque": "Ansiedad cíclica y rumiación mental masiva. Necesitas un shock de juego y risas para apagar el pánico del ego.", "porque_en": "Cyclic anxiety, massive rumination. Need play/laughter shock to quiet ego panic.",
+                "que_hacer": "Ve al parque de atracciones/centro familiar. Observa colores, risas. Conecta con el juego inocente de los niños.",
+                "que_hacer_en": "Head to nearest amusement park/family entertainment. Observe colors, laughter. Connect with innocent play.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Parque recreativo, zona infantil o centro de juegos local.", "donde_en": "Recreation park, kid zone, or local arcade center.",
                 "gps": "amusement park or arcade",
                 "vector_necesidades": {"juego": 100, "risa": 100, "comunidad": 80, "movimiento": 70, "esperanza": 90, "silencio": 20, "descanso": 50}
             },
-            {
-                "id": 242,
-                "titulo": "Estrategia de Alivio: Terminal de Aerolíneas",
-                "titulo_en": "Relief Strategy: Airline Terminal",
-                "porque": "Sensación de asfixia y pánico por el encierro diario de la rutina laboral de USA.",
-                "porque_en": "Feeling of suffocation and panic from the daily confinement of the USA work routine.",
-                "que_hacer": "Si estás cerca de una terminal aérea (Delta, United) o una agencia de viajes, camina hacia el pasillo central. Despega los ojos de la pantalla, observa a los viajeros partir y asimila que el mundo es inmenso y que tu problema actual es transitorio.",
-                "que_hacer_en": "If near an airline terminal (Delta, United) or travel agency, walk to the central hall. Take your eyes off the screen, watch travelers depart, and assimilate that the world is huge and your current issue is transient.",
+            {"id": 242, "titulo": "Estrategia de Alivio: Terminal de Aerolíneas", "titulo_en": "Relief Strategy: Airline Terminal",
+                "porque": "Sensación de asfixia y pánico por el encierro diario de la rutina laboral de USA.", "porque_en": "Suffocation/panic from daily USA work routine confinement.",
+                "que_hacer": "Cerca de terminal aérea/agencia viajes, camina pasillo central. Despega ojos de pantalla. Observa viajeros, asimila que el mundo es inmenso y tu problema transitorio.",
+                "que_hacer_en": "Near airline terminal/travel agency, walk central hall. Eyes off screen. Watch travelers, grasp world's vastness, your problem is transient.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Vestíbulo público de aeropuerto o central de transportes.", "donde_en": "Public airport lobby or transit center.",
                 "gps": "transit center or airport terminal",
                 "vector_necesidades": {"contemplacion": 100, "aire_fresco": 90, "esperanza": 95, "descanso": 70, "silencio": 50, "movimiento": 30}
-            }, # <--- AQUÍ SE REPARÓ LA COMA OBLIGATORIA QUE ENLAZA CON EL ID 243
-            {
-                "id": 243,
-                "titulo": "Aislamiento Conciencial: Resort / Hotel Lounge",
-                "titulo_en": "Conscious Isolation: Resort / Hotel Lounge",
-                "porque": "Ansiedad social aguda y ruido mental por sobrecarga de responsabilidades económicas.",
-                "porque_en": "Acute social anxiety and mental noise from economic responsibilities overload.",
-                "que_hacer": "Visita una zona de descanso de hotel o un resort local (Marriott, Hilton). Siéntate en una de sus butacas premium del lobby público de forma gratuita. Cierra los ojos, respira a un ritmo lento diafragmático y habita tus propios órganos con presencia absoluta.",
-                "que_hacer_en": "Visit a hotel lounge or local resort (Marriott, Hilton). Sit in one of their premium public lobby armchairs for free. Close your eyes, breathe at a slow diaphragmatic pace, and fully inhabit your own organs.",
-                "cuando": WHEN_ES,
-                "cuando_en": WHEN_EN,
-                "para_que": FOR_WHAT_ES,
-                "para_que_en": FOR_WHAT_EN,
-                "donde": "Zona de descanso o jardín de un hotel de USA.",
-                "donde_en": "Lounge or garden of a USA hotel.",
+            },
+            {"id": 243, "titulo": "Aislamiento Conciencial: Resort / Hotel Lounge", "titulo_en": "Conscious Isolation: Resort / Hotel Lounge",
+                "porque": "Ansiedad social aguda y ruido mental por sobrecarga de responsabilidades económicas.", "porque_en": "Acute social anxiety, mental noise from economic overload.",
+                "que_hacer": "Visita lounge de hotel/resort (gratis). Siéntate en butaca premium. Cierra ojos, respira lento diafragmático. Habita tus órganos con presencia absoluta.",
+                "que_hacer_en": "Visit hotel lounge/resort (free). Sit in premium armchair. Close eyes, breathe slow diaphragmatic. Fully inhabit your organs.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Zona de descanso o jardín de un hotel de USA.", "donde_en": "Lounge or garden of a USA hotel.",
                 "gps": "boutique hotel lobby",
                 "vector_necesidades": {"descanso": 100, "silencio": 90, "contemplacion": 95, "organizacion": 80, "salud": 85, "esperanza": 85}
-            }, # <--- OTRA COMA DE ENLACE PERFECTA
-            {
-                "id": 244,
-                "titulo": "Soberanía de Cabina: Terminal Aérea / Vuelos",
-                "titulo_en": "Cabin Sovereignty: Air Terminal / Flights",
-                "porque": "Sensación de asfixia, pánico y desconexión corporal debido a la saturación ruidosa de los perímetros urbanos.",
-                "porque_en": "Feeling of suffocation, panic, and bodily disconnection due to noisy saturation of urban perimeters.",
-                "que_hacer": "Dirígete a un aeropuerto, terminal de vuelos o zona de despegue (Delta, United). Busca un ventanal amplio con vista directo al horizonte del cielo. Ejecuta el Módulo de Ventilación: realiza tres exhalaciones diafragmáticas vaciando el CO2. Eres libre.",
-                "que_hacer_en": "Head to an airport, flight terminal, or takeoff zone (Delta, United). Find a wide window with a direct view of the sky horizon. Execute the Ventilation Module: take three diaphragmatic exhalations emptying the CO2. You are free.",
+            },
+            {"id": 244, "titulo": "Soberanía de Cabina: Terminal Aérea / Vuelos", "titulo_en": "Cabin Sovereignty: Air Terminal / Flights",
+                "porque": "Sensación de asfixia, pánico y desconexión corporal debido a la saturación ruidosa de los perímetros urbanos.", "porque_en": "Suffocation, panic, bodily disconnection due to noisy urban saturation.",
+                "que_hacer": "Ve a aeropuerto/terminal de vuelos. Busca ventanal con vista al cielo. Ejecuta el Módulo de Ventilación: 3 exhalaciones diafragmáticas vaciando CO2. Eres libre.",
+                "que_hacer_en": "Head to airport/flight terminal. Find wide sky-view window. Execute Ventilation Module: 3 diaphragmatic exhalations emptying CO2. You are free.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Terminal de aeropuerto, central de tránsito o zona de observación abierta.", "donde_en": "Airport terminal, transit hub, or open observation zone.",
                 "gps": "airport terminal or transit hub",
@@ -932,7 +832,7 @@ def seleccionar_n_misiones_inteligentes(
         mision_aleatoria = random.choice(misiones)
         if mision_aleatoria["id"] not in ids_seleccionados:
             seleccionadas.append(mision_aleatoria)
-            ids_seleccionados.add(mision_aleatoria["id"])
+            ids_seleccionados.add(mision["id"])
 
     return seleccionadas[:n]
 
@@ -1072,6 +972,7 @@ async def mando_integral(request: Request):
         
     # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
+    # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
     # ==========================================================================================
     sensitive_keywords = [
         "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum", "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income", "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades", "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo", "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica", "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo", "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales", "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
@@ -1084,32 +985,40 @@ async def mando_integral(request: Request):
     marca_detectada = None
     if desahogo and not explicitly_seeking_job:
         desahogo_lower = desahogo.lower()
-        if any(keyword in desahogo_lower for keyword in sensitive_keywords):
-            force_recovery_mission = True
-            # Extraer la marca o palabra clave exacta declarada en el desahogo
-            for keyword in ["walmart", "amazon", "costco", "starbucks", "mcdonald", "spotify", "youtube"]:
-                if keyword in desahogo_lower:
-                    marca_detectada = keyword.capitalize()
-                    break
+        for keyword in ["walmart", "amazon", "costco", "starbucks", "mcdonald", "spotify", "youtube", "tiktok", "instagram"]: # Agregadas marcas de redes
+            if keyword in desahogo_lower:
+                marca_detectada = keyword.capitalize()
+                break
+        if marca_detectada: # Solo forzar si se detectó una marca
+             force_recovery_mission = True
 
     # INVERSIÓN SISTÉMICA CRÍTICA: SI HAY SÍNTOMA CORPORATIVO, NO HUYES A CASA, EJECUTAS UN CONTRAATAQUE DE CAMPO
     if force_recovery_mission and marca_detectada:
-        # Destruye el bucle de las 3 opciones del demo inyectando una misión dinámica y automática en el Zip Code del cliente
-        diagnostico_sintoma = f"Mapeo Biopsicosocial Abierto: El cliente experimenta [{mente.upper()}] en relacion directa con el estimulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
-        
-        # Asignación dura y omnipresente del contraataque fisiológico (Fase 5 del Manifiesto)
-        if marca_detectada == "Walmart":
-            instruccion_fisiologica = "Estás en el templo del consumo masivo de USA. Toda esa infraestructura busca retener tu atención. Hackea el espacio: detén tu marcha en el pasillo, inhala hondo, expulsa el CO2 acumulado y repítete: 'Yo soy el único producto que requiere inversión hoy'. Sal de la rutina biológica sin comprar espejismos comerciales."
-        elif marca_detectada == "Amazon":
-            instruccion_fisiologica = "Tu mente busca una recompensa rápida de dopamina por evasión mediante comercio digital. Bloquea la pantalla. No busques parches afuera. Dirígete a tu espacio biológico inmediato: ejecuta el Módulo de Hidratación o Eliminación Celular profunda de tu organismo. Invierte tiempo de vida en tus células, no en el mercado."
-        elif marca_detectada in ["Youtube", "Tiktok", "Instagram"]:
-            instruccion_fisiologica = "El algoritmo de esta corporación secuestra tu atención mediante micro-estímulos visuales continuos. Interrumpe el bucle de control mental ahora mismo. Suelta el teléfono, cierra los ojos por 60 segundos y ejecuta una espiración diafragmática profunda liberando las hormonas del estrés acumuladas."
-        elif marca_detectada == "Spotify":
-            instruccion_fisiologica = "Estás usando frecuencias de sonido externas para aislarte de tu rutina o tapar la fatiga nerviosa. Detén el audio. Ejecuta el Módulo de Silencio Mental absoluto por un minuto completo. Siente el ritmo biológico real de los latidos de tu propio corazón en este Código Postal."
-        else:
-            instruccion_fisiologica = f"Has identificado que [{marca_detectada}] satura tu mente. Rebelate contra la monotonía: utiliza los pasillos, el aire libre o las ventanas de este perímetro en USA para realizar una pausa biológica profunda de 60 segundos. Has recuperado el control de tu conciencia."
+        mente_str_es = mente.upper()
+        mente_str_en = mente.upper() 
 
-        # Solución de URL de Google Maps uniendo los parámetros correctamente con codificación web limpia
+        diagnostico_sintoma_es = f"Diagnóstico: El cliente experimenta [{mente_str_es}] en relación al estímulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
+        diagnostico_sintoma_en = f"Diagnostic: Client experiences [{mente_str_en}] linked to corporate stimulus [{marca_detectada}] in Zip Code {zip_code}."
+
+        instruccion_fisiologica_es = ""
+        instruccion_fisiologica_en = ""
+        
+        if marca_detectada == "Walmart":
+            instruccion_fisiologica_es = "Estás en el templo del consumo. Hackea: detén tu marcha, inhala/exhala profundo. Repite: 'Yo soy el único producto que importa hoy'. Sal de la rutina."
+            instruccion_fisiologica_en = "You are in the consumption temple. Hack it: stop, inhale/exhale deeply. Repeat: 'I am the only product that matters today'. Exit routine."
+        elif marca_detectada == "Amazon":
+            instruccion_fisiologica_es = "Tu mente busca dopamina rápida. Bloquea la pantalla. Enfócate en tu espacio biológico: hidrátate o elimina toxinas. Invierte en tus células, no en el mercado digital."
+            instruccion_fisiologica_en = "Mind seeks quick dopamine. Block screen. Focus on biological space: hydrate or detox. Invest in cells, not digital market."
+        elif marca_detectada in ["Youtube", "Tiktok", "Instagram"]:
+            instruccion_fisiologica_es = "El algoritmo secuestra tu atención. Interrumpe el bucle mental. Suelta el teléfono, cierra ojos 60 segundos. Respira profundo, libera estrés."
+            instruccion_fisiologica_en = "Algorithm hijacks attention. Break mental loop. Drop phone, close eyes 60 secs. Breathe deep, release stress."
+        elif marca_detectada == "Spotify":
+            instruccion_fisiologica_es = "Usas sonidos para aislarte. Detén el audio. Ejecuta el Módulo Silencio Mental 1 minuto. Siente tu ritmo cardíaco en este Código Postal."
+            instruccion_fisiologica_en = "You use sounds to isolate. Stop audio. Execute 1-minute Mental Silence Module. Feel your heart rhythm in this Zip Code."
+        else: # Default case
+            instruccion_fisiologica_es = f"Identificaste que [{marca_detectada}] satura tu mente. Rebélate: usa pasillos, aire libre o ventanas. Haz una pausa biológica profunda de 60 segundos. Recupera el control."
+            instruccion_fisiologica_en = f"You identified [{marca_detectada}] saturating your mind. Rebel: use halls, open air, or windows. Take a deep 60-sec biological pause. Regain control."
+
         query_mapa_url = urllib.parse.quote_plus(f"{marca_detectada} in {zip_code}")
         target_link = f"{link_base}{query_mapa_url}"
 
@@ -1118,12 +1027,14 @@ async def mando_integral(request: Request):
             "destino_titulo": f"HACKEO A {marca_detectada.upper()}",
             "destino_titulo_en": f"HACKING {marca_detectada.upper()}",
             "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
-            "que_hacer_en": "Mental Control Interruption and Return to Body.",
+            "que_hacer_en": "Mental Control Interruption & Return to Body.",
             "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
-            "destino_instruccion": instruccion_fisiologica,
-            "destino_instruccion_en": f"TARGET: {marca_detectada}.\nDIAGNOSTIC: {diagnostico_sintoma}\nCOMMAND: Full visual screen blocking active. Focus 100% of your energy on cell hydration, breathing, or deep biological excretion functions. You are the only product that requires investment today.",
+            "destino_instruccion": instruccion_fisiologica_es, # Instrucción concisa ES
+            "destino_instruccion_en": instruccion_fisiologica_en, # Instrucción concisa EN
             "destino_coordenadas_gps": target_link,
-            "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True}
+            "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
+            "diagnostico_sintoma_es": diagnostico_sintoma_es,
+            "diagnostico_sintoma_en": diagnostico_sintoma_en,
         }]
 
         return JSONResponse({
@@ -1164,28 +1075,30 @@ async def mando_integral(request: Request):
     final_misiones_para_frontend = []
     
     for info_seleccionada in misiones_seleccionadas_raw:
+        # === MODIFICACIÓN: MENSAJES DE ACOMPAÑAMIENTO Y GASTO ACORTADOS ===
         precio_real = ""
         if budget == "0":
-            precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
+            precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
         elif budget == "1":
-            precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
+            precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
         elif budget == "2":
-            precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
+            precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
 
         quienes_van = ""
         if perfil_tipo == "solo":
-            quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
+            quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
         elif perfil_tipo == "familia":
-            quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
+            quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
         elif perfil_tipo == "accesible":
-            quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
+            quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
 
         titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
         donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
         anclaje_geografico = zip_code
-        map_base_url = link_base # Changed from "https://google.com" to link_base
+        map_base_url = link_base
 
         if lang == "en":
+            # === MODIFICACIÓN: guia_masticada (EN) ACORTADA ===
             guia_masticada = (
                 f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
                 f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
@@ -1197,6 +1110,7 @@ async def mando_integral(request: Request):
             titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
             que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
         else:
+            # === MODIFICACIÓN: guia_masticada (ES) ACORTADA ===
             guia_masticada = (
                 f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
                 f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
@@ -1208,10 +1122,6 @@ async def mando_integral(request: Request):
             titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada["que_hacer"] or ""
 
-        # === CORRECCIÓN ESTRICTA DE SANGRÍA: EXACTAMENTE 8 ESPACIOS DESDE EL MARGEN ===
-        # The comment above refers to a general principle, the following block must be indented
-        # by 12 spaces to be correctly nested within the 'for' loop and aligned with 'append'.
-        # The map_base_url variable has been updated to use the global link_base.
         search_query_parts = []
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
@@ -1234,19 +1144,11 @@ async def mando_integral(request: Request):
             "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
             "destino_entorno": donde_base,
             "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            ).strip(),
+            "destino_instruccion_en": guia_masticada.strip(), # Ambos usan el mismo guia_masticada que ya fue construido en el idioma correcto
             "destino_coordenadas_gps": target_link,
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
 
-    # El return del JSONResponse finaliza la función principal (Alineado a 4 espacios con el def)
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
