@@ -1004,45 +1004,142 @@ async def mando_integral(request: Request):
             titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada['que_hacer'] or ''
        
-         search_query_parts = []
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
-       
-        search_query_parts.append(info_seleccionada["gps"])
-        search_query_parts.append(f"in {anclaje_geografico}")
-       
-        full_map_query_string = " ".join(search_query_parts)
-        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-       
-        final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
-
-        final_misiones_para_frontend.append({
-            "destino_id": info_seleccionada.get("id"),
-            "destino_titulo": titulo_ganador_lang,
-            "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]), # Incluir ambos para frontend
-            "que_hacer": info_seleccionada["que_hacer"], # Incluir ambos para frontend
-            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]), # Incluir ambos para frontend
-            "destino_entorno": donde_base,
-            "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            ).strip(),
-            "destino_coordenadas_gps": target_link,
-            "vector_entorno_seleccionado": final_vector_necesidades,
-        })
-   
+             search_query_parts = []
+    if perfil_tipo == "accesible":
+        search_query_parts.append("wheelchair accessible")
+    elif perfil_tipo == "familia":
+        search_query_parts.append("family friendly")
+        
+    search_query_parts.append(info_seleccionada["gps"])
+    search_query_parts.append(f"in {anclaje_geografico}")
+    
+    full_map_query_string = " ".join(search_query_parts)
+    target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
+    
+    final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
+    
+    # CORRECCIÓN DE ATRIBUTOS E INVERSIÓN LOGÍSTICA PARA LA RESPUESTA EN INGLÉS
+    final_misiones_para_frontend.append({
+        "destino_id": info_seleccionada.get("id"),
+        "destino_titulo": titulo_ganador_lang,
+        "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]),
+        "que_hacer": info_seleccionada["que_hacer"],
+        "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
+        "destino_entorno": donde_base,
+        "destino_instruccion": guia_masticada.strip(),
+        "destino_instruccion_en": (
+            f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
+            f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
+            f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+            f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or FOR_WHAT_EN}\n"
+            f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or FOR_WHAT_EN}\n"
+            f"{quienes_van}\n{precio_real}"
+        ).strip(),
+        "destino_coordenadas_gps": target_link,
+        "vector_entorno_seleccionado": final_vector_necesidades,
+    })
+    
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
-        "historial_salir_actualizado": historial_salir # Se devuelve, pero la actualización principal se hará en el frontend.
+        "historial_salir_actualizado": historial_salir
     })
 
+# ==========================================================================================
+# INYECCIÓN NATIVA: CORE ALGORÍTMICO DEL MANIFIESTO MATRICIAL ABSOLUTO (OPEN THAN GO)
+# ==========================================================================================
+
+ESTADOS_IDENTIFICACION_CLIENTE = [
+    "AGOTADO", "CANSADO", "ABURRIDO", "ESTRESADO", "DESESPERADO", "ANSIOSO", 
+    "DEPRIMIDO", "ALTERADO", "MONOTONIA", "AISLADO", "SIN DIRECCION", "SIN SABER QUE HACER", 
+    "STAND BY", "PARALIZADO", "PERDIDO", "SIN IDEAS", "ATRAPADO", "ENGANADO", 
+    "ENAMORADO", "TRAICIONADO", "DESCONTENTO", "CONTENTO", "FELIZ", "INFELIZ", 
+    "AFORTUNADO", "DESAFORTUNADO"
+]
+
+MATRIZ_CONSUMO_EMPRESAS = [
+    "TikTok", "Instagram", "Facebook", "YouTube Shorts", "X (Twitter)", "Netflix", "Disney+", "Apple", "Microsoft",
+    "Amazon", "Temu", "eBay", "Walmart", "Target", "Costco", "Starbucks", "McDonald's", "Burger King", "Wendy's",
+    "Coca-Cola", "Pepsi", "Uber", "Lyft", "Google Search", "ChatGPT", "CVS Pharmacy", "Walgreens", "Home Depot"
+]
+
+MATRIZ_INFRAESTRUCTURA_ENTORNO = [
+    "Oficina Corporativa / Rascacielos / Complejo Financiero / Wall Street",
+    "Fábrica / Planta Industrial / Refinería / Astillero",
+    "Hospital Universitario / Hospital Público / Clínica Privada / Sala de Emergencias",
+    "Oficina del DMV / Juzgado Federal / Dependencia de Gobierno / Estación de Policía",
+    "Oficina de Correos (USPS) / Prisión Estatal / Base de la Guardia Nacional",
+    "Carretera Interestatal / Autopista de Alta Velocidad / Tráfico US / Puentes Monumentales",
+    "Aeropuerto Internacional (JFK/LAX/MIA) / Estación de Metro / Terminal de Autobuses",
+    "Centro Comercial / Megatienda de Consumo / Pasos Peatonales / Bodega de Vecindario",
+    "Playa Oceánica Pública / Costa Atlántica / Costa Pacífica / Lagos / Ríos",
+    "Parque Nacional / Parque Comunitario / Bosques / Montañas / Desiertos / Piscinas Públicas",
+    "Exposición Directa Bajo el Sol",
+    "Exposición Directa Bajo la Luna",
+    "Exposición Directa Mirando las Nubes / Cielo Abierto",
+    "Respiración de Aire Libre y Atmosférico de la Región"
+]
+
+MATRIZ_ELIMINACION_HOMEOSTASIS = {
+    "ELIMINACION_URINARIA": "Orinar y vaciado de fluidos/toxinas a nivel renal y de la vejiga.",
+    "ELIMINACION_INTESTINAL": "Defecar y expulsión periódica de residuos sólidos digestivos y bacterias muertas en el colon.",
+    "ELIMINACION_TERMICA": "Sudar, termorregulación exocrina y liberación cutánea de toxinas y sales pesadas.",
+    "ELIMINACION_RESPIRATORIA": "Espirar profundamente, ventilación tisular y expulsión diafragmática de CO2 por cortisol.",
+    "ELIMINACION_LAGRIMAL": "Llorar, lubricar el parpadeo ocular y descargar hormonas del estrés acumuladas en el sistema nervioso.",
+    "ELIMINACION_EPIDERMICA": "Descamación celular natural y renovación de la barrera cutánea frente al entorno.",
+    "ELIMINACION_SALIVAL": "Escupir o tragar para la depuración de toxinas salivales o deglución de enzimas digestivas.",
+    "ELIMINACION_GASTRICA": "Mecanismos de emergencia gástrica, expulsión de gases, eructos o vómitos protectores.",
+    "OXIGENACION_TISULAR": "Respiración consciente profunda para regular el pH de la sangre y anular el pánico mental.",
+    "NUTRICION_REAL": "Alimentarse e hidratarse de forma celular real, anulando la ansiedad compulsiva por ultraprocesados.",
+    "REGENERACION_NEURONAL": "Pausas de silencio mental absoluto y preparación para el descanso y el sueño REM/No REM.",
+    "BIOMECANICA_LINFATICA": "Motilidad musculoesquelética forzada mediante movimiento y estiramiento para mover la linfa."
+}
+
+# Diccionario unificado que compila la infraestructura y variables para la interfaz
+DICCIONARIO_SISTEMA_MATRIZ = {
+    "estados_emocionales": ESTADOS_IDENTIFICACION_CLIENTE,
+    "marcas_usa": MATRIZ_CONSUMO_EMPRESAS,
+    "infraestructura_usa": MATRIZ_INFRAESTRUCTURA_ENTORNO,
+    "procesos_biologicos": MATRIZ_ELIMINACION_HOMEOSTASIS
+}
+
+# ==========================================================================================
+# ENDPOINTS ADICIONALES PARA EL NUEVO MÓDULO DE INTERFACCIÓN CONCIENCIAL
+# ==========================================================================================
+
+@app.get("/api/v1/algoritmo-captura")
+async def obtener_matriz_captura():
+    """Retorna las nuevas capas del manifiesto conceptual para el frontend dinámico."""
+    return {
+        "status": "success",
+        "data": DICCIONARIO_SISTEMA_MATRIZ
+    }
+
+@app.post("/api/v1/algoritmo-procesar-inversion")
+async def procesar_inversion_sistemica(datos_captura: dict):
+    """
+    Recibe el cruce voluntario en pantalla (Estado + Empresa/Infraestructura + Zip Code público).
+    Mapea la carencia biopsicosocial y devuelve el comando de desconexión obligatoria de 60s.
+    """
+    estado_actual = datos_captura.get("estado", "").upper()
+    elemento_sistema = datos_captura.get("elemento", "")
+    zip_code = datos_captura.get("zip_code", "00000")
+    
+    if estado_actual not in ESTADOS_IDENTIFICACION_CLIENTE:
+        return {"status": "error", "message": "Estado de identificación emocional no registrado en la matriz."}
+        
+    diagnostico = f"Mapeo Abierto: El cliente experimenta [{estado_actual}] en relación directa con [{elemento_sistema}] dentro del Zip Code {zip_code}."
+    
+    return {
+        "status": "success",
+        "diagnostico_sintoma": diagnostico,
+        "comando_sistema": "BLOQUEO DE PANTALLA INMEDIATO. INTERRUPCIÓN DEL CONTROL MENTAL.",
+        "ejecucion_fisiologica_obligatoria": "Expulsión digital activada. Dirígete a tu entorno físico para ejecutar tu función biológica de eliminación, respiración o nutrición consciente.",
+        "analitica_inversa": "Iniciando registro matemático pasivo de T_out (Tiempo real fuera de pantalla)."
+    }
+
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
