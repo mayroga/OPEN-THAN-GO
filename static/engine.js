@@ -4,46 +4,49 @@
 
 const KERNEL = {
     timerInaccion: null,
-    timerEnfocado: null, // Renamed from timerClinico to avoid medical connotations
+    timerClinico: null,
     temporizadorCascada: null,
-    temporizadorCierre: null,
-    salidaSugeridaTimeoutId: null,
-    salidaTimerId: null, // New timer for SALIR mode 45s phrases
-    timeLeft: 600,
-    timeLeftCierre: 60,
+    temporizadorCierre: null, // New timer for the closing phase
+    salidaSugeridaTimeoutId: null, // To store the ID of the setTimeout for SALIR suggestion
+    timeLeft: 600, // 10 minutes for clinical timer (unified with relojRealSegundos)
+    timeLeftCierre: 60, // 60 seconds for the closing challenge
     isLocked: false,
     idiomaActual: 'es',
     pasosMisiones: [],
     indiceMision: 0,
-    datosLugarGlobal: null, // Now stores the *selected* mission for SALIR
+    datosLugarGlobal: null, // Stores the full response from backend for current recommendation
     tipoEscapeGlobal: "",
    
+    // Time and Impatience Control Variables
     contadorToques: 0,
-    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
+    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5], // Seconds to advance clinical timer per tap
    
-    historialSalir: [],
-    historialCasa: [],
-    historialPreguntas: [],
-    historialRetosSecuencias: [],
+    // NEW: Independent history arrays for different modes/types
+    historialSalir: [], // Stores IDs of SALIR recommendations
+    historialCasa: [],  // Stores IDs of CASA recommendations
+    historialPreguntas: [], // Stores indices of Oracle questions shown recently
+    historialRetosSecuencias: [], // Stores canonical strings of challenge sequences shown recently
 
-    lastDecayTimestamp: null,
-    sessionSeed: null,
+    lastDecayTimestamp: null, // For otg_last_decay in localStorage
+    sessionSeed: null, // For otg_session_seed in localStorage
 
+    // Constants for history limits (aligned with backend where applicable)
     MAX_HISTORY_SALIR: 5,
     MAX_HISTORY_CASA: 8,
-    MAX_HISTORY_ORACULO: 12,
-    MAX_HISTORY_RETOS_SECUENCIAS: 3,
-    DECAY_PER_DAY: 0.985,
+    MAX_HISTORY_ORACULO: 12, // Max questions to remember
+    MAX_HISTORY_RETOS_SECUENCIAS: 3, // Keep track of the last 3 distinct challenge sequences
+    DECAY_PER_DAY: 0.985, // From main.py
 
-    conteoInaccion: 0,
-    indicePreguntaCascada: 0,
+    conteoInaccion: 0, // Inaction counter for advancing question blocks
+    indicePreguntaCascada: 0, // Index for fading out questions
 
+    // Default template for the 19 human needs profile (must align with backend)
     DEFAULT_NECESSITY_PROFILE: {
         "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
         "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
-        "juego": 50, "contemplacion": 50, "descanso": 50, "organizacion": 50,
+        "juego": 50, "contemplacion": 50, "trabajo": 50, "descanso": 50, "organizacion": 50,
         "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
-        "indicador_ansiedad": 0
+        "indicador_ansiedad": 0 // Special internal indicator, not a "need" for location matching
     },
    
     CATALOGO_PREGUNTAS_ES: [
@@ -51,10 +54,12 @@ const KERNEL = {
         "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?",
         "¿Te pierdes en contenido de video que olvidas en pocos segundos, buscando llenar un vacío?",
         "¿Usas música para ahogar el ruido mental y la inquietud de tu día a día?",
+        "¿Buscas novedades en tiendas online solo por la expectativa de recibir algo?",
+        "¿Paseas por grandes superficies gastando sin rumbo fijo, solo por inercia?",
         "¿Sientes que lo digital te desconectó de la capacidad de observar el mundo real en calma?",
 
         // Bloque 2: Evasión y Rutina Física (Comida, Descanso y Movimiento)
-        "¿Invierdes mucho en experiencias pasajeras buscando una satisfacción que se desvanece rápido?",
+        "¿Inviertes mucho en experiencias pasajeras buscando una satisfacción que se desvanece rápido?",
         "¿Te refugias en espacios ajenos huyendo de situaciones que te acompañan a todas partes?",
         "¿Conduces sin destino solo para escapar del encierro en tu propio entorno?",
         "¿Mantienes hábitos por costumbre, sintiendo que te anestesian de tu realidad?",
@@ -75,28 +80,31 @@ const KERNEL = {
         "¿Compartes techo, pero la distancia emocional te hace sentir como extraños?",
         "¿La visita de un familiar te genera tensión en vez de verdadera paz y conexión?",
         "¿La añoranza por los que están lejos te paraliza y te impide vivir tu presente?",
-        "¿Sientes que las interacciones diarias están creando silencios en tus relaciones?",
+        "¿Sientes que las presiones compartidas están creando silencios en tus relaciones?",
 
         // Bloque 5: Evasión por Viajes y Fugas de la Realidad
         "¿Subestimas lo que tienes cerca, soñando con escapes lejanos que te son inalcanzables?",
         "¿Deseas una huida total para que el cambio de escenario resuelva tus crisis internas?",
         "¿Crees que la solución a tu insatisfacción es un cambio radical de ubicación?",
-        "¿Planeas grandes gastos en ocio que podrían comprometer tu calma futura?",
+        "¿Planeas grandes gastos en ocio que podrían comprometer tu estabilidad futura?",
         "¿Buscas imágenes de paisajes distantes porque perdiste la capacidad de asombrarte con tu propio cielo?",
         "¿Te sientes atado a tu lugar y asumes que la libertad requiere de un boleto a otro sitio?",
 
         // Bloque 6: Vulnerabilidad Corporal y Sensaciones
         "¿Aplazas tu bienestar físico por miedo a los costos o las complicaciones?",
-        "¿Sientes molestias en el cuerpo causadas por la acumulación de tensión diaria?",
+        "¿Sientes molestias en el cuerpo causadas por la acumulación de estrés diario?",
+        "¿Te preocupa cómo el sistema impactaría tu salud y la estabilidad de los tuyos?",
         "¿Sientes opresión en el pecho por la prisa del entorno y la incertidumbre del futuro?",
+        "¿Tu bienestar se desgasta en una actividad que te exige demasiado a cambio de recompensas?",
         "¿Has olvidado el consuelo de una respiración profunda, libre de cualquier preocupación?",
 
         // Bloque 7: El Espejismo Material y Vacío Existencial
-        "¿Buscas la tranquilidad en un entorno natural, pero tu mente sigue en el bucle de las preocupaciones?",
-        "¿Tienes comodidades, pero una insatisfacción crónica te consume por dentro?",
-        "¿Crees que la adquisición de bienes te dará un sentido de pertenencia o identidad?",
+        "¿Buscas la tranquilidad en un entorno natural, pero tu mente sigue en el bucle de las responsabilidades?",
+        "¿Tienes estabilidad y comodidades, pero una insatisfacción crónica te consume por dentro?",
+        "¿Crees que la adquisición de propiedades te dará un sentido de pertenencia o identidad?",
         "¿Te paraliza la idea de dejar la seguridad de lo conocido, por miedo a un paso incierto?",
         "¿Te comparas con las posesiones y el estilo de vida de los demás?",
+        "¿Sientes que la vida se te escapa dedicando todo a acumular cosas sin sentido?",
 
         // Bloque 8: El Despertar Maestro (Quiebre y Mando Absoluto)
         "¿Tu mente se convirtió en tu mayor prisión en este momento?",
@@ -111,6 +119,8 @@ const KERNEL = {
         "Do you open social media out of inertia, comparing your day to idealized images?",
         "Do you get lost in video content that you forget in a few seconds, trying to fill a void?",
         "Do you use music to drown out mental noise and daily restlessness?",
+        "Do you look for new items in online stores just for the anticipation of receiving something?",
+        "Do you wander through big stores spending aimlessly, just out of inertia?",
         "Do you feel like technology disconnected you from the ability to calmly observe the real world?",
 
         // Block 2: Escape Consumption and Physical Routine (Food, Rest, and Movement)
@@ -134,28 +144,31 @@ const KERNEL = {
         "Do you live under the same roof with your family but emotional distance makes you feel like strangers?",
         "Does a family visit generate tension instead of true peace and connection?",
         "Does longing for those far away paralyze you and prevent you to live your present?",
-        "Do you feel that daily interactions are creating silences in your relationships?",
+        "Do you feel that shared pressures are creating silences in your relationships?",
 
         // Block 5: Travel Evasion and Escapes from Reality
         "Do you underestimate what's near you, dreaming of distant escapes that are unattainable?",
         "Do you wish for a total escape so that a change of scenery resolves your internal crises?",
         "Do you believe that the solution to your dissatisfaction is a radical change of location?",
-        "Do you plan large expenses on leisure that could compromise your future calm?",
+        "Do you plan large expenses on leisure that could compromise your future stability?",
         "Do you search for images of distant landscapes because you've lost the ability to be amazed by your own sky?",
         "Do you feel tied to your place and assume that freedom requires a ticket to another location?",
 
         // Block 6: Bodily Vulnerability and Sensations
         "Do you postpone your physical well-being for fear of costs or complications?",
-        "Do you feel physical discomfort caused by the accumulation of daily tension?",
+        "Do you feel physical discomfort caused by the accumulation of daily stress?",
+        "Are you concerned about how the system would impact your health and your family's stability?",
         "Do you feel tightness in your chest from the rush of your environment and the uncertainty of the future?",
+        "Is your well-being wearing out in an activity that demands too much in exchange for rewards?",
         "Have you forgotten the comfort of a deep breath, free from any worry?",
 
         // Block 7: The Material Mirage and Existential Void
-        "Do you seek tranquility in a natural environment, but your mind remains in the loop of worries?",
-        "Do you have comforts but a chronic dissatisfaction consumes you within?",
+        "Do you seek tranquility in a natural environment, but your mind remains in the loop of responsibilities?",
+        "Do you have stability and comforts but a chronic dissatisfaction consumes you within?",
         "Do you believe that acquiring property will give you a sense of belonging or identity?",
         "Does the idea of leaving the security of the known paralyze you, for fear of an uncertain step?",
         "Do you secretly compare yourself to the status and possessions of others?",
+        "Do you feel time slipping through your fingers, dedicating everything to accumulating meaningless things?",
 
         // Block 8: The Master Awakening (Breakthrough and Absolute Command)
         "Has your mind become your biggest prison right now?",
@@ -168,26 +181,27 @@ const KERNEL = {
 
     AUDIOS_SECUENCIALES_CASA_ES: [
         "Sigue el pulso en tu pantalla. Concéntrate. Estás conmigo hoy.",
-        "Suelta los hombros despacio. Deja caer todo el peso físico y mental de tu día.",
-        "No pienses en pendientes ahora. No mires tu lista mental. Respira ya.",
+        "Suelta los hombros despacio. Deja caer todo el peso físico y mental de la semana.",
+        "No pienses en responsabilidades ahora. No mires tu lista de tareas. Respira ya.",
         "Mantén el ritmo constante. Siente el aire fresco limpiando tu pecho.",
         "Te estoy acompañando en silencio. No estás solo en esta habitación.",
         "Siente tus pies firmes apoyados en el suelo. La tierra te sostiene gratis.",
-        "El piloto automático está apagado en este segundo. Continúa así.",
+        "El piloto automático corporativo está apagado en este segundo. Continúa así.",
         "Quédate justo en este instante. El pasado ya pasó, el presente es tuyo.",
         "Suelta la mandíbula ahora. Libera esa carga que aprietas sin darte cuenta.",
         "Tu mente está despertando poco a poco. Estás ganando control real.",
         "Eres mucho más grande que tus preocupaciones. Respira hondo y despacio.",
-        "Rompe el bucle que el ruido externo quiere que seas. Quédate en la sala conmigo.",
+        "Rompe el zombi que el sistema quiere que seas. Quédate en la sala conmigo.",
         "Escucha mi voz. Nota cómo tu respiración se vuelve más profunda y limpia.",
         "Tus ojos están descansando finalmente de las luces artificiales de la pantalla.",
         "Siente los latidos de tu pecho. Es tu motor vivo latiendo para ti.",
-        "Siente el peso fuera de tu espalda. Imagina que dejas caer el cansancio.",
+        "Siente el peso fuera de tu espalda. Imagina que dejas caer tu mochila.",
         "No dejes que los pensamientos rápidos te saquen de este momento de paz.",
         "Abandona la prisa de la ciudad hoy. Aquí el tiempo es tuyo.",
-        "Tu calma regresará, pero este segundo de paz no se repite.",
+        "Las oportunidades regresarán, pero este segundo de calma no se repite.",
         "Siente cómo tus pulmones se llenan de fuerza con cada ciclo de aire azul.",
         "Tu familia necesita que estés fuerte por dentro. Recupérate ahora.",
+        "Olvídate de las aplicaciones de compras. Tu mente está por encima del consumo.",
         "Estás borrando el ruido del día. Quédate en la sala respirando conmigo.",
         "La rutina diaria se ha roto. Tú gobiernas tus decisiones en este instante.",
         "El suelo está firme debajo tuyo. Siente la estabilidad de la tierra.",
@@ -199,26 +213,27 @@ const KERNEL = {
     ],
     AUDIOS_SECUENCIALES_CASA_EN: [
         "Follow the pulse on your screen. Concentrate. You are with me today.",
-        "Slowly relax your shoulders. Let all the physical and mental weight of your day fall away.",
-        "Don't think about pending tasks now. Don't look at your mental list. Breathe now.",
+        "Slowly relax your shoulders. Let all the physical and mental weight of the week fall away.",
+        "Don't think about responsibilities now. Don't look at your to-do list. Breathe now.",
         "Maintain a constant rhythm. Feel the fresh air cleansing your chest.",
         "I am accompanying you in silence. You are not alone in this room.",
         "Feel your feet firmly on the ground. The earth supports you for free.",
-        "The autopilot is off this second. Keep going.",
+        "The corporate autopilot is off this second. Keep going.",
         "Stay right in this instant. The past is gone, the present is yours.",
         "Release your jaw now. Let go of that tension you hold without realizing.",
         "Your mind is slowly awakening. You are gaining real control.",
         "You are much bigger than your worries. Breathe deeply and slowly.",
-        "Break the loop the external noise wants you to be. Stay in the room with me.",
+        "Break the zombie the system wants you to be. Stay in the room with me.",
         "Listen to my voice. Notice how your breathing becomes deeper and cleaner.",
         "Your eyes are finally resting from the artificial lights of the screen.",
         "Feel your heartbeat. It's your living engine beating for you.",
-        "Feel the weight off your back. Imagine shaking off tiredness.",
+        "Feel the weight off your back. Imagine dropping your backpack.",
         "Don't let racing thoughts take you out of this peaceful moment.",
         "Abandon the city's rush today. Here, time is yours.",
-        "Your calm will return, but this second of peace will not repeat.",
+        "Opportunities will return, but this second of calm will not repeat.",
         "Feel your lungs fill with strength with each cycle of blue air.",
         "Your family needs you to be strong inside. Recover now.",
+        "Forget shopping apps. Your mind is above consumption.",
         "You are erasing the day's noise. Stay in the room breathing with me.",
         "The daily routine is broken. You govern your decisions at this instant.",
         "The ground is firm beneath you. Feel the stability of the earth.",
@@ -229,56 +244,25 @@ const KERNEL = {
         "You are completely safe here. Remain in absolute peace this second."
     ],
 
-    // NEW AUDIOS_SECUENCIALES for SALIR mode (45-second phrase injection)
-    AUDIOS_SECUENCIALES_SALIR_ES: [
-        "Respira hondo. El mundo exterior espera, pero tú controlas tu paz.",
-        "Cada segundo es una oportunidad para soltar lo que no te sirve.",
-        "Visualiza tu destino. Siente la libertad de ir hacia él con propósito.",
-        "Elige tu camino. No hay errores, solo nuevas rutas de bienestar.",
-        "Estás en control. Tu decisión te guía a un nuevo espacio de calma.",
-        "Siente la expectativa. La aventura te espera, sin agobios ni prisa.",
-        "Estás a punto de romper el patrón. Un nuevo aire te revitaliza.",
-        "Concéntrate en el momento. Tu mente es libre para explorar y disfrutar.",
-        "Suelta las cadenas mentales. Tu cuerpo te pide movimiento y libertad.",
-        "Estás eligiendo tu bienestar. Cada paso es un acto de amor propio."
-    ],
-    AUDIOS_SECUENCIALES_SALIR_EN: [
-        "Breathe deeply. The outside world waits, but you control your peace.",
-        "Every second is an opportunity to release what doesn't serve you.",
-        "Visualize your destination. Feel the freedom of moving towards it with purpose.",
-        "Choose your path. There are no mistakes, only new routes to well-being.",
-        "You are in control. Your decision guides you to a new space of calm.",
-        "Feel the anticipation. Adventure awaits you, without worries or rush.",
-        "You are about to break the pattern. A fresh air revitalizes you.",
-        "Focus on the moment. Your mind is free to explore and enjoy.",
-        "Release mental chains. Your body craves movement and freedom.",
-        "You are choosing your well-being. Every step is an act of self-love."
-    ],
-
-    // NUEVO CATÁLOGO DE RETOS DE CIERRE (Microacciones de Recuperación Mental)
     CATALOGO_RETOS_ES: [
-        {"id": 201, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Abre tu correo o tu aplicación bancaria. Busca 'Subscription', 'Invoice' o 'Payment' y cancela una sola suscripción que ya no utilices. Recuperar el control también es ahorrar.", "img": "gratitude.svg"},
-        {"id": 202, "titulo": "EL RETO DE LOS TRES GASTOS", "descripcion": "Abre una nota en tu teléfono y escribe únicamente los tres gastos inevitables de esta semana. No pienses en todo el mes. Solo en esta semana.", "img": "words.svg"},
-        {"id": 203, "titulo": "EL RETO DEL ORDEN DIGITAL", "descripcion": "Borra veinte capturas de pantalla, archivos o documentos que ya no necesites. El orden digital también reduce la carga mental.", "img": "observe.svg"},
-        {"id": 204, "titulo": "EL RETO DEL SILENCIO", "descripcion": "Silencia durante una hora las aplicaciones que más ansiedad te generan. Tu atención también necesita descansar.", "img": "silence.svg"},
-        {"id": 205, "titulo": "EL RETO DE LA GRATITUD", "descripcion": "Escribe tres cosas que hoy tienes y que hace algunos años deseabas. Tu mente necesita recordar que también has avanzado.", "img": "gratitude.svg"},
-        {"id": 206, "titulo": "EL RETO DEL AGUA", "descripcion": "Levántate despacio, bebe un vaso completo de agua y vuelve respirando con calma.", "img": "stretch.svg"},
-        {"id": 207, "titulo": "EL RETO DE LA VENTANA", "descripcion": "Abre una ventana durante dos minutos y observa el cielo sin mirar el teléfono.", "img": "nature_sound.svg"},
-        {"id": 208, "titulo": "EL RETO DEL ORDEN", "descripcion": "Guarda únicamente cinco objetos que estén fuera de lugar. Cinco son suficientes por hoy.", "img": "observe.svg"},
-        {"id": 209, "titulo": "EL RETO DE LA RESPIRACIÓN", "descripcion": "Realiza cinco respiraciones profundas siguiendo un ritmo lento. No tienes que hacer nada más.", "img": "square_breath.svg"},
-        {"id": 210, "titulo": "EL RETO DEL DESCANSO VISUAL", "descripcion": "Durante dos minutos mira un punto lejano para permitir que tus ojos descansen de la pantalla.", "img": "nature_sound.svg"},
+        {"id": 1, "titulo": "Reto de silencio", "descripcion": "Durante los próximos 20 segundos escucha solamente tu respiración.", "img": "silence.svg"},
+        {"id": 2, "titulo": "Observación sin estímulos", "descripcion": "Observa un punto fijo sin buscar estímulos, siente tu cuerpo quieto.", "img": "observe.svg"},
+        {"id": 3, "titulo": "Palabras rápidas sin sentido", "descripcion": "Di cinco palabras rápidas que no tengan relación entre ellas. Ejemplo: 'nube, árbol, ventana, fuego, bicicleta.'", "img": "words.svg"},
+        {"id": 4, "titulo": "Risa terapéutica", "descripcion": "Ahora ríete durante unos segundos de aquello que antes parecía imposible superar.", "img": "laugh.svg"},
+        {"id": 5, "titulo": "Estiramiento suave", "descripcion": "Estira tus brazos hacia el techo, luego tócatelos pies, lentamente.", "img": "stretch.svg"},
+        {"id": 6, "titulo": "Sonido de la naturaleza", "descripcion": "Cierra los ojos e imagina el sonido de una cascada o el canto de pájaros.", "img": "nature_sound.svg"},
+        {"id": 7, "titulo": "Agradecimiento rápido", "descripcion": "Piensa en 3 cosas por las que estás agradecido en este momento.", "img": "gratitude.svg"},
+        {"id": 8, "titulo": "Respiración cuadrada", "descripcion": "Inhala 4s, retén 4s, exhala 4s, retén 4s. Repite una vez.", "img": "square_breath.svg"},
     ],
     CATALOGO_RETOS_EN: [
-        {"id": 201, "titulo": "THE FORGOTTEN SUBSCRIPTION CHALLENGE", "descripcion": "Open your email or banking app. Search for 'Subscription', 'Invoice', or 'Payment' and cancel a single subscription you no longer use. Regaining control is also saving.", "img": "gratitude.svg"},
-        {"id": 202, "titulo": "THE THREE EXPENSES CHALLENGE", "descripcion": "Open a note on your phone and write down only the three unavoidable expenses for this week. Don't think about the whole month. Just this week.", "img": "words.svg"},
-        {"id": 203, "titulo": "THE DIGITAL ORDER CHALLENGE", "descripcion": "Delete twenty screenshots, files, or documents you no longer need. Digital order also reduces mental load.", "img": "observe.svg"},
-        {"id": 204, "titulo": "THE SILENCE CHALLENGE", "descripcion": "Silence the apps that generate the most anxiety for an hour. Your attention also needs rest.", "img": "silence.svg"},
-        {"id": 205, "titulo": "THE GRATITUDE CHALLENGE", "descripcion": "Write down three things you have today that you wished for a few years ago. Your mind needs to remember that you have also made progress.", "img": "gratitude.svg"},
-        {"id": 206, "titulo": "THE WATER CHALLENGE", "descripcion": "Slowly stand up, drink a full glass of water, and return, breathing calmly.", "img": "stretch.svg"},
-        {"id": 207, "titulo": "THE WINDOW CHALLENGE", "descripcion": "Open a window for two minutes and observe the sky without looking at your phone.", "img": "nature_sound.svg"},
-        {"id": 208, "titulo": "THE ORDER CHALLENGE", "descripcion": "Put away only five objects that are out of place. Five are enough for today.", "img": "observe.svg"},
-        {"id": 209, "titulo": "THE BREATHING CHALLENGE", "descripcion": "Take five deep breaths following a slow rhythm. You don't have to do anything else.", "img": "square_breath.svg"},
-        {"id": 210, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "For two minutes, look at a distant point to allow your eyes to rest from the screen.", "img": "nature_sound.svg"},
+        {"id": 1, "titulo": "Silence challenge", "descripcion": "For the next 20 seconds, listen only to your breath.", "img": "silence.svg"},
+        {"id": 2, "titulo": "Observation without stimuli", "descripcion": "Observe a fixed point without seeking stimuli, feel your body still.", "img": "observe.svg"},
+        {"id": 3, "titulo": "Fast nonsense words", "descripcion": "Say five quick words that are unrelated. Example: 'cloud, tree, window, fire, bicycle.'", "img": "words.svg"},
+        {"id": 4, "titulo": "Therapeutic laughter", "descripcion": "Now laugh for a few seconds at what once seemed impossible to overcome.", "img": "laugh.svg"},
+        {"id": 5, "titulo": "Gentle stretch", "descripcion": "Stretch your arms towards the ceiling, then touch your toes, slowly.", "img": "stretch.svg"},
+        {"id": 6, "titulo": "Nature sound", "descripcion": "Close your eyes and imagine the sound of a waterfall or birds singing.", "img": "nature_sound.svg"},
+        {"id": 7, "titulo": "Quick gratitude", "descripcion": "Think of 3 things you are grateful for right now.", "img": "gratitude.svg"},
+        {"id": 8, "titulo": "Box breathing", "descripcion": "Inhale 4s, hold 4s, exhale 4s, hold 4s. Repeat once.", "img": "square_breath.svg"},
     ],
 
     /**
@@ -296,6 +280,7 @@ const KERNEL = {
         } else {
             try {
                 perfil = JSON.parse(perfilRaw);
+                // Ensure all default needs are present in the loaded profile
                 for (const need in this.DEFAULT_NECESSITY_PROFILE) {
                     if (!(need in perfil)) {
                         perfil[need] = this.DEFAULT_NECESSITY_PROFILE[need];
@@ -309,28 +294,32 @@ const KERNEL = {
 
         const now = Date.now();
         let lastDecayTimestamp = parseInt(localStorage.getItem("otg_last_decay") || now);
+        // Ensure session seed is always generated/present
         this.sessionSeed = localStorage.getItem("otg_session_seed") || Math.random().toString(36).substring(2, 15);
 
         const daysPassed = (now - lastDecayTimestamp) / (1000 * 60 * 60 * 24);
 
-        if (daysPassed >= 1) {
+        if (daysPassed >= 1) { // Apply decay if at least one full day has passed
             const newPerfil = {};
-            const base = 50;
+            const base = 50; // The default value for most needs
             for (const necesidad in perfil) {
                 if (necesidad === "indicador_ansiedad") {
-                    newPerfil[necesidad] = Math.max(0, perfil[necesidad] - (daysPassed * 2));
+                    // Anxiety indicator does not decay back to 0 automatically with needs,
+                    // it should be managed by user interaction or specific logic.
+                    // For simplicity, it will slowly decay by a small fixed amount.
+                    newPerfil[necesidad] = Math.max(0, perfil[necesidad] - (daysPassed * 2)); // E.g., -2 per day
                     continue;
                 }
                 const valor = perfil[necesidad];
                 let diferencia = valor - base;
                 diferencia *= (this.DECAY_PER_DAY ** daysPassed);
-                newPerfil[necesidad] = Math.round((base + diferencia) * 100) / 100;
+                newPerfil[necesidad] = Math.round((base + diferencia) * 100) / 100; // Round to 2 decimal places
             }
             perfil = newPerfil;
-            lastDecayTimestamp = now;
+            lastDecayTimestamp = now; // Update last decay timestamp after decay applied
         }
 
-        perfil.fecha = new Date(now).toISOString().split('T')[0];
+        perfil.fecha = new Date(now).toISOString().split('T')[0]; // YYYY-MM-DD
         perfil.timestamp = now;
 
         localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
@@ -342,12 +331,14 @@ const KERNEL = {
 
     /** Initializes the KERNEL on DOMContentLoaded. */
     init() {
+        // Set initial language if not already set (e.g., from a prior session)
         const storedLang = localStorage.getItem("otg_language");
         if (storedLang) {
             this.idiomaActual = storedLang;
         } else {
             localStorage.setItem("otg_language", this.idiomaActual);
         }
+        // Load new history keys from localStorage
         try {
             this.historialSalir = JSON.parse(localStorage.getItem("otg_historial_salir") || "[]");
             this.historialCasa = JSON.parse(localStorage.getItem("otg_historial_casa") || "[]");
@@ -359,31 +350,30 @@ const KERNEL = {
             this.historialCasa = [];
             this.historialPreguntas = [];
             this.historialRetosSecuencias = [];
+            // Do NOT remove profile or decay related keys here, they must persist.
+            // Reset localStorage for individual corrupted histories, not all.
             localStorage.removeItem("otg_historial_salir");
             localStorage.removeItem("otg_historial_casa");
             localStorage.removeItem("otg_historial_oraculo");
             localStorage.removeItem("otg_historial_retos_secuencias");
         }
+        // Ensure profile is loaded and decay is applied on app start
         this.obtenerPerfilLocal();
 
+        // NEW: Add event listener for ZIP validation on init
         const zipInput = document.getElementById('inp-zip');
         if (zipInput) {
             zipInput.addEventListener('input', () => this.validarZip());
-            this.validarZip();
+            this.validarZip(); // Initial call to set button state
         }
-
-        // Add event listeners for the new floating buttons
-        document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
     },
 
     /** Starts the initial welcome sequence after user interaction. */
     despertarInicial() {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.remove('hidden'); // Show return button
-        document.getElementById('btn-whatsapp').classList.remove('hidden'); // Show WhatsApp button
-        document.getElementById('btn-messenger').classList.remove('hidden'); // Show Messenger button
        
+        // Apply language settings to UI elements *before* initial speech
         this.cambiarIdioma(this.idiomaActual);
        
         const saludos_es = [
@@ -412,8 +402,8 @@ const KERNEL = {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
        
-        clearInterval(this.temporizadorCascada);
-        grid.innerHTML = "";
+        clearInterval(this.temporizadorCascada); // Stop any existing cascade
+        grid.innerHTML = ""; // Clear previous questions
         this.indicePreguntaCascada = 0;
        
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
@@ -426,28 +416,34 @@ const KERNEL = {
             }
         }
 
+        // If not enough unseen questions, reset history and use all available questions (backend's reset logic)
         if (unseenIndices.length < 6) {
             console.warn("Not enough unseen questions. Resetting Oracle history.");
-            this.historialPreguntas = [];
+            this.historialPreguntas = []; // Reset history
             localStorage.removeItem("otg_historial_oraculo");
-            unseenIndices = Array.from({length: catalogo.length}, (_, i) => i);
+            unseenIndices = Array.from({length: catalogo.length}, (_, i) => i); // Re-populate with all indices
         }
        
+        // Shuffle the available indices to get a random, distinct selection
+        // Fisher-Yates shuffle
         for (let i = unseenIndices.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]];
         }
 
         let preguntasSeleccionadasIndices = [];
+        // Select 6 distinct questions, prioritizing different "blocks" (categories)
+        // This heuristic tries to ensure variety beyond just random selection
         let blocksUsedInCurrentSelection = new Set();
        
         for (let i = 0; i < 6; i++) {
             if (unseenIndices.length === 0) break;
 
             let candidateIndex = -1;
+            // Try to pick a question from a block not yet used in this 6-question set
             for (let j = 0; j < unseenIndices.length; j++) {
                 const currentIdx = unseenIndices[j];
-                const currentBlock = Math.floor(currentIdx / 6);
+                const currentBlock = Math.floor(currentIdx / 6); // Assuming 6 questions per block
                 if (!blocksUsedInCurrentSelection.has(currentBlock)) {
                     candidateIndex = j;
                     blocksUsedInCurrentSelection.add(currentBlock);
@@ -455,23 +451,26 @@ const KERNEL = {
                 }
             }
 
+            // If no unused block question found, just pick the next available shuffled unseen
             if (candidateIndex === -1) {
-                candidateIndex = 0;
+                candidateIndex = 0; // Take the first one from the shuffled unseen
                 const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6);
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
            
-            const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0];
+            const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0]; // Get one, remove from pool
             preguntasSeleccionadasIndices.push(selectedIndex);
            
+            // Add to history and keep it limited
             this.historialPreguntas.push(selectedIndex);
         }
         this.historialPreguntas = this.historialPreguntas.slice(-this.MAX_HISTORY_ORACULO);
         localStorage.setItem("otg_historial_oraculo", JSON.stringify(this.historialPreguntas));
 
+        // Create buttons for selected questions
         preguntasSeleccionadasIndices.forEach((questionIdx, i) => {
             let preguntaTexto = catalogo[questionIdx];
-            if (!preguntaTexto) return;
+            if (!preguntaTexto) return; // Should not happen with robust selection
 
             let btn = document.createElement('button');
             btn.className = 'btn-pregunta-crisis';
@@ -489,7 +488,7 @@ const KERNEL = {
         this.indicePreguntaCascada = 0;
        
         const totalButtons = document.querySelectorAll('.btn-pregunta-crisis').length;
-        if (totalButtons === 0) {
+        if (totalButtons === 0) { // If no questions, immediately enable free writing
             this.liberarCajonEscrituraLibre();
             return;
         }
@@ -503,15 +502,15 @@ const KERNEL = {
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
                 if (siguienteBoton) {
-                    let textoLimpio = siguienteBoton.innerText.substring(3);
+                    let textoLimpio = siguienteBoton.innerText.substring(3); // Remove the number prefix
                     this.hablar(textoLimpio);
                 }
                 this.indicePreguntaCascada++;
             } else {
                 clearInterval(this.temporizadorCascada);
-                this.liberarCajonEscrituraLibre();
+                this.liberarCajonEscrituraLibre(); // Once all questions are faded, activate free writing
             }
-        }, 8000);
+        }, 8000); // 8 seconds per question exactly
     },
 
     /** Activates the free writing input field and button from start. */
@@ -529,6 +528,7 @@ const KERNEL = {
         if (lblDesahogo) lblDesahogo.style.color = "#666";
 
         if (btnLibre) {
+            // Initial state based on ZIP and textarea content
             const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
             const isTextareaEmpty = textarea.value.trim().length <= 3;
 
@@ -536,7 +536,7 @@ const KERNEL = {
                 btnLibre.style.background = "#111";
                 btnLibre.style.color = "#555";
                 btnLibre.style.borderColor = "#222";
-                btnLibre.disabled = true;
+                btnLibre.disabled = true; // Disable if ZIP is invalid or textarea empty
             } else {
                 btnLibre.style.background = "var(--green-action)";
                 btnLibre.style.color = "#fff";
@@ -561,7 +561,8 @@ const KERNEL = {
             };
         }
         if (textarea) {
-            textarea.removeEventListener('input', this.textareaInputHandler);
+            textarea.removeEventListener('input', this.textareaInputHandler); // Remove previous listener to avoid duplicates
+            // Define textareaInputHandler as a method that checks both conditions
             this.textareaInputHandler = () => {
                 const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
                
@@ -580,14 +581,15 @@ const KERNEL = {
                         btnLibre.disabled = true;
                     }
                 }
+                // Also trigger zip validation visual feedback here
                 this.validarZip();
             };
             textarea.addEventListener('input', this.textareaInputHandler);
         }
-        this.validarZip();
+        this.validarZip(); // Initial call
     },
 
-    /** Validates ZIP input and controls button state */
+    /** NEW: Validates ZIP input and controls button state */
     validarZip() {
         const zipInput = document.getElementById('inp-zip');
         const btnActivarLibre = document.getElementById('btn-activar-libre');
@@ -596,17 +598,19 @@ const KERNEL = {
         if (!zipInput || !btnActivarLibre || !textarea) return;
 
         const zipValue = zipInput.value.trim();
-        const isValidZip = zipInput.checkValidity();
+        const isValidZip = zipInput.checkValidity(); // Uses HTML5 pattern validation
         const hasTextareaContent = textarea.value.trim().length > 3;
 
         if (zipValue.length > 0 && !isValidZip) {
-            zipInput.style.borderColor = "var(--accent)";
+            // ZIP has input but is invalid
+            zipInput.style.borderColor = "var(--accent)"; // Red border for invalid
             btnActivarLibre.disabled = true;
             btnActivarLibre.style.background = "#111";
             btnActivarLibre.style.color = "#555";
             btnActivarLibre.style.borderColor = "#222";
         } else {
-            zipInput.style.borderColor = "#222";
+            // ZIP is empty or valid
+            zipInput.style.borderColor = "#222"; // Reset to default
             if (hasTextareaContent) {
                 btnActivarLibre.disabled = false;
                 btnActivarLibre.style.background = "var(--green-action)";
@@ -633,7 +637,7 @@ const KERNEL = {
         }
         if (lblDesahogo) lblDesahogo.style.color = "#fff";
         if (textarea) textarea.focus();
-        this.validarZip();
+        this.validarZip(); // Re-evaluate button state after freeing up text area
     },
 
     /**
@@ -644,11 +648,12 @@ const KERNEL = {
         this.conteoInaccion = 0;
         this.timerInaccion = setInterval(() => {
             this.conteoInaccion++;
-            if (this.conteoInaccion === 3 || this.conteoInaccion === 6) {
+            // MODIFIED: Adjusted timing for question advancement
+            if (this.conteoInaccion === 3 || this.conteoInaccion === 6) { // After 24s and 48s of inaction (3 or 6 * 8s)
                 clearInterval(this.temporizadorCascada);
                 this.inyectarBloquePreguntas();
                 this.hablar(this.idiomaActual === 'es' ? "Avanzamos de nivel. Mira estas otras opciones en pantalla." : "Moving up. Look at these other options on screen.");
-            } else if (this.conteoInaccion >= 9) {
+            } else if (this.conteoInaccion >= 9) { // After 72s of inaction (9 * 8s)
                 clearInterval(this.timerInaccion);
                 clearInterval(this.temporizadorCascada);
                 this.hablar(this.idiomaActual === 'es' ? "Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando." : "Apologies. I will give you time. I know your mind is tired. I will be waiting here.");
@@ -658,7 +663,7 @@ const KERNEL = {
                     instruccion.style.color = "#666";
                 }
             }
-        }, 8000);
+        }, 8000); // Check every 8 seconds
     },
 
     /**
@@ -683,7 +688,7 @@ const KERNEL = {
             return;
         }
         if (!texto) return;
-        window.speechSynthesis.cancel();
+        window.speechSynthesis.cancel(); // Stop any ongoing speech
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
         msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
@@ -702,8 +707,8 @@ const KERNEL = {
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
        
         const t = {
-            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App" },
-            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App" }
+            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?" },
+            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?" }
         }[lang];
        
         document.getElementById('html-title').innerText = t.title;
@@ -727,18 +732,18 @@ const KERNEL = {
         document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
         document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
        
-        const cierreLogo = document.getElementById('cierre-logo');
+        // Update elements in the closing screen
+        const cierreLogo = document.getElementById('cierre-logo'); // CORRECCIÓN MECÁNICA: 'cierre-titulo' no existe, debería ser 'cierre-logo'
         if (cierreLogo) cierreLogo.innerText = t.title;
         const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
         if (cierreBoton) cierreBoton.innerText = t.recomenzar;
         const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
         if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
-        const btnVolverApp = document.getElementById('btn-volver-app');
-        if (btnVolverApp) btnVolverApp.title = t.volverApp;
+
 
         this.hablar(t.alert);
-        this.inyectarBloquePreguntas();
-        this.activarBotonMandoLibreInicial();
+        this.inyectarBloquePreguntas(); // Re-inject questions in new language
+        this.activarBotonMandoLibreInicial(); // Re-initialize free writing button logic (includes ZIP validation)
     },
 
     /**
@@ -748,12 +753,12 @@ const KERNEL = {
         if (this.isLocked) return;
         this.isLocked = true;
 
+        // CRITICAL CORRECTION: Ensure all question-related timers and speech are cleared BEFORE fetching a new mission
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
-        clearInterval(this.timerEnfocado);
-        clearInterval(this.salidaTimerId);
+        clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
-        if (this.salidaSugeridaTimeoutId) {
+        if (this.salidaSugeridaTimeoutId) { // Clear pending SALIR suggestion timeout
             clearTimeout(this.salidaSugeridaTimeoutId);
             this.salidaSugeridaTimeoutId = null;
         }
@@ -762,6 +767,7 @@ const KERNEL = {
         const zipInput = document.getElementById('inp-zip');
         const desahogoInput = document.getElementById('inp-text-libre');
 
+        // Final check on ZIP validity before sending to backend
         if (zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity()) {
             alert(this.idiomaActual === 'es' ? "Error: Código Postal inválido. Por favor, corrígelo." : "Error: Invalid ZIP Code. Please correct it.");
             this.isLocked = false;
@@ -777,19 +783,20 @@ const KERNEL = {
             mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido",
             budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0",
             perfil: document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo",
-            perfil_local: this.obtenerPerfilLocal(),
+            perfil_local: this.obtenerPerfilLocal(), // Send the user's dynamic profile
         };
 
+        // NEW: Send the correct history array based on mode
         if (modoActual === "CASA") {
-            payload.historial_casa = this.historialCasa;
+            payload.historial_casa = this.historialCasa; // Changed from seen_ids_casa
         } else {
-            payload.historial_salir = this.historialSalir;
+            payload.historial_salir = this.historialSalir; // Changed from seen_ids
         }
 
         const container = document.getElementById('wrapper-interactive');
         document.getElementById('wrapper-form').classList.add('hidden');
-        document.getElementById('pantalla-cierre').classList.add('hidden');
-        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
+        document.getElementById('pantalla-cierre').classList.add('hidden'); // Esconder pantalla de cierre por si estaba activa
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO...' : 'CONNECTING...'}</h2></div>`;
         container.classList.remove('hidden');
 
         try {
@@ -805,173 +812,46 @@ const KERNEL = {
                 document.getElementById('wrapper-form').classList.remove('hidden');
                 container.classList.add('hidden');
                 this.isLocked = false;
-                this.validarZip();
+                this.validarZip(); // Re-evaluate button state
                 return;
             }
 
+            this.datosLugarGlobal = data;
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
            
+            // NEW: Update and save the correct history after backend response
             if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
                 this.historialSalir = data.historial_salir_actualizado;
                 localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                this.pasosMisiones = data.misiones; // Now an array of 3 for SALIR
-                this.mostrarOpcionesSalir(container);
             }
             else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
                 this.historialCasa = data.historial_casa_actualizado;
                 localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
-                this.pasosMisiones = data.misiones;
-                this.procesarFlujoSecuencial(container);
             }
 
 
+            if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
+                this.pasosMisiones = data.misiones.slice(0, 3);
+            } else {
+                this.pasosMisiones = []; // ACCION_CAMPO has no steps, only one main mission
+            }
+            this.procesarFlujoSecuencial(container);
         } catch (error) {
             console.error("Fetch error:", error);
             alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
             document.getElementById('wrapper-form').classList.remove('hidden');
             container.classList.add('hidden');
             this.isLocked = false;
-            this.validarZip();
+            this.validarZip(); // Re-evaluate button state
         }
     },
 
     /**
-     * Displays the 3 options for SALIR mode and waits for user selection.
-     */
-    mostrarOpcionesSalir(container) {
-        clearInterval(this.timerEnfocado);
-        clearInterval(this.salidaTimerId);
-        window.speechSynthesis.cancel();
-
-        const t = {
-            es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" },
-            en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:" }
-        }[this.idiomaActual];
-
-        container.innerHTML = `
-        <div class="mision-choices-container">
-            <h2 class="salida-main-title">${t.choosePath}</h2>
-            <p class="salida-choose-instruction">${t.chooseOne}</p>
-            <div id="salida-options-grid" class="salida-grid">
-                <!-- Options will be injected here -->
-            </div>
-        </div>`;
-
-        const optionsGrid = document.getElementById('salida-options-grid');
-        this.pasosMisiones.forEach((mission, index) => {
-            const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
-            const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
-            const card = document.createElement('div');
-            card.className = 'salida-option-card';
-            card.innerHTML = `
-                <h3 class="salida-option-title">${missionTitle}</h3>
-                <p class="salida-option-desc">${missionWhatToDo}</p>
-                <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button>
-            `;
-            card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
-            optionsGrid.appendChild(card);
-        });
-
-        this.hablar(t.chooseOne);
-    },
-
-    /**
-     * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
-     * @param {Object} selectedMission - The mission object chosen by the client.
-     */
-    iniciarSalidaConcreta(selectedMission) {
-        this.datosLugarGlobal = selectedMission; // Store the selected mission
-        clearInterval(this.timerEnfocado);
-        clearInterval(this.salidaTimerId);
-        window.speechSynthesis.cancel();
-
-        const t = {
-            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
-            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
-        }[this.idiomaActual];
-
-        const container = document.getElementById('wrapper-interactive');
-        let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
-       
-        container.innerHTML = `
-        <div class="mision-card">
-            <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
-            <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
-            <div class="instruccion-text">${textoFormateado}</div>
-            <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
-            <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
-            <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
-        </div>`;
-
-        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
-        this.hablar(speechText);
-       
-        let retencion = 35;
-        const btnCount = document.getElementById('btn-countdown-salida');
-        const btnGps = document.getElementById('btn-gps-action');
-        const phrasesDiv = document.getElementById('salida-countdown-phrases');
-        const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
-        let phraseIndex = 0;
-
-        this.salidaTimerId = setInterval(() => {
-            if (retencion > 0) {
-                retencion--;
-                if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
-                if (retencion === 0) {
-                    // Transition to 45s phrase injection
-                    retencion = -45; // Use negative to denote this phase
-                    if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                    phraseIndex++;
-                }
-            } else if (retencion < 0) {
-                retencion++; // Count up towards 0
-                if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
-                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                    phraseIndex++;
-                }
-                if (retencion === 0) {
-                    // 45 seconds are over
-                    clearInterval(this.salidaTimerId);
-                    window.speechSynthesis.cancel();
-                    if (btnCount) btnCount.style.display = 'none';
-                    if (phrasesDiv) phrasesDiv.innerText = "";
-                    if (btnGps) {
-                        btnGps.classList.remove('hidden');
-                        btnGps.onclick = () => {
-                            try {
-                                let perfil = KERNEL.obtenerPerfilLocal();
-                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
-                               
-                                for (const need in selectedVector) {
-                                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                                        perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
-                                    }
-                                }
-                                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
-                                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                            } catch (e) {
-                                console.error("Error updating local profile after action:", e);
-                            }
-                            window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                            // KERNEL.reiniciarExperiencia(); // Keep the app in background, ready for return
-                        };
-                    }
-                }
-            }
-        }, 1000);
-    },
-
-
-    /**
-     * Processes the sequential flow based on the recommendation type (only for CASA mode now).
+     * Processes the sequential flow based on the recommendation type.
      */
     procesarFlujoSecuencial(container) {
-        clearInterval(this.timerEnfocado);
+        clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
 
         const t = {
@@ -979,9 +859,66 @@ const KERNEL = {
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" }
         }[this.idiomaActual];
 
-        // This function now only handles INTERVENCION_DOMESTICA (CASA mode)
+        // Handles external "Field Action" recommendations
+        if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
+            if (this.datosLugarGlobal) {
+                let textoFormateado = this.datosLugarGlobal.destino_instruccion.replace(/\n/g, '<br>');
+                container.innerHTML = `
+                <div class="mision-card">
+                    <small>${t.fieldAction}</small>
+                    <h2>${this.datosLugarGlobal.destino_titulo}</h2>
+                    <div class="instruccion-text">${textoFormateado}</div>
+                    <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
+                    <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+                </div>`;
+
+                // CORRECCIÓN MECÁNICA: main.py ya devuelve 'destino_titulo' y 'destino_instruccion' en el idioma correcto.
+                // No es necesario buscar 'destino_titulo_en' o 'destino_instruccion_en' aquí.
+                let speechText = this.datosLugarGlobal.destino_titulo + ". " + this.datosLugarGlobal.destino_instruccion;
+                this.hablar(speechText);
+               
+                let retencion = 35; // Countdown for listening to the guide
+                const btnCount = document.getElementById('btn-countdown-salida');
+                const btnGps = document.getElementById('btn-gps-action');
+               
+                this.timerClinico = setInterval(() => {
+                    retencion--;
+                    if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
+                    if (retencion <= 0) {
+                        clearInterval(this.timerClinico);
+                        if (btnCount) btnCount.style.display = 'none';
+                        if (btnGps) {
+                            btnGps.classList.remove('hidden');
+                            btnGps.onclick = () => {
+                                try {
+                                    let perfil = KERNEL.obtenerPerfilLocal();
+                                    const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+                                   
+                                    for (const need in selectedVector) {
+                                        if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                                            perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
+                                        }
+                                    }
+                                    // Slight reduction in anxiety if user takes external action
+                                    perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
+                                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                                } catch (e) {
+                                    console.error("Error updating local profile after action:", e);
+                                }
+                                window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+                                // After external navigation, go back to the form, preserving state.
+                                KERNEL.reiniciarExperiencia();
+                            };
+                        }
+                    }
+                }, 1000);
+                return;
+            }
+        }
+
+        // Handles internal "Domestic Intervention" missions
         if (this.indiceMision >= this.pasosMisiones.length) {
-            this.iniciarRelojEnfocadoCasa(container, t);
+            this.iniciarRelojClinicoCasa(container, t); // All internal missions completed, start clinical timer
             return;
         }
 
@@ -997,14 +934,17 @@ const KERNEL = {
 
         this.hablar(paso.titulo + " . " + paso.descripcion);
         document.getElementById('btn-next').onclick = () => {
+            // Update profile based on completed CASA mission's needs
             try {
                 let perfil = this.obtenerPerfilLocal();
                 const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
                 for (const need in missionVector) {
                     if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                        perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
+                        // Increase the preference for the activated need
+                        perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100); // 5% of mission's score is added
                     }
                 }
+                // Slight reduction in anxiety if user completes an internal mission
                 perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
                 localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
             } catch (e) {
@@ -1015,8 +955,8 @@ const KERNEL = {
     },
 
     /** Starts the 10-minute clinical breathing timer for CASA mode. */
-    iniciarRelojEnfocadoCasa(container, t) { // Renamed from iniciarRelojClinicoCasa
-        clearInterval(this.timerEnfocado);
+    iniciarRelojClinicoCasa(container, t) {
+        clearInterval(this.timerClinico);
         window.speechSynthesis.cancel();
        
         let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
@@ -1032,7 +972,7 @@ const KERNEL = {
             </div>
         </div>`;
 
-        this.timeLeft = 600;
+        this.timeLeft = 600; // Unified timer variable
         this.contadorToques = 0;
 
         const circleElement = document.getElementById('breath-circle');
@@ -1065,11 +1005,13 @@ const KERNEL = {
             };
         }
 
+        // Clear any previous salidaSugeridaTimeout if it wasn't cleared by the timer ending
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
             this.salidaSugeridaTimeoutId = null;
         }
 
+        // Fetch SALIR suggestion for CASA mode after some time
         this.salidaSugeridaTimeoutId = setTimeout(async () => {
             try {
                 const r = await fetch("/api/mando-integral", {
@@ -1078,37 +1020,36 @@ const KERNEL = {
                     body: JSON.stringify({
                         modo: "SALIR",
                         lang: this.idiomaActual,
-                        mente: "agotado",
+                        mente: "agotado", // Default mood for initial suggestion, as user just finished CASA
                         budget: "0",
                         perfil: "solo",
                         desahogo: "",
                         zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
                         perfil_local: this.obtenerPerfilLocal(),
-                        historial_salir: this.historialSalir
+                        historial_salir: this.historialSalir // NEW: Send historial_salir
                     })
                 });
                 const data = await r.json();
                
-                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
-                    const suggestedMission = data.misiones[0]; // Take the first one as suggestion
+                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && linkSalidaSugerida && salidaSugeridaDiv) {
                     if (data.historial_salir_actualizado) {
                         this.historialSalir = data.historial_salir_actualizado;
                         localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
                     }
 
-                    linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
-                    linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
+                    linkSalidaSugerida.innerText = data.destino_titulo;
+                    linkSalidaSugerida.href = data.destino_coordenadas_gps;
                     salidaSugeridaDiv.classList.remove('hidden');
-                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
+                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${data.destino_titulo}` : `Also consider: ${data.destino_titulo_en || data.destino_titulo}`);
                 }
             } catch (e) {
                 console.error("Error fetching SALIR suggestion in CASA mode:", e);
             } finally {
-                this.salidaSugeridaTimeoutId = null;
+                this.salidaSugeridaTimeoutId = null; // Clear ID after it runs
             }
-        }, 180000);
+        }, 180000); // Fetch after 3 minutes (180 seconds)
 
-        this.timerEnfocado = setInterval(() => {
+        this.timerClinico = setInterval(() => {
             if (this.timeLeft > 0) this.timeLeft--;
 
             let m = Math.floor(this.timeLeft / 60);
@@ -1136,15 +1077,17 @@ const KERNEL = {
                 }
             }
 
+            // End condition for the clinical timer: call new closing challenge
             if (this.timeLeft <= 0) {
-                clearInterval(this.timerEnfocado);
-                clearTimeout(this.salidaSugeridaTimeoutId);
+                clearInterval(this.timerClinico);
+                clearTimeout(this.salidaSugeridaTimeoutId); // Ensure this is cleared
                 this.salidaSugeridaTimeoutId = null;
                 window.speechSynthesis.cancel();
                 if (circleElement) {
                     circleElement.style.animation = "none";
                     circleElement.style.transform = "scale(1)";
                 }
+                // *** CRITICAL CHANGE: Call the closing challenge instead of direct reset ***
                 this.iniciarRetoCierre60Segundos();
             }
         }, 1000);
@@ -1161,8 +1104,8 @@ const KERNEL = {
      * Initiates the 60-second closing challenge phase.
      */
     iniciarRetoCierre60Segundos() {
-        clearInterval(this.timerEnfocado);
-        clearInterval(this.temporizadorCierre);
+        clearInterval(this.timerClinico); // Ensure clinical timer is off
+        clearInterval(this.temporizadorCierre); // Clear any previous closing timer
         window.speechSynthesis.cancel();
 
         const t = {
@@ -1182,24 +1125,26 @@ const KERNEL = {
         container.classList.add('hidden');
         cierrePantalla.classList.remove('hidden');
        
-        cierreMensajeFinal.classList.add('hidden');
-        btnRecomenzar.classList.add('hidden');
+        cierreMensajeFinal.classList.add('hidden'); // Hide final message initially
+        btnRecomenzar.classList.add('hidden'); // Hide button until countdown is done
         btnRecomenzar.disabled = true;
 
-        this.timeLeftCierre = 60;
+        this.timeLeftCierre = 60; // Reset 60-second timer
 
         const catalogoRetos = this.idiomaActual === 'es' ? this.CATALOGO_RETOS_ES : this.CATALOGO_RETOS_EN;
        
+        // NEW: Logic to select a unique sequence of challenges using historialRetosSecuencias
         let secuenciaRetos = [];
-        let numRetos = 3;
+        let numRetos = 3; // Number of challenges in the closing sequence
        
         let candidateSequenceIds;
         let sequenceString;
-        let maxAttempts = 10;
+        let maxAttempts = 10; // Max attempts to find a unique sequence before reusing
 
         while(maxAttempts > 0) {
             secuenciaRetos = [];
             let tempRetos = [...catalogoRetos];
+            // Fisher-Yates shuffle for temporary retos to get a truly random selection
             for (let i = tempRetos.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [tempRetos[i], tempRetos[j]] = [tempRetos[j], tempRetos[i]];
@@ -1210,19 +1155,21 @@ const KERNEL = {
                 secuenciaRetos.push(tempRetos.shift());
             }
            
+            // Create a canonical string representation of the sequence (sorted IDs)
             candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-');
            
             if (!this.historialRetosSecuencias.includes(candidateSequenceIds)) {
                 sequenceString = candidateSequenceIds;
-                break;
+                break; // Found a unique sequence
             }
             maxAttempts--;
             if (maxAttempts === 0) {
                 console.warn("Could not find a unique challenge sequence after multiple attempts, reusing one.");
-                sequenceString = candidateSequenceIds;
+                sequenceString = candidateSequenceIds; // Fallback: use this one anyway
             }
         }
        
+        // Update history for challenge sequences
         if (sequenceString) {
             this.historialRetosSecuencias.push(sequenceString);
             this.historialRetosSecuencias = this.historialRetosSecuencias.slice(-this.MAX_HISTORY_RETOS_SECUENCIAS);
@@ -1235,13 +1182,14 @@ const KERNEL = {
                 const reto = secuenciaRetos[currentRetoIndex];
                 if (retoTitulo) retoTitulo.innerText = reto.titulo;
                 if (retoDescripcion) retoDescripcion.innerText = reto.descripcion;
-                if (retoImg) retoImg.src = `/static/${reto.img}`;
+                if (retoImg) retoImg.src = `/static/${reto.img}`; // Assuming images are in static/
                 this.hablar(reto.descripcion);
                 currentRetoIndex++;
             }
         };
 
         this.hablar(t.retoInicial);
+        // Initial delay before showing first challenge
         setTimeout(() => {
             displayNextReto();
             this.temporizadorCierre = setInterval(() => {
@@ -1249,6 +1197,7 @@ const KERNEL = {
                 if (cierreTimer) cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0');
 
                 if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) {
+                    // Display next challenge evenly distributed over 60 seconds
                     displayNextReto();
                 }
 
@@ -1259,14 +1208,14 @@ const KERNEL = {
                     if (retoDescripcion) retoDescripcion.innerText = "";
                     if (retoImg) retoImg.src = "";
                    
-                    cierreTimer.classList.add('hidden');
-                    cierreMensajeFinal.classList.remove('hidden');
-                    btnRecomenzar.classList.remove('hidden');
-                    btnRecomenzar.disabled = false;
+                    cierreTimer.classList.add('hidden'); // Hide timer
+                    cierreMensajeFinal.classList.remove('hidden'); // Show final message
+                    btnRecomenzar.classList.remove('hidden'); // Show restart button
+                    btnRecomenzar.disabled = false; // Enable button
                     this.hablar(t.puertaAbierta);
                 }
             }, 1000);
-        }, 5000);
+        }, 5000); // 5 seconds initial delay for "Get ready" message
 
         btnRecomenzar.onclick = () => {
             this.reiniciarExperiencia();
@@ -1278,12 +1227,11 @@ const KERNEL = {
      */
     reiniciarExperiencia() {
         clearInterval(this.timerInaccion);
-        clearInterval(this.timerEnfocado);
+        clearInterval(this.timerClinico);
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
-        clearInterval(this.salidaTimerId); // Clear SALIR specific timer
         window.speechSynthesis.cancel();
-        if (this.salidaSugeridaTimeoutId) {
+        if (this.salidaSugeridaTimeoutId) { // NEW: Clear pending SALIR suggestion timeout
             clearTimeout(this.salidaSugeridaTimeoutId);
             this.salidaSugeridaTimeoutId = null;
         }
@@ -1292,16 +1240,16 @@ const KERNEL = {
         this.indiceMision = 0;
         this.isLocked = false;
         this.contadorToques = 0;
-        this.datosLugarGlobal = null; // Clear selected mission
 
         document.getElementById('pantalla-cierre').classList.add('hidden');
         document.getElementById('wrapper-interactive').classList.add('hidden');
         document.getElementById('wrapper-form').classList.remove('hidden');
        
-        document.getElementById('inp-text-libre').value = "";
-        this.inyectarBloquePreguntas();
-        this.activarBotonMandoLibreInicial();
+        document.getElementById('inp-text-libre').value = ""; // Clear free text input
+        this.inyectarBloquePreguntas(); // Refresh questions
+        this.activarBotonMandoLibreInicial(); // Re-enable free writing button logic (includes ZIP validation)
        
+        // Speak initial greeting again
         const saludos_es = ["Bienvenido de nuevo. Tu escape inteligente. Escucha mis preguntas en pantalla.", "Ópen Dán Go activo. Toca lo que sientes hoy para continuar."];
         const saludos_en = ["Welcome back. Your smart escape. Listen to my questions on screen.", "Open Than Go active. Tap what you feel today to continue."];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
@@ -1310,20 +1258,22 @@ const KERNEL = {
 
     /**
      * Clears ALL session data and reloads the application.
+     * This function is now only for a hard reset, not part of normal flow.
      */
     destruirYReiniciar() {
+        // This function is provided for a hard reset / debugging.
+        // It is NOT called during the normal "Cierre Consciente" flow.
         clearInterval(this.timerInaccion);
-        clearInterval(this.timerEnfocado);
+        clearInterval(this.timerClinico);
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
-        clearInterval(this.salidaTimerId);
         window.speechSynthesis.cancel();
-        if (this.salidaSugeridaTimeoutId) {
+        if (this.salidaSugeridaTimeoutId) { // Clear pending SALIR suggestion timeout
             clearTimeout(this.salidaSugeridaTimeoutId);
             this.salidaSugeridaTimeoutId = null;
         }
 
-        localStorage.clear();
+        localStorage.clear(); // Clear all localStorage for a complete reset
 
         this.historialSalir = [];
         this.historialCasa = [];
@@ -1333,12 +1283,13 @@ const KERNEL = {
         this.indiceMision = 0;
         this.isLocked = false;
         this.contadorToques = 0;
-        this.datosLugarGlobal = null;
 
-        location.reload();
+        location.reload(); // Reload the page to reset the UI and re-init KERNEL
     }
 };
 
+// Initialize KERNEL when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => KERNEL.init());
 
+// Expose KERNEL to global scope for HTML onclick events (e.g., KERNEL.despertarInicial())
 window.KERNEL = KERNEL;
