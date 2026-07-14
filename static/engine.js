@@ -374,6 +374,35 @@ const KERNEL = {
 
         // Add event listeners for the new floating buttons
         document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
+
+        // Logic for mode switching (Oraculo vs Matrix)
+        const btnModeOraculo = document.getElementById('btn-mode-oraculo');
+        const btnModeMatrix = document.getElementById('btn-mode-matrix');
+        const oraculoContainer = document.getElementById('oraculo-biodigital-container');
+        const matrixContainer = document.getElementById('open-than-go-matrix-container');
+
+        if (btnModeOraculo && btnModeMatrix && oraculoContainer && matrixContainer) {
+            btnModeOraculo.addEventListener('click', () => {
+                btnModeOraculo.classList.add('active');
+                btnModeMatrix.classList.remove('active');
+                oraculoContainer.classList.remove('hidden');
+                matrixContainer.classList.add('hidden');
+            });
+
+            btnModeMatrix.addEventListener('click', () => {
+                btnModeMatrix.classList.add('active');
+                btnModeOraculo.classList.remove('active');
+                matrixContainer.classList.remove('hidden');
+                oraculoContainer.classList.add('hidden');
+                // Ensure Matrix dropdowns are initialized when switched to
+                // Note: The second DOMContentLoaded listener already calls inicializarMotorCaptura() on load.
+                // If it's switched back and forth, the options will persist.
+            });
+            // Set initial active mode (Oraculo is default)
+            btnModeOraculo.classList.add('active');
+            oraculoContainer.classList.remove('hidden');
+            matrixContainer.classList.add('hidden');
+        }
     },
 
     /** Starts the initial welcome sequence after user interaction. */
@@ -702,8 +731,24 @@ const KERNEL = {
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
        
         const t = {
-            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App", audioSuggest: "Sugerencia de Audio" },
-            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App", audioSuggest: "Audio Suggestion" }
+            es: { 
+                title: "OPEN THAN GO", welcome: "INICIAR SESIÓN / START", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App", oraculoBtn: "Oráculo Biopsicosocial", matrixBtn: "Matriz de Inversión Sistémica", 
+                matrixTitle: "OPEN THAN GO - MOTOR DE INVERSIÓN BIOPSICOSOCIAL", matrixDesc: "Declara tu estado real, tu consumo o tu entorno. Hackea el sistema corporativo e invierte en tu propia mente.", 
+                matrixZip: "Código Postal de USA (Zip Code):", matrixZipPlaceholder: "Ej: 10001", 
+                matrixEmotion: "¿Cómo se siente tu mente en este segundo?:", matrixSelectState: "Selecciona tu estado real...", 
+                matrixElement: "¿Qué consumes o dónde estás metido?:", matrixSelectBrand: "Selecciona la marca o el lugar...", 
+                matrixInvestBtn: "INVERTIR EN MI BIENESTAR (HACKEAR ENTORNO)", 
+                matrixHeadlineDef: "BLOQUEO DE PANTALLA INMEDIATO ACTIVADO", matrixMetric: "Métrica Analítica Inversa:", matrixTimerText: "T_out: 00s fuera de pantalla", matrixCompleteBtn: "MÓDULO DE ELIMINACIÓN/RESPIRACIÓN COMPLETADO CON ÉXITO" 
+            },
+            en: { 
+                title: "OPEN THAN GO", welcome: "LOG IN / START", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App", oraculoBtn: "Biopsychosocial Oracle", matrixBtn: "Systemic Investment Matrix",
+                matrixTitle: "OPEN THAN GO - BIOPSYCHOSOCIAL INVESTMENT ENGINE", matrixDesc: "Declare your real state, consumption, or environment. Hack the corporate system and invest in your own mind.", 
+                matrixZip: "USA ZIP Code:", matrixZipPlaceholder: "Ex: 10001", 
+                matrixEmotion: "How does your mind feel right now?:", matrixSelectState: "Select your real state...", 
+                matrixElement: "What do you consume or where are you engaged?:", matrixSelectBrand: "Select the brand or place...", 
+                matrixInvestBtn: "INVEST IN MY WELLBEING (HACK ENVIRONMENT)", 
+                matrixHeadlineDef: "IMMEDIATE SCREEN LOCK ACTIVATED", matrixMetric: "Inverse Analytical Metric:", matrixTimerText: "T_out: 00s off-screen", matrixCompleteBtn: "ELIMINATION/BREATHING MODULE SUCCESSFULLY COMPLETED" 
+            }
         }[lang];
        
         document.getElementById('html-title').innerText = t.title;
@@ -735,6 +780,27 @@ const KERNEL = {
         if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
         const btnVolverApp = document.getElementById('btn-volver-app');
         if (btnVolverApp) btnVolverApp.title = t.volverApp;
+
+        // Update Matrix module text
+        document.getElementById('btn-mode-oraculo').innerText = t.oraculoBtn;
+        document.getElementById('btn-mode-matrix').innerText = t.matrixBtn;
+        
+        const matrixTitleElement = document.getElementById('matrix-title');
+        if (matrixTitleElement) matrixTitleElement.innerText = t.matrixTitle;
+        const matrixDescriptionElement = document.getElementById('matrix-description');
+        if (matrixDescriptionElement) matrixDescriptionElement.innerText = t.matrixDesc;
+        document.getElementById('matrix-zip-label').innerText = t.matrixZip;
+        document.getElementById('user-zip-code').placeholder = t.matrixZipPlaceholder;
+        document.getElementById('matrix-emotion-label').innerText = t.matrixEmotion;
+        document.getElementById('matrix-select-state-placeholder').innerText = t.matrixSelectState;
+        document.getElementById('matrix-element-label').innerText = t.matrixElement;
+        document.getElementById('matrix-select-brand-placeholder').innerText = t.matrixSelectBrand;
+        document.getElementById('btn-trigger-investment').innerText = t.matrixInvestBtn;
+        document.getElementById('matrix-headline').innerText = t.matrixHeadlineDef;
+        document.getElementById('matrix-metric-label').innerText = t.matrixMetric;
+        document.getElementById('matrix-timer').innerText = t.matrixTimerText;
+        document.getElementById('btn-complete-investment').innerText = t.matrixCompleteBtn;
+
 
         this.hablar(t.alert);
         this.inyectarBloquePreguntas();
@@ -822,14 +888,14 @@ const KERNEL = {
                 this.historialCasa = data.historial_casa_actualizado;
                 localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
                 this.pasosMisiones = data.misiones;
-                this.procesarFlujoSecuencial(container, data.suggested_audio_link); // Pass suggested_audio_link
+                this.procesarFlujoSecuencial(container);
             }
 
 
         } catch (error) {
-            console.error("Fetch error:", error);
+            console.error("Fallo en la comunicación con el traductor parásito:", error);
             alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
-            document.getElementById('wrapper-form').classList.add('hidden');
+            document.getElementById('wrapper-form').classList.remove('hidden');
             container.classList.add('hidden');
             this.isLocked = false;
             this.validarZip();
@@ -845,8 +911,8 @@ const KERNEL = {
         window.speechSynthesis.cancel();
 
         const t = {
-            es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" },
-            en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:" }
+            es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:", select: "Seleccionar" },
+            en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:", select: "Select" }
         }[this.idiomaActual];
 
         container.innerHTML = `
@@ -867,7 +933,7 @@ const KERNEL = {
             card.innerHTML = `
                 <h3 class="salida-option-title">${missionTitle}</h3>
                 <p class="salida-option-desc">${missionWhatToDo}</p>
-                <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button>
+                <button class="btn-select-salida">${t.select}</button>
             `;
             card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
             optionsGrid.appendChild(card);
@@ -887,8 +953,8 @@ const KERNEL = {
         window.speechSynthesis.cancel();
 
         const t = {
-            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
-            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
+            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo" },
+            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action" }
         }[this.idiomaActual];
 
         const container = document.getElementById('wrapper-interactive');
@@ -896,7 +962,7 @@ const KERNEL = {
        
         container.innerHTML = `
         <div class="mision-card">
-            <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
+            <small>${t.fieldAction}</small>
             <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
             <div class="instruccion-text">${textoFormateado}</div>
             <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
@@ -945,7 +1011,7 @@ const KERNEL = {
                         btnGps.onclick = () => {
                             try {
                                 let perfil = KERNEL.obtenerPerfilLocal();
-                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+                                const selectedVector = KERNEL.datosLugarGlobal.vector_necesidades; // Corrected to use 'vector_necesidades'
                                
                                 for (const need in selectedVector) {
                                     if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
@@ -970,18 +1036,18 @@ const KERNEL = {
     /**
      * Processes the sequential flow based on the recommendation type (only for CASA mode now).
      */
-    procesarFlujoSecuencial(container, suggestedAudioLink = null) { // Added suggestedAudioLink parameter
+    procesarFlujoSecuencial(container) {
         clearInterval(this.timerEnfocado);
         window.speechSynthesis.cancel();
 
         const t = {
-            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo", internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido", audioSuggest: "Sugerencia de Audio" },
-            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape", audioSuggest: "Audio Suggestion" }
+            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo", internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido" },
+            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" }
         }[this.idiomaActual];
 
         // This function now only handles INTERVENCION_DOMESTICA (CASA mode)
         if (this.indiceMision >= this.pasosMisiones.length) {
-            this.iniciarRelojEnfocadoCasa(container, t, suggestedAudioLink); // Pass suggestedAudioLink
+            this.iniciarRelojEnfocadoCasa(container, t);
             return;
         }
 
@@ -1015,7 +1081,7 @@ const KERNEL = {
     },
 
     /** Starts the 10-minute clinical breathing timer for CASA mode. */
-    iniciarRelojEnfocadoCasa(container, t, suggestedAudioLink = null) { // Renamed from iniciarRelojClinicoCasa, added suggestedAudioLink
+    iniciarRelojEnfocadoCasa(container, t) { // Renamed from iniciarRelojClinicoCasa
         clearInterval(this.timerEnfocado);
         window.speechSynthesis.cancel();
        
@@ -1027,13 +1093,8 @@ const KERNEL = {
             <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
             <div id="timer">10:00</div>
             <p id="txt-pulmon">INHALA / INHALE</p>
-            <div id="additional-suggestions" style="margin-top:30px;">
-                <div id="salida-sugerida" class="hidden" style="margin-bottom: 10px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888; text-align:left;">
-                    <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
-                </div>
-                <div id="audio-sugerida" class="hidden" style="padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888; text-align:left;">
-                    <p style="margin:0;">${t.audioSuggest}: <a href="#" id="link-audio-sugerida" style="color: var(--cyan-inhale); text-decoration: none; font-weight: bold;">Cargando...</a></p>
-                </div>
+            <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
+                <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
             </div>
         </div>`;
 
@@ -1045,8 +1106,6 @@ const KERNEL = {
         const pulmonDiv = document.getElementById('txt-pulmon');
         const salidaSugeridaDiv = document.getElementById('salida-sugerida');
         const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
-        const audioSugeridaDiv = document.getElementById('audio-sugerida'); // New
-        const linkAudioSugerida = document.getElementById('link-audio-sugerida'); // New
 
         const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
 
@@ -1072,14 +1131,6 @@ const KERNEL = {
             };
         }
 
-        // Display suggested audio link immediately if available (Mejora 2)
-        if (suggestedAudioLink && linkAudioSugerida && audioSugeridaDiv) {
-            linkAudioSugerida.innerText = this.idiomaActual === 'es' ? "Haz click aquí para escuchar" : "Click here to listen";
-            linkAudioSugerida.href = suggestedAudioLink;
-            audioSugeridaDiv.classList.remove('hidden');
-            this.hablar(this.idiomaActual === 'es' ? `Una sugerencia de audio para ti: ${linkAudioSugerida.innerText}` : `An audio suggestion for you: ${linkAudioSugerida.innerText}`);
-        }
-
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
             this.salidaSugeridaTimeoutId = null;
@@ -1093,7 +1144,7 @@ const KERNEL = {
                     body: JSON.stringify({
                         modo: "SALIR",
                         lang: this.idiomaActual,
-                        mente: "agotado", // Default 'agotado' for this suggestion
+                        mente: "agotado",
                         budget: "0",
                         perfil: "solo",
                         desahogo: "",
@@ -1111,7 +1162,7 @@ const KERNEL = {
                         localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
                     }
 
-                    linkSalidaSugerida.innerText = this.idiomaActual === 'es' ? suggestedMission.destino_titulo : (suggestedMission.destino_titulo_en || suggestedMission.destino_titulo);
+                    linkSalidaSugerida.innerText = this.idiomaActual === 'es' ? suggestedMission.destino_titulo : suggestedMission.destino_titulo_en || suggestedMission.destino_titulo;
                     linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
                     salidaSugeridaDiv.classList.remove('hidden');
                     this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
@@ -1121,7 +1172,7 @@ const KERNEL = {
             } finally {
                 this.salidaSugeridaTimeoutId = null;
             }
-        }, 180000); // 3 minutes for SALIR suggestion
+        }, 180000);
 
         this.timerEnfocado = setInterval(() => {
             if (this.timeLeft > 0) this.timeLeft--;
@@ -1357,3 +1408,149 @@ const KERNEL = {
 document.addEventListener('DOMContentLoaded', () => KERNEL.init());
 
 window.KERNEL = KERNEL;
+
+// ==========================================================================================
+// OPEN THAN GO - MOTOR LOGÍSTICO DE INVERSIÓN SISTÉMICA Y TELEMETRÍA INVERSA
+// ==========================================================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. SELECTORES DE LA INTERFAZ MATRICIAL
+    const selectEmotion = document.getElementById("user-emotional-state");
+    const selectElement = document.getElementById("user-environment-element");
+    const zipCodeInput = document.getElementById("user-zip-code");
+    const investmentForm = document.getElementById("matrix-investment-form");
+    
+    const responsePanel = document.getElementById("matrix-response-panel");
+    const matrixHeadline = document.getElementById("matrix-headline");
+    const matrixDiagnostic = document.getElementById("matrix-diagnostic");
+    const matrixInstruction = document.getElementById("matrix-instruction");
+    const matrixTimer = document.getElementById("matrix-timer");
+    const btnCompleteInvestment = document.getElementById("btn-complete-investment");
+
+    // VARIABLES DE TELEMETRÍA DE TIEMPO RECOBRADO (FASE 6 Y 7)
+    let startTimeOut;
+    let timerInterval;
+
+    // 2. CARGA ASÍNCRONA DE LAS MATRICES DESDE EL BACKEND (COSTO CERO)
+    async function inicializarMotorCaptura() {
+        try {
+            const response = await fetch("/api/v1/algoritmo-captura");
+            const dataResponse = await response.json();
+            
+            if (dataResponse.status === "success") {
+                const matrizData = dataResponse.data;
+
+                // Clear previous options to prevent duplication on re-init
+                selectEmotion.innerHTML = '<option value="" disabled selected id="matrix-select-state-placeholder">Selecciona tu estado real...</option>';
+                selectElement.innerHTML = '<option value="" disabled selected id="matrix-select-brand-placeholder">Selecciona la marca o el lugar...</option>';
+                
+                // Cargar los inputs del estado del Yo en el selector
+                matrizData.estados_emocionales.forEach(estado => {
+                    const opt = document.createElement("option");
+                    opt.value = estado;
+                    opt.textContent = `[${estado}]`;
+                    selectEmotion.appendChild(opt);
+                });
+
+                // Cargar marcas corporativas de USA en el selector
+                matrizData.marcas_usa.forEach(marca => {
+                    const opt = document.createElement("option");
+                    opt.value = marca;
+                    opt.textContent = `Corporación / App: ${marca}`;
+                    selectElement.appendChild(opt);
+                });
+
+                // Cargar infraestructura y entorno físico/natural público en el mismo selector
+                matrizData.infraestructura_usa.forEach(entorno => {
+                    const opt = document.createElement("option");
+                    opt.value = entorno;
+                    opt.textContent = `Entorno / Espacio: ${entorno}`;
+                    selectElement.appendChild(opt);
+                });
+                
+                // Re-apply language specific placeholders if KERNEL has already loaded
+                if (window.KERNEL && KERNEL.idiomaActual) {
+                    const t = {
+                        es: { matrixSelectState: "Selecciona tu estado real...", matrixSelectBrand: "Selecciona la marca o el lugar..." },
+                        en: { matrixSelectState: "Select your real state...", matrixSelectBrand: "Select the brand or place..." }
+                    }[KERNEL.idiomaActual];
+                    document.getElementById('matrix-select-state-placeholder').textContent = t.matrixSelectState;
+                    document.getElementById('matrix-select-brand-placeholder').textContent = t.matrixSelectBrand;
+                }
+
+            }
+        } catch (error) {
+            console.error("Error crítico inicializando el motor de captura de OPEN THAN GO:", error);
+        }
+    }
+
+    // 3. PROCESAMIENTO DE LA INVERSIÓN Y EXPULSIÓN DE LA PANTALLA
+    if (investmentForm) {
+        investmentForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const datosInversion = {
+                estado: selectEmotion.value,
+                elemento: selectElement.value,
+                zip_code: zipCodeInput.value
+            };
+
+            try {
+                const response = await fetch("/api/v1/algoritmo-procesar-inversion", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(datosInversion)
+                });
+                const resultado = await response.json();
+
+                if (resultado.status === "success") {
+                    // Mostrar panel de impacto e interrupción de la rutina
+                    responsePanel.classList.remove("d-none");
+                    matrixHeadline.textContent = resultado.comando_sistema;
+                    matrixDiagnostic.textContent = resultado.diagnostico_sintoma;
+                    matrixInstruction.textContent = resultado.ejecucion_fisiologica_obligatoria;
+                    
+                    // Ocultar formulario para obligar a la desconexión visual
+                    investmentForm.classList.add("opacity-25");
+                    investmentForm.style.pointerEvents = "none";
+
+                    // Iniciar telemetría inversa del indicador matemático de éxito (T_out tracking)
+                    startTimeOut = Date.now();
+                    btnCompleteInvestment.classList.add("d-none");
+                    
+                    clearInterval(timerInterval);
+                    timerInterval = setInterval(() => {
+                        const segundosFuera = Math.floor((Date.now() - startTimeOut) / 1000);
+                        matrixTimer.textContent = `T_out: ${segundosFuera}s de soberanía temporal en el mundo real.`;
+                        
+                        // Permitir retornar solo tras un mínimo de 10 segundos de desconexión forzada
+                        if (segundosFuera >= 10) {
+                            btnCompleteInvestment.classList.remove("d-none");
+                        }
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error("Fallo en la comunicación con el traductor parásito:", error);
+            }
+        });
+    }
+
+    // 4. RETORNO CONSCIENTE A LA PLATAFORMA (CÓMPUTO FINAL DEL BIENESTAR)
+    if (btnCompleteInvestment) {
+        btnCompleteInvestment.addEventListener("click", () => {
+            clearInterval(timerInterval);
+            const totalTiempoRecobrado = Math.floor((Date.now() - startTimeOut) / 1000);
+            
+            alert(`Felicidades. Has rescatado ${totalTiempoRecobrado} segundos de control mental corporativo. Inversión guardada en tu infraestructura biológica.`);
+            
+            // Reestablecer la interfaz para el siguiente ciclo del engranaje diario
+            responsePanel.classList.add("d-none");
+            investmentForm.classList.remove("opacity-25");
+            investmentForm.style.pointerEvents = "auto";
+            investmentForm.reset();
+        });
+    }
+
+    // Inicializar de forma nativa al cargar la sesión
+    inicializarMotorCaptura();
+});
