@@ -972,8 +972,7 @@ async def mando_integral(request: Request):
 
 titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
 que_hacer_lang = info_seleccionada["que_hacer"] or ""
-
-        # === CORRECCIÓN MILIMÉTRICA DE SANGRÍA LOGÍSTICA (DENTRO DEL BUCLE FOR) ===
+        # === CORRECCIÓN DE SANGRE MILIMÉTRICA: EXACTAMENTE 8 ESPACIOS DE MARGEN ===
         search_query_parts = []
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
@@ -1008,7 +1007,7 @@ que_hacer_lang = info_seleccionada["que_hacer"] or ""
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
 
-    # ESTE RETURN PERTENECE AL FIN DE LA FUNCIÓN PRINCIPAL MANDO_INTEGRAL
+    # El return del JSONResponse finaliza la función principal (Alineado a 4 espacios)
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
@@ -1016,7 +1015,7 @@ que_hacer_lang = info_seleccionada["que_hacer"] or ""
     })
 
 # ==============================================================================
-# APERTURA NATIVA DEL SERVIDOR FASTAPI
+# APERTURA NATIVA DEL SERVIDOR FASTAPI (LÍNEA FINAL DEL ARCHIVO)
 # ==============================================================================
 if __name__ == "__main__":
     import os
