@@ -304,7 +304,59 @@ BASE_MISIONES = {
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Parque o campo abierto.", "donde_en": "Park or open field.", "gps": "open field for cloud gazing",
                 "vector_necesidades": {"movimiento": 20, "naturaleza": 95, "silencio": 90, "agua": 10, "sol": 70, "sombra": 30, "aire_fresco": 90, "creatividad": 60, "comunidad": 10, "aprendizaje": 40, "juego": 20, "contemplacion": 100, "descanso": 95, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 85}
-            },
+            }
+            {
+            "id": 201,
+            "titulo": "Soberanía en Tránsito: Uber/Lyft Relax",
+            "titulo_en": "Transit Sovereignty: Uber/Lyft Relax",
+            "porque": "Cuerpo al límite y mente saturada de conducir o moverte en tráfico continuo.",
+            "porque_en": "Body at the limit and mind saturated from driving or moving in continuous traffic.",
+            "que_hacer": "Abre tu aplicación de transporte (Uber/Lyft). Solicita un viaje corto hacia un perímetro tranquilo. Si ya estás dentro de uno, cierra los ojos, suelta el teléfono, apoya tus palmas sobre tus rodillas y ejecuta el Módulo de Silencio Auditivo por un minuto.",
+            "que_hacer_en": "Open your ride app (Uber/Lyft). Request a short ride to a quiet area. If inside one, close your eyes, drop the phone, place your palms on your knees, and execute a one-minute Auditory Silence Module.",
+            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+            "donde": "Cabina de transporte o asiento de pasajero.", "donde_en": "Rideshare cabin or passenger seat.",
+            "gps": "quiet park bench",
+            "vector_necesidades": {"descanso": 100, "silencio": 90, "movimiento": 10, "contemplacion": 80, "esperanza": 80, "naturaleza": 20, "aire_fresco": 50}
+        },
+        {
+            "id": 202,
+            "titulo": "Módulo Auditivo: Spotify Reset",
+            "titulo_en": "Auditory Reset: Spotify",
+            "porque": "Agotamiento mental agudo por ruidos industriales y pantallas.",
+            "porque_en": "Acute mental exhaustion from industrial noise and screens.",
+            "que_hacer": "Abre Spotify. Busca frecuencias binaurales o sonidos de lluvia. Colócate auriculares, cierra los ojos un minuto completo y deja que las frecuencias limpien la fatiga acumulada en tu lóbulo temporal.",
+            "que_hacer_en": "Open Spotify. Search for binaural beats or rain sounds. Put on headphones, close your eyes for a full minute, and let the frequencies clear the fatigue in your temporal lobe.",
+            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+            "donde": "Cualquier rincón cómodo o dentro de tu auto.", "donde_en": "Any comfortable spot or inside your car.",
+            "gps": "quiet library space",
+            "vector_necesidades": {"musica": 100, "descanso": 95, "silencio": 60, "contemplacion": 90, "esperanza": 85, "creatividad": 40}
+        },
+        {
+            "id": 203,
+            "titulo": "Descompresión de Entorno: Lobby de Hotel",
+            "titulo_en": "Environment Decompression: Hotel Lobby",
+            "porque": "Saturación del espacio habitual. Necesitas un perímetro diseñado para el confort.",
+            "porque_en": "Saturation of your usual space. You need a perimeter designed for comfort.",
+            "que_hacer": "Ubica un hotel o resort cercano (Hilton, Marriott). Dirígete a su sala de descanso o lobby público a costo cero. Siéntate de forma recta, nota la estabilidad del piso y descansa la vista mirando un punto lejano por dos minutos.",
+            "que_hacer_en": "Locate a nearby hotel or resort (Hilton, Marriott). Head to its lounge or public lobby at zero cost. Sit up straight, notice the stability of the floor, and rest your eyes by looking at a distant point for two minutes.",
+            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+            "donde": "Lobby o zona de descanso de un hotel local.", "donde_en": "Lobby or lounge area of a local hotel.",
+            "gps": "hotel lobby",
+            "vector_necesidades": {"descanso": 100, "silencio": 85, "contemplacion": 95, "organizacion": 70, "esperanza": 80, "movimiento": 20}
+        },
+        {
+            "id": 204,
+            "titulo": "Sabotaje de Espera: Espacio Universitario",
+            "titulo_en": "Waiting Sabotage: University Space",
+            "porque": "Falta de nutrición intelectual real y exceso de micro-estímulos vacíos.",
+            "porque_en": "Lack of real intellectual nourishment and excess of empty micro-stimuli.",
+            "que_hacer": "Dirígete al campus, escuela o biblioteca universitaria pública más cercana. Camina en silencio por los pasillos o áreas verdes. Usa esta infraestructura estatal ya pagada para respirar aire fresco y observar el entorno con absoluta calma.",
+            "que_hacer_en": "Head to the nearest campus, school, or public university library. Walk silently through the corridors or green spaces. Use this pre-paid state infrastructure to breathe fresh air and observe with absolute calm.",
+            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+            "donde": "Campus universitario o biblioteca pública.", "donde_en": "University campus or public library.",
+            "gps": "university library",
+            "vector_necesidades": {"aprendizaje": 100, "silencio": 90, "contemplacion": 85, "descanso": 70, "aire_fresco": 75, "movimiento": 40}
+        },   
         ],
         "estresado": [
             {
@@ -355,6 +407,45 @@ BASE_MISIONES = {
                 "donde": "Carril bici o parque con ruta.", "donde_en": "Bike lane or park with route.", "gps": "bike lane or route",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 60, "silencio": 30, "agua": 10, "sol": 80, "sombra": 40, "aire_fresco": 95, "creatividad": 30, "comunidad": 50, "aprendizaje": 40, "juego": 70, "contemplacion": 60, "descanso": 30, "organizacion": 60, "alimentacion": 0, "musica": 50, "risa": 40, "esperanza": 80}
             },
+            {
+            "id": 211,
+            "titulo": "Soberanía de Cabina: Terminal Aérea / Vuelos",
+            "titulo_en": "Cabin Sovereignty: Air Terminal / Flights",
+            "porque": "Saturación nerviosa por presiones y ruidos de tránsito masivo.",
+            "porque_en": "Nervous saturation from pressures and mass transit noises.",
+            "que_hacer": "Si estás en un aeropuerto (Delta, American) o cerca de uno, busca la ventana más grande con vista al cielo. Realiza tres inhalaciones diafragmáticas profundas. Siente el viento exterior. Tu organismo no pertenece a la prisa de las industrias.",
+            "que_hacer_en": "If at an airport (Delta, American) or nearby, find the largest window facing the sky. Take three deep diaphragmatic breaths. Feel the outside wind. Your body does not belong to industrial haste.",
+            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+            "donde": "Terminal de aeropuerto o zona de observación abierta.", "donde_en": "Airport terminal or open observation zone.",
+            "gps": "airport observation area",
+            "vector_necesidades": {"aire_fresco": 100, "contemplacion": 95, "silencio": 60, "descanso": 50, "movimiento": 30, "esperanza": 80}
+        },
+        {
+            "id": 212,
+            "titulo": "Depuración Exocrina: Complejo Deportivo / Gym",
+            "titulo_en": "Exocrine Cleansing: Sports Complex / Gym",
+            "porque": "Exceso de adrenalina retenida en los músculos por estrés laboral.",
+            "porque_en": "Excess adrenaline retained in muscles from work stress.",
+            "que_hacer": "Dirígete al centro recreativo, gimnasio o piscina pública más cercana. Fuerza a tu cuerpo a realizar contracción voluntaria continua por 60 segundos. Activa tus glándulas para elevar tu temperatura térmica y (`Sudar`), liberando sales pesadas y toxinas.",
+            "que_hacer_en": "Go to the nearest recreation center, gym, or public pool. Force your body into continuous voluntary contraction for 60 seconds. Activate your glands to raise thermal temperature and sweat, releasing heavy salts and toxins.",
+            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+            "donde": "Gimnasio público, cancha o alberca comunitaria.", "donde_en": "Public gym, court, or community pool.",
+            "gps": "community fitness center",
+            "vector_necesidades": {"movimiento": 100, "agua": 80, "salud": 90, "juego": 50, "descanso": 0, "silencio": 20, "risa": 40}
+        },
+        {
+            "id": 213,
+            "titulo": "Estabilización Somática: Farmacia / Clínica",
+            "titulo_en": "Somatic Stabilization: Pharmacy / Clinic",
+            "porque": "Aceleración del ritmo cardíaco y sensación física de vulnerabilidad o pánico.",
+            "porque_en": "Accelerated heart rate and physical feeling of vulnerability or panic.",
+            "que_hacer": "Visita una clínica pública o un centro de salud (CVS, Walgreens). Busca la estación de agua potable. Ejecuta el Módulo de Hidratación consciente: toma un vaso pequeño saboreando cada molécula del líquido. Siente cómo rehidrata tus células.",
+            "que_hacer_en": "Visit a public clinic or health center (CVS, Walgreens). Find the drinking water station. Execute the conscious Hydration Module: sip a small cup, tasting every molecule of liquid. Feel it rehydrating your cells.",
+            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+            "donde": "Área de descanso de una farmacia o clínica local.", "donde_en": "Lounge area of a local pharmacy or clinic.",
+            "gps": "pharmacy health lounge",
+            "vector_necesidades": {"agua": 100, "salud": 95, "descanso": 80, "silencio": 70, "organizacion": 80, "esperanza": 85}
+        },           
         ],
         "aburrido": [
             {
@@ -405,6 +496,45 @@ BASE_MISIONES = {
                 "donde": "Parque o plaza con proyecciones.", "donde_en": "Park or plaza with screenings.", "gps": "outdoor cinema",
                 "vector_necesidades": {"movimiento": 30, "naturaleza": 60, "silencio": 40, "agua": 10, "sol": 50, "sombra": 70, "aire_fresco": 80, "creatividad": 90, "comunidad": 80, "aprendizaje": 70, "juego": 50, "contemplacion": 80, "descanso": 70, "organizacion": 20, "alimentacion": 60, "musica": 70, "risa": 70, "esperanza": 85}
             },
+            {
+            "id": 221,
+            "titulo": "Auditoría de Frecuencias: Discoteca / Club",
+            "titulo_en": "Frequency Audit: Nightclub / Club",
+            "porque": "Monotonía extrema y falta de estímulos rítmicos o sociales en tu semana.",
+            "porque_en": "Extreme monotony and lack of rhythmic or social stimuli in your week.",
+            "que_hacer": "Visita un club, bar o zona de entretenimiento nocturno. Sal un momento al perímetro exterior del local. Siente el quiebre de la música de fondo golpeando tus sentidos. Nota el cambio de temperatura del aire exterior y libérate de la inercia mental de la rutina.",
+            "que_hacer_en": "Visit a nightclub, bar, or nightlife district. Step outside to the outer perimeter of the venue for a moment. Feel the background music hit your senses. Notice the temperature change of the outside air and break free from routine inertia.",
+            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+            "donde": "Perímetro exterior o zona abierta de un club nocturno.", "donde_en": "Outer perimeter or open area of a nightclub.",
+            "gps": "nightlife district lounge",
+            "vector_necesidades": {"juego": 100, "comunidad": 90, "musica": 90, "risa": 80, "creatividad": 70, "movimiento": 60, "silencio": 10, "descanso": 30}
+        },
+        {
+            "id": 222,
+            "titulo": "Hackeo Cognitivo: Galería / Cine / Teatro",
+            "titulo_en": "Cognitive Hack: Gallery / Cinema / Theater",
+            "porque": "Falta de inspiración y embotamiento por consumir contenido basura repetitivo.",
+            "porque_en": "Lack of inspiration and dullness from consuming repetitive junk content.",
+            "que_hacer": "Dirígete a un cine, museo o teatro local. Ingresa al vestíbulo o sala pública. Elige un solo cartel, imagen o folleto informativo. Obsérvalo fijamente aislando tu mente del ruido. Usa este espacio cultural como tu laboratorio de enfoque visual.",
+            "que_hacer_en": "Head to a local cinema, museum, or theater. Enter the lobby or public hall. Choose a single poster, image, or informational brochure. Stare at it, isolating your mind from the noise. Use this cultural space as your visual focus lab.",
+            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+            "donde": "Entrada pública de un centro cultural o cine.", "donde_en": "Public entrance of a cultural center or cinema.",
+            "gps": "local cinema or museum",
+            "vector_necesidades": {"creatividad": 100, "aprendizaje": 90, "contemplacion": 95, "juego": 60, "comunidad": 50, "descanso": 60, "silencio": 70}
+        },
+        {
+            "id": 223,
+            "titulo": "Sabotaje de Rutina: Salir a Comer / Fast Food",
+            "titulo_en": "Routine Sabotage: Dining Out / Fast Food",
+            "porque": "Falta de variedad sensorial. Salir por un antojo físico rompe la inercia del día de forma inmediata.",
+            "porque_en": "Lack of sensory variety. Going out for a physical treat immediately breaks the day's inertia.",
+            "que_hacer": "Dirígete al restaurante o cadena de comida rápida más cercana (McDonald's, Starbucks). Pide un menú o un antojo dulce/amargo. Disfrútalo bocado a bocado, lejos de cualquier pantalla, prestando atención exclusiva al sabor y la textura real.",
+            "que_hacer_en": "Head to the nearest restaurant or fast-food chain (McDonald's, Starbucks). Order a menu or a specific sweet/bitter treat. Enjoy it bite by bite, completely away from any screens, paying exclusive attention to the real taste and texture.",
+            "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+            "donde": "Cadena de comida rápida o restaurante del vecindario.", "donde_en": "Fast food chain or neighborhood restaurant.",
+            "gps": "fast food or local restaurant",
+            "vector_necesidades": {"alimentacion": 100, "risa": 75, "juego": 70, "comunidad": 80, "movimiento": 30, "descanso": 50, "esperanza": 85, "silencio": 20}
+        }            
         ],
         "cansado": [
             {
@@ -447,6 +577,41 @@ BASE_MISIONES = {
                 "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
             },
+            {
+                "id": 129, 
+                "titulo": "Tour Histórico a Pie", "titulo_en": "Historical Walking Tour",
+                "porque": "Mente agotada de lo predecible. Necesitas una inyección de conocimiento y un suave movimiento. Aprende mientras caminas.", "porque_en": "Mind tired of predictability. Need an injection of knowledge and gentle movement. Learn as you walk.",
+                "que_hacer": "Busca un tour a pie gratuito o de bajo costo por tu ciudad. Descubre historias locales.", "que_hacer_en": "Find a free or low-cost walking tour of your city. Discover local stories.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
+                "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
+            }, # <--- COMA DE ENLACE NATIVA
+            {
+                "id": 231,
+                "titulo": "Inversión Marítima: Perímetro de Cruceros",
+                "titulo_en": "Maritime Inversion: Cruise Line Perimeter",
+                "porque": "Cansancio monótono. Tu mente requiere el estímulo visual de la inmensidad del agua para romper el encierro urbano.",
+                "porque_en": "Monotonous fatigue. Your mind requires the visual stimulus of the vast water to break the urban confinement.",
+                "que_hacer": "Dirígete al puerto, muelle o agencia turística de cruceros más cercana (Royal Caribbean, Carnival). Observa las naves o el horizonte marítimo. Deja que el reflejo del agua limpie tus pensamientos pesados.",
+                "que_hacer_en": "Head to the nearest port, pier, or cruise agency (Royal Caribbean, Carnival). Observe the vessels or the marine horizon. Let the reflection of the water clear away your heavy thoughts.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Muelle, puerto o zona costera abierta.", "donde_en": "Dock, pier, or open coastal zone.",
+                "gps": "cruise terminal or pier",
+                "vector_necesidades": {"agua": 100, "contemplacion": 95, "descanso": 90, "aire_fresco": 90, "naturaleza": 80, "silencio": 60}
+            },
+            {
+                "id": 232,
+                "titulo": "Quiebre de Inercia: Discoteca / Club Nocturno",
+                "titulo_en": "Inertia Break: Nightclub / Dance Club",
+                "porque": "Cansancio cerebral por exceso de rutinas repetitivas y falta de estímulos rítmicos reales.",
+                "porque_en": "Brain fatigue from excessive repetitive routines and lack of real rhythmic stimuli.",
+                "que_hacer": "Visita una zona de clubs o discotecas de la ciudad. Sal un momento al área abierta del local. Escucha la vibración del bajo golpeando el entorno urbano, siente la música y deja que el pulso de la noche rompa el automatismo diurno.",
+                "que_hacer_en": "Visit a club or nightlife district in the city. Step out to the venue's open area for a moment. Listen to the bass vibration hitting the urban environment, feel the music, and let the pulse of the night break daytime automatism.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Perímetro exterior o terraza de un club céntrico.", "donde_en": "Outer perimeter or terrace of a central club.",
+                "gps": "dance club or nightclub",
+                "vector_necesidades": {"musica": 100, "juego": 90, "comunidad": 80, "risa": 70, "movimiento": 60, "silencio": 10, "descanso": 40}
+            }       
         ],
         "ansioso": [
             {
@@ -497,8 +662,68 @@ BASE_MISIONES = {
                 "donde": "Piscina municipal o comunitaria.", "donde_en": "Municipal or community pool.", "gps": "public swimming pool",
                 "vector_necesidades": {"movimiento": 90, "naturaleza": 40, "silencio": 50, "agua": 100, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 30, "comunidad": 70, "aprendizaje": 20, "juego": 80, "contemplacion": 70, "descanso": 90, "organizacion": 20, "alimentacion": 10, "musica": 40, "risa": 60, "esperanza": 85}
             },
-        ],
-    }
+            {
+                "id": 241,
+                "titulo": "Distracción Absoluta: Centro de Recreación / Parque Temático",
+                "titulo_en": "Absolute Distraction: Recreation Center / Theme Park",
+                "porque": "Ansiedad cíclica y rumiación mental masiva. Necesitas un shock de juego y risas para apagar el pánico del ego.",
+                "porque_en": "Cyclic anxiety and massive mental rumination. You need a shock of play and laughter to quiet ego panic.",
+                "que_hacer": "Dirígete al parque de atracciones, centro de entretenimiento familiar o zona recreativa más cercana. Observa los colores, escucha las risas del perímetro urbano y permítete conectar con el juego inocente de los niños.",
+                "que_hacer_en": "Head to the nearest amusement park, family entertainment center, or recreation zone. Observe the colors, listen to the laughter of the urban perimeter, and allow yourself to connect with innocent play.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Parque recreativo, zona infantil o centro de juegos local.", "donde_en": "Recreation park, kid zone, or local arcade center.",
+                "gps": "amusement park or arcade",
+                "vector_necesidades": {"juego": 100, "risa": 100, "comunidad": 80, "movimiento": 70, "esperanza": 90, "silencio": 20, "descanso": 50}
+            },
+            {
+                "id": 242,
+                "titulo": "Estrategia de Alivio: Terminal de Aerolíneas",
+                "titulo_en": "Relief Strategy: Airline Terminal",
+                "porque": "Sensación de asfixia y pánico por el encierro diario de la rutina laboral de USA.",
+                "porque_en": "Feeling of suffocation and panic from the daily confinement of the USA work routine.",
+                "que_hacer": "Si estás cerca de una terminal aérea (Delta, United) o una agencia de viajes, camina hacia el pasillo central. Despega los ojos de la pantalla, observa a los viajeros partir y asimila que el mundo es inmenso y que tu problema actual es transitorio.",
+                "que_hacer_en": "If near an airline terminal (Delta, United) or travel agency, walk to the central hall. Take your eyes off the screen, watch travelers depart, and assimilate that the world is huge and your current issue is transient.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Vestíbulo público de aeropuerto o central de transportes.", "donde_en": "Public airport lobby or transit center.",
+                "gps": "transit center or airport terminal",
+                "vector_necesidades": {"contemplacion": 100, "aire_fresco": 90, "esperanza": 95, "descanso": 70, "silencio": 50, "movimiento": 30}
+},
+{
+    "id": 243,
+    "titulo": "Aislamiento Conciencial: Resort / Hotel Lounge",
+    "titulo_en": "Conscious Isolation: Resort / Hotel Lounge",
+    "porque": "Ansiedad social aguda y ruido mental por sobrecarga de responsabilidades económicas.",
+    "porque_en": "Acute social anxiety and mental noise from economic responsibilities overload.",
+    "que_hacer": "Visita una zona de descanso de hotel o un resort local (Marriott, Hilton). Siéntate en una de sus butacas premium del lobby público de forma gratuita. Cierra los ojos, respira a un ritmo lento diafragmático y habita tus propios órganos con presencia absoluta.",
+    "que_hacer_en": "Visit a hotel lounge or local resort (Marriott, Hilton). Sit in one of their premium public lobby armchairs for free. Close your eyes, breathe at a slow diaphragmatic pace, and fully inhabit your own organs.",
+    "cuando": WHEN_ES,
+    "cuando_en": WHEN_EN,
+    "para_que": FOR_WHAT_ES,
+    "para_que_en": FOR_WHAT_EN,
+    "donde": "Zona de descanso o jardín de un hotel de USA.",
+    "donde_en": "Lounge or garden of a USA hotel.",
+    "gps": "boutique hotel lobby",
+    "vector_necesidades": {"descanso": 100, "silencio": 90, "contemplacion": 95, "organizacion": 80, "salud": 85, "esperanza": 85}
+},
+{
+    "id": 244,
+    "titulo": "Soberanía de Cabina: Terminal Aérea / Vuelos",
+    "titulo_en": "Cabin Sovereignty: Air Terminal / Flights",
+    "porque": "Sensación de asfixia, pánico y desconexión corporal debido a la saturación ruidosa de los perímetros urbanos.",
+    "porque_en": "Feeling of suffocation, panic, and bodily disconnection due to noisy saturation of urban perimeters.",
+    "que_hacer": "Dirígete a un aeropuerto, terminal de vuelos o zona de despegue (Delta, United). Busca un ventanal amplio con vista directa al horizonte del cielo. Ejecuta el Módulo de Ventilación: realiza tres exhalaciones diafragmáticas vaciando el CO2. Eres libre.",
+    "que_hacer_en": "Head to an airport, flight terminal, or takeoff zone (Delta, United). Find a wide window with a direct view of the sky horizon. Execute the Ventilation Module: take three diaphragmatic exhalations emptying the CO2. You are free.",
+    "cuando": WHEN_ES,
+    "cuando_en": WHEN_EN,
+    "para_que": FOR_WHAT_ES,
+    "para_que_en": FOR_WHAT_EN,
+    "donde": "Terminal de aeropuerto, central de tránsito o zona de observación abierta.",
+    "donde_en": "Airport terminal, transit hub, or open observation zone.",
+    "gps": "airport terminal or transit hub",
+    "vector_necesidades": {"aire_fresco": 95, "contemplacion": 100, "esperanza": 90, "descanso": 70, "silencio": 60, "movimiento": 30}
+}
+]
+}
 }
 
 BIG_TECH_RESOURCES = {
