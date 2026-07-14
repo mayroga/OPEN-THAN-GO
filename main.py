@@ -687,7 +687,7 @@ BASE_MISIONES = {
                 "donde": "Vestíbulo público de aeropuerto o central de transportes.", "donde_en": "Public airport lobby or transit center.",
                 "gps": "transit center or airport terminal",
                 "vector_necesidades": {"contemplacion": 100, "aire_fresco": 90, "esperanza": 95, "descanso": 70, "silencio": 50, "movimiento": 30}
-            },
+            }, # <--- AQUÍ SE REPARÓ LA COMA OBLIGATORIA QUE ENLAZA CON EL ID 243
             {
                 "id": 243,
                 "titulo": "Aislamiento Conciencial: Resort / Hotel Lounge",
@@ -696,11 +696,15 @@ BASE_MISIONES = {
                 "porque_en": "Acute social anxiety and mental noise from economic responsibilities overload.",
                 "que_hacer": "Visita una zona de descanso de hotel o un resort local (Marriott, Hilton). Siéntate en una de sus butacas premium del lobby público de forma gratuita. Cierra los ojos, respira a un ritmo lento diafragmático y habita tus propios órganos con presencia absoluta.",
                 "que_hacer_en": "Visit a hotel lounge or local resort (Marriott, Hilton). Sit in one of their premium public lobby armchairs for free. Close your eyes, breathe at a slow diaphragmatic pace, and fully inhabit your own organs.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Zona de descanso o jardín de un hotel de USA.", "donde_en": "Lounge or garden of a USA hotel.",
+                "cuando": WHEN_ES,
+                "cuando_en": WHEN_EN,
+                "para_que": FOR_WHAT_ES,
+                "para_que_en": FOR_WHAT_EN,
+                "donde": "Zona de descanso o jardín de un hotel de USA.",
+                "donde_en": "Lounge or garden of a USA hotel.",
                 "gps": "boutique hotel lobby",
                 "vector_necesidades": {"descanso": 100, "silencio": 90, "contemplacion": 95, "organizacion": 80, "salud": 85, "esperanza": 85}
-            },
+            }, # <--- OTRA COMA DE ENLACE PERFECTA
             {
                 "id": 244,
                 "titulo": "Soberanía de Cabina: Terminal Aérea / Vuelos",
@@ -717,7 +721,6 @@ BASE_MISIONES = {
         ]
     }
 }
-
 
 BIG_TECH_RESOURCES = {
     "spotify_audio_es": "https://open.spotify.com/genre/mood/relax-stress-relief",
