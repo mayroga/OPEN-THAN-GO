@@ -2,9 +2,10 @@
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 1 DE 2 (Backend Core)
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Body
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 import uvicorn
 import os
 import random
@@ -270,7 +271,11 @@ BASE_MISIONES = {
                 "que_hacer": "Busca un gran árbol. Toca su corteza. Siente la sombra fresca.", "que_hacer_en": "Find a large tree. Touch its bark. Feel the cool shade.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
                 "donde": "Un parque verde.", "donde_en": "A green park.", "gps": "parks with shade",
-                "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 80, "agua": 20, "sol": 40, "sombra": 100, "aire_fresco": 100, "creatividad": 30, "comunidad": 20, "aprendizaje": 40, "juego": 30, "contemplacion": 95, "descanso": 90, "organizacion": 20, "alimentacion": 0, "musica": 10, "risa": 30, "esperanza": 85}
+                "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 80, "agua": 20, "sol": 40, "sombra": 100, "aire_fresco": 100, "creatividad": 30, "comunidad": 20, "aprendizaje": 40, "juego": 30, "contemplacion": 95, "descanso": 90, "organizacion": 20, "alimentacion": 0, "musica": 10, "risa": 30, "esperanza": 85},
+                "destino_titulo": "Parque Urbano con Árboles", "destino_titulo_en": "Urban Park with Trees",
+                "destino_instruccion": "Ve al parque más cercano. Siéntate bajo la sombra de un árbol grande. Cierra los ojos y escucha el sonido del viento en las hojas durante cinco minutos. Desconecta tu mente del mundo digital.",
+                "destino_instruccion_en": "Go to the nearest park. Sit under the shade of a large tree. Close your eyes and listen to the sound of the wind in the leaves for five minutes. Disconnect your mind from the digital world.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/nearby+parks"
             },
             {
                 "id": 106, "titulo": "Café en silencio", "titulo_en": "Quiet Cafe",
@@ -278,7 +283,11 @@ BASE_MISIONES = {
                 "que_hacer": "Visita una cafetería tranquila. Pide tu bebida. Observa sin distracciones.", "que_hacer_en": "Visit a quiet cafe. Order your drink. Observe without distractions.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
                 "donde": "Cafetería local tranquila.", "donde_en": "Quiet local cafe.", "gps": "quiet cafe",
-                "vector_necesidades": {"movimiento": 20, "naturaleza": 10, "silencio": 90, "agua": 30, "sol": 30, "sombra": 80, "aire_fresco": 40, "creatividad": 60, "comunidad": 50, "aprendizaje": 70, "juego": 10, "contemplacion": 95, "descanso": 85, "organizacion": 70, "alimentacion": 60, "musica": 40, "risa": 20, "esperanza": 70}
+                "vector_necesidades": {"movimiento": 20, "naturaleza": 10, "silencio": 90, "agua": 30, "sol": 30, "sombra": 80, "aire_fresco": 40, "creatividad": 60, "comunidad": 50, "aprendizaje": 70, "juego": 10, "contemplacion": 95, "descanso": 85, "organizacion": 70, "alimentacion": 60, "musica": 40, "risa": 20, "esperanza": 70},
+                "destino_titulo": "Cafetería Silenciosa", "destino_titulo_en": "Quiet Coffee Shop",
+                "destino_instruccion": "Encuentra una cafetería con poca gente. Pide un café o té. Observa a la gente pasar por la ventana sin usar tu teléfono. Permítete simplemente existir en el momento presente.",
+                "destino_instruccion_en": "Find a coffee shop with few people. Order a coffee or tea. Watch people pass by the window without using your phone. Allow yourself to simply exist in the present moment.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/quiet+coffee+shop"
             },
             {
                 "id": 107, "titulo": "Jardín Botánico", "titulo_en": "Botanical Garden",
@@ -286,7 +295,11 @@ BASE_MISIONES = {
                 "que_hacer": "Pasea sin prisa por senderos. Observa plantas y flores. Respira hondo.", "que_hacer_en": "Stroll leisurely on paths. Observe plants and flowers. Breathe deeply.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
                 "donde": "Jardín botánico público.", "donde_en": "Public botanical garden.", "gps": "botanical garden",
-                "vector_necesidades": {"movimiento": 70, "naturaleza": 100, "silencio": 75, "agua": 50, "sol": 70, "sombra": 90, "aire_fresco": 100, "creatividad": 80, "comunidad": 40, "aprendizaje": 80, "juego": 30, "contemplacion": 90, "descanso": 80, "organizacion": 30, "alimentacion": 10, "musica": 50, "risa": 30, "esperanza": 90}
+                "vector_necesidades": {"movimiento": 70, "naturaleza": 100, "silencio": 75, "agua": 50, "sol": 70, "sombra": 90, "aire_fresco": 100, "creatividad": 80, "comunidad": 40, "aprendizaje": 80, "juego": 30, "contemplacion": 90, "descanso": 80, "organizacion": 30, "alimentacion": 10, "musica": 50, "risa": 30, "esperanza": 90},
+                "destino_titulo": "Jardín Botánico Local", "destino_titulo_en": "Local Botanical Garden",
+                "destino_instruccion": "Visita el jardín botánico de tu ciudad. Camina por los senderos y enfócate en los colores, las formas y los aromas de las plantas. Déjate llevar por la tranquilidad y la belleza natural.",
+                "destino_instruccion_en": "Visit your city's botanical garden. Walk the paths and focus on the colors, shapes, and aromas of the plants. Let yourself be carried away by the tranquility and natural beauty.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/botanical+garden"
             },
             {
                 "id": 108, "titulo": "Mirador Panorámico", "titulo_en": "Scenic Overlook",
@@ -294,976 +307,351 @@ BASE_MISIONES = {
                 "que_hacer": "Encuentra un punto alto con vista. Observa el horizonte. Siente la inmensidad.", "que_hacer_en": "Find a high point with a view. Observe the horizon. Feel the immensity.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
                 "donde": "Mirador público.", "donde_en": "Public overlook.", "gps": "scenic overlook",
-                "vector_necesidades": {"movimiento": 40, "naturaleza": 90, "silencio": 85, "agua": 60, "sol": 80, "sombra": 50, "aire_fresco": 95, "creatividad": 70, "comunidad": 30, "aprendizaje": 50, "juego": 10, "contemplacion": 100, "descanso": 70, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 95}
+                "vector_necesidades": {"movimiento": 40, "naturaleza": 90, "silencio": 85, "agua": 60, "sol": 80, "sombra": 50, "aire_fresco": 95, "creatividad": 70, "comunidad": 30, "aprendizaje": 50, "juego": 10, "contemplacion": 100, "descanso": 70, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 95},
+                "destino_titulo": "Mirador con Vista a la Ciudad", "destino_titulo_en": "City Overlook",
+                "destino_instruccion": "Dirígete a un mirador elevado. Contempla la vista de la ciudad o el paisaje. Deja que tu mente se expanda con la amplitud del horizonte. No pienses en nada, solo observa.",
+                "destino_instruccion_en": "Go to an elevated viewpoint. Contemplate the view of the city or the landscape. Let your mind expand with the vastness of the horizon. Don't think about anything, just observe.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/scenic+overlook"
             },
             {
                 "id": 109, "titulo": "Clase de Meditación", "titulo_en": "Meditation Class",
                 "porque": "Mente sobrecargada. Busca herramientas para la calma interna. Regula tu ser.", "porque_en": "Overloaded mind. Seek tools for inner calm. Regulate your being.",
-                "que_hacer": "Asiste a una sesión de meditación guiada. Concéntrate en la respiración. Suelta.", "que_hacer_en": "Attend a guided meditation session. Focus on breathing. Let go.",
+                "que_hacer": "Asiste a una sesión de meditación guiada. Concéntrate en tu respiración. Libera tensiones.", "que_hacer_en": "Attend a guided meditation session. Focus on your breath. Release tensions.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Centro de yoga o meditación.", "donde_en": "Yoga or meditation center.", "gps": "meditation class",
-                "vector_necesidades": {"movimiento": 10, "naturaleza": 20, "silencio": 100, "agua": 0, "sol": 10, "sombra": 100, "aire_fresco": 60, "creatividad": 50, "comunidad": 60, "aprendizaje": 90, "juego": 5, "contemplacion": 100, "descanso": 100, "organizacion": 80, "alimentacion": 0, "musica": 70, "risa": 5, "esperanza": 90}
+                "donde": "Centro de meditación o yoga.", "donde_en": "Meditation or yoga center.", "gps": "meditation classes",
+                "vector_necesidades": {"movimiento": 10, "naturaleza": 20, "silencio": 100, "agua": 20, "sol": 10, "sombra": 70, "aire_fresco": 30, "creatividad": 40, "comunidad": 60, "aprendizaje": 90, "juego": 5, "contemplacion": 100, "descanso": 95, "organizacion": 80, "alimentacion": 0, "musica": 30, "risa": 10, "esperanza": 90},
+                "destino_titulo": "Sesión de Meditación o Yoga", "destino_titulo_en": "Meditation or Yoga Session",
+                "destino_instruccion": "Encuentra una clase de meditación o yoga para principiantes. Concéntrate en las instrucciones y en tu propia respiración. Permite que tu cuerpo y mente se relajen y se centren en el presente. (Considera opciones gratuitas o de prueba).",
+                "destino_instruccion_en": "Find a beginner meditation or yoga class. Focus on the instructions and your own breath. Allow your body and mind to relax and center in the present. (Consider free or trial options).",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/free+meditation+classes"
             },
             {
-                "id": 126, "titulo": "Observación de Nubes", "titulo_en": "Cloud Gazing",
-                "porque": "Mente agitada. Enfoca tu mirada en la inmensidad. Deja que los pensamientos pasen.", "porque_en": "Agitated mind. Focus your gaze on vastness. Let thoughts pass.",
-                "que_hacer": "Busca un lugar abierto, recuéstate y observa el movimiento de las nubes.", "que_hacer_en": "Find an open space, lie down, and watch the clouds move.",
+                "id": 110, "titulo": "Biblioteca Pública", "titulo_en": "Public Library",
+                "porque": "Necesitas un ambiente tranquilo para el enfoque. Estimula la mente sin distracciones.", "porque_en": "Need a quiet environment for focus. Stimulate the mind without distractions.",
+                "que_hacer": "Visita una biblioteca. Encuentra un rincón tranquilo. Lee un libro o simplemente observa el silencio.", "que_hacer_en": "Visit a library. Find a quiet corner. Read a book or simply observe the silence.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Parque o campo abierto.", "donde_en": "Park or open field.", "gps": "open field for cloud gazing",
-                "vector_necesidades": {"movimiento": 20, "naturaleza": 95, "silencio": 90, "agua": 10, "sol": 70, "sombra": 30, "aire_fresco": 90, "creatividad": 60, "comunidad": 10, "aprendizaje": 40, "juego": 20, "contemplacion": 100, "descanso": 95, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 85}
-            },
-        ],
-        "estresado": [
-            {
-                "id": 102, "titulo": "Caminata en subida", "titulo_en": "Uphill Walk",
-                "porque": "Cuerpo tenso. Libera estrés al caminar. Siente tu fuerza.", "porque_en": "Tense body. Release stress by walking. Feel your strength.",
-                "que_hacer": "Encuentra rampa o escaleras públicas. Sube a paso firme. Usa tu energía.", "que_hacer_en": "Find public ramp or stairs. Climb steadily. Use your energy.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Escalera pública.", "donde_en": "Public stairs.", "gps": "public stairs",
-                "vector_necesidades": {"movimiento": 100, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 20, "aire_fresco": 85, "creatividad": 10, "comunidad": 30, "aprendizaje": 10, "juego": 20, "contemplacion": 60, "descanso": 10, "organizacion": 30, "alimentacion": 0, "musica": 20, "risa": 20, "esperanza": 75}
-            },
-            {
-                "id": 110, "titulo": "Yoga al Aire Libre", "titulo_en": "Outdoor Yoga",
-                "porque": "Mente acelerada. Conecta cuerpo y naturaleza. Respira consciente.", "porque_en": "Racing mind. Connect body and nature. Conscious breath.",
-                "que_hacer": "Busca un parque. Extiende tu mat. Sigue una rutina de yoga o estiramientos.", "que_hacer_en": "Find a park. Lay your mat. Follow a yoga or stretching routine.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Parque tranquilo.", "donde_en": "Quiet park.", "gps": "outdoor yoga park",
-                "vector_necesidades": {"movimiento": 90, "naturaleza": 90, "silencio": 70, "agua": 20, "sol": 70, "sombra": 60, "aire_fresco": 95, "creatividad": 60, "comunidad": 40, "aprendizaje": 50, "juego": 10, "contemplacion": 80, "descanso": 70, "organizacion": 50, "alimentacion": 0, "musica": 40, "risa": 20, "esperanza": 80}
-            },
-            {
-                "id": 111, "titulo": "Gimnasio Comunitario", "titulo_en": "Community Gym",
-                "porque": "Necesitas liberar energía. Convierte la tensión en fuerza. Activa tu cuerpo.", "porque_en": "Need to release energy. Convert tension to strength. Activate your body.",
-                "que_hacer": "Visita un gimnasio público o de bajo costo. Enfócate en tu rutina. Suda.", "que_hacer_en": "Visit a public or low-cost gym. Focus on your routine. Sweat.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Gimnasio o centro deportivo.", "donde_en": "Gym or sports center.", "gps": "community gym",
-                "vector_necesidades": {"movimiento": 100, "naturaleza": 5, "silencio": 20, "agua": 10, "sol": 20, "sombra": 80, "aire_fresco": 60, "creatividad": 20, "comunidad": 70, "aprendizaje": 40, "juego": 30, "contemplacion": 5, "descanso": 0, "organizacion": 80, "alimentacion": 0, "musica": 80, "risa": 40, "esperanza": 60}
-            },
-            {
-                "id": 112, "titulo": "Sendero Corto Natural", "titulo_en": "Short Nature Trail",
-                "porque": "Sobrecarga de estímulos. Desconéctate un momento. Camina en paz.", "porque_en": "Overload of stimuli. Disconnect for a moment. Walk in peace.",
-                "que_hacer": "Encuentra un sendero. Camina a paso ligero. Observa el entorno natural.", "que_hacer_en": "Find a trail. Walk briskly. Observe the natural surroundings.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Sendero natural o bosque.", "donde_en": "Nature trail or forest.", "gps": "short nature trail",
-                "vector_necesidades": {"movimiento": 85, "naturaleza": 100, "silencio": 80, "agua": 40, "sol": 60, "sombra": 70, "aire_fresco": 100, "creatividad": 40, "comunidad": 20, "aprendizaje": 50, "juego": 20, "contemplacion": 90, "descanso": 60, "organizacion": 20, "alimentacion": 0, "musica": 20, "risa": 10, "esperanza": 85}
-            },
-            {
-                "id": 113, "titulo": "Pista de Atletismo", "titulo_en": "Running Track",
-                "porque": "Mente acelerada. Quema esa energía extra. Enfoca tu ritmo.", "porque_en": "Racing mind. Burn off extra energy. Focus your rhythm.",
-                "que_hacer": "Dirígete a una pista pública. Corre o camina a tu propio paso. Libera.", "que_hacer_en": "Go to a public track. Run or walk at your own pace. Release.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Pista de atletismo pública.", "donde_en": "Public running track.", "gps": "public running track",
-                "vector_necesidades": {"movimiento": 100, "naturaleza": 30, "silencio": 40, "agua": 10, "sol": 80, "sombra": 30, "aire_fresco": 90, "creatividad": 10, "comunidad": 50, "aprendizaje": 20, "juego": 30, "contemplacion": 50, "descanso": 10, "organizacion": 70, "alimentacion": 0, "musica": 50, "risa": 20, "esperanza": 70}
-            },
-            {
-                "id": 127, "titulo": "Ruta en Bicicleta Urbana", "titulo_en": "Urban Bike Route",
-                "porque": "Necesitas liberar tensión y moverte rápido. Siente el viento. Explora tu entorno.", "porque_en": "Need to release tension and move fast. Feel the wind. Explore your surroundings.",
-                "que_hacer": "Encuentra un carril bici seguro y pedalea. Siente la velocidad y el control.", "que_hacer_en": "Find a safe bike lane and pedal. Feel the speed and control.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Carril bici o parque con ruta.", "donde_en": "Bike lane or park with route.", "gps": "bike lane or route",
-                "vector_necesidades": {"movimiento": 100, "naturaleza": 60, "silencio": 30, "agua": 10, "sol": 80, "sombra": 40, "aire_fresco": 95, "creatividad": 30, "comunidad": 50, "aprendizaje": 40, "juego": 70, "contemplacion": 60, "descanso": 30, "organizacion": 60, "alimentacion": 0, "musica": 50, "risa": 40, "esperanza": 80}
-            },
+                "donde": "Biblioteca pública.", "donde_en": "Public library.", "gps": "public library",
+                "vector_necesidades": {"movimiento": 15, "naturaleza": 5, "silencio": 100, "agua": 10, "sol": 20, "sombra": 90, "aire_fresco": 20, "creatividad": 70, "comunidad": 40, "aprendizaje": 100, "juego": 5, "contemplacion": 90, "descanso": 80, "organizacion": 85, "alimentacion": 0, "musica": 5, "risa": 5, "esperanza": 75},
+                "destino_titulo": "Rincón de Lectura en Biblioteca", "destino_titulo_en": "Library Reading Nook",
+                "destino_instruccion": "Dirígete a la biblioteca pública. Busca una silla cómoda lejos del ruido. Elige un libro al azar y lee sus primeras páginas, o simplemente disfruta del silencio y la energía de la calma.",
+                "destino_instruccion_en": "Head to the public library. Find a comfortable chair away from the noise. Choose a random book and read its first few pages, or simply enjoy the silence and calm energy.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/public+library"
+            }
         ],
         "aburrido": [
             {
-                "id": 103, "titulo": "Paseo de colores", "titulo_en": "Color Walk",
-                "porque": "Días repetitivos. Busca novedad. Despierta tu visión.", "porque_en": "Repetitive days. Seek novelty. Awaken your sight.",
-                "que_hacer": "Camina lento. Busca murales y dibujos grandes en tu zona.", "que_hacer_en": "Walk slowly. Find large murals and drawings in your area.",
+                "id": 111, "titulo": "Sendero natural", "titulo_en": "Nature Trail",
+                "porque": "Mente aburrida. Necesitas estímulo suave y aire libre. Despertar la curiosidad.", "porque_en": "Bored mind. Need gentle stimulation and fresh air. Awaken curiosity.",
+                "que_hacer": "Busca un sendero. Camina observando detalles. Siente la tierra bajo tus pies.", "que_hacer_en": "Find a trail. Walk observing details. Feel the earth under your feet.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Calle con murales.", "donde_en": "Street with murals.", "gps": "street art",
-                "vector_necesidades": {"movimiento": 80, "naturaleza": 20, "silencio": 40, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 100, "comunidad": 60, "aprendizaje": 70, "juego": 55, "contemplacion": 85, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 30, "risa": 60, "esperanza": 95}
+                "donde": "Sendero natural cercano.", "donde_en": "Nearby nature trail.", "gps": "nature trails",
+                "vector_necesidades": {"movimiento": 90, "naturaleza": 100, "silencio": 70, "agua": 50, "sol": 80, "sombra": 70, "aire_fresco": 100, "creatividad": 80, "comunidad": 30, "aprendizaje": 70, "juego": 60, "contemplacion": 85, "descanso": 60, "organizacion": 20, "alimentacion": 10, "musica": 40, "risa": 30, "esperanza": 90},
+                "destino_titulo": "Caminata por Sendero Natural", "destino_titulo_en": "Nature Trail Walk",
+                "destino_instruccion": "Encuentra un sendero para caminar en la naturaleza. Presta atención a los sonidos de los pájaros, el olor de la tierra y la vista de los árboles. Deja que tu mente se despeje con el movimiento y el entorno natural.",
+                "destino_instruccion_en": "Find a nature trail for a walk. Pay attention to the sounds of birds, the smell of the earth, and the sight of the trees. Let your mind clear with movement and the natural environment.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/nature+trails"
             },
             {
-                "id": 114, "titulo": "Mercado de Agricultores", "titulo_en": "Farmers Market",
-                "porque": "Necesitas nuevos estímulos. Sabores y olores frescos. Apoya lo local.", "porque_en": "Need new stimuli. Fresh tastes and smells. Support local.",
-                "que_hacer": "Visita un mercado local. Prueba algo nuevo. Habla con los vendedores.", "que_hacer_en": "Visit a local market. Try something new. Talk to vendors.",
+                "id": 112, "titulo": "Galería de arte gratuita", "titulo_en": "Free Art Gallery",
+                "porque": "Mente aburrida. Necesitas estímulo visual y creativo. Inspiración.", "porque_en": "Bored mind. Need visual and creative stimulation. Inspiration.",
+                "que_hacer": "Visita una galería o museo gratuito. Observa las obras. Deja que tu mente divague.", "que_hacer_en": "Visit a free gallery or museum. Observe the artworks. Let your mind wander.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Mercado de agricultores.", "donde_en": "Farmers market.", "gps": "farmers market",
-                "vector_necesidades": {"movimiento": 60, "naturaleza": 50, "silencio": 30, "agua": 10, "sol": 70, "sombra": 40, "aire_fresco": 80, "creatividad": 70, "comunidad": 90, "aprendizaje": 60, "juego": 40, "contemplacion": 50, "descanso": 30, "organizacion": 50, "alimentacion": 100, "musica": 30, "risa": 70, "esperanza": 80}
+                "donde": "Galería de arte local.", "donde_en": "Local art gallery.", "gps": "free art galleries",
+                "vector_necesidades": {"movimiento": 30, "naturaleza": 10, "silencio": 60, "agua": 10, "sol": 10, "sombra": 80, "aire_fresco": 20, "creatividad": 100, "comunidad": 50, "aprendizaje": 90, "juego": 20, "contemplacion": 95, "descanso": 70, "organizacion": 50, "alimentacion": 0, "musica": 30, "risa": 15, "esperanza": 80},
+                "destino_titulo": "Exploración de Galería de Arte", "destino_titulo_en": "Art Gallery Exploration",
+                "destino_instruccion": "Busca una galería de arte con entrada gratuita. Recorre las salas y observa las obras que te llamen la atención. No necesitas entenderlas, solo permítete sentir la inspiración y la belleza. (Busca exposiciones locales gratuitas).",
+                "destino_instruccion_en": "Look for an art gallery with free admission. Walk through the rooms and observe the works that catch your eye. You don't need to understand them, just allow yourself to feel the inspiration and beauty. (Look for free local exhibitions).",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/free+art+galleries"
             },
             {
-                "id": 115, "titulo": "Exposición de Arte", "titulo_en": "Art Exhibition",
-                "porque": "Mente en bucle. Busca inspiración. Despierta tu creatividad.", "porque_en": "Mind in a loop. Seek inspiration. Awaken your creativity.",
-                "que_hacer": "Visita una galería o museo local. Observa el arte. Reflexiona en silencio.", "que_hacer_en": "Visit a local gallery or museum. Observe the art. Reflect in silence.",
+                "id": 113, "titulo": "Mercado local al aire libre", "titulo_en": "Local Outdoor Market",
+                "porque": "Mente aburrida. Necesitas estímulo sensorial y social ligero. Conectar con el entorno.", "porque_en": "Bored mind. Need light sensory and social stimulation. Connect with the environment.",
+                "que_hacer": "Visita un mercado al aire libre. Observa la gente, los colores y olores. Sin comprar.", "que_hacer_en": "Visit an outdoor market. Observe people, colors, and smells. Without buying.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Galería de arte o museo.", "donde_en": "Art gallery or museum.", "gps": "art gallery",
-                "vector_necesidades": {"movimiento": 40, "naturaleza": 10, "silencio": 70, "agua": 0, "sol": 10, "sombra": 90, "aire_fresco": 30, "creatividad": 100, "comunidad": 50, "aprendizaje": 90, "juego": 10, "contemplacion": 95, "descanso": 60, "organizacion": 70, "alimentacion": 0, "musica": 60, "risa": 20, "esperanza": 85}
+                "donde": "Mercado de agricultores o pulgas.", "donde_en": "Farmers' or flea market.", "gps": "farmers market near me",
+                "vector_necesidades": {"movimiento": 70, "naturaleza": 60, "silencio": 30, "agua": 20, "sol": 90, "sombra": 40, "aire_fresco": 80, "creatividad": 70, "comunidad": 90, "aprendizaje": 50, "juego": 50, "contemplacion": 70, "descanso": 40, "organizacion": 30, "alimentacion": 70, "musica": 60, "risa": 70, "esperanza": 80},
+                "destino_titulo": "Paseo por Mercado de Agricultores", "destino_titulo_en": "Farmers Market Stroll",
+                "destino_instruccion": "Visita un mercado de agricultores o un mercado local al aire libre. Observa los productos frescos, los colores vibrantes y el bullicio de la gente. Permite que tus sentidos se activen sin la necesidad de comprar nada.",
+                "destino_instruccion_en": "Visit a farmers market or local outdoor market. Observe the fresh produce, vibrant colors, and bustling crowd. Allow your senses to activate without the need to buy anything.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/farmers+market"
+            }
+        ],
+        "estresado": [
+            {
+                "id": 114, "titulo": "Fuente de agua o lago", "titulo_en": "Water Fountain or Lake",
+                "porque": "Mente estresada. Necesitas el sonido calmante del agua. Paz mental.", "porque_en": "Stressed mind. Need the calming sound of water. Peace of mind.",
+                "que_hacer": "Busca una fuente o un lago. Escucha el agua. Deja que el sonido te relaje.", "que_hacer_en": "Find a fountain or lake. Listen to the water. Let the sound relax you.",
+                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
+                "donde": "Parque con agua o paseo marítimo.", "donde_en": "Park with water or boardwalk.", "gps": "public fountains or lakes",
+                "vector_necesidades": {"movimiento": 30, "naturaleza": 90, "silencio": 80, "agua": 100, "sol": 60, "sombra": 50, "aire_fresco": 85, "creatividad": 50, "comunidad": 20, "aprendizaje": 30, "juego": 10, "contemplacion": 95, "descanso": 90, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 10, "esperanza": 85},
+                "destino_titulo": "Visita a una Fuente o Lago", "destino_titulo_en": "Visit a Fountain or Lake",
+                "destino_instruccion": "Encuentra un lugar con una fuente de agua o un pequeño lago. Siéntate y escucha el sonido del agua. Siente cómo el flujo del agua se lleva tus preocupaciones. Permite que la calma te envuelva.",
+                "destino_instruccion_en": "Find a place with a water fountain or a small lake. Sit down and listen to the sound of the water. Feel how the flow of water carries away your worries. Let calmness envelop you.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/public+fountain+or+lake"
             },
             {
-                "id": 116, "titulo": "Parque de Patinaje", "titulo_en": "Skate Park",
-                "porque": "Necesitas energía visual. Observa la libertad y el movimiento. Conéctate con el juego.", "porque_en": "Need visual energy. Observe freedom and movement. Connect with play.",
-                "que_hacer": "Acércate a un skate park. Observa a los patinadores. Siente la vitalidad.", "que_hacer_en": "Go to a skate park. Watch the skaters. Feel the vitality.",
+                "id": 115, "titulo": "Piscina pública al aire libre", "titulo_en": "Outdoor Public Pool",
+                "porque": "Mente estresada. Necesitas liberar tensión física y mental. Flotar.", "porque_en": "Stressed mind. Need to release physical and mental tension. Float.",
+                "que_hacer": "Visita una piscina pública. Flota en el agua. Siente tu cuerpo ligero.", "que_hacer_en": "Visit a public pool. Float in the water. Feel your body light.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Skate park público.", "donde_en": "Public skate park.", "gps": "skate park",
-                "vector_necesidades": {"movimiento": 70, "naturaleza": 30, "silencio": 20, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 80, "comunidad": 80, "aprendizaje": 30, "juego": 100, "contemplacion": 60, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 70, "risa": 90, "esperanza": 90}
-            },
-            {
-                "id": 117, "titulo": "Librería de Segunda Mano", "titulo_en": "Used Bookstore",
-                "porque": "Busca historias y conocimiento. Desconéctate del mundo digital. Nutre tu mente.", "porque_en": "Seek stories and knowledge. Disconnect from digital. Nourish your mind.",
-                "que_hacer": "Explora una librería de segunda mano. Busca títulos inesperados. Disfruta el aroma.", "que_hacer_en": "Explore a used bookstore. Look for unexpected titles. Enjoy the scent.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Librería de segunda mano.", "donde_en": "Used bookstore.", "gps": "used bookstore",
-                "vector_necesidades": {"movimiento": 30, "naturaleza": 10, "silencio": 85, "agua": 0, "sol": 20, "sombra": 95, "aire_fresco": 40, "creatividad": 90, "comunidad": 30, "aprendizaje": 100, "juego": 20, "contemplacion": 90, "descanso": 80, "organizacion": 70, "alimentacion": 0, "musica": 10, "risa": 5, "esperanza": 75}
-            },
-            {
-                "id": 128, "titulo": "Cine al aire libre", "titulo_en": "Outdoor Cinema",
-                "porque": "Necesitas un cambio de ambiente y una nueva perspectiva. Disfruta una historia en un entorno diferente.", "porque_en": "Need a change of scenery and new perspective. Enjoy a story in a different setting.",
-                "que_hacer": "Asiste a una proyección de cine al aire libre. Sumérgete en la película y el ambiente.", "que_hacer_en": "Attend an outdoor cinema screening. Immerse yourself in the film and atmosphere.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Parque o plaza con proyecciones.", "donde_en": "Park or plaza with screenings.", "gps": "outdoor cinema",
-                "vector_necesidades": {"movimiento": 30, "naturaleza": 60, "silencio": 40, "agua": 10, "sol": 50, "sombra": 70, "aire_fresco": 80, "creatividad": 90, "comunidad": 80, "aprendizaje": 70, "juego": 50, "contemplacion": 80, "descanso": 70, "organizacion": 20, "alimentacion": 60, "musica": 70, "risa": 70, "esperanza": 85}
-            },
+                "donde": "Piscina municipal o comunitaria.", "donde_en": "Municipal or community pool.", "gps": "public swimming pool",
+                "vector_necesidades": {"movimiento": 80, "naturaleza": 70, "silencio": 40, "agua": 100, "sol": 90, "sombra": 30, "aire_fresco": 80, "creatividad": 40, "comunidad": 60, "aprendizaje": 20, "juego": 70, "contemplacion": 60, "descanso": 95, "organizacion": 20, "alimentacion": 0, "musica": 50, "risa": 80, "esperanza": 70},
+                "destino_titulo": "Sesión de Flotación en Piscina", "destino_titulo_en": "Pool Floating Session",
+                "destino_instruccion": "Dirígete a una piscina pública. Concéntrate en el acto de flotar. Deja que el agua sostenga tu cuerpo y libera cualquier tensión. Siente la ingravidez y la calma. (Considera ir en horas de baja afluencia).",
+                "destino_instruccion_en": "Head to a public pool. Focus on the act of floating. Let the water support your body and release any tension. Feel the weightlessness and calm. (Consider going during off-peak hours).",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/public+swimming+pool"
+            }
         ],
         "cansado": [
             {
-                "id": 104, "titulo": "Lectura en biblioteca", "titulo_en": "Library Reading",
-                "porque": "Necesitas calma. Aprende sin distracciones. Recarga tu energía.", "porque_en": "Need calm. Learn without distractions. Recharge your energy.",
-                "que_hacer": "Visita tu biblioteca local. Busca un libro o disfruta el silencio.", "que_hacer_en": "Visit your local library. Find a book or enjoy the silence.",
+                "id": 116, "titulo": "Banco de parque tranquilo", "titulo_en": "Quiet Park Bench",
+                "porque": "Cansancio físico y mental. Necesitas sentarte en paz. Observar sin hacer.", "porque_en": "Physical and mental tiredness. Need to sit in peace. Observe without doing.",
+                "que_hacer": "Encuentra un banco tranquilo en un parque. Siéntate. Cierra los ojos. Solo respira.", "que_hacer_en": "Find a quiet bench in a park. Sit. Close your eyes. Just breathe.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Biblioteca pública.", "donde_en": "Public library.", "gps": "public library",
-                "vector_necesidades": {"movimiento": 30, "naturaleza": 10, "silencio": 100, "agua": 0, "sol": 10, "sombra": 80, "aire_fresco": 50, "creatividad": 70, "comunidad": 50, "aprendizaje": 95, "juego": 10, "contemplacion": 90, "descanso": 85, "organizacion": 70, "alimentacion": 0, "musica": 0, "risa": 10, "esperanza": 70}
+                "donde": "Parque local.", "donde_en": "Local park.", "gps": "quiet park benches",
+                "vector_necesidades": {"movimiento": 10, "naturaleza": 90, "silencio": 90, "agua": 20, "sol": 70, "sombra": 80, "aire_fresco": 95, "creatividad": 30, "comunidad": 10, "aprendizaje": 20, "juego": 5, "contemplacion": 100, "descanso": 100, "organizacion": 10, "alimentacion": 0, "musica": 10, "risa": 5, "esperanza": 90},
+                "destino_titulo": "Descanso en Banco de Parque", "destino_titulo_en": "Park Bench Rest",
+                "destino_instruccion": "Busca un banco desocupado en un parque. Siéntate con la espalda recta, los hombros relajados. Cierra los ojos o mira un punto fijo. Permite que el cansancio se disipe con el aire fresco y el silencio relativo.",
+                "destino_instruccion_en": "Find an empty bench in a park. Sit with your back straight, shoulders relaxed. Close your eyes or look at a fixed point. Allow tiredness to dissipate with the fresh air and relative silence.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/quiet+park+benches"
             },
             {
-                "id": 119, "titulo": "Paseo por el Puerto", "titulo_en": "Harbor Walk",
-                "porque": "Necesitas despejar la mente. Aire fresco y vistas al agua. Caminata relajante.", "porque_en": "Need to clear mind. Fresh air and water views. Relaxing walk.",
-                "que_hacer": "Camina por el muelle o puerto. Observa los barcos. Escucha el agua.", "que_hacer_en": "Walk along the dock or harbor. Watch the boats. Listen to the water.",
+                "id": 117, "titulo": "Jardín comunitario", "titulo_en": "Community Garden",
+                "porque": "Cansancio. Necesitas un espacio con vida. Conectar con algo orgánico.", "porque_en": "Tiredness. Need a space with life. Connect with something organic.",
+                "que_hacer": "Visita un jardín comunitario. Observa las plantas, los colores. Siéntate y solo sé.", "que_hacer_en": "Visit a community garden. Observe the plants, colors. Sit and just be.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Puerto o muelle.", "donde_en": "Harbor or pier.", "gps": "harbor walk or pier",
-                "vector_necesidades": {"movimiento": 70, "naturaleza": 80, "silencio": 60, "agua": 100, "sol": 70, "sombra": 50, "aire_fresco": 95, "creatividad": 50, "comunidad": 60, "aprendizaje": 40, "juego": 30, "contemplacion": 90, "descanso": 80, "organizacion": 20, "alimentacion": 20, "musica": 50, "risa": 40, "esperanza": 90}
-            },
-            {
-                "id": 120, "titulo": "Observatorio Local", "titulo_en": "Local Observatory",
-                "porque": "Mente ansiosa. Busca perspectiva universal. Maravíllate con el cosmos.", "porque_en": "Anxious mind. Seek universal perspective. Marvel at the cosmos.",
-                "que_hacer": "Visita un observatorio. Aprende sobre el universo. Observa las estrellas (si es posible).", "que_hacer_en": "Visit an observatory. Learn about the universe. Stargaze (if possible).",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Observatorio astronómico.", "donde_en": "Astronomical observatory.", "gps": "astronomical observatory",
-                "vector_necesidades": {"movimiento": 10, "naturaleza": 70, "silencio": 90, "agua": 0, "sol": 10, "sombra": 100, "aire_fresco": 70, "creatividad": 80, "comunidad": 40, "aprendizaje": 100, "juego": 10, "contemplacion": 100, "descanso": 90, "organizacion": 60, "alimentacion": 0, "musica": 30, "risa": 5, "esperanza": 95}
-            },
-            {
-                "id": 121, "titulo": "Banco en Plaza Céntrica", "titulo_en": "Bench in Central Plaza",
-                "porque": "Necesitas observar. Conéctate con la vida urbana. Descansa y reflexiona.", "porque_en": "Need to observe. Connect with urban life. Rest and reflect.",
-                "que_hacer": "Siéntate en un banco. Observa a la gente pasar. Siente el pulso de la ciudad.", "que_hacer_en": "Sit on a bench. Watch people pass by. Feel the city's pulse.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Plaza pública o parque.", "donde_en": "Public plaza or park.", "gps": "public plaza",
-                "vector_necesidades": {"movimiento": 20, "naturaleza": 60, "silencio": 30, "agua": 10, "sol": 90, "sombra": 70, "aire_fresco": 80, "creatividad": 50, "comunidad": 80, "aprendizaje": 40, "juego": 30, "contemplacion": 90, "descanso": 100, "organizacion": 20, "alimentacion": 10, "musica": 60, "risa": 50, "esperanza": 85}
-            },
-            {
-                "id": 129, "titulo": "Tour Histórico a Pie", "titulo_en": "Historical Walking Tour",
-                "porque": "Mente agotada de lo predecible. Necesitas una inyección de conocimiento y un suave movimiento. Aprende mientras caminas.", "porque_en": "Mind tired of predictability. Need an injection of knowledge and gentle movement. Learn as you walk.",
-                "que_hacer": "Busca un tour a pie gratuito o de bajo costo por tu ciudad. Descubre historias locales.", "que_hacer_en": "Find a free or low-cost walking tour of your city. Discover local stories.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
-                "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
-            },
+                "donde": "Jardín o huerto comunitario.", "donde_en": "Community garden or allotment.", "gps": "community garden",
+                "vector_necesidades": {"movimiento": 30, "naturaleza": 100, "silencio": 70, "agua": 40, "sol": 80, "sombra": 60, "aire_fresco": 90, "creatividad": 60, "comunidad": 70, "aprendizaje": 50, "juego": 20, "contemplacion": 90, "descanso": 85, "organizacion": 40, "alimentacion": 50, "musica": 30, "risa": 20, "esperanza": 90},
+                "destino_titulo": "Paseo por Jardín Comunitario", "destino_titulo_en": "Community Garden Walk",
+                "destino_instruccion": "Encuentra un jardín comunitario cerca de ti. Observa el crecimiento de las plantas, las flores y los pequeños detalles de la naturaleza. Este ambiente de crecimiento y colaboración es un buen antídoto contra el cansancio.",
+                "destino_instruccion_en": "Find a community garden near you. Observe the growth of plants, flowers, and small details of nature. This environment of growth and collaboration is a good antidote to tiredness.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/community+garden"
+            }
         ],
         "ansioso": [
             {
-                "id": 105, "titulo": "Mirar el agua", "titulo_en": "Watch the Water",
-                "porque": "Agua en movimiento. Calma tu mente. Relaja tensiones.", "porque_en": "Moving water. Calm your mind. Release tensions.",
-                "que_hacer": "Busca fuente, lago o río cercano. Observa el flujo. Déjate llevar.", "que_hacer_en": "Find nearby fountain, lake, or river. Observe the flow. Let go.",
+                "id": 118, "titulo": "Playa o río (agua)", "titulo_en": "Beach or River (water)",
+                "porque": "Ansiedad. Necesitas el poder purificador del agua. Sentir la inmensidad.", "porque_en": "Anxiety. Need the purifying power of water. Feel the immensity.",
+                "que_hacer": "Visita una playa o río. Mira el agua moverse. Respira su energía.", "que_hacer_en": "Visit a beach or river. Watch the water move. Breathe its energy.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Fuente de agua o lago.", "donde_en": "Water fountain or lake.", "gps": "public fountain or lake",
-                "vector_necesidades": {"movimiento": 40, "naturaleza": 80, "silencio": 70, "agua": 100, "sol": 60, "sombra": 50, "aire_fresco": 90, "creatividad": 20, "comunidad": 30, "aprendizaje": 10, "juego": 20, "contemplacion": 90, "descanso": 80, "organizacion": 10, "alimentacion": 0, "musica": 50, "risa": 10, "esperanza": 80}
+                "donde": "Playa, río o embalse cercano.", "donde_en": "Nearby beach, river, or reservoir.", "gps": "beach or river access",
+                "vector_necesidades": {"movimiento": 70, "naturaleza": 100, "silencio": 70, "agua": 100, "sol": 90, "sombra": 40, "aire_fresco": 100, "creatividad": 60, "comunidad": 50, "aprendizaje": 40, "juego": 80, "contemplacion": 95, "descanso": 90, "organizacion": 20, "alimentacion": 10, "musica": 60, "risa": 50, "esperanza": 95},
+                "destino_titulo": "Mirar el Agua: Playa o Río", "destino_titulo_en": "Observe Water: Beach or River",
+                "destino_instruccion": "Dirígete a la orilla de un cuerpo de agua (playa, río, lago). Observa el movimiento del agua y escucha el sonido de las olas o la corriente. Permite que la vastedad y la fluidez del agua calmen tu ansiedad.",
+                "destino_instruccion_en": "Go to the edge of a body of water (beach, river, lake). Observe the movement of the water and listen to the sound of the waves or current. Allow the vastness and fluidity of the water to calm your anxiety.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/beach+or+river+access"
             },
             {
-                "id": 122, "titulo": "Paseo en Bote", "titulo_en": "Boat Ride",
-                "porque": "Estrés acumulado. Necesitas desconexión total. Flota y relájate.", "porque_en": "Accumulated stress. Need total disconnection. Float and relax.",
-                "que_hacer": "Realiza un paseo corto en bote. Siente la brisa. Observa la inmensidad del agua.", "que_hacer_en": "Take a short boat ride. Feel the breeze. Observe the vastness of water.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Lago o río con alquiler de botes.", "donde_en": "Lake or river with boat rentals.", "gps": "boat rentals lake or river",
-                "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 80, "agua": 100, "sol": 80, "sombra": 60, "aire_fresco": 100, "creatividad": 50, "comunidad": 50, "aprendizaje": 30, "juego": 60, "contemplacion": 95, "descanso": 90, "organizacion": 10, "alimentacion": 20, "musica": 60, "risa": 30, "esperanza": 90}
-            },
-            {
-                "id": 123, "titulo": "Jardín de Rocas/Zen", "titulo_en": "Rock/Zen Garden",
-                "porque": "Mente agitada. Busca orden y armonía. Centra tus pensamientos.", "porque_en": "Agitated mind. Seek order and harmony. Center your thoughts.",
-                "que_hacer": "Encuentra un jardín de rocas. Observa las formas y la disposición. Medita en su calma.", "que_hacer_en": "Find a rock garden. Observe the shapes and arrangement. Meditate in its calm.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Jardín de rocas o japonés.", "donde_en": "Rock or Japanese garden.", "gps": "zen garden",
-                "vector_necesidades": {"movimiento": 10, "naturaleza": 90, "silencio": 100, "agua": 50, "sol": 50, "sombra": 80, "aire_fresco": 90, "creatividad": 70, "comunidad": 20, "aprendizaje": 60, "juego": 5, "contemplacion": 100, "descanso": 95, "organizacion": 100, "alimentacion": 0, "musica": 20, "risa": 5, "esperanza": 90}
-            },
-            {
-                "id": 124, "titulo": "Parque de Perros", "titulo_en": "Dog Park",
-                "porque": "Necesitas risas y alegría. Observa el juego inocente. Contagia la energía positiva.", "porque_en": "Need laughter and joy. Observe innocent play. Catch positive energy.",
-                "que_hacer": "Visita un parque de perros. Observa su interacción. Siente la diversión.", "que_hacer_en": "Visit a dog park. Observe their interaction. Feel the fun.",
+                "id": 119, "titulo": "Parque de perros", "titulo_en": "Dog Park",
+                "porque": "Ansiedad. Necesitas distracción, alegría espontánea. Contacto con vida.", "porque_en": "Anxiety. Need distraction, spontaneous joy. Contact with life.",
+                "que_hacer": "Visita un parque de perros. Observa el juego. Ríe con ellos.", "que_hacer_en": "Visit a dog park. Observe the play. Laugh with them.",
                 "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
                 "donde": "Parque de perros local.", "donde_en": "Local dog park.", "gps": "dog park",
-                "vector_necesidades": {"movimiento": 70, "naturaleza": 70, "silencio": 30, "agua": 20, "sol": 80, "sombra": 40, "aire_fresco": 90, "creatividad": 60, "comunidad": 90, "aprendizaje": 10, "juego": 100, "contemplacion": 40, "descanso": 60, "organizacion": 10, "alimentacion": 10, "musica": 20, "risa": 100, "esperanza": 90}
-            },
-            {
-                "id": 125, "titulo": "Música en Vivo Suave", "titulo_en": "Calm Live Music",
-                "porque": "Mente estresada. Necesitas una experiencia sensorial. Permite que la música te calme.", "porque_en": "Stressed mind. Need a sensory experience. Let music calm you.",
-                "que_hacer": "Encuentra un lugar con música en vivo tranquila. Escucha, relájate y disfruta.", "que_hacer_en": "Find a place with calm live music. Listen, relax, and enjoy.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Bar o cafetería con música suave.", "donde_en": "Bar or cafe with calm music.", "gps": "live jazz bar",
-                "vector_necesidades": {"movimiento": 10, "naturaleza": 10, "silencio": 10, "agua": 0, "sol": 10, "sombra": 90, "aire_fresco": 50, "creatividad": 90, "comunidad": 70, "aprendizaje": 20, "juego": 20, "contemplacion": 90, "descanso": 80, "organizacion": 10, "alimentacion": 50, "musica": 100, "risa": 40, "esperanza": 85}
-            },
-            {
-                "id": 130, "titulo": "Piscina Pública", "titulo_en": "Public Pool",
-                "porque": "Cuerpo tenso, mente agitada. El agua relaja y el movimiento controlado calma. Flota tus preocupaciones.", "porque_en": "Tense body, agitated mind. Water relaxes and controlled movement calms. Float your worries away.",
-                "que_hacer": "Visita una piscina pública, date un chapuzón o simplemente relájate en el agua.", "que_hacer_en": "Visit a public pool, take a dip or just relax in the water.",
-                "cuando": WHEN_ES_CWRE, "cuando_en": WHEN_EN_CWRE, "para_que": FOR_WHAT_ES_CWRE, "para_que_en": FOR_WHAT_EN_CWRE,
-                "donde": "Piscina municipal o comunitaria.", "donde_en": "Municipal or community pool.", "gps": "public swimming pool",
-                "vector_necesidades": {"movimiento": 90, "naturaleza": 40, "silencio": 50, "agua": 100, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 30, "comunidad": 70, "aprendizaje": 20, "juego": 80, "contemplacion": 70, "descanso": 90, "organizacion": 20, "alimentacion": 10, "musica": 40, "risa": 60, "esperanza": 85}
-            },
-        ],
+                "vector_necesidades": {"movimiento": 60, "naturaleza": 70, "silencio": 20, "agua": 30, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 40, "comunidad": 80, "aprendizaje": 30, "juego": 100, "contemplacion": 70, "descanso": 60, "organizacion": 20, "alimentacion": 10, "musica": 50, "risa": 100, "esperanza": 90},
+                "destino_titulo": "Observar en Parque de Perros", "destino_titulo_en": "Observe at Dog Park",
+                "destino_instruccion": "Visita un parque de perros en tu zona. Siéntate en un banco y observa a los perros jugar. La energía libre y la alegría de los animales pueden ser muy terapéuticas para la ansiedad. No interactúes si no te sientes cómodo, solo observa.",
+                "destino_instruccion_en": "Visit a local dog park. Sit on a bench and watch the dogs play. The free energy and joy of animals can be very therapeutic for anxiety. Don't interact if you don't feel comfortable, just observe.",
+                "destino_coordenadas_gps": "https://www.google.com/maps/search/dog+park"
+            }
+        ]
     }
 }
 
-BIG_TECH_RESOURCES = {
-    "spotify_audio_es": "https://open.spotify.com/genre/mood/relax-stress-relief",
-    "youtube_audio_es": "https://www.youtube.com/results?search_query=sonidos+naturaleza+relajantes",
-    "spotify_audio_en": "https://open.spotify.com/genre/mood/relax-stress-relief",
-    "youtube_audio_en": "https://www.youtube.com/results?search_query=nature+sounds+relaxing",
-}
+# --- Catálogos para el módulo de Matriz de Inversión ---
+EMOTIONAL_STATES = [
+    "ansioso", "estresado", "agotado", "aburrido", "irritable",
+    "distraído", "culpable", "frustrado", "indeciso", "solitario",
+    "sobrepasado", "impaciente", "pesimista", "resentido", "vacío",
+    "esperanzado", "creativo", "calmado", "presente", "observador"
+]
 
-# ============================================================
-# CWRE V2
-# SCORE INTELIGENTE (REFINADO)
-# ============================================================
-def score_coincidencia(
-    perfil_local,
-    vector_necesidades,
-    historial=None,
-    mission_id=None
-):
-    historial = historial or []
-    score = 0
-    # --------------------------------------------------
-    # Coincidencia principal: Cuanto más cerca esté la necesidad
-    # del usuario del objetivo de la misión, mayor el score.
-    # --------------------------------------------------
-    for necesidad, objetivo in vector_necesidades.items():
-        if necesidad == "indicador_ansiedad":
-            continue
-        usuario = perfil_local.get(necesidad, DEFAULT_NECESSITY_VECTOR.get(necesidad, 50))
-        diferencia = abs(usuario - objetivo)
-        score += (100 - diferencia) * 0.5
+USA_BRANDS = [
+    "Instagram", "TikTok", "Facebook", "Twitter", "Netflix",
+    "YouTube", "Amazon", "Starbucks", "McDonald's", "Disney+",
+    "Uber", "Lyft", "Doordash", "Walmart", "Target",
+    "Google", "Apple", "Microsoft", "Zoom", "Spotify"
+]
 
-    # --------------------------------------------------
-    # Priorizar necesidades insatisfechas (altas en perfil)
-    # y que la misión las cubra bien.
-    # --------------------------------------------------
-    for necesidad, valor_usuario in perfil_local.items():
-        if necesidad == "indicador_ansiedad":
-            continue
-        if valor_usuario > 70 and vector_necesidades.get(necesidad, 0) > 70:
-            score += (valor_usuario * 0.3)
-        elif valor_usuario > 50 and vector_necesidades.get(necesidad, 0) > 50:
-             score += (valor_usuario * 0.1)
+USA_INFRASTRUCTURE = [
+    "centro comercial", "autopista", "oficina", "transporte público", "casa/apartamento",
+    "parque industrial", "gimnasio", "restaurante", "cine", "aeropuerto",
+    "hospital", "escuela/universidad", "calles concurridas", "estadio", "supermercado",
+    "museo", "biblioteca", "playa", "montaña", "bosque"
+]
 
-    # --------------------------------------------------
-    # Priorizar ansiedad: Misiones que atienden directamente la ansiedad.
-    # --------------------------------------------------
-    ansiedad = perfil_local.get("indicador_ansiedad", 0)
-    if ansiedad >= 70:
-        score += vector_necesidades.get("silencio", 0) * 0.5
-        score += vector_necesidades.get("descanso", 0) * 0.5
-        score += vector_necesidades.get("esperanza", 0) * 0.4
-        score += vector_necesidades.get("naturaleza", 0) * 0.3
-        score += vector_necesidades.get("agua", 0) * 0.3
-    elif ansiedad >= 40:
-        score += vector_necesidades.get("descanso", 0) * 0.2
-        score += vector_necesidades.get("silencio", 0) * 0.2
-   
-    # --------------------------------------------------
-    # Penalización por repetición histórica y bonus por exploración
-    # --------------------------------------------------
-    if mission_id is not None:
-        score -= penalizacion_historial(mission_id, historial)
-        score += bonus_exploracion(mission_id, historial)
-   
-    return round(max(0, score), 2)
+# --- Pydantic Models for API Request Bodies ---
+class MandoIntegralRequest(BaseModel):
+    zip: str
+    modo: str
+    desahogo: str
+    lang: str
+    mente: str
+    budget: str
+    perfil: str
+    perfil_local: dict
+    historial_salir: list = []
+    historial_casa: list = []
 
-# ============================================================
-# Selección por Ranking Inteligente
-# ============================================================
-def seleccionar_por_ranking(candidatos):
-    if not candidatos:
-        return None
-   
-    candidatos = sorted(candidatos, key=lambda x: x["score"], reverse=True)
-   
-    if not candidatos:
-        return None
+class MatrixCaptureRequest(BaseModel):
+    pass # No body needed for this GET request
 
-    mejor_score = candidatos[0]["score"]
-   
-    # Si todos tienen un score bajo, y todos son iguales, elige uno al azar.
-    # Esto evita que un score bajo pero único siempre gane por poco.
-    if mejor_score <= 100:
-        scores_unicos = {c["score"] for c in candidatos}
-        if len(scores_unicos) == 1:
-             return random.choice(candidatos)
+class MatrixInvestmentRequest(BaseModel):
+    estado: str
+    elemento: str
+    zip_code: str
 
-    score_umbral = max(mejor_score * 0.8, mejor_score - 150)
-   
-    mejores_candidatos_para_eleccion = [
-        c for c in candidatos if c["score"] >= score_umbral
-    ]
-   
-    if len(mejores_candidatos_para_eleccion) == 1:
-        return mejores_candidatos_para_eleccion[0]
-
-    pesos = [c["score"] for c in mejores_candidatos_para_eleccion]
-    # Asegúrate de que ningún peso sea cero o negativo para random.choices
-    pesos = [max(1, p) for p in pesos]
-
-    return random.choices(mejores_candidatos_para_eleccion, weights=pesos, k=1)[0]
-
-
-# ============================================================
-# CWRE V2
-# Selector Universal de Misiones
-# ============================================================
-def seleccionar_mision_inteligente(
-    misiones,
-    perfil_local,
-    historial=None
-):
-    historial = historial or []
-    candidatos = []
-    for mision in misiones:
-        mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
-       
-        score = score_coincidencia(
-            perfil_local=perfil_local,
-            vector_necesidades=mission_vector,
-            historial=historial,
-            mission_id=mision["id"]
-        )
-        candidatos.append({
-            "mision": mision,
-            "score": score
-        })
-    seleccion = seleccionar_por_ranking(candidatos)
-    if seleccion is None: # Error mecánico: '==' en vez de 'is' o '=='
-        return random.choice(misiones) if misiones else None
-    return seleccion["mision"]
-
-# ============================================================
-# CWRE V2.1
-# Seleccionar N misiones inteligentes y diversas (para modo SALIR)
-# ============================================================
-def seleccionar_n_misiones_inteligentes(
-    n,
-    misiones,
-    perfil_local,
-    historial_actual=None
-):
-    historial_actual = historial_actual or []
-    candidatos_base = []
-    for mision in misiones:
-        mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
-        score = score_coincidencia(
-            perfil_local=perfil_local,
-            vector_necesidades=mission_vector,
-            historial=historial_actual,
-            mission_id=mision["id"]
-        )
-        candidatos_base.append({
-            "mision": mision,
-            "score": score
-        })
-
-    candidatos_base.sort(key=lambda x: x["score"], reverse=True)
-   
-    seleccionadas = []
-    ids_seleccionados = set()
-   
-    # Prioriza las de mayor score y las que no estén en el historial
-    for cand in candidatos_base:
-        if len(seleccionadas) >= n:
-            break
-        if cand["mision"]["id"] not in ids_seleccionados and cand["mision"]["id"] not in historial_actual:
-            es_diversa = True
-            for sel_mision in seleccionadas:
-                distancia = diversidad_vector(
-                    cand["mision"].get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
-                    sel_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
-                )
-                # Define un umbral de diversidad. Si son muy parecidas, no la elijas.
-                if distancia < 100: # Ajusta este umbral según sea necesario para la diversidad
-                    es_diversa = False
-                    break
-            if es_diversa:
-                seleccionadas.append(cand["mision"])
-                ids_seleccionados.add(cand["mision"]["id"])
-   
-    # Si aún no tenemos suficientes, toma las siguientes mejores aunque no sean tan diversas
-    for cand in candidatos_base:
-        if len(seleccionadas) >= n:
-            break
-        if cand["mision"]["id"] not in ids_seleccionados and cand["mision"]["id"] not in historial_actual:
-            seleccionadas.append(cand["mision"])
-            ids_seleccionados.add(mision["id"])
-
-    # Si todavía no tenemos suficientes, y el historial se ha agotado, reinicia y toma al azar
-    if len(seleccionadas) < n and len(misiones) >= n:
-        temp_misiones = [m for m in misiones if m["id"] not in ids_seleccionados]
-        if len(temp_misiones) < n - len(seleccionadas):
-            temp_misiones = misiones # Si no hay suficientes nuevas, recicla todo el catálogo
-        random.shuffle(temp_misiones)
-        for mision in temp_misiones:
-            if len(seleccionadas) >= n:
-                break
-            if mision["id"] not in ids_seleccionados:
-                seleccionadas.append(mision)
-                ids_seleccionados.add(mision["id"])
-
-    # Asegúrate de que el resultado final sea exactamente 'n' misiones si es posible
-    while len(seleccionadas) < n and len(misiones) > len(seleccionadas):
-        mision_aleatoria = random.choice(misiones)
-        if mision_aleatoria["id"] not in ids_seleccionados:
-            seleccionadas.append(mision_aleatoria)
-            ids_seleccionados.add(mision_aleatoria["id"])
-
-    return seleccionadas[:n]
-
-
-# ============================================================
-# Filtrar historial (para disponibilidad de misiones)
-# ============================================================
-def filtrar_historial(misiones, historial):
-    historial = historial or []
-    disponibles = [
-        m
-        for m in misiones
-        if m["id"] not in historial
-    ]
-    return disponibles
-
-# ============================================================
-# CASA V2
-# Selección inteligente de misiones domésticas
-# ============================================================
-def seleccionar_misiones_casa_inteligente(
-    misiones,
-    perfil_local,
-    historial_casa=None,
-    cantidad=3
-):
-    historial_casa = historial_casa or []
-   
-    disponibles = filtrar_historial(
-        misiones,
-        historial_casa
-    )
-   
-    if len(disponibles) < cantidad * 2: # Si quedan muy pocas sin repetir, considera todo el catálogo de nuevo
-        disponibles = misiones
-
-    candidatos = []
-    for mision in disponibles:
-        mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
-
-        score = score_coincidencia(
-            perfil_local=perfil_local,
-            vector_necesidades=mission_vector,
-            historial=historial_casa,
-            mission_id=mision.get("id")
-        )
-        candidatos.append({
-            "mision": mision,
-            "score": score
-        })
-   
-    candidatos.sort(
-        key=lambda x: x["score"],
-        reverse=True
-    )
-   
-    resultado = []
-    ids_en_resultado = set()
-   
-    # Intenta seleccionar misiones diversas y de alto score
-    for candidato in candidatos:
-        mision = candidato["mision"]
-        if mision["id"] in ids_en_resultado:
-            continue
-
-        es_diversa = True
-        for anterior_mision in resultado:
-            distancia = diversidad_vector(
-                mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
-                anterior_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
-            )
-            if distancia < 60: # Umbral de diversidad para misiones CASA
-                es_diversa = False
-                break
-       
-        if es_diversa:
-            resultado.append(mision)
-            ids_en_resultado.add(mision["id"])
-       
-        if len(resultado) >= cantidad:
-            break
-           
-    # Si no se alcanzan las 'cantidad' requeridas con diversidad, añade las siguientes mejores
-    if len(resultado) < cantidad:
-        for candidato in candidatos:
-            mision = candidato["mision"]
-            if mision["id"] not in ids_en_resultado:
-                resultado.append(mision)
-                ids_en_resultado.add(mision["id"])
-            if len(resultado) >= cantidad:
-                break
-   
-    # Fallback final: si aún no hay suficientes, toma las primeras 'cantidad'
-    if len(resultado) < cantidad and len(misiones) >= cantidad:
-        resultado = [c["mision"] for c in candidatos[:cantidad]]
-       
-    return resultado
-
+# --- API Endpoints ---
 @app.get("/")
-async def index():
-    """Serves the main HTML page."""
-    return FileResponse('static/session.html')
+async def read_root():
+    return FileResponse("static/session.html")
 
-# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 2 DE 2 (CWRE Logic)
 @app.post("/api/mando-integral")
-async def mando_integral(request: Request):
-    """
-    Main API endpoint for OPEN THAN GO.
-    Receives user input and local preference profile to return a personalized recommendation.
-    """
-    payload = await request.json()
-    opcion_usuario = str(payload.get("modo", "")).strip().upper()
-    zip_code = str(payload.get("zip", "")).strip()
-    estado = str(payload.get("estado", "FL")).strip() # Estado no se utiliza directamente en el motor de URL query params, es un placeholder
-    region = str(payload.get("region", "")).strip() # Region no se utiliza directamente en el motor de URL query params, es un placeholder
-    mente = str(payload.get("mente", "aburrido")).lower()
-    budget = str(payload.get("budget", "0"))
-    perfil_tipo = str(payload.get("perfil", "solo")).lower()
-    desahogo = str(payload.get("desahogo", "")).lower()
-    lang = str(payload.get("lang", "es")).lower()
-   
-    if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
-        return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
-   
-    perfil_local = payload.get("perfil_local", {})
-    if not isinstance(perfil_local, dict):
-        perfil_local = {}
-   
-    perfil_local = {
-        **DEFAULT_NECESSITY_VECTOR,
-        **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
-    }
-    if "indicador_ansiedad" not in perfil_local:
-        perfil_local["indicador_ansiedad"] = 0
+async def mando_integral(request: MandoIntegralRequest):
+    lang = request.lang
+    modo = request.modo
+    mente_key = request.mente
+    budget_level = int(request.budget)
+    perfil_user = request.perfil
+    user_profile = request.perfil_local
+    zip_code = request.zip
 
-    # ============================================================
-    # TERAPEUTIC STRESS INTERCEPTOR FILTER
-    # Eliminar cualquier elemento que pueda aumentar el estrés del cliente.
-    # Si el desahogo contiene palabras críticas, se fuerza una microacción de recuperación mental.
-    # ============================================================
-    sensitive_keywords = [
-        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum",
-        "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income",
-        "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades",
-        "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo",
-        "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica",
-        "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco",
-        "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo",
-        "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales",
-        "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
-    ]
+    if modo == "CASA":
+        misiones_candidatas = BASE_MISIONES[f"CASA_{lang.upper()}"]
+        historial = request.historial_casa
+        
+        # Filtrar misiones basadas en el historial
+        misiones_filtradas = []
+        for mision in misiones_candidatas:
+            if mision["id"] not in historial:
+                misiones_filtradas.append(mision)
+        
+        # Si ya se usaron todas, resetear historial
+        if not misiones_filtradas:
+            historial = []
+            misiones_filtradas = misiones_candidatas
+        
+        # Seleccionar 3 misiones aleatorias y agregarlas al historial
+        misiones_elegidas = random.sample(misiones_filtradas, min(3, len(misiones_filtradas)))
+        
+        nuevos_ids_historial = [m.get("id") for m in misiones_elegidas]
+        for new_id in nuevos_ids_historial:
+            historial = actualizar_historial(historial, new_id, MAX_HISTORY_CASA)
 
-    force_recovery_mission = False
-    # Check if *explicitly* asking for work, as per rule
-    explicitly_seeking_job = any(phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"])
-   
-    if desahogo and not explicitly_seeking_job: # Only apply stress filter if not explicitly seeking job
-        desahogo_lower = desahogo.lower()
-        if any(keyword in desahogo_lower for keyword in sensitive_keywords):
-            force_recovery_mission = True
-            opcion_usuario = "CASA" # Force CASA mode for recovery mission
-
-    if force_recovery_mission:
-        idioma = "EN" if lang.lower() == "en" else "ES"
-        # Seleccionar una de las 10 nuevas microacciones (IDs 151 a 160)
-        microacciones_ids = list(range(151, 161))
-       
-        # Filtrar misiones_completas para incluir solo las microacciones
-        misiones_completas_casa = [m for m in BASE_MISIONES[f"CASA_{idioma}"] if m["id"] in microacciones_ids]
-       
-        if not misiones_completas_casa: # Fallback if for some reason no microactions are found
-            misiones_completas_casa = BASE_MISIONES[f"CASA_{idioma}"]
-
-        historial_casa = payload.get("historial_casa", [])
-       
-        info_seleccionada = seleccionar_mision_inteligente(
-            misiones=misiones_completas_casa,
-            perfil_local=perfil_local,
-            historial=historial_casa # Use CASA history for this selection
-        )
-       
-        if not info_seleccionada: # Fallback just in case
-            info_seleccionada = random.choice(misiones_completas_casa)
-           
-        historial_casa = actualizar_historial(historial_casa, info_seleccionada["id"], MAX_HISTORY_CASA)
-
-        return JSONResponse({
+        response_data = {
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-            "misiones": [info_seleccionada], # Return as a list for consistency with normal CASA flow
-            "historial_casa_actualizado": historial_casa,
-            "forced_recovery": True # Indicate that this was a forced recovery
-        })
+            "misiones": misiones_elegidas,
+            "historial_casa_actualizado": historial
+        }
+    elif modo == "SALIR":
+        misiones_candidatas_base = BASE_MISIONES["SALIR"].get(mente_key, [])
+        historial_salir_frontend = request.historial_salir # Already updated on frontend on mission selection
 
-    # 1. DOMESTIC INTERVENTION (CASA MODE)
-    if opcion_usuario == "CASA":
-        idioma = "EN" if lang.lower() == "en" else "ES"
-        misiones_completas = (
-            BASE_MISIONES[f"CASA_{idioma}"]
-        )
-       
-        historial_casa = payload.get("historial_casa", [])
-       
-        misiones_casa = seleccionar_misiones_casa_inteligente(
-            misiones_completas,
-            perfil_local,
-            historial_casa,
-            cantidad=3
-        )
-       
-        for m in misiones_casa:
-            historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
-       
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-            "misiones": misiones_casa,
-            "historial_casa_actualizado": historial_casa
-        })
+        # Filtrar y ponderar las misiones para SALIR
+        misiones_ponderadas = []
+        for mision in misiones_candidatas_base:
+            score = 100
+            score -= penalizacion_historial(mision["id"], historial_salir_frontend)
+            score += bonus_exploracion(mision["id"], historial_salir_frontend)
 
-    # ============================================================
-    # 2. FIELD ACTION (SALIR MODE - CWRE INTELLIGENT ENGINE V2)
-    #    Ahora devuelve 3 opciones para que el frontend elija.
-    # ============================================================
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(
-        mente,
-        BASE_MISIONES["SALIR"]["aburrido"]
-    )
-   
-    historial_salir = payload.get(
-        "historial_salir",
-        []
-    )
-   
-    # Selecciona 3 misiones diversas y de alto score
-    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
-        n=3,
-        misiones=opciones_salir_candidatas,
-        perfil_local=perfil_local,
-        historial_actual=historial_salir # Usa historial para penalización
-    )
+            # Ajuste por presupuesto
+            if budget_level == 0: # Gratis
+                if not ("gratis" in mision.get("tags", ["gratis"]) or "free" in mision.get("tags", ["free"]) or mision.get("gps", "").startswith("parks") or mision.get("gps", "").startswith("public library") or mision.get("gps", "").startswith("nature trails")):
+                    score -= 50
+            elif budget_level == 1: # Bajo (ej. un cafe, transporte)
+                if ("gratis" in mision.get("tags", ["gratis"]) or "free" in mision.get("tags", ["free"])):
+                    score += 10
+            # budget_level 2 (Abierto) no aplica penalización ni bonus por presupuesto
 
-    final_misiones_para_frontend = []
+            # Ajuste por perfil (solo/familia/accesible) - simplificado para este ejemplo
+            if perfil_user == "familia":
+                if "familia" not in mision.get("tags", []):
+                    score -= 20
+            elif perfil_user == "accesible":
+                if "accesible" not in mision.get("tags", []):
+                    score -= 30
 
-    for info_seleccionada in misiones_seleccionadas_raw:
-        precio_real = ""
-        if budget == "0":
-            precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
-        elif budget == "1":
-            precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
-        elif budget == "2":
-            precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
-       
-        quienes_van = ""
-        if perfil_tipo == "solo":
-            quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
-        elif perfil_tipo == "familia":
-            quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
-        elif perfil_tipo == "accesible":
-            quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
-       
-        titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
-        donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-       
-        anclaje_geografico = zip_code
-        map_base_url = "https://www.google.com/maps/search/?api=1&query="
-        target_link = ""
+            misiones_ponderadas.append({"mision": mision, "score": max(0, score)})
 
-        if lang == "en":
-            guia_masticada = (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
-            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
-        else:
-            guia_masticada = (
-                f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
-                f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
-                f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
-                f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
-                f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
-            que_hacer_lang = info_seleccionada['que_hacer'] or ''
-       
-        search_query_parts = []
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
-       
-        search_query_parts.append(info_seleccionada["gps"])
-        search_query_parts.append(f"in {anclaje_geografico}")
-       
-        full_map_query_string = " ".join(search_query_parts)
-        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-       
-        final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
+        # Ordenar por score y seleccionar las 3 mejores
+        misiones_ponderadas.sort(key=lambda x: x["score"], reverse=True)
+        
+        # Asegurarse de tener al menos 3 misiones, si no, rellenar con las disponibles
+        misiones_elegidas = [item["mision"] for item in misiones_ponderadas[:3]]
+        
+        # Si menos de 3 únicas se encontraron, rellenar aleatoriamente
+        if len(misiones_elegidas) < 3:
+            todas_misiones = BASE_MISIONES["SALIR"].get(mente_key, [])
+            random.shuffle(todas_misiones)
+            for m in todas_misiones:
+                if m not in misiones_elegidas:
+                    misiones_elegidas.append(m)
+                if len(misiones_elegidas) == 3:
+                    break
 
-        final_misiones_para_frontend.append({
-            "destino_id": info_seleccionada.get("id"),
-            "destino_titulo": titulo_ganador_lang,
-            "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]), # Incluir ambos para frontend
-            "que_hacer": info_seleccionada["que_hacer"], # Incluir ambos para frontend
-            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]), # Incluir ambos para frontend
-            "destino_entorno": donde_base,
-            "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            ).strip(),
-            "destino_coordenadas_gps": target_link,
-            "vector_entorno_seleccionado": final_vector_necesidades,
-        })
-   
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "misiones": final_misiones_para_frontend,
-        "historial_salir_actualizado": historial_salir # Se devuelve, pero la actualización principal se hará en el frontend.
-    })
+        # Randomize the order of the chosen missions to give a sense of variety
+        random.shuffle(misiones_elegidas)
 
+        response_data = {
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "misiones": misiones_elegidas,
+            "historial_salir_actualizado": historial_salir_frontend # Frontend handles direct update
+        }
+    else:
+        response_data = {"error": "Modo no reconocido"}
+        return JSONResponse(content=response_data, status_code=400)
+
+    return JSONResponse(content=response_data)
 
 # ==========================================================================================
-# EXTENSIÓN CORE: MANIFIESTO Y ARQUITECTURA MATRICIAL ABSOLUTA (OPEN THAN GO)
-# Nuevas matrices y lógica de "Traductor Parásito" integradas sin reemplazar el CWRE existente.
+# OPEN THAN GO - API PARA EL MOTOR LOGÍSTICO DE INVERSIÓN SISTÉMICA Y TELEMETRÍA INVERSA
 # ==========================================================================================
-
-# 1. MATRIZ TOTAL DE INPUTS EMOCIONALES DE IDENTIFICACIÓN DEL CLIENTE
-ESTADOS_IDENTIFICACION_CLIENTE = [
-    "AGOTADO", "CANSADO", "ABURRIDO", "ESTRESADO", "DESESPERADO", "ANSIOSO", 
-    "DEPRIMIDO", "ALTERADO", "MONOTONIA", "AISLADO", "SIN DIRECCION", "SIN SABER QUE HACER", 
-    "STAND BY", "PARALIZADO", "PERDIDO", "SIN IDEAS", "ATRAPADO", "ENGANADO", 
-    "ENAMORADO", "TRAICIONADO", "DESCONTENTO", "CONTENTO", "FELIZ", "INFELIZ", 
-    "AFORTUNADO", "DESAFORTUNADO"
-]
-
-# 2. CAPA ALGORÍTMICA DE EMPRESAS Y CONSUMO DE USA (SÍNTOMAS CORPORATIVOS)
-MATRIZ_CONSUMO_EMPRESAS = [
-    "TikTok", "Instagram", "Facebook", "YouTube Shorts", "X (Twitter)", "Netflix", "Disney+", "Apple", "Microsoft",
-    "Amazon", "Temu", "eBay", "Walmart", "Target", "Costco", "Starbucks", "McDonald's", "Burger King", "Wendy's",
-    "Coca-Cola", "Pepsi", "Uber", "Lyft", "Google Search", "ChatGPT", "CVS Pharmacy", "Walgreens", "Home Depot"
-]
-
-# 3. CAPA ALGORÍTMICA DE INFRAESTRUCTURA DE USA Y ENTORNO PÚBLICO/GUBERNAMENTAL (INTERFACES DE HACKEO)
-MATRIZ_INFRAESTRUCTURA_ENTORNO = [
-    "Oficina Corporativa / Rascacielos / Complejo Financiero / Wall Street",
-    "Fábrica / Planta Industrial / Refinería / Astillero",
-    "Hospital Universitario / Hospital Público / Clínica Privada / Sala de Emergencias",
-    "Oficina del DMV / Juzgado Federal / Dependencia de Gobierno / Estación de Policía",
-    "Oficina de Correos (USPS) / Prisión Estatal / Base de la Guardia Nacional",
-    "Carretera Interestatal / Autopista de Alta Velocidad / Tráfico US / Puentes Monumentales",
-    "Aeropuerto Internacional (JFK/LAX/MIA) / Estación de Metro / Terminal de Autobuses",
-    "Centro Comercial / Megatienda de Consumo / Pasos Peatonales / Bodega de Vecindario",
-    "Playa Oceánica Pública / Costa Atlántica / Costa Pacífica / Lagos / Ríos",
-    "Parque Nacional / Parque Comunitario / Bosques / Montañas / Desiertos / Piscinas Públicas",
-    "Exposición Directa Bajo el Sol",
-    "Exposición Directa Bajo la Luna",
-    "Exposición Directa Mirando las Nubes / Cielo Abierto",
-    "Respiración de Aire Libre y Atmosférico de la Región"
-]
-
-# 4. CAPA ANATÓMICA DE AUDITORÍA ORGÁNICA (NECESIDADES PERSONALES NATURALES DE ELIMINACIÓN)
-MATRIZ_ELIMINACION_HOMEOSTASIS = {
-    "ELIMINACION_URINARIA": "Orinar y vaciado de fluidos/toxinas a nivel renal y de la vejiga.",
-    "ELIMINACION_INTESTINAL": "Defecar y expulsión periódica de residuos sólidos digestivos y bacterias muertas en el colon.",
-    "ELIMINACION_TERMICA": "Sudar, termorregulación exocrina y liberación cutánea de toxinas y sales pesadas.",
-    "ELIMINACION_RESPIRATORIA": "Espirar profundamente, ventilación tisular y expulsión diafragmática de CO2 por cortisol.",
-    "ELIMINACION_LAGRIMAL": "Llorar, lubricar el parpadeo ocular y descargar hormonas del estrés acumuladas en el sistema nervioso.",
-    "ELIMINACION_EPIDERMICA": "Descamación celular natural y renovación de la barrera cutánea frente al entorno.",
-    "ELIMINACION_SALIVAL": "Escupir o tragar para la depuración de toxinas salivales o deglución de enzimas digestivas.",
-    "ELIMINACION_GASTRICA": "Mecanismos de emergencia gástrica, expulsión de gases, eructos o vómitos protectores.",
-    "OXIGENACION_TISULAR": "Respiración consciente profunda para regular el pH de la sangre y anular el pánico mental.",
-    "NUTRICION_REAL": "Alimentarse e hidratarse de forma celular real, anulando la ansiedad compulsiva por ultraprocesados.",
-    "REGENERACION_NEURONAL": "Pausas de silencio mental absoluto y preparación para el descanso y el sueño REM/No REM.",
-    "BIOMECANICA_LINFATICA": "Motilidad musculoesquelética forzada mediante movimiento y estiramiento para mover la linfa."
-}
-
-# Variables de internacionalización requeridas por el frontend de la sesión (para el NUEVO MÓDULO)
-# NOTA: Estas coexisten con las del CWRE, ya que son para diferentes flujos.
-WHEN_ES = ["Mañana", "Tarde", "Noche", "Madrugada", "En el trabajo", "En la calle", "En crisis"]
-WHEN_EN = ["Morning", "Afternoon", "Evening", "Late Night", "At Work", "On the Street", "In Crisis"]
-FOR_WHAT_ES = ["Liberarme", "Sanar", "Romper la rutina", "Desconectarme", "Invertir en mí", "Controlar mi mente"]
-FOR_WHAT_EN = ["Free myself", "Heal", "Break the routine", "Disconnect", "Invest in myself", "Control my mind"]
-
-# Diccionario del sistema unificado que corrige el NameError (FOR_FOR_WHAT_EN -> FOR_WHAT_EN)
-DICCIONARIO_SISTEMA = {
-    "cuando": WHEN_ES, 
-    "cuando_en": WHEN_EN, 
-    "para_que": FOR_WHAT_ES, 
-    "para_que_en": FOR_WHAT_EN,
-    "estados_emocionales": ESTADOS_IDENTIFICACION_CLIENTE,
-    "marcas_usa": MATRIZ_CONSUMO_EMPRESAS,
-    "infraestructura_usa": MATRIZ_INFRAESTRUCTURA_ENTORNO
-}
-
-# Lógica del Traductor Parásito y Contraataque Logístico
-def generate_dynamic_intervention(estado_actual, elemento_sistema, zip_code, lang="es"):
-    estado = estado_actual.upper()
-    elemento = elemento_sistema
-
-    # Default values for a generic case
-    comando_sistema_default_es = "BLOQUEO DE PANTALLA INMEDIATO. INTERRUPCIÓN DEL CONTROL MENTAL."
-    ejecucion_fisiologica_default_es = "Expulsión digital activada. Dirígete a tu entorno físico para ejecutar el módulo biológico de eliminación, respiración o nutrición consciente."
-    diagnostico_default_es = f"Mapeo Abierto: El cliente experimenta [{estado}] en relación directa con [{elemento}] dentro del Zip Code {zip_code}."
-
-    comando_sistema_default_en = "IMMEDIATE SCREEN LOCK. MENTAL CONTROL INTERRUPTED."
-    ejecucion_fisiologica_default_en = "Digital expulsion activated. Proceed to your physical environment to execute the biological module of elimination, breathing, or conscious nutrition."
-    diagnostico_default_en = f"Open Mapping: The client experiences [{estado}] in direct relation to [{elemento}] within Zip Code {zip_code}."
-
-    comando_sistema = comando_sistema_default_es if lang == "es" else comando_sistema_default_en
-    ejecucion_fisiologica_obligatoria = ejecucion_fisiologica_default_es if lang == "es" else ejecucion_fisiologica_default_en
-    diagnostico_sintoma = diagnostico_default_es if lang == "es" else diagnostico_default_en
-
-    # --- Implementación de la lógica de SECCIÓN 4 y SECCIÓN 5 del Manifiesto ---
-
-    # Combinación 1: Redes Sociales / Micro-videos + Agobio / Aislamiento
-    redes_sociales = ["TIKTOK", "INSTAGRAM", "FACEBOOK", "YOUTUBE SHORTS", "X (TWITTER)"]
-    if elemento.upper() in [app.upper() for app in redes_sociales]:
-        if estado in ["ABURRIDO", "AISLADO", "MONOTONIA"]:
-            if lang == "es":
-                diagnostico_sintoma = f"Mapeo Profundo: El usuario presenta monotonía aguda en sus Necesidades Sociales y busca descargas de dopamina barata para evadir una falta de dirección en sus Necesidades Extraordinarias."
-                comando_sistema = "DESCONEXIÓN FORZADA: RECONECTA CON EL TEJIDO HUMANO INMEDIATO."
-                ejecucion_fisiologica_obligatoria = "Estás en un bucle de atención artificial. Cierra esta aplicación. Identifica a una persona real en tu entorno físico. Haz contacto visual. Si es seguro, inicia una conversación breve. Reconecta con la realidad. Tu cerebro necesita dopamina genuina, no el espejismo digital."
-            else:
-                diagnostico_sintoma = f"Deep Mapping: The user shows acute monotony in their Social Needs and seeks cheap dopamine rushes to evade a lack of direction in their Extraordinary Needs."
-                comando_sistema = "FORCED DISCONNECTION: RECONNECT WITH IMMEDIATE HUMAN FABRIC."
-                ejecucion_fisiologica_obligatoria = "You're in an artificial attention loop. Close this app. Identify a real person in your physical environment. Make eye contact. If safe, initiate a brief conversation. Reconnect with reality. Your brain needs genuine dopamine, not the digital mirage."
-            return comando_sistema, ejecucion_fisiologica_obligatoria, diagnostico_sintoma
-
-    # Combinación 2: Compras Compulsivas / Megatiendas + Infelicidad / Desesperación
-    tiendas_consumo = ["AMAZON", "TEMU", "EBAY", "WALMART", "TARGET", "COSTCO", "STARBUCKS"]
-    if any(m.lower() in elemento.lower() for m in tiendas_consumo):
-        if estado in ["INFELIZ", "DESESPERADO", "DESCONTENTO"]:
-            if lang == "es":
-                diagnostico_sintoma = f"Mapeo Profundo: El software detecta un intento inconsciente de anestesiar una crisis post-logro a través del espejismo de adquirir un producto exterior."
-                comando_sistema = "QUIEBRE DE CONCIENCIA: ROMPE EL BUCLE DE CONSUMO MASIVO."
-                ejecucion_fisiologica_obligatoria = "Mira a tu alrededor. Estás en un templo del consumo. Detén tu marcha en medio del pasillo de este comercio. No mires los productos; mírate a ti mismo. Repítete en tu mente: 'Yo soy el único producto que requiere inversión el día de hoy'. Sal de aquí sin comprar nada que no sea esencial."
-            else:
-                diagnostico_sintoma = f"Deep Mapping: The software detects an unconscious attempt to anesthetize a post-achievement crisis through the mirage of acquiring an external product."
-                comando_sistema = "BREAK OF CONSCIOUSNESS: BREAK THE MASS CONSUMPTION LOOP."
-                ejecucion_fisiologica_obligatoria = "Look around you. You are in a temple of consumption. Stop in the middle of this store's aisle. Don't look at the products; look at yourself. Repeat in your mind: 'I am the only product that requires investment today.' Leave here without buying anything non-essential."
-            return comando_sistema, ejecucion_fisiologica_obligatoria, diagnostico_sintoma
-
-    # Combinación 3: Oficinas / Hospitales / Entornos Burocráticos + Agotamiento / Ansiedad
-    entornos_burocraticos = [
-        "OFICINA CORPORATIVA", "RASCACIELOS", "COMPLEJO FINANCIERO", "WALL STREET",
-        "FÁBRICA", "PLANTA INDUSTRIAL", "REFINERÍA", "ASTILLERO",
-        "HOSPITAL UNIVERSITARIO", "HOSPITAL PÚBLICO", "CLÍNICA PRIVADA", "SALA DE EMERGENCIAS",
-        "OFICINA DEL DMV", "JUZGADO FEDERAL", "DEPENDENCIA DE GOBIERNO", "ESTACIÓN DE POLICÍA",
-        "OFICINA DE CORREOS (USPS)", "PRISIÓN ESTATAL", "BASE DE LA GUARDIA NACIONAL"
-    ]
-    if any(e.lower() in elemento.lower() for e in entornos_burocraticos):
-        if estado in ["AGOTADO", "CANSADO", "STAND BY", "ANSIOSO", "ESTRESADO"]:
-            if lang == "es":
-                diagnostico_sintoma = f"Mapeo Profundo: Tus Necesidades Personales Naturales más íntimas (eliminación, respiración, motilidad linfática) están bloqueadas por el automatismo laboral y el cortisol elevado."
-                comando_sistema = "HACKEO BIOLÓGICO: RECUPERA LA SOBERANÍA DE TUS ÓRGANOS INTERNOS."
-                ejecucion_fisiologica_obligatoria = "Estás dentro de una infraestructura material que factura millones a costa del desgaste de tus células. Levántate de ese asiento de forma voluntaria. Dirígete de inmediato al baño de esta empresa/institución. Ejecuta tu eliminación líquida o sólida con absoluta presencia mental. Camina por los pasillos durante 60 segundos forzando la activación de tu sistema linfático."
-            else:
-                diagnostico_sintoma = f"Deep Mapping: Your most intimate Natural Personal Needs (elimination, breathing, lymphatic motility) are blocked by work automatism and elevated cortisol."
-                comando_sistema = "BIOLOGICAL HACK: RECLAIM SOVEREIGNTY OF YOUR INTERNAL ORGANS."
-                ejecucion_fisiologica_obligatoria = "You are within a material infrastructure that generates millions at the expense of your cells. Voluntarily stand up from your seat. Go immediately to the restroom of this company/institution. Perform your liquid or solid elimination with absolute mental presence. Walk through the hallways for 60 seconds, forcing the activation of your lymphatic system."
-            return comando_sistema, ejecucion_fisiologica_obligatoria, diagnostico_sintoma
-
-    # Combinación 4: Entornos Naturales + Desconexión / Pérdida de Dirección
-    entornos_naturales = [
-        "PLAYA OCEÁNICA PÚBLICA", "COSTA ATLÁNTICA", "COSTA PACÍFICA", "LAGOS", "RÍOS",
-        "PARQUE NACIONAL", "PARQUE COMUNITARIO", "BOSQUES", "MONTAÑAS", "DESIERTOS", "PISCINAS PÚBLICAS",
-        "EXPOSICIÓN DIRECTA BAJO EL SOL", "EXPOSICIÓN DIRECTA BAJO LA LUNA",
-        "EXPOSICIÓN DIRECTA MIRANDO LAS NUBES / CIELO ABIERTO", "RESPIRACIÓN DE AIRE LIBRE Y ATMOSFÉRICO DE LA REGIÓN"
-    ]
-    if any(n.lower() in elemento.lower() for n in entornos_naturales):
-        if estado in ["DEPRIMIDO", "AISLADO", "PERDIDO", "SIN DIRECCION", "SIN IDEAS"]:
-            if lang == "es":
-                diagnostico_sintoma = f"Mapeo Profundo: Tu mente está presa en la monotonía de pensamientos destructivos, ignorando el paisaje natural que te rodea a costo cero."
-                comando_sistema = "SECUESTRO SENSORIAL: ABSORBE LA INMENSIDAD DE LA NATURALEZA."
-                ejecucion_fisiologica_obligatoria = "Guarda este dispositivo. Permite que la planta de tus pies toque la arena, la tierra o el pasto libre. Deja que el viento impacte sobre tu piel. Clava tu mirada en la inmensidad de las nubes, el sol o la luna. Absorbe este entorno durante los próximos 60 segundos."
-            else:
-                diagnostico_sintoma = f"Deep Mapping: Your mind is trapped in the monotony of destructive thoughts, ignoring the natural landscape around you at no cost."
-                comando_sistema = "SENSORY HIJACK: ABSORB THE IMMENSITY OF NATURE."
-                ejecucion_fisiologica_obligatoria = "Put this device away. Allow the soles of your feet to touch the sand, earth, or free grass. Let the wind impact your skin. Fix your gaze on the vastness of the clouds, the sun, or the moon. Absorb this environment for the next 60 seconds."
-            return comando_sistema, ejecucion_fisiologica_obligatoria, diagnostico_sintoma
-            
-    # Combinación 5: Entornos Estatales/Burocráticos (salas de espera) + Ansiedad/Desesperación (del manifiesto Sección 5, Ej 3)
-    entornos_institucionales = [
-        "OFICINA DEL DMV", "HOSPITAL PÚBLICO", "CLÍNICA COMUNITARIA", "DEPENDENCIA DE GOBIERNO"
-    ]
-    if any(e.lower() in elemento.lower() for e in entornos_institucionales):
-        if estado in ["ANSIOSO", "DESESPERADO", "ALTERADO", "DESCONTENTO"]:
-            if lang == "es":
-                diagnostico_sintoma = f"Mapeo Profundo: Este entorno está saturado de ansiedad, miedo y sufrimiento, vulnerando tus Necesidades Personales y Sociales."
-                comando_sistema = "ESTABILIZACIÓN DEL TEJIDO HUMANO: TRANSFORMA LA PRESIÓN SOCIAL."
-                ejecucion_fisiologica_obligatoria = "Este entorno está saturado de ansiedad. Despega tus ojos de esta pantalla. Identifica a tres personas desconocidas que estén sentadas en esta misma sala de espera. Míralas fijamente a los ojos o analiza su postura corporal con absoluta compasión. Envíales un deseo profundo de paz mental, salud y liberación en completo silencio. Al sacarlos a ellos del automatismo dentro de tu mente, rompes tu propia parálisis nerviosa."
-            else:
-                diagnostico_sintoma = f"Deep Mapping: This environment is saturated with anxiety, fear, and suffering, violating your Personal and Social Needs."
-                comando_sistema = "HUMAN TISSUE STABILIZATION: TRANSFORM SOCIAL PRESSURE."
-                ejecucion_fisiologica_obligatoria = "This environment is saturated with anxiety. Take your eyes off this screen. Identify three unknown people sitting in this waiting room. Look them intently in the eyes or analyze their body posture with absolute compassion. Send them a deep wish for mental peace, health, and liberation in complete silence. By taking them out of the automatism within your mind, you break your own nervous paralysis."
-            return comando_sistema, ejecucion_fisiologica_obligatoria, diagnostico_sintoma
-
-    # Si ninguna combinación específica coincide, devuelve los valores por defecto
-    return comando_sistema, ejecucion_fisiologica_obligatoria, diagnostico_sintoma
-
-
-# ============================================================
-# ENDPOINTS END-POINT API (FastAPI / Uvicorn) - PARA EL NUEVO MÓDULO DE INVERSIÓN MATRICIAL
-# ============================================================
 
 @app.get("/api/v1/algoritmo-captura")
-async def obtener_matriz_captura():
-    """Retorna las matrices completas del manifiesto para alimentar el frontend dinámico del módulo de Inversión Matricial."""
-    return {
+async def algoritmo_captura():
+    """
+    Endpoint para proveer los datos necesarios para el formulario de la matriz de inversión.
+    """
+    return JSONResponse(content={
         "status": "success",
-        "data": DICCIONARIO_SISTEMA
-    }
+        "data": {
+            "estados_emocionales": EMOTIONAL_STATES,
+            "marcas_usa": USA_BRANDS,
+            "infraestructura_usa": USA_INFRASTRUCTURE
+        }
+    })
 
 @app.post("/api/v1/algoritmo-procesar-inversion")
-async def procesar_inversion_sistemica(datos_captura: dict):
+async def algoritmo_procesar_inversion(request_data: MatrixInvestmentRequest):
     """
-    Recibe la combinación declarada (Estado + Empresa/Infraestructura + Zip Code público).
-    Devuelve el diagnóstico y el estímulo disruptivo de desconexión biológica obligatoria de 60s,
-    implementando la lógica del Traductor Parásito del manifiesto.
+    Endpoint para procesar los datos de la matriz de inversión y devolver un 'comando'
+    para la desconexión.
     """
-    estado_actual = datos_captura.get("estado", "").upper()
-    elemento_sistema = datos_captura.get("elemento", "")
-    zip_code = datos_captura.get("zip_code", "00000")
-    lang = datos_captura.get("lang", "es") # Obtener idioma del frontend
+    estado = request_data.estado
+    elemento = request_data.elemento
+    zip_code = request_data.zip_code
 
-    if estado_actual not in ESTADOS_IDENTIFICACION_CLIENTE:
-        return {"status": "error", "message": "Estado de identificación no registrado en la matriz."}
+    # Lógica simple para generar respuestas basadas en inputs.
+    # Esto puede ser mucho más complejo con IA/ML, pero para el prototipo es suficiente.
     
-    comando, ejecucion, diagnostico = generate_dynamic_intervention(estado_actual, elemento_sistema, zip_code, lang)
-        
-    return {
-        "status": "success",
-        "diagnostico_sintoma": diagnostico,
-        "comando_sistema": comando,
-        "ejecucion_fisiologica_obligatoria": ejecucion,
-        "analitica_inversa": "Iniciando registro matemático pasivo de T_out (Tiempo real fuera de pantalla)."
-    }
+    comando = "PROTOCOLO DE DESCONEXIÓN EMOCIONAL INICIADO"
+    diagnostico = f"Tu mente se siente {estado} y está atrapada en {elemento} ({zip_code})."
+    ejecucion = f"URGENCIA CRÍTICA: Desconecta inmediatamente. Levántate, respira profundamente y busca un punto fijo en la distancia por 60 segundos. NO MIRES TU PANTALLA."
 
+    if "ansioso" in estado or "estresado" in estado:
+        comando = "COMANDO DE PAUSA Y REGULACIÓN ACTIVADO"
+        ejecucion = "Acuestate en el suelo boca arriba. Siente el piso. Cierra los ojos. 60 segundos."
+    elif "aburrido" in estado or "agotado" in estado:
+        comando = "COMANDO DE ACTIVACIÓN CONSCIENTE INICIADO"
+        ejecucion = "Sal a la ventana o al balcón. Mira el cielo sin parpadear por 60 segundos. Luego inhala 4 segundos, retén 4, exhala 6. Repite 5 veces."
+    
+    # Simulación de telemetría inversa
+    telemetria_inversa_data = {
+        "comando_sistema": comando,
+        "diagnostico_sintoma": diagnostico,
+        "ejecucion_fisiologica_obligatoria": ejecucion,
+        "status": "success"
+    }
+    return JSONResponse(content=telemetria_inversa_data)
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
