@@ -969,55 +969,70 @@ async def mando_integral(request: Request):
                 f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
                 f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
                 f"{quienes_van}\n{precio_real}")
+                titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
+                que_hacer_lang = info_seleccionada["que_hacer"] or ""
+# === CORRECCIÓN MILIMÉTRICA DE SANGRÍA LOGÍSTICA ===
 
-titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
-que_hacer_lang = info_seleccionada["que_hacer"] or ""
-        # === CORRECCIÓN DE SANGRE MILIMÉTRICA: EXACTAMENTE 8 ESPACIOS DE MARGEN ===
-        search_query_parts = []
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
+search_query_parts = []
 
-        search_query_parts.append(info_seleccionada["gps"])
-        search_query_parts.append(f"in {anclaje_geografico}")
+if perfil_tipo == "accesible":
+    search_query_parts.append("wheelchair accessible")
+elif perfil_tipo == "familia":
+    search_query_parts.append("family friendly")
 
-        full_map_query_string = " ".join(search_query_parts)
-        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
+search_query_parts.append(info_seleccionada["gps"])
+search_query_parts.append(f"in {anclaje_geografico}")
 
-        final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
+full_map_query_string = " ".join(search_query_parts)
+target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
 
-        final_misiones_para_frontend.append({
-            "destino_id": info_seleccionada.get("id"),
-            "destino_titulo": titulo_ganador_lang,
-            "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]),
-            "que_hacer": info_seleccionada["que_hacer"],
-            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
-            "destino_entorno": donde_base,
-            "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            ).strip(),
-            "destino_coordenadas_gps": target_link,
-            "vector_entorno_seleccionado": final_vector_necesidades,
-        })
+final_vector_necesidades = {
+    **DEFAULT_NECESSITY_VECTOR,
+    **info_seleccionada.get("vector_necesidades", {})
+}
 
-    # El return del JSONResponse finaliza la función principal (Alineado a 4 espacios)
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "misiones": final_misiones_para_frontend,
-        "historial_salir_actualizado": historial_salir
-    })
+final_misiones_para_frontend.append({
+    "destino_id": info_seleccionada.get("id"),
+    "destino_titulo": titulo_ganador_lang,
+    "destino_titulo_en": info_seleccionada.get(
+        "titulo_en",
+        info_seleccionada["titulo"]
+    ),
+    "que_hacer": info_seleccionada["que_hacer"],
+    "que_hacer_en": info_seleccionada.get(
+        "que_hacer_en",
+        info_seleccionada["que_hacer"]
+    ),
+    "destino_entorno": donde_base,
+    "destino_instruccion": guia_masticada.strip(),
+    "destino_instruccion_en": (
+        f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
+        f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
+        f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+        f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
+        f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
+        f"{quienes_van}\n"
+        f"{precio_real}"
+    ).strip(),
+    "destino_coordenadas_gps": target_link,
+    "vector_entorno_seleccionado": final_vector_necesidades,
+})
+
+return JSONResponse({
+    "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+    "misiones": final_misiones_para_frontend,
+    "historial_salir_actualizado": historial_salir
+})
 
 # ==============================================================================
-# APERTURA NATIVA DEL SERVIDOR FASTAPI (LÍNEA FINAL DEL ARCHIVO)
+# APERTURA NATIVA DEL SERVIDOR FASTAPI
 # ==============================================================================
+
 if __name__ == "__main__":
     import os
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8000))
