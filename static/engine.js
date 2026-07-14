@@ -1361,6 +1361,103 @@ const KERNEL = {
         location.reload();
     }
 };
+// ==========================================================================================
+// SECCIÓN ENGINR INYECTADA: INTERCEPTOR OMNIPRESENTE DE INFRAESTRUCTURA DE USA
+// ==========================================================================================
+(function() {
+    const zipInput = document.getElementById("user-zip-code");
+    const textInput = document.getElementById("user-desahogo-text");
+    const actionBtn = document.getElementById("btn-trigger-inversion-global");
+    
+    const lockOverlay = document.getElementById("matrix-lockoverlay-global");
+    const mTitle = document.getElementById("matrix-title-global");
+    const mDesc = document.getElementById("matrix-desc-global");
+    const mTask = document.getElementById("matrix-task-global");
+    const mCounter = document.getElementById("matrix-counter-global");
+    const closeBtn = document.getElementById("btn-unlock-conciencia-global");
+
+    let timeStart, intervalLoop;
+
+    if (actionBtn) {
+        actionBtn.addEventListener("click", async () => {
+            // Validación estricta en el cliente
+            if (!zipInput.value || !textInput.value) {
+                alert("Por favor, ingresa tu Zip Code de USA y detalla qué consumes o en qué lugar del entorno te encuentras.");
+                return;
+            }
+
+            const payloadData = {
+                zip: zipInput.value,
+                desahogo: textInput.value,
+                mente: "aburrido",
+                modo: "SALIR",
+                budget: "0",
+                perfil: "solo",
+                lang: "es"
+            };
+
+            try {
+                const req = await fetch("/api/mando-integral", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payloadData)
+                });
+                const res = await req.json();
+
+                // Interceptar las tres misiones devueltas por el motor unificado de Python
+                if (res.misiones && res.misiones.length > 0) {
+                    // Tomar la primera misión de impacto biológico para el bloqueo de pantalla inmediato
+                    const mImpacto = res.misiones[0];
+
+                    if (lockOverlay) {
+                        lockOverlay.classList.remove("d-none");
+                        document.body.style.overflow = "hidden"; // Desactivar navegación trasera
+                    }
+
+                    if (mTitle) mTitle.textContent = mImpacto.destino_titulo;
+                    if (mDesc) mDesc.textContent = mImpacto.destino_instruccion;
+                    if (mTask) mTask.textContent = mImpacto.destino_instruccion; // Carga la guía en español
+
+                    // Iniciar telemetría matemática pasiva de T_out (Fase 6: Indicador Inverso)
+                    timeStart = Date.now();
+                    if (closeBtn) closeBtn.classList.add("d-none");
+
+                    clearInterval(intervalLoop);
+                    intervalLoop = setInterval(() => {
+                        const secondsOut = Math.floor((Date.now() - timeStart) / 1000);
+                        if (mCounter) {
+                            mCounter.textContent = `T_out: ${secondsOut}s de soberanía real ganados al control mental corporativo de USA.`;
+                        }
+                        
+                        // Restricción dura: mínimo 10 segundos obligatorios de desconexión corporal antes de liberar
+                        if (secondsOut >= 10 && closeBtn) {
+                            closeBtn.classList.remove("d-none");
+                        }
+                    }, 1000);
+
+                    // Abrir de forma paralela el mapa real con la codificación de búsqueda limpia reparada
+                    setTimeout(() => {
+                        window.open(mImpacto.destino_coordenadas_gps, "_blank");
+                    }, 500);
+                }
+            } catch (err) {
+                console.error("Fallo de comunicación en la red de descompresión sectorial:", err);
+            }
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+            clearInterval(intervalLoop);
+            if (lockOverlay) {
+                lockOverlay.classList.add("d-none");
+                document.body.style.overflow = "auto"; // Restaurar scroll de la app
+            }
+            // Limpieza y preparación para el siguiente ciclo del engranaje diario
+            if (textInput) textInput.value = "";
+        });
+    }
+})();
 
 document.addEventListener('DOMContentLoaded', () => KERNEL.init());
 
