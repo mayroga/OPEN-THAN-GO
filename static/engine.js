@@ -7,7 +7,6 @@ const KERNEL = {
     timerClinico: null,
     temporizadorCascada: null,
     temporizadorCierre: null, // New timer for the closing phase
-    salidaSugeridaTimeoutId: null, // To store the ID of the setTimeout for SALIR suggestion
     timeLeft: 600, // 10 minutes for clinical timer (unified with relojRealSegundos)
     timeLeftCierre: 60, // 60 seconds for the closing challenge
     isLocked: false,
@@ -21,20 +20,19 @@ const KERNEL = {
     contadorToques: 0,
     secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5], // Seconds to advance clinical timer per tap
    
-    // NEW: Independent history arrays for different modes/types
     historialSalir: [], // Stores IDs of SALIR recommendations
     historialCasa: [],  // Stores IDs of CASA recommendations
     historialPreguntas: [], // Stores indices of Oracle questions shown recently
-    historialRetosSecuencias: [], // Stores canonical strings of challenge sequences shown recently
+    historialRetosSecuencias: [], // Stores sequences of challenge IDs shown recently
 
     lastDecayTimestamp: null, // For otg_last_decay in localStorage
     sessionSeed: null, // For otg_session_seed in localStorage
 
-    // Constants for history limits (aligned with backend where applicable)
+    // Constants for history limits (from main.py)
     MAX_HISTORY_SALIR: 5,
     MAX_HISTORY_CASA: 8,
-    MAX_HISTORY_ORACULO: 12, // Max questions to remember
-    MAX_HISTORY_RETOS_SECUENCIAS: 3, // Keep track of the last 3 distinct challenge sequences
+    MAX_HISTORY_ORACULO: 12, // For Oracle questions
+    MAX_HISTORY_RETOS_SECUENCIAS: 3, // Keep track of the last 3 challenge sequences
     DECAY_PER_DAY: 0.985, // From main.py
 
     conteoInaccion: 0, // Inaction counter for advancing question blocks
@@ -351,7 +349,6 @@ const KERNEL = {
             this.historialPreguntas = [];
             this.historialRetosSecuencias = [];
             // Do NOT remove profile or decay related keys here, they must persist.
-            // Reset localStorage for individual corrupted histories, not all.
             localStorage.removeItem("otg_historial_salir");
             localStorage.removeItem("otg_historial_casa");
             localStorage.removeItem("otg_historial_oraculo");
@@ -359,13 +356,6 @@ const KERNEL = {
         }
         // Ensure profile is loaded and decay is applied on app start
         this.obtenerPerfilLocal();
-
-        // NEW: Add event listener for ZIP validation on init
-        const zipInput = document.getElementById('inp-zip');
-        if (zipInput) {
-            zipInput.addEventListener('input', () => this.validarZip());
-            this.validarZip(); // Initial call to set button state
-        }
     },
 
     /** Starts the initial welcome sequence after user interaction. */
@@ -407,8 +397,10 @@ const KERNEL = {
         this.indicePreguntaCascada = 0;
        
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
+        let preguntasDisponiblesIndices = [];
         let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
 
+        // Prioritize questions not seen recently
         let unseenIndices = [];
         for (let i = 0; i < catalogo.length; i++) {
             if (!preguntasYaVistasRecientemente.has(i)) {
@@ -416,12 +408,13 @@ const KERNEL = {
             }
         }
 
-        // If not enough unseen questions, reset history and use all available questions (backend's reset logic)
+        // If not enough unseen questions, reset history and use all available questions
         if (unseenIndices.length < 6) {
-            console.warn("Not enough unseen questions. Resetting Oracle history.");
             this.historialPreguntas = []; // Reset history
             localStorage.removeItem("otg_historial_oraculo");
-            unseenIndices = Array.from({length: catalogo.length}, (_, i) => i); // Re-populate with all indices
+            for (let i = 0; i < catalogo.length; i++) {
+                unseenIndices.push(i); // Add all indices again for selection
+            }
         }
        
         // Shuffle the available indices to get a random, distinct selection
@@ -433,7 +426,7 @@ const KERNEL = {
 
         let preguntasSeleccionadasIndices = [];
         // Select 6 distinct questions, prioritizing different "blocks" (categories)
-        // This heuristic tries to ensure variety beyond just random selection
+        let blockIndices = Array.from({length: Math.ceil(catalogo.length / 6)}, (_, i) => i); // Assumes 6 questions per block
         let blocksUsedInCurrentSelection = new Set();
        
         for (let i = 0; i < 6; i++) {
@@ -443,7 +436,7 @@ const KERNEL = {
             // Try to pick a question from a block not yet used in this 6-question set
             for (let j = 0; j < unseenIndices.length; j++) {
                 const currentIdx = unseenIndices[j];
-                const currentBlock = Math.floor(currentIdx / 6); // Assuming 6 questions per block
+                const currentBlock = Math.floor(currentIdx / 6);
                 if (!blocksUsedInCurrentSelection.has(currentBlock)) {
                     candidateIndex = j;
                     blocksUsedInCurrentSelection.add(currentBlock);
@@ -453,7 +446,7 @@ const KERNEL = {
 
             // If no unused block question found, just pick the next available shuffled unseen
             if (candidateIndex === -1) {
-                candidateIndex = 0; // Take the first one from the shuffled unseen
+                candidateIndex = 0;
                 const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6);
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
@@ -519,7 +512,6 @@ const KERNEL = {
         const btnLibre = document.getElementById('btn-activar-libre');
         const lblDesahogo = document.getElementById('lbl-desahogo');
         const instruccion = document.getElementById('lbl-oraculo-instruccion');
-        const zipInput = document.getElementById('inp-zip');
 
         if (instruccion) {
             instruccion.innerText = this.idiomaActual === 'es' ? "¿Qué te tiene atrapado hoy?" : "What has you trapped today?";
@@ -528,31 +520,11 @@ const KERNEL = {
         if (lblDesahogo) lblDesahogo.style.color = "#666";
 
         if (btnLibre) {
-            // Initial state based on ZIP and textarea content
-            const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
-            const isTextareaEmpty = textarea.value.trim().length <= 3;
-
-            if (isZipInvalid || isTextareaEmpty) {
-                btnLibre.style.background = "#111";
-                btnLibre.style.color = "#555";
-                btnLibre.style.borderColor = "#222";
-                btnLibre.disabled = true; // Disable if ZIP is invalid or textarea empty
-            } else {
-                btnLibre.style.background = "var(--green-action)";
-                btnLibre.style.color = "#fff";
-                btnLibre.style.borderColor = "var(--green-action)";
-                btnLibre.disabled = false;
-            }
-
+            btnLibre.style.background = "#111";
+            btnLibre.style.color = "#555";
+            btnLibre.style.borderColor = "#222";
             btnLibre.onclick = () => {
                 let textoEscrito = textarea.value.trim();
-                const isZipInvalidOnSubmit = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
-
-                if (isZipInvalidOnSubmit) {
-                    this.hablar(this.idiomaActual === 'es' ? "Por favor, introduce un código postal válido." : "Please enter a valid ZIP code.");
-                    zipInput.focus();
-                    return;
-                }
                 if (textoEscrito.length > 3) {
                     this.reaccionarPreguntaSeleccionada(textoEscrito);
                 } else {
@@ -561,67 +533,23 @@ const KERNEL = {
             };
         }
         if (textarea) {
-            textarea.removeEventListener('input', this.textareaInputHandler); // Remove previous listener to avoid duplicates
-            // Define textareaInputHandler as a method that checks both conditions
+            textarea.removeEventListener('input', this.textareaInputHandler);
             this.textareaInputHandler = () => {
-                const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
-               
-                if (textarea.value.trim().length > 3 && !isZipInvalid) {
+                if (textarea.value.trim().length > 3) {
                     if (btnLibre) {
                         btnLibre.style.background = "var(--green-action)";
                         btnLibre.style.color = "#fff";
                         btnLibre.style.borderColor = "var(--green-action)";
-                        btnLibre.disabled = false;
                     }
                 } else {
                     if (btnLibre) {
                         btnLibre.style.background = "#111";
                         btnLibre.style.color = "#555";
                         btnLibre.style.borderColor = "#222";
-                        btnLibre.disabled = true;
                     }
                 }
-                // Also trigger zip validation visual feedback here
-                this.validarZip();
             };
             textarea.addEventListener('input', this.textareaInputHandler);
-        }
-        this.validarZip(); // Initial call
-    },
-
-    /** NEW: Validates ZIP input and controls button state */
-    validarZip() {
-        const zipInput = document.getElementById('inp-zip');
-        const btnActivarLibre = document.getElementById('btn-activar-libre');
-        const textarea = document.getElementById('inp-text-libre');
-
-        if (!zipInput || !btnActivarLibre || !textarea) return;
-
-        const zipValue = zipInput.value.trim();
-        const isValidZip = zipInput.checkValidity(); // Uses HTML5 pattern validation
-        const hasTextareaContent = textarea.value.trim().length > 3;
-
-        if (zipValue.length > 0 && !isValidZip) {
-            // ZIP has input but is invalid
-            zipInput.style.borderColor = "var(--accent)"; // Red border for invalid
-            btnActivarLibre.disabled = true;
-            btnActivarLibre.style.background = "#111";
-            btnActivarLibre.style.color = "#555";
-            btnActivarLibre.style.borderColor = "#222";
-        } else {
-            // ZIP is empty or valid
-            zipInput.style.borderColor = "#222"; // Reset to default
-            if (hasTextareaContent) {
-                btnActivarLibre.disabled = false;
-                btnActivarLibre.style.background = "var(--green-action)";
-                btnActivarLibre.style.color = "#fff";
-                btnActivarLibre.style.borderColor = "var(--green-action)";
-            } else {
-                btnActivarLibre.disabled = true;
-                btnActivarLibre.style.background = "#111";
-                btnActivarLibre.style.color = "#555";
-                btnActivarLibre.style.borderColor = "#222";
-            }
         }
     },
 
@@ -637,7 +565,6 @@ const KERNEL = {
         }
         if (lblDesahogo) lblDesahogo.style.color = "#fff";
         if (textarea) textarea.focus();
-        this.validarZip(); // Re-evaluate button state after freeing up text area
     },
 
     /**
@@ -648,12 +575,11 @@ const KERNEL = {
         this.conteoInaccion = 0;
         this.timerInaccion = setInterval(() => {
             this.conteoInaccion++;
-            // MODIFIED: Adjusted timing for question advancement
-            if (this.conteoInaccion === 3 || this.conteoInaccion === 6) { // After 24s and 48s of inaction (3 or 6 * 8s)
+            if (this.conteoInaccion === 4 || this.conteoInaccion === 8) { // After 48s and 96s of inaction (4 or 8 * 12s)
                 clearInterval(this.temporizadorCascada);
                 this.inyectarBloquePreguntas();
                 this.hablar(this.idiomaActual === 'es' ? "Avanzamos de nivel. Mira estas otras opciones en pantalla." : "Moving up. Look at these other options on screen.");
-            } else if (this.conteoInaccion >= 9) { // After 72s of inaction (9 * 8s)
+            } else if (this.conteoInaccion >= 12) { // After 144s of inaction (12 * 12s)
                 clearInterval(this.timerInaccion);
                 clearInterval(this.temporizadorCascada);
                 this.hablar(this.idiomaActual === 'es' ? "Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando." : "Apologies. I will give you time. I know your mind is tired. I will be waiting here.");
@@ -663,7 +589,7 @@ const KERNEL = {
                     instruccion.style.color = "#666";
                 }
             }
-        }, 8000); // Check every 8 seconds
+        }, 12000); // Check every 12 seconds
     },
 
     /**
@@ -733,8 +659,8 @@ const KERNEL = {
         document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
        
         // Update elements in the closing screen
-        const cierreLogo = document.getElementById('cierre-logo'); // CORRECCIÓN MECÁNICA: 'cierre-titulo' no existe, debería ser 'cierre-logo'
-        if (cierreLogo) cierreLogo.innerText = t.title;
+        const cierreTitulo = document.getElementById('cierre-titulo');
+        if (cierreTitulo) cierreTitulo.innerText = t.title;
         const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
         if (cierreBoton) cierreBoton.innerText = t.recomenzar;
         const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
@@ -743,7 +669,7 @@ const KERNEL = {
 
         this.hablar(t.alert);
         this.inyectarBloquePreguntas(); // Re-inject questions in new language
-        this.activarBotonMandoLibreInicial(); // Re-initialize free writing button logic (includes ZIP validation)
+        this.activarBotonMandoLibreInicial(); // Re-initialize free writing button in new language
     },
 
     /**
@@ -753,32 +679,12 @@ const KERNEL = {
         if (this.isLocked) return;
         this.isLocked = true;
 
-        // CRITICAL CORRECTION: Ensure all question-related timers and speech are cleared BEFORE fetching a new mission
-        clearInterval(this.timerInaccion);
-        clearInterval(this.temporizadorCascada);
-        clearInterval(this.timerClinico);
-        window.speechSynthesis.cancel();
-        if (this.salidaSugeridaTimeoutId) { // Clear pending SALIR suggestion timeout
-            clearTimeout(this.salidaSugeridaTimeoutId);
-            this.salidaSugeridaTimeoutId = null;
-        }
-
         const modoActual = document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR";
-        const zipInput = document.getElementById('inp-zip');
-        const desahogoInput = document.getElementById('inp-text-libre');
-
-        // Final check on ZIP validity before sending to backend
-        if (zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity()) {
-            alert(this.idiomaActual === 'es' ? "Error: Código Postal inválido. Por favor, corrígelo." : "Error: Invalid ZIP Code. Please correct it.");
-            this.isLocked = false;
-            zipInput.focus();
-            return;
-        }
 
         const payload = {
-            zip: zipInput ? zipInput.value.trim() : "",
+            zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
             modo: modoActual,
-            desahogo: desahogoInput ? desahogoInput.value.trim() : "",
+            desahogo: document.getElementById('inp-text-libre') ? document.getElementById('inp-text-libre').value.trim() : "",
             lang: this.idiomaActual,
             mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido",
             budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0",
@@ -786,11 +692,10 @@ const KERNEL = {
             perfil_local: this.obtenerPerfilLocal(), // Send the user's dynamic profile
         };
 
-        // NEW: Send the correct history array based on mode
         if (modoActual === "CASA") {
-            payload.historial_casa = this.historialCasa; // Changed from seen_ids_casa
+            payload.seen_ids_casa = this.historialCasa;
         } else {
-            payload.historial_salir = this.historialSalir; // Changed from seen_ids
+            payload.seen_ids = this.historialSalir;
         }
 
         const container = document.getElementById('wrapper-interactive');
@@ -812,7 +717,6 @@ const KERNEL = {
                 document.getElementById('wrapper-form').classList.remove('hidden');
                 container.classList.add('hidden');
                 this.isLocked = false;
-                this.validarZip(); // Re-evaluate button state
                 return;
             }
 
@@ -820,7 +724,6 @@ const KERNEL = {
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
            
-            // NEW: Update and save the correct history after backend response
             if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
                 this.historialSalir = data.historial_salir_actualizado;
                 localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
@@ -834,7 +737,7 @@ const KERNEL = {
             if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
                 this.pasosMisiones = data.misiones.slice(0, 3);
             } else {
-                this.pasosMisiones = []; // ACCION_CAMPO has no steps, only one main mission
+                this.pasosMisiones = [];
             }
             this.procesarFlujoSecuencial(container);
         } catch (error) {
@@ -843,7 +746,6 @@ const KERNEL = {
             document.getElementById('wrapper-form').classList.remove('hidden');
             container.classList.add('hidden');
             this.isLocked = false;
-            this.validarZip(); // Re-evaluate button state
         }
     },
 
@@ -872,10 +774,7 @@ const KERNEL = {
                     <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
                 </div>`;
 
-                // CORRECCIÓN MECÁNICA: main.py ya devuelve 'destino_titulo' y 'destino_instruccion' en el idioma correcto.
-                // No es necesario buscar 'destino_titulo_en' o 'destino_instruccion_en' aquí.
-                let speechText = this.datosLugarGlobal.destino_titulo + ". " + this.datosLugarGlobal.destino_instruccion;
-                this.hablar(speechText);
+                this.hablar(this.datosLugarGlobal.destino_instruccion);
                
                 let retencion = 35; // Countdown for listening to the guide
                 const btnCount = document.getElementById('btn-countdown-salida');
@@ -1005,14 +904,8 @@ const KERNEL = {
             };
         }
 
-        // Clear any previous salidaSugeridaTimeout if it wasn't cleared by the timer ending
-        if (this.salidaSugeridaTimeoutId) {
-            clearTimeout(this.salidaSugeridaTimeoutId);
-            this.salidaSugeridaTimeoutId = null;
-        }
-
         // Fetch SALIR suggestion for CASA mode after some time
-        this.salidaSugeridaTimeoutId = setTimeout(async () => {
+        let salidaSugeridaTimeout = setTimeout(async () => {
             try {
                 const r = await fetch("/api/mando-integral", {
                     method: "POST",
@@ -1026,7 +919,7 @@ const KERNEL = {
                         desahogo: "",
                         zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
                         perfil_local: this.obtenerPerfilLocal(),
-                        historial_salir: this.historialSalir // NEW: Send historial_salir
+                        seen_ids: this.historialSalir
                     })
                 });
                 const data = await r.json();
@@ -1044,8 +937,6 @@ const KERNEL = {
                 }
             } catch (e) {
                 console.error("Error fetching SALIR suggestion in CASA mode:", e);
-            } finally {
-                this.salidaSugeridaTimeoutId = null; // Clear ID after it runs
             }
         }, 180000); // Fetch after 3 minutes (180 seconds)
 
@@ -1080,8 +971,7 @@ const KERNEL = {
             // End condition for the clinical timer: call new closing challenge
             if (this.timeLeft <= 0) {
                 clearInterval(this.timerClinico);
-                clearTimeout(this.salidaSugeridaTimeoutId); // Ensure this is cleared
-                this.salidaSugeridaTimeoutId = null;
+                clearTimeout(salidaSugeridaTimeout);
                 window.speechSynthesis.cancel();
                 if (circleElement) {
                     circleElement.style.animation = "none";
@@ -1132,15 +1022,22 @@ const KERNEL = {
         this.timeLeftCierre = 60; // Reset 60-second timer
 
         const catalogoRetos = this.idiomaActual === 'es' ? this.CATALOGO_RETOS_ES : this.CATALOGO_RETOS_EN;
-       
-        // NEW: Logic to select a unique sequence of challenges using historialRetosSecuencias
+        let retosDisponibles = [...catalogoRetos]; // Copy to select from
+
+        // Shuffle retosDisponibles
+        for (let i = retosDisponibles.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [retosDisponibles[i], retosDisponibles[j]] = [retosDisponibles[j], retosDisponibles[i]];
+        }
+
         let secuenciaRetos = [];
-        let numRetos = 3; // Number of challenges in the closing sequence
+        let numRetos = 3;
        
+        // Ensure the sequence is not repeated immediately
         let candidateSequenceIds;
         let sequenceString;
-        let maxAttempts = 10; // Max attempts to find a unique sequence before reusing
-
+        let maxAttempts = 10;
+       
         while(maxAttempts > 0) {
             secuenciaRetos = [];
             let tempRetos = [...catalogoRetos];
@@ -1151,25 +1048,23 @@ const KERNEL = {
             }
 
             for (let i = 0; i < numRetos; i++) {
-                if (tempRetos.length === 0) break;
+                if (tempRetos.length === 0) break; // Should not happen with small numRetos and good catalog
                 secuenciaRetos.push(tempRetos.shift());
             }
            
-            // Create a canonical string representation of the sequence (sorted IDs)
-            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-');
-           
+            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort().join('-'); // Canonical string representation
             if (!this.historialRetosSecuencias.includes(candidateSequenceIds)) {
                 sequenceString = candidateSequenceIds;
-                break; // Found a unique sequence
+                break;
             }
             maxAttempts--;
-            if (maxAttempts === 0) {
-                console.warn("Could not find a unique challenge sequence after multiple attempts, reusing one.");
-                sequenceString = candidateSequenceIds; // Fallback: use this one anyway
+            if (maxAttempts === 0) { // Fallback if stuck in a loop (e.g., very small catalog, many repeats)
+                console.warn("Could not find a unique challenge sequence, reusing one.");
+                sequenceString = candidateSequenceIds; // Just use it
             }
         }
        
-        // Update history for challenge sequences
+        // Update history
         if (sequenceString) {
             this.historialRetosSecuencias.push(sequenceString);
             this.historialRetosSecuencias = this.historialRetosSecuencias.slice(-this.MAX_HISTORY_RETOS_SECUENCIAS);
@@ -1196,7 +1091,7 @@ const KERNEL = {
                 this.timeLeftCierre--;
                 if (cierreTimer) cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0');
 
-                if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) {
+                if (this.timeLeftCierre > 0 && this.timeLeftCierre % (Math.floor(60 / numRetos)) === 0) {
                     // Display next challenge evenly distributed over 60 seconds
                     displayNextReto();
                 }
@@ -1231,10 +1126,6 @@ const KERNEL = {
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
         window.speechSynthesis.cancel();
-        if (this.salidaSugeridaTimeoutId) { // NEW: Clear pending SALIR suggestion timeout
-            clearTimeout(this.salidaSugeridaTimeoutId);
-            this.salidaSugeridaTimeoutId = null;
-        }
 
         this.pasosMisiones = [];
         this.indiceMision = 0;
@@ -1247,7 +1138,7 @@ const KERNEL = {
        
         document.getElementById('inp-text-libre').value = ""; // Clear free text input
         this.inyectarBloquePreguntas(); // Refresh questions
-        this.activarBotonMandoLibreInicial(); // Re-enable free writing button logic (includes ZIP validation)
+        this.activarBotonMandoLibreInicial(); // Re-enable free writing button logic
        
         // Speak initial greeting again
         const saludos_es = ["Bienvenido de nuevo. Tu escape inteligente. Escucha mis preguntas en pantalla.", "Ópen Dán Go activo. Toca lo que sientes hoy para continuar."];
@@ -1268,10 +1159,6 @@ const KERNEL = {
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
         window.speechSynthesis.cancel();
-        if (this.salidaSugeridaTimeoutId) { // Clear pending SALIR suggestion timeout
-            clearTimeout(this.salidaSugeridaTimeoutId);
-            this.salidaSugeridaTimeoutId = null;
-        }
 
         localStorage.clear(); // Clear all localStorage for a complete reset
 
