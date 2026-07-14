@@ -945,12 +945,12 @@ async def mando_integral(request: Request):
         "SALUD_CLINICA": ["hospital", "clinica", "clinic", "emergencias", "er", "farmacia", "cvs", "walgreens", "doctor", "dentista", "salud", "medico"],
         "EDUCACION_BUROCRACIA": ["escuela", "school", "universidad", "university", "college", "dmv", "juzgado", "court", "correo", "usps", "clase", "estudio"]
     }
-
+    
     # Escáner de texto para identificar en qué sector de la civilización está el cliente
     sector_detectado = "CIVILIZACION_URBANA"
     marca_o_lugar = "Entorno Local"
     desahogo_clean = desahogo.lower()
-
+    
     for sector, keywords in BASE_PALABRAS_CLAVE.items():
         for kw in keywords:
             if kw in desahogo_clean:
@@ -979,10 +979,13 @@ async def mando_integral(request: Request):
         gps_target = f"public library near {anclaje_geografico}"
 
     misiones_dinamicas_usa.append({
-        "id": 701, "titulo": f"HACKEO BIOLÓGICO: MÓDULO {marca_o_lugar.upper()}", "titulo_en": f"BIOLOGICAL HACK: {marca_o_lugar.upper()}",
+        "id": 701, 
+        "titulo": f"HACKEO BIOLÓGICO: MÓDULO {marca_o_lugar.upper()}", 
+        "titulo_en": f"BIOLOGICAL HACK: {marca_o_lugar.upper()}",
         "que_hacer": "Interrupción de rutina y retorno inmediato a los procesos de la anatomía viva.",
         "que_hacer_en": "Routine interruption and immediate return to living anatomy functions.",
-        "destino_entorno": "PERÍMETRO DE ACCIÓN BIOLÓGICA", "destino_instruccion": retar_instruccion,
+        "destino_entorno": "PERÍMETRO DE ACCIÓN BIOLÓGICA", 
+        "destino_instruccion": retar_instruccion,
         "destino_coordenadas_gps": f"{map_base_url}{urllib.parse.quote_plus(gps_target)}",
         "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "descanso": 95, "silencio": 80}
     })
@@ -992,10 +995,13 @@ async def mando_integral(request: Request):
     gps_target_2 = f"scenic overlook near {anclaje_geografico}" if sector_detectado in ["TRANSPORTE_URBANO", "AERO_CRUCEROS"] else f"public plaza near {anclaje_geografico}"
     
     misiones_dinamicas_usa.append({
-        "id": 702, "titulo": f"INVERSIÓN SENSORIAL: PISA EL PERÍMETRO", "titulo_en": f"SENSORY INVERSION: WALK THE PERIMETER",
+        "id": 702, 
+        "titulo": f"INVERSIÓN SENSORIAL: PISA EL PERÍMETRO", 
+        "titulo_en": f"SENSORY INVERSION: WALK THE PERIMETER",
         "que_hacer": "Apropiación de la propiedad material y ambiental a costo cero para sanación del Yo.",
         "que_hacer_en": "Austerity appropriation of physical surroundings for mind healing.",
-        "destino_entorno": "INFRAESTRUCTURA PÚBLICA DE USA", "destino_instruccion": retar_instruccion_2,
+        "destino_entorno": "INFRAESTRUCTURA PÚBLICA DE USA", 
+        "destino_instruccion": retar_instruccion_2,
         "destino_coordenadas_gps": f"{map_base_url}{urllib.parse.quote_plus(gps_target_2)}",
         "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "naturaleza": 90, "aire_fresco": 100}
     })
@@ -1003,18 +1009,22 @@ async def mando_integral(request: Request):
     # --- OPCIÓN 3: CONTRAATAQUE SOCIAL Y DE CONEXIÓN CON EL TEJIDO HUMANO ---
     retar_instruccion_3 = f"El control mental de la rutina en {marca_o_lugar} te hace sentir aislado e individualizado. Rompe la monotonía del éxito o la escasez: despega los ojos del reflejo digital. Identifica a tres seres humanos desconocidos a tu alrededor. Míralos con compasión, comprende que sufren la misma monotonía. Envíales un deseo mental de paz mental."
     gps_target_3 = f"coffee shop near {anclaje_geografico}" if sector_detectado in ["ENTRETENIMIENTO_DIGITAL", "CULTURALES"] else f"community center near {anclaje_geografico}"
-
+    
     misiones_dinamicas_usa.append({
-        "id": 703, "titulo": f"CONEXIÓN HUMANA: SABOTAJE AL AISLAMIENTO", "titulo_en": f"HUMAN CONNECTION: SABOTAGING ISOLATION",
+        "id": 703, 
+        "titulo": f"CONEXIÓN HUMANA: SABOTAJE AL AISLAMIENTO", 
+        "titulo_en": f"HUMAN CONNECTION: SABOTAGING ISOLATION",
         "que_hacer": "Despertar de la conciencia y empatía recíproca con el tejido social presente.",
         "que_hacer_en": "Consciousness awakening and social tejido integration.",
-        "destino_entorno": "ENTORNO HUMANO INMEDIATO", "destino_instruccion": retar_instruccion_3,
+        "destino_entorno": "ENTORNO HUMANO INMEDIATO", 
+        "destino_instruccion": retar_instruccion_3,
         "destino_coordenadas_gps": f"{map_base_url}{urllib.parse.quote_plus(gps_target_3)}",
         "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "comunidad": 100, "esperanza": 90}
     })
 
     # FORMATEAR LAS MISIONES FINALES PARA EL FRONTEND DE FORMA ULTRA PROFESIONAL
     final_misiones_para_frontend = []
+    
     for info_mision in misiones_dinamicas_usa:
         precio_real = "GASTO: Cero dólares. Inversión absoluta en tu propia infraestructura interna hoy."
         quienes_van = "ACOMPAÑAMIENTO: Vas en un viaje de soberanía mental contigo mismo a recuperar tu centro."
@@ -1025,7 +1035,7 @@ async def mando_integral(request: Request):
             f"ESTRATEGIA BIOPSICOSOCIAL: {info_mision['destino_instruccion']}\n"
             f"{quienes_van}\n{precio_real}"
         )
-
+        
         final_misiones_para_frontend.append({
             "destino_id": info_mision["id"],
             "destino_titulo": info_mision["titulo"],
@@ -1040,7 +1050,7 @@ async def mando_integral(request: Request):
                 f"COMMAND: Visual interface locked. Use Zip Code {anclaje_geografico} physical surroundings to execute hydration, deep exhalation, or waste elimination. Regain your time."
             ).strip(),
             "destino_coordenadas_gps": info_mision["destino_coordenadas_gps"],
-            "vector_entorno_seleccionado": info_mision["vector_enve_seleccionado"] if "vector_enve_seleccionado" in info_mision else info_mision["vector_entorno_seleccionado"],
+            "vector_entorno_seleccionado": info_mision["vector_necesidades"],
         })
 
     # El retorno unificado que alimenta tus tres tarjetas (cards) profesionales del demo
@@ -1051,14 +1061,9 @@ async def mando_integral(request: Request):
     })
 
 # ==============================================================================
-# APERTURA NATIVA DEL SERVIDOR FASTAPI
+# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==============================================================================
-
 if __name__ == "__main__":
     import os
     import uvicorn
-
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=int(os.environ.get("PORT", 8000)))
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
