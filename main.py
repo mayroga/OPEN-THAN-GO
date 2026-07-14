@@ -356,7 +356,7 @@ BASE_MISIONES = {
             "donde": "Campus universitario o biblioteca pública.", "donde_en": "University campus or public library.",
             "gps": "university library",
             "vector_necesidades": {"aprendizaje": 100, "silencio": 90, "contemplacion": 85, "descanso": 70, "aire_fresco": 75, "movimiento": 40}
-        },   
+        },
         ],
         "estresado": [
             {
@@ -445,7 +445,7 @@ BASE_MISIONES = {
             "donde": "Área de descanso de una farmacia o clínica local.", "donde_en": "Lounge area of a local pharmacy or clinic.",
             "gps": "pharmacy health lounge",
             "vector_necesidades": {"agua": 100, "salud": 95, "descanso": 80, "silencio": 70, "organizacion": 80, "esperanza": 85}
-        },           
+        },
         ],
         "aburrido": [
             {
@@ -534,7 +534,7 @@ BASE_MISIONES = {
             "donde": "Cadena de comida rápida o restaurante del vecindario.", "donde_en": "Fast food chain or neighborhood restaurant.",
             "gps": "fast food or local restaurant",
             "vector_necesidades": {"alimentacion": 100, "risa": 75, "juego": 70, "comunidad": 80, "movimiento": 30, "descanso": 50, "esperanza": 85, "silencio": 20}
-        }            
+        }
         ],
         "cansado": [
             {
@@ -576,16 +576,16 @@ BASE_MISIONES = {
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
-            }, # <--- COMA DE ENLACE NATIVA
+            },
             {
-                "id": 129, 
+                "id": 129,
                 "titulo": "Tour Histórico a Pie", "titulo_en": "Historical Walking Tour",
                 "porque": "Mente agotada de lo predecible. Necesitas una inyección de conocimiento y un suave movimiento. Aprende mientras caminas.", "porque_en": "Mind tired of predictability. Need an injection of knowledge and gentle movement. Learn as you walk.",
                 "que_hacer": "Busca un tour a pie gratuito o de bajo costo por tu ciudad. Descubre historias locales.", "que_hacer_en": "Find a free or low-cost walking tour of your city. Discover local stories.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
-            },
+            }, # <--- COMA DE ENLACE NATIVA
             {
                 "id": 231,
                 "titulo": "Inversión Marítima: Perímetro de Cruceros",
@@ -611,7 +611,7 @@ BASE_MISIONES = {
                 "donde": "Perímetro exterior o terraza de un club céntrico.", "donde_en": "Outer perimeter or terrace of a central club.",
                 "gps": "dance club or nightclub",
                 "vector_necesidades": {"musica": 100, "juego": 90, "comunidad": 80, "risa": 70, "movimiento": 60, "silencio": 10, "descanso": 40}
-            }       
+            }
         ],
         "ansioso": [
             {
@@ -763,7 +763,7 @@ def score_coincidencia(
         if valor_usuario > 70 and vector_necesidades.get(necesidad, 0) > 70:
             score += (valor_usuario * 0.3) # Bonificación fuerte
         elif valor_usuario > 50 and vector_necesidades.get(necesidad, 0) > 50:
-             score += (valor_usuario * 0.1) # Bonificación moderada
+            score += (valor_usuario * 0.1) # Bonificación moderada
 
     # --------------------------------------------------
     # Priorizar ansiedad: Misiones que atienden directamente la ansiedad.
@@ -778,14 +778,14 @@ def score_coincidencia(
     elif ansiedad >= 40: # Nivel medio de ansiedad
         score += vector_necesidades.get("descanso", 0) * 0.2
         score += vector_necesidades.get("silencio", 0) * 0.2
-   
+    
     # --------------------------------------------------
     # Penalización por repetición histórica y bonus por exploración
     # --------------------------------------------------
     if mission_id is not None:
         score -= penalizacion_historial(mission_id, historial)
         score += bonus_exploracion(mission_id, historial)
-   
+    
     return round(max(0, score), 2)
 
 # ============================================================
@@ -794,27 +794,27 @@ def score_coincidencia(
 def seleccionar_por_ranking(candidatos):
     if not candidatos:
         return None
-   
+    
     candidatos = sorted(candidatos, key=lambda x: x["score"], reverse=True)
-   
+    
     if not candidatos:
         return None
 
     mejor_score = candidatos[0]["score"]
-   
+    
     # Si todos tienen un score bajo, y todos son iguales, elige uno al azar.
     if mejor_score <= 100: # Umbral para considerar que los scores son "bajos"
         scores_unicos = {c["score"] for c in candidatos}
         if len(scores_unicos) == 1:
-             return random.choice(candidatos)
+            return random.choice(candidatos)
 
     # Considerar un umbral dinámico para seleccionar entre los mejores
     score_umbral = max(mejor_score * 0.8, mejor_score - 150) # El 80% del mejor o 150 puntos menos que el mejor
-   
+    
     mejores_candidatos_para_eleccion = [
         c for c in candidatos if c["score"] >= score_umbral
     ]
-   
+    
     if not mejores_candidatos_para_eleccion: # Si el umbral fue demasiado estricto, relaja y toma del top 3
         mejores_candidatos_para_eleccion = candidatos[:min(3, len(candidatos))]
         if not mejores_candidatos_para_eleccion: return None
@@ -839,7 +839,7 @@ def seleccionar_mision_inteligente(
     candidatos = []
     for mision in misiones:
         mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
-       
+        
         score = score_coincidencia(
             perfil_local=perfil_local,
             vector_necesidades=mission_vector,
@@ -881,10 +881,10 @@ def seleccionar_n_misiones_inteligentes(
         })
 
     candidatos_base.sort(key=lambda x: x["score"], reverse=True)
-   
+    
     seleccionadas = []
     ids_seleccionados = set()
-   
+    
     # Prioriza las de mayor score y las que no estén en el historial
     for cand in candidatos_base:
         if len(seleccionadas) >= n:
@@ -903,7 +903,7 @@ def seleccionar_n_misiones_inteligentes(
             if es_diversa:
                 seleccionadas.append(cand["mision"])
                 ids_seleccionados.add(cand["mision"]["id"])
-   
+    
     # Si aún no tenemos suficientes, toma las siguientes mejores aunque no sean tan diversas
     for cand in candidatos_base:
         if len(seleccionadas) >= n:
@@ -914,7 +914,7 @@ def seleccionar_n_misiones_inteligentes(
 
     # Si todavía no tenemos suficientes, y el historial se ha agotado, reinicia y toma al azar
     if len(seleccionadas) < n and len(misiones) >= n:
-        temp_misiones = [m for m misiones if m["id"] not in ids_seleccionados]
+        temp_misiones = [m for m in misiones if m["id"] not in ids_seleccionados]
         if len(temp_misiones) < n - len(seleccionadas):
             temp_misiones = misiones # Si no hay suficientes nuevas, recicla todo el catálogo
         random.shuffle(temp_misiones)
@@ -958,12 +958,12 @@ def seleccionar_misiones_casa_inteligente(
     cantidad=3
 ):
     historial_casa = historial_casa or []
-   
+    
     disponibles = filtrar_historial(
         misiones,
         historial_casa
     )
-   
+    
     if len(disponibles) < cantidad * 2: # Si quedan muy pocas sin repetir, considera todo el catálogo de nuevo
         disponibles = misiones
 
@@ -981,15 +981,15 @@ def seleccionar_misiones_casa_inteligente(
             "mision": mision,
             "score": score
         })
-   
+    
     candidatos.sort(
         key=lambda x: x["score"],
         reverse=True
     )
-   
+    
     resultado = []
     ids_en_resultado = set()
-   
+    
     # Intenta seleccionar misiones diversas y de alto score
     for candidato in candidatos:
         mision = candidato["mision"]
@@ -1005,14 +1005,14 @@ def seleccionar_misiones_casa_inteligente(
             if distancia < 60: # Umbral de diversidad para misiones CASA
                 es_diversa = False
                 break
-       
+        
         if es_diversa:
             resultado.append(mision)
             ids_en_resultado.add(mision["id"])
-       
+        
         if len(resultado) >= cantidad:
             break
-           
+            
     # Si no se alcanzan las 'cantidad' requeridas con diversidad, añade las siguientes mejores
     if len(resultado) < cantidad:
         for candidato in candidatos:
@@ -1022,11 +1022,11 @@ def seleccionar_misiones_casa_inteligente(
                 ids_en_resultado.add(mision["id"])
             if len(resultado) >= cantidad:
                 break
-   
+    
     # Fallback final: si aún no hay suficientes, toma las primeras 'cantidad'
     if len(resultado) < cantidad and len(misiones) >= cantidad:
         resultado = [c["mision"] for c in candidatos[:cantidad]]
-       
+        
     return resultado
 
 @app.get("/")
@@ -1053,14 +1053,14 @@ async def mando_integral(request: Request):
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
-   
+    
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
         return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
-   
+    
     perfil_local = payload.get("perfil_local", {})
     if not isinstance(perfil_local, dict):
         perfil_local = {}
-   
+    
     perfil_local = {
         **DEFAULT_NECESSITY_VECTOR,
         **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
@@ -1109,7 +1109,7 @@ async def mando_integral(request: Request):
 
         # Solución de URL de Google Maps uniendo los parámetros correctamente con codificación web limpia
         query_mapa_url = urllib.parse.quote_plus(f"{marca_detectada} in {zip_code}")
-        target_link = f"https://google.com/maps/search/{query_mapa_url}" # Fixed: Added /maps/search/
+        target_link = f"https://google.com{query_mapa_url}"
 
         final_misiones_para_frontend = [{
             "destino_id": 999,
@@ -1137,7 +1137,7 @@ async def mando_integral(request: Request):
         idioma = "EN" if lang.lower() == "en" else "ES"
         misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
         historial_casa = payload.get("historial_casa", [])
-        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, quantity=3) # Fixed: quantity to cantidad
+        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, cantidad=3)
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
         return JSONResponse({
@@ -1181,7 +1181,7 @@ async def mando_integral(request: Request):
         titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
         donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
         anclaje_geografico = zip_code
-        map_base_url = "https://google.com/maps/search/" # Fixed: Added /maps/search/
+        map_base_url = "https://google.com"
 
         if lang == "en":
             guia_masticada = (
