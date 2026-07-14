@@ -848,7 +848,7 @@ async def mando_integral(request: Request):
         perfil_local["indicador_ansiedad"] = 0
         
     # ==========================================================================================
-    # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO
+    # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
     # ==========================================================================================
     sensitive_keywords = [
         "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum", "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income", "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades", "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo", "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica", "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo", "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales", "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
@@ -886,6 +886,10 @@ async def mando_integral(request: Request):
         else:
             instruccion_fisiologica = f"Has identificado que [{marca_detectada}] satura tu mente. Rebelate contra la monotonía: utiliza los pasillos, el aire libre o las ventanas de este perímetro en USA para realizar una pausa biológica profunda de 60 segundos. Has recuperado el control de tu conciencia."
 
+        # Solución de URL de Google Maps uniendo los parámetros correctamente con codificación web limpia
+        query_mapa_url = urllib.parse.quote_plus(f"{marca_detectada} in {zip_code}")
+        target_link = f"https://google.com{query_mapa_url}"
+
         final_misiones_para_frontend = [{
             "destino_id": 999,
             "destino_titulo": f"HACKEO A {marca_detectada.upper()}",
@@ -895,7 +899,7 @@ async def mando_integral(request: Request):
             "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
             "destino_instruccion": instruccion_fisiologica,
             "destino_instruccion_en": f"TARGET: {marca_detectada}.\nDIAGNOSTIC: {diagnostico_sintoma}\nCOMMAND: Full visual screen blocking active. Focus 100% of your energy on cell hydration, breathing, or deep biological excretion functions. You are the only product that requires investment today.",
-            "destino_coordenadas_gps": f"https://google.com{marca_detectada}+in+{zip_code}",
+            "destino_coordenadas_gps": target_link,
             "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True}
         }]
 
@@ -919,14 +923,14 @@ async def mando_integral(request: Request):
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
-        })   
+        })
+
     # ==============================================================================
-    # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
+    # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL RESTAURADA)
     # ==============================================================================
     opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     historial_salir = payload.get("historial_salir", [])
     
-    # Restauración del motor de selección probabilístico por ranking original
     misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
         n=3, 
         misiones=opciones_salir_candidatas, 
@@ -957,8 +961,7 @@ async def mando_integral(request: Request):
         donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
         anclaje_geografico = zip_code
         map_base_url = "https://google.com"
-
-        if lang == "en":
+                if lang == "en":
             guia_masticada = (
                 f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
                 f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
@@ -967,8 +970,13 @@ async def mando_integral(request: Request):
                 f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
                 f"{quienes_van}\n{precio_real}"
             )
-            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
-            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
+            titulo_ganador_lang = (
+                info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or ""
+            ).upper()
+            que_hacer_lang = (
+                info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]) or ""
+            )
+
         else:
             guia_masticada = (
                 f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
@@ -981,8 +989,10 @@ async def mando_integral(request: Request):
             titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada["que_hacer"] or ""
 
-        # === CORRECCIÓN ESTRICTA DE SANGRE (8 ESPACIOS PERFECTOS EN EL BUCLE) ===
+        # === CORRECCIÓN ESTRICTA DE SANGRÍA (8 ESPACIOS DENTRO DEL LOOP) ===
+
         search_query_parts = []
+
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
         elif perfil_tipo == "familia":
@@ -994,20 +1004,29 @@ async def mando_integral(request: Request):
         full_map_query_string = " ".join(search_query_parts)
         target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
 
-        final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
+        final_vector_necesidades = {
+            **DEFAULT_NECESSITY_VECTOR,
+            **info_seleccionada.get("vector_necesidades", {})
+        }
 
         final_misiones_para_frontend.append({
             "destino_id": info_seleccionada.get("id"),
             "destino_titulo": titulo_ganador_lang,
-            "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]),
+            "destino_titulo_en": info_seleccionada.get(
+                "titulo_en",
+                info_seleccionada["titulo"]
+            ),
             "que_hacer": info_seleccionada["que_hacer"],
-            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
+            "que_hacer_en": info_seleccionada.get(
+                "que_hacer_en",
+                info_seleccionada["que_hacer"]
+            ),
             "destino_entorno": donde_base,
             "destino_instruccion": guia_masticada.strip(),
             "destino_instruccion_en": (
                 f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
                 f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_reversible.get('porque_en', info_seleccionada['porque']) if 'info_reversible' in locals() else info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
                 f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
                 f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
                 f"{quienes_van}\n{precio_real}"
@@ -1016,17 +1035,23 @@ async def mando_integral(request: Request):
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
 
-    # Retorno final limpio del endpoint (Alineado a 4 espacios con la función principal)
+    # Retorno final limpio del endpoint (alineado a la función principal)
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
         "historial_salir_actualizado": historial_salir
     })
 
+
 # ==============================================================================
-# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
+# APERTURA NATIVA DEL SERVIDOR FASTAPI
 # ==============================================================================
+
 if __name__ == "__main__":
     import os
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8000)))
