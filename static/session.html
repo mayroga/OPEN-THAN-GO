@@ -1,6 +1,6 @@
 <!-- OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1 -->
 <!-- Company: May Roga LLC -->
-<!-- File: static/session.html (Frontend UI) - FUSIONADO Y AMPLIADO -->
+<!-- File: static/session.html (Frontend UI) -->
 
 <!DOCTYPE html>
 <html lang="es">
@@ -395,180 +395,6 @@
         @media (min-width: 768px) {
             .salida-grid { grid-template-columns: 1fr 1fr 1fr; } /* Three columns on wider screens */
         }
-
-        /* Styles for the new Matrix Investment Module */
-        #open-than-go-matrix-container {
-            border: 1px solid #222;
-            padding: 25px;
-            background: #0a0a0a;
-            border-radius: 12px;
-            width: 100%;
-            margin-top: 20px; /* Separates from other sections */
-        }
-        #open-than-go-matrix-container h2 {
-            font-size: 1.3rem;
-            color: var(--cyan-inhale);
-            font-weight: 900;
-            text-align: center;
-            margin-bottom: 15px;
-            letter-spacing: 0.05em;
-        }
-        #open-than-go-matrix-container p.text-muted {
-            font-size: 0.9rem;
-            color: #aaa;
-            text-align: center;
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-        #matrix-investment-form .row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px; /* Space between columns */
-        }
-        #matrix-investment-form .col-md-4 {
-            flex: 1 1 100%; /* Default to full width on small screens */
-            max-width: 100%;
-        }
-        @media (min-width: 768px) {
-            #matrix-investment-form .col-md-4 {
-                flex: 1 1 calc(33.333% - 10px); /* 3 columns with gap */
-                max-width: calc(33.333% - 10px);
-            }
-        }
-
-        #matrix-investment-form .form-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1rem;
-            color: #00bcd4; /* Brighter color for matrix labels */
-            margin-bottom: 5px;
-            display: block;
-            font-weight: bold;
-        }
-        #matrix-investment-form .form-control, #matrix-investment-form .form-select {
-            background: #222;
-            color: #eee;
-            border: 1px solid #333;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-        }
-        #matrix-investment-form .form-select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23eee' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-            background-position: right 10px center;
-            padding-right: 30px;
-        }
-        #matrix-investment-form .btn-warning {
-            background: var(--accent); /* Orange for investment button */
-            color: #000;
-            padding: 15px 30px;
-            font-weight: 900;
-            font-size: 1.1rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        #matrix-investment-form .btn-warning:hover {
-            background: #ff8a65;
-            transform: translateY(-2px);
-        }
-
-        #matrix-response-panel {
-            margin-top: 30px;
-            padding: 25px;
-            background: #000;
-            border: 2px solid var(--accent);
-            border-radius: 12px;
-            box-shadow: 0 0 25px rgba(216, 67, 21, 0.3);
-        }
-        #matrix-response-panel h4 {
-            color: var(--accent);
-            font-size: 1.3rem;
-            font-weight: 900;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        #matrix-response-panel p {
-            font-family: 'monospace';
-            font-size: 1rem;
-            color: #eee;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-        #matrix-response-panel .alert-info {
-            background: rgba(0, 188, 212, 0.1);
-            color: var(--cyan-inhale);
-            border: 1px solid var(--cyan-inhale);
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1rem;
-            line-height: 1.6;
-        }
-        #matrix-response-panel .d-flex {
-            background: #1a1a1a;
-            border-radius: 6px;
-            padding: 10px;
-            margin-top: 20px;
-            align-items: center;
-            justify-content: space-between;
-        }
-        #matrix-response-panel .badge {
-            background: var(--accent);
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            font-family: 'monospace';
-        }
-        #matrix-response-panel .btn-outline-success {
-            background: var(--green-action);
-            color: #fff;
-            border: 1px solid var(--green-action);
-            padding: 15px;
-            font-weight: bold;
-            font-size: 1rem;
-            margin-top: 20px;
-            border-radius: 8px;
-            transition: background-color 0.2s;
-        }
-        #matrix-response-panel .btn-outline-success:hover {
-            background: #1b5e20;
-        }
-        #matrix-investment-form.opacity-25 {
-            opacity: 0.25;
-        }
-
-        /* Mode Selector for Oraculo vs Matrix */
-        .mode-selector-wrapper {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-            margin-bottom: 25px;
-        }
-        .btn-mode-select {
-            background: #222;
-            color: #aaa;
-            border: 1px solid #333;
-            padding: 8px 15px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            transition: all 0.2s ease;
-        }
-        .btn-mode-select.active {
-            background: var(--green-action);
-            color: #fff;
-            border-color: var(--green-action);
-        }
-
     </style>
     <!-- Placeholder images for retos in static/ directory -->
     <img src="/static/silence.svg" class="hidden" alt="Silence">
@@ -600,139 +426,67 @@
             <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1>
         </div>
        
-        <!-- MODE SELECTOR: ORACULO vs MATRIZ DE INVERSION -->
-        <div class="mode-selector-wrapper">
-            <button class="btn-mode-select active" id="btn-mode-oraculo" data-mode="oraculo">Oráculo Biopsicosocial</button>
-            <button class="btn-mode-select" id="btn-mode-matrix" data-mode="matrix">Matriz de Inversión Sistémica</button>
+        <!-- GEOLOCATION INPUTS CORRECTED -->
+        <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div style="flex: 2;">
+                <label id="lbl-zip">Código Postal</label>
+                <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5" pattern="[0-9]{5}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+            </div>
+            <div style="flex: 1;">
+                <label>Modo</label>
+                <select id="modo-selector">
+                    <option value="SALIR" selected>SALIR</option>
+                    <option value="CASA">CASA</option>
+                </select>
+            </div>
         </div>
 
-        <!-- ORACULO BIODIGITAL (EXISTING FUNCTIONALITY) -->
-        <div id="oraculo-biodigital-container">
-            <!-- GEOLOCATION INPUTS CORRECTED -->
-            <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <div style="flex: 2;">
-                    <label id="lbl-zip">Código Postal</label>
-                    <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5" pattern="[0-9]{5}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-                </div>
-                <div style="flex: 1;">
-                    <label>Modo</label>
-                    <select id="modo-selector">
-                        <option value="SALIR" selected>SALIR</option>
-                        <option value="CASA">CASA</option>
-                    </select>
-                </div>
+        <!-- NEW SELECTORS FOR MENTE, BUDGET, PERFIL -->
+        <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <div style="flex: 1;">
+                <label>Mente</label>
+                <select id="mente-selector">
+                    <option value="aburrido" id="opt-mente-aburrido" selected>Aburrido</option>
+                    <option value="agotado" id="opt-mente-agotado">Agotado</option>
+                    <option value="estresado" id="opt-mente-estresado">Estresado</option>
+                    <option value="cansado" id="opt-mente-cansado">Cansado</option>
+                    <option value="ansioso" id="opt-mente-ansioso">Ansioso</option>
+                </select>
             </div>
-
-            <!-- NEW SELECTORS FOR MENTE, BUDGET, PERFIL -->
-            <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <div style="flex: 1;">
-                    <label>Mente</label>
-                    <select id="mente-selector">
-                        <option value="aburrido" id="opt-mente-aburrido" selected>Aburrido</option>
-                        <option value="agotado" id="opt-mente-agotado">Agotado</option>
-                        <option value="estresado" id="opt-mente-estresado">Estresado</option>
-                        <option value="cansado" id="opt-mente-cansado">Cansado</option>
-                        <option value="ansioso" id="opt-mente-ansioso">Ansioso</option>
-                    </select>
-                </div>
-                <div style="flex: 1;">
-                    <label>Gasto</label>
-                    <select id="budget-selector">
-                        <option value="0" id="opt-budget-0" selected>Gratis</option>
-                        <option value="1" id="opt-budget-1">Bajo</option>
-                        <option value="2" id="opt-budget-2">Abierto</option>
-                    </select>
-                </div>
-                <div style="flex: 1;">
-                    <label>Perfil</label>
-                    <select id="perfil-selector">
-                        <option value="solo" id="opt-perfil-solo" selected>Solo</option>
-                        <option value="familia" id="opt-perfil-familia">Familia</option>
-                        <option value="accesible" id="opt-perfil-accesible">Accesible</option>
-                    </select>
-                </div>
+            <div style="flex: 1;">
+                <label>Gasto</label>
+                <select id="budget-selector">
+                    <option value="0" id="opt-budget-0" selected>Gratis</option>
+                    <option value="1" id="opt-budget-1">Bajo</option>
+                    <option value="2" id="opt-budget-2">Abierto</option>
+                </select>
             </div>
-           
-            <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent); font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
-           
-            <!-- CASCADING SCROLL BOX -->
-            <div class="oraculo-scroll-box">
-                <div class="oraculo-grid" id="contenedor-preguntas-oraculo">
-                    <!-- Questions are dynamically injected here by engine.js -->
-                </div>
+            <div style="flex: 1;">
+                <label>Perfil</label>
+                <select id="perfil-selector">
+                    <option value="solo" id="opt-perfil-solo" selected>Solo</option>
+                    <option value="familia" id="opt-perfil-familia">Familia</option>
+                    <option value="accesible" id="opt-perfil-accesible">Accesible</option>
+                </select>
             </div>
-           
-            <!-- THE FREE WRITING BOX HEALED 100% -->
-            <div class="field" id="bloque-escritura-libre">
-                <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label>
-                <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea>
-                <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
+        </div>
+       
+        <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent); font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
+       
+        <!-- CASCADING SCROLL BOX -->
+        <div class="oraculo-scroll-box">
+            <div class="oraculo-grid" id="contenedor-preguntas-oraculo">
+                <!-- Questions are dynamically injected here by engine.js -->
             </div>
-        </div> <!-- Fin oraculo-biodigital-container -->
-
-        <!-- NUEVO MÓDULO DE INVERSIÓN MATRICIAL (BASADO EN EL MANIFIESTO) -->
-        <!-- ==========================================================================================
-             OPEN THAN GO - INTERFAZ DEL MOTOR DE INVERSIÓN SISTÉMICA Y CAPTURA CONCIENCIAL
-             ========================================================================================== -->
-        <div id="open-than-go-matrix-container" class="my-5 p-4 bg-dark text-light rounded shadow hidden">
-            <h2 class="text-center text-info mb-4" id="matrix-title">OPEN THAN GO - MOTOR DE INVERSIÓN BIOPSICOSOCIAL</h2>
-            <p class="text-muted text-center" id="matrix-description">Declara tu estado real, tu consumo o tu entorno. Hackea el sistema corporativo e invierte en tu propia mente.</p>
-            
-            <form id="matrix-investment-form" class="mt-4">
-                <div class="row">
-                    <!-- 1. CAPTURA DEL CÓDIGO POSTAL PÚBLICO -->
-                    <div class="col-md-4 mb-3">
-                        <label for="user-zip-code" class="form-label text-info" id="matrix-zip-label">Código Postal de USA (Zip Code):</label>
-                        <input type="text" id="user-zip-code" class="form-control bg-secondary text-white border-0" placeholder="Ej: 10001" maxlength="5" required pattern="[0-9]{5}">
-                    </div>
-
-                    <!-- 2. SELECCIÓN DEL ESTADO DEL YO (INPUT EMOCIONAL) -->
-                    <div class="col-md-4 mb-3">
-                        <label for="user-emotional-state" class="form-label text-info" id="matrix-emotion-label">¿Cómo se siente tu mente en este segundo?:</label>
-                        <select id="user-emotional-state" class="form-select bg-secondary text-white border-0" required>
-                            <option value="" disabled selected id="matrix-select-state-placeholder">Selecciona tu estado real...</option>
-                            <!-- Se llena dinámicamente desde la API de main.py -->
-                        </select>
-                    </div>
-
-                    <!-- 3. SELECCIÓN DE MARCA O INFRAESTRUCTURA (SÍNTOMA DEL ENTORNO) -->
-                    <div class="col-md-4 mb-3">
-                        <label for="user-environment-element" class="form-label text-info" id="matrix-element-label">¿Qué consumes o dónde estás metido?:</label>
-                        <select id="user-environment-element" class="form-select bg-secondary text-white border-0" required>
-                            <option value="" disabled selected id="matrix-select-brand-placeholder">Selecciona la marca o el lugar...</option>
-                            <!-- Se llena dinámicamente desde la API de main.py -->
-                        </select>
-                    </div>
-                </div>
-
-                <!-- BOTÓN DE INVERSIÓN Y DESCONEXIÓN -->
-                <div class="text-center mt-4">
-                    <button type="submit" id="btn-trigger-investment" class="btn btn-warning btn-lg px-5 fw-bold text-dark shadow-sm">
-                        INVERTIR EN MI BIENESTAR (HACKEAR ENTORNO)
-                    </button>
-                </div>
-            </form>
-
-            <!-- PANEL DE CONTROL DE CRISIS, RETO DE 60S Y AUDIO DE CONTINGENCIA VIAL -->
-            <div id="matrix-response-panel" class="mt-4 p-3 bg-black rounded d-none border border-warning">
-                <h4 class="text-danger fw-bold" id="matrix-headline">BLOQUEO DE PANTALLA INMEDIATO ACTIVADO</h4>
-                <p class="text-white font-monospace" id="matrix-diagnostic"></p>
-                <div class="alert alert-info border-0 bg-opacity-10 text-info fw-bold" id="matrix-instruction"></div>
-                
-                <!-- Contenedor para el temporizador inverso (T_out tracking) -->
-                <div class="d-flex align-items-center justify-content-between mt-3 p-2 bg-secondary bg-opacity-20 rounded">
-                    <span class="text-white-50 small" id="matrix-metric-label">Métrica Analítica Inversa:</span>
-                    <span id="matrix-timer" class="badge bg-danger fs-6 font-monospace">T_out: 00s fuera de pantalla</span>
-                </div>
-                
-                <!-- Botón obligatorio para retorno de conciencia -->
-                <button id="btn-complete-investment" class="btn btn-outline-success btn-sm w-100 mt-3 d-none fw-bold">
-                    MÓDULO DE ELIMINACIÓN/RESPIRACIÓN COMPLETADO CON ÉXITO
-                </button>
-            </div>
-        </div> <!-- Fin open-than-go-matrix-container -->
-
-    </div> <!-- Fin wrapper-form -->
+        </div>
+       
+        <!-- THE FREE WRITING BOX HEALED 100% -->
+        <div class="field" id="bloque-escritura-libre">
+            <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label>
+            <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea>
+            <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
+        </div>
+    </div>
 
     <!-- INTERACTIVE OUTPUT CONTAINER FOR PARKS, VIDEOS, AND LUNG -->
     <div class="container hidden" id="wrapper-interactive"></div>
