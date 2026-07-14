@@ -4,7 +4,7 @@
 
 const KERNEL = {
     timerInaccion: null,
-    timerEnfocado: null, // Renamed from timerClinico to avoid medical connotations
+    timerEnfocado: null,
     temporizadorCascada: null,
     temporizadorCierre: null,
     salidaSugeridaTimeoutId: null,
@@ -254,6 +254,11 @@ const KERNEL = {
         "Release mental chains. Your body craves movement and freedom.",
         "You are choosing your well-being. Every step is an act of self-love."
     ],
+
+    // Audio script for the conceptual driving contingency mode
+    AUDIOS_CONDUCCION_ES: "Atención. OPEN THAN GO ha bloqueado tu pantalla por tu seguridad física. Estás manejando en una de las carreteras interestatales de los Estados Unidos, una infraestructura de asfalto diseñada para mover cuerpos de forma mecánica. Tu cuerpo viaja a alta velocidad, pero tu mente está atrapada en una prisión mental de monotonía o estrés. No mires este teléfono. Mantén tus ojos fijos en el camino. Hackea este trayecto mediante el Módulo de Ventilación Pasiva en este mismo instante: inhala profundamente por la nariz expandiendo tu caja torácica, retén el aire sintiendo los latidos de tu corazón, y exhala de forma lenta y prolongada por la boca vaciando el dióxido de carbono acumulado en tu torrente sanguíneo. Utiliza el volante y el asiento como anclas táctiles de presencia. Observa la inmensidad de las nubes, el cielo o la luna sobre el horizonte sin perder la concentración en la vía. Estás en control de tu vida, no del tráfico. Has transformado esta autopista en tu pista de descompresión cerebral a costo cero. Ejecución pasiva activada.",
+    AUDIOS_CONDUCCION_EN: "Attention. OPEN THAN GO has locked your screen for your physical safety. You are driving on one of the interstate highways of the United States, an asphalt infrastructure designed to move bodies mechanically. Your body travels at high speed, but your mind is trapped in a mental prison of monotony or stress. Do not look at this phone. Keep your eyes fixed on the road. Hack this journey through the Passive Ventilation Module right now: inhale deeply through your nose expanding your rib cage, hold your breath feeling your heart beat, and exhale slowly and prolonged through your mouth emptying the accumulated carbon dioxide in your bloodstream. Use the steering wheel and seat as tactile anchors of presence. Observe the vastness of the clouds, the sky, or the moon over the horizon without losing concentration on the road. You are in control of your life, not the traffic. You have transformed this highway into your brain decompression track at zero cost. Passive execution activated.",
+
 
     // NUEVO CATÁLOGO DE RETOS DE CIERRE (Microacciones de Recuperación Mental)
     CATALOGO_RETOS_ES: [
@@ -1233,13 +1238,26 @@ const KERNEL = {
         const displayNextReto = () => {
             if (currentRetoIndex < secuenciaRetos.length) {
                 const reto = secuenciaRetos[currentRetoIndex];
-                if (retoTitulo) retoTitulo.innerText = reto.titulo;
-                if (retoDescripcion) retoDescripcion.innerText = reto.descripcion;
-                if (retoImg) retoImg.src = `/static/${reto.img}`;
+                if (retoTitulo) {
+                    retoTitulo.innerText = reto.titulo;
+                    retoTitulo.classList.remove('hidden');
+                }
+                if (retoDescripcion) {
+                    retoDescripcion.innerText = reto.descripcion;
+                    retoDescripcion.classList.remove('hidden');
+                }
+                if (retoImg) {
+                    retoImg.src = `/static/${reto.img}`;
+                    retoImg.classList.remove('hidden');
+                }
                 this.hablar(reto.descripcion);
                 currentRetoIndex++;
             }
         };
+        // Hide previous challenge elements for smooth transition
+        if (retoTitulo) retoTitulo.classList.add('hidden');
+        if (retoDescripcion) retoDescripcion.classList.add('hidden');
+        if (retoImg) retoImg.classList.add('hidden');
 
         this.hablar(t.retoInicial);
         setTimeout(() => {
@@ -1248,7 +1266,12 @@ const KERNEL = {
                 this.timeLeftCierre--;
                 if (cierreTimer) cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0');
 
+                // Advance challenge every ~20 seconds for 3 challenges in 60s
                 if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) {
+                    // Hide current reto before displaying next to ensure clean transition
+                    if (retoTitulo) retoTitulo.classList.add('hidden');
+                    if (retoDescripcion) retoDescripcion.classList.add('hidden');
+                    if (retoImg) retoImg.classList.add('hidden');
                     displayNextReto();
                 }
 
