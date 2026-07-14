@@ -11,6 +11,8 @@ import re
 from datetime import datetime
 import urllib.parse
 
+link_base = "https://www.google.com/maps/search/?api=1&query="
+
 app = FastAPI()
 
 # Ensure the 'static' directory exists before mounting
@@ -576,7 +578,7 @@ BASE_MISIONES = {
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
-            },
+            }, # <--- COMA DE ENLACE NATIVA
             {
                 "id": 129,
                 "titulo": "Tour Histórico a Pie", "titulo_en": "Historical Walking Tour",
@@ -1109,7 +1111,7 @@ async def mando_integral(request: Request):
 
         # Solución de URL de Google Maps uniendo los parámetros correctamente con codificación web limpia
         query_mapa_url = urllib.parse.quote_plus(f"{marca_detectada} in {zip_code}")
-        target_link = f"https://google.com{query_mapa_url}"
+        target_link = f"{link_base}{query_mapa_url}"
 
         final_misiones_para_frontend = [{
             "destino_id": 999,
@@ -1181,7 +1183,7 @@ async def mando_integral(request: Request):
         titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
         donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
         anclaje_geografico = zip_code
-        map_base_url = "https://google.com"
+        map_base_url = link_base # Changed from "https://google.com" to link_base
 
         if lang == "en":
             guia_masticada = (
@@ -1207,6 +1209,9 @@ async def mando_integral(request: Request):
             que_hacer_lang = info_seleccionada["que_hacer"] or ""
 
         # === CORRECCIÓN ESTRICTA DE SANGRÍA: EXACTAMENTE 8 ESPACIOS DESDE EL MARGEN ===
+        # The comment above refers to a general principle, the following block must be indented
+        # by 12 spaces to be correctly nested within the 'for' loop and aligned with 'append'.
+        # The map_base_url variable has been updated to use the global link_base.
         search_query_parts = []
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
