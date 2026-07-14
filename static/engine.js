@@ -1338,6 +1338,134 @@ const KERNEL = {
         location.reload();
     }
 };
+// ==========================================================================================
+// SECCIÓN ENGINR INYECTADA: CONTROL DE TELEMETRÍA INVERSA Y ASIGNACIÓN DE RETOS DE ELIMINACIÓN
+// ==========================================================================================
+(function() {
+    const selectEmotion = document.getElementById("user-emotional-state");
+    const selectElement = document.getElementById("user-environment-element");
+    const zipCodeInput = document.getElementById("user-zip-code");
+    const investmentForm = document.getElementById("matrix-investment-form");
+    
+    const responsePanel = document.getElementById("matrix-response-panel");
+    const matrixHeadline = document.getElementById("matrix-headline");
+    const matrixDiagnostic = document.getElementById("matrix-diagnostic");
+    const matrixInstruction = document.getElementById("matrix-instruction");
+    const matrixTimer = document.getElementById("matrix-timer");
+    const btnCompleteInvestment = document.getElementById("btn-complete-investment");
+
+    let startTimeOut;
+    let timerInterval;
+
+    async function cargarMatrizConciencial() {
+        if (!selectEmotion || !selectElement) return;
+        try {
+            const response = await fetch("/api/v1/algoritmo-captura");
+            const dataResponse = await response.json();
+            
+            if (dataResponse.status === "success") {
+                const matriz = dataResponse.data;
+
+                // Carga dinámica limpia de los 26 estados emocionales de agonía del Manifiesto
+                matriz.estados_emocionales.forEach(estado => {
+                    const opt = document.createElement("option");
+                    opt.value = estado;
+                    opt.textContent = `[${estado}]`;
+                    selectEmotion.appendChild(opt);
+                });
+
+                // Carga de marcas corporativas como síntomas
+                matriz.marcas_usa.forEach(marca => {
+                    const opt = document.createElement("option");
+                    opt.value = marca;
+                    opt.textContent = `Consumo: ${marca}`;
+                    selectElement.appendChild(opt);
+                });
+
+                // Carga de capas de infraestructura estadounidense y entornos naturales
+                matriz.infraestructura_usa.forEach(entorno => {
+                    const opt = document.createElement("option");
+                    opt.value = entorno;
+                    opt.textContent = `Entorno: ${entorno}`;
+                    selectElement.appendChild(opt);
+                });
+            }
+        } catch (error) {
+            console.error("Fallo crítico en telemetría de entrada OPEN THAN GO:", error);
+        }
+    }
+
+    if (investmentForm) {
+        investmentForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const datos = {
+                estado: selectEmotion.value,
+                elemento: selectElement.value,
+                zip_code: zipCodeInput.value
+            };
+
+            try {
+                const response = await fetch("/api/v1/algoritmo-procesar-inversion", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(datos)
+                });
+                const res = await response.json();
+
+                if (res.status === "success") {
+                    responsePanel.classList.remove("d-none");
+                    matrixHeadline.textContent = res.comando_sistema;
+                    matrixDiagnostic.textContent = res.diagnostico_sintoma;
+                    matrixInstruction.textContent = res.ejecucion_fisiologica_obligatoria;
+                    
+                    // Paralizar el formulario visual bloqueando clics para mitigar control de pantalla
+                    investmentForm.classList.add("opacity-25");
+                    investmentForm.style.pointerEvents = "none";
+
+                    // Iniciar telemetría del indicador inverso de éxito matemático (T_out)
+                    startTimeOut = Date.now();
+                    btnCompleteInvestment.classList.add("d-none");
+                    
+                    clearInterval(timerInterval);
+                    timerInterval = setInterval(() => {
+                        const segundosFuera = Math.floor((Date.now() - startTimeOut) / 1000);
+                        matrixTimer.textContent = `T_out: ${segundosFuera}s de soberanía fuera de pantalla.`;
+                        
+                        // Bloqueo estricto de retorno de 10 segundos mínimos fuera de la app
+                        if (segundosFuera >= 10) {
+                            btnCompleteInvestment.classList.remove("d-none");
+                        }
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error("Fallo en la comunicación con el traductor parásito:", error);
+            }
+        });
+    }
+
+    if (btnCompleteInvestment) {
+        btnCompleteInvestment.addEventListener("click", () => {
+            clearInterval(timerInterval);
+            const totalSoberania = Math.floor((Date.now() - startTimeOut) / 1000);
+            
+            alert(`Soberanía Temporal Lograda: Has invertido ${totalSoberania} segundos en la homeostasis de tus órganos fuera de la pantalla.`);
+            
+            // Liberar la interfaz limpia restaurando controles para el siguiente ciclo
+            responsePanel.classList.add("d-none");
+            investmentForm.classList.remove("opacity-25");
+            investmentForm.style.pointerEvents = "auto";
+            investmentForm.reset();
+        });
+    }
+
+    // Inicializar de forma segura sin pisar otros scripts del dom
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", cargarMatrizConciencial);
+    } else {
+        cargarMatrizConciencial();
+    }
+})();
 
 document.addEventListener('DOMContentLoaded', () => KERNEL.init());
 
