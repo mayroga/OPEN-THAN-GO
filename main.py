@@ -304,7 +304,7 @@ BASE_MISIONES = {
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Parque o campo abierto.", "donde_en": "Park or open field.", "gps": "open field for cloud gazing",
                 "vector_necesidades": {"movimiento": 20, "naturaleza": 95, "silencio": 90, "agua": 10, "sol": 70, "sombra": 30, "aire_fresco": 90, "creatividad": 60, "comunidad": 10, "aprendizaje": 40, "juego": 20, "contemplacion": 100, "descanso": 95, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 85}
-            }
+            },
             {
             "id": 201,
             "titulo": "Soberanía en Tránsito: Uber/Lyft Relax",
@@ -576,7 +576,7 @@ BASE_MISIONES = {
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
-            },
+            }, # <--- COMA DE ENLACE NATIVA
             {
                 "id": 129, 
                 "titulo": "Tour Histórico a Pie", "titulo_en": "Historical Walking Tour",
@@ -585,7 +585,7 @@ BASE_MISIONES = {
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
-            }, # <--- COMA DE ENLACE NATIVA
+            },
             {
                 "id": 231,
                 "titulo": "Inversión Marítima: Perímetro de Cruceros",
@@ -914,7 +914,7 @@ def seleccionar_n_misiones_inteligentes(
 
     # Si todavía no tenemos suficientes, y el historial se ha agotado, reinicia y toma al azar
     if len(seleccionadas) < n and len(misiones) >= n:
-        temp_misiones = [m for m in misiones if m["id"] not in ids_seleccionados]
+        temp_misiones = [m for m misiones if m["id"] not in ids_seleccionados]
         if len(temp_misiones) < n - len(seleccionadas):
             temp_misiones = misiones # Si no hay suficientes nuevas, recicla todo el catálogo
         random.shuffle(temp_misiones)
@@ -1109,7 +1109,7 @@ async def mando_integral(request: Request):
 
         # Solución de URL de Google Maps uniendo los parámetros correctamente con codificación web limpia
         query_mapa_url = urllib.parse.quote_plus(f"{marca_detectada} in {zip_code}")
-        target_link = f"https://google.com{query_mapa_url}"
+        target_link = f"https://google.com/maps/search/{query_mapa_url}" # Fixed: Added /maps/search/
 
         final_misiones_para_frontend = [{
             "destino_id": 999,
@@ -1137,7 +1137,7 @@ async def mando_integral(request: Request):
         idioma = "EN" if lang.lower() == "en" else "ES"
         misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
         historial_casa = payload.get("historial_casa", [])
-        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, cantidad=3)
+        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, quantity=3) # Fixed: quantity to cantidad
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
         return JSONResponse({
@@ -1181,7 +1181,7 @@ async def mando_integral(request: Request):
         titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
         donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
         anclaje_geografico = zip_code
-        map_base_url = "https://google.com"
+        map_base_url = "https://google.com/maps/search/" # Fixed: Added /maps/search/
 
         if lang == "en":
             guia_masticada = (
