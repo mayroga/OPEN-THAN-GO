@@ -778,7 +778,7 @@ BASE_MISIONES = {
                 "donde": "Cadena de comida rápida o restaurante del vecindario.", "donde_en": "Fast food chain or neighborhood restaurant.",
                 "gps": "fast food or local restaurant",
                 "vector_necesidades": {"alimentacion": 100, "risa": 75, "juego": 70, "comunidad": 80, "movimiento": 30, "descanso": 50, "esperanza": 85, "silencio": 20}
-            },
+            }
         ],
         "cansado": [
             {"id": 104, "titulo": "Lectura en biblioteca", "titulo_en": "Library Reading",
@@ -911,7 +911,7 @@ BASE_MISIONES = {
                 "donde": "Perímetro exterior o terraza de un club céntrico.", "donde_en": "Outer perimeter or terrace of a central club.",
                 "gps": "dance club or nightclub",
                 "vector_necesidades": {"musica": 100, "juego": 90, "comunidad": 80, "risa": 70, "movimiento": 60, "silencio": 10, "descanso": 40}
-            },
+            }
         ],
         "ansioso": [
             {"id": 105, "titulo": "Mirar el agua", "titulo_en": "Watch the Water",
