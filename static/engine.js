@@ -1365,3 +1365,231 @@ const KERNEL = {
 document.addEventListener('DOMContentLoaded', () => KERNEL.init());
 
 window.KERNEL = KERNEL;
+//==========================================================================================
+// KERNEL INTEGRADO V3 (PARTE 1)
+//==========================================================================================
+(function(){
+window.OTG_SENSORIAL={
+marcas:["TikTok","Instagram","YouTube","Spotify","Netflix","Uber","Lyft","American","Delta","Spirit","JetBlue","Southwest","Avianca","LATAM","Aeromexico","Copa","Volaris","WesternUnion","Zelle","Amazon","Temu","Walmart","Costco","Target","DollarTree","McDonald's","Starbucks","Burger King","Airbnb","Booking.com","Expedia","Hotels.com","Trivago","Priceline","Motel 6","Super 8","Days Inn","Holiday Inn","Marriott","Hilton","Tinder","ChatGPT"],
+urls:{
+TikTok:"https://tiktok.com",
+Instagram:"https://instagram.com",
+YouTube:"https://youtube.com",
+Spotify:"https://spotify.com",
+Netflix:"https://netflix.com",
+Uber:"https://uber.com",
+Lyft:"https://lyft.com",
+American:"https://aa.com",
+Delta:"https://delta.com",
+Spirit:"https://spirit.com",
+JetBlue:"https://jetblue.com",
+Southwest:"https://southwest.com",
+Avianca:"https://avianca.com",
+LATAM:"https://latamairlines.com",
+Aeromexico:"https://aeromexico.com",
+Copa:"https://copaair.com",
+Volaris:"https://volaris.com",
+WesternUnion:"https://westernunion.com",
+Zelle:"https://zellepay.com",
+Amazon:"https://amazon.com",
+Temu:"https://temu.com",
+Walmart:"https://walmart.com",
+Costco:"https://costco.com",
+Target:"https://target.com",
+DollarTree:"https://dollartree.com",
+"McDonald's":"https://mcdonalds.com",
+Starbucks:"https://starbucks.com",
+"Burger King":"https://bk.com",
+Airbnb:"https://airbnb.com",
+"Booking.com":"https://booking.com",
+Expedia:"https://expedia.com",
+"Hotels.com":"https://hotels.com",
+Trivago:"https://trivago.com",
+Priceline:"https://priceline.com",
+"Motel 6":"https://motel6.com",
+"Super 8":"https://wyndhamhotels.com",
+"Days Inn":"https://wyndhamhotels.com",
+"Holiday Inn":"https://ihg.com",
+Marriott:"https://marriott.com",
+Hilton:"https://hilton.com",
+Tinder:"https://tinder.com",
+ChatGPT:"https://chatgpt.com"
+},
+preguntas:[
+"¿Qué ráfaga de dopamina estás intentando encender en tu cerebro de forma mecánica en este segundo?",
+"¿Esta marca corporativa ruidosa es tu dueña o tú eres su verdugo biológico el día de hoy?",
+"¿Qué vacío de la monotonía urbana estás intentando adormecer abriendo interfaces en piloto automático?",
+"¿Sientes que el uso de estas redes te devuelve la calma o te integra más a la máquina de consumo?"
+],
+seleccionadas:[],
+init(){this.inyectarMetasYEstilos();this.modificarBienvenida();this.crearEstructurasFlotantes();},
+inyectarMetasYEstilos(){
+["apple-mobile-web-app-capable","mobile-web-app-capable"].forEach(n=>{if(!document.querySelector(`meta[name="${n}"]`)){let m=document.createElement("meta");m.name=n;m.content="yes";document.head.appendChild(m);}});
+let s=document.createElement("style");
+s.textContent=`
+.otg-power-btn{position:fixed;top:15px;right:15px;z-index:999999;background:#d84315;border:none;color:#fff;padding:10px;border-radius:50%;cursor:pointer;font-weight:bold;box-shadow:0 0 10px rgba(0,0,0,.5);}
+.otg-grid-logos{display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:6px;margin:15px 0;}
+.otg-card-logo{background:#111;border:1px solid #333;padding:10px 4px;border-radius:6px;text-align:center;font-size:.75rem;cursor:pointer;font-weight:bold;transition:.2s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.otg-card-logo.active{border-color:#00bcd4!important;color:#00bcd4!important;background:rgba(0,188,212,.1)!important;box-shadow:0 0 8px rgba(0,188,212,.3);}
+.otg-btn-opt{width:100%;background:none;border:1px solid #444;color:#ccc;padding:10px;text-align:left;border-radius:6px;margin-bottom:6px;cursor:pointer;font-size:.8rem;}
+.otg-btn-opt:hover{border-color:#2e7d32;color:#fff;}
+`;
+document.head.appendChild(s);
+},
+modificarBienvenida(){
+let pb=document.getElementById("pantalla-bienvenida");if(!pb)return;
+let sintomas=["No sabes qué hacer","Te encuentras en la monotonía","Estás agobiado por el entorno","Te sientes estresado por el cortisol laboral","Estás cansado del zombi urbano","Te encuentras aburrido de las pantallas","Estás ansioso por el futuro"];
+sintomas.sort(()=>Math.random()-.5);
+pb.innerHTML=`
+<div style="max-width:390px;width:95%;padding:15px;text-align:center;font-family:sans-serif;color:#fff;overflow-y:auto;max-height:100vh;">
+<h2 style="color:#00bcd4;font-weight:900;letter-spacing:2px;font-size:1.3rem;margin-bottom:12px;">OPEN THAN GO</h2>
+<p style="font-size:.9rem;line-height:1.4;color:#eee;font-weight:bold;margin-bottom:15px;">El interruptor diseñado para ti, que hoy: <span style="color:#d84315;">${sintomas[0]}</span>, y buscas recuperar tu bienestar y el de tu familia.</p>
+<div style="background:#111;border:1px solid #222;border-radius:8px;padding:12px;text-align:left;font-size:.75rem;line-height:1.4;color:#bbb;margin-bottom:15px;">
+<b style="color:#2e7d32;display:block;margin-bottom:4px;text-transform:uppercase;">Manual Rápido de Soberanía:</b>
+• <b>SALIR:</b> Contraataques de campo mapeados en el perímetro real de tu Código Postal (USA).<br>
+• <b>CASA:</b> Microacciones domésticas de respiración y orden digital en tu habitación.<br>
+• <b>Mando Libre:</b> Escribe tu marca o transporte (Uber, Delta, Walmart, Spotify) para rastrearlo.<br>
+• <b>El Oráculo:</b> Tarjetas de crisis para cuando estás bloqueado y NO SABES QUÉ HACER.
+</div>
+<p style="font-size:.7rem;color:#00bcd4;font-weight:bold;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;">🎵 Enciende tu audio y sintoniza calma antes de iniciar</p>
+<button class="btn-bienvenida" onclick="OTG_SENSORIAL.interceptarBotonStart();" style="width:100%;border-radius:6px;padding:15px;font-weight:900;background:#fff;color:#000;border:none;cursor:pointer;text-transform:uppercase;">INICIAR SESIÓN / START</button>
+</div>`;
+},
+crearEstructurasFlotantes(){
+let b=document.createElement("button");
+b.id="otg-btn-power";
+b.className="otg-power-btn hidden";
+b.innerHTML="✕";
+b.title="Apagar Sistema";
+b.onclick=()=>this.apagarSistemaTotal();
+document.body.appendChild(b);
+
+let m=document.createElement("div");
+m.id="otg-oasis-entretenimiento";
+m.className="hidden";
+m.style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.98);z-index:9999999;backdrop-filter:blur(15px);overflow-y:auto;padding:20px;color:#fff;font-family:sans-serif;";
+document.body.appendChild(m);
+},
+interceptarBotonStart(){
+setTimeout(()=>this.forzarCierre15Minutos(),900000);
+this.abrirOasisOcio();
+},
+abrirOasisOcio(){
+let m=document.getElementById("otg-oasis-entretenimiento");
+if(!m)return;
+m.classList.remove("hidden");
+document.body.style.overflow="hidden";
+this.marcas.sort(()=>Math.random()-.5);
+let zip=document.getElementById("inp-zip")?document.getElementById("inp-zip").value.trim():"";
+let txtUsa=zip?`Servicios priorizados pasivamente para tu Código Postal ${zip}`:"Infraestructura del boom comercial de USA";
+m.innerHTML=`
+<div style="max-width:460px;margin:0 auto;padding-top:5px;">
+<div style="text-align:center;margin-bottom:15px;">
+<span style="background:#2e7d32;padding:3px 8px;border-radius:4px;font-size:.65rem;font-weight:bold;text-transform:uppercase;">Ocio Psicológico de Inicio</span>
+<h4 style="color:#00bcd4;font-weight:900;margin:8px 0 3px;font-size:1.15rem;">ESCÁNER DE COMPULSIÓN CRÍTICA</h4>
+<p style="color:#aaa;font-size:.7rem;margin:0;">${txtUsa}. Duración: 1 minuto estricto.</p>
+</div>
+<div id="otg-fase-1">
+<p style="font-size:.85rem;font-weight:bold;color:#fff;text-align:center;line-height:1.4;margin-bottom:10px;">SI NO SABES QUÉ HACER O TU MENTE ESTÁ SORDA, NO PIENSES:<br><span style="color:#d84315;text-transform:uppercase;">Aprieta el nombre de la plataforma que tengas justo enfrente</span></p>
+<div class="otg-grid-logos">${this.marcas.map(x=>`<div class="otg-card-logo" onclick="OTG_SENSORIAL.seleccionarMarca(this,'${x}')">${x}</div>`).join("")}</div>
+<button onclick="OTG_SENSORIAL.activarFaseTrivia()" style="width:100%;background:#2e7d32;border:none;color:#fff;padding:14px;border-radius:6px;font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:.8rem;letter-spacing:.5px;">Siguiente Fase →</button>
+</div>
+<div id="otg-fase-2" class="hidden"></div>
+<div id="otg-fase-3" class="hidden" style="text-align:center;"></div>
+</div>`;
+},
+seleccionarMarca(el,marca){
+el.classList.toggle("active");
+if(el.classList.contains("active"))this.seleccionadas.push(marca);
+else this.seleccionadas=this.seleccionadas.filter(x=>x!==marca);
+},
+activarFaseTrivia(){
+if(!this.seleccionadas.length){alert("Por favor, selecciona al menos un entorno de infraestructura.");return;}
+document.getElementById("otg-fase-1").classList.add("hidden");
+let f2=document.getElementById("otg-fase-2");
+f2.classList.remove("hidden");
+let p=this.preguntas[Math.floor(Math.random()*this.preguntas.length)];
+let m=this.seleccionadas[0];
+f2.innerHTML=`
+<div style="background:#111;border:1px solid #222;padding:15px;border-radius:8px;margin-top:10px;">
+<span style="color:#00bcd4;font-size:.65rem;font-weight:bold;text-transform:uppercase;display:block;margin-bottom:3px;">Escaneando: ${m.toUpperCase()}</span>
+<p style="font-size:1rem;font-weight:bold;line-height:1.4;margin:5px 0 15px;color:#fff;">${p}</p>
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado','dopamina')">[A] Inyección rápida de dopamina y distracción por aburrimiento ordinario.</button>
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('estresado','evasion')">[B] Evadir responsabilidades pesadas o silenciar el cortisol acumulado.</button>
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('ansioso','util')">[C] Una necesidad orgánica y utilitaria real de mi máquina biológica.</button>
+</div>`;
+},
+
+inyectarMenteBase(perfilMente,tipoDiagnostico){
+let s=document.getElementById("mente-selector");
+if(s){
+s.value=perfilMente;
+s.dispatchEvent(new Event("change"));
+}
+document.getElementById("otg-fase-2").classList.add("hidden");
+let f3=document.getElementById("otg-fase-3");
+f3.classList.remove("hidden");
+let m=this.seleccionadas[0];
+let url=this.urls[m]||"https://google.com";
+let veredicto=
+tipoDiagnostico==="dopamina"
+?`El software detecta Dependencia Dopaminérgica. Tu mente busca parches rápidos en [${m}]. Mapeando bienestar.`
+:tipoDiagnostico==="evasion"
+?`El software detecta Vía de Evasión Psicosomática. Usas [${m}] como anestésico. Calibrando contraataque.`
+:`Uso Utilitario Orgánico. Presentas un balance conciencial frente a [${m}]. Perfil configurado de forma óptima.`;
+
+f3.innerHTML=`
+<div style="background:rgba(0,188,212,.05);border:1px solid #00bcd4;padding:15px;border-radius:8px;text-align:left;font-family:monospace;font-size:.8rem;line-height:1.4;margin-bottom:15px;color:#eee;">
+<b style="color:#00bcd4;display:block;margin-bottom:4px;">[PERFILAMIENTO CONCIENCIAL COMPLETADO]</b>
+${veredicto}
+</div>
+<div style="display:flex;gap:8px;">
+<button onclick="window.open('${url}','_blank')" style="flex:1;background:#2e7d32;border:none;color:#fff;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">Ventana Externa Segura</button>
+<button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()" style="flex:1;background:none;border:1px solid #00bcd4;color:#00bcd4;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">Acceder a la App Base</button>
+</div>`;
+},
+
+cerrarOasisYDarPasoAAppBase(){
+let m=document.getElementById("otg-oasis-entretenimiento");
+if(m)m.classList.add("hidden");
+document.body.style.overflow="auto";
+if(typeof KERNEL!=="undefined"&&typeof KERNEL.despertarInicial==="function")KERNEL.despertarInicial();
+let p=document.getElementById("otg-btn-power");
+if(p)p.classList.remove("hidden");
+this.seleccionadas=[];
+console.log("OPEN THAN GO: Módulo de ocio completado. Perfil guardado localmente. Inicializando engranaje base.");
+},
+
+apagarSistemaTotal(){
+let m=document.getElementById("otg-oasis-entretenimiento");
+if(m)m.classList.add("hidden");
+let pc=document.getElementById("pantalla-cierre");
+if(pc)pc.classList.add("hidden");
+let wf=document.getElementById("wrapper-form");
+if(wf)wf.classList.remove("hidden");
+let pb=document.getElementById("pantalla-bienvenida");
+if(pb)pb.classList.remove("hidden");
+let p=document.getElementById("otg-btn-power");
+if(p)p.classList.add("hidden");
+let t=document.getElementById("inp-text-libre");
+if(t)t.value="";
+this.seleccionadas=[];
+console.log("SYSTEM STANDBY: Plataforma en modo de hibernación/reposo.");
+},
+
+forzarCierre15Minutos(){
+let m=document.getElementById("otg-oasis-entretenimiento");
+if(m)m.classList.add("hidden");
+document.body.innerHTML=`
+<div style="width:100vw;height:100vh;background:#000;color:#dc3545;font-family:monospace;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:25px;">
+<h1 style="font-weight:900;letter-spacing:2px;font-size:1.4rem;margin-bottom:12px;">TIEMPO BIOLÓGICO AGOTADO</h1>
+<p style="color:#eee;font-size:.95rem;max-width:410px;line-height:1.5;font-weight:bold;">
+Has superado los 15 minutos máximos de pantalla permitidos para salvaguardar tu centro biológico y el de tu familia. Tu sesión web ha concluido de forma segura.<br><br>
+<span style="color:#00bcd4;text-transform:uppercase;font-size:.75rem;">Regresa a tus procesos del mundo real ahora mismo.</span>
+</p>
+</div>`;
+}
+};
+
+OTG_SENSORIAL.init();
+})();
