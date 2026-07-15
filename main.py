@@ -448,7 +448,8 @@ BASE_MISIONES = {
                 "que_hacer": "Busca un estudio de yoga, meditación o sound healing en tu zona. Asiste a una sesión o recuéstate en su vestíbulo público si está disponible. Cierra los ojos, concéntrate en los armónicos, cuencos o el silencio del perímetro e inhala en 4 tiempos y exhala en 8 tiempos liberando la rigidez pectoral.",
                 "que_hacer_en": "Search for a yoga, meditation, or sound healing studio in your area. Attend a session or lie down in its public lobby if available. Close your eyes, focus on harmonics, singing bowls, or perimeter silence, inhale for 4 counts, and exhale for 8 counts, releasing chest rigidity.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Estudio de yoga, centro de meditación o sound healing en USA.", "donde_en": "Yoga studio, meditation center, or sound healing spot in the USA.",
+                "donde": "Estudio de yoga, centro de meditación o sound healing en USA.",
+                "donde_en": "Yoga studio, meditation center, or sound healing spot in the USA.",
                 "gps": "sound healing or yoga studio",
                 "vector_necesidades": {"silencio": 100, "descanso": 95, "musica": 90, "contemplacion": 95, "salud": 90, "esperanza": 90, "organizacion": 70}
             },
@@ -461,7 +462,8 @@ BASE_MISIONES = {
                 "que_hacer": "Dirígete de inmediato al parque estatal (State Park) o reserva natural protegida más cercana de tu Código Postal. Entra al sendero, camina descalzo sobre la tierra o toca la corteza de un gran árbol por un minuto completo. Siente el aire fresco real golpear tu cara lejos del concreto.",
                 "que_hacer_en": "Head immediately to the nearest State Park or protected nature reserve in your Zip Code. Enter the trail, walk barefoot on the earth, or touch the bark of a large tree for a full minute. Feel the real fresh air hit your face away from concrete.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Sendero boscoso, reserva natural o parque estatal de tu región.", "donde_en": "Wooded trail, nature reserve, or state park in your region.",
+                "donde": "Sendero boscoso, reserva natural o parque estatal de tu región.",
+                "donde_en": "Wooded trail, nature reserve, or state park in your region.",
                 "gps": "state park trail or nature reserve",
                 "vector_necesidades": {"naturaleza": 100, "aire_fresco": 100, "silencio": 85, "movimiento": 60, "contemplacion": 90, "descanso": 60, "esperanza": 95, "sol": 70}
             }
