@@ -1416,10 +1416,10 @@ Tinder:"https://tinder.com",
 ChatGPT:"https://chatgpt.com"
 },
 preguntas:[
-"¿Qué ráfaga de dopamina estás intentando encender en tu cerebro de forma mecánica en este segundo?",
-"¿Esta marca corporativa ruidosa es tu dueña o tú eres su verdugo biológico el día de hoy?",
-"¿Qué vacío de la monotonía urbana estás intentando adormecer abriendo interfaces en piloto automático?",
-"¿Sientes que el uso de estas redes te devuelve la calma o te integra más a la máquina de consumo?"
+"¿Qué actividad quieres realizar en este momento?",
+"¿Cuál de estos servicios forma parte de tu rutina hoy?",
+"¿Qué opción representa mejor lo que buscas ahora?",
+"¿Qué servicio te gustaría utilizar en este momento?"
 ],
 seleccionadas:[],
 init(){this.inyectarMetasYEstilos();this.modificarBienvenida();this.crearEstructurasFlotantes();},
@@ -1437,22 +1437,69 @@ s.textContent=`
 document.head.appendChild(s);
 },
 modificarBienvenida(){
-let pb=document.getElementById("pantalla-bienvenida");if(!pb)return;
-let sintomas=["No sabes qué hacer","Te encuentras en la monotonía","Estás agobiado por el entorno","Te sientes estresado por el cortisol laboral","Estás cansado del zombi urbano","Te encuentras aburrido de las pantallas","Estás ansioso por el futuro"];
+let pb=document.getElementById("pantalla-bienvenida");
+if(!pb)return;
+
+let sintomas=[
+"No sabes qué hacer",
+"Te encuentras en la monotonía",
+"Estás agobiado por el entorno",
+"Te sientes estresado",
+"Te sientes cansado",
+"Necesitas un descanso",
+"Buscas un momento para ti"
+];
+
 sintomas.sort(()=>Math.random()-.5);
+
 pb.innerHTML=`
 <div style="max-width:390px;width:95%;padding:15px;text-align:center;font-family:sans-serif;color:#fff;overflow-y:auto;max-height:100vh;">
-<h2 style="color:#00bcd4;font-weight:900;letter-spacing:2px;font-size:1.3rem;margin-bottom:12px;">OPEN THAN GO</h2>
-<p style="font-size:.9rem;line-height:1.4;color:#eee;font-weight:bold;margin-bottom:15px;">El interruptor diseñado para ti, que hoy: <span style="color:#d84315;">${sintomas[0]}</span>, y buscas recuperar tu bienestar y el de tu familia.</p>
-<div style="background:#111;border:1px solid #222;border-radius:8px;padding:12px;text-align:left;font-size:.75rem;line-height:1.4;color:#bbb;margin-bottom:15px;">
-<b style="color:#2e7d32;display:block;margin-bottom:4px;text-transform:uppercase;">Manual Rápido de Soberanía:</b>
-• <b>SALIR:</b> Contraataques de campo mapeados en el perímetro real de tu Código Postal (USA).<br>
-• <b>CASA:</b> Microacciones domésticas de respiración y orden digital en tu habitación.<br>
-• <b>Mando Libre:</b> Escribe tu marca o transporte (Uber, Delta, Walmart, Spotify) para rastrearlo.<br>
-• <b>El Oráculo:</b> Tarjetas de crisis para cuando estás bloqueado y NO SABES QUÉ HACER.
+
+<h2 style="color:#00bcd4;font-weight:900;letter-spacing:2px;font-size:1.3rem;margin-bottom:12px;">
+OPEN THAN GO
+</h2>
+
+<p style="font-size:.9rem;line-height:1.45;color:#eee;font-weight:bold;margin-bottom:15px;">
+Hoy: <span style="color:#d84315;">${sintomas[0]}</span>.<br>
+OPEN THAN GO te ayuda a encontrar pequeños momentos de bienestar para ti y tu familia.
+</p>
+
+<div style="background:#111;border:1px solid #222;border-radius:8px;padding:12px;text-align:left;font-size:.76rem;line-height:1.5;color:#bbb;margin-bottom:14px;">
+
+<b style="color:#2e7d32;display:block;margin-bottom:6px;text-transform:uppercase;">
+Cómo funciona
+</b>
+
+• <b>SALIR:</b> Descubre lugares cercanos para cambiar de ambiente.<br>
+
+• <b>CASA:</b> Encuentra actividades sencillas para hacer en casa.<br>
+
+• <b>MODO LIBRE:</b> Escribe un lugar, una marca o un servicio para personalizar tu experiencia.<br>
+
+• <b>ORÁCULO:</b> Recibe una sugerencia cuando no sepas qué hacer.
+
 </div>
-<p style="font-size:.7rem;color:#00bcd4;font-weight:bold;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;">🎵 Enciende tu audio y sintoniza calma antes de iniciar</p>
-<button class="btn-bienvenida" onclick="OTG_SENSORIAL.interceptarBotonStart();" style="width:100%;border-radius:6px;padding:15px;font-weight:900;background:#fff;color:#000;border:none;cursor:pointer;text-transform:uppercase;">INICIAR SESIÓN / START</button>
+
+<p style="font-size:.72rem;color:#00bcd4;font-weight:bold;margin-bottom:12px;">
+🎵 Enciende el audio y disfruta una experiencia más completa.
+</p>
+
+<div style="background:rgba(255,255,255,.05);border:1px solid #333;border-radius:8px;padding:10px;font-size:.67rem;line-height:1.45;color:#cfcfcf;text-align:left;margin-bottom:14px;">
+
+<b style="color:#fff;">Aviso</b><br>
+
+OPEN THAN GO es una herramienta de bienestar y orientación. No ofrece atención médica, psicológica ni de emergencia. Si tienes una emergencia médica o de salud mental, llama a los servicios de emergencia o busca ayuda profesional. Usa esta aplicación bajo tu propio criterio.
+
+</div>
+
+<button class="btn-bienvenida"
+onclick="OTG_SENSORIAL.interceptarBotonStart();"
+style="width:100%;border-radius:6px;padding:15px;font-weight:900;background:#fff;color:#000;border:none;cursor:pointer;text-transform:uppercase;">
+
+INICIAR SESIÓN / START
+
+</button>
+
 </div>`;
 },
 crearEstructurasFlotantes(){
@@ -1460,7 +1507,7 @@ let b=document.createElement("button");
 b.id="otg-btn-power";
 b.className="otg-power-btn hidden";
 b.innerHTML="✕";
-b.title="Apagar Sistema";
+b.title="Cerrar";
 b.onclick=()=>this.apagarSistemaTotal();
 document.body.appendChild(b);
 
@@ -1481,115 +1528,213 @@ m.classList.remove("hidden");
 document.body.style.overflow="hidden";
 this.marcas.sort(()=>Math.random()-.5);
 let zip=document.getElementById("inp-zip")?document.getElementById("inp-zip").value.trim():"";
-let txtUsa=zip?`Servicios priorizados pasivamente para tu Código Postal ${zip}`:"Infraestructura del boom comercial de USA";
+let txtUsa=zip?`Opciones disponibles para el Código Postal ${zip}`:"Personaliza tu experiencia";
+
 m.innerHTML=`
 <div style="max-width:460px;margin:0 auto;padding-top:5px;">
+
 <div style="text-align:center;margin-bottom:15px;">
-<span style="background:#2e7d32;padding:3px 8px;border-radius:4px;font-size:.65rem;font-weight:bold;text-transform:uppercase;">Ocio Psicológico de Inicio</span>
-<h4 style="color:#00bcd4;font-weight:900;margin:8px 0 3px;font-size:1.15rem;">ESCÁNER DE COMPULSIÓN CRÍTICA</h4>
-<p style="color:#aaa;font-size:.7rem;margin:0;">${txtUsa}. Duración: 1 minuto estricto.</p>
+
+<span style="background:#2e7d32;padding:3px 8px;border-radius:4px;font-size:.65rem;font-weight:bold;text-transform:uppercase;">
+Bienestar Inicial
+</span>
+
+<h4 style="color:#00bcd4;font-weight:900;margin:8px 0 3px;font-size:1.15rem;">
+PERSONALIZA TU EXPERIENCIA
+</h4>
+
+<p style="color:#aaa;font-size:.72rem;margin:0;">
+${txtUsa}. Tiempo aproximado: 1 minuto.
+</p>
+
 </div>
 <div id="otg-fase-1">
-<p style="font-size:.85rem;font-weight:bold;color:#fff;text-align:center;line-height:1.4;margin-bottom:10px;">SI NO SABES QUÉ HACER O TU MENTE ESTÁ SORDA, NO PIENSES:<br><span style="color:#d84315;text-transform:uppercase;">Aprieta el nombre de la plataforma que tengas justo enfrente</span></p>
-<div class="otg-grid-logos">${this.marcas.map(x=>`<div class="otg-card-logo" onclick="OTG_SENSORIAL.seleccionarMarca(this,'${x}')">${x}</div>`).join("")}</div>
-<button onclick="OTG_SENSORIAL.activarFaseTrivia()" style="width:100%;background:#2e7d32;border:none;color:#fff;padding:14px;border-radius:6px;font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:.8rem;letter-spacing:.5px;">Siguiente Fase →</button>
+
+<p style="font-size:.85rem;font-weight:bold;color:#fff;text-align:center;line-height:1.45;margin-bottom:10px;">
+Selecciona el servicio que mejor representa lo que deseas hacer en este momento.
+</p>
+
+<div class="otg-grid-logos">
+${this.marcas.map(x=>`<div class="otg-card-logo" onclick="OTG_SENSORIAL.seleccionarMarca(this,'${x}')">${x}</div>`).join("")}
 </div>
+
+<button onclick="OTG_SENSORIAL.activarFaseTrivia()"
+style="width:100%;background:#2e7d32;border:none;color:#fff;padding:14px;border-radius:6px;font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:.8rem;letter-spacing:.5px;">
+Continuar →
+</button>
+
+</div>
+
 <div id="otg-fase-2" class="hidden"></div>
 <div id="otg-fase-3" class="hidden" style="text-align:center;"></div>
+
 </div>`;
 },
+
 seleccionarMarca(el,marca){
 el.classList.toggle("active");
 if(el.classList.contains("active"))this.seleccionadas.push(marca);
 else this.seleccionadas=this.seleccionadas.filter(x=>x!==marca);
 },
+
 activarFaseTrivia(){
-if(!this.seleccionadas.length){alert("Por favor, selecciona al menos un entorno de infraestructura.");return;}
+
+if(!this.seleccionadas.length){
+alert("Selecciona al menos una opción.");
+return;
+}
+
 document.getElementById("otg-fase-1").classList.add("hidden");
+
 let f2=document.getElementById("otg-fase-2");
 f2.classList.remove("hidden");
+
 let p=this.preguntas[Math.floor(Math.random()*this.preguntas.length)];
 let m=this.seleccionadas[0];
+
 f2.innerHTML=`
 <div style="background:#111;border:1px solid #222;padding:15px;border-radius:8px;margin-top:10px;">
-<span style="color:#00bcd4;font-size:.65rem;font-weight:bold;text-transform:uppercase;display:block;margin-bottom:3px;">Escaneando: ${m.toUpperCase()}</span>
-<p style="font-size:1rem;font-weight:bold;line-height:1.4;margin:5px 0 15px;color:#fff;">${p}</p>
-<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado','dopamina')">[A] Inyección rápida de dopamina y distracción por aburrimiento ordinario.</button>
-<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('estresado','evasion')">[B] Evadir responsabilidades pesadas o silenciar el cortisol acumulado.</button>
-<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('ansioso','util')">[C] Una necesidad orgánica y utilitaria real de mi máquina biológica.</button>
+
+<span style="color:#00bcd4;font-size:.65rem;font-weight:bold;text-transform:uppercase;display:block;margin-bottom:5px;">
+Has seleccionado: ${m}
+</span>
+
+<p style="font-size:1rem;font-weight:bold;line-height:1.45;margin:5px 0 15px;color:#fff;">
+${p}
+</p>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado','opcion1')">
+Quiero usar este servicio ahora.
+</button>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('normal','opcion2')">
+Solo estoy explorando opciones.
+</button>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('curioso','opcion3')">
+Quiero descubrir nuevas ideas.
+</button>
+
 </div>`;
 },
 
-inyectarMenteBase(perfilMente,tipoDiagnostico){
+inyectarMenteBase(perfil,tipo){
+
 let s=document.getElementById("mente-selector");
+
 if(s){
-s.value=perfilMente;
+s.value=perfil;
 s.dispatchEvent(new Event("change"));
 }
+
 document.getElementById("otg-fase-2").classList.add("hidden");
+
 let f3=document.getElementById("otg-fase-3");
 f3.classList.remove("hidden");
-let m=this.seleccionadas[0];
-let url=this.urls[m]||"https://google.com";
-let veredicto=
-tipoDiagnostico==="dopamina"
-?`El software detecta Dependencia Dopaminérgica. Tu mente busca parches rápidos en [${m}]. Mapeando bienestar.`
-:tipoDiagnostico==="evasion"
-?`El software detecta Vía de Evasión Psicosomática. Usas [${m}] como anestésico. Calibrando contraataque.`
-:`Uso Utilitario Orgánico. Presentas un balance conciencial frente a [${m}]. Perfil configurado de forma óptima.`;
+
+let marca=this.seleccionadas[0];
+let url=this.urls[marca]||"https://google.com";
+
+let mensaje=
+tipo==="opcion1"
+?`Tu experiencia ha sido personalizada usando "${marca}".`
+:tipo==="opcion2"
+?`Hemos preparado una experiencia basada en tu selección.`
+:`Explora nuevas opciones y encuentra actividades que se adapten a ti.`;
 
 f3.innerHTML=`
-<div style="background:rgba(0,188,212,.05);border:1px solid #00bcd4;padding:15px;border-radius:8px;text-align:left;font-family:monospace;font-size:.8rem;line-height:1.4;margin-bottom:15px;color:#eee;">
-<b style="color:#00bcd4;display:block;margin-bottom:4px;">[PERFILAMIENTO CONCIENCIAL COMPLETADO]</b>
-${veredicto}
+
+<div style="background:rgba(0,188,212,.05);border:1px solid #00bcd4;padding:15px;border-radius:8px;text-align:left;font-size:.82rem;line-height:1.5;margin-bottom:15px;color:#eee;">
+
+<b style="color:#00bcd4;display:block;margin-bottom:6px;">
+Experiencia lista
+</b>
+
+${mensaje}
+
 </div>
+
 <div style="display:flex;gap:8px;">
-<button onclick="window.open('${url}','_blank')" style="flex:1;background:#2e7d32;border:none;color:#fff;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">Ventana Externa Segura</button>
-<button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()" style="flex:1;background:none;border:1px solid #00bcd4;color:#00bcd4;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">Acceder a la App Base</button>
+
+<button onclick="window.open('${url}','_blank')"
+style="flex:1;background:#2e7d32;border:none;color:#fff;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">
+Abrir sitio web
+</button>
+
+<button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()"
+style="flex:1;background:none;border:1px solid #00bcd4;color:#00bcd4;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">
+Continuar
+</button>
+
 </div>`;
 },
 
 cerrarOasisYDarPasoAAppBase(){
+
 let m=document.getElementById("otg-oasis-entretenimiento");
 if(m)m.classList.add("hidden");
+
 document.body.style.overflow="auto";
-if(typeof KERNEL!=="undefined"&&typeof KERNEL.despertarInicial==="function")KERNEL.despertarInicial();
-let p=document.getElementById("otg-btn-power");
-if(p)p.classList.remove("hidden");
+
+if(typeof KERNEL!=="undefined"&&typeof KERNEL.despertarInicial==="function"){
+KERNEL.despertarInicial();
+}
+
+let b=document.getElementById("otg-btn-power");
+if(b)b.classList.remove("hidden");
+
 this.seleccionadas=[];
-console.log("OPEN THAN GO: Módulo de ocio completado. Perfil guardado localmente. Inicializando engranaje base.");
+
+console.log("OPEN THAN GO iniciado.");
 },
 
 apagarSistemaTotal(){
+
 let m=document.getElementById("otg-oasis-entretenimiento");
 if(m)m.classList.add("hidden");
+
 let pc=document.getElementById("pantalla-cierre");
 if(pc)pc.classList.add("hidden");
+
 let wf=document.getElementById("wrapper-form");
 if(wf)wf.classList.remove("hidden");
+
 let pb=document.getElementById("pantalla-bienvenida");
 if(pb)pb.classList.remove("hidden");
-let p=document.getElementById("otg-btn-power");
-if(p)p.classList.add("hidden");
+
+let b=document.getElementById("otg-btn-power");
+if(b)b.classList.add("hidden");
+
 let t=document.getElementById("inp-text-libre");
 if(t)t.value="";
+
 this.seleccionadas=[];
-console.log("SYSTEM STANDBY: Plataforma en modo de hibernación/reposo.");
+
+console.log("Sistema reiniciado.");
 },
 
 forzarCierre15Minutos(){
+
 let m=document.getElementById("otg-oasis-entretenimiento");
 if(m)m.classList.add("hidden");
+
 document.body.innerHTML=`
-<div style="width:100vw;height:100vh;background:#000;color:#dc3545;font-family:monospace;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:25px;">
-<h1 style="font-weight:900;letter-spacing:2px;font-size:1.4rem;margin-bottom:12px;">TIEMPO BIOLÓGICO AGOTADO</h1>
-<p style="color:#eee;font-size:.95rem;max-width:410px;line-height:1.5;font-weight:bold;">
-Has superado los 15 minutos máximos de pantalla permitidos para salvaguardar tu centro biológico y el de tu familia. Tu sesión web ha concluido de forma segura.<br><br>
-<span style="color:#00bcd4;text-transform:uppercase;font-size:.75rem;">Regresa a tus procesos del mundo real ahora mismo.</span>
+
+<div style="width:100vw;height:100vh;background:#000;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:25px;">
+
+<h1 style="color:#00bcd4;font-size:1.4rem;margin-bottom:12px;">
+Sesión finalizada
+</h1>
+
+<p style="max-width:420px;font-size:.95rem;line-height:1.5;color:#ddd;">
+Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una pausa y continuar con tus actividades.
 </p>
+
 </div>`;
 }
+
 };
 
 OTG_SENSORIAL.init();
+
 })();
