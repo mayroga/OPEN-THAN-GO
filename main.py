@@ -8,8 +8,17 @@ import uvicorn
 import os
 import random
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 import urllib.parse
+import stripe # Importación de Stripe
+
+# Configuración de Stripe (se lee de variables de entorno)
+STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
+if STRIPE_SECRET_KEY:
+    stripe.api_key = STRIPE_SECRET_KEY
+# Consideraciones para Stripe Publishable Key (para frontend) y Webhook Secret (para endpoint de webhooks):
+# STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY") # Usar en frontend
+# STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET") # Usar en un endpoint dedicado de webhooks
 
 link_base = "https://www.google.com/maps/search/?api=1&query="
 
@@ -426,89 +435,89 @@ BASE_MISIONES = {
                 "gps": "trampoline park or climbing gym",
                 "vector_necesidades": {"movimiento": 100, "juego": 100, "risa": 90, "salud": 95, "descanso": 0, "silencio": 10, "comunidad": 60, "esperanza": 90}
             },
-            { 
-                "id": 321, 
-                "titulo": "Módulo de Hidro-Calma: Jacuzzi Público / Piscina de Termas", 
-                "titulo_en": "Hydro-Calm Module: Public Jacuzzi / Thermal Pool", 
-                "porque": "Sistema nervioso en alerta roja permanente. El agua templada en movimiento es el reset somático definitivo.", 
-                "porque_en": "Nervous system on permanent red alert. Moving warm water is the ultimate somatic reset.", 
-                "que_hacer": "Visita el centro recreativo con spa, piscina municipal climatizada o YMCA de tu perímetro. Sumérgete en el agua templada o jacuzzi. Cierra los ojos, deja que las burbujas o el agua masajeen tu espalda y concéntrate por dos minutos estrictos únicamente en la flotabilidad y la temperatura de tu piel.", 
-                "que_hacer_en": "Visit the recreation center with a spa, heated municipal pool, or YMCA in your perimeter. Submerge in warm water or a jacuzzi. Close your eyes, let the bubbles or water massage your back, and focus for two strict minutes solely on buoyancy and skin temperature.", 
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, 
-                "donde": "YMCA, alberca climatizada o spa comunitario local.", 
-                "donde_en": "YMCA, heated pool, or local community spa.", 
-                "gps": "ymca pool or public spa", 
-                "vector_necesidades": {"agua": 100, "descanso": 100, "salud": 95, "silencio": 60, "contemplacion": 90, "sombra": 80, "esperanza": 85, "movimiento": 20} 
+            {
+                "id": 321,
+                "titulo": "Módulo de Hidro-Calma: Jacuzzi Público / Piscina de Termas",
+                "titulo_en": "Hydro-Calm Module: Public Jacuzzi / Thermal Pool",
+                "porque": "Sistema nervioso en alerta roja permanente. El agua templada en movimiento es el reset somático definitivo.",
+                "porque_en": "Nervous system on permanent red alert. Moving warm water is the ultimate somatic reset.",
+                "que_hacer": "Visita el centro recreativo con spa, piscina municipal climatizada o YMCA de tu perímetro. Sumérgete en el agua templada o jacuzzi. Cierra los ojos, deja que las burbujas o el agua masajeen tu espalda y concéntrate por dos minutos estrictos únicamente en la flotabilidad y la temperatura de tu piel.",
+                "que_hacer_en": "Visit the recreation center with a spa, heated municipal pool, or YMCA in your perimeter. Submerge in warm water or a jacuzzi. Close your eyes, let the bubbles or water massage your back, and focus for two strict minutes solely on buoyancy and skin temperature.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "YMCA, alberca climatizada o spa comunitario local.",
+                "donde_en": "YMCA, heated pool, or local community spa.",
+                "gps": "ymca pool or public spa",
+                "vector_necesidades": {"agua": 100, "descanso": 100, "salud": 95, "silencio": 60, "contemplacion": 90, "sombra": 80, "esperanza": 85, "movimiento": 20}
             },
-            { 
-                "id": 322, 
-                "titulo": "Quiebre de Frecuencias: Sound Healing / Centro de Yoga", 
-                "titulo_en": "Frequency Break: Sound Healing / Yoga Center", 
-                "porque": "Mente acelerada con pensamientos intrusivos y zumbido mental debido al estrés digital continuo.", 
-                "porque_en": "Racing mind with intrusive thoughts and mental buzzing due to continuous digital stress.", 
-                "que_hacer": "Busca un estudio de yoga, meditación o sound healing en tu zona. Asiste a una sesión o recuéstate en su vestíbulo público si está disponible. Cierra los ojos, concéntrate en los armónicos, cuencos o el silencio del perímetro e inhala en 4 tiempos y exhala en 8 tiempos liberando la rigidez pectoral.", 
-                "que_hacer_en": "Search for a yoga, meditation, or sound healing studio in your area. Attend a session or lie down in its public lobby if available. Close your eyes, focus on harmonics, singing bowls, or perimeter silence, inhale for 4 counts, and exhale for 8 counts, releasing chest rigidity.", 
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, 
-                "donde": "Estudio de yoga, centro de meditación o sound healing en USA.", 
-                "donde_en": "Yoga studio, meditation center, or sound healing spot in the USA.", 
-                "gps": "sound healing or yoga studio", 
-                "vector_necesidades": {"silencio": 100, "descanso": 95, "musica": 90, "contemplacion": 95, "salud": 90, "esperanza": 90, "organizacion": 70} 
+            {
+                "id": 322,
+                "titulo": "Quiebre de Frecuencias: Sound Healing / Centro de Yoga",
+                "titulo_en": "Frequency Break: Sound Healing / Yoga Center",
+                "porque": "Mente acelerada con pensamientos intrusivos y zumbido mental debido al estrés digital continuo.",
+                "porque_en": "Racing mind with intrusive thoughts and mental buzzing due to continuous digital stress.",
+                "que_hacer": "Busca un estudio de yoga, meditación o sound healing en tu zona. Asiste a una sesión o recuéstate en su vestíbulo público si está disponible. Cierra los ojos, concéntrate en los armónicos, cuencos o el silencio del perímetro e inhala en 4 tiempos y exhala en 8 tiempos liberando la rigidez pectoral.",
+                "que_hacer_en": "Search for a yoga, meditation, or sound healing studio in your area. Attend a session or lie down in its public lobby if available. Close your eyes, focus on harmonics, singing bowls, or perimeter silence, inhale for 4 counts, and exhale for 8 counts, releasing chest rigidity.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Estudio de yoga, centro de meditación o sound healing en USA.",
+                "donde_en": "Yoga studio, meditation center, or sound healing spot in the USA.",
+                "gps": "sound healing or yoga studio",
+                "vector_necesidades": {"silencio": 100, "descanso": 95, "musica": 90, "contemplacion": 95, "salud": 90, "esperanza": 90, "organizacion": 70}
             },
-            { 
-                "id": 323, 
-                "titulo": "Aislamiento Orgánico: Sendero Natural Estatal (State Park)", 
-                "titulo_en": "Organic Isolation: State Park Trail", 
-                "porque": "Estrés tóxico urbano agudo. Requieres fitoncidas del bosque y aire puro para regular tu cortisol.", 
-                "porque_en": "Acute toxic urban stress. You require forest phytoncides and pure air to regulate your cortisol.", 
-                "que_hacer": "Dirígete de inmediato al parque estatal (State Park) o reserva natural protegida más cercana de tu Código Postal. Entra al sendero, camina descalzo sobre la tierra o toca la corteza de un gran árbol por un minuto completo. Siente el aire fresco real golpear tu cara lejos del concreto.", 
-                "que_hacer_en": "Head immediately to the nearest State Park or protected nature reserve in your Zip Code. Enter the trail, walk barefoot on the earth, or touch the bark of a large tree for a full minute. Feel the real fresh air hit your face away from concrete.", 
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, 
-                "donde": "Sendero boscoso, reserva natural o parque estatal de tu región.", 
-                "donde_en": "Wooded trail, nature reserve, or state park in your region.", 
-                "gps": "state park trail or nature reserve", 
-                "vector_necesidades": {"naturaleza": 100, "aire_fresco": 100, "silencio": 85, "movimiento": 60, "contemplacion": 90, "descanso": 60, "esperanza": 95, "sol": 70} 
+            {
+                "id": 323,
+                "titulo": "Aislamiento Orgánico: Sendero Natural Estatal (State Park)",
+                "titulo_en": "Organic Isolation: State Park Trail",
+                "porque": "Estrés tóxico urbano agudo. Requieres fitoncidas del bosque y aire puro para regular tu cortisol.",
+                "porque_en": "Acute toxic urban stress. You require forest phytoncides and pure air to regulate your cortisol.",
+                "que_hacer": "Dirígete de inmediato al parque estatal (State Park) o reserva natural protegida más cercana de tu Código Postal. Entra al sendero, camina descalzo sobre la tierra o toca la corteza de un gran árbol por un minuto completo. Siente el aire fresco real golpear tu cara lejos del concreto.",
+                "que_hacer_en": "Head immediately to the nearest State Park or protected nature reserve in your Zip Code. Enter the trail, walk barefoot on the earth, or touch the bark of a large tree for a full minute. Feel the real fresh air hit your face away from concrete.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Sendero boscoso, reserva natural o parque estatal de tu región.",
+                "donde_en": "Wooded trail, nature reserve, or state park in your region.",
+                "gps": "state park trail or nature reserve",
+                "vector_necesidades": {"naturaleza": 100, "aire_fresco": 100, "silencio": 85, "movimiento": 60, "contemplacion": 90, "descanso": 60, "esperanza": 95, "sol": 70}
             },
-            { 
-                "id": 112, 
-                "titulo": "Sendero Corto Natural", 
-                "titulo_en": "Short Nature Trail", 
-                "porque": "Sobrecarga de estímulos. Desconéctate un momento. Camina en paz.", 
-                "porque_en": "Stimuli overload. Disconnect. Walk in peace.", 
-                "que_hacer": "Encuentra un sendero. Camina a paso ligero. Observa el entorno natural.", 
-                "que_hacer_en": "Find a trail. Walk briskly. Observe natural surroundings.", 
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, 
-                "donde": "Sendero natural o bosque.", 
-                "donde_en": "Nature trail or forest.", 
-                "gps": "short nature trail", 
-                "vector_necesidades": {"movimiento": 85, "naturaleza": 100, "silencio": 80, "agua": 40, "sol": 60, "sombra": 70, "aire_fresco": 100, "creatividad": 40, "comunidad": 20, "aprendizaje": 50, "juego": 20, "contemplacion": 90, "descanso": 60, "organizacion": 20, "alimentacion": 0, "musica": 20, "risa": 10, "esperanza": 85} 
+            {
+                "id": 112,
+                "titulo": "Sendero Corto Natural",
+                "titulo_en": "Short Nature Trail",
+                "porque": "Sobrecarga de estímulos. Desconéctate un momento. Camina en paz.",
+                "porque_en": "Stimuli overload. Disconnect. Walk in peace.",
+                "que_hacer": "Encuentra un sendero. Camina a paso ligero. Observa el entorno natural.",
+                "que_hacer_en": "Find a trail. Walk briskly. Observe natural surroundings.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Sendero natural o bosque.",
+                "donde_en": "Nature trail or forest.",
+                "gps": "short nature trail",
+                "vector_necesidades": {"movimiento": 85, "naturaleza": 100, "silencio": 80, "agua": 40, "sol": 60, "sombra": 70, "aire_fresco": 100, "creatividad": 40, "comunidad": 20, "aprendizaje": 50, "juego": 20, "contemplacion": 90, "descanso": 60, "organizacion": 20, "alimentacion": 0, "musica": 20, "risa": 10, "esperanza": 85}
             },
-            { 
-                "id": 113, 
-                "titulo": "Pista de Atletismo", 
-                "titulo_en": "Running Track", 
-                "porque": "Mente acelerada. Quema esa energía extra. Enfoca tu ritmo.", 
-                "porque_en": "Racing mind. Burn extra energy. Focus rhythm.", 
-                "que_hacer": "Dirígete a una pista pública. Corre o camina a tu propio paso. Libera.", 
-                "que_hacer_en": "Go to a public track. Run or walk your pace. Release.", 
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, 
-                "donde": "Pista de atletismo pública.", 
-                "donde_en": "Public running track.", 
-                "gps": "public running track", 
-                "vector_necesidades": {"movimiento": 100, "naturaleza": 30, "silencio": 40, "agua": 10, "sol": 80, "sombra": 30, "aire_fresco": 90, "creatividad": 10, "comunidad": 50, "aprendizaje": 20, "juego": 30, "contemplacion": 50, "descanso": 10, "organizacion": 70, "alimentacion": 0, "musica": 50, "risa": 20, "esperanza": 70} 
+            {
+                "id": 113,
+                "titulo": "Pista de Atletismo",
+                "titulo_en": "Running Track",
+                "porque": "Mente acelerada. Quema esa energía extra. Enfoca tu ritmo.",
+                "porque_en": "Racing mind. Burn extra energy. Focus rhythm.",
+                "que_hacer": "Dirígete a una pista pública. Corre o camina a tu propio paso. Libera.",
+                "que_hacer_en": "Go to a public track. Run or walk your pace. Release.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Pista de atletismo pública.",
+                "donde_en": "Public running track.",
+                "gps": "public running track",
+                "vector_necesidades": {"movimiento": 100, "naturaleza": 30, "silencio": 40, "agua": 10, "sol": 80, "sombra": 30, "aire_fresco": 90, "creatividad": 10, "comunidad": 50, "aprendizaje": 20, "juego": 30, "contemplacion": 50, "descanso": 10, "organizacion": 70, "alimentacion": 0, "musica": 50, "risa": 20, "esperanza": 70}
             },
-            { 
-                "id": 251, 
-                "titulo": "Soberanía en Movimiento: Interrupción Uber/Lyft", 
-                "titulo_en": "Sovereignty in Motion: Uber/Lyft Interruption", 
-                "porque": "Saturación nerviosa por el encierro dentro de cabinas de transporte, tráfico denso y sobrecarga de trayectos urbanos.", 
-                "porque_en": "Nervous saturation from confinement inside ride-sharing cabins, heavy traffic, and urban transit overload.", 
-                "que_hacer": "Si te encuentras viajando en Uber o Lyft en este Código Postal, despega los ojos de la pantalla de inmediato. Apoya las palmas de tus manos firmes sobre tus rodillas. Endereza la columna y ejecuta el Módulo de Ventilación Celular: inhala aire hondo en 4 segundos, retén 4 segundos y exhala todo el CO2 residual de golpe Siente el peso de tu organismo sostenido por el asiento. Tú eres el dueño de tu tiempo de vida, no la prisa del chofer ni la tarifa dinámica de la aplicación.", 
-                "que_hacer_en": "If you are traveling in an Uber or Lyft in this Zip Code, take your eyes off the screen immediately. Place your palms firmly on your knees. Straighten your spine and execute the Cell Ventilation Module: inhale deeply for 4 seconds, hold for 4 seconds, and exhale all residual CO2 at once. Feel your body's weight supported by the seat. You are the master of your lifespan, not the driver's haste or the app's surge pricing.", 
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, 
-                "donde": "Cabina de transporte, asiento de pasajero o parada de autobús de USA.", 
-                "donde_en": "Transit cabin, passenger seat, or USA bus stop.", 
-                "gps": "quiet rest areas or public plazas", 
-                "vector_necesidades": {"descanso": 95, "silencio": 85, "movimiento": 20, "contemplacion": 90, "organizacion": 60, "esperanza": 80} 
+            {
+                "id": 251,
+                "titulo": "Soberanía en Movimiento: Interrupción Uber/Lyft",
+                "titulo_en": "Sovereignty in Motion: Uber/Lyft Interruption",
+                "porque": "Saturación nerviosa por el encierro dentro de cabinas de transporte, tráfico denso y sobrecarga de trayectos urbanos.",
+                "porque_en": "Nervous saturation from confinement inside ride-sharing cabins, heavy traffic, and urban transit overload.",
+                "que_hacer": "Si te encuentras viajando en Uber o Lyft en este Código Postal, despega los ojos de la pantalla de inmediato. Apoya las palmas de tus manos firmes sobre tus rodillas. Endereza la columna y ejecuta el Módulo de Ventilación Celular: inhala aire hondo en 4 segundos, retén 4 segundos y exhala todo el CO2 residual de golpe Siente el peso de tu organismo sostenido por el asiento. Tú eres el dueño de tu tiempo de vida, no la prisa del chofer ni la tarifa dinámica de la aplicación.",
+                "que_hacer_en": "If you are traveling in an Uber or Lyft in this Zip Code, take your eyes off the screen immediately. Place your palms firmly on your knees. Straighten your spine and execute the Cell Ventilation Module: inhale deeply for 4 seconds, hold for 4 seconds, and exhale all residual CO2 at once. Feel your body's weight supported by the seat. You are the master of your lifespan, not the driver's haste or the app's surge pricing.",
+                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
+                "donde": "Cabina de transporte, asiento de pasajero o parada de autobús de USA.",
+                "donde_en": "Transit cabin, passenger seat, or USA bus stop.",
+                "gps": "quiet rest areas or public plazas",
+                "vector_necesidades": {"descanso": 95, "silencio": 85, "movimiento": 20, "contemplacion": 90, "organizacion": 60, "esperanza": 80}
             },
             {
                 "id": 252,
@@ -522,7 +531,7 @@ BASE_MISIONES = {
                 "donde": "Área de servicio de autopista, rampa pública o intersección vial.", "donde_en": "Highway service area, public ramp, or road intersection.",
                 "gps": "highway rest stop or overlook",
                 "vector_necesidades": {"movimiento": 80, "descanso": 70, "silencio": 50, "aire_fresco": 85, "organizacion": 40, "salud": 85}
-            },            
+            },
             {"id": 127, "titulo": "Ruta en Bicicleta Urbana", "titulo_en": "Urban Bike Route",
                 "porque": "Necesitas liberar tensión y moverte rápido. Siente el viento. Explora tu entorno.", "porque_en": "Need to release tension, move fast. Feel wind. Explore.",
                 "que_hacer": "Encuentra un carril bici seguro y pedalea. Siente la velocidad y el control.", "que_hacer_en": "Find a safe bike lane and pedal. Feel speed and control.",
@@ -682,7 +691,7 @@ BASE_MISIONES = {
                 "donde": "Pantalla móvil desde tu espacio de descanso habitual.", "donde_en": "Mobile screen from your usual resting space.",
                 "gps": "local post office",
                 "vector_necesidades": {"juego": 90, "creatividad": 90, "esperanza": 95, "organizacion": 70, "descanso": 60, "aprendizaje": 80, "movimiento": 10}
-            },            
+            },
             {
                 "id": 301,
                 "titulo": "Auditoría de Frecuencias: Discoteca / Club Night",
@@ -721,7 +730,7 @@ BASE_MISIONES = {
                 "donde": "Cadena de comida rápida o cafetería local en tu Código Postal.", "donde_en": "Fast food chain or local coffee shop in your Zip Code.",
                 "gps": "fast food or local restaurant",
                 "vector_necesidades": {"alimentacion": 100, "risa": 75, "juego": 70, "comunidad": 80, "movimiento": 30, "descanso": 50, "esperanza": 85, "silencio": 20}
-            },            
+            },
             {
                 "id": 253,
                 "titulo": "Auditoría de Frecuencias: Escape Discoteca / Club",
@@ -1274,7 +1283,7 @@ def seleccionar_n_misiones_inteligentes(
         mision_aleatoria = random.choice(misiones)
         if mision_aleatoria["id"] not in ids_seleccionados:
             seleccionadas.append(mision_aleatoria)
-            ids_seleccionados.add(mision["id"])
+            ids_seleccionados.add(mision_aleatoria["id"])
 
     return seleccionadas[:n]
 
@@ -1378,6 +1387,94 @@ async def index():
     """Serves the main HTML page."""
     return FileResponse('static/session.html')
 
+# ============================================================
+# Reglas de planes y mapeo de productos Stripe
+# ============================================================
+# Mapeo de IDs de productos de Stripe a nuestros tipos de plan internos.
+# ¡IMPORTANTE! Reemplazar estos con los IDs reales de tus productos en Stripe.
+STRIPE_PRODUCT_PLAN_MAP = {
+    "prod_PLAN_DIARIO_ID": "daily",
+    "prod_PLAN_MENSUAL_ID": "monthly",
+    "prod_PLAN_ANUAL_ID": "annual",
+}
+
+PLAN_LIMITS = {
+    "daily": {"max_daily_accesses": 1, "cooldown_hours": 24},
+    "monthly": {"max_daily_accesses": 5, "cooldown_hours": 0}, # Cooldown_hours no aplica aquí para evitar conflictos con límite diario.
+    "annual": {"max_daily_accesses": 5, "cooldown_hours": 0},
+}
+
+def validate_stripe_subscription_and_access(
+    stripe_subscription_id: str | None,
+    daily_access_timestamps: list[str],
+    last_successful_access_timestamp: str | None
+) -> tuple[bool, str, str | None]:
+    """
+    Valida el estado de la suscripción Stripe y los límites de acceso del usuario.
+    Retorna (es_permitido, razon, tipo_plan_determinado_por_stripe).
+    """
+    if not STRIPE_SECRET_KEY:
+        return False, "Error de configuración: Clave secreta de Stripe no configurada en el servidor.", None
+
+    if not stripe_subscription_id:
+        return False, "ID de suscripción de Stripe no proporcionado. Se requiere un plan de pago.", None
+
+    try:
+        subscription = stripe.Subscription.retrieve(stripe_subscription_id)
+
+        if subscription.status != 'active':
+            return False, f"Suscripción no activa. Estatus: {subscription.status}", None
+
+        # Stripe 'current_period_end' es un timestamp UNIX
+        if subscription.current_period_end < datetime.now().timestamp():
+            return False, "Suscripción de pago ha expirado.", None
+
+        if not subscription.items or not subscription.items.data:
+            return False, "Suscripción de pago no tiene ítems válidos.", None
+
+        product_id = subscription.items.data[0].price.product
+        plan_type = STRIPE_PRODUCT_PLAN_MAP.get(product_id)
+
+        if not plan_type:
+            return False, "Su plan de suscripción no es reconocido por el sistema.", None
+
+        # Aplicar límites de acceso según el plan determinado por Stripe
+        now = datetime.now()
+        today = now.date()
+        limits = PLAN_LIMITS[plan_type]
+
+        today_accesses = []
+        for ts_str in daily_access_timestamps:
+            try:
+                ts = datetime.fromisoformat(ts_str)
+                if ts.date() == today:
+                    today_accesses.append(ts)
+            except ValueError:
+                # Si el formato del timestamp es inválido, se ignora esa entrada
+                pass
+
+        if len(today_accesses) >= limits["max_daily_accesses"]:
+            return False, f"Ha alcanzado el límite de {limits['max_daily_accesses']} ingresos diarios para su plan.", plan_type
+
+        if plan_type == "daily" and last_successful_access_timestamp:
+            try:
+                last_access = datetime.fromisoformat(last_successful_access_timestamp)
+                if (now - last_access).total_seconds() < (limits["cooldown_hours"] * 3600):
+                    remaining_seconds = (limits["cooldown_hours"] * 3600) - (now - last_access).total_seconds()
+                    remaining_minutes = int(remaining_seconds / 60)
+                    return False, f"Debe esperar {remaining_minutes} minutos para el siguiente acceso con su plan diario.", plan_type
+            except ValueError:
+                pass # Timestamp inválido, no se aplica el cooldown
+
+        return True, "Acceso permitido.", plan_type
+
+    except stripe.error.StripeError as e:
+        print(f"Error al verificar suscripción de Stripe para {stripe_subscription_id}: {e}")
+        return False, f"Error en la verificación de pago: {e}", None
+    except Exception as e:
+        print(f"Error inesperado durante la verificación de Stripe: {e}")
+        return False, "Error inesperado al validar el pago.", None
+
 # OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 2 DE 2 (CWRE Logic)
@@ -1388,30 +1485,76 @@ async def mando_integral(request: Request):
     Receives user input and local preference profile to return a personalized recommendation.
     """
     payload = await request.json()
+
+    # ==============================================================================
+    # SECCIÓN 3: CONTROL ADMÍNISTRATIVO MAESTRO (BYPASS GRATIS E ILIMITADO)
+    # ==============================================================================
+    ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
+    ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
+
+    admin_user = payload.get("admin_user")
+    admin_pass = payload.get("admin_pass")
+
+    is_admin_bypass = False
+    if ADMIN_USERNAME and ADMIN_PASSWORD and admin_user == ADMIN_USERNAME and admin_pass == ADMIN_PASSWORD:
+        is_admin_bypass = True
+        # Si es admin, se salta toda la lógica de pago y límites
+    
+    # Parámetros generales
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
-    estado = str(payload.get("estado", "FL")).strip() # Estado no se utiliza directamente en el motor de URL query params, es un placeholder
-    region = str(payload.get("region", "")).strip() # Region no se utiliza directamente en el motor de URL query params, es un placeholder
+    estado = str(payload.get("estado", "FL")).strip()
+    region = str(payload.get("region", "")).strip()
     mente = str(payload.get("mente", "aburrido")).lower()
     budget = str(payload.get("budget", "0"))
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
-   
+    
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
         return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
-   
+    
     perfil_local = payload.get("perfil_local", {})
     if not isinstance(perfil_local, dict):
         perfil_local = {}
-   
+    
     perfil_local = {
         **DEFAULT_NECESSITY_VECTOR,
         **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
     }
     if "indicador_ansiedad" not in perfil_local:
         perfil_local["indicador_ansiedad"] = 0
-       
+    
+    # ==============================================================================
+    # SECCIÓN 2: INTEGRACIÓN MAESTRA DE STRIPE Y REGLAS DE MONETIZACIÓN
+    # Validación de pago solo si no hay bypass administrativo
+    # ==============================================================================
+    if not is_admin_bypass:
+        stripe_subscription_id = payload.get("stripe_subscription_id")
+        daily_access_timestamps = payload.get("daily_access_timestamps", [])
+        last_successful_access_timestamp = payload.get("last_successful_access_timestamp")
+
+        is_allowed, reason, actual_plan_type = validate_stripe_subscription_and_access(
+            stripe_subscription_id,
+            daily_access_timestamps,
+            last_successful_access_timestamp
+        )
+
+        if not is_allowed:
+            return JSONResponse({"error": reason}, status_code=402)
+        
+        # Si el acceso está permitido, podemos actualizar el historial del cliente.
+        # Esto sería manejado por el frontend para la próxima solicitud o un servicio de persistencia.
+        # Aquí simplemente aseguramos que el plan de pago esté disponible para el flujo normal.
+        payload["plan_type"] = actual_plan_type
+        # Para la respuesta, se podría devolver un nuevo timestamp si el cliente lo requiere.
+        # current_access_timestamp = datetime.now().isoformat()
+        # if current_access_timestamp not in daily_access_timestamps:
+        #     daily_access_timestamps.append(current_access_timestamp)
+        #     payload["daily_access_timestamps"] = daily_access_timestamps
+        # payload["last_successful_access_timestamp"] = current_access_timestamp
+
+
     # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
     # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
@@ -1492,7 +1635,7 @@ async def mando_integral(request: Request):
         idioma = "EN" if lang.lower() == "en" else "ES"
         misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
         historial_casa = payload.get("historial_casa", [])
-        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, cantidad=3)
+        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, quantity=3)
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
         return JSONResponse({
@@ -1528,42 +1671,20 @@ async def mando_integral(request: Request):
 
         quienes_van = ""
         if perfil_tipo == "solo":
-            quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
+            quienes_van = "ACOMPAÑAMIENTO: Vas solo." if lang == "es" else "COMPANIONSHIP: Solo."
         elif perfil_tipo == "familia":
-            quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
+            quienes_van = "ACOMPAÑAMIENTO: Con familia." if lang == "es" else "COMPANIONSHIP: Family."
         elif perfil_tipo == "accesible":
-            quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
+            quienes_van = "ACOMPAÑAMIENTO: Ruta accesible." if lang == "es" else "COMPANIONSHIP: Accessible route."
 
-        titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
-        donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-        anclaje_geografico = zip_code
-        map_base_url = link_base
+        # Construcción de destino_instruccion según el formato requerido para compresión
+        destino_instruccion_es_condensada = (
+            f"MÓDULO: {info_seleccionada['que_hacer']}. REGLA: {info_seleccionada['porque']}. {quienes_van}. {precio_real}."
+        )
+        destino_instruccion_en_estandarizada = "TARGET LOCKED. Break screen dependency immediately. Execute physical grounding in this perimeter."
 
-        if lang == "en":
-            # === MODIFICACIÓN: guia_masticada (EN) ACORTADA ===
-            guia_masticada = (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
-            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
-        else:
-            # === MODIFICACIÓN: guia_masticada (ES) ACORTADA ===
-            guia_masticada = (
-                f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
-                f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
-                f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
-                f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
-                f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
-            que_hacer_lang = info_seleccionada["que_hacer"] or ""
-
+        titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]).upper()
+        
         search_query_parts = []
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
@@ -1571,10 +1692,10 @@ async def mando_integral(request: Request):
             search_query_parts.append("family friendly")
 
         search_query_parts.append(info_seleccionada["gps"])
-        search_query_parts.append(f"in {anclaje_geografico}")
+        search_query_parts.append(f"in {zip_code}")
 
         full_map_query_string = " ".join(search_query_parts)
-        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
+        target_link = f"{link_base}{urllib.parse.quote_plus(full_map_query_string)}"
 
         final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
 
@@ -1584,9 +1705,9 @@ async def mando_integral(request: Request):
             "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]),
             "que_hacer": info_seleccionada["que_hacer"],
             "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
-            "destino_entorno": donde_base,
-            "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": guia_masticada.strip(), # Ambos usan el mismo guia_masticada que ya fue construido en el idioma correcto
+            "destino_entorno": info_seleccionada.get("donde", "CAMPO USA"), # Según el formato exacto de las instrucciones
+            "destino_instruccion": destino_instruccion_es_condensada,
+            "destino_instruccion_en": destino_instruccion_en_estandarizada,
             "destino_coordenadas_gps": target_link,
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
