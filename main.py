@@ -20,6 +20,15 @@ if STRIPE_SECRET_KEY:
 # STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY") # Usar en frontend
 # STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET") # Usar en un endpoint dedicado de webhooks
 
+# === PRECIOS ID DE STRIPE (SEGÚN LA SOLICITUD DEL USUARIO) ===
+# Estos son IDs de precios de Stripe, no de productos.
+# Deberás reemplazarlos con los IDs de precio reales de tu cuenta de Stripe.
+PLANES_STRIPE = {
+    'diario': 'price_1O3mB1RvQ1L5Cj3MGz8vU9hF', # Dummy Price ID para el plan diario ($15.99)
+    'mensual': 'price_1O3mB1RvQ1L5Cj3MJj3tK2oV', # Dummy Price ID para el plan mensual ($25.99)
+    'anual': 'price_1O3mB1RvQ1L5Cj3M7mN0u1eG' # Dummy Price ID para el plan anual ($250.00)
+}
+
 link_base = "https://www.google.com/maps/search/?api=1&query="
 
 app = FastAPI()
@@ -1388,14 +1397,14 @@ async def index():
     return FileResponse('static/session.html')
 
 # ============================================================
-# Reglas de planes y mapeo de productos Stripe
+# Reglas de planes y mapeo de precios Stripe
 # ============================================================
-# Mapeo de IDs de productos de Stripe a nuestros tipos de plan internos.
-# ¡IMPORTANTE! Reemplazar estos con los IDs reales de tus productos en Stripe.
-STRIPE_PRODUCT_PLAN_MAP = {
-    "prod_PLAN_DIARIO_ID": "daily",
-    "prod_PLAN_MENSUAL_ID": "monthly",
-    "prod_PLAN_ANUAL_ID": "annual",
+# Mapeo de IDs de precios de Stripe a nuestros tipos de plan internos.
+# Utiliza los IDs definidos en PLANES_STRIPE.
+STRIPE_PRICE_ID_MAP = {
+    PLANES_STRIPE['diario']: "daily",
+    PLANES_STRIPE['mensual']: "monthly",
+    PLANES_STRIPE['anual']: "annual",
 }
 
 PLAN_LIMITS = {
@@ -1432,8 +1441,9 @@ def validate_stripe_subscription_and_access(
         if not subscription.items or not subscription.items.data:
             return False, "Suscripción de pago no tiene ítems válidos.", None
 
-        product_id = subscription.items.data[0].price.product
-        plan_type = STRIPE_PRODUCT_PLAN_MAP.get(product_id)
+        # Obtener el ID de precio del ítem de suscripción
+        price_id = subscription.items.data[0].price.id
+        plan_type = STRIPE_PRICE_ID_MAP.get(price_id)
 
         if not plan_type:
             return False, "Su plan de suscripción no es reconocido por el sistema.", None
