@@ -28,12 +28,6 @@ const KERNEL = {
 
     lastDecayTimestamp: null,
     sessionSeed: null,
-    synth: window.speechSynthesis,
-    speakingQueue: [],
-    isSpeaking: false,
-    currentSpeechUtterance: null,
-    speechRate: 0.9, // A bit slower for better comprehension
-    speechVolume: 1.0,
 
     MAX_HISTORY_SALIR: 5,
     MAX_HISTORY_CASA: 8,
@@ -235,7 +229,7 @@ const KERNEL = {
         "You are completely safe here. Remain in absolute peace this second."
     ],
 
-     // NEW AUDIOS_SECUENCIALES for SALIR mode (45-second phrase injection)
+    // NEW AUDIOS_SECUENCIALES for SALIR mode (45-second phrase injection)
     AUDIOS_SECUENCIALES_SALIR_ES: [
         "Respira hondo. El mundo exterior espera, pero tú controlas tu paz.",
         "Cada segundo es una oportunidad para soltar lo que no te sirve.",
