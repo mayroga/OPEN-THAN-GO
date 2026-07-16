@@ -1,16 +1,24 @@
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 1 DE 2 (Backend Core)
-from fastapi import FastAPI, Request, Body
+from fastapi import FastAPI, Request, Body, HTTPException, Depends, status
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+from typing import Dict, List, Optional
+from datetime import datetime, timedelta
 import uvicorn
 import os
 import random
 import re
-from datetime import datetime
 import urllib.parse
 import stripe
+import json
+import bcrypt # Para hashing de contraseñas
+
+# === Nuevas Imports y Configuraciones de Seguridad ===
+import secrets # Para generar session IDs
+# ======================================================
 
 link_base = "https://www.google.com/maps/search/?api=1&query="
 
@@ -32,32 +40,221 @@ DEFAULT_NECESSITY_VECTOR = {
 # ============================================================
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 ENDPOINT_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
-ADMIN_USER = os.environ.get('ADMIN_USERNAME')
-ADMIN_PASS = os.environ.get('ADMIN_PASSWORD')
+ADMIN_USER = os.environ.get('ADMIN_USERNAME', 'admin') # Default para desarrollo
+ADMIN_PASS = os.environ.get('ADMIN_PASSWORD', 'adminpass') # Default para desarrollo
+SESSION_SECRET_KEY = os.environ.get('SESSION_SECRET_KEY', secrets.token_hex(32)) # Clave para sesiones
 
 PLANES_STRIPE = {
-    'diario': 'price_1TtbjXBOA5mT4t0PMCJSext6',
-    'mensual': 'price_1TtblSBOA5mT4t0PGiYvT2l9',
-    'anual': 'price_1TtbltBOA5mT4t0PpJ8io219'
+    'diario': 'price_1TtbjXBOA5mT4t0PMCJSext6', # Ejemplo de Price ID de Stripe
+    'mensual': 'price_1TtblSBOA5mT4t0PGiYvT2l9', # Ejemplo de Price ID de Stripe
+    'anual': 'price_1TtbltBOA5mT4t0PpJ8io219' # Ejemplo de Price ID de Stripe
 }
 
+# ============================================================
+# MODELOS DE USUARIO Y GESTIÓN DE SESIONES (NUEVO)
+# ============================================================
+class User(BaseModel):
+    username: str
+    password: str
+
+class UserInDB(BaseModel):
+    username: str
+    password_hash: str
+    stripe_customer_id: Optional[str] = None
+    subscription_status: str = "unpaid" # unpaid, active, cancelled
+    usage_count: int = 0 # Usos restantes para planes diarios/mensuales
+    last_payment_date: Optional[datetime] = None
+    is_admin: bool = False
+
+# Base de datos en memoria (cargada desde JSON y guardada)
+users_db: Dict[str, UserInDB] = {}
+sessions: Dict[str, str] = {} # session_id -> username
+
+USERS_FILE = "users_data.json"
+
+def load_users_from_file():
+    global users_db
+    if os.path.exists(USERS_FILE):
+        try:
+            with open(USERS_FILE, 'r') as f:
+                raw_users = json.load(f)
+                for user_data in raw_users:
+                    # Asegurar que last_payment_date es datetime o None
+                    if user_data.get('last_payment_date'):
+                        user_data['last_payment_date'] = datetime.fromisoformat(user_data['last_payment_date'])
+                    users_db[user_data['username']] = UserInDB(**user_data)
+        except json.JSONDecodeError:
+            print(f"Error: {USERS_FILE} está corrupto. Creando archivo por defecto.")
+            users_db = {}
+        except Exception as e:
+            print(f"Error al cargar usuarios de {USERS_FILE}: {e}")
+            users_db = {}
+    if not users_db:
+        # Si no hay usuarios o el archivo está corrupto, crear un admin por defecto
+        print("No users found or file corrupted. Creating default admin user.")
+        default_admin_password_hash = bcrypt.hashpw(ADMIN_PASS.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        admin_user = UserInDB(
+            username=ADMIN_USER,
+            password_hash=default_admin_password_hash,
+            is_admin=True
+        )
+        users_db[ADMIN_USER] = admin_user
+        save_users_to_file()
+
+def save_users_to_file():
+    with open(USERS_FILE, 'w') as f:
+        # Convertir last_payment_date a string ISO format para guardar
+        serializable_users = []
+        for user in users_db.values():
+            user_dict = user.dict()
+            if user_dict.get('last_payment_date'):
+                user_dict['last_payment_date'] = user_dict['last_payment_date'].isoformat()
+            serializable_users.append(user_dict)
+        json.dump(serializable_users, f, indent=2)
+
+# Cargar usuarios al iniciar la aplicación
+load_users_from_file()
+
+# Dependencia para obtener el usuario actual a partir del session_id
+async def get_current_user(request: Request) -> UserInDB:
+    session_id = request.headers.get("X-Session-ID")
+    if not session_id or session_id not in sessions:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No autenticado",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    username = sessions[session_id]
+    user = users_db.get(username)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+    return user
+
+# Middleware para manejar la sesión (simulación de session_id en headers)
+@app.middleware("http")
+async def add_session_header(request: Request, call_next):
+    session_id = request.headers.get("X-Session-ID")
+    if session_id and session_id in sessions:
+        request.state.username = sessions[session_id]
+    response = await call_next(request)
+    return response
+
+# ============================================================
+# ENDPOINTS DE AUTENTICACIÓN (NUEVO)
+# ============================================================
+@app.post("/register")
+async def register_user(user: User):
+    if user.username in users_db:
+        raise HTTPException(status_code=400, detail="El nombre de usuario ya existe")
+    
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    new_user = UserInDB(username=user.username, password_hash=hashed_password)
+    users_db[user.username] = new_user
+    save_users_to_file()
+    return JSONResponse(content={"message": "Registro exitoso", "username": user.username})
+
+@app.post("/login")
+async def login_user(user: User):
+    db_user = users_db.get(user.username)
+    if not db_user or not bcrypt.checkpw(user.password.encode('utf-8'), db_user.password_hash.encode('utf-8')):
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+    
+    session_id = secrets.token_hex(16)
+    sessions[session_id] = user.username
+    return JSONResponse(content={"message": "Login exitoso", "session_id": session_id, "username": user.username})
+
+@app.post("/logout")
+async def logout_user(current_user: UserInDB = Depends(get_current_user)):
+    # Eliminar todas las sesiones asociadas a este usuario
+    session_ids_to_remove = [sid for sid, uname in sessions.items() if uname == current_user.username]
+    for sid in session_ids_to_remove:
+        del sessions[sid]
+    return JSONResponse(content={"message": "Logout exitoso"})
+
+@app.get("/api/user_status")
+async def get_user_status(current_user: UserInDB = Depends(get_current_user)):
+    # Lógica para verificar la suscripción y usos
+    is_paid = False
+    message = "Requiere pago"
+    
+    if current_user.subscription_status == "active":
+        if current_user.last_payment_date:
+            # Plan diario expira después de 1 día
+            if current_user.usage_count == 1: # Si es 1, es un pase diario de un solo uso
+                if datetime.now() < current_user.last_payment_date + timedelta(days=1):
+                    is_paid = True
+                    message = "Pase diario activo"
+                else:
+                    current_user.subscription_status = "unpaid"
+                    current_user.usage_count = 0
+                    message = "Pase diario expirado"
+            # Planes mensuales/anuales con usos diarios
+            elif current_user.usage_count > 0: # Si hay usos restantes, es un plan mensual/anual
+                # Para simplificar, asumimos que los usos se resetean diariamente
+                # En un sistema real, se gestionaría el reseteo de usos o la caducidad total.
+                # Aquí, permitimos acceso si hay usos, y el contador se decrementa con cada mando_integral
+                is_paid = True
+                message = f"Suscripción activa. Usos restantes hoy: {current_user.usage_count}"
+            else: # Usos agotados o plan mensual/anual sin usos asignados
+                current_user.subscription_status = "unpaid" # O reestablecer usos si es diario
+                message = "Suscripción activa pero sin usos restantes"
+        else: # No hay fecha de pago para una suscripción activa
+            current_user.subscription_status = "unpaid"
+            message = "Suscripción inconsistente, requiere revisión"
+
+    if not is_paid and current_user.subscription_status == "unpaid":
+        message = "Acceso requiere pago"
+    
+    # Si el usuario es admin, siempre tiene acceso
+    if current_user.is_admin:
+        is_paid = True
+        message = "Acceso de administrador"
+
+    save_users_to_file() # Guardar cualquier cambio de status
+    return JSONResponse(content={
+        "username": current_user.username,
+        "is_paid": is_paid,
+        "subscription_status": current_user.subscription_status,
+        "usage_count": current_user.usage_count,
+        "message": message,
+        "is_admin": current_user.is_admin
+    })
+
 @app.post("/crear-checkout")
-async def crear_checkout(payload: dict = Body(...)):
+async def crear_checkout(payload: dict = Body(...), current_user: UserInDB = Depends(get_current_user)):
     tipo_plan = payload.get("tipo_plan")
-    user_id = payload.get("user_id")
     price_id = PLANES_STRIPE.get(tipo_plan)
+    if not price_id:
+        raise HTTPException(status_code=400, detail="Tipo de plan inválido")
+    
     mode = "payment" if tipo_plan == "diario" else "subscription"
+    
     try:
+        # Usar current_user.username como user_id para Stripe metadata
+        # Si el usuario ya tiene un customer_id de Stripe, usarlo
+        customer_id = current_user.stripe_customer_id
+        if not customer_id:
+            # Crear un nuevo customer en Stripe si no existe
+            customer = stripe.Customer.create(
+                email=current_user.username + "@example.com", # Usar email ficticio o real si disponible
+                metadata={"username": current_user.username}
+            )
+            current_user.stripe_customer_id = customer.id
+            save_users_to_file()
+            customer_id = customer.id
+
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[{'price': price_id, 'quantity': 1}],
             mode=mode,
-            success_url="https://open-than-go.onrender.com",
-            cancel_url="https://open-than-go.onrender.com",
-            metadata={'user_id': user_id, 'tipo_plan': tipo_plan}
+            customer=customer_id, # Asociar la sesión de checkout al customer de Stripe
+            success_url="https://open-than-go.onrender.com/?payment=success&session_id={CHECKOUT_SESSION_ID}",
+            cancel_url="https://open-than-go.onrender.com/?payment=cancelled",
+            metadata={'username': current_user.username, 'tipo_plan': tipo_plan}
         )
         return JSONResponse(content={"url": session.url})
     except Exception as e:
+        print(f"Error al crear sesión de checkout: {e}")
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 @app.post("/webhook-stripe")
@@ -69,24 +266,79 @@ async def webhook_stripe(request: Request):
             payload, sig_header, ENDPOINT_SECRET
         )
     except ValueError:
+        print("Error: Payload inválido")
         return JSONResponse(status_code=400, content={"error": "Payload inválido"})
     except stripe.error.SignatureVerificationError:
+        print("Error: Firma inválida")
         return JSONResponse(status_code=400, content={"error": "Firma inválida"})
+    
+    # Lógica para procesar eventos de Stripe
+    username = event['data']['object']['metadata'].get('username')
+    if not username:
+        print(f"Webhook error: No username in metadata for event type {event['type']}")
+        return JSONResponse(status_code=400, content={"error": "Falta el nombre de usuario en los metadatos de Stripe"})
+
+    user = users_db.get(username)
+    if not user:
+        print(f"Webhook error: User {username} not found in DB.")
+        return JSONResponse(status_code=404, content={"error": "Usuario no encontrado en la base de datos interna"})
+
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        user_id = session['metadata']['user_id']
-        tipo_plan = session['metadata']['tipo_plan']
         customer_id = session['customer']
-        # TODO: Aquí debes guardar en tu base de datos el customer_id
-        # y activar el plan (1 uso si es diario, o 5 usos diarios si es mensual/anual)
-    elif event['type'] == 'invoice.paid':
-        invoice = event['data']['object']
-        customer_id = invoice['customer']
-        # TODO: Extender el acceso en tu BD al usuario ligado a este customer_id
-    elif event['type'] == 'customer.subscription.deleted':
+        tipo_plan = session['metadata']['tipo_plan']
+
+        user.stripe_customer_id = customer_id
+        user.subscription_status = "active"
+        user.last_payment_date = datetime.now()
+
+        if tipo_plan == "diario":
+            user.usage_count = 1 # Un uso para el pase diario
+        elif tipo_plan == "mensual":
+            user.usage_count = 5 # 5 usos diarios para el plan mensual (ejemplo)
+        elif tipo_plan == "anual":
+            user.usage_count = 10 # 10 usos diarios para el plan anual (ejemplo)
+        
+        print(f"Checkout completado para {username}. Plan: {tipo_plan}, Usos: {user.usage_count}")
+
+    elif event['type'] == 'customer.subscription.created':
         subscription = event['data']['object']
         customer_id = subscription['customer']
-        # TODO: Desactivar accesos en tu BD al vencer el periodo pagado
+        # Si es una suscripción recurrente, Stripe nos enviará este evento cuando se cree
+        # Se asume que checkout.session.completed ya actualizó el estado inicial.
+        # Aquí podríamos manejar lógica adicional si la suscripción se crea fuera de checkout
+        print(f"Suscripción creada para {username}, ID: {subscription.id}")
+
+    elif event['type'] == 'invoice.paid':
+        invoice = event['data']['object']
+        # customer_id = invoice['customer'] # Ya tenemos el customer_id
+        # Cuando se paga una factura de una suscripción recurrente
+        # Resetear los usos diarios para el nuevo ciclo de facturación
+        if user.subscription_status == "active":
+            user.last_payment_date = datetime.now()
+            # Asumiendo que el tipo_plan está en metadata de la suscripción o customer
+            # Para este ejemplo, simplificamos y reseteamos según el plan inicial
+            if invoice['lines']['data'][0]['price']['id'] == PLANES_STRIPE['mensual']:
+                user.usage_count = 5
+                print(f"Factura pagada para {username}. Usos mensuales reestablecidos a 5.")
+            elif invoice['lines']['data'][0]['price']['id'] == PLANES_STRIPE['anual']:
+                user.usage_count = 10
+                print(f"Factura pagada para {username}. Usos anuales reestablecidos a 10.")
+            elif invoice['lines']['data'][0]['price']['id'] == PLANES_STRIPE['diario']:
+                # El plan diario no debería generar invoices recurrentes, pero por si acaso
+                user.usage_count = 1
+                print(f"Factura pagada para {username}. Uso diario reestablecido a 1.")
+
+    elif event['type'] == 'customer.subscription.deleted' or event['type'] == 'customer.subscription.updated' and event['data']['object']['status'] == 'canceled':
+        subscription = event['data']['object']
+        # customer_id = subscription['customer']
+        user.subscription_status = "unpaid"
+        user.usage_count = 0
+        print(f"Suscripción eliminada/cancelada para {username}.")
+    
+    # Importante: Guardar los cambios en el archivo de usuarios
+    save_users_to_file()
+    
     return JSONResponse(content={"success": True})
 
 # ============================================================
