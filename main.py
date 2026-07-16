@@ -1,7 +1,7 @@
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 1 DE 2 (Backend Core)
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Body
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
@@ -10,14 +10,13 @@ import random
 import re
 from datetime import datetime
 import urllib.parse
+import stripe
 
 link_base = "https://www.google.com/maps/search/?api=1&query="
 
 app = FastAPI()
 
-# Ensure the 'static' directory exists before mounting
-if not os.path.exists("static"):
-    os.makedirs("static")
+if not os.path.exists("static"):os.makedirs("static")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 DEFAULT_NECESSITY_VECTOR = {
@@ -29,48 +28,100 @@ DEFAULT_NECESSITY_VECTOR = {
 }
 
 # ============================================================
+# INTEGRACIÓN DE STRIPE - MAY ROGA LLC (PRODUCCIÓN REAL)
+# ============================================================
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+ENDPOINT_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+ADMIN_USER = os.environ.get('ADMIN_USERNAME')
+ADMIN_PASS = os.environ.get('ADMIN_PASSWORD')
+
+PLANES_STRIPE = {
+    'diario': 'price_1TtbjXBOA5mT4t0PMCJSext6',
+    'mensual': 'price_1TtblSBOA5mT4t0PGiYvT2l9',
+    'anual': 'price_1TtbltBOA5mT4t0PpJ8io219'
+}
+
+@app.post("/crear-checkout")
+async def crear_checkout(payload: dict = Body(...)):
+    tipo_plan = payload.get("tipo_plan")
+    user_id = payload.get("user_id")
+    price_id = PLANES_STRIPE.get(tipo_plan)
+    mode = "payment" if tipo_plan == "diario" else "subscription"
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{'price': price_id, 'quantity': 1}],
+            mode=mode,
+            success_url="https://open-than-go.onrender.com",
+            cancel_url="https://open-than-go.onrender.com",
+            metadata={'user_id': user_id, 'tipo_plan': tipo_plan}
+        )
+        return JSONResponse(content={"url": session.url})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+@app.post("/webhook-stripe")
+async def webhook_stripe(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, ENDPOINT_SECRET
+        )
+    except ValueError:
+        return JSONResponse(status_code=400, content={"error": "Payload inválido"})
+    except stripe.error.SignatureVerificationError:
+        return JSONResponse(status_code=400, content={"error": "Firma inválida"})
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        user_id = session['metadata']['user_id']
+        tipo_plan = session['metadata']['tipo_plan']
+        customer_id = session['customer']
+        # TODO: Aquí debes guardar en tu base de datos el customer_id
+        # y activar el plan (1 uso si es diario, o 5 usos diarios si es mensual/anual)
+    elif event['type'] == 'invoice.paid':
+        invoice = event['data']['object']
+        customer_id = invoice['customer']
+        # TODO: Extender el acceso en tu BD al usuario ligado a este customer_id
+    elif event['type'] == 'customer.subscription.deleted':
+        subscription = event['data']['object']
+        customer_id = subscription['customer']
+        # TODO: Desactivar accesos en tu BD al vencer el periodo pagado
+    return JSONResponse(content={"success": True})
+
+# ============================================================
 # MOTOR DE HISTORIAL INTELIGENTE CWRE V2
 # Anti-Repetición + Exploración Controlada
 # ============================================================
 MAX_HISTORY_SALIR = 5
 MAX_HISTORY_CASA = 8
-MAX_HISTORY_ORACULO = 12 # This is handled by frontend (engine.js)
+MAX_HISTORY_ORACULO = 12
 EXPLORATION_RATE = 0.20
 HISTORY_PENALTY_BASE = 40
 
 def limitar_historial(historial, limite):
-    if historial is None:
-        return []
+    if historial is None: return []
     return historial[-limite:]
 
 def penalizacion_historial(mision_id, historial):
-    if not historial:
-        return 0
-    historial = list(reversed(historial)) # Prioriza las más recientes
+    if not historial: return 0
+    historial = list(reversed(historial))
     for posicion, antiguo_id in enumerate(historial):
         if antiguo_id == mision_id:
-            if posicion == 0: # Última misión
-                return HISTORY_PENALTY_BASE * 1.5 # Más penalización para la última
-            elif posicion == 1:
-                return HISTORY_PENALTY_BASE
-            elif posicion == 2:
-                return HISTORY_PENALTY_BASE * 0.70
-            elif posicion <= (len(historial) - 1):
-                return HISTORY_PENALTY_BASE * 0.30
+            if posicion == 0: return HISTORY_PENALTY_BASE * 1.5
+            elif posicion == 1: return HISTORY_PENALTY_BASE
+            elif posicion == 2: return HISTORY_PENALTY_BASE * 0.70
+            elif posicion <= (len(historial) - 1): return HISTORY_PENALTY_BASE * 0.30
     return 0
 
 def bonus_exploracion(mision_id, historial):
-    if not historial or mision_id not in historial:
-        return 20 # Bonificación significativa si nunca se ha visto
-    # Reducir bonificación si ya se ha visto pero no está en el historial reciente
-    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)):
-        return 5
+    if not historial or mision_id not in historial: return 20
+    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)): return 5
     return 0
 
 def actualizar_historial(historial, nuevo_id, limite):
     historial = historial or []
-    if nuevo_id in historial:
-        historial.remove(nuevo_id)
+    if nuevo_id in historial: historial.remove(nuevo_id)
     historial.append(nuevo_id)
     return historial[-limite:]
 
@@ -78,14 +129,12 @@ def diversidad_vector(vector1, vector2):
     distancia = 0
     needs_to_consider = [k for k in DEFAULT_NECESSITY_VECTOR.keys() if k != "indicador_ansiedad"]
     for k in needs_to_consider:
-        # Suma las diferencias absolutas de cada necesidad
         distancia += abs(
             vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) -
             vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
         )
     return distancia
 
-# === MODIFICACIÓN: CONSTANTES DE TIEMPO Y PROPÓSITO ACORTADAS PARA LECTURA RÁPIDA ===
 WHEN_ES = "Ahora. Levántate."
 WHEN_EN = "Now. Move."
 FOR_WHAT_ES = "Romper rutina. Recuérdate vivo."
@@ -1277,7 +1326,6 @@ def seleccionar_n_misiones_inteligentes(
             ids_seleccionados.add(mision["id"])
 
     return seleccionadas[:n]
-
 
 # ============================================================
 # Filtrar historial (para disponibilidad de misiones)
