@@ -8,14 +8,14 @@ const KERNEL = {
     temporizadorCascada: null,
     temporizadorCierre: null,
     salidaSugeridaTimeoutId: null,
-    salidaTimerId: null, // New timer for SALIR mode 45s phrases
+    salidaTimerId: null,
     timeLeft: 600,
     timeLeftCierre: 60,
     isLocked: false,
     idiomaActual: 'es',
     pasosMisiones: [],
     indiceMision: 0,
-    datosLugarGlobal: null, // Now stores the *selected* mission for SALIR
+    datosLugarGlobal: null,
     tipoEscapeGlobal: "",
    
     contadorToques: 0,
@@ -47,58 +47,43 @@ const KERNEL = {
     },
    
     CATALOGO_PREGUNTAS_ES: [
-        // Bloque 1: El Bucle Digital Urbano (Redes, Contenido y Consumo)
         "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?",
         "¿Te pierdes en contenido de video que olvidas en pocos segundos, buscando llenar un vacío?",
         "¿Usas música para ahogar el ruido mental y la inquietud de tu día a día?",
         "¿Sientes que lo digital te desconectó de la capacidad de observar el mundo real en calma?",
-
-        // Bloque 2: Evasión y Rutina Física (Comida, Descanso y Movimiento)
         "¿Invierdes mucho en experiencias pasajeras buscando una satisfacción que se desvanece rápido?",
         "¿Te refugias en espacios ajenos huyendo de situaciones que te acompañan a todas partes?",
         "¿Conduces sin destino solo para escapar del encierro en tu propio entorno?",
         "¿Mantienes hábitos por costumbre, sintiendo que te anestesian de tu realidad?",
         "¿Te cuesta romper tu rutina por miedo a la incomodidad o el esfuerzo físico?",
         "¿Tu cuerpo te pide actividad, pero eliges la comodidad estática del sofá?",
-
-        // Bloque 3: Distracción Nocturna y Aislamiento Social
         "¿Buscas ambientes ruidosos para silenciar los pensamientos que te inquietan?",
         "¿Bailas rodeado de gente, sintiendo a la vez una profunda soledad interior?",
         "¿Asistes a eventos sociales por compromiso, anhelando volver a tu propio espacio?",
         "¿Necesitas estímulos externos para sobrellevar conversaciones monótonas?",
         "¿Aceptas la compañía, pero te escudas detrás de tu dispositivo móvil?",
         "¿Proyectas una imagen de perfección social para ocultar tu verdadero sentir?",
-
-        // Bloque 4: Entorno Familiar y Distancia Emocional
         "¿Existen roces constantes con tus seres queridos que impiden la armonía en casa?",
         "¿Sientes desinterés o apatía ante reuniones familiares inevitables?",
         "¿Compartes techo, pero la distancia emocional te hace sentir como extraños?",
         "¿La visita de un familiar te genera tensión en vez de verdadera paz y conexión?",
         "¿La añoranza por los que están lejos te paraliza y te impide vivir tu presente?",
         "¿Sientes que las interacciones diarias están creando silencios en tus relaciones?",
-
-        // Bloque 5: Evasión por Viajes y Fugas de la Realidad
         "¿Subestimas lo que tienes cerca, soñando con escapes lejanos que te son inalcanzables?",
         "¿Deseas una huida total para que el cambio de escenario resuelva tus crisis internas?",
         "¿Crees que la solución a tu insatisfacción es un cambio radical de ubicación?",
         "¿Planeas grandes gastos en ocio que podrían comprometer tu calma futura?",
         "¿Buscas imágenes de paisajes distantes porque perdiste la capacidad de asombrarte con tu propio cielo?",
         "¿Te sientes atado a tu lugar y asumes que la libertad requiere de un boleto a otro sitio?",
-
-        // Bloque 6: Vulnerabilidad Corporal y Sensaciones
         "¿Aplazas tu bienestar físico por miedo a los costos o las complicaciones?",
         "¿Sientes molestias en el cuerpo causadas por la acumulación de tensión diaria?",
         "¿Sientes opresión en el pecho por la prisa del entorno y la incertidumbre del futuro?",
         "¿Has olvidado el consuelo de una respiración profunda, libre de cualquier preocupación?",
-
-        // Bloque 7: El Espejismo Material y Vacío Existencial
         "¿Buscas la tranquilidad en un entorno natural, pero tu mente sigue en el bucle de las preocupaciones?",
         "¿Tienes comodidades, pero una insatisfacción crónica te consume por dentro?",
         "¿Crees que la adquisición de bienes te dará un sentido de pertenencia o identidad?",
         "¿Te paraliza la idea de dejar la seguridad de lo conocido, por miedo a un paso incierto?",
         "¿Te comparas con las posesiones y el estilo de vida de los demás?",
-
-        // Bloque 8: El Despertar Maestro (Quiebre y Mando Absoluto)
         "¿Tu mente se convirtió en tu mayor prisión en este momento?",
         "¿Quieres ayudar a tu familia a estar mejor pero te paraliza no saber cómo empezar?",
         "¿Estás cansado de repetir patrones que consumen tu libertad y energía?",
@@ -107,57 +92,42 @@ const KERNEL = {
         "¿Estás listo para obedecer al mando, soltar tus indecisiones y salir de tu encierro mental hoy?"
     ],
     CATALOGO_PREGUNTAS_EN: [
-        // Block 1: The Urban Digital Loop (Social Media, Content, and Consumption)
         "Do you open social media out of inertia, comparing your day to idealized images?",
         "Do you get lost in video content that you forget in a few seconds, trying to fill a void?",
         "Do you use music to drown out mental noise and daily restlessness?",
         "Do you feel like technology disconnected you from the ability to calmly observe the real world?",
-
-        // Block 2: Escape Consumption and Physical Routine (Food, Rest, and Movement)
         "Do you overspend on fleeting experiences looking for satisfaction that quickly fades?",
         "Do you take refuge in external spaces fleeing situations that accompany you everywhere?",
         "Do you drive aimlessly just to escape being cooped up in your own environment?",
         "Do you maintain habits out of custom, feeling that they numb you to your reality?",
         "Are you afraid to break your routine for fear of discomfort or physical effort?",
         "Does your body crave activity, but you choose the static comfort of the couch?",
-
-        // Block 3: Nightly Distraction and Social Isolation
         "Do you seek noisy environments to silence the thoughts that trouble you?",
         "Do you dance surrounded by people, while feeling a deep inner loneliness?",
         "Do you attend social events out of obligation, wishing to return to your own space?",
         "Do you need external stimuli to endure monotonous conversations?",
         "Do you accept company but shield yourself behind your mobile device?",
         "Do you project an image of social perfection to hide your true feelings?",
-
-        // Block 4: Family Environment and Emotional Distance
         "Do you constantly argue with your loved ones over differences that prevent harmony at home?",
         "Do you live under the same roof with your family but emotional distance makes you feel like strangers?",
         "Does a family visit generate tension instead of true peace and connection?",
         "Does longing for those far away paralyze you and prevent you to live your present?",
         "Do you feel that daily interactions are creating silences in your relationships?",
-
-        // Block 5: Travel Evasion and Escapes from Reality
         "Do you underestimate what's near you, dreaming of distant escapes that are unattainable?",
         "Do you wish for a total escape so that a change of scenery resolves your internal crises?",
         "Do you believe that the solution to your dissatisfaction is a radical change of location?",
         "Do you plan large expenses on leisure that could compromise your future calm?",
         "Do you search for images of distant landscapes because you've lost the ability to be amazed by your own sky?",
         "Do you feel tied to your place and assume that freedom requires a ticket to another location?",
-
-        // Block 6: Bodily Vulnerability and Sensations
         "Do you postpone your physical well-being for fear of costs or complications?",
         "Do you feel physical discomfort caused by the accumulation of daily tension?",
         "Do you feel tightness in your chest from the rush of your environment and the uncertainty of the future?",
         "Have you forgotten the comfort of a deep breath, free from any worry?",
-
-        // Block 7: The Material Mirage and Existential Void
         "Do you seek tranquility in a natural environment, but your mind remains in the loop of worries?",
         "Do you have comforts but a chronic dissatisfaction consumes you within?",
         "Do you believe that acquiring property will give you a sense of belonging or identity?",
         "Does the idea of leaving the security of the known paralyze you, for fear of an uncertain step?",
         "Do you secretly compare yourself to the status and possessions of others?",
-
-        // Block 8: The Master Awakening (Breakthrough and Absolute Command)
         "Has your mind become your biggest prison right now?",
         "Do you want to help your family be better but are paralyzed by not knowing how to start?",
         "Are you tired of repeating patterns that consume your freedom and energy?",
@@ -229,7 +199,6 @@ const KERNEL = {
         "You are completely safe here. Remain in absolute peace this second."
     ],
 
-    // NEW AUDIOS_SECUENCIALES for SALIR mode (45-second phrase injection)
     AUDIOS_SECUENCIALES_SALIR_ES: [
         "Respira hondo. El mundo exterior espera, pero tú controlas tu paz.",
         "Cada segundo es una oportunidad para soltar lo que no te sirve.",
@@ -255,12 +224,10 @@ const KERNEL = {
         "You are choosing your well-being. Every step is an act of self-love."
     ],
 
-    // Audio script for the conceptual driving contingency mode
     AUDIOS_CONDUCCION_ES: "Atención. OPEN THAN GO ha bloqueado tu pantalla por tu seguridad física. Estás manejando en una de las carreteras interestatales de los Estados Unidos, una infraestructura de asfalto diseñada para mover cuerpos de forma mecánica. Tu cuerpo viaja a alta velocidad, pero tu mente está atrapada en una prisión mental de monotonía o estrés. No mires este teléfono. Mantén tus ojos fijos en el camino. Hackea este trayecto mediante el Módulo de Ventilación Pasiva en este mismo instante: inhala profundamente por la nariz expandiendo tu caja torácica, retén el aire sintiendo los latidos de tu corazón, y exhala de forma lenta y prolongada por la boca vaciando el dióxido de carbono acumulado en tu torrente sanguíneo. Utiliza el volante y el asiento como anclas táctiles de presencia. Observa la inmensidad de las nubes, el cielo o la luna sobre el horizonte sin perder la concentración en la vía. Estás en control de tu vida, no del tráfico. Has transformado esta autopista en tu pista de descompresión cerebral a costo cero. Ejecución pasiva activada.",
     AUDIOS_CONDUCCION_EN: "Attention. OPEN THAN GO has locked your screen for your physical safety. You are driving on one of the interstate highways of the United States, an asphalt infrastructure designed to move bodies mechanically. Your body travels at high speed, but your mind is trapped in a mental prison of monotony or stress. Do not look at this phone. Keep your eyes fixed on the road. Hack this journey through the Passive Ventilation Module right now: inhale deeply through your nose expanding your rib cage, hold your breath feeling your heart beat, and exhale slowly and prolonged through your mouth emptying the accumulated carbon dioxide in your bloodstream. Use the steering wheel and seat as tactile anchors of presence. Observe the vastness of the clouds, the sky, or the moon over the horizon without losing concentration on the road. You are in control of your life, not the traffic. You have transformed this highway into your brain decompression track at zero cost. Passive execution activated.",
 
 
-    // NUEVO CATÁLOGO DE RETOS DE CIERRE (Microacciones de Recuperación Mental)
     CATALOGO_RETOS_ES: [
         {"id": 201, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Abre tu correo o tu aplicación bancaria. Busca 'Subscription', 'Invoice' o 'Payment' y cancela una sola suscripción que ya no utilices. Recuperar el control también es ahorrar.", "img": "gratitude.svg"},
         {"id": 202, "titulo": "EL RETO DE LOS TRES GASTOS", "descripcion": "Abre una nota en tu teléfono y escribe únicamente los tres gastos inevitables de esta semana. No pienses en todo el mes. Solo en esta semana.", "img": "words.svg"},
@@ -286,38 +253,25 @@ const KERNEL = {
         {"id": 210, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "For two minutes, look at a distant point to allow your eyes to rest from the screen.", "img": "nature_sound.svg"},
     ],
 
-    /**
-     * Retrieves or initializes the user's dynamic profile from localStorage.
-     * Ensures all 19 needs are present with default values if missing.
-     * Applies gradual daily reduction (decay) towards base values.
-     * @returns {Object} The user's dynamic profile.
-     */
     obtenerPerfilLocal() {
         let perfilRaw = localStorage.getItem("otg_perfil_dinamico");
         let perfil = {};
-
-        if (!perfilRaw) {
-            perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
-        } else {
+        if (!perfilRaw) {perfil = { ...this.DEFAULT_NECESSITY_PROFILE };}
+        else {
             try {
                 perfil = JSON.parse(perfilRaw);
                 for (const need in this.DEFAULT_NECESSITY_PROFILE) {
-                    if (!(need in perfil)) {
-                        perfil[need] = this.DEFAULT_NECESSITY_PROFILE[need];
-                    }
+                    if (!(need in perfil)) {perfil[need] = this.DEFAULT_NECESSITY_PROFILE[need];}
                 }
             } catch (e) {
                 console.error("Error parsing otg_perfil_dinamico from localStorage, resetting.", e);
                 perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
             }
         }
-
         const now = Date.now();
         let lastDecayTimestamp = parseInt(localStorage.getItem("otg_last_decay") || now);
         this.sessionSeed = localStorage.getItem("otg_session_seed") || Math.random().toString(36).substring(2, 15);
-
         const daysPassed = (now - lastDecayTimestamp) / (1000 * 60 * 60 * 24);
-
         if (daysPassed >= 1) {
             const newPerfil = {};
             const base = 50;
@@ -326,7 +280,7 @@ const KERNEL = {
                     newPerfil[necesidad] = Math.max(0, perfil[necesidad] - (daysPassed * 2));
                     continue;
                 }
-                const valor = perfil[necesidad];
+                let valor = perfil[necesidad];
                 let diferencia = valor - base;
                 diferencia *= (this.DECAY_PER_DAY ** daysPassed);
                 newPerfil[necesidad] = Math.round((base + diferencia) * 100) / 100;
@@ -334,25 +288,18 @@ const KERNEL = {
             perfil = newPerfil;
             lastDecayTimestamp = now;
         }
-
         perfil.fecha = new Date(now).toISOString().split('T')[0];
         perfil.timestamp = now;
-
         localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
         localStorage.setItem("otg_last_decay", lastDecayTimestamp.toString());
         localStorage.setItem("otg_session_seed", this.sessionSeed);
-
         return perfil;
     },
 
-    /** Initializes the KERNEL on DOMContentLoaded. */
     init() {
         const storedLang = localStorage.getItem("otg_language");
-        if (storedLang) {
-            this.idiomaActual = storedLang;
-        } else {
-            localStorage.setItem("otg_language", this.idiomaActual);
-        }
+        if (storedLang) {this.idiomaActual = storedLang;}
+        else {localStorage.setItem("otg_language", this.idiomaActual);}
         try {
             this.historialSalir = JSON.parse(localStorage.getItem("otg_historial_salir") || "[]");
             this.historialCasa = JSON.parse(localStorage.getItem("otg_historial_casa") || "[]");
@@ -370,24 +317,20 @@ const KERNEL = {
             localStorage.removeItem("otg_historial_retos_secuencias");
         }
         this.obtenerPerfilLocal();
-
         const zipInput = document.getElementById('inp-zip');
         if (zipInput) {
             zipInput.addEventListener('input', () => this.validarZip());
             this.validarZip();
         }
-
-        // Add event listeners for the new floating buttons
         document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
     },
 
-    /** Starts the initial welcome sequence after user interaction. */
     despertarInicial() {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.remove('hidden'); // Show return button
-        document.getElementById('btn-whatsapp').classList.remove('hidden'); // Show WhatsApp button
-        document.getElementById('btn-messenger').classList.remove('hidden'); // Show Messenger button
+        document.getElementById('btn-volver-app').classList.remove('hidden');
+        document.getElementById('btn-whatsapp').classList.remove('hidden');
+        document.getElementById('btn-messenger').classList.remove('hidden');
        
         this.cambiarIdioma(this.idiomaActual);
        
@@ -410,9 +353,6 @@ const KERNEL = {
         this.activarBotonMandoLibreInicial();
     },
 
-    /**
-     * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
-     */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
@@ -489,7 +429,6 @@ const KERNEL = {
         this.iniciarEfectoCascada();
     },
 
-    /** Initiates the fading cascade effect for questions. */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
        
@@ -519,7 +458,6 @@ const KERNEL = {
         }, 8000);
     },
 
-    /** Activates the free writing input field and button from start. */
     activarBotonMandoLibreInicial() {
         const textarea = document.getElementById('inp-text-libre');
         const btnLibre = document.getElementById('btn-activar-libre');
@@ -592,7 +530,6 @@ const KERNEL = {
         this.validarZip();
     },
 
-    /** Validates ZIP input and controls button state */
     validarZip() {
         const zipInput = document.getElementById('inp-zip');
         const btnActivarLibre = document.getElementById('btn-activar-libre');
@@ -626,7 +563,6 @@ const KERNEL = {
         }
     },
 
-    /** Activates the free writing input field and visually indicates readiness. */
     liberarCajonEscrituraLibre() {
         const textarea = document.getElementById('inp-text-libre');
         const lblDesahogo = document.getElementById('lbl-desahogo');
@@ -641,9 +577,6 @@ const KERNEL = {
         this.validarZip();
     },
 
-    /**
-     * Monitors user inaction and advances question blocks or pauses.
-     */
     iniciarMonitoreoInaccion() {
         clearInterval(this.timerInaccion);
         this.conteoInaccion = 0;
@@ -666,9 +599,6 @@ const KERNEL = {
         }, 8000);
     },
 
-    /**
-     * Handles user selecting a question or entering free text.
-     */
     reaccionarPreguntaSeleccionada(textoPregunta) {
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
@@ -677,11 +607,6 @@ const KERNEL = {
         this.ejecutar();
     },
 
-    /**
-     * Converts text to speech using browser's SpeechSynthesis API.
-     * Checks for API support and uses a fixed Spanish voice for consistency as per instructions.
-     * @param {string} texto - The text to speak.
-     */
     hablar(texto) {
         if (!('speechSynthesis' in window)) {
             console.warn("Speech Synthesis API not supported in this browser.");
@@ -696,10 +621,6 @@ const KERNEL = {
         window.speechSynthesis.speak(msg);
     },
 
-    /**
-     * Changes the application's language and updates UI elements.
-     * @param {string} lang - The target language ('es' or 'en').
-     */
     cambiarIdioma(lang) {
         this.idiomaActual = lang;
         localStorage.setItem("otg_language", lang);
@@ -746,9 +667,6 @@ const KERNEL = {
         this.activarBotonMandoLibreInicial();
     },
 
-    /**
-     * Executes the main logic to fetch recommendations from the backend.
-     */
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
@@ -820,7 +738,7 @@ const KERNEL = {
             if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
                 this.historialSalir = data.historial_salir_actualizado;
                 localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                this.pasosMisiones = data.misiones; // Now an array of 3 for SALIR
+                this.pasosMisiones = data.misiones;
                 this.mostrarOpcionesSalir(container);
             }
             else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
@@ -841,9 +759,6 @@ const KERNEL = {
         }
     },
 
-    /**
-     * Displays the 3 options for SALIR mode and waits for user selection.
-     */
     mostrarOpcionesSalir(container) {
         clearInterval(this.timerEnfocado);
         clearInterval(this.salidaTimerId);
@@ -859,7 +774,6 @@ const KERNEL = {
             <h2 class="salida-main-title">${t.choosePath}</h2>
             <p class="salida-choose-instruction">${t.chooseOne}</p>
             <div id="salida-options-grid" class="salida-grid">
-                <!-- Options will be injected here -->
             </div>
         </div>`;
 
@@ -881,12 +795,8 @@ const KERNEL = {
         this.hablar(t.chooseOne);
     },
 
-    /**
-     * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
-     * @param {Object} selectedMission - The mission object chosen by the client.
-     */
     iniciarSalidaConcreta(selectedMission) {
-        this.datosLugarGlobal = selectedMission; // Store the selected mission
+        this.datosLugarGlobal = selectedMission;
         clearInterval(this.timerEnfocado);
         clearInterval(this.salidaTimerId);
         window.speechSynthesis.cancel();
@@ -924,15 +834,14 @@ const KERNEL = {
                 retencion--;
                 if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
                 if (retencion === 0) {
-                    // Transition to 45s phrase injection
-                    retencion = -45; // Use negative to denote this phase
+                    retencion = -45;
                     if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
                     if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
                     this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
                     phraseIndex++;
                 }
             } else if (retencion < 0) {
-                retencion++; // Count up towards 0
+                retencion++;
                 if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
                 if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
                     if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
@@ -940,7 +849,6 @@ const KERNEL = {
                     phraseIndex++;
                 }
                 if (retencion === 0) {
-                    // 45 seconds are over
                     clearInterval(this.salidaTimerId);
                     window.speechSynthesis.cancel();
                     if (btnCount) btnCount.style.display = 'none';
@@ -963,7 +871,6 @@ const KERNEL = {
                                 console.error("Error updating local profile after action:", e);
                             }
                             window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                            // KERNEL.reiniciarExperiencia(); // Keep the app in background, ready for return
                         };
                     }
                 }
@@ -971,10 +878,6 @@ const KERNEL = {
         }, 1000);
     },
 
-
-    /**
-     * Processes the sequential flow based on the recommendation type (only for CASA mode now).
-     */
     procesarFlujoSecuencial(container) {
         clearInterval(this.timerEnfocado);
         window.speechSynthesis.cancel();
@@ -984,7 +887,6 @@ const KERNEL = {
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" }
         }[this.idiomaActual];
 
-        // This function now only handles INTERVENCION_DOMESTICA (CASA mode)
         if (this.indiceMision >= this.pasosMisiones.length) {
             this.iniciarRelojEnfocadoCasa(container, t);
             return;
@@ -1019,8 +921,7 @@ const KERNEL = {
         };
     },
 
-    /** Starts the 10-minute clinical breathing timer for CASA mode. */
-    iniciarRelojEnfocadoCasa(container, t) { // Renamed from iniciarRelojClinicoCasa
+    iniciarRelojEnfocadoCasa(container, t) {
         clearInterval(this.timerEnfocado);
         window.speechSynthesis.cancel();
        
@@ -1095,7 +996,7 @@ const KERNEL = {
                 const data = await r.json();
                
                 if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
-                    const suggestedMission = data.misiones[0]; // Take the first one as suggestion
+                    const suggestedMission = data.misiones[0];
                     if (data.historial_salir_actualizado) {
                         this.historialSalir = data.historial_salir_actualizado;
                         localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
@@ -1155,16 +1056,12 @@ const KERNEL = {
         }, 1000);
     },
 
-    /** Advances to the next internal mission step. */
     avanzarPaso() {
         this.indiceMision++;
         const container = document.getElementById('wrapper-interactive');
         this.procesarFlujoSecuencial(container);
     },
 
-    /**
-     * Initiates the 60-second closing challenge phase.
-     */
     iniciarRetoCierre60Segundos() {
         clearInterval(this.timerEnfocado);
         clearInterval(this.temporizadorCierre);
@@ -1254,7 +1151,6 @@ const KERNEL = {
                 currentRetoIndex++;
             }
         };
-        // Hide previous challenge elements for smooth transition
         if (retoTitulo) retoTitulo.classList.add('hidden');
         if (retoDescripcion) retoDescripcion.classList.add('hidden');
         if (retoImg) retoImg.classList.add('hidden');
@@ -1266,9 +1162,7 @@ const KERNEL = {
                 this.timeLeftCierre--;
                 if (cierreTimer) cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0');
 
-                // Advance challenge every ~20 seconds for 3 challenges in 60s
                 if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) {
-                    // Hide current reto before displaying next to ensure clean transition
                     if (retoTitulo) retoTitulo.classList.add('hidden');
                     if (retoDescripcion) retoDescripcion.classList.add('hidden');
                     if (retoImg) retoImg.classList.add('hidden');
@@ -1296,15 +1190,12 @@ const KERNEL = {
         };
     },
 
-    /**
-     * Resets the UI to the initial form state without clearing persistent data.
-     */
     reiniciarExperiencia() {
         clearInterval(this.timerInaccion);
         clearInterval(this.timerEnfocado);
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
-        clearInterval(this.salidaTimerId); // Clear SALIR specific timer
+        clearInterval(this.salidaTimerId);
         window.speechSynthesis.cancel();
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
@@ -1315,7 +1206,7 @@ const KERNEL = {
         this.indiceMision = 0;
         this.isLocked = false;
         this.contadorToques = 0;
-        this.datosLugarGlobal = null; // Clear selected mission
+        this.datosLugarGlobal = null;
 
         document.getElementById('pantalla-cierre').classList.add('hidden');
         document.getElementById('wrapper-interactive').classList.add('hidden');
@@ -1331,9 +1222,6 @@ const KERNEL = {
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
     },
 
-    /**
-     * Clears ALL session data and reloads the application.
-     */
     destruirYReiniciar() {
         clearInterval(this.timerInaccion);
         clearInterval(this.timerEnfocado);
@@ -1365,6 +1253,42 @@ const KERNEL = {
 document.addEventListener('DOMContentLoaded', () => KERNEL.init());
 
 window.KERNEL = KERNEL;
+
+// ============================================================
+// PASARELA DE PAGO STRIPE - OPEN THAN GO PRODUCTION
+// ============================================================
+
+function procesarPagoStripe(planSeleccionado) {
+    let userId = localStorage.getItem('otg_user_id') || 'usuario_anonimo_real';
+    fetch('/crear-checkout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            tipo_plan: planSeleccionado,
+            user_id: userId
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            alert("No se pudo generar la sesión de pago. Intenta de nuevo.");
+        }
+    })
+    .catch(error => {
+        console.error('Error crítico de Stripe:', error);
+        alert("Ocurrió un error al conectar con la pasarela de cobro.");
+    });
+}
+
 //==========================================================================================
 // KERNEL INTEGRADO V3 (PARTE 1)
 //==========================================================================================
