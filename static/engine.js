@@ -323,15 +323,265 @@ const KERNEL = {
             this.validarZip();
         }
         document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
+
+        // Manejar el resultado del pago de Stripe
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentStatus = urlParams.get('payment');
+        if (paymentStatus === 'success') {
+            this.hablar(this.idiomaActual === 'es' ? 'Pago exitoso. Gracias por tu compra.' : 'Payment successful. Thank you for your purchase.');
+            // Limpiar la URL para que no re-active el mensaje en cada recarga
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        } else if (paymentStatus === 'cancelled') {
+            this.hablar(this.idiomaActual === 'es' ? 'Pago cancelado. Puedes intentar de nuevo.' : 'Payment cancelled. You can try again.');
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }
+
+        // KERNEL.init() no llama a despertarInicial directamente ahora
+        // Solo inicializa lo básico, la lógica de autenticación lo hará después.
     },
 
-    despertarInicial() {
-        document.getElementById('pantalla-bienvenida').style.display = 'none';
+    // --- NUEVAS FUNCIONES DE AUTENTICACIÓN Y FLUJO DE INTERFAZ (NUEVO) ---
+    currentAuthMode: 'login', // 'login' o 'register'
+    isLoggedIn: false,
+    hasPaid: false,
+    currentUsername: null,
+    sessionId: null,
+
+    showAuthScreen() {
+        document.getElementById('pantalla-bienvenida').classList.add('hidden');
+        document.getElementById('wrapper-form').classList.add('hidden');
+        document.getElementById('wrapper-interactive').classList.add('hidden');
+        document.getElementById('pantalla-cierre').classList.add('hidden');
+        document.getElementById('pantalla-autenticacion').classList.remove('hidden');
+        document.getElementById('btn-volver-app').classList.add('hidden'); // Ocultar hasta entrar a la app
+        document.getElementById('btn-whatsapp').classList.add('hidden');
+        document.getElementById('btn-messenger').classList.add('hidden');
+        this.resetAuthForm();
+    },
+
+    toggleAuthMode() {
+        this.currentAuthMode = this.currentAuthMode === 'login' ? 'register' : 'login';
+        const authTitle = document.getElementById('auth-title');
+        const authSubmitBtn = document.getElementById('auth-submit-btn');
+        const toggleLink = document.getElementById('login-register-toggle');
+        const authMessage = document.getElementById('auth-message');
+
+        if (this.currentAuthMode === 'login') {
+            authTitle.innerText = 'INICIAR SESIÓN';
+            authSubmitBtn.innerText = 'INGRESAR';
+            toggleLink.innerText = '¿No tienes cuenta? Regístrate aquí.';
+        } else {
+            authTitle.innerText = 'REGISTRARSE';
+            authSubmitBtn.innerText = 'CREAR CUENTA';
+            toggleLink.innerText = '¿Ya tienes cuenta? Inicia sesión aquí.';
+        }
+        authMessage.innerText = ''; // Limpiar mensajes de error anteriores
+    },
+
+    resetAuthForm() {
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('auth-message').innerText = '';
+        this.currentAuthMode = 'login';
+        this.toggleAuthMode(); // Resetear el texto del toggle
+    },
+
+    async handleAuthSubmit() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const authMessage = document.getElementById('auth-message');
+        authMessage.innerText = ''; // Clear previous messages
+
+        if (!username || !password) {
+            authMessage.innerText = this.idiomaActual === 'es' ? 'Por favor, ingresa usuario y contraseña.' : 'Please enter username and password.';
+            return;
+        }
+
+        try {
+            let endpoint = this.currentAuthMode === 'login' ? '/login' : '/register';
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                if (this.currentAuthMode === 'login') {
+                    this.sessionId = data.session_id;
+                    this.currentUsername = data.username;
+                    localStorage.setItem('otg_session_id', this.sessionId);
+                    localStorage.setItem('otg_username', this.currentUsername);
+                    await this.checkAuthAndRender(); // Re-check status and render app
+                } else { // Registration successful
+                    authMessage.style.color = 'var(--green-action)';
+                    authMessage.innerText = this.idiomaActual === 'es' ? 'Registro exitoso. ¡Ahora puedes iniciar sesión!' : 'Registration successful. You can now log in!';
+                    this.toggleAuthMode(); // Switch to login mode
+                }
+            } else {
+                authMessage.style.color = 'var(--accent)';
+                authMessage.innerText = data.detail || (this.idiomaActual === 'es' ? 'Error en la autenticación.' : 'Authentication error.');
+            }
+        } catch (error) {
+            console.error('Error durante la autenticación:', error);
+            authMessage.style.color = 'var(--accent)';
+            authMessage.innerText = this.idiomaActual === 'es' ? 'Error de conexión con el servidor.' : 'Connection error with the server.';
+        }
+    },
+
+    async logout() {
+        try {
+            const response = await fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Session-ID': this.sessionId
+                }
+            });
+            if (response.ok) {
+                localStorage.removeItem('otg_session_id');
+                localStorage.removeItem('otg_username');
+                this.sessionId = null;
+                this.currentUsername = null;
+                this.isLoggedIn = false;
+                this.hasPaid = false;
+                this.showLoginScreen(); // Go back to login screen
+                this.hablar(this.idiomaActual === 'es' ? 'Sesión cerrada exitosamente.' : 'Logged out successfully.');
+            } else {
+                alert(this.idiomaActual === 'es' ? 'Error al cerrar sesión.' : 'Error logging out.');
+            }
+        } catch (error) {
+            console.error('Error en logout:', error);
+            alert(this.idiomaActual === 'es' ? 'Error de red al cerrar sesión.' : 'Network error during logout.');
+        }
+    },
+
+    async checkAuthAndRender() {
+        this.sessionId = localStorage.getItem('otg_session_id');
+        this.currentUsername = localStorage.getItem('otg_username');
+        this.isLoggedIn = false;
+        this.hasPaid = false;
+        let paymentMessageText = "";
+
+        if (this.sessionId && this.currentUsername) {
+            try {
+                const response = await fetch('/api/user_status', {
+                    method: 'GET',
+                    headers: {
+                        'X-Session-ID': this.sessionId
+                    }
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    this.isLoggedIn = true;
+                    this.hasPaid = data.is_paid;
+                    document.getElementById('display-username').innerText = data.username;
+                    paymentMessageText = data.message;
+                    localStorage.setItem('otg_user_id', data.username); // Para compatibilidad con procesarPagoStripe
+
+                    if (this.hasPaid) {
+                        this.hablar(this.idiomaActual === 'es' ? `Bienvenido de nuevo, ${data.username}.` : `Welcome back, ${data.username}.`);
+                        this.despertarInicial(); // Proceed to main app
+                    } else {
+                        // Logged in but not paid
+                        this.hablar(this.idiomaActual === 'es' ? `Hola, ${data.username}. Tu acceso requiere pago.` : `Hello, ${data.username}. Your access requires payment.`);
+                        this.showPaymentScreen(paymentMessageText);
+                    }
+                } else {
+                    // Session invalid or other error, force re-login
+                    console.error('API User Status Error:', data.detail);
+                    localStorage.removeItem('otg_session_id');
+                    localStorage.removeItem('otg_username');
+                    this.showLoginScreen(data.detail || (this.idiomaActual === 'es' ? 'Tu sesión ha expirado.' : 'Your session has expired.'));
+                }
+            } catch (error) {
+                console.error('Error checking user status:', error);
+                // Assume network error or server down, prompt login
+                this.showLoginScreen(this.idiomaActual === 'es' ? 'No se pudo conectar al servidor. Intenta de nuevo.' : 'Could not connect to server. Please try again.');
+            }
+        } else {
+            this.showLoginScreen();
+        }
+    },
+
+    showLoginScreen(message = '') {
+        document.getElementById('pantalla-bienvenida').classList.add('hidden');
+        document.getElementById('wrapper-form').classList.add('hidden');
+        document.getElementById('wrapper-interactive').classList.add('hidden');
+        document.getElementById('pantalla-cierre').classList.add('hidden');
+        document.getElementById('pantalla-autenticacion').classList.remove('hidden');
+        document.getElementById('btn-volver-app').classList.add('hidden');
+        document.getElementById('btn-whatsapp').classList.add('hidden');
+        document.getElementById('btn-messenger').classList.add('hidden');
+        
+        this.resetAuthForm();
+        if (message) {
+            const authMessage = document.getElementById('auth-message');
+            authMessage.style.color = 'var(--accent)';
+            authMessage.innerText = message;
+        }
+    },
+
+    showPaymentScreen(message = '') {
+        document.getElementById('pantalla-bienvenida').classList.add('hidden');
+        document.getElementById('pantalla-autenticacion').classList.add('hidden');
+        document.getElementById('wrapper-interactive').classList.add('hidden');
+        document.getElementById('pantalla-cierre').classList.add('hidden');
+        document.getElementById('wrapper-form').classList.remove('hidden'); // Show main app container
+        
+        // Hide core app functionality
+        document.getElementById('lbl-zip').parentElement.classList.add('hidden');
+        document.getElementById('modo-selector').parentElement.classList.add('hidden');
+        document.getElementById('mente-selector').parentElement.classList.add('hidden');
+        document.getElementById('budget-selector').parentElement.classList.add('hidden');
+        document.getElementById('perfil-selector').parentElement.classList.add('hidden');
+        document.getElementById('lbl-oraculo-instruccion').classList.add('hidden');
+        document.getElementById('contenedor-preguntas-oraculo').classList.add('hidden');
+        document.getElementById('bloque-escritura-libre').classList.add('hidden');
+
+        // Show payment options
+        const paymentSection = document.getElementById('stripe-payment-options');
+        paymentSection.classList.remove('hidden');
+        document.getElementById('payment-message').innerText = message;
+        
+        document.getElementById('display-username').innerText = this.currentUsername;
+        document.getElementById('btn-volver-app').classList.add('hidden'); // No volver a la app si no hay pago
+        document.getElementById('btn-whatsapp').classList.remove('hidden');
+        document.getElementById('btn-messenger').classList.remove('hidden');
+    },
+
+    showMainApp() {
+        document.getElementById('pantalla-bienvenida').classList.add('hidden');
+        document.getElementById('pantalla-autenticacion').classList.add('hidden');
+        document.getElementById('wrapper-interactive').classList.add('hidden');
+        document.getElementById('pantalla-cierre').classList.add('hidden');
         document.getElementById('wrapper-form').classList.remove('hidden');
+
+        // Show core app functionality
+        document.getElementById('lbl-zip').parentElement.classList.remove('hidden');
+        document.getElementById('modo-selector').parentElement.classList.remove('hidden');
+        document.getElementById('mente-selector').parentElement.classList.remove('hidden');
+        document.getElementById('budget-selector').parentElement.classList.remove('hidden');
+        document.getElementById('perfil-selector').parentElement.classList.remove('hidden');
+        document.getElementById('lbl-oraculo-instruccion').classList.remove('hidden');
+        document.getElementById('contenedor-preguntas-oraculo').classList.remove('hidden');
+        document.getElementById('bloque-escritura-libre').classList.remove('hidden');
+
+        // Hide payment options
+        document.getElementById('stripe-payment-options').classList.add('hidden');
+
+        document.getElementById('display-username').innerText = this.currentUsername;
         document.getElementById('btn-volver-app').classList.remove('hidden');
         document.getElementById('btn-whatsapp').classList.remove('hidden');
         document.getElementById('btn-messenger').classList.remove('hidden');
-       
+    },
+
+    despertarInicial() { // Esta función ahora se llama después de autenticación y pago
+        this.showMainApp(); // Show the main application UI
+
         this.cambiarIdioma(this.idiomaActual);
        
         const saludos_es = [
@@ -628,8 +878,8 @@ const KERNEL = {
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
        
         const t = {
-            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App" },
-            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App" }
+            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App", loginTitle: "INICIAR SESIÓN", registerTitle: "REGISTRARSE", loginBtn: "INGRESAR", registerBtn: "CREAR CUENTA", noAccount: "¿No tienes cuenta? Regístrate aquí.", hasAccount: "¿Ya tienes cuenta? Inicia sesión aquí.", usernameLabel: "Usuario", passwordLabel: "Contraseña", logoutBtn: "Salir" },
+            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App", loginTitle: "LOGIN", registerTitle: "REGISTER", loginBtn: "LOGIN", registerBtn: "CREATE ACCOUNT", noAccount: "Don't have an account? Register here.", hasAccount: "Already have an account? Login here.", usernameLabel: "Username", passwordLabel: "Password", logoutBtn: "Logout" }
         }[lang];
        
         document.getElementById('html-title').innerText = t.title;
@@ -661,6 +911,14 @@ const KERNEL = {
         if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
         const btnVolverApp = document.getElementById('btn-volver-app');
         if (btnVolverApp) btnVolverApp.title = t.volverApp;
+
+        // Textos de autenticación
+        document.getElementById('auth-title').innerText = this.currentAuthMode === 'login' ? t.loginTitle : t.registerTitle;
+        document.getElementById('auth-submit-btn').innerText = this.currentAuthMode === 'login' ? t.loginBtn : t.registerBtn;
+        document.getElementById('login-register-toggle').innerText = this.currentAuthMode === 'login' ? t.noAccount : t.hasAccount;
+        document.querySelector('#pantalla-autenticacion .auth-field:first-of-type label').innerText = t.usernameLabel;
+        document.querySelector('#pantalla-autenticacion .auth-field:last-of-type label').innerText = t.passwordLabel;
+        document.querySelector('.user-info button').innerText = t.logoutBtn;
 
         this.hablar(t.alert);
         this.inyectarBloquePreguntas();
@@ -718,9 +976,18 @@ const KERNEL = {
         try {
             const r = await fetch("/api/mando-integral", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", "X-Session-ID": this.sessionId },
                 body: JSON.stringify(payload)
             });
+
+            if (r.status === 401 || r.status === 403) {
+                // If unauthorized or forbidden (e.g., payment required)
+                const errorData = await r.json();
+                this.hablar(errorData.detail);
+                this.checkAuthAndRender(); // Go back to check status and show payment/login screen
+                return;
+            }
+
             const data = await r.json();
 
             if (data.error) {
@@ -980,7 +1247,7 @@ const KERNEL = {
             try {
                 const r = await fetch("/api/mando-integral", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { "Content-Type": "application/json", "X-Session-ID": this.sessionId },
                     body: JSON.stringify({
                         modo: "SALIR",
                         lang: this.idiomaActual,
@@ -993,6 +1260,13 @@ const KERNEL = {
                         historial_salir: this.historialSalir
                     })
                 });
+
+                if (r.status === 401 || r.status === 403) {
+                    const errorData = await r.json();
+                    console.warn("API Mando Integral (CASA Suggestion) Error:", errorData.detail);
+                    // No hacer nada, simplemente no se muestra la sugerencia
+                    return;
+                }
                 const data = await r.json();
                
                 if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
@@ -1208,9 +1482,8 @@ const KERNEL = {
         this.contadorToques = 0;
         this.datosLugarGlobal = null;
 
-        document.getElementById('pantalla-cierre').classList.add('hidden');
-        document.getElementById('wrapper-interactive').classList.add('hidden');
-        document.getElementById('wrapper-form').classList.remove('hidden');
+        // Reset to initial app state (after login/payment)
+        this.showMainApp();
        
         document.getElementById('inp-text-libre').value = "";
         this.inyectarBloquePreguntas();
@@ -1245,12 +1518,22 @@ const KERNEL = {
         this.isLocked = false;
         this.contadorToques = 0;
         this.datosLugarGlobal = null;
+        this.sessionId = null;
+        this.currentUsername = null;
+        this.isLoggedIn = false;
+        this.hasPaid = false;
+
 
         location.reload();
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => KERNEL.init());
+document.addEventListener('DOMContentLoaded', () => {
+    KERNEL.init(); // Basic KERNEL init
+    OTG_SENSORIAL.init(); // OTG_SENSORIAL init (styles, floating buttons)
+    // The initial call for authentication and UI rendering
+    KERNEL.checkAuthAndRender(); 
+});
 
 window.KERNEL = KERNEL;
 
@@ -1259,19 +1542,31 @@ window.KERNEL = KERNEL;
 // ============================================================
 
 function procesarPagoStripe(planSeleccionado) {
-    let userId = localStorage.getItem('otg_user_id') || 'usuario_anonimo_real';
+    if (!KERNEL.isLoggedIn || !KERNEL.sessionId) {
+        alert(KERNEL.idiomaActual === 'es' ? "Debes iniciar sesión para adquirir un plan." : "You must be logged in to purchase a plan.");
+        KERNEL.showLoginScreen();
+        return;
+    }
+
     fetch('/crear-checkout', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-Session-ID': KERNEL.sessionId // Enviar el ID de sesión
         },
         body: JSON.stringify({
             tipo_plan: planSeleccionado,
-            user_id: userId
+            // user_id no es necesario aquí, el backend lo obtiene del session_id
         })
     })
     .then(response => {
         if (!response.ok) {
+            if (response.status === 401) {
+                // Session expired or unauthorized, force re-login
+                KERNEL.hablar(KERNEL.idiomaActual === 'es' ? 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.' : 'Your session has expired. Please log in again.');
+                KERNEL.logout(); // Esto también limpiará localStorage y redirigirá al login
+                throw new Error('Unauthorized');
+            }
             throw new Error('Error en la respuesta del servidor');
         }
         return response.json();
@@ -1280,12 +1575,14 @@ function procesarPagoStripe(planSeleccionado) {
         if (data.url) {
             window.location.href = data.url;
         } else {
-            alert("No se pudo generar la sesión de pago. Intenta de nuevo.");
+            alert(KERNEL.idiomaActual === 'es' ? "No se pudo generar la sesión de pago. Intenta de nuevo." : "Could not generate payment session. Please try again.");
         }
     })
     .catch(error => {
         console.error('Error crítico de Stripe:', error);
-        alert("Ocurrió un error al conectar con la pasarela de cobro.");
+        if (error.message !== 'Unauthorized') { // Evitar doble alert si ya se manejó la no autorización
+            alert(KERNEL.idiomaActual === 'es' ? "Ocurrió un error al conectar con la pasarela de cobro." : "An error occurred while connecting to the payment gateway.");
+        }
     });
 }
 
@@ -1346,7 +1643,14 @@ preguntas:[
 "¿Qué servicio te gustaría utilizar en este momento?"
 ],
 seleccionadas:[],
-init(){this.inyectarMetasYEstilos();this.modificarBienvenida();this.crearEstructurasFlotantes();},
+init(){
+    this.inyectarMetasYEstilos();
+    // OTG_SENSORIAL.modificarBienvenida() y OTG_SENSORIAL.interceptarBotonStart()
+    // Ya NO se llaman aquí directamente, su lógica se integra en KERNEL.checkAuthAndRender()
+    // o se llama explícitamente cuando sea necesario mostrar la pantalla de bienvenida.
+    this.crearEstructurasFlotantes();
+    // OTG_SENSORIAL.modificarBienvenida() se llama si el usuario está en la pantalla de bienvenida sin sesión
+},
 inyectarMetasYEstilos(){
 ["apple-mobile-web-app-capable","mobile-web-app-capable"].forEach(n=>{if(!document.querySelector(`meta[name="${n}"]`)){let m=document.createElement("meta");m.name=n;m.content="yes";document.head.appendChild(m);}});
 let s=document.createElement("style");
@@ -1360,7 +1664,7 @@ s.textContent=`
 `;
 document.head.appendChild(s);
 },
-modificarBienvenida(){
+modificarBienvenida(){ // Esta función solo prepara el HTML, la llamada a KERNEL.showLoginScreen() es nueva.
 let pb=document.getElementById("pantalla-bienvenida");
 if(!pb)return;
 
@@ -1417,7 +1721,7 @@ OPEN THAN GO es una herramienta de bienestar y orientación. No ofrece atención
 </div>
 
 <button class="btn-bienvenida"
-onclick="OTG_SENSORIAL.interceptarBotonStart();"
+onclick="KERNEL.showLoginScreen();"
 style="width:100%;border-radius:6px;padding:15px;font-weight:900;background:#fff;color:#000;border:none;cursor:pointer;text-transform:uppercase;">
 
 INICIAR SESIÓN / START
@@ -1442,8 +1746,12 @@ m.style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,
 document.body.appendChild(m);
 },
 interceptarBotonStart(){
+// Esta función ya no es necesaria con el nuevo flujo de autenticación,
+// KERNEL.showLoginScreen() toma su lugar como primer punto de interacción.
+// Sin embargo, si se activa OTG_SENSORIAL.abrirOasisOcio() desde otro punto,
+// se mantiene el forzarCierre15Minutos.
 setTimeout(()=>this.forzarCierre15Minutos(),900000);
-this.abrirOasisOcio();
+this.abrirOasisOcio(); // Esto debería llamarse solo después de login/pago.
 },
 abrirOasisOcio(){
 let m=document.getElementById("otg-oasis-entretenimiento");
@@ -1600,9 +1908,16 @@ if(m)m.classList.add("hidden");
 
 document.body.style.overflow="auto";
 
-if(typeof KERNEL!=="undefined"&&typeof KERNEL.despertarInicial==="function"){
-KERNEL.despertarInicial();
+// En lugar de KERNEL.despertarInicial(), que ya no se llama desde aquí
+// Aseguramos que el flujo de KERNEL se encargue de la transición al estado de la aplicación principal
+// si ya se ha autenticado y pagado.
+if(typeof KERNEL!=="undefined"&&typeof KERNEL.isLoggedIn!=="undefined"&& KERNEL.isLoggedIn && KERNEL.hasPaid){
+    KERNEL.despertarInicial(); // Solo si el usuario está autenticado y ha pagado
+} else {
+    // Si no está autenticado o pagado, volvemos a la pantalla de autenticación o pago.
+    KERNEL.checkAuthAndRender();
 }
+
 
 let b=document.getElementById("otg-btn-power");
 if(b)b.classList.remove("hidden");
@@ -1621,7 +1936,7 @@ let pc=document.getElementById("pantalla-cierre");
 if(pc)pc.classList.add("hidden");
 
 let wf=document.getElementById("wrapper-form");
-if(wf)wf.classList.remove("hidden");
+if(wf)wf.classList.add("hidden"); // Esconder wrapper-form al apagar
 
 let pb=document.getElementById("pantalla-bienvenida");
 if(pb)pb.classList.remove("hidden");
@@ -1633,6 +1948,9 @@ let t=document.getElementById("inp-text-libre");
 if(t)t.value="";
 
 this.seleccionadas=[];
+
+// Resetear el estado de KERNEL y mostrar la pantalla de inicio (con login)
+KERNEL.destruirYReiniciar(); // Refresca la página y vuelve al estado inicial de autenticación
 
 console.log("Sistema reiniciado.");
 },
@@ -1659,6 +1977,9 @@ Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una 
 
 };
 
-OTG_SENSORIAL.init();
+// La llamada inicial a OTG_SENSORIAL.init() se movió al DOMContentLoaded listener
+// OTG_SENSORIAL.init();
+// Esta modificación asegura que KERNEL y OTG_SENSORIAL se inicialicen correctamente
+// y que el flujo de autenticación de KERNEL tome precedencia en el renderizado inicial.
 
 })();
