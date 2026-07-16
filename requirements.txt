@@ -16,3 +16,5 @@ flask
 stripe
 flask-cors
 passlib
+bcrypt
+stripe
