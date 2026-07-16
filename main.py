@@ -1,44 +1,121 @@
-# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 1 DE 2 (Backend Core)
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-import uvicorn
-import os
-import random
-import re
+import os,time,sqlite3,stripe
 from datetime import datetime
-import urllib.parse
-import stripe
+from fastapi import Request,HTTPException
+
+ADMIN_USERNAME=os.getenv("ADMIN_USERNAME")
+ADMIN_PASSWORD=os.getenv("ADMIN_PASSWORD")
+STRIPE_SECRET_KEY=os.getenv("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET=os.getenv("STRIPE_WEBHOOK_SECRET")
+stripe.api_key=STRIPE_SECRET_KEY
+
+PRICE_ONE_TIME="price_1TtbjXBOA5mT4t0PMCJSext6"
+PRICE_MONTHLY="price_1TtblSBOA5mT4t0PGiYvT2l9"
+PRICE_YEARLY="price_1TtbltBOA5mT4t0PpJ8io219"
+
+ACCESS_DB="payments.db"
+
+def init_access_db():
+    conn=sqlite3.connect(ACCESS_DB)
+    cursor=conn.cursor()
+    cursor.execute("""CREATE TABLE IF NOT EXISTS access_users(id INTEGER PRIMARY KEY AUTOINCREMENT,email TEXT UNIQUE,plan TEXT,expires INTEGER,sessions_today INTEGER DEFAULT 0,last_session TEXT,active INTEGER DEFAULT 1)""")
+    conn.commit()
+    conn.close()
+
+init_access_db()
+
+def check_admin(username,password):
+    return username==ADMIN_USERNAME and password==ADMIN_PASSWORD
+
+async def create_checkout_session(plan:str,email:str):
+    prices={"one_time":PRICE_ONE_TIME,"monthly":PRICE_MONTHLY,"yearly":PRICE_YEARLY}
+    if plan not in prices:
+        raise HTTPException(status_code=400,detail="Plan incorrecto")
+    session=stripe.checkout.Session.create(
+        payment_method_types=["card"],
+        mode="subscription" if plan in ["monthly","yearly"] else "payment",
+        line_items=[{"price":prices[plan],"quantity":1}],
+        metadata={"email":email,"plan":plan},
+        success_url="https://open-than-go.onrender.com/payment-success",
+        cancel_url="https://open-than-go.onrender.com/payment-cancel"
+    )
+    return session.url
+
+def activate_user(email,plan):
+    now=int(time.time())
+    if plan=="one_time": expiration=now+86400
+    elif plan=="monthly": expiration=now+(30*86400)
+    elif plan=="yearly": expiration=now+(365*86400)
+    else:return
+    conn=sqlite3.connect(ACCESS_DB)
+    cursor=conn.cursor()
+    cursor.execute("""
+    INSERT INTO access_users(email,plan,expires,sessions_today,last_session,active)
+    VALUES(?,?,?,?,?,1)
+    ON CONFLICT(email)
+    DO UPDATE SET plan=excluded.plan,expires=excluded.expires,active=1
+    """,(email,plan,expiration,0,""))
+    conn.commit()
+    conn.close()
+
+def verify_access(email):
+    conn=sqlite3.connect(ACCESS_DB)
+    cursor=conn.cursor()
+    cursor.execute("SELECT plan,expires,sessions_today,last_session,active FROM access_users WHERE email=?",(email,))
+    user=cursor.fetchone()
+    conn.close()
+    if not user:return False
+    plan,expires,sessions,last_session,active=user
+    if active==0 or time.time()>expires:return False
+    today=str(datetime.utcnow().date())
+    if last_session!=today:sessions=0
+    if plan=="one_time" and sessions>=1:return False
+    if plan in ["monthly","yearly"] and sessions>=5:return False
+    return True
+
+def register_user_session(email):
+    conn=sqlite3.connect(ACCESS_DB)
+    cursor=conn.cursor()
+    today=str(datetime.utcnow().date())
+    cursor.execute("SELECT sessions_today,last_session FROM access_users WHERE email=?",(email,))
+    data=cursor.fetchone()
+    if not data:
+        conn.close()
+        return
+    sessions,last=data
+    if last!=today:sessions=0
+    sessions+=1
+    cursor.execute("UPDATE access_users SET sessions_today=?,last_session=? WHERE email=?",(sessions,today,email))
+    conn.commit()
+    conn.close()
+
+@app.post("/create-checkout-session")
+async def stripe_checkout(request:Request):
+    data=await request.json()
+    url=await create_checkout_session(data["plan"],data["email"])
+    return {"url":url}
+
+@app.post("/stripe-webhook")
+async def stripe_webhook(request:Request):
+    payload=await request.body()
+    signature=request.headers.get("stripe-signature")
+    try:
+        event=stripe.Webhook.construct_event(payload,signature,STRIPE_WEBHOOK_SECRET)
+    except Exception:
+        raise HTTPException(status_code=400,detail="Webhook error")
+    if event["type"]=="checkout.session.completed":
+        session=event["data"]["object"]
+        activate_user(session["metadata"]["email"],session["metadata"]["plan"])
+    return {"status":"ok"}
+
+@app.get("/payment-success")
+async def payment_success():
+    return {"message":"Pago confirmado. Acceso activado."}
+
+@app.get("/payment-cancel")
+async def payment_cancel():
+    return {"message":"Pago cancelado."}
 
 link_base = "https://www.google.com/maps/search/?api=1&query="
-
-app = FastAPI()
-
-# Stripe Configuration
-# Fetch API keys from environment variables on Render
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")
-STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
-
-# Admin credentials for developer access
-ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
-
-# Stripe Price IDs
-PRICE_ONE_TIME = "price_1TtbjXBOA5mT4t0PMCJSext6"
-PRICE_MONTHLY = "price_1TtblSBOA5mT4t0PGiYvT2l9"
-PRICE_ANNUAL = "price_1TtbltBOA5mT4t0PpJ8io219"
-
-# In-memory storage for paid users (for demo/limited persistence without DB)
-# In a real app, this would be a database.
-paid_users = {} # { "session_id": {"status": "paid", "access_expiry": datetime, "subscription_id": "sub_xyz"}}
-
-# Ensure the 'static' directory exists before mounting
-if not os.path.exists("static"):
-    os.makedirs("static")
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 DEFAULT_NECESSITY_VECTOR = {
     "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
