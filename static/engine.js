@@ -8,14 +8,14 @@ const KERNEL = {
     temporizadorCascada: null,
     temporizadorCierre: null,
     salidaSugeridaTimeoutId: null,
-    salidaTimerId: null,
+    salidaTimerId: null, // New timer for SALIR mode 45s phrases
     timeLeft: 600,
     timeLeftCierre: 60,
     isLocked: false,
     idiomaActual: 'es',
     pasosMisiones: [],
     indiceMision: 0,
-    datosLugarGlobal: null,
+    datosLugarGlobal: null, // Now stores the *selected* mission for SALIR
     tipoEscapeGlobal: "",
    
     contadorToques: 0,
@@ -47,43 +47,58 @@ const KERNEL = {
     },
    
     CATALOGO_PREGUNTAS_ES: [
+        // Bloque 1: El Bucle Digital Urbano (Redes, Contenido y Consumo)
         "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?",
         "¿Te pierdes en contenido de video que olvidas en pocos segundos, buscando llenar un vacío?",
         "¿Usas música para ahogar el ruido mental y la inquietud de tu día a día?",
         "¿Sientes que lo digital te desconectó de la capacidad de observar el mundo real en calma?",
+
+        // Bloque 2: Evasión y Rutina Física (Comida, Descanso y Movimiento)
         "¿Invierdes mucho en experiencias pasajeras buscando una satisfacción que se desvanece rápido?",
         "¿Te refugias en espacios ajenos huyendo de situaciones que te acompañan a todas partes?",
         "¿Conduces sin destino solo para escapar del encierro en tu propio entorno?",
         "¿Mantienes hábitos por costumbre, sintiendo que te anestesian de tu realidad?",
         "¿Te cuesta romper tu rutina por miedo a la incomodidad o el esfuerzo físico?",
         "¿Tu cuerpo te pide actividad, pero eliges la comodidad estática del sofá?",
+
+        // Bloque 3: Distracción Nocturna y Aislamiento Social
         "¿Buscas ambientes ruidosos para silenciar los pensamientos que te inquietan?",
         "¿Bailas rodeado de gente, sintiendo a la vez una profunda soledad interior?",
         "¿Asistes a eventos sociales por compromiso, anhelando volver a tu propio espacio?",
         "¿Necesitas estímulos externos para sobrellevar conversaciones monótonas?",
         "¿Aceptas la compañía, pero te escudas detrás de tu dispositivo móvil?",
         "¿Proyectas una imagen de perfección social para ocultar tu verdadero sentir?",
+
+        // Bloque 4: Entorno Familiar y Distancia Emocional
         "¿Existen roces constantes con tus seres queridos que impiden la armonía en casa?",
         "¿Sientes desinterés o apatía ante reuniones familiares inevitables?",
         "¿Compartes techo, pero la distancia emocional te hace sentir como extraños?",
         "¿La visita de un familiar te genera tensión en vez de verdadera paz y conexión?",
         "¿La añoranza por los que están lejos te paraliza y te impide vivir tu presente?",
         "¿Sientes que las interacciones diarias están creando silencios en tus relaciones?",
+
+        // Bloque 5: Evasión por Viajes y Fugas de la Realidad
         "¿Subestimas lo que tienes cerca, soñando con escapes lejanos que te son inalcanzables?",
         "¿Deseas una huida total para que el cambio de escenario resuelva tus crisis internas?",
         "¿Crees que la solución a tu insatisfacción es un cambio radical de ubicación?",
         "¿Planeas grandes gastos en ocio que podrían comprometer tu calma futura?",
         "¿Buscas imágenes de paisajes distantes porque perdiste la capacidad de asombrarte con tu propio cielo?",
         "¿Te sientes atado a tu lugar y asumes que la libertad requiere de un boleto a otro sitio?",
+
+        // Bloque 6: Vulnerabilidad Corporal y Sensaciones
         "¿Aplazas tu bienestar físico por miedo a los costos o las complicaciones?",
         "¿Sientes molestias en el cuerpo causadas por la acumulación de tensión diaria?",
         "¿Sientes opresión en el pecho por la prisa del entorno y la incertidumbre del futuro?",
         "¿Has olvidado el consuelo de una respiración profunda, libre de cualquier preocupación?",
+
+        // Bloque 7: El Espejismo Material y Vacío Existencial
         "¿Buscas la tranquilidad en un entorno natural, pero tu mente sigue en el bucle de las preocupaciones?",
         "¿Tienes comodidades, pero una insatisfacción crónica te consume por dentro?",
         "¿Crees que la adquisición de bienes te dará un sentido de pertenencia o identidad?",
         "¿Te paraliza la idea de dejar la seguridad de lo conocido, por miedo a un paso incierto?",
         "¿Te comparas con las posesiones y el estilo de vida de los demás?",
+
+        // Bloque 8: El Despertar Maestro (Quiebre y Mando Absoluto)
         "¿Tu mente se convirtió en tu mayor prisión en este momento?",
         "¿Quieres ayudar a tu familia a estar mejor pero te paraliza no saber cómo empezar?",
         "¿Estás cansado de repetir patrones que consumen tu libertad y energía?",
@@ -92,42 +107,57 @@ const KERNEL = {
         "¿Estás listo para obedecer al mando, soltar tus indecisiones y salir de tu encierro mental hoy?"
     ],
     CATALOGO_PREGUNTAS_EN: [
+        // Block 1: The Urban Digital Loop (Social Media, Content, and Consumption)
         "Do you open social media out of inertia, comparing your day to idealized images?",
         "Do you get lost in video content that you forget in a few seconds, trying to fill a void?",
         "Do you use music to drown out mental noise and daily restlessness?",
         "Do you feel like technology disconnected you from the ability to calmly observe the real world?",
+
+        // Block 2: Escape Consumption and Physical Routine (Food, Rest, and Movement)
         "Do you overspend on fleeting experiences looking for satisfaction that quickly fades?",
         "Do you take refuge in external spaces fleeing situations that accompany you everywhere?",
         "Do you drive aimlessly just to escape being cooped up in your own environment?",
         "Do you maintain habits out of custom, feeling that they numb you to your reality?",
         "Are you afraid to break your routine for fear of discomfort or physical effort?",
         "Does your body crave activity, but you choose the static comfort of the couch?",
+
+        // Block 3: Nightly Distraction and Social Isolation
         "Do you seek noisy environments to silence the thoughts that trouble you?",
         "Do you dance surrounded by people, while feeling a deep inner loneliness?",
         "Do you attend social events out of obligation, wishing to return to your own space?",
         "Do you need external stimuli to endure monotonous conversations?",
         "Do you accept company but shield yourself behind your mobile device?",
         "Do you project an image of social perfection to hide your true feelings?",
+
+        // Block 4: Family Environment and Emotional Distance
         "Do you constantly argue with your loved ones over differences that prevent harmony at home?",
         "Do you live under the same roof with your family but emotional distance makes you feel like strangers?",
         "Does a family visit generate tension instead of true peace and connection?",
         "Does longing for those far away paralyze you and prevent you to live your present?",
         "Do you feel that daily interactions are creating silences in your relationships?",
+
+        // Block 5: Travel Evasion and Escapes from Reality
         "Do you underestimate what's near you, dreaming of distant escapes that are unattainable?",
         "Do you wish for a total escape so that a change of scenery resolves your internal crises?",
         "Do you believe that the solution to your dissatisfaction is a radical change of location?",
         "Do you plan large expenses on leisure that could compromise your future calm?",
         "Do you search for images of distant landscapes because you've lost the ability to be amazed by your own sky?",
         "Do you feel tied to your place and assume that freedom requires a ticket to another location?",
+
+        // Block 6: Bodily Vulnerability and Sensations
         "Do you postpone your physical well-being for fear of costs or complications?",
         "Do you feel physical discomfort caused by the accumulation of daily tension?",
         "Do you feel tightness in your chest from the rush of your environment and the uncertainty of the future?",
         "Have you forgotten the comfort of a deep breath, free from any worry?",
+
+        // Block 7: The Material Mirage and Existential Void
         "Do you seek tranquility in a natural environment, but your mind remains in the loop of worries?",
         "Do you have comforts but a chronic dissatisfaction consumes you within?",
         "Do you believe that acquiring property will give you a sense of belonging or identity?",
         "Does the idea of leaving the security of the known paralyze you, for fear of an uncertain step?",
         "Do you secretly compare yourself to the status and possessions of others?",
+
+        // Block 8: The Master Awakening (Breakthrough and Absolute Command)
         "Has your mind become your biggest prison right now?",
         "Do you want to help your family be better but are paralyzed by not knowing how to start?",
         "Are you tired of repeating patterns that consume your freedom and energy?",
@@ -199,6 +229,7 @@ const KERNEL = {
         "You are completely safe here. Remain in absolute peace this second."
     ],
 
+    // NEW AUDIOS_SECUENCIALES for SALIR mode (45-second phrase injection)
     AUDIOS_SECUENCIALES_SALIR_ES: [
         "Respira hondo. El mundo exterior espera, pero tú controlas tu paz.",
         "Cada segundo es una oportunidad para soltar lo que no te sirve.",
@@ -224,10 +255,12 @@ const KERNEL = {
         "You are choosing your well-being. Every step is an act of self-love."
     ],
 
+    // Audio script for the conceptual driving contingency mode
     AUDIOS_CONDUCCION_ES: "Atención. OPEN THAN GO ha bloqueado tu pantalla por tu seguridad física. Estás manejando en una de las carreteras interestatales de los Estados Unidos, una infraestructura de asfalto diseñada para mover cuerpos de forma mecánica. Tu cuerpo viaja a alta velocidad, pero tu mente está atrapada en una prisión mental de monotonía o estrés. No mires este teléfono. Mantén tus ojos fijos en el camino. Hackea este trayecto mediante el Módulo de Ventilación Pasiva en este mismo instante: inhala profundamente por la nariz expandiendo tu caja torácica, retén el aire sintiendo los latidos de tu corazón, y exhala de forma lenta y prolongada por la boca vaciando el dióxido de carbono acumulado en tu torrente sanguíneo. Utiliza el volante y el asiento como anclas táctiles de presencia. Observa la inmensidad de las nubes, el cielo o la luna sobre el horizonte sin perder la concentración en la vía. Estás en control de tu vida, no del tráfico. Has transformado esta autopista en tu pista de descompresión cerebral a costo cero. Ejecución pasiva activada.",
     AUDIOS_CONDUCCION_EN: "Attention. OPEN THAN GO has locked your screen for your physical safety. You are driving on one of the interstate highways of the United States, an asphalt infrastructure designed to move bodies mechanically. Your body travels at high speed, but your mind is trapped in a mental prison of monotony or stress. Do not look at this phone. Keep your eyes fixed on the road. Hack this journey through the Passive Ventilation Module right now: inhale deeply through your nose expanding your rib cage, hold your breath feeling your heart beat, and exhale slowly and prolonged through your mouth emptying the accumulated carbon dioxide in your bloodstream. Use the steering wheel and seat as tactile anchors of presence. Observe the vastness of the clouds, the sky, or the moon over the horizon without losing concentration on the road. You are in control of your life, not the traffic. You have transformed this highway into your brain decompression track at zero cost. Passive execution activated.",
 
 
+    // NUEVO CATÁLOGO DE RETOS DE CIERRE (Microacciones de Recuperación Mental)
     CATALOGO_RETOS_ES: [
         {"id": 201, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Abre tu correo o tu aplicación bancaria. Busca 'Subscription', 'Invoice' o 'Payment' y cancela una sola suscripción que ya no utilices. Recuperar el control también es ahorrar.", "img": "gratitude.svg"},
         {"id": 202, "titulo": "EL RETO DE LOS TRES GASTOS", "descripcion": "Abre una nota en tu teléfono y escribe únicamente los tres gastos inevitables de esta semana. No pienses en todo el mes. Solo en esta semana.", "img": "words.svg"},
@@ -253,25 +286,38 @@ const KERNEL = {
         {"id": 210, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "For two minutes, look at a distant point to allow your eyes to rest from the screen.", "img": "nature_sound.svg"},
     ],
 
+    /**
+     * Retrieves or initializes the user's dynamic profile from localStorage.
+     * Ensures all 19 needs are present with default values if missing.
+     * Applies gradual daily reduction (decay) towards base values.
+     * @returns {Object} The user's dynamic profile.
+     */
     obtenerPerfilLocal() {
         let perfilRaw = localStorage.getItem("otg_perfil_dinamico");
         let perfil = {};
-        if (!perfilRaw) {perfil = { ...this.DEFAULT_NECESSITY_PROFILE };}
-        else {
+
+        if (!perfilRaw) {
+            perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
+        } else {
             try {
                 perfil = JSON.parse(perfilRaw);
                 for (const need in this.DEFAULT_NECESSITY_PROFILE) {
-                    if (!(need in perfil)) {perfil[need] = this.DEFAULT_NECESSITY_PROFILE[need];}
+                    if (!(need in perfil)) {
+                        perfil[need] = this.DEFAULT_NECESSITY_PROFILE[need];
+                    }
                 }
             } catch (e) {
                 console.error("Error parsing otg_perfil_dinamico from localStorage, resetting.", e);
                 perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
             }
         }
+
         const now = Date.now();
         let lastDecayTimestamp = parseInt(localStorage.getItem("otg_last_decay") || now);
         this.sessionSeed = localStorage.getItem("otg_session_seed") || Math.random().toString(36).substring(2, 15);
+
         const daysPassed = (now - lastDecayTimestamp) / (1000 * 60 * 60 * 24);
+
         if (daysPassed >= 1) {
             const newPerfil = {};
             const base = 50;
@@ -280,7 +326,7 @@ const KERNEL = {
                     newPerfil[necesidad] = Math.max(0, perfil[necesidad] - (daysPassed * 2));
                     continue;
                 }
-                let valor = perfil[necesidad];
+                const valor = perfil[necesidad];
                 let diferencia = valor - base;
                 diferencia *= (this.DECAY_PER_DAY ** daysPassed);
                 newPerfil[necesidad] = Math.round((base + diferencia) * 100) / 100;
@@ -288,18 +334,25 @@ const KERNEL = {
             perfil = newPerfil;
             lastDecayTimestamp = now;
         }
+
         perfil.fecha = new Date(now).toISOString().split('T')[0];
         perfil.timestamp = now;
+
         localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
         localStorage.setItem("otg_last_decay", lastDecayTimestamp.toString());
         localStorage.setItem("otg_session_seed", this.sessionSeed);
+
         return perfil;
     },
 
+    /** Initializes the KERNEL on DOMContentLoaded. */
     init() {
         const storedLang = localStorage.getItem("otg_language");
-        if (storedLang) {this.idiomaActual = storedLang;}
-        else {localStorage.setItem("otg_language", this.idiomaActual);}
+        if (storedLang) {
+            this.idiomaActual = storedLang;
+        } else {
+            localStorage.setItem("otg_language", this.idiomaActual);
+        }
         try {
             this.historialSalir = JSON.parse(localStorage.getItem("otg_historial_salir") || "[]");
             this.historialCasa = JSON.parse(localStorage.getItem("otg_historial_casa") || "[]");
@@ -317,277 +370,25 @@ const KERNEL = {
             localStorage.removeItem("otg_historial_retos_secuencias");
         }
         this.obtenerPerfilLocal();
+
         const zipInput = document.getElementById('inp-zip');
         if (zipInput) {
             zipInput.addEventListener('input', () => this.validarZip());
             this.validarZip();
         }
+
+        // Add event listeners for the new floating buttons
         document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
-
-        // Manejar el resultado del pago de Stripe
-        const urlParams = new URLSearchParams(window.location.search);
-        const paymentStatus = urlParams.get('payment');
-        if (paymentStatus === 'success') {
-            this.hablar(this.idiomaActual === 'es' ? 'Pago exitoso. Gracias por tu compra.' : 'Payment successful. Thank you for your purchase.');
-            // Limpiar la URL para que no re-active el mensaje en cada recarga
-            const newUrl = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl);
-            this.checkAuthAndRender(); // Recargar estado para mostrar la app principal
-        } else if (paymentStatus === 'cancelled') {
-            this.hablar(this.idiomaActual === 'es' ? 'Pago cancelado. Puedes intentar de nuevo.' : 'Payment cancelled. You can try again.');
-            const newUrl = window.location.origin + window.location.pathname;
-            window.history.replaceState({}, document.title, newUrl);
-            this.checkAuthAndRender(); // Recargar estado para mostrar la pantalla de pago
-        }
     },
 
-    // --- NUEVAS FUNCIONES DE AUTENTICACIÓN Y FLUJO DE INTERFAZ ---
-    currentAuthMode: 'login', // 'login' o 'register'
-    isLoggedIn: false,
-    hasPaid: false,
-    currentUsername: null,
-    sessionId: null,
-    loginCount: 0, // Usos restantes del usuario para el día
-
-    showAuthScreen() {
-        document.getElementById('pantalla-bienvenida').classList.add('hidden');
-        document.getElementById('wrapper-form').classList.add('hidden');
-        document.getElementById('wrapper-interactive').classList.add('hidden');
-        document.getElementById('pantalla-cierre').classList.add('hidden');
-        document.getElementById('pantalla-autenticacion').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.add('hidden');
-        document.getElementById('btn-whatsapp').classList.add('hidden');
-        document.getElementById('btn-messenger').classList.add('hidden');
-        this.resetAuthForm();
-        OTG_SENSORIAL.modificarBienvenida(); // Asegurar que la pantalla de bienvenida esté actualizada
-    },
-
-    toggleAuthMode() {
-        this.currentAuthMode = this.currentAuthMode === 'login' ? 'register' : 'login';
-        const authTitle = document.getElementById('auth-title');
-        const authSubmitBtn = document.getElementById('auth-submit-btn');
-        const toggleLink = document.getElementById('login-register-toggle');
-        const authMessage = document.getElementById('auth-message');
-
-        const t = {
-            es: { loginTitle: "INICIAR SESIÓN", registerTitle: "REGISTRARSE", loginBtn: "INGRESAR", registerBtn: "CREAR CUENTA", noAccount: "¿No tienes cuenta? Regístrate aquí.", hasAccount: "¿Ya tienes cuenta? Inicia sesión aquí." },
-            en: { loginTitle: "LOGIN", registerTitle: "REGISTER", loginBtn: "LOGIN", registerBtn: "CREATE ACCOUNT", noAccount: "Don't have an account? Register here.", hasAccount: "Already have an account? Login here." }
-        }[this.idiomaActual];
-
-        if (this.currentAuthMode === 'login') {
-            authTitle.innerText = t.loginTitle;
-            authSubmitBtn.innerText = t.loginBtn;
-            toggleLink.innerText = t.noAccount;
-        } else {
-            authTitle.innerText = t.registerTitle;
-            authSubmitBtn.innerText = t.registerBtn;
-            toggleLink.innerText = t.hasAccount;
-        }
-        authMessage.innerText = '';
-    },
-
-    resetAuthForm() {
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
-        document.getElementById('auth-message').innerText = '';
-        this.currentAuthMode = 'login';
-        this.toggleAuthMode();
-    },
-
-    async handleAuthSubmit() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const authMessage = document.getElementById('auth-message');
-        authMessage.innerText = '';
-
-        if (!username || !password) {
-            authMessage.innerText = this.idiomaActual === 'es' ? 'Por favor, ingresa usuario y contraseña.' : 'Please enter username and password.';
-            return;
-        }
-
-        try {
-            let endpoint = this.currentAuthMode === 'login' ? '/login' : '/register';
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                if (this.currentAuthMode === 'login') {
-                    this.sessionId = data.session_id;
-                    this.currentUsername = data.username;
-                    localStorage.setItem('otg_session_id', this.sessionId);
-                    localStorage.setItem('otg_username', this.currentUsername);
-                    await this.checkAuthAndRender();
-                } else {
-                    authMessage.style.color = 'var(--green-action)';
-                    authMessage.innerText = this.idiomaActual === 'es' ? 'Registro exitoso. ¡Ahora puedes iniciar sesión!' : 'Registration successful. You can now log in!';
-                    this.toggleAuthMode();
-                }
-            } else {
-                authMessage.style.color = 'var(--accent)';
-                authMessage.innerText = data.detail || (this.idiomaActual === 'es' ? 'Error en la autenticación.' : 'Authentication error.');
-            }
-        } catch (error) {
-            console.error('Error durante la autenticación:', error);
-            authMessage.style.color = 'var(--accent)';
-            authMessage.innerText = this.idiomaActual === 'es' ? 'Error de conexión con el servidor.' : 'Connection error with the server.';
-        }
-    },
-
-    async logout() {
-        try {
-            const response = await fetch('/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Session-ID': this.sessionId
-                }
-            });
-            if (response.ok) {
-                localStorage.removeItem('otg_session_id');
-                localStorage.removeItem('otg_username');
-                this.sessionId = null;
-                this.currentUsername = null;
-                this.isLoggedIn = false;
-                this.hasPaid = false;
-                this.loginCount = 0;
-                this.showAuthScreen();
-                this.hablar(this.idiomaActual === 'es' ? 'Sesión cerrada exitosamente.' : 'Logged out successfully.');
-            } else {
-                alert(this.idiomaActual === 'es' ? 'Error al cerrar sesión.' : 'Error logging out.');
-            }
-        } catch (error) {
-            console.error('Error en logout:', error);
-            alert(this.idiomaActual === 'es' ? 'Error de red al cerrar sesión.' : 'Network error during logout.');
-        }
-    },
-
-    async checkAuthAndRender() {
-        this.sessionId = localStorage.getItem('otg_session_id');
-        this.currentUsername = localStorage.getItem('otg_username');
-        this.isLoggedIn = false;
-        this.hasPaid = false;
-        this.loginCount = 0;
-        let paymentMessageText = "";
-
-        if (this.sessionId && this.currentUsername) {
-            try {
-                const response = await fetch('/api/user_status', {
-                    method: 'GET',
-                    headers: {
-                        'X-Session-ID': this.sessionId
-                    }
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    this.isLoggedIn = true;
-                    this.hasPaid = data.is_paid;
-                    this.loginCount = data.login_count;
-                    document.getElementById('display-username').innerText = data.username;
-                    paymentMessageText = data.message;
-
-                    this.updateLoginCountDisplay(); // Actualizar display con el contador de usos
-
-                    if (this.hasPaid) {
-                        this.hablar(this.idiomaActual === 'es' ? `Bienvenido de nuevo, ${data.username}.` : `Welcome back, ${data.username}.`);
-                        this.despertarInicial();
-                    } else {
-                        this.hablar(this.idiomaActual === 'es' ? `Hola, ${data.username}. Tu acceso requiere pago.` : `Hello, ${data.username}. Your access requires payment.`);
-                        this.showPaymentScreen(paymentMessageText);
-                    }
-                } else {
-                    console.error('API User Status Error:', data.detail);
-                    localStorage.removeItem('otg_session_id');
-                    localStorage.removeItem('otg_username');
-                    this.showAuthScreen();
-                    document.getElementById('auth-message').style.color = 'var(--accent)';
-                    document.getElementById('auth-message').innerText = data.detail || (this.idiomaActual === 'es' ? 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.' : 'Your session has expired. Please log in again.');
-                }
-            } catch (error) {
-                console.error('Error checking user status:', error);
-                this.showAuthScreen();
-                document.getElementById('auth-message').style.color = 'var(--accent)';
-                document.getElementById('auth-message').innerText = this.idiomaActual === 'es' ? 'No se pudo conectar al servidor. Intenta de nuevo.' : 'Could not connect to server. Please try again.';
-            }
-        } else {
-            this.showAuthScreen();
-        }
-    },
-
-    updateLoginCountDisplay() {
-        const display = document.getElementById('login-count-display');
-        if (display) {
-            const message = this.idiomaActual === 'es' ? `Usos restantes hoy: ${this.loginCount}` : `Remaining uses today: ${this.loginCount}`;
-            display.innerText = message;
-        }
-    },
-
-    showPaymentScreen(message = '') {
-        document.getElementById('pantalla-bienvenida').classList.add('hidden');
-        document.getElementById('pantalla-autenticacion').classList.add('hidden');
-        document.getElementById('wrapper-interactive').classList.add('hidden');
-        document.getElementById('pantalla-cierre').classList.add('hidden');
-        document.getElementById('wrapper-form').classList.remove('hidden');
-        
-        // Hide core app functionality
-        document.getElementById('lbl-zip').parentElement.classList.add('hidden');
-        document.getElementById('modo-selector').parentElement.classList.add('hidden');
-        document.getElementById('mente-selector').parentElement.classList.add('hidden');
-        document.getElementById('budget-selector').parentElement.classList.add('hidden');
-        document.getElementById('perfil-selector').parentElement.classList.add('hidden');
-        document.getElementById('lbl-oraculo-instruccion').classList.add('hidden');
-        document.getElementById('contenedor-preguntas-oraculo').classList.add('hidden');
-        document.getElementById('bloque-escritura-libre').classList.add('hidden');
-
-        // Show payment options
-        const paymentSection = document.getElementById('stripe-payment-options');
-        paymentSection.classList.remove('hidden');
-        document.getElementById('payment-message').innerText = message;
-        
-        document.getElementById('display-username').innerText = this.currentUsername;
-        document.getElementById('btn-volver-app').classList.add('hidden');
-        document.getElementById('btn-whatsapp').classList.remove('hidden');
-        document.getElementById('btn-messenger').classList.remove('hidden');
-    },
-
-    showMainApp() {
-        document.getElementById('pantalla-bienvenida').classList.add('hidden');
-        document.getElementById('pantalla-autenticacion').classList.add('hidden');
-        document.getElementById('wrapper-interactive').classList.add('hidden');
-        document.getElementById('pantalla-cierre').classList.add('hidden');
-        document.getElementById('wrapper-form').classList.remove('hidden');
-
-        // Show core app functionality
-        document.getElementById('lbl-zip').parentElement.classList.remove('hidden');
-        document.getElementById('modo-selector').parentElement.classList.remove('hidden');
-        document.getElementById('mente-selector').parentElement.classList.remove('hidden');
-        document.getElementById('budget-selector').parentElement.classList.remove('hidden');
-        document.getElementById('perfil-selector').parentElement.classList.remove('hidden');
-        document.getElementById('lbl-oraculo-instruccion').classList.remove('hidden');
-        document.getElementById('contenedor-preguntas-oraculo').classList.remove('hidden');
-        document.getElementById('bloque-escritura-libre').classList.remove('hidden');
-
-        // Hide payment options
-        document.getElementById('stripe-payment-options').classList.add('hidden');
-
-        document.getElementById('display-username').innerText = this.currentUsername;
-        document.getElementById('btn-volver-app').classList.remove('hidden');
-        document.getElementById('btn-whatsapp').classList.remove('hidden');
-        document.getElementById('btn-messenger').classList.remove('hidden');
-    },
-
+    /** Starts the initial welcome sequence after user interaction. */
     despertarInicial() {
-        if (!this.isLoggedIn || !this.hasPaid) {
-            console.warn("Attempted to call despertarInicial() without being logged in or paid.");
-            this.checkAuthAndRender();
-            return;
-        }
-
-        this.showMainApp();
+        document.getElementById('pantalla-bienvenida').style.display = 'none';
+        document.getElementById('wrapper-form').classList.remove('hidden');
+        document.getElementById('btn-volver-app').classList.remove('hidden'); // Show return button
+        document.getElementById('btn-whatsapp').classList.remove('hidden'); // Show WhatsApp button
+        document.getElementById('btn-messenger').classList.remove('hidden'); // Show Messenger button
+       
         this.cambiarIdioma(this.idiomaActual);
        
         const saludos_es = [
@@ -609,6 +410,9 @@ const KERNEL = {
         this.activarBotonMandoLibreInicial();
     },
 
+    /**
+     * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
+     */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
@@ -685,6 +489,7 @@ const KERNEL = {
         this.iniciarEfectoCascada();
     },
 
+    /** Initiates the fading cascade effect for questions. */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
        
@@ -714,6 +519,7 @@ const KERNEL = {
         }, 8000);
     },
 
+    /** Activates the free writing input field and button from start. */
     activarBotonMandoLibreInicial() {
         const textarea = document.getElementById('inp-text-libre');
         const btnLibre = document.getElementById('btn-activar-libre');
@@ -786,6 +592,7 @@ const KERNEL = {
         this.validarZip();
     },
 
+    /** Validates ZIP input and controls button state */
     validarZip() {
         const zipInput = document.getElementById('inp-zip');
         const btnActivarLibre = document.getElementById('btn-activar-libre');
@@ -805,7 +612,7 @@ const KERNEL = {
             btnActivarLibre.style.borderColor = "#222";
         } else {
             zipInput.style.borderColor = "#222";
-            if (hasTextareaContent && this.loginCount > 0) { // Solo si tiene usos disponibles
+            if (hasTextareaContent) {
                 btnActivarLibre.disabled = false;
                 btnActivarLibre.style.background = "var(--green-action)";
                 btnActivarLibre.style.color = "#fff";
@@ -819,6 +626,7 @@ const KERNEL = {
         }
     },
 
+    /** Activates the free writing input field and visually indicates readiness. */
     liberarCajonEscrituraLibre() {
         const textarea = document.getElementById('inp-text-libre');
         const lblDesahogo = document.getElementById('lbl-desahogo');
@@ -833,6 +641,9 @@ const KERNEL = {
         this.validarZip();
     },
 
+    /**
+     * Monitors user inaction and advances question blocks or pauses.
+     */
     iniciarMonitoreoInaccion() {
         clearInterval(this.timerInaccion);
         this.conteoInaccion = 0;
@@ -855,6 +666,9 @@ const KERNEL = {
         }, 8000);
     },
 
+    /**
+     * Handles user selecting a question or entering free text.
+     */
     reaccionarPreguntaSeleccionada(textoPregunta) {
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
@@ -863,6 +677,11 @@ const KERNEL = {
         this.ejecutar();
     },
 
+    /**
+     * Converts text to speech using browser's SpeechSynthesis API.
+     * Checks for API support and uses a fixed Spanish voice for consistency as per instructions.
+     * @param {string} texto - The text to speak.
+     */
     hablar(texto) {
         if (!('speechSynthesis' in window)) {
             console.warn("Speech Synthesis API not supported in this browser.");
@@ -877,6 +696,10 @@ const KERNEL = {
         window.speechSynthesis.speak(msg);
     },
 
+    /**
+     * Changes the application's language and updates UI elements.
+     * @param {string} lang - The target language ('es' or 'en').
+     */
     cambiarIdioma(lang) {
         this.idiomaActual = lang;
         localStorage.setItem("otg_language", lang);
@@ -884,8 +707,8 @@ const KERNEL = {
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
        
         const t = {
-            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App", loginTitle: "INICIAR SESIÓN", registerTitle: "REGISTRARSE", loginBtn: "INGRESAR", registerBtn: "CREAR CUENTA", noAccount: "¿No tienes cuenta? Regístrate aquí.", hasAccount: "¿Ya tienes cuenta? Inicia sesión aquí.", usernameLabel: "Usuario", passwordLabel: "Contraseña", logoutBtn: "Salir" },
-            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App", loginTitle: "LOGIN", registerTitle: "REGISTER", loginBtn: "LOGIN", registerBtn: "CREATE ACCOUNT", noAccount: "Don't have an account? Register here.", hasAccount: "Already have an account? Login here.", usernameLabel: "Username", passwordLabel: "Password", logoutBtn: "Logout" }
+            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App" },
+            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App" }
         }[lang];
        
         document.getElementById('html-title').innerText = t.title;
@@ -918,36 +741,16 @@ const KERNEL = {
         const btnVolverApp = document.getElementById('btn-volver-app');
         if (btnVolverApp) btnVolverApp.title = t.volverApp;
 
-        // Textos de autenticación
-        document.getElementById('auth-title').innerText = this.currentAuthMode === 'login' ? t.loginTitle : t.registerTitle;
-        document.getElementById('auth-submit-btn').innerText = this.currentAuthMode === 'login' ? t.loginBtn : t.registerBtn;
-        document.getElementById('login-register-toggle').innerText = this.currentAuthMode === 'login' ? t.noAccount : t.hasAccount;
-        document.querySelector('#pantalla-autenticacion .auth-field:first-of-type label').innerText = t.usernameLabel;
-        document.querySelector('#pantalla-autenticacion .auth-field:last-of-type label').innerText = t.passwordLabel;
-        document.querySelector('.user-info button').innerText = t.logoutBtn;
-        this.updateLoginCountDisplay();
-
         this.hablar(t.alert);
         this.inyectarBloquePreguntas();
         this.activarBotonMandoLibreInicial();
     },
 
+    /**
+     * Executes the main logic to fetch recommendations from the backend.
+     */
     async ejecutar() {
         if (this.isLocked) return;
-
-        // Cliente-side check for payment status and login count
-        if (!this.isLoggedIn || !this.hasPaid) {
-            this.hablar(this.idiomaActual === 'es' ? 'Necesitas una suscripción activa para usar la aplicación.' : 'You need an active subscription to use the app.');
-            this.showPaymentScreen(this.idiomaActual === 'es' ? 'Tu cuenta requiere pago para acceder a esta función.' : 'Your account requires payment to access this feature.');
-            return;
-        }
-        if (this.loginCount <= 0) {
-            this.hablar(this.idiomaActual === 'es' ? 'Has alcanzado tu límite de usos diarios.' : 'You have reached your daily usage limit.');
-            this.showMainApp(); // Volver a la pantalla principal sin ocultarla
-            this.validarZip(); // Para deshabilitar el botón si no hay usos
-            return;
-        }
-
         this.isLocked = true;
 
         clearInterval(this.timerInaccion);
@@ -997,25 +800,9 @@ const KERNEL = {
         try {
             const r = await fetch("/api/mando-integral", {
                 method: "POST",
-                headers: { "Content-Type": "application/json", "X-Session-ID": this.sessionId },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
-
-            if (r.status === 401 || r.status === 403) {
-                const errorData = await r.json();
-                this.hablar(errorData.detail);
-                if (errorData.detail.includes("usage limit reached") || errorData.detail.includes("suscripción")) {
-                    // Update login count display based on backend response, then show main app
-                    this.loginCount = 0; // O el valor que indique el backend si lo devuelve
-                    this.updateLoginCountDisplay();
-                    this.isLocked = false;
-                    this.showMainApp(); // Regresar a la pantalla principal para que el usuario vea el mensaje y las opciones de pago si aplica
-                } else {
-                    this.checkAuthAndRender();
-                }
-                return;
-            }
-
             const data = await r.json();
 
             if (data.error) {
@@ -1027,17 +814,13 @@ const KERNEL = {
                 return;
             }
 
-            // Decrementar login_count en frontend tras éxito de la llamada
-            this.loginCount = data.user_login_count;
-            this.updateLoginCountDisplay();
-
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
            
             if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
                 this.historialSalir = data.historial_salir_actualizado;
                 localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                this.pasosMisiones = data.misiones;
+                this.pasosMisiones = data.misiones; // Now an array of 3 for SALIR
                 this.mostrarOpcionesSalir(container);
             }
             else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
@@ -1046,11 +829,7 @@ const KERNEL = {
                 this.pasosMisiones = data.misiones;
                 this.procesarFlujoSecuencial(container);
             }
-            else {
-                // Fallback si no se reconoce el direccionamiento
-                alert(this.idiomaActual === 'es' ? "Error: Tipo de misión no reconocido." : "Error: Unknown mission type.");
-                this.reiniciarExperiencia();
-            }
+
 
         } catch (error) {
             console.error("Fetch error:", error);
@@ -1062,6 +841,9 @@ const KERNEL = {
         }
     },
 
+    /**
+     * Displays the 3 options for SALIR mode and waits for user selection.
+     */
     mostrarOpcionesSalir(container) {
         clearInterval(this.timerEnfocado);
         clearInterval(this.salidaTimerId);
@@ -1077,13 +859,14 @@ const KERNEL = {
             <h2 class="salida-main-title">${t.choosePath}</h2>
             <p class="salida-choose-instruction">${t.chooseOne}</p>
             <div id="salida-options-grid" class="salida-grid">
+                <!-- Options will be injected here -->
             </div>
         </div>`;
 
         const optionsGrid = document.getElementById('salida-options-grid');
         this.pasosMisiones.forEach((mission, index) => {
             const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
-            const missionWhatToDo = this.idiomaActual === 'es' ? mission.destino_instruccion : mission.destino_instruccion_en || mission.destino_instruccion;
+            const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
             const card = document.createElement('div');
             card.className = 'salida-option-card';
             card.innerHTML = `
@@ -1098,8 +881,12 @@ const KERNEL = {
         this.hablar(t.chooseOne);
     },
 
+    /**
+     * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
+     * @param {Object} selectedMission - The mission object chosen by the client.
+     */
     iniciarSalidaConcreta(selectedMission) {
-        this.datosLugarGlobal = selectedMission;
+        this.datosLugarGlobal = selectedMission; // Store the selected mission
         clearInterval(this.timerEnfocado);
         clearInterval(this.salidaTimerId);
         window.speechSynthesis.cancel();
@@ -1137,14 +924,15 @@ const KERNEL = {
                 retencion--;
                 if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
                 if (retencion === 0) {
-                    retencion = -45;
+                    // Transition to 45s phrase injection
+                    retencion = -45; // Use negative to denote this phase
                     if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
                     if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
                     this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
                     phraseIndex++;
                 }
             } else if (retencion < 0) {
-                retencion++;
+                retencion++; // Count up towards 0
                 if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
                 if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
                     if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
@@ -1152,6 +940,7 @@ const KERNEL = {
                     phraseIndex++;
                 }
                 if (retencion === 0) {
+                    // 45 seconds are over
                     clearInterval(this.salidaTimerId);
                     window.speechSynthesis.cancel();
                     if (btnCount) btnCount.style.display = 'none';
@@ -1174,6 +963,7 @@ const KERNEL = {
                                 console.error("Error updating local profile after action:", e);
                             }
                             window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+                            // KERNEL.reiniciarExperiencia(); // Keep the app in background, ready for return
                         };
                     }
                 }
@@ -1181,6 +971,10 @@ const KERNEL = {
         }, 1000);
     },
 
+
+    /**
+     * Processes the sequential flow based on the recommendation type (only for CASA mode now).
+     */
     procesarFlujoSecuencial(container) {
         clearInterval(this.timerEnfocado);
         window.speechSynthesis.cancel();
@@ -1190,6 +984,7 @@ const KERNEL = {
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" }
         }[this.idiomaActual];
 
+        // This function now only handles INTERVENCION_DOMESTICA (CASA mode)
         if (this.indiceMision >= this.pasosMisiones.length) {
             this.iniciarRelojEnfocadoCasa(container, t);
             return;
@@ -1224,7 +1019,8 @@ const KERNEL = {
         };
     },
 
-    iniciarRelojEnfocadoCasa(container, t) {
+    /** Starts the 10-minute clinical breathing timer for CASA mode. */
+    iniciarRelojEnfocadoCasa(container, t) { // Renamed from iniciarRelojClinicoCasa
         clearInterval(this.timerEnfocado);
         window.speechSynthesis.cancel();
        
@@ -1283,7 +1079,7 @@ const KERNEL = {
             try {
                 const r = await fetch("/api/mando-integral", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", "X-Session-ID": this.sessionId },
+                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         modo: "SALIR",
                         lang: this.idiomaActual,
@@ -1296,17 +1092,10 @@ const KERNEL = {
                         historial_salir: this.historialSalir
                     })
                 });
-
-                if (r.status === 401 || r.status === 403) {
-                    const errorData = await r.json();
-                    console.warn("API Mando Integral (CASA Suggestion) Error:", errorData.detail);
-                    // No hacer nada, simplemente no se muestra la sugerencia
-                    return;
-                }
                 const data = await r.json();
                
                 if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
-                    const suggestedMission = data.misiones[0];
+                    const suggestedMission = data.misiones[0]; // Take the first one as suggestion
                     if (data.historial_salir_actualizado) {
                         this.historialSalir = data.historial_salir_actualizado;
                         localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
@@ -1366,12 +1155,16 @@ const KERNEL = {
         }, 1000);
     },
 
+    /** Advances to the next internal mission step. */
     avanzarPaso() {
         this.indiceMision++;
         const container = document.getElementById('wrapper-interactive');
         this.procesarFlujoSecuencial(container);
     },
 
+    /**
+     * Initiates the 60-second closing challenge phase.
+     */
     iniciarRetoCierre60Segundos() {
         clearInterval(this.timerEnfocado);
         clearInterval(this.temporizadorCierre);
@@ -1461,6 +1254,7 @@ const KERNEL = {
                 currentRetoIndex++;
             }
         };
+        // Hide previous challenge elements for smooth transition
         if (retoTitulo) retoTitulo.classList.add('hidden');
         if (retoDescripcion) retoDescripcion.classList.add('hidden');
         if (retoImg) retoImg.classList.add('hidden');
@@ -1472,7 +1266,9 @@ const KERNEL = {
                 this.timeLeftCierre--;
                 if (cierreTimer) cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0');
 
+                // Advance challenge every ~20 seconds for 3 challenges in 60s
                 if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) {
+                    // Hide current reto before displaying next to ensure clean transition
                     if (retoTitulo) retoTitulo.classList.add('hidden');
                     if (retoDescripcion) retoDescripcion.classList.add('hidden');
                     if (retoImg) retoImg.classList.add('hidden');
@@ -1500,12 +1296,15 @@ const KERNEL = {
         };
     },
 
+    /**
+     * Resets the UI to the initial form state without clearing persistent data.
+     */
     reiniciarExperiencia() {
         clearInterval(this.timerInaccion);
         clearInterval(this.timerEnfocado);
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
-        clearInterval(this.salidaTimerId);
+        clearInterval(this.salidaTimerId); // Clear SALIR specific timer
         window.speechSynthesis.cancel();
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
@@ -1516,9 +1315,11 @@ const KERNEL = {
         this.indiceMision = 0;
         this.isLocked = false;
         this.contadorToques = 0;
-        this.datosLugarGlobal = null;
+        this.datosLugarGlobal = null; // Clear selected mission
 
-        this.showMainApp();
+        document.getElementById('pantalla-cierre').classList.add('hidden');
+        document.getElementById('wrapper-interactive').classList.add('hidden');
+        document.getElementById('wrapper-form').classList.remove('hidden');
        
         document.getElementById('inp-text-libre').value = "";
         this.inyectarBloquePreguntas();
@@ -1530,6 +1331,9 @@ const KERNEL = {
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
     },
 
+    /**
+     * Clears ALL session data and reloads the application.
+     */
     destruirYReiniciar() {
         clearInterval(this.timerInaccion);
         clearInterval(this.timerEnfocado);
@@ -1553,72 +1357,14 @@ const KERNEL = {
         this.isLocked = false;
         this.contadorToques = 0;
         this.datosLugarGlobal = null;
-        this.sessionId = null;
-        this.currentUsername = null;
-        this.isLoggedIn = false;
-        this.hasPaid = false;
-        this.loginCount = 0;
-
 
         location.reload();
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    KERNEL.init();
-    OTG_SENSORIAL.init();
-    KERNEL.checkAuthAndRender();
-});
+document.addEventListener('DOMContentLoaded', () => KERNEL.init());
 
 window.KERNEL = KERNEL;
-
-// ============================================================
-// PASARELA DE PAGO STRIPE - OPEN THAN GO PRODUCTION
-// ============================================================
-
-function procesarPagoStripe(planSeleccionado) {
-    if (!KERNEL.isLoggedIn || !KERNEL.sessionId) {
-        alert(KERNEL.idiomaActual === 'es' ? "Debes iniciar sesión para adquirir un plan." : "You must be logged in to purchase a plan.");
-        KERNEL.showAuthScreen();
-        return;
-    }
-
-    fetch('/crear-checkout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Session-ID': KERNEL.sessionId
-        },
-        body: JSON.stringify({
-            tipo_plan: planSeleccionado,
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                KERNEL.hablar(KERNEL.idiomaActual === 'es' ? 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.' : 'Your session has expired. Please log in again.');
-                KERNEL.logout();
-                throw new Error('Unauthorized or Forbidden');
-            }
-            throw new Error('Error en la respuesta del servidor');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.url) {
-            window.location.href = data.url;
-        } else {
-            alert(KERNEL.idiomaActual === 'es' ? "No se pudo generar la sesión de pago. Intenta de nuevo." : "Could not generate payment session. Please try again.");
-        }
-    })
-    .catch(error => {
-        console.error('Error crítico de Stripe:', error);
-        if (error.message !== 'Unauthorized or Forbidden') {
-            alert(KERNEL.idiomaActual === 'es' ? "Ocurrió un error al conectar con la pasarela de cobro." : "An error occurred while connecting to the payment gateway.");
-        }
-    });
-}
-
 //==========================================================================================
 // KERNEL INTEGRADO V3 (PARTE 1)
 //==========================================================================================
@@ -1676,11 +1422,7 @@ preguntas:[
 "¿Qué servicio te gustaría utilizar en este momento?"
 ],
 seleccionadas:[],
-init(){
-    this.inyectarMetasYEstilos();
-    this.crearEstructurasFlotantes();
-    this.modificarBienvenida(); // Inyecta el contenido en la pantalla de bienvenida
-},
+init(){this.inyectarMetasYEstilos();this.modificarBienvenida();this.crearEstructurasFlotantes();},
 inyectarMetasYEstilos(){
 ["apple-mobile-web-app-capable","mobile-web-app-capable"].forEach(n=>{if(!document.querySelector(`meta[name="${n}"]`)){let m=document.createElement("meta");m.name=n;m.content="yes";document.head.appendChild(m);}});
 let s=document.createElement("style");
@@ -1751,7 +1493,7 @@ OPEN THAN GO es una herramienta de bienestar y orientación. No ofrece atención
 </div>
 
 <button class="btn-bienvenida"
-onclick="KERNEL.showAuthScreen();"
+onclick="OTG_SENSORIAL.interceptarBotonStart();"
 style="width:100%;border-radius:6px;padding:15px;font-weight:900;background:#fff;color:#000;border:none;cursor:pointer;text-transform:uppercase;">
 
 INICIAR SESIÓN / START
@@ -1772,4 +1514,227 @@ document.body.appendChild(b);
 let m=document.createElement("div");
 m.id="otg-oasis-entretenimiento";
 m.className="hidden";
-m.style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0
+m.style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.98);z-index:9999999;backdrop-filter:blur(15px);overflow-y:auto;padding:20px;color:#fff;font-family:sans-serif;";
+document.body.appendChild(m);
+},
+interceptarBotonStart(){
+setTimeout(()=>this.forzarCierre15Minutos(),900000);
+this.abrirOasisOcio();
+},
+abrirOasisOcio(){
+let m=document.getElementById("otg-oasis-entretenimiento");
+if(!m)return;
+m.classList.remove("hidden");
+document.body.style.overflow="hidden";
+this.marcas.sort(()=>Math.random()-.5);
+let zip=document.getElementById("inp-zip")?document.getElementById("inp-zip").value.trim():"";
+let txtUsa=zip?`Opciones disponibles para el Código Postal ${zip}`:"Personaliza tu experiencia";
+
+m.innerHTML=`
+<div style="max-width:460px;margin:0 auto;padding-top:5px;">
+
+<div style="text-align:center;margin-bottom:15px;">
+
+<span style="background:#2e7d32;padding:3px 8px;border-radius:4px;font-size:.65rem;font-weight:bold;text-transform:uppercase;">
+Bienestar Inicial
+</span>
+
+<h4 style="color:#00bcd4;font-weight:900;margin:8px 0 3px;font-size:1.15rem;">
+PERSONALIZA TU EXPERIENCIA
+</h4>
+
+<p style="color:#aaa;font-size:.72rem;margin:0;">
+${txtUsa}. Tiempo aproximado: 1 minuto.
+</p>
+
+</div>
+<div id="otg-fase-1">
+
+<p style="font-size:.85rem;font-weight:bold;color:#fff;text-align:center;line-height:1.45;margin-bottom:10px;">
+Selecciona el servicio que mejor representa lo que deseas hacer en este momento.
+</p>
+
+<div class="otg-grid-logos">
+${this.marcas.map(x=>`<div class="otg-card-logo" onclick="OTG_SENSORIAL.seleccionarMarca(this,'${x}')">${x}</div>`).join("")}
+</div>
+
+<button onclick="OTG_SENSORIAL.activarFaseTrivia()"
+style="width:100%;background:#2e7d32;border:none;color:#fff;padding:14px;border-radius:6px;font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:.8rem;letter-spacing:.5px;">
+Continuar →
+</button>
+
+</div>
+
+<div id="otg-fase-2" class="hidden"></div>
+<div id="otg-fase-3" class="hidden" style="text-align:center;"></div>
+
+</div>`;
+},
+
+seleccionarMarca(el,marca){
+el.classList.toggle("active");
+if(el.classList.contains("active"))this.seleccionadas.push(marca);
+else this.seleccionadas=this.seleccionadas.filter(x=>x!==marca);
+},
+
+activarFaseTrivia(){
+
+if(!this.seleccionadas.length){
+alert("Selecciona al menos una opción.");
+return;
+}
+
+document.getElementById("otg-fase-1").classList.add("hidden");
+
+let f2=document.getElementById("otg-fase-2");
+f2.classList.remove("hidden");
+
+let p=this.preguntas[Math.floor(Math.random()*this.preguntas.length)];
+let m=this.seleccionadas[0];
+
+f2.innerHTML=`
+<div style="background:#111;border:1px solid #222;padding:15px;border-radius:8px;margin-top:10px;">
+
+<span style="color:#00bcd4;font-size:.65rem;font-weight:bold;text-transform:uppercase;display:block;margin-bottom:5px;">
+Has seleccionado: ${m}
+</span>
+
+<p style="font-size:1rem;font-weight:bold;line-height:1.45;margin:5px 0 15px;color:#fff;">
+${p}
+</p>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado','opcion1')">
+Quiero usar este servicio ahora.
+</button>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('normal','opcion2')">
+Solo estoy explorando opciones.
+</button>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('curioso','opcion3')">
+Quiero descubrir nuevas ideas.
+</button>
+
+</div>`;
+},
+
+inyectarMenteBase(perfil,tipo){
+
+let s=document.getElementById("mente-selector");
+
+if(s){
+s.value=perfil;
+s.dispatchEvent(new Event("change"));
+}
+
+document.getElementById("otg-fase-2").classList.add("hidden");
+
+let f3=document.getElementById("otg-fase-3");
+f3.classList.remove("hidden");
+
+let marca=this.seleccionadas[0];
+let url=this.urls[marca]||"https://google.com";
+
+let mensaje=
+tipo==="opcion1"
+?`Tu experiencia ha sido personalizada usando "${marca}".`
+:tipo==="opcion2"
+?`Hemos preparado una experiencia basada en tu selección.`
+:`Explora nuevas opciones y encuentra actividades que se adapten a ti.`;
+
+f3.innerHTML=`
+
+<div style="background:rgba(0,188,212,.05);border:1px solid #00bcd4;padding:15px;border-radius:8px;text-align:left;font-size:.82rem;line-height:1.5;margin-bottom:15px;color:#eee;">
+
+<b style="color:#00bcd4;display:block;margin-bottom:6px;">
+Experiencia lista
+</b>
+
+${mensaje}
+
+</div>
+
+<div style="display:flex;gap:8px;">
+
+<button onclick="window.open('${url}','_blank')"
+style="flex:1;background:#2e7d32;border:none;color:#fff;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">
+Abrir sitio web
+</button>
+
+<button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()"
+style="flex:1;background:none;border:1px solid #00bcd4;color:#00bcd4;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">
+Continuar
+</button>
+
+</div>`;
+},
+
+cerrarOasisYDarPasoAAppBase(){
+
+let m=document.getElementById("otg-oasis-entretenimiento");
+if(m)m.classList.add("hidden");
+
+document.body.style.overflow="auto";
+
+if(typeof KERNEL!=="undefined"&&typeof KERNEL.despertarInicial==="function"){
+KERNEL.despertarInicial();
+}
+
+let b=document.getElementById("otg-btn-power");
+if(b)b.classList.remove("hidden");
+
+this.seleccionadas=[];
+
+console.log("OPEN THAN GO iniciado.");
+},
+
+apagarSistemaTotal(){
+
+let m=document.getElementById("otg-oasis-entretenimiento");
+if(m)m.classList.add("hidden");
+
+let pc=document.getElementById("pantalla-cierre");
+if(pc)pc.classList.add("hidden");
+
+let wf=document.getElementById("wrapper-form");
+if(wf)wf.classList.remove("hidden");
+
+let pb=document.getElementById("pantalla-bienvenida");
+if(pb)pb.classList.remove("hidden");
+
+let b=document.getElementById("otg-btn-power");
+if(b)b.classList.add("hidden");
+
+let t=document.getElementById("inp-text-libre");
+if(t)t.value="";
+
+this.seleccionadas=[];
+
+console.log("Sistema reiniciado.");
+},
+
+forzarCierre15Minutos(){
+
+let m=document.getElementById("otg-oasis-entretenimiento");
+if(m)m.classList.add("hidden");
+
+document.body.innerHTML=`
+
+<div style="width:100vw;height:100vh;background:#000;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:25px;">
+
+<h1 style="color:#00bcd4;font-size:1.4rem;margin-bottom:12px;">
+Sesión finalizada
+</h1>
+
+<p style="max-width:420px;font-size:.95rem;line-height:1.5;color:#ddd;">
+Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una pausa y continuar con tus actividades.
+</p>
+
+</div>`;
+}
+
+};
+
+OTG_SENSORIAL.init();
+
+})();
