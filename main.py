@@ -1,144 +1,445 @@
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 1 DE 2 (Backend Core)
-from fastapi import FastAPI, Request, Body
+from fastapi import FastAPI, Request, Body, HTTPException, Depends, status
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware # Agregado para CORS
 import uvicorn
 import os
 import random
 import re
-from datetime import datetime
+from datetime import datetime, timedelta, date # Agregado date
 import urllib.parse
 import stripe
+from typing import Dict, Any, Optional
+from uuid import uuid4
+from passlib.context import CryptContext
+from pydantic import BaseModel # Agregado para modelos de datos
 
-link_base = "https://www.google.com/maps/search/?api=1&query="
-
+# --- Configuración de FastAPI ---
 app = FastAPI()
 
-if not os.path.exists("static"):os.makedirs("static")
+# --- Configuración CORS (para desarrollo local si frontend y backend están en diferentes puertos) ---
+origins = [
+    "http://localhost",
+    "http://localhost:8000", # Puerto por defecto de FastAPI
+    # Agrega aquí la URL de tu frontend si no es la misma que la del backend
+    os.getenv("FRONTEND_URL", "*") # Por ejemplo, "https://open-than-go.onrender.com"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Permite todos los orígenes para facilitar el despliegue. En producción, especificar `origins`.
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# --- Rutas estáticas ---
+if not os.path.exists("static"):
+    os.makedirs("static")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-DEFAULT_NECESSITY_VECTOR = {
-    "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
-    "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
-    "juego": 50, "contemplacion": 50, "descanso": 50, "organizacion": 50,
-    "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
-    "indicador_ansiedad": 0
-}
+# --- Hashing de contraseñas ---
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+# --- Base de datos en memoria para usuarios y sesiones ---
+# En un entorno de producción, esto sería reemplazado por una base de datos persistente (SQL, NoSQL).
+# Para este ejercicio, priorizamos la facilidad de despliegue y la eficiencia en RAM.
+users_db: Dict[str, Dict[str, Any]] = {}
+active_sessions: Dict[str, str] = {} # session_id: username
+
+# Ejemplo de un usuario inicial para pruebas (opcional)
+if "testuser" not in users_db:
+    users_db["testuser"] = {
+        "username": "testuser",
+        "password_hash": get_password_hash("testpassword"),
+        "session_id": None,
+        "is_paid": False,
+        "payment_status": "none", # "none", "trial", "active", "cancelled", "expired"
+        "payment_period_end": None, # Fecha de fin de suscripción (ISO format)
+        "stripe_customer_id": None,
+        "last_login": None,
+        "login_count": 0, # Usos restantes para el día actual
+        "last_daily_reset": None # Fecha del último reseteo del login_count (ISO format de la fecha)
+    }
+
+# --- Dependencia para obtener el usuario actual y verificar la sesión ---
+async def get_current_user(request: Request):
+    session_id = request.headers.get("X-Session-ID")
+    if not session_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session ID missing",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    username = active_sessions.get(session_id)
+    if not username:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired session",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user_data = users_db.get(username)
+    if not user_data:
+        # Esto no debería pasar si username está en active_sessions
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+
+    # === Lógica de caducidad y estado de pago ===
+    if user_data.get("payment_status") == "active" and user_data.get("payment_period_end"):
+        if datetime.fromisoformat(user_data["payment_period_end"]) < datetime.now():
+            user_data["is_paid"] = False
+            user_data["payment_status"] = "expired"
+            user_data["payment_period_end"] = None # Limpiar la fecha de fin
+            # No se lanza HTTPException aquí, se permite al frontend mostrar la pantalla de pago
+            # y el status del usuario reflejará que ha expirado.
+    
+    # === Lógica de reseteo diario de login_count ===
+    today_str = date.today().isoformat()
+    if user_data["is_paid"] and user_data.get("last_daily_reset") != today_str:
+        if user_data["payment_status"] == "active":
+            # Si el usuario está activo y es un nuevo día, resetear los usos diarios
+            user_data["login_count"] = 5 if user_data["payment_period_end"] else 1 # 5 para planes con duración, 1 para "diario" si no tiene fecha de fin específica (como para un solo uso por compra)
+            if user_data.get("tipo_plan_ultimo_pago") == "diario" and user_data.get("payment_period_end"):
+                # Si el plan fue diario y tiene fecha de fin, significa que es para 1 solo uso, no diario recurrente
+                user_data["login_count"] = 1
+            elif user_data.get("tipo_plan_ultimo_pago") == "mensual" or user_data.get("tipo_plan_ultimo_pago") == "anual":
+                user_data["login_count"] = 5 # Usos diarios para planes de suscripción
+            else: # Fallback para asegurar un valor si no se encuentra tipo_plan_ultimo_pago
+                user_data["login_count"] = 1 if user_data.get("payment_period_end") else 0 # 1 si es un pago único, 0 si no se sabe
+            user_data["last_daily_reset"] = today_str
+        else:
+            user_data["login_count"] = 0 # No usos si no hay pago activo
+            user_data["last_daily_reset"] = today_str # Para evitar resetear en cada request
+
+    return user_data
+
+# --- Modelos para la autenticación (usando Pydantic) ---
+class AuthRequest(BaseModel):
+    username: str
+    password: str
+
+class AuthResponse(BaseModel):
+    session_id: str
+    username: str
+    message: str
+
+class UserStatusResponse(BaseModel):
+    username: str
+    is_paid: bool
+    payment_status: str
+    message: str
+    login_count: int
+    payment_period_end: Optional[str]
+
+# --- Endpoints de autenticación ---
+@app.post("/register", response_model=AuthResponse)
+async def register(auth_data: AuthRequest):
+    username = auth_data.username
+    password = auth_data.password
+
+    if not username or not password:
+        raise HTTPException(status_code=400, detail="Username and password are required.")
+    
+    if username in users_db:
+        raise HTTPException(status_code=400, detail="Username already registered.")
+    
+    hashed_password = get_password_hash(password)
+    users_db[username] = {
+        "username": username,
+        "password_hash": hashed_password,
+        "session_id": None,
+        "is_paid": False,
+        "payment_status": "none",
+        "payment_period_end": None,
+        "stripe_customer_id": None,
+        "last_login": None,
+        "login_count": 0,
+        "last_daily_reset": None,
+        "tipo_plan_ultimo_pago": None # Nuevo campo para rastrear el tipo de plan
+    }
+    return JSONResponse(status_code=201, content={"message": "User registered successfully. Please login."})
+
+@app.post("/login", response_model=AuthResponse)
+async def login(auth_data: AuthRequest):
+    username = auth_data.username
+    password = auth_data.password
+
+    user = users_db.get(username)
+    if not user or not verify_password(password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Incorrect username or password.")
+    
+    session_id = str(uuid4())
+    active_sessions[session_id] = username
+    user["session_id"] = session_id
+    user["last_login"] = datetime.now().isoformat()
+    
+    # Al iniciar sesión, se fuerza la comprobación y el posible reseteo diario del login_count
+    # get_current_user manejará esto en el siguiente request, pero lo precalculamos aquí para la respuesta
+    today_str = date.today().isoformat()
+    if user["is_paid"] and user.get("last_daily_reset") != today_str:
+        if user["payment_status"] == "active":
+            user["login_count"] = 5 if (user.get("tipo_plan_ultimo_pago") == "mensual" or user.get("tipo_plan_ultimo_pago") == "anual") else 1
+            user["last_daily_reset"] = today_str
+        else:
+            user["login_count"] = 0
+            user["last_daily_reset"] = today_str # Para evitar resetear en cada request
+            
+    return JSONResponse(content={"session_id": session_id, "username": username, "message": "Login successful."})
+
+@app.post("/logout")
+async def logout(current_user: Dict[str, Any] = Depends(get_current_user)):
+    session_id_to_invalidate = current_user.get("session_id")
+    if session_id_to_invalidate and session_id_to_invalidate in active_sessions:
+        del active_sessions[session_id_to_invalidate]
+        current_user["session_id"] = None
+        # No resetear login_count al hacer logout, se mantiene para la próxima sesión si es el mismo día
+    return JSONResponse(content={"message": "Logged out successfully."})
+
+@app.get("/api/user_status", response_model=UserStatusResponse)
+async def get_user_status(current_user: Dict[str, Any] = Depends(get_current_user)):
+    user_data = current_user
+    
+    message = "You are logged in."
+    if not user_data["is_paid"]:
+        message = "Your account requires payment for full access."
+        if user_data["payment_status"] == "expired":
+            message = "Your subscription has expired. Please renew to continue."
+        elif user_data["payment_status"] == "cancelled":
+            message = "Your subscription is cancelled. Please renew to continue."
+        elif user_data["payment_status"] == "none":
+            message = "You have no active subscription. Please acquire a plan."
+    elif user_data["payment_status"] == "active":
+        message = "Your subscription is active. Enjoy!"
+
+    return JSONResponse(content={
+        "username": user_data["username"],
+        "is_paid": user_data["is_paid"],
+        "payment_status": user_data["payment_status"],
+        "message": message,
+        "login_count": user_data.get("login_count", 0),
+        "payment_period_end": user_data.get("payment_period_end")
+    })
 
 # ============================================================
 # INTEGRACIÓN DE STRIPE - MAY ROGA LLC (PRODUCCIÓN REAL)
 # ============================================================
-stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
-ENDPOINT_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
-ADMIN_USER = os.environ.get('ADMIN_USERNAME')
-ADMIN_PASS = os.environ.get('ADMIN_PASSWORD')
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY', 'sk_test_YOUR_STRIPE_SECRET_KEY')
+ENDPOINT_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', 'whsec_YOUR_WEBHOOK_SECRET')
+SUCCESS_URL = os.getenv("SUCCESS_URL", "https://open-than-go.onrender.com/?payment=success")
+CANCEL_URL = os.getenv("CANCEL_URL", "https://open-than-go.onrender.com/?payment=cancelled")
 
 PLANES_STRIPE = {
-    'diario': 'price_1TtbjXBOA5mT4t0PMCJSext6',
-    'mensual': 'price_1TtblSBOA5mT4t0PGiYvT2l9',
-    'anual': 'price_1TtbltBOA5mT4t0PpJ8io219'
+    'diario': os.getenv('STRIPE_PRICE_ID_DAILY', 'price_1P0hY7R8lVfX6c5z4v2g3h4i'), # Ejemplo de Price ID
+    'mensual': os.getenv('STRIPE_PRICE_ID_MONTHLY', 'price_1P0hZGR8lVfX6c5z4v2g3h4j'), # Ejemplo de Price ID
+    'anual': os.getenv('STRIPE_PRICE_ID_ANNUAL', 'price_1P0haCR8lVfX6c5z4v2g3h4k')   # Ejemplo de Price ID
 }
 
 @app.post("/crear-checkout")
-async def crear_checkout(payload: dict = Body(...)):
+async def crear_checkout(payload: dict = Body(...), current_user: Dict[str, Any] = Depends(get_current_user)):
     tipo_plan = payload.get("tipo_plan")
-    user_id = payload.get("user_id")
+    username = current_user["username"] # Usamos el username como user_id para Stripe metadata
+
+    if not tipo_plan or tipo_plan not in PLANES_STRIPE:
+        raise HTTPException(status_code=400, detail="Invalid plan type.")
+
     price_id = PLANES_STRIPE.get(tipo_plan)
     mode = "payment" if tipo_plan == "diario" else "subscription"
+
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[{'price': price_id, 'quantity': 1}],
             mode=mode,
-            success_url="https://open-than-go.onrender.com",
-            cancel_url="https://open-than-go.onrender.com",
-            metadata={'user_id': user_id, 'tipo_plan': tipo_plan}
+            success_url=SUCCESS_URL,
+            cancel_url=CANCEL_URL,
+            metadata={'username': username, 'tipo_plan': tipo_plan}, # Usar 'username'
+            customer=current_user.get("stripe_customer_id") # Si ya es cliente de Stripe
         )
         return JSONResponse(content={"url": session.url})
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+        print(f"Error creating Stripe checkout session: {e}")
+        raise HTTPException(status_code=500, detail=f"Error creating checkout session: {str(e)}")
 
 @app.post("/webhook-stripe")
 async def webhook_stripe(request: Request):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
+
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, ENDPOINT_SECRET
         )
-    except ValueError:
-        return JSONResponse(status_code=400, content={"error": "Payload inválido"})
-    except stripe.error.SignatureVerificationError:
-        return JSONResponse(status_code=400, content={"error": "Firma inválida"})
+    except ValueError as e:
+        print(f"ValueError: {e}")
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except stripe.error.SignatureVerificationError as e:
+        print(f"SignatureVerificationError: {e}")
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    # Handle the event
+    username = None
+    if 'metadata' in event['data']['object'] and 'username' in event['data']['object']['metadata']:
+        username = event['data']['object']['metadata']['username']
+    elif 'customer' in event['data']['object']:
+        customer_id = event['data']['object']['customer']
+        username = next((u_id for u_id, u_data in users_db.items() if u_data.get("stripe_customer_id") == customer_id), None)
+    
+    if not username:
+        print(f"Error: Username not found in webhook event. Event ID: {event['id']}")
+        return JSONResponse(content={"success": False, "message": "Username not identified"})
+
+    user_data = users_db.get(username)
+    if not user_data:
+        print(f"Error: User {username} not found in users_db for webhook event. Event ID: {event['id']}")
+        return JSONResponse(content={"success": False, "message": f"User {username} not found"})
+
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        user_id = session['metadata']['user_id']
         tipo_plan = session['metadata']['tipo_plan']
         customer_id = session['customer']
-        # TODO: Aquí debes guardar en tu base de datos el customer_id
-        # y activar el plan (1 uso si es diario, o 5 usos diarios si es mensual/anual)
+        
+        user_data["stripe_customer_id"] = customer_id
+        user_data["is_paid"] = True
+        user_data["payment_status"] = "active"
+        user_data["tipo_plan_ultimo_pago"] = tipo_plan
+
+        # Calcular la fecha de finalización de la suscripción
+        if mode == "payment": # Pago único (e.g. plan diario para 1 uso)
+            user_data["payment_period_end"] = (datetime.now() + timedelta(days=1)).isoformat()
+            user_data["login_count"] = 1 # Para un solo uso
+        elif mode == "subscription": # Suscripción
+            # Obtener el final del periodo de suscripción del subscription object si es posible
+            # O estimar basado en el tipo de plan
+            if 'subscription' in session and session['subscription']:
+                subscription = stripe.Subscription.retrieve(session['subscription'])
+                period_end = datetime.fromtimestamp(subscription['current_period_end'])
+            elif tipo_plan == "mensual":
+                period_end = datetime.now() + timedelta(days=30)
+            elif tipo_plan == "anual":
+                period_end = datetime.now() + timedelta(days=365)
+            else:
+                period_end = datetime.now() + timedelta(days=1) # Fallback
+            
+            user_data["payment_period_end"] = period_end.isoformat()
+            user_data["login_count"] = 5 # 5 usos diarios permitidos para mensual/anual
+            user_data["last_daily_reset"] = date.today().isoformat()
+
+        print(f"User {username} plan '{tipo_plan}' activated/updated. Expires: {user_data['payment_period_end']}")
+
     elif event['type'] == 'invoice.paid':
         invoice = event['data']['object']
-        customer_id = invoice['customer']
-        # TODO: Extender el acceso en tu BD al usuario ligado a este customer_id
+        
+        # Actualizar payment_period_end basado en el invoice para renovaciones
+        if 'lines' in invoice and invoice['lines']['data']:
+            period_end = datetime.fromtimestamp(invoice['lines']['data'][0]['period']['end'])
+            user_data["payment_period_end"] = period_end.isoformat()
+            user_data["is_paid"] = True
+            user_data["payment_status"] = "active"
+            user_data["login_count"] = 5 # Asumiendo 5 usos diarios para renovaciones
+            user_data["last_daily_reset"] = date.today().isoformat()
+            print(f"User {username} subscription renewed. Expires: {user_data['payment_period_end']}")
+
     elif event['type'] == 'customer.subscription.deleted':
         subscription = event['data']['object']
         customer_id = subscription['customer']
-        # TODO: Desactivar accesos en tu BD al vencer el periodo pagado
+        
+        user_data["is_paid"] = False
+        user_data["payment_status"] = "cancelled"
+        user_data["payment_period_end"] = None
+        user_data["login_count"] = 0
+        user_data["last_daily_reset"] = date.today().isoformat()
+        print(f"User {username} subscription cancelled.")
+    
+    # Manejar otros eventos de Stripe como 'customer.subscription.updated' si es necesario
+    # para reflejar cambios de plan o pausas.
+
     return JSONResponse(content={"success": True})
 
-# ============================================================
-# MOTOR DE HISTORIAL INTELIGENTE CWRE V2
-# Anti-Repetición + Exploración Controlada
-# ============================================================
-MAX_HISTORY_SALIR = 5
-MAX_HISTORY_CASA = 8
-MAX_HISTORY_ORACULO = 12
-EXPLORATION_RATE = 0.20
-HISTORY_PENALTY_BASE = 40
+# --- Protección de la ruta del motor de decisiones ---
+@app.post("/api/mando-integral")
+async def get_mando_integral(payload: dict = Body(...), current_user: Dict[str, Any] = Depends(get_current_user)):
+    # Verificar si el usuario está pagado
+    if not current_user["is_paid"] or current_user["payment_status"] != "active":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied. Please check your subscription status.")
 
-def limitar_historial(historial, limite):
-    if historial is None: return []
-    return historial[-limite:]
+    # Verificar si el usuario tiene usos restantes para el día
+    if current_user["login_count"] <= 0:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Daily usage limit reached. Please wait until tomorrow or upgrade your plan.")
+    
+    # Decrementar el contador de usos (solo si la acción procede)
+    current_user["login_count"] -= 1
 
-def penalizacion_historial(mision_id, historial):
-    if not historial: return 0
-    historial = list(reversed(historial))
-    for posicion, antiguo_id in enumerate(historial):
-        if antiguo_id == mision_id:
-            if posicion == 0: return HISTORY_PENALTY_BASE * 1.5
-            elif posicion == 1: return HISTORY_PENALTY_BASE
-            elif posicion == 2: return HISTORY_PENALTY_BASE * 0.70
-            elif posicion <= (len(historial) - 1): return HISTORY_PENALTY_BASE * 0.30
-    return 0
+    # === El resto de la lógica del motor de decisiones (sin cambios) ===
+    link_base = "https://www.google.com/maps/search/?api=1&query="
 
-def bonus_exploracion(mision_id, historial):
-    if not historial or mision_id not in historial: return 20
-    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)): return 5
-    return 0
+    DEFAULT_NECESSITY_VECTOR = {
+        "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
+        "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
+        "juego": 50, "contemplacion": 50, "descanso": 50, "organizacion": 50,
+        "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
+        "indicador_ansiedad": 0
+    }
 
-def actualizar_historial(historial, nuevo_id, limite):
-    historial = historial or []
-    if nuevo_id in historial: historial.remove(nuevo_id)
-    historial.append(nuevo_id)
-    return historial[-limite:]
+    # ============================================================
+    # MOTOR DE HISTORIAL INTELIGENTE CWRE V2
+    # Anti-Repetición + Exploración Controlada
+    # ============================================================
+    MAX_HISTORY_SALIR = 5
+    MAX_HISTORY_CASA = 8
+    MAX_HISTORY_ORACULO = 12
+    EXPLORATION_RATE = 0.20
+    HISTORY_PENALTY_BASE = 40
 
-def diversidad_vector(vector1, vector2):
-    distancia = 0
-    needs_to_consider = [k for k in DEFAULT_NECESSITY_VECTOR.keys() if k != "indicador_ansiedad"]
-    for k in needs_to_consider:
-        distancia += abs(
-            vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) -
-            vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
-        )
-    return distancia
+    def limitar_historial(historial, limite):
+        if historial is None: return []
+        return historial[-limite:]
 
-WHEN_ES = "Ahora. Levántate."
-WHEN_EN = "Now. Move."
-FOR_WHAT_ES = "Romper rutina. Recuérdate vivo."
-FOR_WHAT_EN = "Break routine. Remember life."
+    def penalizacion_historial(mision_id, historial):
+        if not historial: return 0
+        historial = list(reversed(historial))
+        for posicion, antiguo_id in enumerate(historial):
+            if antiguo_id == mision_id:
+                if posicion == 0: return HISTORY_PENALTY_BASE * 1.5
+                elif posicion == 1: return HISTORY_PENALTY_BASE
+                elif posicion == 2: return HISTORY_PENALTY_BASE * 0.70
+                elif posicion <= (len(historial) - 1): return HISTORY_PENALTY_BASE * 0.30
+        return 0
+
+    def bonus_exploracion(mision_id, historial):
+        if not historial or mision_id not in historial: return 20
+        if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)): return 5
+        return 0
+
+    def actualizar_historial(historial, nuevo_id, limite):
+        historial = historial or []
+        if nuevo_id in historial: historial.remove(nuevo_id)
+        historial.append(nuevo_id)
+        return historial[-limite:]
+
+    def diversidad_vector(vector1, vector2):
+        distancia = 0
+        needs_to_consider = [k for k in DEFAULT_NECESSITY_VECTOR.keys() if k != "indicador_ansiedad"]
+        for k in needs_to_consider:
+            distancia += abs(
+                vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) -
+                vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
+            )
+        return distancia
+
+    WHEN_ES = "Ahora. Levántate."
+    WHEN_EN = "Now. Move."
+    FOR_WHAT_ES = "Romper rutina. Recuérdate vivo."
+    FOR_WHAT_EN = "Break routine. Remember life."
 
 # ============================================================
 # CATÁLOGO DE MISIONES CWRE V2.1
