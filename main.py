@@ -14,6 +14,20 @@ import urllib.parse
 link_base = "https://www.google.com/maps/search/?api=1&query="
 
 app = FastAPI()
+# ============================================================
+# EXTENSIÓN STRIPE REAL (LIVE MODE) - MAY ROGA LLC
+# ============================================================
+import stripe
+from fastapi import Body
+
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+ENDPOINT_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+
+PLANES_STRIPE = {
+    'diario': 'price_1TtbjXBOA5mT4t0PMCJSext6',
+    'mensual': 'price_1TtblSBOA5mT4t0PGiYvT2l9',
+    'anual': 'price_1TtbltBOA5mT4t0PpJ8io219'
+}
 
 # Ensure the 'static' directory exists before mounting
 if not os.path.exists("static"):
@@ -1596,6 +1610,60 @@ async def mando_integral(request: Request):
         "misiones": final_misiones_para_frontend,
         "historial_salir_actualizado": historial_salir
     })
+    
+@app.post("/crear-checkout")
+async def crear_checkout(payload: dict = Body(...)):
+    tipo_plan = payload.get("tipo_plan")
+    user_id = payload.get("user_id")
+    price_id = PLANES_STRIPE.get(tipo_plan)
+    mode = "payment" if tipo_plan == "diario" else "subscription"
+    
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{'price': price_id, 'quantity': 1}],
+            mode=mode,
+            success_url="https://onrender.com",
+            cancel_url="https://onrender.com",
+            metadata={'user_id': user_id, 'tipo_plan': tipo_plan}
+        )
+        return JSONResponse(content={"url": session.url})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
+
+@app.post("/login-admin")
+async def login_admin(payload: dict = Body(...)):
+    username_input = payload.get("username")
+    password_input = payload.get("password")
+    
+    if username_input == os.environ.get('ADMIN_USERNAME') and password_input == os.environ.get('ADMIN_PASSWORD'):
+        return JSONResponse(content={
+            "success": True, 
+            "role": "admin", 
+            "user_id": "admin_may_roga"
+        })
+    return JSONResponse(status_code=401, content={"success": False, "error": "Credenciales inválidas"})
+
+@app.post("/webhook-stripe")
+async def webhook_stripe(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, ENDPOINT_SECRET)
+    except Exception:
+        return JSONResponse(status_code=400, content={"error": "Firma inválida"})
+
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        # TODO: Guardar session['customer'] y activar plan según session['metadata']['tipo_plan']
+    elif event['type'] == 'invoice.paid':
+        invoice = event['data']['object']
+        # TODO: Renovar accesos usando invoice['customer']
+    elif event['type'] == 'customer.subscription.deleted':
+        subscription = event['data']['object']
+        # TODO: Desactivar accesos usando subscription['customer']
+
+    return JSONResponse(content={"success": True})
 
 # ==============================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
