@@ -11,11 +11,8 @@ import re
 from datetime import datetime
 import urllib.parse
 
-link_base = "https://www.google.com/maps/search/?api=1&query="
-
 app = FastAPI()
 
-# Ensure the 'static' directory exists before mounting
 if not os.path.exists("static"):
     os.makedirs("static")
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -34,9 +31,10 @@ DEFAULT_NECESSITY_VECTOR = {
 # ============================================================
 MAX_HISTORY_SALIR = 5
 MAX_HISTORY_CASA = 8
-MAX_HISTORY_ORACULO = 12 # This is handled by frontend (engine.js)
+MAX_HISTORY_ORACULO = 12
 EXPLORATION_RATE = 0.20
 HISTORY_PENALTY_BASE = 40
+DECAY_PER_DAY = 0.985
 
 def limitar_historial(historial, limite):
     if historial is None:
@@ -46,13 +44,13 @@ def limitar_historial(historial, limite):
 def penalizacion_historial(mision_id, historial):
     if not historial:
         return 0
-    historial = list(reversed(historial)) # Prioriza las más recientes
-    for posicion, antiguo_id in enumerate(historial):
-        if antiguo_id == mision_id:
-            if posicion == 0: # Última misión
-                return HISTORY_PENALTY_BASE * 1.5 # Más penalización para la última
-            elif posicion == 1:
+    historial = list(reversed(historial))
+    for posicion, antiguo in enumerate(historial):
+        if antiguo == mision_id:
+            if posicion == 0:
                 return HISTORY_PENALTY_BASE
+            elif posicion == 1:
+                return HISTORY_PENALTY_BASE * 0.85
             elif posicion == 2:
                 return HISTORY_PENALTY_BASE * 0.70
             elif posicion <= (len(historial) - 1):
@@ -60,14 +58,17 @@ def penalizacion_historial(mision_id, historial):
     return 0
 
 def bonus_exploracion(mision_id, historial):
-    if not historial or mision_id not in historial:
-        return 20 # Bonificación significativa si nunca se ha visto
-    # Reducir bonificación si ya se ha visto pero no está en el historial reciente
-    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)):
-        return 5
+    if not historial:
+        return 20
+    if mision_id not in historial:
+        return 15
     return 0
 
 def actualizar_historial(historial, nuevo_id, limite):
+    # This function is not used in the backend for SALIR mode anymore,
+    # as SALIR history update is now handled on the frontend client-side
+    # once a mission is *selected* and its external link is opened.
+    # It is still used for CASA mode.
     historial = historial or []
     if nuevo_id in historial:
         historial.remove(nuevo_id)
@@ -78,18 +79,19 @@ def diversidad_vector(vector1, vector2):
     distancia = 0
     needs_to_consider = [k for k in DEFAULT_NECESSITY_VECTOR.keys() if k != "indicador_ansiedad"]
     for k in needs_to_consider:
-        # Suma las diferencias absolutas de cada necesidad
         distancia += abs(
-            vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) -
-            vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
+            vector1.get(k, 50) -
+            vector2.get(k, 50)
         )
     return distancia
 
-# === MODIFICACIÓN: CONSTANTES DE TIEMPO Y PROPÓSITO ACORTADAS PARA LECTURA RÁPIDA ===
-WHEN_ES = "Ahora. Levántate."
-WHEN_EN = "Now. Move."
-FOR_WHAT_ES = "Romper rutina. Recuérdate vivo."
-FOR_WHAT_EN = "Break routine. Remember life."
+def decay_profile(profile, dias):
+    return profile
+
+WHEN_ES = "Ahora mismo. Levántate de la silla ya."
+WHEN_EN = "Right now. Get out of your chair immediately."
+FOR_WHAT_ES = "Para romper el zombi urbano y recordar que la vida es más que pagar cuentas."
+FOR_WHAT_EN = "To break the urban zombie and remember that life is more than paying bills."
 
 # ============================================================
 # CATÁLOGO DE MISIONES CWRE V2.1
@@ -165,17 +167,17 @@ BASE_MISIONES = {
         {"id": 72, "titulo": "Tensa y relaja los pies", "descripcion": "Aprieta los dedos de tus pies durante 5 segundos y luego relájalos.", "vector_necesidades": {"movimiento": 90, "descanso": 80, "salud": 70, "organizacion": 40, "silencio": 50}},
         {"id": 74, "titulo": "Olor consciente", "descripcion": "Huelea una flor, café o especia. Concéntrate en el aroma.", "vector_necesidades": {"naturaleza": 80, "alimentacion": 70, "contemplacion": 90, "silencio": 80, "descanso": 70}},
         {"id": 75, "titulo": "Cambia de silla", "descripcion": "Siéntate en otra silla o lugar de la casa por 5 minutos. Pequeño cambio.", "vector_necesidades": {"movimiento": 60, "creatividad": 50, "descanso": 70, "organizacion": 40, "contemplacion": 60}},
-        # === MODIFICACIÓN: MICROACCIONES DE RECUPERACIÓN MENTAL (ID 151-160) - DESCRIPCIONES ACORTADAS ===
-        {"id": 151, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Revisa tu email/banco. Cancela una suscripción olvidada. Recupera control y ahorra.", "vector_necesidades": {"organizacion": 90, "aprendizaje": 70, "descanso": 80, "esperanza": 85, "contemplacion": 60}},
-        {"id": 152, "titulo": "EL RETO DE LOS TRES GASTOS", "descripcion": "En tu teléfono, anota solo los 3 gastos clave de esta semana. Enfócate solo hoy.", "vector_necesidades": {"organizacion": 100, "descanso": 90, "silencio": 70, "aprendizaje": 60, "contemplacion": 80}},
-        {"id": 153, "titulo": "EL RETO DEL ORDEN DIGITAL", "descripcion": "Borra 20 capturas/archivos inútiles. El orden digital reduce la carga mental.", "vector_necesidades": {"organizacion": 100, "silencio": 80, "descanso": 85, "creatividad": 50, "contemplacion": 70}},
-        {"id": 154, "titulo": "EL RETO DEL SILENCIO", "descripcion": "Silencia apps que te causan ansiedad 1 hora. Tu atención necesita descanso.", "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "organizacion": 70, "esperanza": 80}},
-        {"id": 155, "titulo": "EL RETO DE LA GRATITUD", "descripcion": "Escribe 3 cosas que hoy tienes y antes deseabas. Recuerda tu progreso.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "creatividad": 80, "aprendizaje": 70, "silencio": 60}},
-        {"id": 156, "titulo": "EL RETO DEL AGUA", "descripcion": "Levántate lento, bebe un vaso de agua. Vuelve respirando en calma.", "vector_necesidades": {"agua": 100, "movimiento": 70, "descanso": 90, "salud": 85, "silencio": 50}},
-        {"id": 157, "titulo": "EL RETO DE LA VENTANA", "descripcion": "Abre ventana 2 min. Observa el cielo. Sin teléfono.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "contemplacion": 95, "descanso": 80, "silencio": 70}},
-        {"id": 158, "titulo": "EL RETO DEL ORDEN", "descripcion": "Guarda 5 objetos desordenados. Cinco bastan hoy.", "vector_necesidades": {"organizacion": 100, "descanso": 70, "contemplacion": 60, "movimiento": 30, "silencio": 50}},
-        {"id": 159, "titulo": "EL RETO DE LA RESPIRACIÓN", "descripcion": "Haz 5 respiraciones profundas, lentas. Nada más.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
-        {"id": 160, "titulo": "EL RETO DEL DESCANSO VISUAL", "descripcion": "2 min: mira un punto lejano. Descansa tus ojos de la pantalla.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}},
+        # NUEVAS MICROACCIONES DE RECUPERACIÓN MENTAL (ID 151-160)
+        {"id": 151, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Abre tu correo o tu aplicación bancaria. Busca 'Subscription', 'Invoice' o 'Payment' y cancela una sola suscripción que ya no utilices. Recuperar el control también es ahorrar.", "vector_necesidades": {"organizacion": 90, "aprendizaje": 70, "descanso": 80, "esperanza": 85, "contemplacion": 60}},
+        {"id": 152, "titulo": "EL RETO DE LOS TRES GASTOS", "descripcion": "Abre una nota en tu teléfono y escribe únicamente los tres gastos inevitables de esta semana. No pienses en todo el mes. Solo en esta semana.", "vector_necesidades": {"organizacion": 100, "descanso": 90, "silencio": 70, "aprendizaje": 60, "contemplacion": 80}},
+        {"id": 153, "titulo": "EL RETO DEL ORDEN DIGITAL", "descripcion": "Borra veinte capturas de pantalla, archivos o documentos que ya no necesites. El orden digital también reduce la carga mental.", "vector_necesidades": {"organizacion": 100, "silencio": 80, "descanso": 85, "creatividad": 50, "contemplacion": 70}},
+        {"id": 154, "titulo": "EL RETO DEL SILENCIO", "descripcion": "Silencia durante una hora las aplicaciones que más ansiedad te generan. Tu atención también necesita descansar.", "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "organizacion": 70, "esperanza": 80}},
+        {"id": 155, "titulo": "EL RETO DE LA GRATITUD", "descripcion": "Escribe tres cosas que hoy tienes y que hace algunos años deseabas. Tu mente necesita recordar que también has avanzado.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "creatividad": 80, "aprendizaje": 70, "silencio": 60}},
+        {"id": 156, "titulo": "EL RETO DEL AGUA", "descripcion": "Levántate despacio, bebe un vaso completo de agua y vuelve respirando con calma.", "vector_necesidades": {"agua": 100, "movimiento": 70, "descanso": 90, "salud": 85, "silencio": 50}},
+        {"id": 157, "titulo": "EL RETO DE LA VENTANA", "descripcion": "Abre una ventana durante dos minutos y observa el cielo sin mirar el teléfono.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "contemplacion": 95, "descanso": 80, "silencio": 70}},
+        {"id": 158, "titulo": "EL RETO DEL ORDEN", "descripcion": "Guarda únicamente cinco objetos que estén fuera de lugar. Cinco son suficientes por hoy.", "vector_necesidades": {"organizacion": 100, "descanso": 70, "contemplacion": 60, "movimiento": 30, "silencio": 50}},
+        {"id": 159, "titulo": "EL RETO DE LA RESPIRACIÓN", "descripcion": "Realiza cinco respiraciones profundas siguiendo un ritmo lento. No tienes que hacer nada más.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
+        {"id": 160, "titulo": "EL RETO DEL DESCANSO VISUAL", "descripcion": "Durante dos minutos mira un punto lejano para permitir que tus ojos descansen de la pantalla.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}},
     ],
     "CASA_EN": [
         {"id": 1, "titulo": "Cut the autopilot", "descripcion": "Scan your body. Pinpoint the exact weight on your back. See it. You are alive.", "vector_necesidades": {"contemplacion": 90, "descanso": 80, "silencio": 70, "organizacion": 50, "movimiento": 30}},
@@ -221,7 +223,7 @@ BASE_MISIONES = {
         {"id": 44, "titulo": "Listen to Silence", "descripcion": "Search for silence between breaths.", "vector_necesidades": {"silencio": 100, "contemplacion": 95, "descanso": 90, "aprendizaje": 80, "naturaleza": 70}},
         {"id": 45, "titulo": "Ceiling Gaze", "descripcion": "Look at the ceiling. Stretch neck without moving shoulders.", "vector_necesidades": {"movimiento": 70, "descanso": 80, "salud": 80, "contemplacion": 70, "silencio": 60}},
         {"id": 46, "titulo": "Feel Base", "descripcion": "Firm contact of legs with chair.", "vector_necesidades": {"descanso": 90, "contemplacion": 85, "silencio": 75, "naturaleza": 40, "movimiento": 20}},
-        {"id": 48, "titulo": "Limpieza mental", "descripcion": "Exhala preocupación aburrida. Fuera de ti.", "vector_necesidades": {"esperanza": 90, "silencio": 80, "descanso": 85, "risa": 50, "creatividad": 60}},
+        {"id": 48, "titulo": "Mental Cleanse", "descripcion": "Exhale boring worry. Out of you.", "vector_necesidades": {"esperanza": 90, "silencio": 80, "descanso": 85, "risa": 50, "creatividad": 60}},
         {"id": 49, "titulo": "Toca mesa", "descripcion": "Palmas en mesa. Nota la stability.", "vector_necesidades": {"contemplacion": 90, "organizacion": 80, "silencio": 70, "descanso": 60, "naturaleza": 30}},
         {"id": 50, "titulo": "Presencia total", "descripcion": "Estás aquí. Estás a salvo. Tienes el control.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "silencio": 90, "descanso": 85, "organizacion": 70}},
         {"id": 51, "titulo": "Canta una melodía", "descripcion": "Tararea tu canción favorita suavemente. No pienses, solo siente el sonido.", "vector_necesidades": {"musica": 100, "risa": 70, "creatividad": 80, "descanso": 60, "juego": 50}},
@@ -246,17 +248,17 @@ BASE_MISIONES = {
         {"id": 72, "titulo": "Tensa y relaja los pies", "descripcion": "Aprieta los dedos de tus pies durante 5 segundos y luego relájalos.", "vector_necesidades": {"movimiento": 90, "descanso": 80, "salud": 70, "organizacion": 40, "silencio": 50}},
         {"id": 74, "titulo": "Olor consciente", "descripcion": "Huelea una flor, café o especia. Concéntrate en el aroma.", "vector_necesidades": {"naturaleza": 80, "alimentacion": 70, "contemplacion": 90, "silencio": 80, "descanso": 70}},
         {"id": 75, "titulo": "Cambia de silla", "descripcion": "Siéntate en otra silla o lugar de la casa por 5 minutos. Pequeño cambio.", "vector_necesidades": {"movimiento": 60, "creatividad": 50, "descanso": 70, "organizacion": 40, "contemplacion": 60}},
-        # === MODIFICACIÓN: MICROACCIONES DE RECUPERACIÓN MENTAL (ID 151-160) - DESCRIPCIONES ACORTADAS ===
-        {"id": 151, "titulo": "THE FORGOTTEN SUBSCRIPTION CHALLENGE", "descripcion": "Check email/banking app. Cancel forgotten subscription. Regain control and save.", "vector_necesidades": {"organizacion": 90, "aprendizaje": 70, "descanso": 80, "esperanza": 85, "contemplacion": 60}},
-        {"id": 152, "titulo": "THE THREE EXPENSES CHALLENGE", "descripcion": "On your phone, list only 3 key expenses for this week. Focus only today.", "vector_necesidades": {"organizacion": 100, "descanso": 90, "silencio": 70, "aprendizaje": 60, "contemplacion": 80}},
-        {"id": 153, "titulo": "THE DIGITAL ORDER CHALLENGE", "descripcion": "Delete 20 useless screenshots/files. Digital order reduces mental load.", "vector_necesidades": {"organizacion": 100, "silencio": 80, "descanso": 85, "creatividad": 50, "contemplacion": 70}},
-        {"id": 154, "titulo": "THE SILENCE CHALLENGE", "descripcion": "Silence anxiety-inducing apps for 1 hour. Your attention needs rest.", "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "organizacion": 70, "esperanza": 80}},
-        {"id": 155, "titulo": "THE GRATITUDE CHALLENGE", "descripcion": "List 3 things you have today you once desired. Remember your progress.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "creatividad": 80, "aprendizaje": 70, "silencio": 60}},
-        {"id": 156, "titulo": "THE WATER CHALLENGE", "descripcion": "Slowly stand, drink a glass of water. Return breathing calmly.", "vector_necesidades": {"agua": 100, "movimiento": 70, "descanso": 90, "salud": 85, "silencio": 50}},
-        {"id": 157, "titulo": "THE WINDOW CHALLENGE", "descripcion": "Open window 2 min. Observe the sky. No phone.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "contemplacion": 95, "descanso": 80, "silencio": 70}},
-        {"id": 158, "titulo": "THE ORDER CHALLENGE", "descripcion": "Put away 5 misplaced items. Five are enough today.", "vector_necesidades": {"organizacion": 100, "descanso": 70, "contemplacion": 60, "movimiento": 30, "silencio": 50}},
-        {"id": 159, "titulo": "THE BREATHING CHALLENGE", "descripcion": "Take 5 deep, slow breaths. Nothing else.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
-        {"id": 160, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "2 min: look at a distant point. Rest your eyes from the screen.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}},
+        # NUEVAS MICROACCIONES DE RECUPERACIÓN MENTAL (ID 151-160)
+        {"id": 151, "titulo": "THE FORGOTTEN SUBSCRIPTION CHALLENGE", "descripcion": "Open your email or banking app. Search for 'Subscription', 'Invoice', or 'Payment' and cancel a single subscription you no longer use. Regaining control is also saving.", "vector_necesidades": {"organizacion": 90, "aprendizaje": 70, "descanso": 80, "esperanza": 85, "contemplacion": 60}},
+        {"id": 152, "titulo": "THE THREE EXPENSES CHALLENGE", "descripcion": "Open a note on your phone and write down only the three unavoidable expenses for this week. Don't think about the whole month. Just this week.", "vector_necesidades": {"organizacion": 100, "descanso": 90, "silencio": 70, "aprendizaje": 60, "contemplacion": 80}},
+        {"id": 153, "titulo": "THE DIGITAL ORDER CHALLENGE", "descripcion": "Delete twenty screenshots, files, or documents you no longer need. Digital order also reduces mental load.", "vector_necesidades": {"organizacion": 100, "silencio": 80, "descanso": 85, "creatividad": 50, "contemplacion": 70}},
+        {"id": 154, "titulo": "THE SILENCE CHALLENGE", "descripcion": "Silence the apps that generate the most anxiety for an hour. Your attention also needs rest.", "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "organizacion": 70, "esperanza": 80}},
+        {"id": 155, "titulo": "THE GRATITUDE CHALLENGE", "descripcion": "Write down three things you have today that you wished for a few years ago. Your mind needs to remember that you have also made progress.", "vector_necesidades": {"esperanza": 100, "contemplacion": 95, "creatividad": 80, "aprendizaje": 70, "silencio": 60}},
+        {"id": 156, "titulo": "THE WATER CHALLENGE", "descripcion": "Slowly stand up, drink a full glass of water, and return, breathing calmly.", "vector_necesidades": {"agua": 100, "movimiento": 70, "descanso": 90, "salud": 85, "silencio": 50}},
+        {"id": 157, "titulo": "THE WINDOW CHALLENGE", "descripcion": "Open a window for two minutes and observe the sky without looking at your phone.", "vector_necesidades": {"aire_fresco": 100, "naturaleza": 90, "contemplacion": 95, "descanso": 80, "silencio": 70}},
+        {"id": 158, "titulo": "THE ORDER CHALLENGE", "descripcion": "Put away only five objects that are out of place. Five are enough for today.", "vector_necesidades": {"organizacion": 100, "descanso": 70, "contemplacion": 60, "movimiento": 30, "silencio": 50}},
+        {"id": 159, "titulo": "THE BREATHING CHALLENGE", "descripcion": "Take five deep breaths following a slow rhythm. You don't have to do anything else.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
+        {"id": 160, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "For two minutes, look at a distant point to allow your eyes to rest from the screen.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}},
     ],
     "SALIR": {
         "agotado": [
@@ -1094,7 +1096,7 @@ def score_coincidencia(
             continue
         usuario = perfil_local.get(necesidad, DEFAULT_NECESSITY_VECTOR.get(necesidad, 50))
         diferencia = abs(usuario - objetivo)
-        score += (100 - diferencia) * 0.5 # Ponderación base
+        score += (100 - diferencia) * 0.5
 
     # --------------------------------------------------
     # Priorizar necesidades insatisfechas (altas en perfil)
@@ -1103,23 +1105,22 @@ def score_coincidencia(
     for necesidad, valor_usuario in perfil_local.items():
         if necesidad == "indicador_ansiedad":
             continue
-        # Si la necesidad del usuario es alta (insatisfecha) y la misión también tiene un alto objetivo para esa necesidad
         if valor_usuario > 70 and vector_necesidades.get(necesidad, 0) > 70:
-            score += (valor_usuario * 0.3) # Bonificación fuerte
+            score += (valor_usuario * 0.3)
         elif valor_usuario > 50 and vector_necesidades.get(necesidad, 0) > 50:
-            score += (valor_usuario * 0.1) # Bonificación moderada
+             score += (valor_usuario * 0.1)
 
     # --------------------------------------------------
     # Priorizar ansiedad: Misiones que atienden directamente la ansiedad.
     # --------------------------------------------------
     ansiedad = perfil_local.get("indicador_ansiedad", 0)
-    if ansiedad >= 70: # Nivel alto de ansiedad
+    if ansiedad >= 70:
         score += vector_necesidades.get("silencio", 0) * 0.5
         score += vector_necesidades.get("descanso", 0) * 0.5
         score += vector_necesidades.get("esperanza", 0) * 0.4
         score += vector_necesidades.get("naturaleza", 0) * 0.3
         score += vector_necesidades.get("agua", 0) * 0.3
-    elif ansiedad >= 40: # Nivel medio de ansiedad
+    elif ansiedad >= 40:
         score += vector_necesidades.get("descanso", 0) * 0.2
         score += vector_necesidades.get("silencio", 0) * 0.2
    
@@ -1147,21 +1148,20 @@ def seleccionar_por_ranking(candidatos):
     mejor_score = candidatos[0]["score"]
    
     # Si todos tienen un score bajo, y todos son iguales, elige uno al azar.
-    if mejor_score <= 100: # Umbral para considerar que los scores son "bajos"
+    # Esto evita que un score bajo pero único siempre gane por poco.
+    if mejor_score <= 100:
         scores_unicos = {c["score"] for c in candidatos}
         if len(scores_unicos) == 1:
-            return random.choice(candidatos)
+             return random.choice(candidatos)
 
-    # Considerar un umbral dinámico para seleccionar entre los mejores
-    score_umbral = max(mejor_score * 0.8, mejor_score - 150) # El 80% del mejor o 150 puntos menos que el mejor
+    score_umbral = max(mejor_score * 0.8, mejor_score - 150)
    
     mejores_candidatos_para_eleccion = [
         c for c in candidatos if c["score"] >= score_umbral
     ]
    
-    if not mejores_candidatos_para_eleccion: # Si el umbral fue demasiado estricto, relaja y toma del top 3
-        mejores_candidatos_para_eleccion = candidatos[:min(3, len(candidatos))]
-        if not mejores_candidatos_para_eleccion: return None
+    if len(mejores_candidatos_para_eleccion) == 1:
+        return mejores_candidatos_para_eleccion[0]
 
     pesos = [c["score"] for c in mejores_candidatos_para_eleccion]
     # Asegúrate de que ningún peso sea cero o negativo para random.choices
@@ -1195,7 +1195,7 @@ def seleccionar_mision_inteligente(
             "score": score
         })
     seleccion = seleccionar_por_ranking(candidatos)
-    if seleccion is None:
+    if seleccion is None: # Error mecánico: '==' en vez de 'is' o '=='
         return random.choice(misiones) if misiones else None
     return seleccion["mision"]
 
@@ -1274,7 +1274,7 @@ def seleccionar_n_misiones_inteligentes(
         mision_aleatoria = random.choice(misiones)
         if mision_aleatoria["id"] not in ids_seleccionados:
             seleccionadas.append(mision_aleatoria)
-            ids_seleccionados.add(mision["id"])
+            ids_seleccionados.add(mision_aleatoria["id"])
 
     return seleccionadas[:n]
 
@@ -1411,136 +1411,139 @@ async def mando_integral(request: Request):
     }
     if "indicador_ansiedad" not in perfil_local:
         perfil_local["indicador_ansiedad"] = 0
-       
-    # ==========================================================================================
-    # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
-    # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
-    # ==========================================================================================
+
+    # ============================================================
+    # TERAPEUTIC STRESS INTERCEPTOR FILTER
+    # Eliminar cualquier elemento que pueda aumentar el estrés del cliente.
+    # Si el desahogo contiene palabras críticas, se fuerza una microacción de recuperación mental.
+    # ============================================================
     sensitive_keywords = [
-        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum", "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income", "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades", "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo", "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica", "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo", "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales", "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
+        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum",
+        "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income",
+        "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades",
+        "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo",
+        "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica",
+        "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco",
+        "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo",
+        "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales",
+        "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
     ]
-   
+
     force_recovery_mission = False
+    # Check if *explicitly* asking for work, as per rule
     explicitly_seeking_job = any(phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"])
    
-    # DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
-    marca_detectada = None
-    if desahogo and not explicitly_seeking_job:
+    if desahogo and not explicitly_seeking_job: # Only apply stress filter if not explicitly seeking job
         desahogo_lower = desahogo.lower()
-        for keyword in ["walmart", "amazon", "costco", "starbucks", "mcdonald", "spotify", "youtube", "tiktok", "instagram"]: # Agregadas marcas de redes
-            if keyword in desahogo_lower:
-                marca_detectada = keyword.capitalize()
-                break
-        if marca_detectada: # Solo forzar si se detectó una marca
-             force_recovery_mission = True
+        if any(keyword in desahogo_lower for keyword in sensitive_keywords):
+            force_recovery_mission = True
+            opcion_usuario = "CASA" # Force CASA mode for recovery mission
 
-    # INVERSIÓN SISTÉMICA CRÍTICA: SI HAY SÍNTOMA CORPORATIVO, NO HUYES A CASA, EJECUTAS UN CONTRAATAQUE DE CAMPO
-    if force_recovery_mission and marca_detectada:
-        mente_str_es = mente.upper()
-        mente_str_en = mente.upper()
-
-        diagnostico_sintoma_es = f"Diagnóstico: El cliente experimenta [{mente_str_es}] en relación al estímulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
-        diagnostico_sintoma_en = f"Diagnostic: Client experiences [{mente_str_en}] linked to corporate stimulus [{marca_detectada}] in Zip Code {zip_code}."
-
-        instruccion_fisiologica_es = ""
-        instruccion_fisiologica_en = ""
+    if force_recovery_mission:
+        idioma = "EN" if lang.lower() == "en" else "ES"
+        # Seleccionar una de las 10 nuevas microacciones (IDs 151 a 160)
+        microacciones_ids = list(range(151, 161))
        
-        if marca_detectada == "Walmart":
-            instruccion_fisiologica_es = "Estás en el templo del consumo. Hackea: detén tu marcha, inhala/exhala profundo. Repite: 'Yo soy el único producto que importa hoy'. Sal de la rutina."
-            instruccion_fisiologica_en = "You are in the consumption temple. Hack it: stop, inhale/exhale deeply. Repeat: 'I am the only product that matters today'. Exit routine."
-        elif marca_detectada == "Amazon":
-            instruccion_fisiologica_es = "Tu mente busca dopamina rápida. Bloquea la pantalla. Enfócate en tu espacio biológico: hidrátate o elimina toxinas. Invierte en tus células, no en el mercado digital."
-            instruccion_fisiologica_en = "Mind seeks quick dopamine. Block screen. Focus on biological space: hydrate or detox. Invest in cells, not digital market."
-        elif marca_detectada in ["Youtube", "Tiktok", "Instagram"]:
-            instruccion_fisiologica_es = "El algoritmo secuestra tu atención. Interrumpe el bucle mental. Suelta el teléfono, cierra ojos 60 segundos. Respira profundo, libera estrés."
-            instruccion_fisiologica_en = "Algorithm hijacks attention. Break mental loop. Drop phone, close eyes 60 secs. Breathe deep, release stress."
-        elif marca_detectada == "Spotify":
-            instruccion_fisiologica_es = "Usas sonidos para aislarte. Detén el audio. Ejecuta el Módulo Silencio Mental 1 minuto. Siente tu ritmo cardíaco en este Código Postal."
-            instruccion_fisiologica_en = "You use sounds to isolate. Stop audio. Execute 1-minute Mental Silence Module. Feel your heart rhythm in this Zip Code."
-        else: # Default case
-            instruccion_fisiologica_es = f"Identificaste que [{marca_detectada}] satura tu mente. Rebélate: usa pasillos, aire libre o ventanas. Haz una pausa biológica profunda de 60 segundos. Recupera el control."
-            instruccion_fisiologica_en = f"You identified [{marca_detectada}] saturating your mind. Rebel: use halls, open air, or windows. Take a deep 60-sec biological pause. Regain control."
+        # Filtrar misiones_completas para incluir solo las microacciones
+        misiones_completas_casa = [m for m in BASE_MISIONES[f"CASA_{idioma}"] if m["id"] in microacciones_ids]
+       
+        if not misiones_completas_casa: # Fallback if for some reason no microactions are found
+            misiones_completas_casa = BASE_MISIONES[f"CASA_{idioma}"]
 
-        query_mapa_url = urllib.parse.quote_plus(f"{marca_detectada} in {zip_code}")
-        target_link = f"{link_base}{query_mapa_url}"
-
-        final_misiones_para_frontend = [{
-            "destino_id": 999,
-            "destino_titulo": f"HACKEO A {marca_detectada.upper()}",
-            "destino_titulo_en": f"HACKING {marca_detectada.upper()}",
-            "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
-            "que_hacer_en": "Mental Control Interruption & Return to Body.",
-            "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
-            "destino_instruccion": instruccion_fisiologica_es, # Instrucción concisa ES
-            "destino_instruccion_en": instruccion_fisiologica_en, # Instrucción concisa EN
-            "destino_coordenadas_gps": target_link,
-            "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
-            "diagnostico_sintoma_es": diagnostico_sintoma_es,
-            "diagnostico_sintoma_en": diagnostico_sintoma_en,
-        }]
+        historial_casa = payload.get("historial_casa", [])
+       
+        info_seleccionada = seleccionar_mision_inteligente(
+            misiones=misiones_completas_casa,
+            perfil_local=perfil_local,
+            historial=historial_casa # Use CASA history for this selection
+        )
+       
+        if not info_seleccionada: # Fallback just in case
+            info_seleccionada = random.choice(misiones_completas_casa)
+           
+        historial_casa = actualizar_historial(historial_casa, info_seleccionada["id"], MAX_HISTORY_CASA)
 
         return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "misiones": final_misiones_para_frontend,
-            "historial_salir_actualizado": payload.get("historial_salir", []),
-            "forced_recovery": True
+            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
+            "misiones": [info_seleccionada], # Return as a list for consistency with normal CASA flow
+            "historial_casa_actualizado": historial_casa,
+            "forced_recovery": True # Indicate that this was a forced recovery
         })
 
-    # CONTINUACIÓN CONTINUA DEL FLUJO DE TRABAJO BASE DE LA PLATAFORMA OPEN THAN GO
-    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
+    # 1. DOMESTIC INTERVENTION (CASA MODE)
     if opcion_usuario == "CASA":
         idioma = "EN" if lang.lower() == "en" else "ES"
-        misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
+        misiones_completas = (
+            BASE_MISIONES[f"CASA_{idioma}"]
+        )
+       
         historial_casa = payload.get("historial_casa", [])
-        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, cantidad=3)
+       
+        misiones_casa = seleccionar_misiones_casa_inteligente(
+            misiones_completas,
+            perfil_local,
+            historial_casa,
+            cantidad=3
+        )
+       
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
+       
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
         })
-       
-    # ==============================================================================
-    # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
-    # ==============================================================================
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-    historial_salir = payload.get("historial_salir", [])
+
+    # ============================================================
+    # 2. FIELD ACTION (SALIR MODE - CWRE INTELLIGENT ENGINE V2)
+    #    Ahora devuelve 3 opciones para que el frontend elija.
+    # ============================================================
+    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(
+        mente,
+        BASE_MISIONES["SALIR"]["aburrido"]
+    )
    
+    historial_salir = payload.get(
+        "historial_salir",
+        []
+    )
+   
+    # Selecciona 3 misiones diversas y de alto score
     misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
         n=3,
         misiones=opciones_salir_candidatas,
         perfil_local=perfil_local,
-        historial_actual=historial_salir
+        historial_actual=historial_salir # Usa historial para penalización
     )
-   
+
     final_misiones_para_frontend = []
-   
+
     for info_seleccionada in misiones_seleccionadas_raw:
-        # === MODIFICACIÓN: MENSAJES DE ACOMPAÑAMIENTO Y GASTO ACORTADOS ===
         precio_real = ""
         if budget == "0":
-            precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
+            precio_real = "GASTO: Cero dólares. Austeridad creativa para proteger tu mente hoy." if lang == "es" else "COST: Zero dollars. Creative austerity to protect your mind today."
         elif budget == "1":
-            precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
+            precio_real = "GASTO: Rango bajo. Un gustazo mínimo para romper la rutina." if lang == "es" else "COST: Low range. A minimal treat to break the routine."
         elif budget == "2":
-            precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
-
+            precio_real = "GASTO: Libre. El dinero es tu herramienta de escape hoy." if lang == "es" else "COST: Free. Money is your escape tool today."
+       
         quienes_van = ""
         if perfil_tipo == "solo":
-            quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
+            quienes_van = "ACOMPAÑAMIENTO: Vas solo contigo mismo a recuperar tu centro." if lang == "es" else "COMPANIONSHIP: You go alone to regain your center."
         elif perfil_tipo == "familia":
-            quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
+            quienes_van = "ACOMPAÑAMIENTO: Entorno apto para el desahogo de tus niños y familia." if lang == "es" else "COMPANIONSHIP: Environment suitable for your children and family to unwind."
         elif perfil_tipo == "accesible":
-            quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
-
+            quienes_van = "ACOMPAÑAMIENTO: Ruta plana con acceso total por comodidad física o edad." if lang == "es" else "COMPANIONSHIP: Flat route with full access for physical comfort or age."
+       
         titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
         donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
+       
         anclaje_geografico = zip_code
-        map_base_url = link_base
+        map_base_url = "https://www.google.com/maps/search/?api=1&query="
+        target_link = ""
 
         if lang == "en":
-            # === MODIFICACIÓN: guia_masticada (EN) ACORTADA ===
             guia_masticada = (
                 f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
                 f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
@@ -1552,7 +1555,6 @@ async def mando_integral(request: Request):
             titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
             que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
         else:
-            # === MODIFICACIÓN: guia_masticada (ES) ACORTADA ===
             guia_masticada = (
                 f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
                 f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
@@ -1562,45 +1564,47 @@ async def mando_integral(request: Request):
                 f"{quienes_van}\n{precio_real}"
             )
             titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
-            que_hacer_lang = info_seleccionada["que_hacer"] or ""
-
+            que_hacer_lang = info_seleccionada['que_hacer'] or ''
+       
         search_query_parts = []
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
         elif perfil_tipo == "familia":
             search_query_parts.append("family friendly")
-
+       
         search_query_parts.append(info_seleccionada["gps"])
         search_query_parts.append(f"in {anclaje_geografico}")
-
+       
         full_map_query_string = " ".join(search_query_parts)
         target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-
+       
         final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
 
         final_misiones_para_frontend.append({
             "destino_id": info_seleccionada.get("id"),
             "destino_titulo": titulo_ganador_lang,
-            "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]),
-            "que_hacer": info_seleccionada["que_hacer"],
-            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
+            "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]), # Incluir ambos para frontend
+            "que_hacer": info_seleccionada["que_hacer"], # Incluir ambos para frontend
+            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]), # Incluir ambos para frontend
             "destino_entorno": donde_base,
             "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": guia_masticada.strip(), # Ambos usan el mismo guia_masticada que ya fue construido en el idioma correcto
+            "destino_instruccion_en": (
+                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
+                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
+                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
+                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
+                f"{quienes_van}\n{precio_real}"
+            ).strip(),
             "destino_coordenadas_gps": target_link,
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
-
+   
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
-        "historial_salir_actualizado": historial_salir
+        "historial_salir_actualizado": historial_salir # Se devuelve, pero la actualización principal se hará en el frontend.
     })
 
-# ==============================================================================
-# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
-# ==============================================================================
 if __name__ == "__main__":
-    import os
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
