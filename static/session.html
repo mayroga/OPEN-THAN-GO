@@ -495,30 +495,61 @@
     </div>
    
     <div id="pantalla-pago" class="hidden">
-        <div id="pantalla-pago-content">
-            <h2 id="pago-title">Acceso a la App / APP Access</h2>
-            <div class="input-group">
-                <label for="pago-username" id="pago-lbl-username">Username (Solo Dev)</label>
-                <input type="text" id="pago-username" placeholder="developer">
-            </div>
-            <div class="input-group">
-                <label for="pago-password" id="pago-lbl-password">Password (Solo Dev)</label>
-                <input type="password" id="pago-password" placeholder="******">
-            </div>
-            <button class="btn-login" id="pago-btn-login">LOGIN</button>
-            <p id="pago-error-message"></p>
-
-            <hr style="margin: 25px 0; border-color: #222;">
-            
-            <h3 style="color:#eee; font-size:1.1rem; margin-bottom:15px;" id="pago-lbl-options">O elige tu plan:</h3>
-
-            <button class="btn-payment" data-price-id="price_1TtbjXBOA5mT4t0PMCJSext6" id="pago-btn-one-time">Pago Único ($15.99)</button>
-            <button class="btn-payment" data-price-id="price_1TtblSBOA5mT4t0PGiYvT2l9" id="pago-btn-monthly">Suscripción Mensual ($25.99)</button>
-            <button class="btn-payment" data-price-id="price_1TtbltBOA5mT4t0PpJ8io219" id="pago-btn-annual">Suscripción Anual ($250.00)</button>
-
-            <button class="btn-guest" id="pago-btn-guest">Continuar como Invitado</button>
+    <div id="pantalla-pago-content">
+        <h2 id="pago-title">
+            Acceso OPEN THAN GO
+        </h2>
+        <div class="input-group">
+            <label>
+                Username administrador
+            </label>
+            <input 
+            type="text"
+            id="pago-username"
+            placeholder="Username">
         </div>
+        <div class="input-group">
+            <label>
+                Password administrador
+            </label>
+            <input 
+            type="password"
+            id="pago-password"
+            placeholder="Password">
+        </div>
+        <button 
+        class="btn-login"
+        id="pago-btn-login">
+        ENTRAR ADMIN
+        </button>
+        <p id="pago-error-message"></p>
+        <hr style="margin:25px 0;border-color:#222;">
+        <h3 style="
+        color:#eee;
+        font-size:1.1rem;
+        margin-bottom:15px;">
+        Selecciona acceso
+        </h3>
+        <button 
+        class="btn-payment"
+        id="pago-btn-one-time"
+        data-plan="one_time">
+        ACCESO ÚNICO $15.99
+        </button>
+        <button 
+        class="btn-payment"
+        id="pago-btn-monthly"
+        data-plan="monthly">
+        MENSUAL $25.99
+        </button>
+        <button 
+        class="btn-payment"
+        id="pago-btn-annual"
+        data-plan="yearly">
+        ANUAL $250
+        </button>
     </div>
+</div>
 
     <div class="container hidden" id="wrapper-form">
         <div class="lang-bar">
