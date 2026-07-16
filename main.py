@@ -441,7 +441,7 @@ async def get_mando_integral(payload: dict = Body(...), current_user: Dict[str, 
     FOR_WHAT_ES = "Romper rutina. Recuérdate vivo."
     FOR_WHAT_EN = "Break routine. Remember life."
 
-# ============================================================
+    # ============================================================
 # CATÁLOGO DE MISIONES CWRE V2.1
 # Adaptado para Microacciones de Recuperación Mental y sin elementos de estrés laboral/financiero.
 # ============================================================
