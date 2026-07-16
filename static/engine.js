@@ -332,22 +332,22 @@ const KERNEL = {
             // Limpiar la URL para que no re-active el mensaje en cada recarga
             const newUrl = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
+            this.checkAuthAndRender(); // Recargar estado para mostrar la app principal
         } else if (paymentStatus === 'cancelled') {
             this.hablar(this.idiomaActual === 'es' ? 'Pago cancelado. Puedes intentar de nuevo.' : 'Payment cancelled. You can try again.');
             const newUrl = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
+            this.checkAuthAndRender(); // Recargar estado para mostrar la pantalla de pago
         }
-
-        // KERNEL.init() no llama a despertarInicial directamente ahora
-        // Solo inicializa lo básico, la lógica de autenticación lo hará después.
     },
 
-    // --- NUEVAS FUNCIONES DE AUTENTICACIÓN Y FLUJO DE INTERFAZ (NUEVO) ---
+    // --- NUEVAS FUNCIONES DE AUTENTICACIÓN Y FLUJO DE INTERFAZ ---
     currentAuthMode: 'login', // 'login' o 'register'
     isLoggedIn: false,
     hasPaid: false,
     currentUsername: null,
     sessionId: null,
+    loginCount: 0, // Usos restantes del usuario para el día
 
     showAuthScreen() {
         document.getElementById('pantalla-bienvenida').classList.add('hidden');
@@ -355,10 +355,11 @@ const KERNEL = {
         document.getElementById('wrapper-interactive').classList.add('hidden');
         document.getElementById('pantalla-cierre').classList.add('hidden');
         document.getElementById('pantalla-autenticacion').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.add('hidden'); // Ocultar hasta entrar a la app
+        document.getElementById('btn-volver-app').classList.add('hidden');
         document.getElementById('btn-whatsapp').classList.add('hidden');
         document.getElementById('btn-messenger').classList.add('hidden');
         this.resetAuthForm();
+        OTG_SENSORIAL.modificarBienvenida(); // Asegurar que la pantalla de bienvenida esté actualizada
     },
 
     toggleAuthMode() {
@@ -368,16 +369,21 @@ const KERNEL = {
         const toggleLink = document.getElementById('login-register-toggle');
         const authMessage = document.getElementById('auth-message');
 
+        const t = {
+            es: { loginTitle: "INICIAR SESIÓN", registerTitle: "REGISTRARSE", loginBtn: "INGRESAR", registerBtn: "CREAR CUENTA", noAccount: "¿No tienes cuenta? Regístrate aquí.", hasAccount: "¿Ya tienes cuenta? Inicia sesión aquí." },
+            en: { loginTitle: "LOGIN", registerTitle: "REGISTER", loginBtn: "LOGIN", registerBtn: "CREATE ACCOUNT", noAccount: "Don't have an account? Register here.", hasAccount: "Already have an account? Login here." }
+        }[this.idiomaActual];
+
         if (this.currentAuthMode === 'login') {
-            authTitle.innerText = 'INICIAR SESIÓN';
-            authSubmitBtn.innerText = 'INGRESAR';
-            toggleLink.innerText = '¿No tienes cuenta? Regístrate aquí.';
+            authTitle.innerText = t.loginTitle;
+            authSubmitBtn.innerText = t.loginBtn;
+            toggleLink.innerText = t.noAccount;
         } else {
-            authTitle.innerText = 'REGISTRARSE';
-            authSubmitBtn.innerText = 'CREAR CUENTA';
-            toggleLink.innerText = '¿Ya tienes cuenta? Inicia sesión aquí.';
+            authTitle.innerText = t.registerTitle;
+            authSubmitBtn.innerText = t.registerBtn;
+            toggleLink.innerText = t.hasAccount;
         }
-        authMessage.innerText = ''; // Limpiar mensajes de error anteriores
+        authMessage.innerText = '';
     },
 
     resetAuthForm() {
@@ -385,14 +391,14 @@ const KERNEL = {
         document.getElementById('password').value = '';
         document.getElementById('auth-message').innerText = '';
         this.currentAuthMode = 'login';
-        this.toggleAuthMode(); // Resetear el texto del toggle
+        this.toggleAuthMode();
     },
 
     async handleAuthSubmit() {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         const authMessage = document.getElementById('auth-message');
-        authMessage.innerText = ''; // Clear previous messages
+        authMessage.innerText = '';
 
         if (!username || !password) {
             authMessage.innerText = this.idiomaActual === 'es' ? 'Por favor, ingresa usuario y contraseña.' : 'Please enter username and password.';
@@ -414,11 +420,11 @@ const KERNEL = {
                     this.currentUsername = data.username;
                     localStorage.setItem('otg_session_id', this.sessionId);
                     localStorage.setItem('otg_username', this.currentUsername);
-                    await this.checkAuthAndRender(); // Re-check status and render app
-                } else { // Registration successful
+                    await this.checkAuthAndRender();
+                } else {
                     authMessage.style.color = 'var(--green-action)';
                     authMessage.innerText = this.idiomaActual === 'es' ? 'Registro exitoso. ¡Ahora puedes iniciar sesión!' : 'Registration successful. You can now log in!';
-                    this.toggleAuthMode(); // Switch to login mode
+                    this.toggleAuthMode();
                 }
             } else {
                 authMessage.style.color = 'var(--accent)';
@@ -447,7 +453,8 @@ const KERNEL = {
                 this.currentUsername = null;
                 this.isLoggedIn = false;
                 this.hasPaid = false;
-                this.showLoginScreen(); // Go back to login screen
+                this.loginCount = 0;
+                this.showAuthScreen();
                 this.hablar(this.idiomaActual === 'es' ? 'Sesión cerrada exitosamente.' : 'Logged out successfully.');
             } else {
                 alert(this.idiomaActual === 'es' ? 'Error al cerrar sesión.' : 'Error logging out.');
@@ -463,6 +470,7 @@ const KERNEL = {
         this.currentUsername = localStorage.getItem('otg_username');
         this.isLoggedIn = false;
         this.hasPaid = false;
+        this.loginCount = 0;
         let paymentMessageText = "";
 
         if (this.sessionId && this.currentUsername) {
@@ -478,50 +486,43 @@ const KERNEL = {
                 if (response.ok) {
                     this.isLoggedIn = true;
                     this.hasPaid = data.is_paid;
+                    this.loginCount = data.login_count;
                     document.getElementById('display-username').innerText = data.username;
                     paymentMessageText = data.message;
-                    localStorage.setItem('otg_user_id', data.username); // Para compatibilidad con procesarPagoStripe
+
+                    this.updateLoginCountDisplay(); // Actualizar display con el contador de usos
 
                     if (this.hasPaid) {
                         this.hablar(this.idiomaActual === 'es' ? `Bienvenido de nuevo, ${data.username}.` : `Welcome back, ${data.username}.`);
-                        this.despertarInicial(); // Proceed to main app
+                        this.despertarInicial();
                     } else {
-                        // Logged in but not paid
                         this.hablar(this.idiomaActual === 'es' ? `Hola, ${data.username}. Tu acceso requiere pago.` : `Hello, ${data.username}. Your access requires payment.`);
                         this.showPaymentScreen(paymentMessageText);
                     }
                 } else {
-                    // Session invalid or other error, force re-login
                     console.error('API User Status Error:', data.detail);
                     localStorage.removeItem('otg_session_id');
                     localStorage.removeItem('otg_username');
-                    this.showLoginScreen(data.detail || (this.idiomaActual === 'es' ? 'Tu sesión ha expirado.' : 'Your session has expired.'));
+                    this.showAuthScreen();
+                    document.getElementById('auth-message').style.color = 'var(--accent)';
+                    document.getElementById('auth-message').innerText = data.detail || (this.idiomaActual === 'es' ? 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.' : 'Your session has expired. Please log in again.');
                 }
             } catch (error) {
                 console.error('Error checking user status:', error);
-                // Assume network error or server down, prompt login
-                this.showLoginScreen(this.idiomaActual === 'es' ? 'No se pudo conectar al servidor. Intenta de nuevo.' : 'Could not connect to server. Please try again.');
+                this.showAuthScreen();
+                document.getElementById('auth-message').style.color = 'var(--accent)';
+                document.getElementById('auth-message').innerText = this.idiomaActual === 'es' ? 'No se pudo conectar al servidor. Intenta de nuevo.' : 'Could not connect to server. Please try again.';
             }
         } else {
-            this.showLoginScreen();
+            this.showAuthScreen();
         }
     },
 
-    showLoginScreen(message = '') {
-        document.getElementById('pantalla-bienvenida').classList.add('hidden');
-        document.getElementById('wrapper-form').classList.add('hidden');
-        document.getElementById('wrapper-interactive').classList.add('hidden');
-        document.getElementById('pantalla-cierre').classList.add('hidden');
-        document.getElementById('pantalla-autenticacion').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.add('hidden');
-        document.getElementById('btn-whatsapp').classList.add('hidden');
-        document.getElementById('btn-messenger').classList.add('hidden');
-        
-        this.resetAuthForm();
-        if (message) {
-            const authMessage = document.getElementById('auth-message');
-            authMessage.style.color = 'var(--accent)';
-            authMessage.innerText = message;
+    updateLoginCountDisplay() {
+        const display = document.getElementById('login-count-display');
+        if (display) {
+            const message = this.idiomaActual === 'es' ? `Usos restantes hoy: ${this.loginCount}` : `Remaining uses today: ${this.loginCount}`;
+            display.innerText = message;
         }
     },
 
@@ -530,7 +531,7 @@ const KERNEL = {
         document.getElementById('pantalla-autenticacion').classList.add('hidden');
         document.getElementById('wrapper-interactive').classList.add('hidden');
         document.getElementById('pantalla-cierre').classList.add('hidden');
-        document.getElementById('wrapper-form').classList.remove('hidden'); // Show main app container
+        document.getElementById('wrapper-form').classList.remove('hidden');
         
         // Hide core app functionality
         document.getElementById('lbl-zip').parentElement.classList.add('hidden');
@@ -548,7 +549,7 @@ const KERNEL = {
         document.getElementById('payment-message').innerText = message;
         
         document.getElementById('display-username').innerText = this.currentUsername;
-        document.getElementById('btn-volver-app').classList.add('hidden'); // No volver a la app si no hay pago
+        document.getElementById('btn-volver-app').classList.add('hidden');
         document.getElementById('btn-whatsapp').classList.remove('hidden');
         document.getElementById('btn-messenger').classList.remove('hidden');
     },
@@ -579,9 +580,14 @@ const KERNEL = {
         document.getElementById('btn-messenger').classList.remove('hidden');
     },
 
-    despertarInicial() { // Esta función ahora se llama después de autenticación y pago
-        this.showMainApp(); // Show the main application UI
+    despertarInicial() {
+        if (!this.isLoggedIn || !this.hasPaid) {
+            console.warn("Attempted to call despertarInicial() without being logged in or paid.");
+            this.checkAuthAndRender();
+            return;
+        }
 
+        this.showMainApp();
         this.cambiarIdioma(this.idiomaActual);
        
         const saludos_es = [
@@ -799,7 +805,7 @@ const KERNEL = {
             btnActivarLibre.style.borderColor = "#222";
         } else {
             zipInput.style.borderColor = "#222";
-            if (hasTextareaContent) {
+            if (hasTextareaContent && this.loginCount > 0) { // Solo si tiene usos disponibles
                 btnActivarLibre.disabled = false;
                 btnActivarLibre.style.background = "var(--green-action)";
                 btnActivarLibre.style.color = "#fff";
@@ -919,6 +925,7 @@ const KERNEL = {
         document.querySelector('#pantalla-autenticacion .auth-field:first-of-type label').innerText = t.usernameLabel;
         document.querySelector('#pantalla-autenticacion .auth-field:last-of-type label').innerText = t.passwordLabel;
         document.querySelector('.user-info button').innerText = t.logoutBtn;
+        this.updateLoginCountDisplay();
 
         this.hablar(t.alert);
         this.inyectarBloquePreguntas();
@@ -927,6 +934,20 @@ const KERNEL = {
 
     async ejecutar() {
         if (this.isLocked) return;
+
+        // Cliente-side check for payment status and login count
+        if (!this.isLoggedIn || !this.hasPaid) {
+            this.hablar(this.idiomaActual === 'es' ? 'Necesitas una suscripción activa para usar la aplicación.' : 'You need an active subscription to use the app.');
+            this.showPaymentScreen(this.idiomaActual === 'es' ? 'Tu cuenta requiere pago para acceder a esta función.' : 'Your account requires payment to access this feature.');
+            return;
+        }
+        if (this.loginCount <= 0) {
+            this.hablar(this.idiomaActual === 'es' ? 'Has alcanzado tu límite de usos diarios.' : 'You have reached your daily usage limit.');
+            this.showMainApp(); // Volver a la pantalla principal sin ocultarla
+            this.validarZip(); // Para deshabilitar el botón si no hay usos
+            return;
+        }
+
         this.isLocked = true;
 
         clearInterval(this.timerInaccion);
@@ -981,10 +1002,17 @@ const KERNEL = {
             });
 
             if (r.status === 401 || r.status === 403) {
-                // If unauthorized or forbidden (e.g., payment required)
                 const errorData = await r.json();
                 this.hablar(errorData.detail);
-                this.checkAuthAndRender(); // Go back to check status and show payment/login screen
+                if (errorData.detail.includes("usage limit reached") || errorData.detail.includes("suscripción")) {
+                    // Update login count display based on backend response, then show main app
+                    this.loginCount = 0; // O el valor que indique el backend si lo devuelve
+                    this.updateLoginCountDisplay();
+                    this.isLocked = false;
+                    this.showMainApp(); // Regresar a la pantalla principal para que el usuario vea el mensaje y las opciones de pago si aplica
+                } else {
+                    this.checkAuthAndRender();
+                }
                 return;
             }
 
@@ -998,6 +1026,10 @@ const KERNEL = {
                 this.validarZip();
                 return;
             }
+
+            // Decrementar login_count en frontend tras éxito de la llamada
+            this.loginCount = data.user_login_count;
+            this.updateLoginCountDisplay();
 
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
@@ -1014,7 +1046,11 @@ const KERNEL = {
                 this.pasosMisiones = data.misiones;
                 this.procesarFlujoSecuencial(container);
             }
-
+            else {
+                // Fallback si no se reconoce el direccionamiento
+                alert(this.idiomaActual === 'es' ? "Error: Tipo de misión no reconocido." : "Error: Unknown mission type.");
+                this.reiniciarExperiencia();
+            }
 
         } catch (error) {
             console.error("Fetch error:", error);
@@ -1047,7 +1083,7 @@ const KERNEL = {
         const optionsGrid = document.getElementById('salida-options-grid');
         this.pasosMisiones.forEach((mission, index) => {
             const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
-            const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
+            const missionWhatToDo = this.idiomaActual === 'es' ? mission.destino_instruccion : mission.destino_instruccion_en || mission.destino_instruccion;
             const card = document.createElement('div');
             card.className = 'salida-option-card';
             card.innerHTML = `
@@ -1482,7 +1518,6 @@ const KERNEL = {
         this.contadorToques = 0;
         this.datosLugarGlobal = null;
 
-        // Reset to initial app state (after login/payment)
         this.showMainApp();
        
         document.getElementById('inp-text-libre').value = "";
@@ -1522,6 +1557,7 @@ const KERNEL = {
         this.currentUsername = null;
         this.isLoggedIn = false;
         this.hasPaid = false;
+        this.loginCount = 0;
 
 
         location.reload();
@@ -1529,10 +1565,9 @@ const KERNEL = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    KERNEL.init(); // Basic KERNEL init
-    OTG_SENSORIAL.init(); // OTG_SENSORIAL init (styles, floating buttons)
-    // The initial call for authentication and UI rendering
-    KERNEL.checkAuthAndRender(); 
+    KERNEL.init();
+    OTG_SENSORIAL.init();
+    KERNEL.checkAuthAndRender();
 });
 
 window.KERNEL = KERNEL;
@@ -1544,7 +1579,7 @@ window.KERNEL = KERNEL;
 function procesarPagoStripe(planSeleccionado) {
     if (!KERNEL.isLoggedIn || !KERNEL.sessionId) {
         alert(KERNEL.idiomaActual === 'es' ? "Debes iniciar sesión para adquirir un plan." : "You must be logged in to purchase a plan.");
-        KERNEL.showLoginScreen();
+        KERNEL.showAuthScreen();
         return;
     }
 
@@ -1552,20 +1587,18 @@ function procesarPagoStripe(planSeleccionado) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-Session-ID': KERNEL.sessionId // Enviar el ID de sesión
+            'X-Session-ID': KERNEL.sessionId
         },
         body: JSON.stringify({
             tipo_plan: planSeleccionado,
-            // user_id no es necesario aquí, el backend lo obtiene del session_id
         })
     })
     .then(response => {
         if (!response.ok) {
-            if (response.status === 401) {
-                // Session expired or unauthorized, force re-login
+            if (response.status === 401 || response.status === 403) {
                 KERNEL.hablar(KERNEL.idiomaActual === 'es' ? 'Tu sesión ha expirado. Por favor, inicia sesión de nuevo.' : 'Your session has expired. Please log in again.');
-                KERNEL.logout(); // Esto también limpiará localStorage y redirigirá al login
-                throw new Error('Unauthorized');
+                KERNEL.logout();
+                throw new Error('Unauthorized or Forbidden');
             }
             throw new Error('Error en la respuesta del servidor');
         }
@@ -1580,7 +1613,7 @@ function procesarPagoStripe(planSeleccionado) {
     })
     .catch(error => {
         console.error('Error crítico de Stripe:', error);
-        if (error.message !== 'Unauthorized') { // Evitar doble alert si ya se manejó la no autorización
+        if (error.message !== 'Unauthorized or Forbidden') {
             alert(KERNEL.idiomaActual === 'es' ? "Ocurrió un error al conectar con la pasarela de cobro." : "An error occurred while connecting to the payment gateway.");
         }
     });
@@ -1645,11 +1678,8 @@ preguntas:[
 seleccionadas:[],
 init(){
     this.inyectarMetasYEstilos();
-    // OTG_SENSORIAL.modificarBienvenida() y OTG_SENSORIAL.interceptarBotonStart()
-    // Ya NO se llaman aquí directamente, su lógica se integra en KERNEL.checkAuthAndRender()
-    // o se llama explícitamente cuando sea necesario mostrar la pantalla de bienvenida.
     this.crearEstructurasFlotantes();
-    // OTG_SENSORIAL.modificarBienvenida() se llama si el usuario está en la pantalla de bienvenida sin sesión
+    this.modificarBienvenida(); // Inyecta el contenido en la pantalla de bienvenida
 },
 inyectarMetasYEstilos(){
 ["apple-mobile-web-app-capable","mobile-web-app-capable"].forEach(n=>{if(!document.querySelector(`meta[name="${n}"]`)){let m=document.createElement("meta");m.name=n;m.content="yes";document.head.appendChild(m);}});
@@ -1664,7 +1694,7 @@ s.textContent=`
 `;
 document.head.appendChild(s);
 },
-modificarBienvenida(){ // Esta función solo prepara el HTML, la llamada a KERNEL.showLoginScreen() es nueva.
+modificarBienvenida(){
 let pb=document.getElementById("pantalla-bienvenida");
 if(!pb)return;
 
@@ -1721,7 +1751,7 @@ OPEN THAN GO es una herramienta de bienestar y orientación. No ofrece atención
 </div>
 
 <button class="btn-bienvenida"
-onclick="KERNEL.showLoginScreen();"
+onclick="KERNEL.showAuthScreen();"
 style="width:100%;border-radius:6px;padding:15px;font-weight:900;background:#fff;color:#000;border:none;cursor:pointer;text-transform:uppercase;">
 
 INICIAR SESIÓN / START
@@ -1742,244 +1772,4 @@ document.body.appendChild(b);
 let m=document.createElement("div");
 m.id="otg-oasis-entretenimiento";
 m.className="hidden";
-m.style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.98);z-index:9999999;backdrop-filter:blur(15px);overflow-y:auto;padding:20px;color:#fff;font-family:sans-serif;";
-document.body.appendChild(m);
-},
-interceptarBotonStart(){
-// Esta función ya no es necesaria con el nuevo flujo de autenticación,
-// KERNEL.showLoginScreen() toma su lugar como primer punto de interacción.
-// Sin embargo, si se activa OTG_SENSORIAL.abrirOasisOcio() desde otro punto,
-// se mantiene el forzarCierre15Minutos.
-setTimeout(()=>this.forzarCierre15Minutos(),900000);
-this.abrirOasisOcio(); // Esto debería llamarse solo después de login/pago.
-},
-abrirOasisOcio(){
-let m=document.getElementById("otg-oasis-entretenimiento");
-if(!m)return;
-m.classList.remove("hidden");
-document.body.style.overflow="hidden";
-this.marcas.sort(()=>Math.random()-.5);
-let zip=document.getElementById("inp-zip")?document.getElementById("inp-zip").value.trim():"";
-let txtUsa=zip?`Opciones disponibles para el Código Postal ${zip}`:"Personaliza tu experiencia";
-
-m.innerHTML=`
-<div style="max-width:460px;margin:0 auto;padding-top:5px;">
-
-<div style="text-align:center;margin-bottom:15px;">
-
-<span style="background:#2e7d32;padding:3px 8px;border-radius:4px;font-size:.65rem;font-weight:bold;text-transform:uppercase;">
-Bienestar Inicial
-</span>
-
-<h4 style="color:#00bcd4;font-weight:900;margin:8px 0 3px;font-size:1.15rem;">
-PERSONALIZA TU EXPERIENCIA
-</h4>
-
-<p style="color:#aaa;font-size:.72rem;margin:0;">
-${txtUsa}. Tiempo aproximado: 1 minuto.
-</p>
-
-</div>
-<div id="otg-fase-1">
-
-<p style="font-size:.85rem;font-weight:bold;color:#fff;text-align:center;line-height:1.45;margin-bottom:10px;">
-Selecciona el servicio que mejor representa lo que deseas hacer en este momento.
-</p>
-
-<div class="otg-grid-logos">
-${this.marcas.map(x=>`<div class="otg-card-logo" onclick="OTG_SENSORIAL.seleccionarMarca(this,'${x}')">${x}</div>`).join("")}
-</div>
-
-<button onclick="OTG_SENSORIAL.activarFaseTrivia()"
-style="width:100%;background:#2e7d32;border:none;color:#fff;padding:14px;border-radius:6px;font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:.8rem;letter-spacing:.5px;">
-Continuar →
-</button>
-
-</div>
-
-<div id="otg-fase-2" class="hidden"></div>
-<div id="otg-fase-3" class="hidden" style="text-align:center;"></div>
-
-</div>`;
-},
-
-seleccionarMarca(el,marca){
-el.classList.toggle("active");
-if(el.classList.contains("active"))this.seleccionadas.push(marca);
-else this.seleccionadas=this.seleccionadas.filter(x=>x!==marca);
-},
-
-activarFaseTrivia(){
-
-if(!this.seleccionadas.length){
-alert("Selecciona al menos una opción.");
-return;
-}
-
-document.getElementById("otg-fase-1").classList.add("hidden");
-
-let f2=document.getElementById("otg-fase-2");
-f2.classList.remove("hidden");
-
-let p=this.preguntas[Math.floor(Math.random()*this.preguntas.length)];
-let m=this.seleccionadas[0];
-
-f2.innerHTML=`
-<div style="background:#111;border:1px solid #222;padding:15px;border-radius:8px;margin-top:10px;">
-
-<span style="color:#00bcd4;font-size:.65rem;font-weight:bold;text-transform:uppercase;display:block;margin-bottom:5px;">
-Has seleccionado: ${m}
-</span>
-
-<p style="font-size:1rem;font-weight:bold;line-height:1.45;margin:5px 0 15px;color:#fff;">
-${p}
-</p>
-
-<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado','opcion1')">
-Quiero usar este servicio ahora.
-</button>
-
-<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('normal','opcion2')">
-Solo estoy explorando opciones.
-</button>
-
-<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('curioso','opcion3')">
-Quiero descubrir nuevas ideas.
-</button>
-
-</div>`;
-},
-
-inyectarMenteBase(perfil,tipo){
-
-let s=document.getElementById("mente-selector");
-
-if(s){
-s.value=perfil;
-s.dispatchEvent(new Event("change"));
-}
-
-document.getElementById("otg-fase-2").classList.add("hidden");
-
-let f3=document.getElementById("otg-fase-3");
-f3.classList.remove("hidden");
-
-let marca=this.seleccionadas[0];
-let url=this.urls[marca]||"https://google.com";
-
-let mensaje=
-tipo==="opcion1"
-?`Tu experiencia ha sido personalizada usando "${marca}".`
-:tipo==="opcion2"
-?`Hemos preparado una experiencia basada en tu selección.`
-:`Explora nuevas opciones y encuentra actividades que se adapten a ti.`;
-
-f3.innerHTML=`
-
-<div style="background:rgba(0,188,212,.05);border:1px solid #00bcd4;padding:15px;border-radius:8px;text-align:left;font-size:.82rem;line-height:1.5;margin-bottom:15px;color:#eee;">
-
-<b style="color:#00bcd4;display:block;margin-bottom:6px;">
-Experiencia lista
-</b>
-
-${mensaje}
-
-</div>
-
-<div style="display:flex;gap:8px;">
-
-<button onclick="window.open('${url}','_blank')"
-style="flex:1;background:#2e7d32;border:none;color:#fff;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">
-Abrir sitio web
-</button>
-
-<button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()"
-style="flex:1;background:none;border:1px solid #00bcd4;color:#00bcd4;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">
-Continuar
-</button>
-
-</div>`;
-},
-
-cerrarOasisYDarPasoAAppBase(){
-
-let m=document.getElementById("otg-oasis-entretenimiento");
-if(m)m.classList.add("hidden");
-
-document.body.style.overflow="auto";
-
-// En lugar de KERNEL.despertarInicial(), que ya no se llama desde aquí
-// Aseguramos que el flujo de KERNEL se encargue de la transición al estado de la aplicación principal
-// si ya se ha autenticado y pagado.
-if(typeof KERNEL!=="undefined"&&typeof KERNEL.isLoggedIn!=="undefined"&& KERNEL.isLoggedIn && KERNEL.hasPaid){
-    KERNEL.despertarInicial(); // Solo si el usuario está autenticado y ha pagado
-} else {
-    // Si no está autenticado o pagado, volvemos a la pantalla de autenticación o pago.
-    KERNEL.checkAuthAndRender();
-}
-
-
-let b=document.getElementById("otg-btn-power");
-if(b)b.classList.remove("hidden");
-
-this.seleccionadas=[];
-
-console.log("OPEN THAN GO iniciado.");
-},
-
-apagarSistemaTotal(){
-
-let m=document.getElementById("otg-oasis-entretenimiento");
-if(m)m.classList.add("hidden");
-
-let pc=document.getElementById("pantalla-cierre");
-if(pc)pc.classList.add("hidden");
-
-let wf=document.getElementById("wrapper-form");
-if(wf)wf.classList.add("hidden"); // Esconder wrapper-form al apagar
-
-let pb=document.getElementById("pantalla-bienvenida");
-if(pb)pb.classList.remove("hidden");
-
-let b=document.getElementById("otg-btn-power");
-if(b)b.classList.add("hidden");
-
-let t=document.getElementById("inp-text-libre");
-if(t)t.value="";
-
-this.seleccionadas=[];
-
-// Resetear el estado de KERNEL y mostrar la pantalla de inicio (con login)
-KERNEL.destruirYReiniciar(); // Refresca la página y vuelve al estado inicial de autenticación
-
-console.log("Sistema reiniciado.");
-},
-
-forzarCierre15Minutos(){
-
-let m=document.getElementById("otg-oasis-entretenimiento");
-if(m)m.classList.add("hidden");
-
-document.body.innerHTML=`
-
-<div style="width:100vw;height:100vh;background:#000;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:25px;">
-
-<h1 style="color:#00bcd4;font-size:1.4rem;margin-bottom:12px;">
-Sesión finalizada
-</h1>
-
-<p style="max-width:420px;font-size:.95rem;line-height:1.5;color:#ddd;">
-Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una pausa y continuar con tus actividades.
-</p>
-
-</div>`;
-}
-
-};
-
-// La llamada inicial a OTG_SENSORIAL.init() se movió al DOMContentLoaded listener
-// OTG_SENSORIAL.init();
-// Esta modificación asegura que KERNEL y OTG_SENSORIAL se inicialicen correctamente
-// y que el flujo de autenticación de KERNEL tome precedencia en el renderizado inicial.
-
-})();
+m.style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0
