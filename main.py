@@ -8,26 +8,8 @@ import uvicorn
 import os
 import random
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 import urllib.parse
-import stripe # Importación de Stripe
-
-# Configuración de Stripe (se lee de variables de entorno)
-STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
-if STRIPE_SECRET_KEY:
-    stripe.api_key = STRIPE_SECRET_KEY
-# Consideraciones para Stripe Publishable Key (para frontend) y Webhook Secret (para endpoint de webhooks):
-# STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY") # Usar en frontend
-# STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET") # Usar en un endpoint dedicado de webhooks
-
-# === PRECIOS ID DE STRIPE (SEGÚN LA SOLICITUD DEL USUARIO) ===
-# Estos son IDs de precios de Stripe, no de productos.
-# Deberás reemplazarlos con los IDs de precio reales de tu cuenta de Stripe.
-PLANES_STRIPE = {
-    'diario': 'price_1O3mB1RvQ1L5Cj3MGz8vU9hF', # Dummy Price ID para el plan diario ($15.99)
-    'mensual': 'price_1O3mB1RvQ1L5Cj3MJj3tK2oV', # Dummy Price ID para el plan mensual ($25.99)
-    'anual': 'price_1O3mB1RvQ1L5Cj3M7mN0u1eG' # Dummy Price ID para el plan anual ($250.00)
-}
 
 link_base = "https://www.google.com/maps/search/?api=1&query="
 
@@ -320,58 +302,7 @@ BASE_MISIONES = {
                 "donde": "Parque o campo abierto.", "donde_en": "Park or open field.", "gps": "open field for cloud gazing",
                 "vector_necesidades": {"movimiento": 20, "naturaleza": 95, "silencio": 90, "agua": 10, "sol": 70, "sombra": 30, "aire_fresco": 90, "creatividad": 60, "comunidad": 10, "aprendizaje": 40, "juego": 20, "contemplacion": 100, "descanso": 95, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 85}
             },
-            {
-                "id": 355,
-                "titulo": "Soberanía en Tránsito: Uber/Lyft Concluido",
-                "titulo_en": "Transit Sovereignty: Uber/Lyft Concluded",
-                "porque": "Agotamiento periférico absoluto y fatiga acumulada por estar al volante o navegar el tráfico pesado de USA.",
-                "porque_en": "Absolute peripheral exhaustion and accumulated fatigue from being behind the wheel or navigating heavy USA traffic.",
-                "que_hacer": "Abre tu aplicación de transporte (Uber/Lyft). Solicita un viaje corto hacia la zona verde o plaza pública más cercana. Si ya estás dentro, suelta el teléfono, cierra los ojos por 60 segundos enteros, apoya tus palmas sobre tus muslos y ejecuta el Módulo de Vacío Auditivo.",
-                "que_hacer_en": "Open your ride-sharing app (Uber/Lyft). Request a short ride to the nearest green area or public plaza. If already inside, drop your phone, close your eyes for 60 whole seconds, place your palms on your thighs, and execute the Auditory Emptiness Module.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Cabina de transporte, parada de tránsito o asiento de pasajero.", "donde_en": "Transit vehicle cabin, transit stop, or passenger seat.",
-                "gps": "quiet public square",
-                "vector_necesidades": {"descanso": 100, "silencio": 90, "movimiento": 15, "contemplacion": 85, "esperanza": 80, "salud": 80, "aire_fresco": 60}
-            },
-            {
-                "id": 356,
-                "titulo": "Módulo de Cambio Frecuencial: Playlist de Spotify",
-                "titulo_en": "Frequency Shift Module: Spotify Playlist",
-                "porque": "Saturación mental y fatiga del nervio auditivo debido al ruido mecánico y las pantallas comerciales.",
-                "porque_en": "Mental saturation and auditory nerve fatigue due to mechanical noise and commercial screens.",
-                "que_hacer": "Abre Spotify de forma consciente. Busca frecuencias binaurales de 432Hz o ruidos blancos de la naturaleza. Colócate los auriculares, apoya tu cabeza hacia atrás, inhala hondo por la nariz y permite que el sonido estabilice tu lóbulo temporal por un minuto.",
-                "que_hacer_en": "Open Spotify mindfully. Search for 432Hz binaural beats or white noise from nature. Put on your headphones, lean your head back, inhale deeply through your nose, and allow the sound to stabilize your temporal lobe for one minute.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Tu espacio de descanso, oficina vacía o dentro de tu vehículo.", "donde_en": "Your resting space, empty office, or inside your vehicle.",
-                "gps": "quiet open park",
-                "vector_necesidades": {"musica": 100, "descanso": 95, "silencio": 65, "contemplacion": 90, "esperanza": 85, "salud": 80, "creatividad": 40}
-            },
-            {
-                "id": 357,
-                "titulo": "Mapeo de Flujos: Recorrido Lineal en Costco",
-                "titulo_en": "Flow Mapping: Costco Linear Walk",
-                "porque": "Agotamiento por sedentarismo y parálisis cognitiva. Mover las piernas en un entorno industrial limpia tu sangre.",
-                "porque_en": "Exhaustion from sedentary lifestyle and cognitive paralysis. Moving your legs in an industrial setting clears your blood.",
-                "que_hacer": "Dirígete al Costco o almacén mayorista de tu área. Camina a paso firme por los pasillos perimetrales gigantescos sin la prisa de comprar. Observa las masas de suministros y usa este espacio climatizado para forzar la circulación de tus extremidades inferiores.",
-                "que_hacer_en": "Head to the nearest Costco or wholesale warehouse in your area. Walk steadily through the giant perimeter aisles without any shopping rush. Observe the mass supplies and use this climate-controlled space to force circulation in your lower limbs.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Pasillos industriales de un gran almacén de tu Código Postal.", "donde_en": "Industrial aisles of a large warehouse store in your Zip Code.",
-                "gps": "wholesale club or market",
-                "vector_necesidades": {"movimiento": 85, "organizacion": 70, "contemplacion": 60, "comunidad": 50, "juego": 30, "descanso": 20, "silencio": 10}
-            },
-            {
-                "id": 358,
-                "titulo": "Oasis Burocrático: Refugio en Biblioteca Pública",
-                "titulo_en": "Bureaucratic Oasis: Public Library Refuge",
-                "porque": "Fatiga extrema producida por esperas tensas, trámites burocráticos (DMV) o micro-estímulos digitales repetitivos.",
-                "porque_en": "Extreme fatigue produced by tense waiting, bureaucratic procedures (DMV), or repetitive digital micro-stimuli.",
-                "que_hacer": "Ubica la biblioteca pública más cercana de tu localidad. Ingresa en absoluto silencio y toma asiento en la sala común o pasillo de lectura. Disfruta de la quietud garantizada por el entorno y permite que tus córtex visuales descansen por completo.",
-                "que_hacer_en": "Locate the nearest public library in your area. Enter in absolute silence and take a seat in the common room or reading aisle. Enjoy the guaranteed stillness of the environment and allow your visual cortex to rest completely.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Sala de lectura, biblioteca municipal o zona de estudio de USA.", "donde_en": "Reading room, municipal library, or USA study zone.",
-                "gps": "public library",
-                "vector_necesidades": {"aprendizaje": 100, "silencio": 100, "contemplacion": 90, "descanso": 85, "organizacion": 70, "salud": 80}
-            },
+            # === MODIFICACIÓN: NUEVAS MICROACCIONES DE RECUPERACIÓN (ID 201-204) - DESCRIPCIONES ACORTADAS ===
             {"id": 201, "titulo": "Soberanía en Tránsito: Uber/Lyft Relax", "titulo_en": "Transit Sovereignty: Uber/Lyft Relax",
                 "porque": "Cuerpo al límite y mente saturada de conducir o moverte en tráfico continuo.", "porque_en": "Body/mind saturated from driving/traffic.",
                 "que_hacer": "Abre tu app de transporte. Solicita viaje corto a zona tranquila. Cierra ojos, suelta teléfono, apoya palmas en rodillas. Ejecuta Módulo Silencio Auditivo 1 min.",
@@ -431,115 +362,19 @@ BASE_MISIONES = {
                 "donde": "Gimnasio o centro deportivo.", "donde_en": "Gym or sports center.", "gps": "community gym",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 5, "silencio": 20, "agua": 10, "sol": 20, "sombra": 80, "aire_fresco": 60, "creatividad": 20, "comunidad": 70, "aprendizaje": 40, "juego": 30, "contemplacion": 5, "descanso": 0, "organizacion": 80, "alimentacion": 0, "musica": 80, "risa": 40, "esperanza": 60}
             },
-            {
-                "id": 320,
-                "titulo": "Liberación de Impacto: Trampoline Park / Escalada",
-                "titulo_en": "Impact Release: Trampoline Park / Climbing Gym",
-                "porque": "Rigidez muscular y rabia contenida por presiones corporativas. Necesitas romper la coraza física.",
-                "porque_en": "Muscular rigidity and pent-up anger from corporate pressures. You need to break the physical armor.",
-                "que_hacer": "Dirígete al parque de trampolines, centro de salto (Defy, Sky Zone) o gimnasio de escalada más cercano. Compra un pase rápido. Salta con toda la fuerza de tus piernas descargando el peso en la lona, o aprieta tus manos escalando un muro. Deja que el esfuerzo físico extremo drene la adrenalina acumulada por el agobio diario.",
-                "que_hacer_en": "Head to the nearest trampoline park, jump center (Defy, Sky Zone), or climbing gym. Buy a quick pass. Jump with all your leg strength discharging weight on the mat, or squeeze your hands scaling a wall. Let extreme physical effort drain the adrenaline built up from daily overwhelm.",
+            {"id": 112, "titulo": "Sendero Corto Natural", "titulo_en": "Short Nature Trail",
+                "porque": "Sobrecarga de estímulos. Desconéctate un momento. Camina en paz.", "porque_en": "Stimuli overload. Disconnect. Walk in peace.",
+                "que_hacer": "Encuentra un sendero. Camina a paso ligero. Observa el entorno natural.", "que_hacer_en": "Find a trail. Walk briskly. Observe natural surroundings.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Parque de trampolines o centro deportivo de alta descarga en tu Código Postal.", "donde_en": "Trampoline park or high-discharge sports center in your Zip Code.",
-                "gps": "trampoline park or climbing gym",
-                "vector_necesidades": {"movimiento": 100, "juego": 100, "risa": 90, "salud": 95, "descanso": 0, "silencio": 10, "comunidad": 60, "esperanza": 90}
-            },
-            {
-                "id": 321,
-                "titulo": "Módulo de Hidro-Calma: Jacuzzi Público / Piscina de Termas",
-                "titulo_en": "Hydro-Calm Module: Public Jacuzzi / Thermal Pool",
-                "porque": "Sistema nervioso en alerta roja permanente. El agua templada en movimiento es el reset somático definitivo.",
-                "porque_en": "Nervous system on permanent red alert. Moving warm water is the ultimate somatic reset.",
-                "que_hacer": "Visita el centro recreativo con spa, piscina municipal climatizada o YMCA de tu perímetro. Sumérgete en el agua templada o jacuzzi. Cierra los ojos, deja que las burbujas o el agua masajeen tu espalda y concéntrate por dos minutos estrictos únicamente en la flotabilidad y la temperatura de tu piel.",
-                "que_hacer_en": "Visit the recreation center with a spa, heated municipal pool, or YMCA in your perimeter. Submerge in warm water or a jacuzzi. Close your eyes, let the bubbles or water massage your back, and focus for two strict minutes solely on buoyancy and skin temperature.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "YMCA, alberca climatizada o spa comunitario local.",
-                "donde_en": "YMCA, heated pool, or local community spa.",
-                "gps": "ymca pool or public spa",
-                "vector_necesidades": {"agua": 100, "descanso": 100, "salud": 95, "silencio": 60, "contemplacion": 90, "sombra": 80, "esperanza": 85, "movimiento": 20}
-            },
-            {
-                "id": 322,
-                "titulo": "Quiebre de Frecuencias: Sound Healing / Centro de Yoga",
-                "titulo_en": "Frequency Break: Sound Healing / Yoga Center",
-                "porque": "Mente acelerada con pensamientos intrusivos y zumbido mental debido al estrés digital continuo.",
-                "porque_en": "Racing mind with intrusive thoughts and mental buzzing due to continuous digital stress.",
-                "que_hacer": "Busca un estudio de yoga, meditación o sound healing en tu zona. Asiste a una sesión o recuéstate en su vestíbulo público si está disponible. Cierra los ojos, concéntrate en los armónicos, cuencos o el silencio del perímetro e inhala en 4 tiempos y exhala en 8 tiempos liberando la rigidez pectoral.",
-                "que_hacer_en": "Search for a yoga, meditation, or sound healing studio in your area. Attend a session or lie down in its public lobby if available. Close your eyes, focus on harmonics, singing bowls, or perimeter silence, inhale for 4 counts, and exhale for 8 counts, releasing chest rigidity.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Estudio de yoga, centro de meditación o sound healing en USA.",
-                "donde_en": "Yoga studio, meditation center, or sound healing spot in the USA.",
-                "gps": "sound healing or yoga studio",
-                "vector_necesidades": {"silencio": 100, "descanso": 95, "musica": 90, "contemplacion": 95, "salud": 90, "esperanza": 90, "organizacion": 70}
-            },
-            {
-                "id": 323,
-                "titulo": "Aislamiento Orgánico: Sendero Natural Estatal (State Park)",
-                "titulo_en": "Organic Isolation: State Park Trail",
-                "porque": "Estrés tóxico urbano agudo. Requieres fitoncidas del bosque y aire puro para regular tu cortisol.",
-                "porque_en": "Acute toxic urban stress. You require forest phytoncides and pure air to regulate your cortisol.",
-                "que_hacer": "Dirígete de inmediato al parque estatal (State Park) o reserva natural protegida más cercana de tu Código Postal. Entra al sendero, camina descalzo sobre la tierra o toca la corteza de un gran árbol por un minuto completo. Siente el aire fresco real golpear tu cara lejos del concreto.",
-                "que_hacer_en": "Head immediately to the nearest State Park or protected nature reserve in your Zip Code. Enter the trail, walk barefoot on the earth, or touch the bark of a large tree for a full minute. Feel the real fresh air hit your face away from concrete.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Sendero boscoso, reserva natural o parque estatal de tu región.",
-                "donde_en": "Wooded trail, nature reserve, or state park in your region.",
-                "gps": "state park trail or nature reserve",
-                "vector_necesidades": {"naturaleza": 100, "aire_fresco": 100, "silencio": 85, "movimiento": 60, "contemplacion": 90, "descanso": 60, "esperanza": 95, "sol": 70}
-            },
-            {
-                "id": 112,
-                "titulo": "Sendero Corto Natural",
-                "titulo_en": "Short Nature Trail",
-                "porque": "Sobrecarga de estímulos. Desconéctate un momento. Camina en paz.",
-                "porque_en": "Stimuli overload. Disconnect. Walk in peace.",
-                "que_hacer": "Encuentra un sendero. Camina a paso ligero. Observa el entorno natural.",
-                "que_hacer_en": "Find a trail. Walk briskly. Observe natural surroundings.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Sendero natural o bosque.",
-                "donde_en": "Nature trail or forest.",
-                "gps": "short nature trail",
+                "donde": "Sendero natural o bosque.", "donde_en": "Nature trail or forest.", "gps": "short nature trail",
                 "vector_necesidades": {"movimiento": 85, "naturaleza": 100, "silencio": 80, "agua": 40, "sol": 60, "sombra": 70, "aire_fresco": 100, "creatividad": 40, "comunidad": 20, "aprendizaje": 50, "juego": 20, "contemplacion": 90, "descanso": 60, "organizacion": 20, "alimentacion": 0, "musica": 20, "risa": 10, "esperanza": 85}
             },
-            {
-                "id": 113,
-                "titulo": "Pista de Atletismo",
-                "titulo_en": "Running Track",
-                "porque": "Mente acelerada. Quema esa energía extra. Enfoca tu ritmo.",
-                "porque_en": "Racing mind. Burn extra energy. Focus rhythm.",
-                "que_hacer": "Dirígete a una pista pública. Corre o camina a tu propio paso. Libera.",
-                "que_hacer_en": "Go to a public track. Run or walk your pace. Release.",
+            {"id": 113, "titulo": "Pista de Atletismo", "titulo_en": "Running Track",
+                "porque": "Mente acelerada. Quema esa energía extra. Enfoca tu ritmo.", "porque_en": "Racing mind. Burn extra energy. Focus rhythm.",
+                "que_hacer": "Dirígete a una pista pública. Corre o camina a tu propio paso. Libera.", "que_hacer_en": "Go to a public track. Run or walk your pace. Release.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Pista de atletismo pública.",
-                "donde_en": "Public running track.",
-                "gps": "public running track",
+                "donde": "Pista de atletismo pública.", "donde_en": "Public running track.", "gps": "public running track",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 30, "silencio": 40, "agua": 10, "sol": 80, "sombra": 30, "aire_fresco": 90, "creatividad": 10, "comunidad": 50, "aprendizaje": 20, "juego": 30, "contemplacion": 50, "descanso": 10, "organizacion": 70, "alimentacion": 0, "musica": 50, "risa": 20, "esperanza": 70}
-            },
-            {
-                "id": 251,
-                "titulo": "Soberanía en Movimiento: Interrupción Uber/Lyft",
-                "titulo_en": "Sovereignty in Motion: Uber/Lyft Interruption",
-                "porque": "Saturación nerviosa por el encierro dentro de cabinas de transporte, tráfico denso y sobrecarga de trayectos urbanos.",
-                "porque_en": "Nervous saturation from confinement inside ride-sharing cabins, heavy traffic, and urban transit overload.",
-                "que_hacer": "Si te encuentras viajando en Uber o Lyft en este Código Postal, despega los ojos de la pantalla de inmediato. Apoya las palmas de tus manos firmes sobre tus rodillas. Endereza la columna y ejecuta el Módulo de Ventilación Celular: inhala aire hondo en 4 segundos, retén 4 segundos y exhala todo el CO2 residual de golpe Siente el peso de tu organismo sostenido por el asiento. Tú eres el dueño de tu tiempo de vida, no la prisa del chofer ni la tarifa dinámica de la aplicación.",
-                "que_hacer_en": "If you are traveling in an Uber or Lyft in this Zip Code, take your eyes off the screen immediately. Place your palms firmly on your knees. Straighten your spine and execute the Cell Ventilation Module: inhale deeply for 4 seconds, hold for 4 seconds, and exhale all residual CO2 at once. Feel your body's weight supported by the seat. You are the master of your lifespan, not the driver's haste or the app's surge pricing.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Cabina de transporte, asiento de pasajero o parada de autobús de USA.",
-                "donde_en": "Transit cabin, passenger seat, or USA bus stop.",
-                "gps": "quiet rest areas or public plazas",
-                "vector_necesidades": {"descanso": 95, "silencio": 85, "movimiento": 20, "contemplacion": 90, "organizacion": 60, "esperanza": 80}
-            },
-            {
-                "id": 252,
-                "titulo": "Hackeo al Tráfico: Módulo Intersección Interestatal",
-                "titulo_en": "Traffic Hack: Interstate Intersection Module",
-                "porque": "Nivel de cortisol elevado por embotellamientos, ruidos de autopista y el automatismo de las carreteras americanas.",
-                "porque_en": "Elevated cortisol levels from traffic jams, highway noise, and the automation of American roads.",
-                "que_hacer": "Si estás conduciendo o atrapado en el tráfico interestatal, aprovecha la próxima luz roja o área de descanso segura. Suelta la tensión de la mandíbula abriendo grande la boca de lado a lado por 10 segundos. Estira tus dedos sobre el volante liberando la rigidez acumulada en tus muñecas. Mira a través de la ventana el cielo abierto o la infraestructura masiva que te rodea. Pásale la factura al entorno urbano: tú respiras con calma mientras el asfalto ruge.",
-                "que_hacer_en": "If driving or caught in interstate traffic, take advantage of the next red light or safe rest area. Release jaw tension by opening your mouth wide side to side for 10 seconds. Stretch your fingers over the steering wheel, releasing stiffness built up in your wrists. Look through the window at the open sky or the massive infrastructure around you. Bill the urban environment: you breathe calmly while the asphalt roars.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Área de servicio de autopista, rampa pública o intersección vial.", "donde_en": "Highway service area, public ramp, or road intersection.",
-                "gps": "highway rest stop or overlook",
-                "vector_necesidades": {"movimiento": 80, "descanso": 70, "silencio": 50, "aire_fresco": 85, "organizacion": 40, "salud": 85}
             },
             {"id": 127, "titulo": "Ruta en Bicicleta Urbana", "titulo_en": "Urban Bike Route",
                 "porque": "Necesitas liberar tensión y moverte rápido. Siente el viento. Explora tu entorno.", "porque_en": "Need to release tension, move fast. Feel wind. Explore.",
@@ -548,6 +383,7 @@ BASE_MISIONES = {
                 "donde": "Carril bici o parque con ruta.", "donde_en": "Bike lane or park with route.", "gps": "bike lane or route",
                 "vector_necesidades": {"movimiento": 100, "naturaleza": 60, "silencio": 30, "agua": 10, "sol": 80, "sombra": 40, "aire_fresco": 95, "creatividad": 30, "comunidad": 50, "aprendizaje": 40, "juego": 70, "contemplacion": 60, "descanso": 30, "organizacion": 60, "alimentacion": 0, "musica": 50, "risa": 40, "esperanza": 80}
             },
+            # === MODIFICACIÓN: NUEVAS MICROACCIONES DE RECUPERACIÓN (ID 211-213) - DESCRIPCIONES ACORTADAS ===
             {"id": 211, "titulo": "Soberanía de Cabina: Terminal Aérea / Vuelos", "titulo_en": "Cabin Sovereignty: Air Terminal / Flights",
                 "porque": "Saturación nerviosa por presiones y ruidos de tránsito masivo.", "porque_en": "Nervous saturation from mass transit pressures/noise.",
                 "que_hacer": "En aeropuerto/cerca, busca la ventana más grande con vista al cielo. Haz 3 inhalaciones diafragmáticas profundas. Siente el viento. Tu organismo no pertenece a la prisa industrial.",
@@ -584,175 +420,6 @@ BASE_MISIONES = {
                 "donde": "Calle con murales.", "donde_en": "Street with murals.", "gps": "street art",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 20, "silencio": 40, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 100, "comunidad": 60, "aprendizaje": 70, "juego": 55, "contemplacion": 85, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 30, "risa": 60, "esperanza": 95}
             },
-            {
-                "id": 307,
-                "titulo": "Descompresión de Perímetro: Lobby de Hotel / Resort",
-                "titulo_en": "Perimeter Decompression: Hotel / Resort Lobby",
-                "porque": "Monotonía espacial severa. Necesitas un entorno de diseño premium para alterar tus receptores visuales.",
-                "porque_en": "Severe spatial monotony. You need a premium design environment to alter your visual receptors.",
-                "que_hacer": "Ubica el hotel o resort de cadena más cercano (Marriott, Hilton, Hyatt). Ingresa de forma gratuita y siéntate en una de sus butacas premium del lobby público. Observa la arquitectura, mantén la espalda recta y descansa un minuto del ecosistema digital habitual.",
-                "que_hacer_en": "Locate the nearest chain hotel or resort (Marriott, Hilton, Hyatt). Enter for free and sit in one of the public lobby's premium armchairs. Observe the architecture, keep your spine straight, and take a one-minute break from the usual digital ecosystem.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Lobby o zona de descanso pública de un hotel local.", "donde_en": "Lobby or public lounge area of a local hotel.",
-                "gps": "hotel lobby",
-                "vector_necesidades": {"descanso": 100, "silencio": 85, "contemplacion": 95, "organizacion": 80, "esperanza": 80, "comunidad": 50, "movimiento": 20}
-            },
-            {
-                "id": 308,
-                "titulo": "Ampliación del Horizonte: Terminal de Aerolíneas",
-                "titulo_en": "Horizon Expansion: Airline Terminal",
-                "porque": "Falta de perspectiva y estancamiento geográfico. Ver el movimiento de flujos globales te devuelve el enfoque.",
-                "porque_en": "Lack of perspective and geographic stagnation. Watching the movement of global flows returns your focus.",
-                "que_hacer": "Si estás cerca de una terminal aérea (Delta, United) o central de tránsito de USA, dirígete al vestíbulo público principal. Busca el ventanal más amplio con vista directo al horizonte del cielo. Realiza tres respiraciones diafragmáticas completas asimilando la inmensidad del espacio exterior.",
-                "que_hacer_en": "If near a USA airline terminal (Delta, United) or transit hub, head to the main public lobby. Find the widest window with a direct view of the sky horizon. Take three full diaphragmatic breaths, assimilating the immensity of outer space.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Vestíbulo público de aeropuerto o central de transportes.", "donde_en": "Public airport lobby or transit center.",
-                "gps": "transit center or airport terminal",
-                "vector_necesidades": {"contemplacion": 100, "aire_fresco": 90, "esperanza": 95, "descanso": 70, "silencio": 50, "movimiento": 30, "aprendizaje": 60}
-            },
-            {
-                "id": 309,
-                "titulo": "Distracción Absoluta: Centro de Ocio / Parque Temático",
-                "titulo_en": "Absolute Distraction: Leisure Center / Theme Park",
-                "porque": "Bucle mental de apatía o rutina plana. Necesitas un shock visual de colores, sonidos y juego inocente.",
-                "porque_en": "Mental loop of apathy or flat routine. You need a visual shock of colors, sounds, and innocent play.",
-                "que_hacer": "Dirígete al parque de atracciones, centro de entretenimiento o zona recreativa (Arcade, Bowling) más cercana de tu perímetro. Observa las luces, escucha las risas del entorno urbano y permítete conectar con una dinámica de ocio simple para romper la inercia diurna.",
-                "que_hacer_en": "Head to the nearest amusement park, entertainment center, or recreational zone (Arcade, Bowling) in your perimeter. Observe the lights, listen to the laughter of the urban environment, and allow yourself to connect with a simple leisure dynamic to break the daytime inertia.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Parque recreativo, zona infantil o centro de juegos local.", "donde_en": "Recreation park, kid zone, or local arcade center.",
-                "gps": "amusement park or arcade",
-                "vector_necesidades": {"juego": 100, "risa": 100, "comunidad": 80, "movimiento": 70, "esperanza": 90, "silencio": 20, "descanso": 50, "creatividad": 60}
-            },
-            {
-                "id": 310,
-                "titulo": "Exploración de Espacios: Módulo de Diseño Airbnb",
-                "titulo_en": "Space Exploration: Airbnb Design Module",
-                "porque": "Falta de inspiración y estancamiento estético. Visualizar arquitecturas alternativas expande tu mente.",
-                "porque_en": "Lack of inspiration and aesthetic stagnation. Visualizing alternative architectures expands your mind.",
-                "que_hacer": "Abre la aplicación de Airbnb de forma contemplativa. Filtra por diseños de cabañas o casas en árboles de tu estado. Analiza la organización del espacio, las texturas y los planos visuales como un ejercicio de ocio e imaginación sin la obligación de reservar.",
-                "que_hacer_en": "Open the Airbnb app contemplatively. Filter by cabin designs or treehouses in your state. Analyze the organization of space, textures, and visual layouts as an exercise of leisure and imagination without the obligation to book.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Interfaz móvil desde tu zona de descanso habitual.", "donde_en": "Mobile interface from your usual resting space.",
-                "gps": "local post office",
-                "vector_necesidades": {"creatividad": 100, "contemplacion": 95, "juego": 70, "organizacion": 80, "esperanza": 85, "descanso": 60, "aprendizaje": 60}
-            },
-            {
-                "id": 311,
-                "titulo": "Mapeo de Flujos: Recorrido Perimetral Costco",
-                "titulo_en": "Flow Mapping: Costco Perimeter Walk",
-                "porque": "Rutina plana. Caminar por un entorno de suministro masivo altera tu percepción del consumo y activa tu cuerpo.",
-                "porque_en": "Flat routine. Walking through a mass supply environment alters your perception of consumption and activates your body.",
-                "que_hacer": "Dirígete al Costco o club de precios más cercano de tu geografía. Camina de forma constante a paso firme por los pasillos industriales de los perímetros. Observa los grandes volúmenes de suministros y usa la infraestructura gigante para forzar la contracción muscular de tus piernas.",
-                "que_hacer_en": "Head to the nearest Costco or price club in your area. Walk steadily at a firm pace through the industrial perimeter aisles. Observe the large volumes of supplies and use the giant infrastructure to force muscular contraction in your legs.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Pasillos industriales de un gran almacén de USA.", "donde_en": "Industrial aisles of a large USA warehouse store.",
-                "gps": "wholesale club or warehouse",
-                "vector_necesidades": {"movimiento": 85, "organizacion": 75, "comunidad": 60, "contemplacion": 60, "juego": 40, "descanso": 10, "silencio": 5}
-            },
-            {
-                "id": 312,
-                "titulo": "Sabotaje de Espera: Campus Universitario / Escuela",
-                "titulo_en": "Waiting Sabotage: University Campus / School",
-                "porque": "Bucle mental aburrido. Necesitas una inyección de aire fresco y entornos de aprendizaje para reenfocar tu Yo.",
-                "porque_en": "Bored mental loop. You need an injection of fresh air and learning environments to refocus your Self.",
-                "que_hacer": "Ubica el campus universitario o escuela pública más cercana. Camina en total silencio por sus áreas verdes y plazas comunes. Utiliza esta infraestructura ya financiada por el estado para respirar aire libre y observar el entorno con absoluta calma.",
-                "que_hacer_en": "Locate the nearest university campus or public school. Walk in total silence through its green areas and common plazas. Use this state-funded infrastructure to breathe open air and observe the surroundings with absolute calm.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Áreas comunes abiertas de un campus universitario.", "donde_en": "Open common areas of a university campus.",
-                "gps": "university campus or public school",
-                "vector_necesidades": {"aprendizaje": 100, "aire_fresco": 95, "silencio": 90, "contemplacion": 85, "descanso": 70, "movimiento": 40}
-            },
-            {
-                "id": 304,
-                "titulo": "Soberanía en Tránsito: Escape Uber/Lyft",
-                "titulo_en": "Sovereignty in Transit: Uber/Lyft Escape",
-                "porque": "Inercia mental por estar estancado en casa. Necesitas un cambio geográfico rápido para alterar tus pensamientos.",
-                "porque_en": "Mental inertia from being stuck at home. You need a rapid geographical change to alter your thoughts.",
-                "que_hacer": "Abre tu aplicación de transporte (Uber/Lyft). Solicita un viaje corto hacia un perímetro público o parque que no conozcas. Durante el trayecto, suelta el teléfono, mira a través de la ventana de forma contemplativa y asimila la velocidad del entorno urbano.",
-                "que_hacer_en": "Open your ride app (Uber/Lyft). Request a short ride to a public area or park you don't know. During the route, drop your phone, look through the window contemplatively, and assimilate the speed of the urban environment.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Asiento de pasajero en un coche de transporte urbano.", "donde_en": "Passenger seat in an urban transit vehicle.",
-                "gps": "public transit hub or central park",
-                "vector_necesidades": {"juego": 80, "movimiento": 70, "contemplacion": 85, "comunidad": 60, "descanso": 40, "silencio": 30, "esperanza": 80}
-            },
-            {
-                "id": 305,
-                "titulo": "Descompresión Visual: El Algoritmo de YouTube",
-                "titulo_en": "Visual Decompression: The YouTube Algorithm",
-                "porque": "Bucle cognitivo severo debido a la rutina monótona de la semana. Requieres un quiebre estético controlado.",
-                "porque_en": "Severe cognitive loop due to the monotonous weekly routine. You require a controlled aesthetic break.",
-                "que_hacer": "Abre YouTube de forma consciente. Busca '4K drone architecture relax' o filmaciones en cámara lenta de paisajes naturales. Observa la pantalla fijamente por dos minutos enteros, respirando de forma diafragmática para relajar tus músculos ciliares.",
-                "que_hacer_en": "Open YouTube consciously. Search for '4K drone architecture relax' or slow-motion natural landscape footage. Watch the screen fixedly for two whole minutes while taking deep diaphragmatic breaths to relax your ciliary muscles.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Interfaz de tu teléfono en un rincón con luz tenue.", "donde_en": "Your phone interface in a dimly lit corner.",
-                "gps": "local coffee lounge",
-                "vector_necesidades": {"contemplacion": 100, "descanso": 90, "creatividad": 80, "esperanza": 90, "silencio": 50, "naturaleza": 70, "movimiento": 5}
-            },
-            {
-                "id": 306,
-                "titulo": "Inversión Controlada: Antojo Digital en Amazon",
-                "titulo_en": "Controlled Investment: Digital Desire on Amazon",
-                "porque": "Aburrimiento crónico y falta de micro-estímulos o pasatiempos que activen tu mente.",
-                "porque_en": "Chronic boredom and lack of micro-stimuli or hobbies to activate your mind.",
-                "que_hacer": "Abre la aplicación de Amazon. Busca un objeto microscópico que impulse un pasatiempo físico real (un libro de bolsillo, un pincel, una herramienta manual). Ejecuta la compra con la absoluta certeza de que estás invirtiendo en tu propia creatividad.",
-                "que_hacer_en": "Open the Amazon app. Search for a microscopic object that drives a real physical hobby (a paperback book, a paintbrush, a manual tool). Complete the purchase with absolute certainty that you are investing in your own creativity.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Pantalla móvil desde tu espacio de descanso habitual.", "donde_en": "Mobile screen from your usual resting space.",
-                "gps": "local post office",
-                "vector_necesidades": {"juego": 90, "creatividad": 90, "esperanza": 95, "organizacion": 70, "descanso": 60, "aprendizaje": 80, "movimiento": 10}
-            },
-            {
-                "id": 301,
-                "titulo": "Auditoría de Frecuencias: Discoteca / Club Night",
-                "titulo_en": "Frequency Audit: Nightclub / Club Night",
-                "porque": "Monotonía aplastante y falta de estímulos rítmicos o sociales en tu rutina semanal.",
-                "porque_en": "Crushing monotony and lack of rhythmic or social stimuli in your weekly routine.",
-                "que_hacer": "Visita una zona de discotecas o un club céntrico nocturno. Sal un momento al perímetro exterior o a la acera peatonal abierta. Escucha la vibración profunda del bajo golpeando la estructura física del edificio. Siente el pulso acelerado de la vida nocturna de USA para romper la inercia del piloto automático diurno.",
-                "que_hacer_en": "Visit a club district or a downtown nightclub. Step outside to the outer perimeter or the open pedestrian sidewalk for a moment. Listen to the deep bass vibration hitting the building's physical structure. Feel the accelerated pulse of USA nightlife to break the daytime autopilot inertia.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Perímetro exterior, terraza o área abierta de un club nocturno urbano.", "donde_en": "Outer perimeter, terrace, or open area of an urban nightclub.",
-                "gps": "dance club or nightclub",
-                "vector_necesidades": {"juego": 100, "musica": 100, "comunidad": 90, "risa": 80, "movimiento": 70, "creatividad": 60, "silencio": 10, "descanso": 30}
-            },
-            {
-                "id": 302,
-                "titulo": "Terapia de Pasillo: Recorrido Target / Walmart",
-                "titulo_en": "Aisle Therapy: Target / Walmart Walk",
-                "porque": "Estancamiento mental en casa y falta de variedad en tu entorno visual inmediato.",
-                "porque_en": "Mental stagnation at home and lack of variety in your immediate visual environment.",
-                "que_hacer": "Dirígete a una gran superficie comercial (Target, Walmart). Recorre los pasillos de forma contemplativa sin la obligación de comprar de forma compulsiva. Observa la organización, camina a paso firme forzando la contracción muscular para activar el flujo linfático de tus piernas.",
-                "que_hacer_en": "Head to a large department store (Target, Walmart). Walk the aisles contemplatively without the obligation to shop compulsively. Observe the layout, walk steadily, forcing muscular contraction to activate the lymphatic flow in your legs.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Gran superficie comercial o tienda céntrica en USA.", "donde_en": "Large department store or central shop in the USA.",
-                "gps": "department store or retail",
-                "vector_necesidades": {"movimiento": 80, "organizacion": 70, "contemplacion": 70, "comunidad": 60, "juego": 50, "descanso": 20, "silencio": 15}
-            },
-            {
-                "id": 303,
-                "titulo": "Sabotaje Alimenticio: Antojo Rápido McDonald's / Starbucks",
-                "titulo_en": "Food Sabotage: Quick Treat McDonald's / Starbucks",
-                "porque": "Falta de estímulos sensoriales y monotonía en tu alimentación de la semana.",
-                "porque_en": "Lack of sensory stimuli and monotony in your food during the week.",
-                "que_hacer": "Dirígete a la cadena de comida rápida o cafetería más cercana (McDonald's, Starbucks, Burger King). Pide un menú o un antojo específico. Disfrútalo bocado a bocado, completamente alejado de la pantalla del teléfono, prestando atención exclusiva al sabor real.",
-                "que_hacer_en": "Head to the nearest fast-food chain or coffee shop (McDonald's, Starbucks, Burger King). Order a menu or a specific treat. Enjoy it bite by bite, completely away from your phone screen, paying exclusive attention to the real flavor.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Cadena de comida rápida o cafetería local en tu Código Postal.", "donde_en": "Fast food chain or local coffee shop in your Zip Code.",
-                "gps": "fast food or local restaurant",
-                "vector_necesidades": {"alimentacion": 100, "risa": 75, "juego": 70, "comunidad": 80, "movimiento": 30, "descanso": 50, "esperanza": 85, "silencio": 20}
-            },
-            {
-                "id": 253,
-                "titulo": "Auditoría de Frecuencias: Escape Discoteca / Club",
-                "titulo_en": "Frequency Audit: Nightclub / Club Escape",
-                "porque": "Monotonía mental aplastante en tu semana. Necesitas un quiebre sensorial radical mediante ritmos y movimiento.",
-                "porque_en": "Crushing mental monotony in your week. You need a radical sensory break through rhythm and movement.",
-                "que_hacer": "Visita una zona de discotecas o un club céntrico nocturno en tu ciudad. Sal un momento al perímetro exterior del local, terraza o acera peatonal abierta. Escucha la vibración profunda del bajo golpeando la estructura física del edificio. Siente el cambio súbito de temperatura térmica del aire libre en tu piel, respira profundo por la nariz y permite que el pulso acelerado de la vida nocturna de USA rompa la inercia del piloto automático diurno.",
-                "que_hacer_en": "Visit a club district or a downtown nightclub in your city. Step outside to the outer perimeter of the venue, terrace, or open pedestrian sidewalk for a moment. Listen to the deep bass vibration hitting the building's physical structure. Feel the sudden change in thermal temperature of the open air on your skin, breathe deeply through your nose, and let the accelerated pulse of USA nightlife break the daytime autopilot inertia.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Perímetro exterior, terraza o área abierta de un club nocturno urbano.", "donde_en": "Outer perimeter, terrace, or open area of an urban nightclub.",
-                "gps": "nightlife district or dance clubs",
-                "vector_necesidades": {"juego": 100, "musica": 100, "comunidad": 90, "risa": 80, "movimiento": 70, "creatividad": 60, "silencio": 10, "descanso": 30}
-            },
             {"id": 114, "titulo": "Mercado de Agricultores", "titulo_en": "Farmers Market",
                 "porque": "Necesitas nuevos estímulos. Sabores y olores frescos. Apoya lo local.", "porque_en": "Need new stimuli. Fresh tastes/smells. Support local.",
                 "que_hacer": "Visita un mercado local. Prueba algo nuevo. Habla con los vendedores.", "que_hacer_en": "Visit local market. Try something new. Talk to vendors.",
@@ -788,6 +455,7 @@ BASE_MISIONES = {
                 "donde": "Parque o plaza con proyecciones.", "donde_en": "Park or plaza with screenings.", "gps": "outdoor cinema",
                 "vector_necesidades": {"movimiento": 30, "naturaleza": 60, "silencio": 40, "agua": 10, "sol": 50, "sombra": 70, "aire_fresco": 80, "creatividad": 90, "comunidad": 80, "aprendizaje": 70, "juego": 50, "contemplacion": 80, "descanso": 70, "organizacion": 20, "alimentacion": 60, "musica": 70, "risa": 70, "esperanza": 85}
             },
+            # === MODIFICACIÓN: NUEVAS MICROACCIONES DE RECUPERACIÓN (ID 221-223) - DESCRIPCIONES ACORTADAS ===
             {"id": 221, "titulo": "Auditoría de Frecuencias: Discoteca / Club", "titulo_en": "Frequency Audit: Nightclub / Club",
                 "porque": "Monotonía extrema y falta de estímulos rítmicos o sociales en tu semana.", "porque_en": "Extreme monotony, lack of rhythmic/social stimuli.",
                 "que_hacer": "Visita un club/bar. Sal al exterior. Siente la música. Nota el aire y libérate de la inercia mental de la rutina.",
@@ -831,84 +499,6 @@ BASE_MISIONES = {
                 "donde": "Puerto o muelle.", "donde_en": "Harbor or pier.", "gps": "harbor walk or pier",
                 "vector_necesidades": {"movimiento": 70, "naturaleza": 80, "silencio": 60, "agua": 100, "sol": 70, "sombra": 50, "aire_fresco": 95, "creatividad": 50, "comunidad": 60, "aprendizaje": 40, "juego": 30, "contemplacion": 90, "descanso": 80, "organizacion": 20, "alimentacion": 20, "musica": 50, "risa": 40, "esperanza": 90}
             },
-            {
-                "id": 328,
-                "titulo": "Inversión Marítima: Perímetro de Cruceros / Muelles",
-                "titulo_en": "Maritime Inversion: Cruise Line / Pier Perimeter",
-                "porque": "Cansancio acumulado de la rutina diaria. Tu mente requiere el estímulo de la inmensidad del agua para disolver el encierro.",
-                "porque_en": "Accumulated fatigue from the daily routine. Your mind requires the stimulus of vast water to dissolve confinement.",
-                "que_hacer": "Dirígete al puerto, muelle o paseo marítimo más cercano de tu área (zonas de Royal Caribbean, Carnival). Observa las embarcaciones de forma contemplativa. Deja que el reflejo de la luz sobre el agua limpie la pesadez de tus pensamientos.",
-                "que_hacer_en": "Head to the nearest port, pier, or boardwalk in your area (Royal Caribbean, Carnival zones). Observe the vessels contemplatively. Let the reflection of light on the water clear away the heaviness of your thoughts.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Muelle, puerto local o zona costera abierta.", "donde_en": "Dock, local pier, or open coastal zone.",
-                "gps": "cruise terminal or pier",
-                "vector_necesidades": {"agua": 100, "contemplacion": 95, "descanso": 90, "aire_fresco": 90, "naturaleza": 80, "silencio": 60, "esperanza": 85}
-            },
-            {
-                "id": 329,
-                "titulo": "Pausa en Ruta: Módulo de Descanso Interestatal",
-                "titulo_en": "Route Break: Interstate Rest Stop Module",
-                "porque": "Fatiga muscular y embotamiento cognitivo provocado por trayectos continuos y la inercia del asfalto.",
-                "porque_en": "Muscular fatigue and cognitive dullness caused by continuous travel and asphalt inertia.",
-                "que_hacer": "Busca la próxima área de servicio o descanso segura en tu ruta. Estaciona por completo, apaga el motor y sal del vehículo. Realiza un suave estiramiento de piernas, respira el aire del ambiente y camina despacio un minuto para reactivar tu circulación.",
-                "que_hacer_en": "Find the next safe service or rest area on your route. Park completely, turn off the engine, and step out of the vehicle. Do a gentle leg stretch, breathe the ambient air, and walk slowly for one minute to reactivate circulation.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Área de servicio de autopista o zona de descanso pública.", "donde_en": "Highway service area or public rest zone.",
-                "gps": "highway rest stop or plaza",
-                "vector_necesidades": {"descanso": 95, "movimiento": 60, "aire_fresco": 90, "salud": 85, "silencio": 50, "contemplacion": 70, "organizacion": 40}
-            },
-            {
-                "id": 330,
-                "titulo": "Recuperación Pasiva: Paseo Histórico y Calma Urbana",
-                "titulo_en": "Passive Recovery: Historical Walk and Urban Calm",
-                "porque": "Agotamiento mental debido a la predictibilidad de la rutina diaria. Necesitas un suave cambio de ritmo.",
-                "porque_en": "Mental exhaustion due to the predictability of the daily routine. You need a gentle change of pace.",
-                "que_hacer": "Ubica una zona histórica, plaza antigua o monumento a pie en tu perímetro comercial. Camina a un paso deliberadamente lento, sin prisa. Observa las estructuras arquitectónicas antiguas y usa ese entorno público para despejar la mente.",
-                "que_hacer_en": "Locate a historical zone, old plaza, or monument on foot within your commercial perimeter. Walk at a deliberately slow, unhurried pace. Observe the older architectural structures and use that public setting to clear your mind.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Centro histórico, plaza pública o calles peatonales.", "donde_en": "Historical center, public plaza, or pedestrian streets.",
-                "gps": "historical landmark or walking tour",
-                "vector_necesidades": {"aprendizaje": 90, "contemplacion": 95, "descanso": 80, "movimiento": 50, "silencio": 70, "creatividad": 60, "esperanza": 80}
-            },
-            {
-                "id": 331,
-                "titulo": "Aislamiento Sensorial: Butaca de Cine Matinal",
-                "titulo_en": "Sensory Isolation: Morning Cinema Seat",
-                "porque": "Saturación del sistema nervioso por exceso de interacción humana y demandas de la rutina urbana diaria.",
-                "porque_en": "Nervous system saturation from excessive human interaction and demands of the daily urban routine.",
-                "que_hacer": "Dirígete al cine o complejo de salas más cercano de tu Código Postal (AMC, Regal). Elige una función matinal o en horario de baja afluencia. Siéntate en la penumbra de la sala, suelta el teléfono y permite que la oscuridad y el aislamiento controlado calmen el ruido de tu mente.",
-                "que_hacer_en": "Head to the nearest cinema or theater complex in your Zip Code (AMC, Regal). Choose a morning or low-traffic screening. Sit in the dim light of the hall, drop your phone, and allow the darkness and controlled isolation to quiet the noise in your mind.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Sala de cine comercial o vestíbulo de proyecciones.", "donde_en": "Commercial movie theater or screening lobby.",
-                "gps": "local cinema or amc",
-                "vector_necesidades": {"descanso": 100, "silencio": 85, "contemplacion": 90, "sombra": 100, "juego": 40, "creatividad": 50, "movimiento": 5}
-            },
-            {
-                "id": 332,
-                "titulo": "Homeostasis Verde: Descanso en Jardín Botánico / Invernadero",
-                "titulo_en": "Green Homeostasis: Rest in Botanical Garden / Greenhouse",
-                "porque": "Agotamiento crónico debido al asfalto, aire acondicionado de oficina y falta de conexión orgánica real.",
-                "porque_en": "Chronic fatigue due to asphalt, office air conditioning, and lack of real organic connection.",
-                "que_hacer": "Ubica el jardín botánico, invernadero público o parque floral más cercano. Busca un banco protegido por la vegetación. Permanece allí inmóvil por dos minutos enteros, respirando el aire limpio del ambiente y dejando que los tonos verdes relajen tu córtex visual.",
-                "que_hacer_en": "Locate the nearest botanical garden, public greenhouse, or floral park. Find a bench sheltered by vegetation. Remain there motionless for two whole minutes, breathing the clean ambient air and letting the green tones relax your visual cortex.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Jardín botánico público, vivero o parque natural regional.", "donde_en": "Public botanical garden, nursery, or regional nature park.",
-                "gps": "botanical garden or nursery",
-                "vector_necesidades": {"naturaleza": 100, "aire_fresco": 100, "descanso": 90, "silencio": 80, "contemplacion": 95, "sombra": 90, "salud": 85, "movimiento": 25}
-            },
-            {
-                "id": 333,
-                "titulo": "Módulo de Quietud: Banco en Lago / Muelle Público",
-                "titulo_en": "Quietness Module: Bench by a Public Lake / Pier",
-                "porque": "Cansancio mental plano y monotonía. Necesitas observar el movimiento sutil de la naturaleza sin prisas.",
-                "porque_en": "Flat mental fatigue and monotony. You need to observe the subtle movement of nature without haste.",
-                "que_hacer": "Encuentra un parque local con lago, estanque o muelle público en tu Código Postal. Siéntate en el banco más cercano a la orilla. Observa las ondas del agua y el comportamiento de las aves del perímetro por un minuto completo, forzando a tu respiración a seguir un ritmo lento.",
-                "que_hacer_en": "Find a local park with a lake, pond, or public pier in your Zip Code. Sit on the bench closest to the edge. Observe the water ripples and the behavior of the birds in the perimeter for a full minute, forcing your breathing to follow a slow pace.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Banco de parque junto a un estanque o lago público.", "donde_en": "Park bench next to a public pond or lake.",
-                "gps": "public lake park or fountain",
-                "vector_necesidades": {"agua": 100, "contemplacion": 100, "descanso": 95, "silencio": 75, "naturaleza": 85, "aire_fresco": 90, "movimiento": 15}
-            },
             {"id": 120, "titulo": "Observatorio Local", "titulo_en": "Local Observatory",
                 "porque": "Mente ansiosa. Busca perspectiva universal. Maravíllate con el cosmos.", "porque_en": "Anxious mind. Seek universal perspective. Marvel at cosmos.",
                 "que_hacer": "Visita un observatorio. Aprende sobre el universo. Observa las estrellas (si es posible).", "que_hacer_en": "Visit observatory. Learn about universe. Stargaze (if possible).",
@@ -930,6 +520,7 @@ BASE_MISIONES = {
                 "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour",
                 "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90}
             },
+            # === MODIFICACIÓN: NUEVAS MICROACCIONES DE RECUPERACIÓN (ID 231-232) - DESCRIPCIONES ACORTADAS ===
             {"id": 231, "titulo": "Inversión Marítima: Perímetro de Cruceros", "titulo_en": "Maritime Inversion: Cruise Line Perimeter",
                 "porque": "Cansancio monótono. Tu mente requiere el estímulo visual de la inmensidad del agua para romper el encierro urbano.", "porque_en": "Monotonous fatigue. Mind needs vast water stimulus to break urban confinement.",
                 "que_hacer": "Ve al puerto/muelle/agencia de cruceros. Observa naves/horizonte marítimo. Deja que el reflejo del agua limpie tus pensamientos.",
@@ -964,58 +555,6 @@ BASE_MISIONES = {
                 "donde": "Lago o río con alquiler de botes.", "donde_en": "Lake or river with boat rentals.", "gps": "boat rentals lake or river",
                 "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 80, "agua": 100, "sol": 80, "sombra": 60, "aire_fresco": 100, "creatividad": 50, "comunidad": 50, "aprendizaje": 30, "juego": 60, "contemplacion": 95, "descanso": 90, "organizacion": 10, "alimentacion": 20, "musica": 60, "risa": 30, "esperanza": 90}
             },
-            {
-                "id": 345,
-                "titulo": "Distracción Absoluta: Centro de Recreación / Parque de Mascotas",
-                "titulo_en": "Absolute Distraction: Recreation Center / Dog Park",
-                "porque": "Ansiedad cíclica y rumiación mental masiva. Necesitas un shock de juego y risas para apagar el pánico del ego.",
-                "porque_en": "Cyclic anxiety and massive mental rumination. You need a shock of play and laughter to quiet ego panic.",
-                "que_hacer": "Dirígete al parque de perros, centro de entretenimiento o zona recreativa (Arcade/Bowling) más cercana de tu Código Postal. Observa las interacciones, escucha las risas y los sonidos del perímetro urbano. Permítete conectar con el juego inocente y la energía externa por un minuto completo para anular el bucle de pensamientos.",
-                "que_hacer_en": "Head to the nearest dog park, entertainment center, or recreational zone (Arcade/Bowling) in your Zip Code. Observe the interactions, listen to the laughter and sounds of the urban perimeter. Allow yourself to connect with innocent play and external energy for a full minute to cancel the thought loop.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Parque de perros local, zona infantil o centro de juegos.", "donde_en": "Local dog park, kids zone, or arcade center.",
-                "gps": "dog park or amusement arcade",
-                "vector_necesidades": {"juego": 100, "risa": 100, "comunidad": 90, "movimiento": 70, "esperanza": 95, "silencio": 20, "descanso": 50, "creatividad": 40}
-            },
-            {
-                "id": 346,
-                "titulo": "Aislamiento Conciencial: Resort / Lobby de Hotel Boutique",
-                "titulo_en": "Conscious Isolation: Resort / Boutique Hotel Lobby",
-                "porque": "Ansiedad social aguda y ruido mental provocado por la sobrecarga de responsabilidades económicas.",
-                "porque_en": "Acute social anxiety and mental noise caused by economic responsibilities overload.",
-                "que_hacer": "Visita la zona de descanso o el jardín de un hotel de cadena o resort local (Marriott, Hilton). Siéntate de forma gratuita en una de sus butacas premium del lobby público. Cierra los ojos por 60 segundos enteros, respira a un ritmo lento diafragmático y habita tu propio cuerpo en total quietud.",
-                "que_hacer_en": "Visit the lounge area or garden of a chain hotel or local resort (Marriott, Hilton). Sit for free in one of the public lobby's premium armchairs. Close your eyes for 60 whole seconds, take slow diaphragmatic breaths, and inhabit your own body in total stillness.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Zona de descanso, jardín interior o lobby de un hotel de USA.", "donde_en": "Lobby, interior garden, or lounge area of a USA hotel.",
-                "gps": "boutique hotel lobby",
-                "vector_necesidades": {"descanso": 100, "silencio": 95, "contemplacion": 95, "organizacion": 80, "salud": 90, "esperanza": 90, "sombra": 80}
-            },
-            {
-                "id": 347,
-                "titulo": "Estrategia de Alivio: Terminal de Aerolíneas",
-                "titulo_en": "Relief Strategy: Airline Terminal",
-                "porque": "Sensación de asfixia y pánico por el encierro diario de la rutina laboral de USA.",
-                "porque_en": "Feeling of suffocation and panic from the daily confinement of the USA work routine.",
-                "que_hacer": "Si estás cerca de una terminal aérea (Delta, United) o una central de transportes, camina hacia el vestíbulo principal. Despega los ojos de la pantalla, observa a los viajeros partir y asimila mentalmente que el mundo es inmenso y que tu problema actual es transitorio.",
-                "que_hacer_en": "If near an airline terminal (Delta, United) or transit center, walk to the main lobby. Take your eyes off the screen, watch travelers depart, and mentally assimilate that the world is huge and your current issue is transient.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Vestíbulo público de aeropuerto o central de transportes regional.", "donde_en": "Public airport lobby or regional transit hub.",
-                "gps": "transit center or airport terminal",
-                "vector_necesidades": {"contemplacion": 100, "aire_fresco": 90, "esperanza": 95, "descanso": 70, "silencio": 60, "movimiento": 40, "aprendizaje": 50}
-            },
-            {
-                "id": 348,
-                "titulo": "Módulo de Silencio Comunitario: Cafetería Local",
-                "titulo_en": "Community Silence Module: Local Coffee Shop",
-                "porque": "Aislamiento mental destructivo y parálisis por ansiedad. Necesitas estar rodeado de flujos humanos tranquilos.",
-                "porque_en": "Destructive mental isolation and anxiety paralysis. You need to be surrounded by calm human flows.",
-                "que_hacer": "Dirígete a una cafetería local tranquila o un rincón de Starbucks. Pide una bebida tibia o agua. Siéntate en un rincón, no mires las redes sociales, simplemente observa los movimientos pausados de las personas y el aroma del café para desacelerar tu pulso.",
-                "que_hacer_en": "Head to a quiet local coffee shop or a Starbucks corner. Order a warm drink or water. Sit in a corner, don't check social media, simply observe the slow movements of people and the aroma of coffee to decelerate your pulse.",
-                "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
-                "donde": "Cafetería o establecimiento de bebidas local en tu Código Postal.", "donde_en": "Local coffee shop or beverage venue in your Zip Code.",
-                "gps": "quiet cafe or bakery",
-                "vector_necesidades": {"comunidad": 90, "descanso": 85, "silencio": 75, "alimentacion": 60, "contemplacion": 80, "esperanza": 85, "musica": 30}
-            },
             {"id": 123, "titulo": "Jardín de Rocas/Zen", "titulo_en": "Rock/Zen Garden",
                 "porque": "Mente agitada. Busca orden y armonía. Centra tus pensamientos.", "porque_en": "Agitated mind. Seek order/harmony. Center thoughts.",
                 "que_hacer": "Encuentra un jardín de rocas. Observa las formas y la disposición. Medita en su calma.", "que_hacer_en": "Find rock garden. Observe shapes/arrangement. Meditate in its calm.",
@@ -1044,6 +583,7 @@ BASE_MISIONES = {
                 "donde": "Piscina municipal o comunitaria.", "donde_en": "Municipal or community pool.", "gps": "public swimming pool",
                 "vector_necesidades": {"movimiento": 90, "naturaleza": 40, "silencio": 50, "agua": 100, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 30, "comunidad": 70, "aprendizaje": 20, "juego": 80, "contemplacion": 70, "descanso": 90, "organizacion": 20, "alimentacion": 10, "musica": 40, "risa": 60, "esperanza": 85}
             },
+            # === MODIFICACIÓN: NUEVAS MICROACCIONES DE RECUPERACIÓN (ID 241-244) - DESCRIPCIONES ACORTADAS ===
             {"id": 241, "titulo": "Distracción Absoluta: Centro de Recreación / Parque Temático", "titulo_en": "Absolute Distraction: Recreation Center / Theme Park",
                 "porque": "Ansiedad cíclica y rumiación mental masiva. Necesitas un shock de juego y risas para apagar el pánico del ego.", "porque_en": "Cyclic anxiety, massive rumination. Need play/laughter shock to quiet ego panic.",
                 "que_hacer": "Ve al parque de atracciones/centro familiar. Observa colores, risas. Conecta con el juego inocente de los niños.",
@@ -1292,7 +832,7 @@ def seleccionar_n_misiones_inteligentes(
         mision_aleatoria = random.choice(misiones)
         if mision_aleatoria["id"] not in ids_seleccionados:
             seleccionadas.append(mision_aleatoria)
-            ids_seleccionados.add(mision_aleatoria["id"])
+            ids_seleccionados.add(mision["id"])
 
     return seleccionadas[:n]
 
@@ -1396,95 +936,6 @@ async def index():
     """Serves the main HTML page."""
     return FileResponse('static/session.html')
 
-# ============================================================
-# Reglas de planes y mapeo de precios Stripe
-# ============================================================
-# Mapeo de IDs de precios de Stripe a nuestros tipos de plan internos.
-# Utiliza los IDs definidos en PLANES_STRIPE.
-STRIPE_PRICE_ID_MAP = {
-    PLANES_STRIPE['diario']: "daily",
-    PLANES_STRIPE['mensual']: "monthly",
-    PLANES_STRIPE['anual']: "annual",
-}
-
-PLAN_LIMITS = {
-    "daily": {"max_daily_accesses": 1, "cooldown_hours": 24},
-    "monthly": {"max_daily_accesses": 5, "cooldown_hours": 0}, # Cooldown_hours no aplica aquí para evitar conflictos con límite diario.
-    "annual": {"max_daily_accesses": 5, "cooldown_hours": 0},
-}
-
-def validate_stripe_subscription_and_access(
-    stripe_subscription_id: str | None,
-    daily_access_timestamps: list[str],
-    last_successful_access_timestamp: str | None
-) -> tuple[bool, str, str | None]:
-    """
-    Valida el estado de la suscripción Stripe y los límites de acceso del usuario.
-    Retorna (es_permitido, razon, tipo_plan_determinado_por_stripe).
-    """
-    if not STRIPE_SECRET_KEY:
-        return False, "Error de configuración: Clave secreta de Stripe no configurada en el servidor.", None
-
-    if not stripe_subscription_id:
-        return False, "ID de suscripción de Stripe no proporcionado. Se requiere un plan de pago.", None
-
-    try:
-        subscription = stripe.Subscription.retrieve(stripe_subscription_id)
-
-        if subscription.status != 'active':
-            return False, f"Suscripción no activa. Estatus: {subscription.status}", None
-
-        # Stripe 'current_period_end' es un timestamp UNIX
-        if subscription.current_period_end < datetime.now().timestamp():
-            return False, "Suscripción de pago ha expirado.", None
-
-        if not subscription.items or not subscription.items.data:
-            return False, "Suscripción de pago no tiene ítems válidos.", None
-
-        # Obtener el ID de precio del ítem de suscripción
-        price_id = subscription.items.data[0].price.id
-        plan_type = STRIPE_PRICE_ID_MAP.get(price_id)
-
-        if not plan_type:
-            return False, "Su plan de suscripción no es reconocido por el sistema.", None
-
-        # Aplicar límites de acceso según el plan determinado por Stripe
-        now = datetime.now()
-        today = now.date()
-        limits = PLAN_LIMITS[plan_type]
-
-        today_accesses = []
-        for ts_str in daily_access_timestamps:
-            try:
-                ts = datetime.fromisoformat(ts_str)
-                if ts.date() == today:
-                    today_accesses.append(ts)
-            except ValueError:
-                # Si el formato del timestamp es inválido, se ignora esa entrada
-                pass
-
-        if len(today_accesses) >= limits["max_daily_accesses"]:
-            return False, f"Ha alcanzado el límite de {limits['max_daily_accesses']} ingresos diarios para su plan.", plan_type
-
-        if plan_type == "daily" and last_successful_access_timestamp:
-            try:
-                last_access = datetime.fromisoformat(last_successful_access_timestamp)
-                if (now - last_access).total_seconds() < (limits["cooldown_hours"] * 3600):
-                    remaining_seconds = (limits["cooldown_hours"] * 3600) - (now - last_access).total_seconds()
-                    remaining_minutes = int(remaining_seconds / 60)
-                    return False, f"Debe esperar {remaining_minutes} minutos para el siguiente acceso con su plan diario.", plan_type
-            except ValueError:
-                pass # Timestamp inválido, no se aplica el cooldown
-
-        return True, "Acceso permitido.", plan_type
-
-    except stripe.error.StripeError as e:
-        print(f"Error al verificar suscripción de Stripe para {stripe_subscription_id}: {e}")
-        return False, f"Error en la verificación de pago: {e}", None
-    except Exception as e:
-        print(f"Error inesperado durante la verificación de Stripe: {e}")
-        return False, "Error inesperado al validar el pago.", None
-
 # OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 2 DE 2 (CWRE Logic)
@@ -1495,76 +946,30 @@ async def mando_integral(request: Request):
     Receives user input and local preference profile to return a personalized recommendation.
     """
     payload = await request.json()
-
-    # ==============================================================================
-    # SECCIÓN 3: CONTROL ADMÍNISTRATIVO MAESTRO (BYPASS GRATIS E ILIMITADO)
-    # ==============================================================================
-    ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
-    ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
-
-    admin_user = payload.get("admin_user")
-    admin_pass = payload.get("admin_pass")
-
-    is_admin_bypass = False
-    if ADMIN_USERNAME and ADMIN_PASSWORD and admin_user == ADMIN_USERNAME and admin_pass == ADMIN_PASSWORD:
-        is_admin_bypass = True
-        # Si es admin, se salta toda la lógica de pago y límites
-    
-    # Parámetros generales
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
-    estado = str(payload.get("estado", "FL")).strip()
-    region = str(payload.get("region", "")).strip()
+    estado = str(payload.get("estado", "FL")).strip() # Estado no se utiliza directamente en el motor de URL query params, es un placeholder
+    region = str(payload.get("region", "")).strip() # Region no se utiliza directamente en el motor de URL query params, es un placeholder
     mente = str(payload.get("mente", "aburrido")).lower()
     budget = str(payload.get("budget", "0"))
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
-    
+   
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
         return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
-    
+   
     perfil_local = payload.get("perfil_local", {})
     if not isinstance(perfil_local, dict):
         perfil_local = {}
-    
+   
     perfil_local = {
         **DEFAULT_NECESSITY_VECTOR,
         **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
     }
     if "indicador_ansiedad" not in perfil_local:
         perfil_local["indicador_ansiedad"] = 0
-    
-    # ==============================================================================
-    # SECCIÓN 2: INTEGRACIÓN MAESTRA DE STRIPE Y REGLAS DE MONETIZACIÓN
-    # Validación de pago solo si no hay bypass administrativo
-    # ==============================================================================
-    if not is_admin_bypass:
-        stripe_subscription_id = payload.get("stripe_subscription_id")
-        daily_access_timestamps = payload.get("daily_access_timestamps", [])
-        last_successful_access_timestamp = payload.get("last_successful_access_timestamp")
-
-        is_allowed, reason, actual_plan_type = validate_stripe_subscription_and_access(
-            stripe_subscription_id,
-            daily_access_timestamps,
-            last_successful_access_timestamp
-        )
-
-        if not is_allowed:
-            return JSONResponse({"error": reason}, status_code=402)
-        
-        # Si el acceso está permitido, podemos actualizar el historial del cliente.
-        # Esto sería manejado por el frontend para la próxima solicitud o un servicio de persistencia.
-        # Aquí simplemente aseguramos que el plan de pago esté disponible para el flujo normal.
-        payload["plan_type"] = actual_plan_type
-        # Para la respuesta, se podría devolver un nuevo timestamp si el cliente lo requiere.
-        # current_access_timestamp = datetime.now().isoformat()
-        # if current_access_timestamp not in daily_access_timestamps:
-        #     daily_access_timestamps.append(current_access_timestamp)
-        #     payload["daily_access_timestamps"] = daily_access_timestamps
-        # payload["last_successful_access_timestamp"] = current_access_timestamp
-
-
+       
     # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
     # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
@@ -1645,7 +1050,7 @@ async def mando_integral(request: Request):
         idioma = "EN" if lang.lower() == "en" else "ES"
         misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
         historial_casa = payload.get("historial_casa", [])
-        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, quantity=3)
+        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, cantidad=3)
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
         return JSONResponse({
@@ -1681,20 +1086,42 @@ async def mando_integral(request: Request):
 
         quienes_van = ""
         if perfil_tipo == "solo":
-            quienes_van = "ACOMPAÑAMIENTO: Vas solo." if lang == "es" else "COMPANIONSHIP: Solo."
+            quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
         elif perfil_tipo == "familia":
-            quienes_van = "ACOMPAÑAMIENTO: Con familia." if lang == "es" else "COMPANIONSHIP: Family."
+            quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
         elif perfil_tipo == "accesible":
-            quienes_van = "ACOMPAÑAMIENTO: Ruta accesible." if lang == "es" else "COMPANIONSHIP: Accessible route."
+            quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
 
-        # Construcción de destino_instruccion según el formato requerido para compresión
-        destino_instruccion_es_condensada = (
-            f"MÓDULO: {info_seleccionada['que_hacer']}. REGLA: {info_seleccionada['porque']}. {quienes_van}. {precio_real}."
-        )
-        destino_instruccion_en_estandarizada = "TARGET LOCKED. Break screen dependency immediately. Execute physical grounding in this perimeter."
+        titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
+        donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
+        anclaje_geografico = zip_code
+        map_base_url = link_base
 
-        titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]).upper()
-        
+        if lang == "en":
+            # === MODIFICACIÓN: guia_masticada (EN) ACORTADA ===
+            guia_masticada = (
+                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
+                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
+                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
+                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
+                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
+                f"{quienes_van}\n{precio_real}"
+            )
+            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
+            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
+        else:
+            # === MODIFICACIÓN: guia_masticada (ES) ACORTADA ===
+            guia_masticada = (
+                f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
+                f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
+                f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
+                f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
+                f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
+                f"{quienes_van}\n{precio_real}"
+            )
+            titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
+            que_hacer_lang = info_seleccionada["que_hacer"] or ""
+
         search_query_parts = []
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
@@ -1702,10 +1129,10 @@ async def mando_integral(request: Request):
             search_query_parts.append("family friendly")
 
         search_query_parts.append(info_seleccionada["gps"])
-        search_query_parts.append(f"in {zip_code}")
+        search_query_parts.append(f"in {anclaje_geografico}")
 
         full_map_query_string = " ".join(search_query_parts)
-        target_link = f"{link_base}{urllib.parse.quote_plus(full_map_query_string)}"
+        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
 
         final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
 
@@ -1715,9 +1142,9 @@ async def mando_integral(request: Request):
             "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]),
             "que_hacer": info_seleccionada["que_hacer"],
             "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
-            "destino_entorno": info_seleccionada.get("donde", "CAMPO USA"), # Según el formato exacto de las instrucciones
-            "destino_instruccion": destino_instruccion_es_condensada,
-            "destino_instruccion_en": destino_instruccion_en_estandarizada,
+            "destino_entorno": donde_base,
+            "destino_instruccion": guia_masticada.strip(),
+            "destino_instruccion_en": guia_masticada.strip(), # Ambos usan el mismo guia_masticada que ya fue construido en el idioma correcto
             "destino_coordenadas_gps": target_link,
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
