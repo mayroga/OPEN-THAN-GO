@@ -415,6 +415,61 @@
         @media (min-width: 768px) {
             .salida-grid { grid-template-columns: 1fr 1fr 1fr; }
         }
+
+        /* --- Estilos de Autenticación (NUEVO) --- */
+        #pantalla-autenticacion {
+            width: 95%; max-width: 380px; padding: 25px; background: var(--panel); border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4); text-align: center;
+        }
+        #pantalla-autenticacion h2 {
+            color: var(--cyan-inhale); font-size: 1.3rem; margin-bottom: 25px; letter-spacing: 0.08em;
+        }
+        #pantalla-autenticacion .auth-field { margin-bottom: 18px; text-align: left; }
+        #pantalla-autenticacion label { color: #aaa; font-size: 0.75rem; margin-bottom: 6px; }
+        #pantalla-autenticacion input {
+            background: #222; border: 1px solid #333; padding: 12px; border-radius: 6px;
+            color: #fff; font-size: 1rem; width: 100%;
+        }
+        #pantalla-autenticacion button {
+            width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold;
+            cursor: pointer; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;
+            transition: background-color 0.2s, color 0.2s; margin-top: 15px;
+        }
+        #pantalla-autenticacion .btn-primary { background: var(--green-action); color: #fff; }
+        #pantalla-autenticacion .btn-primary:hover { background: #226b27; }
+        #pantalla-autenticacion .btn-secondary { background: none; border: 1px solid var(--secondary); color: var(--secondary); margin-top: 10px; }
+        #pantalla-autenticacion .btn-secondary:hover { background: rgba(13,71,161,0.1); color: var(--secondary); }
+        #auth-message { margin-top: 20px; font-size: 0.9rem; color: #f00; min-height: 20px;}
+        #login-register-toggle {
+            margin-top: 20px; font-size: 0.85rem; color: #ccc; cursor: pointer;
+            text-decoration: underline;
+        }
+        .user-info {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #ccc;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-top: 1px solid #222;
+        }
+        .user-info span {
+            font-weight: bold;
+            color: var(--green-action);
+        }
+        .user-info button {
+            background: #d84315;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        /* --- Fin Estilos de Autenticación --- */
+
     </style>
     <img src="/static/silence.svg" class="hidden" alt="Silence">
     <img src="/static/observe.svg" class="hidden" alt="Observe">
@@ -427,9 +482,27 @@
 </head>
 <body>
     <div id="pantalla-bienvenida">
-        <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button>
+        <!-- Contenido de bienvenida modificado por OTG_SENSORIAL y KERNEL para redirigir a login -->
+        <button class="btn-bienvenida" onclick="KERNEL.showLoginScreen();">INICIAR SESIÓN / START</button>
     </div>
    
+    <!-- PANTALLA DE AUTENTICACIÓN (NUEVO) -->
+    <div id="pantalla-autenticacion" class="hidden">
+        <h2 id="auth-title">INICIAR SESIÓN</h2>
+        <div class="auth-field">
+            <label for="username">Usuario</label>
+            <input type="text" id="username" placeholder="Tu nombre de usuario">
+        </div>
+        <div class="auth-field">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" placeholder="Tu contraseña">
+        </div>
+        <div id="auth-message"></div>
+        <button id="auth-submit-btn" class="btn-primary" onclick="KERNEL.handleAuthSubmit()">INGRESAR</button>
+        <div id="login-register-toggle" onclick="KERNEL.toggleAuthMode()">¿No tienes cuenta? Regístrate aquí.</div>
+    </div>
+    <!-- FIN PANTALLA DE AUTENTICACIÓN -->
+
     <div class="container hidden" id="wrapper-form">
         <div class="lang-bar">
             <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button>
@@ -443,6 +516,13 @@
             </div>
             <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1>
         </div>
+
+        <!-- INFO DE USUARIO Y LOGOUT (NUEVO) -->
+        <div class="user-info">
+            Bienvenido, <span id="display-username"></span>
+            <button onclick="KERNEL.logout()">Salir</button>
+        </div>
+        <!-- FIN INFO DE USUARIO Y LOGOUT -->
        
         <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
             <div style="flex: 2;">
@@ -500,8 +580,9 @@
             <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
         </div>
 
-        <div class="stripe-buttons-section">
+        <div class="stripe-buttons-section hidden" id="stripe-payment-options">
             <h4>Adquirir Experiencia Open Than Go</h4>
+            <p id="payment-message" style="color:#eee; font-size:0.85rem; text-align:center; margin-bottom:10px;"></p>
             <button onclick="procesarPagoStripe('diario')">Adquirir Pase Diario - $15.99</button>
             <button onclick="procesarPagoStripe('mensual')">Adquirir Pase Mensual - $25.99</button>
             <button onclick="procesarPagoStripe('anual')">Adquirir Pase Anual - $250.00</button>
