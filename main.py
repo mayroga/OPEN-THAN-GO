@@ -1,9 +1,20 @@
 import os
+import re
+import random
 import stripe
+import uvicorn
+import urllib.parse
+from datetime import datetime
 from fastapi import FastAPI, Request, Header, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 
-# Inicialización con tus variables exactas de Render
+# ============================================================
+# 1. INICIALIZACIÓN CORE (¡DEBE IR PRIMERO QUE TODO!)
+# ============================================================
+app = FastAPI()
+
+# Configuración de variables de entorno de Stripe en Render
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
@@ -13,8 +24,13 @@ PRICE_IDS = {
     "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
 }
 
+# Montar los archivos estáticos de la aplicación
+if not os.path.exists("static"):
+    os.makedirs("static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # ============================================================
-# ¡MANTÉN ESTO!: ENPOINT PARA CREAR LA SESIÓN DE PAGO EN STRIPE
+# 2. RUTA DE STRIPE (Ahora registrada correctamente bajo 'app')
 # ============================================================
 @app.post("/api/create-checkout-session")
 async def create_checkout_session(request: Request):
@@ -32,7 +48,6 @@ async def create_checkout_session(request: Request):
             payment_method_types=['card'],
             line_items=[{'price': id_precio, 'quantity': 1}],
             mode=modo_checkout,
-            # ¡CORREGIDO!: Apunta exactamente a tu dominio del proyecto en Render
             success_url='https://onrender.com{CHECKOUT_SESSION_ID}',
             cancel_url='https://onrender.com',
         )
