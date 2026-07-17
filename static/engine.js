@@ -333,7 +333,7 @@ const KERNEL = {
         {"id": 210, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "For two minutes, look at a distant point to allow your eyes to rest from the screen.", "img": "nature_sound.svg"},
     ],
 
-        /**
+     /**
      * Retrieves or initializes the user's dynamic profile from localStorage.
      * Ensures all 19 needs are present with default values if missing.
      * Applies gradual daily reduction (decay) towards base values.
@@ -416,79 +416,91 @@ const KERNEL = {
             localStorage.removeItem("otg_historial_retos_secuencias"); 
         }
 
-        this.obtenerPerfilLocal();
+            this.obtenerPerfilLocal(); 
 
-        // ============================================================
-        // CONTROL LOGICO CENTRAL DEL PAYWALL AL ARRANQUE
-        // ============================================================
-        this.verificarEstatusAcceso();
-
-        const zipInput = document.getElementById('inp-zip');
-        if (zipInput) {
-            zipInput.addEventListener('input', () => this.validarZip());
-            this.validarZip();
+        // ============================================================ 
+        // CONTROL LOGICO CENTRAL DEL PAYWALL AL ARRANQUE 
+        // ============================================================ 
+        this.verificarEstatusAcceso(); 
+        
+        const zipInput = document.getElementById('inp-zip'); 
+        if (zipInput) { 
+            zipInput.addEventListener('input', () => this.validarZip()); 
+            this.validarZip(); 
+        } 
+        
+        const btnVolver = document.getElementById('btn-volver-app');
+        if (btnVolver) {
+            btnVolver.addEventListener('click', () => this.reiniciarExperiencia()); 
         }
-        document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
-    },
+    }, 
 
-    /** Starts the initial welcome sequence after user interaction. */
-    despertarInicial() {
-        // 1. Ocultar inmediatamente la pantalla negra de bienvenida
-        document.getElementById('pantalla-bienvenida').style.display = 'none';
-
-        // 2. Hacer visible el contenedor de la aplicación para que no se quede congelada
-        document.getElementById('wrapper-form').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.remove('hidden');
-        document.getElementById('btn-whatsapp').classList.remove('hidden');
-        document.getElementById('btn-messenger').classList.remove('hidden');
-
-        // 3. Evaluar de forma estricta si el usuario ya pagó con Stripe o es Administrador
-        const usuarioAutorizado = this.verificarEstatusAcceso();
-        this.cambiarIdioma(this.idiomaActual);
-
-        // 4. COMPUERTA INTEGRADA: Si el usuario NO tiene acceso válido, bloquear el paso
-        if (!usuarioAutorizado) {
-            const aviso_es = "Para desbloquear tu motor de enrutamiento somático, por favor selecciona un plan de acceso.";
-            const aviso_en = "To unlock your somatic routing engine, please select an access plan.";
-            this.hablar(this.idiomaActual === 'es' ? aviso_es : aviso_en);
-
-            // Opacar visualmente el formulario del oráculo y la caja de texto libre
-            const oraculoBox = document.getElementById('bloque-escritura-libre');
-            if (oraculoBox) oraculoBox.style.opacity = "0.15";
-
-            const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo');
-            if (oraculoGrid) oraculoGrid.style.opacity = "0.15";
-
-            // Forzar de forma nativa que el contenedor de cobros sea visible en pantalla
-            const paywallEl = document.getElementById('paywall-container');
-            if (paywallEl) paywallEl.classList.remove('hidden');
-
-            return; // Detiene la inyección de preguntas para proteger tu backend en Render
-        }
-
-        // 5. FLUJO NORMAL: Si ya pagó, remueve opacidades e inyecta la app
-        const oraculoBox = document.getElementById('bloque-escritura-libre');
-        if (oraculoBox) oraculoBox.style.opacity = "1";
-
-        const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo');
-        if (oraculoGrid) oraculoGrid.style.opacity = "1";
-
-        const saludos_es = [
-            "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
-            "ópen dán go está activo. Concéntrate un momento. Mira las opciones en tu pantalla ya.",
-            "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca lo que sientes hoy."
-        ];
-        const saludos_en = [
-            "Welcome to open than go. Your smart escape. Listen to my questions on screen.",
-            "open than go is active. Focus for a moment. Look at the options on your screen now.",
-            "You entered open than go. Let's break your autopilot right now. Tap what you feel today."
-        ];
-        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
-        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-
-        this.inyectarBloquePreguntas();
-        this.iniciarMonitoreoInaccion();
-        this.activarBotonMandoLibreInicial();
+    /** Starts the initial welcome sequence after user interaction. */ 
+    despertarInicial() { 
+        // 1. Ocultar inmediatamente la pantalla negra de bienvenida 
+        const bienvenidaEl = document.getElementById('pantalla-bienvenida');
+        if (bienvenidaEl) bienvenidaEl.style.display = 'none'; 
+        
+        // 2. Hacer visible el contenedor de la aplicación para que no se quede congelada 
+        const wrapperEl = document.getElementById('wrapper-form');
+        if (wrapperEl) wrapperEl.classList.remove('hidden');
+        
+        const btnVolver = document.getElementById('btn-volver-app');
+        if (btnVolver) btnVolver.classList.remove('hidden');
+        
+        const btnWhatsapp = document.getElementById('btn-whatsapp');
+        if (btnWhatsapp) btnWhatsapp.classList.remove('hidden');
+        
+        const btnMessenger = document.getElementById('btn-messenger');
+        if (btnMessenger) btnMessenger.classList.remove('hidden'); 
+        
+        // 3. Evaluar de forma estricta si el usuario ya pagó con Stripe o es Administrador 
+        const usuarioAutorizado = this.verificarEstatusAcceso(); 
+        this.cambiarIdioma(this.idiomaActual); 
+        
+        // 4. COMPUERTA INTEGRADA: Si el usuario NO tiene acceso válido, bloquear el paso 
+        if (!usuarioAutorizado) { 
+            const aviso_es = "Para desbloquear tu motor de enrutamiento somático, por favor selecciona un plan de acceso."; 
+            const aviso_en = "To unlock your somatic routing engine, please select an access plan."; 
+            this.hablar(this.idiomaActual === 'es' ? aviso_es : aviso_en); 
+            
+            // Opacar visualmente el formulario del oráculo y la caja de texto libre 
+            const oraculoBox = document.getElementById('bloque-escritura-libre'); 
+            if (oraculoBox) oraculoBox.style.opacity = "0.15"; 
+            
+            const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo'); 
+            if (oraculoGrid) oraculoGrid.style.opacity = "0.15"; 
+            
+            // Forzar de forma nativa que el contenedor de cobros sea visible en pantalla 
+            const paywallEl = document.getElementById('paywall-container'); 
+            if (paywallEl) paywallEl.classList.remove('hidden'); 
+            return; // Detiene la inyección de preguntas para proteger tu backend en Render 
+        } 
+        
+        // 5. FLUJO NORMAL: Si ya pagó, remueve opacidades e inyecta la app 
+        const oraculoBox = document.getElementById('bloque-escritura-libre'); 
+        if (oraculoBox) oraculoBox.style.opacity = "1"; 
+        
+        const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo'); 
+        if (oraculoGrid) oraculoGrid.style.opacity = "1"; 
+        
+        const saludos_es = [ 
+            "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.", 
+            "ópen dán go está activo. Concéntrate un momento. Mira las opciones en tu pantalla ya.", 
+            "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca lo que sientes hoy." 
+        ]; 
+        const saludos_en = [ 
+            "Welcome to open than go. Your smart escape. Listen to my questions on screen.", 
+            "open than go is active. Focus for a moment. Look at the options on your screen now.", 
+            "You entered open than go. Let's break your autopilot right now. Tap what you feel today." 
+        ]; 
+        
+        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en; 
+        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
+        
+        this.inyectarBloquePreguntas(); 
+        this.iniciarMonitoreoInaccion(); 
+        this.activarBotonMandoLibreInicial(); 
     },
 
       /** * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent. */
