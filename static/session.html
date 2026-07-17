@@ -70,9 +70,7 @@
             color: #000;
         }
 
-        /* ============================================================
-           NUEVOS ESTILOS DEL PAYWALL (AGREGADOS CORRECTAMENTE EN CSS)
-           ============================================================ */
+        /* ============================================================ NUEVOS ESTILOS DEL PAYWALL ============================================================ */
         .plans-container {
             display: flex;
             flex-direction: column;
@@ -170,18 +168,83 @@
             0% { color: var(--cyan-inhale); text-shadow: 0 0 10px rgba(0,188,212,0.3); }
             100% { color: var(--green-action); text-shadow: 0 0 10px rgba(46,125,50,0.3); }
         }
-    
+
         /* MOVING WHITE CLOUDS SCENERY */
-        .sky-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.25; z-index: 1; }
-        .cloud { position: absolute; background: #fff; border-radius: 100px; filter: blur(4px); animation: windMove 18s infinite linear; }
-        .cloud::before, .cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
-        .cloud.c1 { width: 60px; height: 20px; top: 10px; left: -70px; animation-duration: 22s; }
-        .cloud.c1::before { width: 30px; height: 30px; top: -15px; left: 10px; }
-        .cloud.c1::after { width: 20px; height: 20px; top: -10px; left: 30px; }
-        .cloud.c2 { width: 80px; height: 25px; top: 35px; left: -90px; animation-duration: 16s; animation-delay: 4s; }
-        .cloud.c2::before { width: 40px; height: 40px; top: -20px; left: 15px; }
-        .cloud.c2::after { width: 30px; height: 35px; top: -15px; left: 40px; }
-        @keyframes windMove { 0% { transform: translateX(0); } 100% { transform: translateX(520px); } }
+        .sky-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.25;
+            z-index: 1;
+        }
+
+        .cloud {
+            position: absolute;
+            background: #fff;
+            border-radius: 100px;
+            filter: blur(4px);
+            animation: windMove 18s infinite linear;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .cloud.c1 {
+            width: 60px;
+            height: 20px;
+            top: 10px;
+            left: -70px;
+            animation-duration: 22s;
+        }
+
+        .cloud.c1::before {
+            width: 30px;
+            height: 30px;
+            top: -15px;
+            left: 10px;
+        }
+
+        .cloud.c1::after {
+            width: 20px;
+            height: 20px;
+            top: -10px;
+            left: 30px;
+        }
+
+        .cloud.c2 {
+            width: 80px;
+            height: 25px;
+            top: 35px;
+            left: -90px;
+            animation-duration: 16s;
+            animation-delay: 4s;
+        }
+
+        .cloud.c2::before {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 15px;
+        }
+
+        .cloud.c2::after {
+            width: 30px;
+            height: 35px;
+            top: -15px;
+            left: 40px;
+        }
+
+        @keyframes windMove {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(520px); }
+        }
 
         /* THE ORACLE: CASCADE UP EFFECT */
         .oraculo-scroll-box { position: relative; min-height: 280px; overflow: hidden; margin-bottom: 20px; }
