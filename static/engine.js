@@ -19,7 +19,7 @@ const KERNEL = {
     tipoEscapeGlobal: "", 
     contadorToques: 0, 
     // ¡CORREGIDO AL 100%!: Aquí está tu secuencia original cerrada sin comas huérfanas
-    secuenciaAdelantos:, 
+    secuenciaAdelantos: [], 
     historialSalir: [], 
     historialCasa: [], 
     historialPreguntas: [], 
