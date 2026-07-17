@@ -59,12 +59,14 @@ async def create_checkout_session(request: Request):
        # ----------------------------------------------------------------------
     # CIERRE DE LA COMPUERTA DE CONTROL DE ACCESO (DENTRO DE MANDO INTEGRAL)
     # ----------------------------------------------------------------------
-    if not es_admin and not tiene_pago_valido:
-        return JSONResponse({
-            "error": "Acceso restringido.",
-            "requiere_pago": True,
-            "mensaje": "Suscripción o pago requerido para usar el motor de rutas contextuales."
-        }, status_code=403)
+    # Bloque de código incorrectamente colocado y con variables no definidas en este scope.
+    # Será removido, ya existe un bloque de seguridad similar y correcto en mando_integral.
+    # if not es_admin and not tiene_pago_valido:
+    #     return JSONResponse({
+    #         "error": "Acceso restringido.",
+    #         "requiere_pago": True,
+    #         "mensaje": "Suscripción o pago requerido para usar el motor de rutas contextuales."
+    #     }, status_code=403)
 
 # ============================================================
 # MOTOR DE HISTORIAL INTELIGENTE CWRE V2
@@ -1160,14 +1162,15 @@ def score_coincidencia(
         score += vector_necesidades.get("descanso", 0) * 0.2
         score += vector_necesidades.get("silencio", 0) * 0.2
    
-        # --------------------------------------------------
-        # Penalización por repetición histórica y bonus por exploración
-        # --------------------------------------------------
-        if mission_id is not None:
-            score -= penalizacion_historial(mission_id, historial)
-            score += bonus_exploracion(mission_id, historial)
-            
-        return round(max(0, score), 2)
+    # --------------------------------------------------
+    # Penalización por repetición histórica y bonus por exploración
+    # (Este bloque fue movido y corregido en su indentación)
+    # --------------------------------------------------
+    if mission_id is not None:
+        score -= penalizacion_historial(mission_id, historial)
+        score += bonus_exploracion(mission_id, historial)
+        
+    return round(max(0, score), 2)
 
 # ============================================================
 # Selección por Ranking Inteligente
@@ -1261,54 +1264,54 @@ def seleccionar_n_misiones_inteligentes(
     seleccionadas = []
     ids_seleccionados = set()
    
-           # Prioriza las de mayor score y las que no estén en el historial
-        for cand in candidatos_base:
-            if len(seleccionadas) >= n:
-                break
-            if cand["mision"]["id"] not in ids_seleccionados and cand["mision"]["id"] not in historial_actual:
-                es_diversa = True
-                for sel_mision in seleccionadas:
-                    distancia = diversidad_vector(
-                        cand["mision"].get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
-                        sel_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
-                    )
-                    # Define un umbral de diversidad. Si son muy parecidas, no la elijas.
-                    if distancia < 100:  # Ajusta este umbral según sea necesario para la diversidad
-                        es_diversa = False
-                        break
-                if es_diversa:
-                    seleccionadas.append(cand["mision"])
-                    ids_seleccionados.add(cand["mision"]["id"])
-
-        # Si aún no tenemos suficientes, toma las siguientes mejores aunque no sean tan diversas
-        for cand in candidatos_base:
-            if len(seleccionadas) >= n:
-                break
-            if cand["mision"]["id"] not in ids_seleccionados and cand["mision"]["id"] not in historial_actual:
+    # Prioriza las de mayor score y las que no estén en el historial
+    for cand in candidatos_base:
+        if len(seleccionadas) >= n:
+            break
+        if cand["mision"]["id"] not in ids_seleccionados and cand["mision"]["id"] not in historial_actual:
+            es_diversa = True
+            for sel_mision in seleccionadas:
+                distancia = diversidad_vector(
+                    cand["mision"].get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
+                    sel_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
+                )
+                # Define un umbral de diversidad. Si son muy parecidas, no la elijas.
+                if distancia < 100:  # Ajusta este umbral según sea necesario para la diversidad
+                    es_diversa = False
+                    break
+            if es_diversa:
                 seleccionadas.append(cand["mision"])
                 ids_seleccionados.add(cand["mision"]["id"])
 
-        # Si todavía no tenemos suficientes, y el historial se ha agotado, reinicia y toma al azar
-        if len(seleccionadas) < n and len(misiones) >= n:
-            temp_misiones = [m for m in misiones if m["id"] not in ids_seleccionados]
-            if len(temp_misiones) < n - len(seleccionadas):
-                temp_misiones = misiones  # Si no hay suficientes nuevas, recicla todo el catálogo
-            random.shuffle(temp_misiones)
-            for mision in temp_misiones:
-                if len(seleccionadas) >= n:
-                    break
-                if mision["id"] not in ids_seleccionados:
-                    seleccionadas.append(mision)
-                    ids_seleccionados.add(mision["id"])
+    # Si aún no tenemos suficientes, toma las siguientes mejores aunque no sean tan diversas
+    for cand in candidatos_base:
+        if len(seleccionadas) >= n:
+            break
+        if cand["mision"]["id"] not in ids_seleccionados and cand["mision"]["id"] not in historial_actual:
+            seleccionadas.append(cand["mision"])
+            ids_seleccionados.add(cand["mision"]["id"])
 
-        # Asegúrate de que el resultado final sea exactamente 'n' misiones si es posible
-        while len(seleccionadas) < n and len(misiones) > len(seleccionadas):
-            mision_aleatoria = random.choice(misiones)
-            if mision_aleatoria["id"] not in ids_seleccionados:
-                seleccionadas.append(mision_aleatoria)
-                ids_seleccionados.add(mision_aleatoria["id"])  # ¡CORREGIDO!: Registraba erróneamente mision["id"] en lugar de mision_aleatoria
+    # Si todavía no tenemos suficientes, y el historial se ha agotado, reinicia y toma al azar
+    if len(seleccionadas) < n and len(misiones) >= n:
+        temp_misiones = [m for m in misiones if m["id"] not in ids_seleccionados]
+        if len(temp_misiones) < n - len(seleccionadas):
+            temp_misiones = misiones  # Si no hay suficientes nuevas, recicla todo el catálogo
+        random.shuffle(temp_misiones)
+        for mision in temp_misiones:
+            if len(seleccionadas) >= n:
+                break
+            if mision["id"] not in ids_seleccionados:
+                seleccionadas.append(mision)
+                ids_seleccionados.add(mision["id"])
 
-        return seleccionadas[:n]
+    # Asegúrate de que el resultado final sea exactamente 'n' misiones si es posible
+    while len(seleccionadas) < n and len(misiones) > len(seleccionadas):
+        mision_aleatoria = random.choice(misiones)
+        if mision_aleatoria["id"] not in ids_seleccionados:
+            seleccionadas.append(mision_aleatoria)
+            ids_seleccionados.add(mision_aleatoria["id"])
+
+    return seleccionadas[:n]
 
 # ============================================================
 # Filtrar historial (para disponibilidad de misiones)
@@ -1491,7 +1494,7 @@ async def mando_integral(request: Request):
     # Extracción segura de variables contextuales requeridas para evitar NameError
     perfil_tipo = str(payload.get("perfil", "solo")).strip()
     zip_code = str(payload.get("zip", "33167")).strip()
-    link_base = "https://google.com"
+    link_base = "https://google.com/maps/search/"
     DEFAULT_NECESSITY_VECTOR = {
         "movimiento": 0, "naturaleza": 0, "silencio": 0, "agua": 0, "sol": 0,
         "sombra": 0, "aire_fresco": 0, "creatividad": 0, "comunidad": 0,
@@ -1557,7 +1560,7 @@ async def mando_integral(request: Request):
 
         if lang == "en":
             # === guia_masticada (EN) ACORTADA ===
-            guia_masticada = (
+            guia_masticada_en_content = (
                 f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
                 f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
                 f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
@@ -1568,7 +1571,7 @@ async def mando_integral(request: Request):
             titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
         else:
             # === guia_masticada (ES) ACORTADA ===
-            guia_masticada = (
+            guia_masticada_es_content = (
                 f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
                 f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
                 f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
@@ -1599,8 +1602,8 @@ async def mando_integral(request: Request):
             "que_hacer": info_seleccionada["que_hacer"],
             "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
             "destino_entorno": donde_base,
-            "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": guia_masticada.strip(), # Sincronización bilingüe unificada
+            "destino_instruccion": guia_masticada_es_content.strip() if lang == "es" else guia_masticada_en_content.strip(), # Corregido para sincronizar el idioma de la instrucción
+            "destino_instruccion_en": guia_masticada_en_content.strip() if lang == "en" else guia_masticada_es_content.strip(), # Corregido para sincronizar el idioma de la instrucción
             "destino_coordenadas_gps": target_link,
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
@@ -1618,4 +1621,3 @@ if __name__ == "__main__":
     import os
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
-
