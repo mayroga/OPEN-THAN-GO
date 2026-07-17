@@ -1705,29 +1705,41 @@ preguntas:[
                     <b style="color:#fff;">Aviso</b><br> OPEN THAN GO es una herramienta de bienestar y orientación. No ofrece atención médica, psicológica ni de emergencia. Si tienes una emergencia médica o de salud mental, llama a los servicios de emergencia o busca ayuda profesional. Usa esta aplicación bajo tu propio criterio. </div> 
                 <button class="btn-bienvenida" onclick="OTG_SENSORIAL.interceptarBotonStart();" style="width:100%;border-radius:6px;padding:15px;font-weight:900;background:#fff;color:#000;border:none;cursor:pointer;text-transform:uppercase;"> INICIAR SESIÓN / START </button> 
             </div>`; 
-        }, 
-        
-        crearEstructurasFlotantes(){ 
-            let b=document.createElement("button"); 
-            b.id="otg-btn-power"; 
-            b.className="otg-power-btn hidden"; 
-            b.innerHTML="✕"; 
-            b.title="Cerrar"; 
-            b.onclick=()=>this.apagarSistemaTotal(); 
-            document.body.appendChild(b);
+        },
 
-            let m=document.createElement("div"); 
-            m.id="otg-oasis-entretenimiento"; 
-            m.className="hidden"; 
-            m.style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.98);z-index:9999999;backdrop-filter:blur(15px);overflow-y:auto;padding:20px;color:#fff;font-family:sans-serif;"; 
+        crearEstructurasFlotantes(){ 
+            let b = document.createElement("button"); 
+            b.id = "otg-btn-power"; 
+            b.className = "otg-power-btn hidden"; 
+            b.innerHTML = "✕"; 
+            b.title = "Cerrar"; 
+            b.onclick = () => this.apagarSistemaTotal(); 
+            document.body.appendChild(b); 
+            
+            let m = document.createElement("div"); 
+            m.id = "otg-oasis-entretenimiento"; 
+            m.className = "hidden"; 
+            m.style = "position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.98);z-index:9999999;backdrop-filter:blur(15px);overflow-y:auto;padding:20px;color:#fff;font-family:sans-serif;"; 
             document.body.appendChild(m); 
-        }, 
-        
+        }, // ¡CORREGIDO!: Llave de cierre agregada correctamente para aislar el método
+
         interceptarBotonStart(){ 
-            setTimeout(()=>this.forzarCierre15Minutos(),900000); 
+            // 1. Activa el temporizador preventivo de 15 minutos 
+            setTimeout(() => this.forzarCierre15Minutos(), 900000); 
+            
+            // 2. Despierta el motor de pagos y compuertas principal 
+            if (typeof KERNEL !== "undefined" && typeof KERNEL.despertarInicial === "function") { 
+                KERNEL.despertarInicial(); 
+            } 
+            
+            // 3. ENLACE VISUAL SEGURO: Mantén el Paywall oculto mientras el cliente está en el Oasis 
+            const wrapperForm = document.getElementById('wrapper-form'); 
+            if (wrapperForm) wrapperForm.classList.add('hidden'); 
+            
+            // 4. Abre la personalización de la experiencia de usuario 
             this.abrirOasisOcio(); 
-        }, 
-        
+        },
+
         abrirOasisOcio(){ 
             let m=document.getElementById("otg-oasis-entretenimiento"); 
             if(!m)return; 
