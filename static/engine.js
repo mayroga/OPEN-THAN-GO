@@ -1,49 +1,48 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
-// Company: May Roga LLC
-// File: static/engine.js (Frontend Logic)
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1 
+// Company: May Roga LLC 
+// File: static/engine.js (Frontend Logic) 
 
-const KERNEL = {
-    timerInaccion: null,
-    timerEnfocado: null,
-    temporizadorCascada: null,
-    temporizadorCierre: null,
-    salidaSugeridaTimeoutId: null,
-    salidaTimerId: null, // New timer for SALIR mode 45s phrases
-    timeLeft: 600,
-    timeLeftCierre: 60,
-    isLocked: false,
-    idiomaActual: 'es',
-    pasosMisiones: [],
-    indiceMision: 0,
-    datosLugarGlobal: null, // Now stores the selected mission for SALIR
-    tipoEscapeGlobal: "",
-    contadorToques: 0,
-    secuenciaAdelantos: [], // <- ¡CORREGIDO!: Restaurada la sintaxis del Array
-    historialSalir: [],
-    historialCasa: [],
-    historialPreguntas: [],
-    historialRetosSecuencias: [],
-    lastDecayTimestamp: null,
-    sessionSeed: null,
-    MAX_HISTORY_SALIR: 5,
-    MAX_HISTORY_CASA: 8,
-    MAX_HISTORY_ORACULO: 12,
-    MAX_HISTORY_RETOS_SECUENCIAS: 3,
-    DECAY_PER_DAY: 0.985,
-    conteoInaccion: 0,
-    indicePreguntaCascada: 0,
-
+const KERNEL = { 
+    timerInaccion: null, 
+    timerEnfocado: null, 
+    temporizadorCascada: null, 
+    temporizadorCierre: null, 
+    salidaSugeridaTimeoutId: null, 
+    salidaTimerId: null, 
+    timeLeft: 600, 
+    timeLeftCierre: 60, 
+    isLocked: false, 
+    idiomaActual: 'es', 
+    pasosMisiones: [], 
+    indiceMision: 0, 
+    datosLugarGlobal: null, 
+    tipoEscapeGlobal: "", 
+    contadorToques: 0, 
+    // CORRECCIÓN CRÍTICA: Se restauró la secuencia de adelantos como un arreglo válido
+    secuenciaAdelantos:, 
+    historialSalir: [], 
+    historialCasa: [], 
+    historialPreguntas: [], 
+    historialRetosSecuencias: [], 
+    lastDecayTimestamp: null, 
+    sessionSeed: null, 
+    MAX_HISTORY_SALIR: 5, 
+    MAX_HISTORY_CASA: 8, 
+    MAX_HISTORY_ORACULO: 12, 
+    MAX_HISTORY_RETOS_SECUENCIAS: 3, 
+    DECAY_PER_DAY: 0.985, 
+    conteoInaccion: 0, 
+    indicePreguntaCascada: 0, 
+    
     // ============================================================
     // CONEXIÓN INTEGRADA CON LA COMPUERTA DE PAGOS STRIPE & ADMIN
     // ============================================================
     verificarEstatusAcceso: function() {
         const urlParams = new URLSearchParams(window.location.search);
         const stripeSessionId = urlParams.get('session_id');
-
-        // Si el usuario regresa de un pago exitoso, guardamos su token permanentemente
+        
         if (stripeSessionId) {
             localStorage.setItem('tg_stripe_session', stripeSessionId);
-            // Limpiamos los parámetros visuales de la URL de forma elegante
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
@@ -52,10 +51,9 @@ const KERNEL = {
         const adminPass = localStorage.getItem('tg_admin_pass') || "";
 
         const tieneAccesoValido = (tokenPago.startsWith("cs_") || (adminUser !== "" && adminPass !== ""));
-
-        // Control visual de las pantallas basado en el estatus de pago
+        
         const paywallEl = document.getElementById('paywall-container');
-
+        
         if (tieneAccesoValido) {
             if (paywallEl) paywallEl.classList.add('hidden');
         } else {
@@ -65,7 +63,6 @@ const KERNEL = {
     },
 
     inyectarTokensAcceso: function(payloadExistente) {
-        // Recolecta de forma automatizada las llaves de acceso locales para el backend
         return {
             ...payloadExistente,
             username: localStorage.getItem('tg_admin_user') || "",
@@ -74,28 +71,28 @@ const KERNEL = {
         };
     },
 
-    DEFAULT_NECESSITY_PROFILE: {
-        "movimiento": 50,
-        "naturaleza": 50,
-        "silencio": 50,
-        "agua": 50,
-        "sol": 50,
-        "sombra": 50,
-        "aire_fresco": 50,
-        "creatividad": 50,
-        "comunidad": 50,
-        "aprendizaje": 50,
-        "juego": 50,
-        "contemplacion": 50,
-        "descanso": 50,
-        "organizacion": 50,
-        "alimentacion": 50,
-        "musica": 50,
-        "risa": 50,
-        "esperanza": 50,
-        "indicador_ansiedad": 0
+    DEFAULT_NECESSITY_PROFILE: { 
+        "movimiento": 50, 
+        "naturaleza": 50, 
+        "silencio": 50, 
+        "agua": 50, 
+        "sol": 50, 
+        "sombra": 50, 
+        "aire_fresco": 50, 
+        "creatividad": 50, 
+        "comunidad": 50, 
+        "aprendizaje": 50, 
+        "juego": 50, 
+        "contemplacion": 50, 
+        "descanso": 50, 
+        "organizacion": 50, 
+        "alimentacion": 50, 
+        "musica": 50, 
+        "risa": 50, 
+        "esperanza": 50, 
+        "indicador_ansiedad": 0 
     },
-
+    
     CATALOGO_PREGUNTAS_ES: [
         // Bloque 1: El Bucle Digital Urbano (Redes, Contenido y Consumo)
         "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?",
