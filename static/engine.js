@@ -643,12 +643,10 @@ const KERNEL = {
         }
         this.validarZip();
     },
-
         if (textarea) {
             textarea.removeEventListener('input', this.textareaInputHandler);
             this.textareaInputHandler = () => {
                 const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
-               
                 if (textarea.value.trim().length > 3 && !isZipInvalid) {
                     if (btnLibre) {
                         btnLibre.style.background = "var(--green-action)";
@@ -676,13 +674,12 @@ const KERNEL = {
         const zipInput = document.getElementById('inp-zip');
         const btnActivarLibre = document.getElementById('btn-activar-libre');
         const textarea = document.getElementById('inp-text-libre');
-
         if (!zipInput || !btnActivarLibre || !textarea) return;
-
+        
         const zipValue = zipInput.value.trim();
         const isValidZip = zipInput.checkValidity();
         const hasTextareaContent = textarea.value.trim().length > 3;
-
+        
         if (zipValue.length > 0 && !isValidZip) {
             zipInput.style.borderColor = "var(--accent)";
             btnActivarLibre.disabled = true;
@@ -705,7 +702,7 @@ const KERNEL = {
         }
     },
 
-        /** Activates the free writing input field and visually indicates readiness. */
+    /** Activates the free writing input field and visually indicates readiness. */
     liberarCajonEscrituraLibre() {
         // ============================================================
         // COMPUERTA DE COBRO: Si no ha pagado, bloquear la liberación del cajón
@@ -1822,9 +1819,9 @@ preguntas:[
 "¿Cuál de estos servicios forma parte de tu rutina hoy?",
 "¿Qué opción representa mejor lo que buscas ahora?",
 "¿Qué servicio te gustaría utilizar en este momento?"
-        // ============================================================
-        // SENSORY INTERACTION CONTROL LOOP (PARTE 1)
-        // ============================================================
+// ============================================================
+// SENSORY INTERACTION CONTROL LOOP (PARTE 1)
+// ============================================================
         seleccionadas: [],
 
         init() {
