@@ -29,6 +29,14 @@ if not os.path.exists("static"):
     os.makedirs("static")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# Variables y vectores estáticos base globales requeridos por el sistema
+DEFAULT_NECESSITY_VECTOR = {
+    "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
+    "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50,
+    "aprendizaje": 50, "juego": 50, "contemplacion": 50, "descanso": 50,
+    "organizacion": 50, "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50
+}
+
 # ============================================================
 # 2. RUTA DE STRIPE (Ahora registrada correctamente bajo 'app')
 # ============================================================
@@ -48,7 +56,7 @@ async def create_checkout_session(request: Request):
             payment_method_types=['card'],
             line_items=[{'price': id_precio, 'quantity': 1}],
             mode=modo_checkout,
-            # ¡CORREGIDO!: Apunta exactamente a tu dominio del proyecto en Render
+            # ¡CORREGIDO!: Apunta exactamente a tu dominio del proyecto en Render para evitar fallos de Stripe
             success_url='https://onrender.com{CHECKOUT_SESSION_ID}',
             cancel_url='https://onrender.com',
         )
@@ -56,41 +64,29 @@ async def create_checkout_session(request: Request):
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=400)
 
-       # ----------------------------------------------------------------------
-    # CIERRE DE LA COMPUERTA DE CONTROL DE ACCESO (DENTRO DE MANDO INTEGRAL)
-    # ----------------------------------------------------------------------
-    # Bloque de código incorrectamente colocado y con variables no definidas en este scope.
-    # Será removido, ya existe un bloque de seguridad similar y correcto en mando_integral.
-    # if not es_admin and not tiene_pago_valido:
-    #     return JSONResponse({
-    #         "error": "Acceso restringido.",
-    #         "requiere_pago": True,
-    #         "mensaje": "Suscripción o pago requerido para usar el motor de rutas contextuales."
-    #     }, status_code=403)
-
 # ============================================================
-# MOTOR DE HISTORIAL INTELIGENTE CWRE V2
+# 3. MOTOR DE HISTORIAL INTELIGENTE CWRE V2
 # Anti-Repetición + Exploración Controlada
 # ============================================================
 MAX_HISTORY_SALIR = 5
 MAX_HISTORY_CASA = 8
-MAX_HISTORY_ORACULO = 12  # This is handled by frontend (engine.js)
+MAX_HISTORY_ORACULO = 12 # This is handled by frontend (engine.js)
 EXPLORATION_RATE = 0.20
 HISTORY_PENALTY_BASE = 40
 
 def limitar_historial(historial, limite):
-    if historial is None:
+    if historial is None: 
         return []
     return historial[-limite:]
 
 def penalizacion_historial(mision_id, historial):
-    if not historial:
+    if not historial: 
         return 0
-    historial = list(reversed(historial))  # Prioriza las más recientes
+    historial = list(reversed(historial)) # Prioriza las más recientes
     for posicion, antiguo_id in enumerate(historial):
         if antiguo_id == mision_id:
-            if posicion == 0:  # Última misión
-                return HISTORY_PENALTY_BASE * 1.5  # Más penalización para la última
+            if posicion == 0: # Última misión
+                return HISTORY_PENALTY_BASE * 1.5 # Más penalización para la última
             elif posicion == 1:
                 return HISTORY_PENALTY_BASE
             elif posicion == 2:
@@ -100,10 +96,10 @@ def penalizacion_historial(mision_id, historial):
     return 0
 
 def bonus_exploracion(mision_id, historial):
-    if not historial or mision_id not in historial:
-        return 20  # Bonificación significativa si nunca se ha visto
+    if not historial or mision_id not in historial: 
+        return 20 # Bonificación significativa si nunca se ha visto
     # Reducir bonificación si ya se ha visto pero no está en el historial reciente
-    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)):
+    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)): 
         return 5
     return 0
 
@@ -123,7 +119,7 @@ def diversidad_vector(vector1, vector2):
             vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) - vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
         )
     return distancia
-    
+
 # === MODIFICACIÓN: CONSTANTES DE TIEMPO Y PROPÓSITO ACORTADAS PARA LECTURA RÁPIDA ===
 WHEN_ES = "Ahora. Levántate."
 WHEN_EN = "Now. Move."
@@ -1394,67 +1390,67 @@ def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa
 # ============================================================ 
 @app.get("/") 
 async def index(): 
-    """Serves the main HTML page.""" 
-    return FileResponse('static/session.html')
+    """Serves the main static UI session HTML layer.""" 
+    return FileResponse('static/session.html') 
+
+# ============================================================
+# 3. ENDPOINT CORE INTERACTIVO: ENRUTAMIENTO Y COMPUERTAS
+# ============================================================
+@app.post("/api/mando-integral") 
+async def mando_integral(request: Request): 
+    """ 
+    Main API endpoint for OPEN THAN GO. 
+    Receives user input and local preference profile to return a personalized recommendation. 
+    """ 
+    payload = await request.json() 
     
-# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1 
-# Company: May Roga LLC 
-# File: main.py - SECCIÓN 2 DE 2 (CWRE Logic) 
-@app.post("/api/mando-integral")
-async def mando_integral(request: Request):
-    """
-    Main API endpoint for OPEN THAN GO.
-    Receives user input and local preference profile to return a personalized recommendation.
-    """
-    payload = await request.json()
-
+    # ============================================================ 
+    # COMPUERTA DE SEGURIDAD ABSOLUTA INTERCEPTORA (STRIPE & ADMIN) 
+    # ============================================================ 
+    username_cliente = str(payload.get("username", "")).strip() 
+    password_cliente = str(payload.get("password", "")).strip() 
+    session_token = str(payload.get("session_token", "")).strip() 
+    
+    # Lee las llaves maestras configuradas en tu panel web de Render 
+    ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin_por_defecto") 
+    ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "clave_por_defecto") 
+    
+    es_admin_valido = (username_cliente == ADMIN_USER and password_cliente == ADMIN_PASS) 
+    tiene_pago_valido = (session_token != "" and session_token.startswith("cs_")) 
+    
+    # Si no pasa el bypass gratis de administrador ni tiene una compra activa, denegar fetch 
+    if not es_admin_valido and not tiene_pago_valido: 
+        return JSONResponse({ 
+            "error": "Acceso restringido.", 
+            "requiere_pago": True, 
+            "mensaje": "Se requiere una suscripción activa o credenciales válidas para usar el sistema." 
+        }, status_code=403) 
+        
+    # ============================================================ 
+    # PROCESAMIENTO ADAPTATIVO DEL PAYLOAD AUTORIZADO 
     # ============================================================
-    # COMPUERTA DE SEGURIDAD ABSOLUTA INTERCEPTORA (STRIPE & ADMIN)
-    # ============================================================
-    username_cliente = str(payload.get("username", "")).strip()
-    password_cliente = str(payload.get("password", "")).strip()
-    session_token = str(payload.get("session_token", "")).strip()
-
-    # Lee las llaves maestras configuradas en tu panel web de Render
-    ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin_por_defecto")
-    ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "clave_por_defecto")
-
-    es_admin_valido = (username_cliente == ADMIN_USER and password_cliente == ADMIN_PASS)
-    tiene_pago_valido = (session_token != "" and session_token.startswith("cs_"))
-
-    # Si no pasa el bypass gratis de administrador ni tiene una compra activa, denegar fetch
-    if not es_admin_valido and not tiene_pago_valido:
-        return JSONResponse({
-            "error": "Acceso restringido.",
-            "requiere_pago": True,
-            "mensaje": "Se requiere una suscripción activa o credenciales válidas para usar el sistema."
-        }, status_code=403)
-    # ============================================================
-
-    # PROCESAMIENTO ADAPTATIVO DEL PAYLOAD AUTORIZADO
-    opcion_usuario = str(payload.get("modo", "")).strip().upper()
-    zip_code = str(payload.get("zip", "")).strip()
+    opcion_usuario = str(payload.get("modo", "")).strip().upper() 
+    zip_code = str(payload.get("zip", "")).strip() 
     estado = str(payload.get("estado", "FL")).strip() 
     region = str(payload.get("region", "")).strip() 
-    mente = str(payload.get("mente", "aburrido")).lower()
-    budget = str(payload.get("budget", "0"))
-    perfil_tipo = str(payload.get("perfil", "solo")).lower()
-    desahogo = str(payload.get("desahogo", "")).lower()
-    lang = str(payload.get("lang", "es")).lower()
-
-    if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
-        return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
-
-    perfil_local = payload.get("perfil_local", {})
-    if not isinstance(perfil_local, dict):
-        perfil_local = {}
-        
-    perfil_local = {
-        **DEFAULT_NECESSITY_VECTOR,
-        **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
-    }
+    mente = str(payload.get("mente", "aburrido")).lower() 
+    budget = str(payload.get("budget", "0")) 
+    perfil_tipo = str(payload.get("perfil", "solo")).lower() 
+    desahogo = str(payload.get("desahogo", "")).lower() 
+    lang = str(payload.get("lang", "es")).lower() 
     
-    if "indicador_ansiedad" not in perfil_local:
+    if zip_code and not re.fullmatch(r"^\d{5}$", zip_code): 
+        return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400) 
+        
+    perfil_local = payload.get("perfil_local", {}) 
+    if not isinstance(perfil_local, dict): 
+        perfil_local = {} 
+        
+    perfil_local = { 
+        **DEFAULT_NECESSITY_VECTOR, 
+        **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"} 
+    } 
+    if "indicador_ansiedad" not in perfil_local: 
         perfil_local["indicador_ansiedad"] = 0
 
     # ==========================================================================================
