@@ -1,49 +1,24 @@
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 1 DE 2 (Backend Core)
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
 import uvicorn
 import os
 import random
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 import urllib.parse
-from typing import Optional
 
 link_base = "https://www.google.com/maps/search/?api=1&query="
 
 app = FastAPI()
-# ============================================================
-# EXTENSIÓN STRIPE REAL (LIVE MODE) - MAY ROGA LLC
-# ============================================================
-import stripe
-from fastapi import Body
-
-stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
-ENDPOINT_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
-
-PLANES_STRIPE = {
-    'diario': 'price_1TtbjXBOA5mT4t0PMCJSext6', # $15.99 - One time
-    'mensual': 'price_1TtblSBOA5mT4t0PGiYvT2l9', # $25.99 - Monthly subscription
-    'anual': 'price_1TtbltBOA5mT4t0PpJ8io219' # $250.00 - Annual subscription
-}
 
 # Ensure the 'static' directory exists before mounting
 if not os.path.exists("static"):
     os.makedirs("static")
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# New routes for Stripe redirect pages
-@app.get("/success")
-async def success_page():
-    return FileResponse('static/success.html')
-
-@app.get("/cancel")
-async def cancel_page():
-    return FileResponse('static/cancel.html')
 
 DEFAULT_NECESSITY_VECTOR = {
     "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
@@ -385,7 +360,7 @@ BASE_MISIONES = {
                 "que_hacer_en": "Open ride app. Request short ride to quiet area. Close eyes, drop phone, palms on knees. Execute 1-min Auditory Silence Module.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Cabina de transporte o asiento de pasajero.", "donde_en": "Rideshare cabin or passenger seat.",
-                "gps": "quiet public park bench",
+                "gps": "quiet park bench",
                 "vector_necesidades": {"descanso": 100, "silencio": 90, "movimiento": 10, "contemplacion": 80, "esperanza": 80, "naturaleza": 20, "aire_fresco": 50}
             },
             {"id": 202, "titulo": "Módulo Auditivo: Spotify Reset", "titulo_en": "Auditory Reset: Spotify",
@@ -408,7 +383,8 @@ BASE_MISIONES = {
             },
             {"id": 204, "titulo": "Sabotaje de Espera: Espacio Universitario", "titulo_en": "Waiting Sabotage: University Space",
                 "porque": "Falta de nutrición intelectual real y exceso de micro-estímulos vacíos.", "porque_en": "Lack of real intellectual nourishment, excess empty stimuli.",
-                "que_hacer": "Ve al campus/biblioteca uni cercana. Camina en silencio por pasillos/áreas verdes. Usa esta infraestructura para respirar aire fresco y observar en calma.", "que_hacer_en": "Go to nearest campus/university library. Walk silently through corridors/green spaces. Use this infrastructure to breathe fresh air, observe calmly.",
+                "que_hacer": "Ve al campus/biblioteca uni cercana. Camina en silencio por pasillos/áreas verdes. Usa esta infraestructura para respirar aire fresco y observar en calma.",
+                "que_hacer_en": "Go to nearest campus/university library. Walk silently through corridors/green spaces. Use this infrastructure to breathe fresh air, observe calmly.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
                 "donde": "Campus universitario o biblioteca pública.", "donde_en": "University campus or public library.",
                 "gps": "university library",
@@ -746,8 +722,12 @@ BASE_MISIONES = {
                 "gps": "fast food or local restaurant",
                 "vector_necesidades": {"alimentacion": 100, "risa": 75, "juego": 70, "comunidad": 80, "movimiento": 30, "descanso": 50, "esperanza": 85, "silencio": 20}
             },            
-            {"id": 253, "titulo": "Auditoría de Frecuencias: Escape Discoteca / Club", "titulo_en": "Frequency Audit: Nightclub / Club Escape",
-                "porque": "Monotonía mental aplastante en tu semana. Necesitas un quiebre sensorial radical mediante ritmos y movimiento.", "porque_en": "Crushing mental monotony in your week. You need a radical sensory break through rhythm and movement.",
+            {
+                "id": 253,
+                "titulo": "Auditoría de Frecuencias: Escape Discoteca / Club",
+                "titulo_en": "Frequency Audit: Nightclub / Club Escape",
+                "porque": "Monotonía mental aplastante en tu semana. Necesitas un quiebre sensorial radical mediante ritmos y movimiento.",
+                "porque_en": "Crushing mental monotony in your week. You need a radical sensory break through rhythm and movement.",
                 "que_hacer": "Visita una zona de discotecas o un club céntrico nocturno en tu ciudad. Sal un momento al perímetro exterior del local, terraza o acera peatonal abierta. Escucha la vibración profunda del bajo golpeando la estructura física del edificio. Siente el cambio súbito de temperatura térmica del aire libre en tu piel, respira profundo por la nariz y permite que el pulso acelerado de la vida nocturna de USA rompa la inercia del piloto automático diurno.",
                 "que_hacer_en": "Visit a club district or a downtown nightclub in your city. Step outside to the outer perimeter of the venue, terrace, or open pedestrian sidewalk for a moment. Listen to the deep bass vibration hitting the building's physical structure. Feel the sudden change in thermal temperature of the open air on your skin, breathe deeply through your nose, and let the accelerated pulse of USA nightlife break the daytime autopilot inertia.",
                 "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN,
@@ -1314,7 +1294,7 @@ def filtrar_historial(misiones, historial):
 # ============================================================
 # CASA V2
 # Selección inteligente de misiones domésticas
-# ==============================================================================
+# ============================================================
 def seleccionar_misiones_casa_inteligente(
     misiones,
     perfil_local,
@@ -1418,14 +1398,6 @@ async def mando_integral(request: Request):
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
    
-    # User role is sent from frontend after authentication/payment check
-    user_role = str(payload.get("user_role", "anon")).lower()
-    user_id = str(payload.get("user_id", "anon_user")).lower()
-
-    # Admin bypass any usage checks
-    if user_role == 'admin':
-        print(f"Admin user '{user_id}' bypassing usage limits.")
-
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
         return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
    
@@ -1552,7 +1524,7 @@ async def mando_integral(request: Request):
         elif budget == "1":
             precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
         elif budget == "2":
-            precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Open. Your escape." # Changed "Free" to "Open" for budget 2
+            precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
 
         quienes_van = ""
         if perfil_tipo == "solo":
@@ -1624,125 +1596,6 @@ async def mando_integral(request: Request):
         "misiones": final_misiones_para_frontend,
         "historial_salir_actualizado": historial_salir
     })
-
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-@app.post("/login-admin")
-async def login_admin(payload: LoginRequest):
-    """
-    Handles admin login.
-    """
-    admin_username = os.environ.get('ADMIN_USERNAME')
-    admin_password = os.environ.get('ADMIN_PASSWORD')
-    
-    if payload.username == admin_username and payload.password == admin_password:
-        return JSONResponse(content={
-            "success": True, 
-            "role": "admin", 
-            "user_id": "admin_may_roga",
-            "message": "Login de administrador exitoso." if payload.username == 'admin' else "Admin login successful."
-        })
-    raise HTTPException(status_code=401, detail="Credenciales de administrador inválidas.")
-
-class CheckoutRequest(BaseModel):
-    tipo_plan: str
-    user_id: str
-    success_url: Optional[str] = "https://open-than-go.onrender.com/success"
-    cancel_url: Optional[str] = "https://open-than-go.onrender.com/cancel"
-
-@app.post("/crear-checkout")
-async def crear_checkout(payload: CheckoutRequest):
-    """
-    Creates a Stripe Checkout Session for payment or subscription.
-    """
-    price_id = PLANES_STRIPE.get(payload.tipo_plan)
-    if not price_id:
-        raise HTTPException(status_code=400, detail="Tipo de plan no válido.")
-    
-    mode = "payment" if payload.tipo_plan == "diario" else "subscription"
-    
-    try:
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{'price': price_id, 'quantity': 1}],
-            mode=mode,
-            success_url=payload.success_url,
-            cancel_url=payload.cancel_url,
-            metadata={'user_id': payload.user_id, 'tipo_plan': payload.tipo_plan}
-        )
-        return JSONResponse(content={"url": session.url})
-    except stripe.error.StripeError as e:
-        print(f"Stripe error creating checkout session: {e}")
-        raise HTTPException(status_code=500, detail=f"Error al crear sesión de pago: {str(e)}")
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
-
-@app.post("/webhook-stripe")
-async def webhook_stripe(request: Request):
-    """
-    Handles Stripe webhook events to update user subscription status.
-    """
-    payload = await request.body()
-    sig_header = request.headers.get("stripe-signature")
-
-    if not ENDPOINT_SECRET:
-        print("Webhook secret not configured, skipping signature verification.")
-        # For production, always verify the signature
-        # raise HTTPException(status_code=500, detail="Webhook secret not configured.")
-
-    try:
-        event = stripe.Webhook.construct_event(payload, sig_header, ENDPOINT_SECRET)
-    except ValueError as e:
-        # Invalid payload
-        raise HTTPException(status_code=400, detail=f"Invalid payload: {e}")
-    except stripe.error.SignatureVerificationError as e:
-        # Invalid signature
-        raise HTTPException(status_code=400, detail=f"Invalid signature: {e}")
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Unhandled webhook error: {e}")
-
-    # Handle the event
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        customer_id = session.get('customer')
-        user_id = session.get('metadata', {}).get('user_id')
-        tipo_plan = session.get('metadata', {}).get('tipo_plan')
-
-        print(f"Checkout Session Completed for user_id: {user_id}, plan: {tipo_plan}, customer_id: {customer_id}")
-        # TODO: AQUI ES DONDE UN SISTEMA EN PRODUCCIÓN DEBERÍA:
-        # 1. Almacenar customer_id en tu base de datos asociado al user_id.
-        # 2. Activar el plan 'tipo_plan' para el 'user_id' en tu base de datos.
-        # 3. Establecer la fecha de inicio y fin de la suscripción.
-        #    Para 'diario', activar por 1 día.
-        #    Para 'mensual', activar por 1 mes.
-        #    Para 'anual', activar por 1 año.
-        #    Esto permitirá al frontend consultar el estado real del usuario.
-
-    elif event['type'] == 'invoice.paid':
-        invoice = event['data']['object']
-        customer_id = invoice.get('customer')
-        subscription_id = invoice.get('subscription')
-        
-        print(f"Invoice Paid for customer_id: {customer_id}, subscription_id: {subscription_id}")
-        # TODO: En producción, actualizar la fecha de renovación de la suscripción
-        # para el cliente asociado con 'customer_id' o 'subscription_id'.
-
-    elif event['type'] == 'customer.subscription.deleted':
-        subscription = event['data']['object']
-        customer_id = subscription.get('customer')
-        
-        print(f"Customer Subscription Deleted for customer_id: {customer_id}")
-        # TODO: En producción, desactivar o limitar el acceso del usuario
-        # asociado con 'customer_id'.
-
-    else:
-        # Otros tipos de eventos
-        print(f"Unhandled event type {event['type']}")
-
-    return JSONResponse(content={"success": True})
 
 # ==============================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
