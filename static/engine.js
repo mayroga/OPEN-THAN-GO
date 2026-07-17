@@ -1,45 +1,45 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1 
-// Company: May Roga LLC 
-// File: static/engine.js (Frontend Logic) 
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
+// Company: May Roga LLC
+// File: static/engine.js (Frontend Logic)
 
-const KERNEL = { 
-    timerInaccion: null, 
-    timerEnfocado: null, 
-    temporizadorCascada: null, 
-    temporizadorCierre: null, 
-    salidaSugeridaTimeoutId: null, 
-    salidaTimerId: null, // New timer for SALIR mode 45s phrases 
-    timeLeft: 600, 
-    timeLeftCierre: 60, 
-    isLocked: false, 
-    idiomaActual: 'es', 
-    pasosMisiones: [], 
-    indiceMision: 0, 
-    datosLugarGlobal: null, // Now stores the selected mission for SALIR 
-    tipoEscapeGlobal: "", 
-    contadorToques: 0, 
-    secuenciaAdelantos:, // <- ¡CORREGIDO!: Restaurada la sintaxis del Array
-    historialSalir: [], 
-    historialCasa: [], 
-    historialPreguntas: [], 
-    historialRetosSecuencias: [], 
-    lastDecayTimestamp: null, 
-    sessionSeed: null, 
-    MAX_HISTORY_SALIR: 5, 
-    MAX_HISTORY_CASA: 8, 
-    MAX_HISTORY_ORACULO: 12, 
-    MAX_HISTORY_RETOS_SECUENCIAS: 3, 
-    DECAY_PER_DAY: 0.985, 
-    conteoInaccion: 0, 
-    indicePreguntaCascada: 0, 
-    
+const KERNEL = {
+    timerInaccion: null,
+    timerEnfocado: null,
+    temporizadorCascada: null,
+    temporizadorCierre: null,
+    salidaSugeridaTimeoutId: null,
+    salidaTimerId: null, // New timer for SALIR mode 45s phrases
+    timeLeft: 600,
+    timeLeftCierre: 60,
+    isLocked: false,
+    idiomaActual: 'es',
+    pasosMisiones: [],
+    indiceMision: 0,
+    datosLugarGlobal: null, // Now stores the selected mission for SALIR
+    tipoEscapeGlobal: "",
+    contadorToques: 0,
+    secuenciaAdelantos: [], // <- ¡CORREGIDO!: Restaurada la sintaxis del Array
+    historialSalir: [],
+    historialCasa: [],
+    historialPreguntas: [],
+    historialRetosSecuencias: [],
+    lastDecayTimestamp: null,
+    sessionSeed: null,
+    MAX_HISTORY_SALIR: 5,
+    MAX_HISTORY_CASA: 8,
+    MAX_HISTORY_ORACULO: 12,
+    MAX_HISTORY_RETOS_SECUENCIAS: 3,
+    DECAY_PER_DAY: 0.985,
+    conteoInaccion: 0,
+    indicePreguntaCascada: 0,
+
     // ============================================================
     // CONEXIÓN INTEGRADA CON LA COMPUERTA DE PAGOS STRIPE & ADMIN
     // ============================================================
     verificarEstatusAcceso: function() {
         const urlParams = new URLSearchParams(window.location.search);
         const stripeSessionId = urlParams.get('session_id');
-        
+
         // Si el usuario regresa de un pago exitoso, guardamos su token permanentemente
         if (stripeSessionId) {
             localStorage.setItem('tg_stripe_session', stripeSessionId);
@@ -52,10 +52,10 @@ const KERNEL = {
         const adminPass = localStorage.getItem('tg_admin_pass') || "";
 
         const tieneAccesoValido = (tokenPago.startsWith("cs_") || (adminUser !== "" && adminPass !== ""));
-        
+
         // Control visual de las pantallas basado en el estatus de pago
         const paywallEl = document.getElementById('paywall-container');
-        
+
         if (tieneAccesoValido) {
             if (paywallEl) paywallEl.classList.add('hidden');
         } else {
@@ -74,40 +74,40 @@ const KERNEL = {
         };
     },
 
-    DEFAULT_NECESSITY_PROFILE: { 
-        "movimiento": 50, 
-        "naturaleza": 50, 
-        "silencio": 50, 
-        "agua": 50, 
-        "sol": 50, 
-        "sombra": 50, 
-        "aire_fresco": 50, 
-        "creatividad": 50, 
-        "comunidad": 50, 
-        "aprendizaje": 50, 
-        "juego": 50, 
-        "contemplacion": 50, 
-        "descanso": 50, 
-        "organizacion": 50, 
-        "alimentacion": 50, 
-        "musica": 50, 
-        "risa": 50, 
-        "esperanza": 50, 
-        "indicador_ansiedad": 0 
+    DEFAULT_NECESSITY_PROFILE: {
+        "movimiento": 50,
+        "naturaleza": 50,
+        "silencio": 50,
+        "agua": 50,
+        "sol": 50,
+        "sombra": 50,
+        "aire_fresco": 50,
+        "creatividad": 50,
+        "comunidad": 50,
+        "aprendizaje": 50,
+        "juego": 50,
+        "contemplacion": 50,
+        "descanso": 50,
+        "organizacion": 50,
+        "alimentacion": 50,
+        "musica": 50,
+        "risa": 50,
+        "esperanza": 50,
+        "indicador_ansiedad": 0
     },
-    
-    CATALOGO_PREGUNTAS_ES: [ 
-        // Bloque 1: El Bucle Digital Urbano (Redes, Contenido y Consumo) 
-        "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?", 
-        "¿Te pierdes en contenido de video que olvidas en pocos segundos, buscando llenar un vacío?", 
-        "¿Usas música para ahogar el ruido mental y la inquietud de tu día a día?", 
-        "¿Sientes que lo digital te desconectó de la capacidad de observar el mundo real en calma?", 
-        // Bloque 2: Evasión y Rutina Física (Comida, Descanso y Movimiento) 
-        "¿Invierdes mucho en experiences pasajeras buscando una satisfacción que se desvanece rápido?", 
-        "¿Te refugias en espacios ajenos huyendo de situaciones que te acompañan a todas partes?", 
-        "¿Conduces sin destino solo para escapar del encierro en tu propio entorno?", 
-        "¿Mantienes hábitos por costumbre, sintiendo que te anestesian de tu realidad?", 
-        "¿Te cuesta romper tu rutina por miedo a la incomodidad o el esfuerzo físico?", 
+
+    CATALOGO_PREGUNTAS_ES: [
+        // Bloque 1: El Bucle Digital Urbano (Redes, Contenido y Consumo)
+        "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?",
+        "¿Te pierdes en contenido de video que olvidas en pocos segundos, buscando llenar un vacío?",
+        "¿Usas música para ahogar el ruido mental y la inquietud de tu día a día?",
+        "¿Sientes que lo digital te desconectó de la capacidad de observar el mundo real en calma?",
+        // Bloque 2: Evasión y Rutina Física (Comida, Descanso y Movimiento)
+        "¿Invierdes mucho en experiences pasajeras buscando una satisfacción que se desvanece rápido?",
+        "¿Te refugias en espacios ajenos huyendo de situaciones que te acompañan a todas partes?",
+        "¿Conduces sin destino solo para escapar del encierro en tu propio entorno?",
+        "¿Mantienes hábitos por costumbre, sintiendo que te anestesian de tu realidad?",
+        "¿Te cuesta romper tu rutina por miedo a la incomodidad o el esfuerzo físico?",
         "¿Tu cuerpo te pide actividad, pero eliges la comodidad estática del sofá?",
 
         // Bloque 3: Distracción Nocturna y Aislamiento Social
@@ -418,9 +418,9 @@ const KERNEL = {
             localStorage.removeItem("otg_historial_oraculo");
             localStorage.removeItem("otg_historial_retos_secuencias");
         }
-        
+
         this.obtenerPerfilLocal();
-        
+
         // ============================================================
         // CONTROL LOGICO CENTRAL DEL PAYWALL AL ARRANQUE
         // ============================================================
@@ -438,13 +438,13 @@ const KERNEL = {
     despertarInicial() {
         // 1. Ocultar inmediatamente la pantalla negra de bienvenida
         document.getElementById('pantalla-bienvenida').style.display = 'none';
-        
+
         // 2. Hacer visible el contenedor de la aplicación para que no se quede congelada
         document.getElementById('wrapper-form').classList.remove('hidden');
         document.getElementById('btn-volver-app').classList.remove('hidden');
         document.getElementById('btn-whatsapp').classList.remove('hidden');
         document.getElementById('btn-messenger').classList.remove('hidden');
-        
+
         // 3. Evaluar de forma estricta si el usuario ya pagó con Stripe o es Administrador
         const usuarioAutorizado = this.verificarEstatusAcceso();
         this.cambiarIdioma(this.idiomaActual);
@@ -458,21 +458,21 @@ const KERNEL = {
             // Opacar visualmente el formulario del oráculo y la caja de texto libre
             const oraculoBox = document.getElementById('bloque-escritura-libre');
             if (oraculoBox) oraculoBox.style.opacity = "0.15";
-            
+
             const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo');
             if (oraculoGrid) oraculoGrid.style.opacity = "0.15";
 
             // Forzar de forma nativa que el contenedor de cobros sea visible en pantalla
             const paywallEl = document.getElementById('paywall-container');
             if (paywallEl) paywallEl.classList.remove('hidden');
-            
+
             return; // Detiene la inyección de preguntas para proteger tu backend en Render
         }
 
         // 5. FLUJO NORMAL: Si ya pagó, remueve opacidades e inyecta la app
         const oraculoBox = document.getElementById('bloque-escritura-libre');
         if (oraculoBox) oraculoBox.style.opacity = "1";
-        
+
         const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo');
         if (oraculoGrid) oraculoGrid.style.opacity = "1";
 
@@ -488,288 +488,285 @@ const KERNEL = {
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-        
+
         this.inyectarBloquePreguntas();
         this.iniciarMonitoreoInaccion();
         this.activarBotonMandoLibreInicial();
     },
 
-      /** * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent. */ 
+      /** * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent. */
     inyectarBloquePreguntas() {
         // ============================================================
         // SEGURIDAD PERIMETRAL: Evita inyecciones accidentales si no hay pago
         // ============================================================
-        if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") && 
+        if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") &&
             !(localStorage.getItem('tg_admin_user') && localStorage.getItem('tg_admin_pass'))) {
             console.warn("Bloqueo de seguridad: No se pueden inyectar preguntas sin acceso válido.");
             return;
         }
 
-        const grid = document.getElementById('contenedor-preguntas-oraculo'); 
-        if (!grid) return; 
-        clearInterval(this.temporizadorCascada); 
-        grid.innerHTML = ""; 
-        this.indicePreguntaCascada = 0; 
-        const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN; 
-        let preguntasYaVistasRecientemente = new Set(this.historialPreguntas); 
-        let unseenIndices = []; 
-        for (let i = 0; i < catalogo.length; i++) { 
-            if (!preguntasYaVistasRecientemente.has(i)) { 
-                unseenIndices.push(i); 
-            } 
-        } 
-        if (unseenIndices.length < 6) { 
-            console.warn("Not enough unseen questions. Resetting Oracle history."); 
-            this.historialPreguntas = []; 
-            localStorage.removeItem("otg_historial_oraculo"); 
-            unseenIndices = Array.from({length: catalogo.length}, (_, i) => i); 
-        } 
-        for (let i = unseenIndices.length - 1; i > 0; i--) { 
-            const j = Math.floor(Math.random() * (i + 1)); 
-            [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]]; 
-        } 
-        let preguntasSeleccionadasIndices = []; 
-        let blocksUsedInCurrentSelection = new Set(); 
-        for (let i = 0; i < 6; i++) { 
-            if (unseenIndices.length === 0) break; 
-            let candidateIndex = -1; 
-            for (let j = 0; j < unseenIndices.length; j++) { 
-                const currentIdx = unseenIndices[j]; 
-                const currentBlock = Math.floor(currentIdx / 6); 
-                if (!blocksUsedInCurrentSelection.has(currentBlock)) { 
-                    candidateIndex = j; 
-                    blocksUsedInCurrentSelection.add(currentBlock); 
-                    break; 
-                } 
-            } 
-            if (candidateIndex === -1) { 
-                candidateIndex = 0; 
-                const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6); 
-                blocksUsedInCurrentSelection.add(currentBlock); 
-            } 
-            const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0]; 
-            preguntasSeleccionadasIndices.push(selectedIndex); 
-            this.historialPreguntas.push(selectedIndex); 
-        } 
-        this.historialPreguntas = this.historialPreguntas.slice(-this.MAX_HISTORY_ORACULO); 
-        localStorage.setItem("otg_historial_oraculo", JSON.stringify(this.historialPreguntas)); 
-        preguntasSeleccionadasIndices.forEach((questionIdx, i) => { 
-            let preguntaTexto = catalogo[questionIdx]; 
-            if (!preguntaTexto) return; 
-            let btn = document.createElement('button'); 
-            btn.className = 'btn-pregunta-crisis'; 
-            btn.id = `btn-pregunta-${i}`; 
-            btn.innerText = `${i + 1}. ${preguntaTexto}`; 
-            btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto); 
-            grid.appendChild(btn); 
-        }); 
-        this.iniciarEfectoCascada(); 
-    }, 
-
-    /** Initiates the fading cascade effect for questions. */ 
-    iniciarEfectoCascada() { 
-        this.indicePreguntaCascada = 0; 
-        const totalButtons = document.querySelectorAll('.btn-pregunta-crisis').length; 
-        if (totalButtons === 0) { 
-            this.liberarCajonEscrituraLibre(); 
-            return; 
-        } 
-        this.temporizadorCascada = setInterval(() => { 
-            let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`); 
-            if (botonParaEliminar) { 
-                botonParaEliminar.classList.add('fade-out'); 
-                let siguienteIdx = this.indicePreguntaCascada + 1; 
-                let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`); 
-                if (siguienteBoton) { 
-                    let textoLimpio = siguienteBoton.innerText.substring(3); 
-                    this.hablar(textoLimpio); 
-                } 
-                this.indicePreguntaCascada++; 
-            } else { 
-                clearInterval(this.temporizadorCascada); 
-                this.liberarCajonEscrituraLibre(); 
-            } 
-        }, 8000); 
-    }, 
-
-    /** Activates the free writing input field and button from start. */ 
-    activarBotonMandoLibreInicial() { 
-        const textarea = document.getElementById('inp-text-libre'); 
-        const btnLibre = document.getElementById('btn-activar-libre'); 
-        const lblDesahogo = document.getElementById('lbl-desahogo'); 
-        const instruccion = document.getElementById('lbl-oraculo-instruccion'); 
-        const zipInput = document.getElementById('inp-zip'); 
-        if (instruccion) { 
-            instruccion.innerText = this.idiomaActual === 'es' ? "¿Qué te tiene atrapado hoy?" : "What has you trapped today?"; 
-            instruccion.style.color = "var(--accent)"; 
-        } 
-        if (lblDesahogo) lblDesahogo.style.color = "#666"; 
-        if (btnLibre) { 
-            const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity(); 
-            const isTextareaEmpty = textarea.value.trim().length <= 3; 
-            if (isZipInvalid || isTextareaEmpty) { 
-                btnLibre.style.background = "#111"; 
-                btnLibre.style.color = "#555"; 
-                btnLibre.style.borderColor = "#222"; 
-                btnLibre.disabled = true; 
-            } else { 
-                btnLibre.style.background = "var(--green-action)"; 
-                btnLibre.style.color = "#fff"; 
-                btnLibre.style.borderColor = "var(--green-action)"; 
-                btnLibre.disabled = false; 
+        const grid = document.getElementById('contenedor-preguntas-oraculo');
+        if (!grid) return;
+        clearInterval(this.temporizadorCascada);
+        grid.innerHTML = "";
+        this.indicePreguntaCascada = 0;
+        const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
+        let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
+        let unseenIndices = [];
+        for (let i = 0; i < catalogo.length; i++) {
+            if (!preguntasYaVistasRecientemente.has(i)) {
+                unseenIndices.push(i);
             }
         }
-    }, // Recuerda verificar que la coma de cierre mantenga la estructura del objeto KERNEL
+        if (unseenIndices.length < 6) {
+            console.warn("Not enough unseen questions. Resetting Oracle history.");
+            this.historialPreguntas = [];
+            localStorage.removeItem("otg_historial_oraculo");
+            unseenIndices = Array.from({length: catalogo.length}, (_, i) => i);
+        }
+        for (let i = unseenIndices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]];
+        }
+        let preguntasSeleccionadasIndices = [];
+        let blocksUsedInCurrentSelection = new Set();
+        for (let i = 0; i < 6; i++) {
+            if (unseenIndices.length === 0) break;
+            let candidateIndex = -1;
+            for (let j = 0; j < unseenIndices.length; j++) {
+                const currentIdx = unseenIndices[j];
+                const currentBlock = Math.floor(currentIdx / 6);
+                if (!blocksUsedInCurrentSelection.has(currentBlock)) {
+                    candidateIndex = j;
+                    blocksUsedInCurrentSelection.add(currentBlock);
+                    break;
+                }
+            }
+            if (candidateIndex === -1) {
+                candidateIndex = 0;
+                const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6);
+                blocksUsedInCurrentSelection.add(currentBlock);
+            }
+            const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0];
+            preguntasSeleccionadasIndices.push(selectedIndex);
+            this.historialPreguntas.push(selectedIndex);
+        }
+        this.historialPreguntas = this.historialPreguntas.slice(-this.MAX_HISTORY_ORACULO);
+        localStorage.setItem("otg_historial_oraculo", JSON.stringify(this.historialPreguntas));
+        preguntasSeleccionadasIndices.forEach((questionIdx, i) => {
+            let preguntaTexto = catalogo[questionIdx];
+            if (!preguntaTexto) return;
+            let btn = document.createElement('button');
+            btn.className = 'btn-pregunta-crisis';
+            btn.id = `btn-pregunta-${i}`;
+            btn.innerText = `${i + 1}. ${preguntaTexto}`;
+            btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto);
+            grid.appendChild(btn);
+        });
+        this.iniciarEfectoCascada();
+    },
 
-                    btnLibre.onclick = () => { 
-            let textoEscrito = textarea.value.trim(); 
-            const isZipInvalidOnSubmit = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity(); 
-            if (isZipInvalidOnSubmit) { 
-                this.hablar(this.idiomaActual === 'es' ? "Por favor, introduce un código postal válido." : "Please enter a valid ZIP code."); 
-                zipInput.focus(); 
-                return; 
-            } 
-            if (textoEscrito.length > 3) { 
-                this.reaccionarPreguntaSeleccionada(textoEscrito); 
-            } else { 
-                this.hablar(this.idiomaActual === 'es' ? "Escribe tu problema en el cuadro antes de activar el mando." : "Write your problem in the box before activating control."); 
-            } 
-        }; 
-        } 
-        if (textarea) { 
-            this.textareaInputHandler = () => { 
-                const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity(); 
-                if (textarea.value.trim().length > 3 && !isZipInvalid) { 
-                    if (btnLibre) { 
-                        btnLibre.style.background = "var(--green-action)"; 
-                        btnLibre.style.color = "#fff"; 
-                        btnLibre.style.borderColor = "var(--green-action)"; 
-                        btnLibre.disabled = false; 
-                    } 
-                } else { 
-                    if (btnLibre) { 
-                        btnLibre.style.background = "#111"; 
-                        btnLibre.style.color = "#555"; 
-                        btnLibre.style.borderColor = "#222"; 
-                        btnLibre.disabled = true; 
-                    } 
-                } 
-                this.validarZip(); 
-            }; 
-            textarea.addEventListener('input', this.textareaInputHandler); 
-        } 
-        this.validarZip(); 
-    }, 
+    /** Initiates the fading cascade effect for questions. */
+    iniciarEfectoCascada() {
+        this.indicePreguntaCascada = 0;
+        const totalButtons = document.querySelectorAll('.btn-pregunta-crisis').length;
+        if (totalButtons === 0) {
+            this.liberarCajonEscrituraLibre();
+            return;
+        }
+        this.temporizadorCascada = setInterval(() => {
+            let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
+            if (botonParaEliminar) {
+                botonParaEliminar.classList.add('fade-out');
+                let siguienteIdx = this.indicePreguntaCascada + 1;
+                let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
+                if (siguienteBoton) {
+                    let textoLimpio = siguienteBoton.innerText.substring(3);
+                    this.hablar(textoLimpio);
+                }
+                this.indicePreguntaCascada++;
+            } else {
+                clearInterval(this.temporizadorCascada);
+                this.liberarCajonEscrituraLibre();
+            }
+        }, 8000);
+    },
 
-    /** Validates ZIP input and controls button state */ 
-    validarZip() { 
-        const zipInput = document.getElementById('inp-zip'); 
-        const btnActivarLibre = document.getElementById('btn-activar-libre'); 
-        const textarea = document.getElementById('inp-text-libre'); 
-        if (!zipInput || !btnActivarLibre || !textarea) return; 
-        const zipValue = zipInput.value.trim(); 
-        const isValidZip = zipInput.checkValidity(); 
-        const hasTextareaContent = textarea.value.trim().length > 3; 
-        if (zipValue.length > 0 && !isValidZip) { 
-            zipInput.style.borderColor = "var(--accent)"; 
-            btnActivarLibre.disabled = true; 
-            btnActivarLibre.style.background = "#111"; 
-            btnActivarLibre.style.color = "#555"; 
-            btnActivarLibre.style.borderColor = "#222"; 
-        } else { 
-            zipInput.style.borderColor = "#222"; 
-            if (hasTextareaContent) { 
-                btnActivarLibre.disabled = false; 
-                btnActivarLibre.style.background = "var(--green-action)"; 
-                btnActivarLibre.style.color = "#fff"; 
-                btnActivarLibre.style.borderColor = "var(--green-action)"; 
-            } else { 
-                btnActivarLibre.disabled = true; 
-                btnActivarLibre.style.background = "#111"; 
-                btnActivarLibre.style.color = "#555"; 
-                btnActivarLibre.style.borderColor = "#222"; 
-            } 
-        } 
-    }, 
+    /** Activates the free writing input field and button from start. */
+    activarBotonMandoLibreInicial() {
+        const textarea = document.getElementById('inp-text-libre');
+        const btnLibre = document.getElementById('btn-activar-libre');
+        const lblDesahogo = document.getElementById('lbl-desahogo');
+        const instruccion = document.getElementById('lbl-oraculo-instruccion');
+        const zipInput = document.getElementById('inp-zip');
+        if (instruccion) {
+            instruccion.innerText = this.idiomaActual === 'es' ? "¿Qué te tiene atrapado hoy?" : "What has you trapped today?";
+            instruccion.style.color = "var(--accent)";
+        }
+        if (lblDesahogo) lblDesahogo.style.color = "#666";
+        if (btnLibre) {
+            const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
+            const isTextareaEmpty = textarea.value.trim().length <= 3;
+            if (isZipInvalid || isTextareaEmpty) {
+                btnLibre.style.background = "#111";
+                btnLibre.style.color = "#555";
+                btnLibre.style.borderColor = "#222";
+                btnLibre.disabled = true;
+            } else {
+                btnLibre.style.background = "var(--green-action)";
+                btnLibre.style.color = "#fff";
+                btnLibre.style.borderColor = "var(--green-action)";
+                btnLibre.disabled = false;
+            }
+            btnLibre.onclick = () => {
+                let textoEscrito = textarea.value.trim();
+                const isZipInvalidOnSubmit = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
+                if (isZipInvalidOnSubmit) {
+                    this.hablar(this.idiomaActual === 'es' ? "Por favor, introduce un código postal válido." : "Please enter a valid ZIP code.");
+                    zipInput.focus();
+                    return;
+                }
+                if (textoEscrito.length > 3) {
+                    this.reaccionarPreguntaSeleccionada(textoEscrito);
+                } else {
+                    this.hablar(this.idiomaActual === 'es' ? "Escribe tu problema en el cuadro antes de activar el mando." : "Write your problem in the box before activating control.");
+                }
+            };
+        }
+        if (textarea) {
+            this.textareaInputHandler = () => {
+                const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
+                if (textarea.value.trim().length > 3 && !isZipInvalid) {
+                    if (btnLibre) {
+                        btnLibre.style.background = "var(--green-action)";
+                        btnLibre.style.color = "#fff";
+                        btnLibre.style.borderColor = "var(--green-action)";
+                        btnLibre.disabled = false;
+                    }
+                } else {
+                    if (btnLibre) {
+                        btnLibre.style.background = "#111";
+                        btnLibre.style.color = "#555";
+                        btnLibre.style.borderColor = "#222";
+                        btnLibre.disabled = true;
+                    }
+                }
+                this.validarZip();
+            };
+            textarea.addEventListener('input', this.textareaInputHandler);
+        }
+        this.validarZip();
+    },
 
-    /** Activates the free writing input field and visually indicates readiness. */ 
-    liberarCajonEscrituraLibre() { 
+    /** Validates ZIP input and controls button state */
+    validarZip() {
+        const zipInput = document.getElementById('inp-zip');
+        const btnActivarLibre = document.getElementById('btn-activar-libre');
+        const textarea = document.getElementById('inp-text-libre');
+        if (!zipInput || !btnActivarLibre || !textarea) return;
+        const zipValue = zipInput.value.trim();
+        const isValidZip = zipInput.checkValidity();
+        const hasTextareaContent = textarea.value.trim().length > 3;
+        if (zipValue.length > 0 && !isValidZip) {
+            zipInput.style.borderColor = "var(--accent)";
+            btnActivarLibre.disabled = true;
+            btnActivarLibre.style.background = "#111";
+            btnActivarLibre.style.color = "#555";
+            btnActivarLibre.style.borderColor = "#222";
+        } else {
+            zipInput.style.borderColor = "#222";
+            if (hasTextareaContent) {
+                btnActivarLibre.disabled = false;
+                btnActivarLibre.style.background = "var(--green-action)";
+                btnActivarLibre.style.color = "#fff";
+                btnActivarLibre.style.borderColor = "var(--green-action)";
+            } else {
+                btnActivarLibre.disabled = true;
+                btnActivarLibre.style.background = "#111";
+                btnActivarLibre.style.color = "#555";
+                btnActivarLibre.style.borderColor = "#222";
+            }
+        }
+    },
+
+    /** Activates the free writing input field and visually indicates readiness. */
+    liberarCajonEscrituraLibre() {
         // ============================================================
         // COMPUERTA DE COBRO: Si no ha pagado, bloquear la liberación del cajón
         // ============================================================
-        if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") && 
+        if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") &&
             !(localStorage.getItem('tg_admin_user') && localStorage.getItem('tg_admin_pass'))) {
             return;
         }
 
-        const textarea = document.getElementById('inp-text-libre'); 
-        const lblDesahogo = document.getElementById('lbl-desahogo'); 
-        const instruccion = document.getElementById('lbl-oraculo-instruccion'); 
-        if (instruccion) { 
-            instruccion.innerText = this.idiomaActual === 'es' ? "Mando libre listo. Cuéntame qué te pasa." : "Free control ready. Tell me what is happening."; 
-            instruccion.style.color = "var(--green-action)"; 
-        } 
-        if (lblDesahogo) lblDesahogo.style.color = "#fff"; 
-        if (textarea) textarea.focus(); 
-        this.validarZip(); 
+        const textarea = document.getElementById('inp-text-libre');
+        const lblDesahogo = document.getElementById('lbl-desahogo');
+        const instruccion = document.getElementById('lbl-oraculo-instruccion');
+        if (instruccion) {
+            instruccion.innerText = this.idiomaActual === 'es' ? "Mando libre listo. Cuéntame qué te pasa." : "Free control ready. Tell me what is happening.";
+            instruccion.style.color = "var(--green-action)";
+        }
+        if (lblDesahogo) lblDesahogo.style.color = "#fff";
+        if (textarea) textarea.focus();
+        this.validarZip();
     },
 
-       /** * Monitors user inaction and advances question blocks or pauses. */ 
-    iniciarMonitoreoInaccion() { 
-        clearInterval(this.timerInaccion); 
-        this.conteoInaccion = 0; 
-        
-        this.timerInaccion = setInterval(() => { 
+       /** * Monitors user inaction and advances question blocks or pauses. */
+    iniciarMonitoreoInaccion() {
+        clearInterval(this.timerInaccion);
+        this.conteoInaccion = 0;
+
+        this.timerInaccion = setInterval(() => {
             // ============================================================
             // COMPUERTA DE SEGURIDAD: Congela el monitor de inacción si la app está cobrando
             // ============================================================
-            if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") && 
+            if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") &&
                 !(localStorage.getItem('tg_admin_user') && localStorage.getItem('tg_admin_pass'))) {
                 clearInterval(this.timerInaccion);
                 return;
             }
 
-            this.conteoInaccion++; 
-            if (this.conteoInaccion === 3 || this.conteoInaccion === 6) { 
-                clearInterval(this.temporizadorCascada); 
-                this.inyectarBloquePreguntas(); 
-                this.hablar(this.idiomaActual === 'es' ? "Avanzamos de nivel. Mira estas otras opciones en pantalla." : "Moving up. Look at these other options on screen."); 
-            } else if (this.conteoInaccion >= 9) { 
-                clearInterval(this.timerInaccion); 
-                clearInterval(this.temporizadorCascada); 
-                this.hablar(this.idiomaActual === 'es' ? "Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando." : "Apologies. I will give you time. I know your mind is tired. I will be waiting here."); 
-                const instruccion = document.getElementById('lbl-oraculo-instruccion'); 
-                if (instruccion) { 
-                    instruccion.innerText = this.idiomaActual === 'es' ? "Tomando un respiro. Toca cuando estés listo..." : "Taking a breath. Tap when you are ready..."; 
-                    instruccion.style.color = "#666"; 
-                } 
-            } 
-        }, 8000); 
-    }, 
+            this.conteoInaccion++;
+            if (this.conteoInaccion === 3 || this.conteoInaccion === 6) {
+                clearInterval(this.temporizadorCascada);
+                this.inyectarBloquePreguntas();
+                this.hablar(this.idiomaActual === 'es' ? "Avanzamos de nivel. Mira estas otras opciones en pantalla." : "Moving up. Look at these other options on screen.");
+            } else if (this.conteoInaccion >= 9) {
+                clearInterval(this.timerInaccion);
+                clearInterval(this.temporizadorCascada);
+                this.hablar(this.idiomaActual === 'es' ? "Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando." : "Apologies. I will give you time. I know your mind is tired. I will be waiting here.");
+                const instruccion = document.getElementById('lbl-oraculo-instruccion');
+                if (instruccion) {
+                    instruccion.innerText = this.idiomaActual === 'es' ? "Tomando un respiro. Toca cuando estés listo..." : "Taking a breath. Tap when you are ready...";
+                    instruccion.style.color = "#666";
+                }
+            }
+        }, 8000);
+    },
 
-    /** * Handles user selecting a question or entering free text. */ 
-    reaccionarPreguntaSeleccionada(textoPregunta) { 
-        clearInterval(this.timerInaccion); 
-        clearInterval(this.temporizadorCascada); 
-        document.getElementById('inp-text-libre').value = textoPregunta; 
-        
+    /** * Handles user selecting a question or entering free text. */
+    reaccionarPreguntaSeleccionada(textoPregunta) {
+        clearInterval(this.timerInaccion);
+        clearInterval(this.temporizadorCascada);
+        document.getElementById('inp-text-libre').value = textoPregunta;
+
         // Ejecuta el envío al servidor
-        this.ejecutar(); 
-    }, 
+        this.ejecutar();
+    },
 
-    /** * Converts text to speech using browser's SpeechSynthesis API. */ 
-    hablar(texto) { 
-        if (!('speechSynthesis' in window)) { 
-            console.warn("Speech Synthesis API not supported in this browser."); 
-            return; 
-        } 
-        if (!texto) return; 
-        window.speechSynthesis.cancel(); 
-        let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, ''); 
-        const msg = new SpeechSynthesisUtterance(fx); 
-        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US'; 
-        msg.rate = 1.20; 
-        window.speechSynthesis.speak(msg); 
+    /** * Converts text to speech using browser's SpeechSynthesis API. */
+    hablar(texto) {
+        if (!('speechSynthesis' in window)) {
+            console.warn("Speech Synthesis API not supported in this browser.");
+            return;
+        }
+        if (!texto) return;
+        window.speechSynthesis.cancel();
+        let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
+        const msg = new SpeechSynthesisUtterance(fx);
+        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+        msg.rate = 1.20;
+        window.speechSynthesis.speak(msg);
     },
 
         /**
@@ -781,7 +778,7 @@ const KERNEL = {
         localStorage.setItem("otg_language", lang);
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-        
+
         const t = {
             es: {
                 title: "OPEN THAN GO",
@@ -881,7 +878,7 @@ const KERNEL = {
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
-        
+
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
         clearInterval(this.timerEnfocado);
@@ -926,19 +923,19 @@ const KERNEL = {
         // ============================================================
         const payload = this.inyectarTokensAcceso(rawPayload);
 
-               const container = document.getElementById('wrapper-interactive'); 
-        document.getElementById('wrapper-form').classList.add('hidden'); 
-        document.getElementById('pantalla-cierre').classList.add('hidden'); 
-        
-        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`; 
-        container.classList.remove('hidden'); 
-        
-        try { 
-            const r = await fetch("/api/mando-integral", { 
-                method: "POST", 
-                headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify(payload) 
-            }); 
+               const container = document.getElementById('wrapper-interactive');
+        document.getElementById('wrapper-form').classList.add('hidden');
+        document.getElementById('pantalla-cierre').classList.add('hidden');
+
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
+        container.classList.remove('hidden');
+
+        try {
+            const r = await fetch("/api/mando-integral", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
 
             // ============================================================
             // INTERCEPTOR CRÍTICO: DETECTAR INTENTOS DE ACCESO SIN PAGO (403)
@@ -947,309 +944,312 @@ const KERNEL = {
                 const errorData = await r.json();
                 if (errorData.requiere_pago) {
                     console.warn("Acceso denegado por el servidor: Requiere validación financiera.");
-                    
+
                     // Limpia tokens guardados viejos o alterados manualmente
                     localStorage.removeItem('tg_stripe_session');
-                    
+
                     // Restablece los contenedores para volver al menú principal
                     document.getElementById('wrapper-form').classList.remove('hidden');
                     container.classList.add('hidden');
                     this.isLocked = false;
-                    
+
                     // Fuerza la visualización inmediata del Paywall de Stripe
                     const paywallEl = document.getElementById('paywall-container');
                     if (paywallEl) paywallEl.classList.remove('hidden');
-                    
-                    const aviso = this.idiomaActual === 'es' ? 
-                        "Acceso restringido. Por favor selecciona un plan para continuar." : 
+
+                    const aviso = this.idiomaActual === 'es' ?
+                        "Acceso restringido. Por favor selecciona un plan para continuar." :
                         "Access restricted. Please select a plan to continue.";
                     this.hablar(aviso);
                     return; // Detiene la ejecución para que no inyecte nada en pantalla
                 }
             }
 
-            const data = await r.json(); 
-            
-            if (data.error) { 
-                alert(data.error); 
-                document.getElementById('wrapper-form').classList.remove('hidden'); 
-                container.classList.add('hidden'); 
-                this.isLocked = false; 
-                this.validarZip(); 
-                return; 
-            } 
+            const data = await r.json();
+
+            if (data.error) {
+                alert(data.error);
+                document.getElementById('wrapper-form').classList.remove('hidden');
+                container.classList.add('hidden');
+                this.isLocked = false;
+                this.validarZip();
+                return;
+            }
 
             // FLUJO NORMAL AUTORIZADO DE RECOMENDACIONES
-            this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER; 
-            this.indiceMision = 0; 
-            
-            if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) { 
-                this.historialSalir = data.historial_salir_actualizado; 
-                localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir)); 
-                this.pasosMisiones = data.misiones; 
-                this.mostrarOpcionesSalir(container); 
-            } else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) { 
-                this.historialCasa = data.historial_casa_actualizado; 
-                localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa)); 
-                this.pasosMisiones = data.misiones; 
-                this.procesarFlujoSecuencial(container); 
-            } 
-        } catch (error) { 
-            console.error("Fetch error:", error); 
-            alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again."); 
-            document.getElementById('wrapper-form').classList.remove('hidden'); 
-            container.classList.add('hidden'); 
-            this.isLocked = false; 
-            this.validarZip(); 
-        } 
+            this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
+            this.indiceMision = 0;
+
+            if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
+                this.historialSalir = data.historial_salir_actualizado;
+                localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+                this.pasosMisiones = data.misiones;
+                this.mostrarOpcionesSalir(container);
+            } else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
+                this.historialCasa = data.historial_casa_actualizado;
+                localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+                this.pasosMisiones = data.misiones;
+                this.procesarFlujoSecuencial(container);
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
+            document.getElementById('wrapper-form').classList.remove('hidden');
+            container.classList.add('hidden');
+            this.isLocked = false;
+            this.validarZip();
+        }
     },
 
     /**
      * Displays the 3 options for SALIR mode and waits for user selection.
      */
-    mostrarOpcionesSalir(container) { 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.salidaTimerId); 
-        window.speechSynthesis.cancel(); 
-        
-        const t = { 
-            es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" }, 
-            en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:" } 
-        }[this.idiomaActual]; 
-        
-        container.innerHTML = ` 
-        <div class="mision-choices-container"> 
-            <h2 class="salida-main-title">${t.choosePath}</h2> 
-            <p class="salida-choose-instruction">${t.chooseOne}</p> 
-            <div id="salida-options-grid" class="salida-grid"></div> 
-        </div>`; 
-        
-        const optionsGrid = document.getElementById('salida-options-grid'); 
-        this.pasosMisiones.forEach((mission, index) => { 
-            const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo; 
-            const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer; 
-            const card = document.createElement('div'); 
-            card.className = 'salida-option-card'; 
-            card.innerHTML = ` 
-                <h3 class="salida-option-title">${missionTitle}</h3> 
-                <p class="salida-option-desc">${missionWhatToDo}</p> 
-                <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button> `; 
-            card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission); 
-            optionsGrid.appendChild(card); 
-        }); 
-        this.hablar(t.chooseOne); 
-    }, 
+    mostrarOpcionesSalir(container) {
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+
+        const t = {
+            es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" },
+            en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:" }
+        }[this.idiomaActual];
+
+        container.innerHTML = `
+        <div class="mision-choices-container">
+            <h2 class="salida-main-title">${t.choosePath}</h2>
+            <p class="salida-choose-instruction">${t.chooseOne}</p>
+            <div id="salida-options-grid" class="salida-grid"></div>
+        </div>`;
+
+        const optionsGrid = document.getElementById('salida-options-grid');
+        this.pasosMisiones.forEach((mission, index) => {
+            const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
+            const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
+            const card = document.createElement('div');
+            card.className = 'salida-option-card';
+            card.innerHTML = `
+                <h3 class="salida-option-title">${missionTitle}</h3>
+                <p class="salida-option-desc">${missionWhatToDo}</p>
+                <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button> `;
+            card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
+            optionsGrid.appendChild(card);
+        });
+        this.hablar(t.chooseOne);
+    },
 
     /**
      * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
      */
-    iniciarSalidaConcreta(selectedMission) { 
-        this.datosLugarGlobal = selectedMission; 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.salidaTimerId); 
-        window.speechSynthesis.cancel(); 
-        
-        const t = { 
-            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" }, 
-            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" } 
-        }[this.idiomaActual]; 
-        
-        const container = document.getElementById('wrapper-interactive'); 
-        let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>'); 
-        
-        container.innerHTML = ` 
-        <div class="mision-card"> 
-            <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small> 
-            <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2> 
-            <div class="instruccion-text">${textoFormateado}</div> 
-            <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div> 
-            <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button> 
-            <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button> 
-        </div>`; 
-        
-        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion); 
-        this.hablar(speechText); 
-        
-        let retencion = 35; 
-        const btnCount = document.getElementById('btn-countdown-salida'); 
-        const btnGps = document.getElementById('btn-gps-action'); 
-        const phrasesDiv = document.getElementById('salida-countdown-phrases'); 
-        const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN; 
-        let phraseIndex = 0; 
-        
-        this.salidaTimerId = setInterval(() => { 
-            if (retencion > 0) { 
-                retencion--; 
-                if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`; 
-                if (retencion === 0) { 
-                    retencion = -45; 
-                    if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`; 
-                    if (phrasesDiv && AUDIOS_SECUENCIALES_SALIR) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex]; 
-                    if (AUDIOS_SECUENCIALES_SALIR) this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]); 
-                    phraseIndex++; 
-                } 
-            } else if (retencion < 0) { 
-                retencion++; 
-                if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`; 
-                if ((Math.abs(retencion) % 10 === 0) && AUDIOS_SECUENCIALES_SALIR && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) { 
-                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex]; 
-                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]); 
-                    phraseIndex++; 
-                } 
-                if (retencion === 0) { 
-                    clearInterval(this.salidaTimerId); 
-                    window.speechSynthesis.cancel(); 
-                    if (btnCount) btnCount.style.display = 'none'; 
-                    if (phrasesDiv) phrasesDiv.innerText = ""; 
-                    if (btnGps) { 
-                        btnGps.classList.remove('hidden'); 
-                        btnGps.onclick = () => { 
-                            try { 
-                                let perfil = KERNEL.obtenerPerfilLocal(); 
-                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado; 
-                                for (const need in selectedVector) { 
-                                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) { 
-                                        perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100); 
-                                    } 
-                                } 
-                                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10); 
-                                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil)); 
-                            } catch (e) { 
-                                console.error("Error updating local profile after action:", e); 
-                            } 
-                            window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank'); 
-                        }; 
-                    } 
-                } 
-            } 
-        }, 1000); 
+    iniciarSalidaConcreta(selectedMission) {
+        this.datosLugarGlobal = selectedMission;
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+
+        const t = {
+            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
+            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
+        }[this.idiomaActual];
+
+        const container = document.getElementById('wrapper-interactive');
+        let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
+
+        container.innerHTML = `
+        <div class="mision-card">
+            <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
+            <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
+            <div class="instruccion-text">${textoFormateado}</div>
+            <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
+            <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
+            <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+        </div>`;
+
+        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
+        this.hablar(speechText);
+
+        let retencion = 35;
+        const btnCount = document.getElementById('btn-countdown-salida');
+        const btnGps = document.getElementById('btn-gps-action');
+        const phrasesDiv = document.getElementById('salida-countdown-phrases');
+        const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
+        let phraseIndex = 0;
+
+        this.salidaTimerId = setInterval(() => {
+            if (retencion > 0) {
+                retencion--;
+                if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
+                if (retencion === 0) {
+                    retencion = -45;
+                    if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+                    if (phrasesDiv && AUDIOS_SECUENCIALES_SALIR) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                    if (AUDIOS_SECUENCIALES_SALIR) this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                    phraseIndex++;
+                }
+            } else if (retencion < 0) {
+                retencion++;
+                if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+                if ((Math.abs(retencion) % 10 === 0) && AUDIOS_SECUENCIALES_SALIR && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
+                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                    phraseIndex++;
+                }
+                if (retencion === 0) {
+                    clearInterval(this.salidaTimerId);
+                    window.speechSynthesis.cancel();
+                    if (btnCount) btnCount.style.display = 'none';
+                    if (phrasesDiv) phrasesDiv.innerText = "";
+                    if (btnGps) {
+                        btnGps.classList.remove('hidden');
+                        btnGps.onclick = () => {
+                            try {
+                                let perfil = KERNEL.obtenerPerfilLocal();
+                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+                                for (const need in selectedVector) {
+                                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                                        perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
+                                    }
+                                }
+                                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
+                                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                            } catch (e) {
+                                console.error("Error updating local profile after action:", e);
+                            }
+                            window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+                        };
+                    }
+                }
+            }
+        }, 1000);
     },
 
     /**
      * Processes the sequential flow based on the recommendation type (only for CASA mode now).
     */
-    procesarFlujoSecuencial(container) { 
+    procesarFlujoSecuencial(container) {
         // ============================================================
         // COMPUERTA DE COBRO PREVENTIVA: Bloquea el flujo secuencial sin pago
         // ============================================================
-        if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") && 
+        if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") &&
             !(localStorage.getItem('tg_admin_user') && localStorage.getItem('tg_admin_pass'))) {
             console.warn("Bloqueo de seguridad: No se puede procesar el flujo secuencial sin acceso.");
             return;
         }
 
-        clearInterval(this.timerEnfocado); 
-        window.speechSynthesis.cancel(); 
-        
-        const t = { 
-            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo", internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido" }, 
-            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" } 
-        }[this.idiomaActual]; 
-        
-        if (this.indiceMision >= this.pasosMisiones.length) { 
-            this.iniciarRelojEnfocadoCasa(container, t); 
-            return; 
-        } 
-        
-        const paso = this.pasosMisiones[this.indiceMision]; 
-        container.innerHTML = ` 
-        <div class="mision-card"> 
-            <small>${t.internalMission}</small> 
-            <h3>${paso.titulo}</h3> 
-            <p>${paso.descripcion}</p> 
-            <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button> 
-        </div>`; 
-        
-        this.hablar(paso.titulo + " . " + paso.descripcion); 
-        
-        document.getElementById('btn-next').onclick = () => { 
-            try { 
-                let perfil = this.obtenerPerfilLocal(); 
-                const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE; 
-                for (const need in missionVector) { 
-                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) { 
-                        perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100); 
-                    } 
-                } 
-                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5); 
-                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil)); 
-            } catch (e) { 
-                console.error("Error updating local profile after CASA mission:", e); 
-            } 
-            this.avanzarPaso(); 
-        }; 
-    }, 
+        clearInterval(this.timerEnfocado);
+        window.speechSynthesis.cancel();
 
-    /** Starts the 10-minute clinical breathing timer for CASA mode. */ 
-    iniciarRelojEnfocadoCasa(container, t) { 
-        clearInterval(this.timerEnfocado); 
-        window.speechSynthesis.cancel(); 
-        
-        let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe."; 
-        this.hablar(msg); 
-        
-        container.innerHTML = ` 
-        <div style="text-align:center; width:100%;"> 
-            <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div> 
-            <div id="timer">10:00</div> 
-            <p id="txt-pulmon">INHALA / INHALE</p> 
-            <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;"> 
-                <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p> 
-            </div> 
-        </div>`; 
-        
-        this.timeLeft = 600; 
-        this.contadorToques = 0; 
-        const circleElement = document.getElementById('breath-circle'); 
-        const timerDiv = document.getElementById('timer'); 
-        
-        if (circleElement) { 
-            circleElement.onclick = () => { 
-                if (this.contadorToques < this.secuenciaAdelantos.length) { 
-                    let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques]; 
-                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0); 
-                    this.contadorToques++; 
-                    try { 
-                        let perfil = this.obtenerPerfilLocal(); 
-                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100); 
-                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil)); 
-                    } catch (e) { 
-                        console.error("Error updating anxiety indicator:", e); 
-                    } 
-                    let m = Math.floor(this.timeLeft / 60); 
-                    let s = this.timeLeft % 60; 
-                    if (timerDiv) { 
-                        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`; 
-                    } 
-                } 
-            }; 
+        const t = {
+            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo", internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido" },
+            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" }
+        }[this.idiomaActual];
+
+        if (this.indiceMision >= this.pasosMisiones.length) {
+            this.iniciarRelojEnfocadoCasa(container, t);
+            return;
         }
 
-                if (this.salidaSugeridaTimeoutId) { 
-            clearTimeout(this.salidaSugeridaTimeoutId); 
-            this.salidaSugeridaTimeoutId = null; 
-        } 
-        
-        this.salidaSugeridaTimeoutId = setTimeout(async () => { 
-            try { 
+        const paso = this.pasosMisiones[this.indiceMision];
+        container.innerHTML = `
+        <div class="mision-card">
+            <small>${t.internalMission}</small>
+            <h3>${paso.titulo}</h3>
+            <p>${paso.descripcion}</p>
+            <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
+        </div>`;
+
+        this.hablar(paso.titulo + " . " + paso.descripcion);
+
+        document.getElementById('btn-next').onclick = () => {
+            try {
+                let perfil = this.obtenerPerfilLocal();
+                const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
+                for (const need in missionVector) {
+                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                        perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
+                    }
+                }
+                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
+                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+            } catch (e) {
+                console.error("Error updating local profile after CASA mission:", e);
+            }
+            this.avanzarPaso();
+        };
+    },
+
+    /** Starts the 10-minute clinical breathing timer for CASA mode. */
+    iniciarRelojEnfocadoCasa(container, t) {
+        clearInterval(this.timerEnfocado);
+        window.speechSynthesis.cancel();
+
+        let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
+        this.hablar(msg);
+
+        container.innerHTML = `
+        <div style="text-align:center; width:100%;">
+            <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
+            <div id="timer">10:00</div>
+            <p id="txt-pulmon">INHALA / INHALE</p>
+            <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
+                <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
+            </div>
+        </div>`;
+
+        this.timeLeft = 600;
+        this.contadorToques = 0;
+        const circleElement = document.getElementById('breath-circle');
+        const timerDiv = document.getElementById('timer');
+        const pulmonDiv = document.getElementById('txt-pulmon'); // Added for reference in timerEnfocado
+        const linkSalidaSugerida = document.getElementById('link-salida-sugerida'); // Added for suggestion logic
+        const salidaSugeridaDiv = document.getElementById('salida-sugerida'); // Added for suggestion logic
+
+        if (circleElement) {
+            circleElement.onclick = () => {
+                if (this.contadorToques < this.secuenciaAdelantos.length) {
+                    let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
+                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
+                    this.contadorToques++;
+                    try {
+                        let perfil = this.obtenerPerfilLocal();
+                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
+                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                    } catch (e) {
+                        console.error("Error updating anxiety indicator:", e);
+                    }
+                    let m = Math.floor(this.timeLeft / 60);
+                    let s = this.timeLeft % 60;
+                    if (timerDiv) {
+                        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                    }
+                }
+            };
+        }
+
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+
+        this.salidaSugeridaTimeoutId = setTimeout(async () => {
+            try {
                 // Inyectar de manera transparente las llaves criptográficas usando el método interceptor
-                let payloadSugerencia = this.inyectarTokensAcceso({ 
-                    modo: "SALIR", 
-                    lang: this.idiomaActual, 
-                    mente: "agotado", 
-                    budget: "0", 
-                    perfil: "solo", 
-                    desahogo: "", 
-                    zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "", 
-                    perfil_local: this.obtenerPerfilLocal(), 
-                    historial_salir: this.historialSalir 
+                let payloadSugerencia = this.inyectarTokensAcceso({
+                    modo: "SALIR",
+                    lang: this.idiomaActual,
+                    mente: "agotado",
+                    budget: "0",
+                    perfil: "solo",
+                    desahogo: "",
+                    zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
+                    perfil_local: this.obtenerPerfilLocal(),
+                    historial_salir: this.historialSalir
                 });
 
-                const r = await fetch("/api/mando-integral", { 
-                    method: "POST", 
-                    headers: { "Content-Type": "application/json" }, 
-                    body: JSON.stringify(payloadSugerencia) 
-                }); 
+                const r = await fetch("/api/mando-integral", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payloadSugerencia)
+                });
 
                 // ============================================================
                 // INTERCEPTOR DE SEGURIDAD AUTOMÁTICO EN RUTA SUGERIDA (403)
@@ -1259,290 +1259,288 @@ const KERNEL = {
                     clearTimeout(this.salidaSugeridaTimeoutId);
                     this.salidaSugeridaTimeoutId = null;
                     localStorage.removeItem('tg_stripe_session');
-                    
+
                     document.getElementById('wrapper-form').classList.remove('hidden');
                     container.classList.add('hidden');
                     this.isLocked = false;
-                    
+
                     const paywallEl = document.getElementById('paywall-container');
                     if (paywallEl) paywallEl.classList.remove('hidden');
                     return;
                 }
 
-                const data = await r.json(); 
-                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) { 
-                    const suggestedMission = data.misiones[0]; 
-                    if (data.historial_salir_actualizado) { 
-                        this.historialSalir = data.historial_salir_actualizado; 
-                        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir)); 
-                    } 
-                    linkSalidaSugerida.innerText = suggestedMission.destino_titulo; 
-                    linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps; 
-                    salidaSugeridaDiv.classList.remove('hidden'); 
-                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`); 
-                } 
-            } catch (e) { 
-                console.error("Error fetching SALIR suggestion in CASA mode:", e); 
-            } finally { 
-                this.salidaSugeridaTimeoutId = null; 
-            } 
-        }, 180000); 
+                const data = await r.json();
+                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
+                    const suggestedMission = data.misiones[0];
+                    if (data.historial_salir_actualizado) {
+                        this.historialSalir = data.historial_salir_actualizado;
+                        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+                    }
+                    linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
+                    linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
+                    salidaSugeridaDiv.classList.remove('hidden');
+                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
+                }
+            } catch (e) {
+                console.error("Error fetching SALIR suggestion in CASA mode:", e);
+            } finally {
+                this.salidaSugeridaTimeoutId = null;
+            }
+        }, 180000);
 
-        this.timerEnfocado = setInterval(() => { 
-            if (this.timeLeft > 0) this.timeLeft--; 
-            let m = Math.floor(this.timeLeft / 60); 
-            let s = this.timeLeft % 60; 
-            if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`; 
-            
-            if (pulmonDiv) { 
-                let ciclo = this.timeLeft % 8; 
-                if (ciclo >= 4) { 
-                    pulmonDiv.innerText = t.inspira.toUpperCase(); 
-                    pulmonDiv.style.color = "var(--cyan-inhale)"; 
-                } else { 
-                    pulmonDiv.innerText = t.expira.toUpperCase(); 
-                    pulmonDiv.style.color = "var(--accent)"; 
-                } 
-            } 
-            
-            if (this.timeLeft < 600 && (600 - this.timeLeft) % 20 === 0 && (600 - this.timeLeft) !== 0) { 
-                let pasoAudioIdx = Math.floor((600 - this.timeLeft) / 20) - 1; 
-                if (pasoAudioIdx >= 0 && AUDIOS_SECUENCIALES_CASA && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) { 
-                    let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx]; 
-                    if (recordatorioTexto) { 
-                        this.hablar(recordatorioTexto); 
-                    } 
-                } 
-            } 
-            
-            if (this.timeLeft <= 0) { 
-                clearInterval(this.timerEnfocado); 
-                clearTimeout(this.salidaSugeridaTimeoutId); 
-                this.salidaSugeridaTimeoutId = null; 
-                window.speechSynthesis.cancel(); 
-                if (circleElement) { 
-                    circleElement.style.animation = "none"; 
-                    circleElement.style.transform = "scale(1)"; 
-                } 
-                this.iniciarRetoCierre60Segundos(); 
-            } 
-        }, 1000); 
-    }, 
+        this.timerEnfocado = setInterval(() => {
+            if (this.timeLeft > 0) this.timeLeft--;
+            let m = Math.floor(this.timeLeft / 60);
+            let s = this.timeLeft % 60;
+            if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
 
-    /** Advances to the next internal mission step. */ 
-    avanzarPaso() { 
-        this.indiceMision++; 
-        const container = document.getElementById('wrapper-interactive'); 
-        this.procesarFlujoSecuencial(container); 
-    }, 
-
-    /** * Initiates the 60-second closing challenge phase. */ 
-    iniciarRetoCierre60Segundos() { 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.temporizadorCierre); 
-        window.speechSynthesis.cancel(); 
-        
-        const t = { 
-            es: { logo: "OPEN THAN GO", cierreMensaje: "Gracias por tu presencia.", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", retoInicial: "Prepárate para un reto combinado en 3, 2, 1..." }, 
-            en: { logo: "OPEN THAN GO", cierreMensaje: "Thank you for your presence.", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", retoInicial: "Get ready for a combined challenge in 3, 2, 1..." } 
-        }[this.idiomaActual]; 
-        
-        const container = document.getElementById('wrapper-interactive'); 
-        const cierrePantalla = document.getElementById('pantalla-cierre'); 
-        const retoTitulo = document.getElementById('reto-titulo'); 
-        const retoDescripcion = document.getElementById('reto-descripcion'); 
-        const retoImg = document.getElementById('reto-img'); 
-        const cierreTimer = document.getElementById('cierre-timer'); 
-        const btnRecomenzar = document.getElementById('btn-recomenzar-experiencia'); 
-        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
-        
-        container.classList.add('hidden'); 
-        cierrePantalla.classList.remove('hidden'); 
-        cierreMensajeFinal.classList.add('hidden'); 
-        btnRecomenzar.classList.add('hidden'); 
-        btnRecomenzar.disabled = true; 
-        
-        this.timeLeftCierre = 60; 
-        const catalogoRetos = this.idiomaActual === 'es' ? this.CATALOGO_RETOS_ES : this.CATALOGO_RETOS_EN; 
-        let secuenciaRetos = []; 
-        let numRetos = 3; 
-        let candidateSequenceIds; 
-        let sequenceString; 
-        let maxAttempts = 10; 
-        
-        while(maxAttempts > 0) { 
-            secuenciaRetos = []; 
-            let tempRetos = [...catalogoRetos]; 
-            for (let i = tempRetos.length - 1; i > 0; i--) { 
-                const j = Math.floor(Math.random() * (i + 1)); 
-                [tempRetos[i], tempRetos[j]] = [tempRetos[j], tempRetos[i]]; 
+            if (pulmonDiv) {
+                let ciclo = this.timeLeft % 8;
+                if (ciclo >= 4) {
+                    pulmonDiv.innerText = t.inspira.toUpperCase();
+                    pulmonDiv.style.color = "var(--cyan-inhale)";
+                } else {
+                    pulmonDiv.innerText = t.expira.toUpperCase();
+                    pulmonDiv.style.color = "var(--accent)";
+                }
             }
 
-                       for (let i = 0; i < numRetos; i++) { 
-                if (tempRetos.length === 0) break; 
-                secuenciaRetos.push(tempRetos.shift()); 
-            } 
-            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-'); 
-            if (!this.historialRetosSecuencias.includes(candidateSequenceIds)) { 
-                sequenceString = candidateSequenceIds; 
-                break; 
-            } 
-            maxAttempts--; 
-            if (maxAttempts === 0) { 
-                console.warn("Could not find a unique challenge sequence after multiple attempts, reusing one."); 
-                sequenceString = candidateSequenceIds; 
-            } 
-        } 
-        
-        if (sequenceString) { 
-            this.historialRetosSecuencias.push(sequenceString); 
-            this.historialRetosSecuencias = this.historialRetosSecuencias.slice(-this.MAX_HISTORY_RETOS_SECUENCIAS); 
-            localStorage.setItem("otg_historial_retos_secuencias", JSON.stringify(this.historialRetosSecuencias)); 
-        } 
-        
-        let currentRetoIndex = 0; 
-        const displayNextReto = () => { 
-            if (currentRetoIndex < secuenciaRetos.length) { 
-                const reto = secuenciaRetos[currentRetoIndex]; 
-                if (retoTitulo) { 
-                    retoTitulo.innerText = reto.titulo; 
-                    retoTitulo.classList.remove('hidden'); 
-                } 
-                if (retoDescripcion) { 
-                    retoDescripcion.innerText = reto.descripcion; 
-                    retoDescripcion.classList.remove('hidden'); 
-                } 
-                if (retoImg) { 
-                    retoImg.src = `/static/${reto.img}`; 
-                    retoImg.classList.remove('hidden'); 
-                } 
-                this.hablar(reto.descripcion); 
-                currentRetoIndex++; 
-            } 
-        }; 
-
-        if (retoTitulo) retoTitulo.classList.add('hidden'); 
-        if (retoDescripcion) retoDescripcion.classList.add('hidden'); 
-        if (retoImg) retoImg.classList.add('hidden'); 
-        
-        this.hablar(t.retoInicial); 
-        
-        setTimeout(() => { 
-            displayNextReto(); 
-            this.temporizadorCierre = setInterval(() => { 
-                this.timeLeftCierre--; 
-                if (cierreTimer) cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0'); 
-                
-                if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) { 
-                    if (retoTitulo) retoTitulo.classList.add('hidden'); 
-                    if (retoDescripcion) retoDescripcion.classList.add('hidden'); 
-                    if (retoImg) retoImg.classList.add('hidden'); 
-                    displayNextReto(); 
-                } 
-                if (this.timeLeftCierre <= 0) { 
-                    clearInterval(this.temporizadorCierre); 
-                    window.speechSynthesis.cancel(); 
-                    if (retoTitulo) retoTitulo.innerText = ""; 
-                    if (retoDescripcion) retoDescripcion.innerText = ""; 
-                    if (retoImg) retoImg.src = ""; 
-                    
-                    if (cierreTimer) cierreTimer.classList.add('hidden'); 
-                    if (cierreMensajeFinal) cierreMensajeFinal.classList.remove('hidden'); 
-                    if (btnRecomenzar) {
-                        btnRecomenzar.classList.remove('hidden'); 
-                        btnRecomenzar.disabled = false; 
+            if (this.timeLeft < 600 && (600 - this.timeLeft) % 20 === 0 && (600 - this.timeLeft) !== 0) {
+                let pasoAudioIdx = Math.floor((600 - this.timeLeft) / 20) - 1;
+                if (pasoAudioIdx >= 0 && AUDIOS_SECUENCIALES_CASA && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
+                    let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
+                    if (recordatorioTexto) {
+                        this.hablar(recordatorioTexto);
                     }
-                    this.hablar(t.puertaAbierta); 
-                } 
-            }, 1000); 
-        }, 5000); 
+                }
+            }
+
+            if (this.timeLeft <= 0) {
+                clearInterval(this.timerEnfocado);
+                clearTimeout(this.salidaSugeridaTimeoutId);
+                this.salidaSugeridaTimeoutId = null;
+                window.speechSynthesis.cancel();
+                if (circleElement) {
+                    circleElement.style.animation = "none";
+                    circleElement.style.transform = "scale(1)";
+                }
+                this.iniciarRetoCierre60Segundos();
+            }
+        }, 1000);
     },
 
-                btnRecomenzar.onclick = () => { 
-            this.reiniciarExperiencia(); 
-        }; 
-    }, 
+    /** Advances to the next internal mission step. */
+    avanzarPaso() {
+        this.indiceMision++;
+        const container = document.getElementById('wrapper-interactive');
+        this.procesarFlujoSecuencial(container);
+    },
 
-    /** * Resets the UI to the initial form state without clearing persistent data. */ 
-    reiniciarExperiencia() { 
-        clearInterval(this.timerInaccion); 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.temporizadorCascada); 
-        clearInterval(this.temporizadorCierre); 
-        clearInterval(this.salidaTimerId); 
-        window.speechSynthesis.cancel(); 
-        
-        if (this.salidaSugeridaTimeoutId) { 
-            clearTimeout(this.salidaSugeridaTimeoutId); 
-            this.salidaSugeridaTimeoutId = null; 
-        } 
-        
-        this.pasosMisiones = []; 
-        this.indiceMision = 0; 
-        this.isLocked = false; 
-        this.contadorToques = 0; 
-        this.datosLugarGlobal = null; 
-        
-        document.getElementById('pantalla-cierre').classList.add('hidden'); 
-        document.getElementById('wrapper-interactive').classList.add('hidden'); 
-        document.getElementById('wrapper-form').classList.remove('hidden'); 
-        document.getElementById('inp-text-libre').value = ""; 
-        
+    /** * Initiates the 60-second closing challenge phase. */
+    iniciarRetoCierre60Segundos() {
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCierre);
+        window.speechSynthesis.cancel();
+
+        const t = {
+            es: { logo: "OPEN THAN GO", cierreMensaje: "Gracias por tu presencia.", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", retoInicial: "Prepárate para un reto combinado en 3, 2, 1..." },
+            en: { logo: "OPEN THAN GO", cierreMensaje: "Thank you for your presence.", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", retoInicial: "Get ready for a combined challenge in 3, 2, 1..." }
+        }[this.idiomaActual];
+
+        const container = document.getElementById('wrapper-interactive');
+        const cierrePantalla = document.getElementById('pantalla-cierre');
+        const retoTitulo = document.getElementById('reto-titulo');
+        const retoDescripcion = document.getElementById('reto-descripcion');
+        const retoImg = document.getElementById('reto-img');
+        const cierreTimer = document.getElementById('cierre-timer');
+        const btnRecomenzar = document.getElementById('btn-recomenzar-experiencia');
+        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
+
+        container.classList.add('hidden');
+        cierrePantalla.classList.remove('hidden');
+        cierreMensajeFinal.classList.add('hidden');
+        btnRecomenzar.classList.add('hidden');
+        btnRecomenzar.disabled = true;
+
+        this.timeLeftCierre = 60;
+        const catalogoRetos = this.idiomaActual === 'es' ? this.CATALOGO_RETOS_ES : this.CATALOGO_RETOS_EN;
+        let secuenciaRetos = [];
+        let numRetos = 3;
+        let candidateSequenceIds;
+        let sequenceString;
+        let maxAttempts = 10;
+
+        while(maxAttempts > 0) {
+            secuenciaRetos = [];
+            let tempRetos = [...catalogoRetos];
+            for (let i = tempRetos.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tempRetos[i], tempRetos[j]] = [tempRetos[j], tempRetos[i]];
+            }
+            for (let i = 0; i < numRetos; i++) {
+                if (tempRetos.length === 0) break;
+                secuenciaRetos.push(tempRetos.shift());
+            }
+            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-');
+            if (!this.historialRetosSecuencias.includes(candidateSequenceIds)) {
+                sequenceString = candidateSequenceIds;
+                break;
+            }
+            maxAttempts--;
+            if (maxAttempts === 0) {
+                console.warn("Could not find a unique challenge sequence after multiple attempts, reusing one.");
+                sequenceString = candidateSequenceIds;
+            }
+        }
+
+        if (sequenceString) {
+            this.historialRetosSecuencias.push(sequenceString);
+            this.historialRetosSecuencias = this.historialRetosSecuencias.slice(-this.MAX_HISTORY_RETOS_SECUENCIAS);
+            localStorage.setItem("otg_historial_retos_secuencias", JSON.stringify(this.historialRetosSecuencias));
+        }
+
+        let currentRetoIndex = 0;
+        const displayNextReto = () => {
+            if (currentRetoIndex < secuenciaRetos.length) {
+                const reto = secuenciaRetos[currentRetoIndex];
+                if (retoTitulo) {
+                    retoTitulo.innerText = reto.titulo;
+                    retoTitulo.classList.remove('hidden');
+                }
+                if (retoDescripcion) {
+                    retoDescripcion.innerText = reto.descripcion;
+                    retoDescripcion.classList.remove('hidden');
+                }
+                if (retoImg) {
+                    retoImg.src = `/static/${reto.img}`;
+                    retoImg.classList.remove('hidden');
+                }
+                this.hablar(reto.descripcion);
+                currentRetoIndex++;
+            }
+        };
+
+        if (retoTitulo) retoTitulo.classList.add('hidden');
+        if (retoDescripcion) retoDescripcion.classList.add('hidden');
+        if (retoImg) retoImg.classList.add('hidden');
+
+        this.hablar(t.retoInicial);
+
+        setTimeout(() => {
+            displayNextReto();
+            this.temporizadorCierre = setInterval(() => {
+                this.timeLeftCierre--;
+                if (cierreTimer) cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0');
+
+                if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) {
+                    if (retoTitulo) retoTitulo.classList.add('hidden');
+                    if (retoDescripcion) retoDescripcion.classList.add('hidden');
+                    if (retoImg) retoImg.classList.add('hidden');
+                    displayNextReto();
+                }
+                if (this.timeLeftCierre <= 0) {
+                    clearInterval(this.temporizadorCierre);
+                    window.speechSynthesis.cancel();
+                    if (retoTitulo) retoTitulo.innerText = "";
+                    if (retoDescripcion) retoDescripcion.innerText = "";
+                    if (retoImg) retoImg.src = "";
+
+                    if (cierreTimer) cierreTimer.classList.add('hidden');
+                    if (cierreMensajeFinal) cierreMensajeFinal.classList.remove('hidden');
+                    if (btnRecomenzar) {
+                        btnRecomenzar.classList.remove('hidden');
+                        btnRecomenzar.disabled = false;
+                    }
+                    this.hablar(t.puertaAbierta);
+                }
+            }, 1000);
+        }, 5000);
+
+        btnRecomenzar.onclick = () => {
+            this.reiniciarExperiencia();
+        };
+    },
+
+    /** * Resets the UI to the initial form state without clearing persistent data. */
+    reiniciarExperiencia() {
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCascada);
+        clearInterval(this.temporizadorCierre);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+
+        this.pasosMisiones = [];
+        this.indiceMision = 0;
+        this.isLocked = false;
+        this.contadorToques = 0;
+        this.datosLugarGlobal = null;
+
+        document.getElementById('pantalla-cierre').classList.add('hidden');
+        document.getElementById('wrapper-interactive').classList.add('hidden');
+        document.getElementById('wrapper-form').classList.remove('hidden');
+        document.getElementById('inp-text-libre').value = "";
+
         // ============================================================
         // COMPUERTA DE RE-EVALUACIÓN: Asegura que siga teniendo el pago activo al reiniciar
         // ============================================================
         const accesoValido = this.verificarEstatusAcceso();
-        
+
         if (!accesoValido) {
             const aviso_es = "Tu sesión requiere un pago activo para continuar. Selecciona un plan.";
             const aviso_en = "Your session requires an active payment to continue. Select a plan.";
             this.hablar(this.idiomaActual === 'es' ? aviso_es : aviso_en);
-            
+
             const oraculoBox = document.getElementById('bloque-escritura-libre');
             if (oraculoBox) oraculoBox.style.opacity = "0.15";
-            
+
             const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo');
             if (oraculoGrid) oraculoGrid.style.opacity = "0.15";
             return; // Bloquea el reinicio y lo deja atrapado en el Paywall
         }
 
         // Si su estatus financiero es correcto, corre el flujo normal:
-        this.inyectarBloquePreguntas(); 
-        this.activarBotonMandoLibreInicial(); 
-        
-        const saludos_es = ["Bienvenido de nuevo. Tu escape inteligente. Escucha mis preguntas en pantalla.", "Ópen Dán Go activo. Toca lo que sientes hoy para continuar."]; 
-        const saludos_en = ["Welcome back. Your smart escape. Listen to my questions on screen.", "Open Than Go active. Tap what you feel today to continue."]; 
-        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en; 
-        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
-    }, 
+        this.inyectarBloquePreguntas();
+        this.activarBotonMandoLibreInicial();
 
-    /** * Clears ALL session data and reloads the application. */ 
-    destruirYReiniciar() { 
-        clearInterval(this.timerInaccion); 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.temporizadorCascada); 
-        clearInterval(this.temporizadorCierre); 
-        clearInterval(this.salidaTimerId); 
-        window.speechSynthesis.cancel(); 
-        
-        if (this.salidaSugeridaTimeoutId) { 
-            clearTimeout(this.salidaSugeridaTimeoutId); 
-            this.salidaSugeridaTimeoutId = null; 
-        } 
-        
-        localStorage.clear(); 
-        this.historialSalir = []; 
-        this.historialCasa = []; 
-        this.historialPreguntas = []; 
-        this.historialRetosSecuencias = []; 
-        this.pasosMisiones = []; 
-        this.indiceMision = 0; 
-        this.isLocked = false; 
-        this.contadorToques = 0; 
-        this.datosLugarGlobal = null; 
-        location.reload(); 
-    } 
-}; 
+        const saludos_es = ["Bienvenido de nuevo. Tu escape inteligente. Escucha mis preguntas en pantalla.", "Ópen Dán Go activo. Toca lo que sientes hoy para continuar."];
+        const saludos_en = ["Welcome back. Your smart escape. Listen to my questions on screen.", "Open Than Go active. Tap what you feel today to continue."];
+        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
+        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
+    },
+
+    /** * Clears ALL session data and reloads the application. */
+    destruirYReiniciar() {
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCascada);
+        clearInterval(this.temporizadorCierre);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+
+        localStorage.clear();
+        this.historialSalir = [];
+        this.historialCasa = [];
+        this.historialPreguntas = [];
+        this.historialRetosSecuencias = [];
+        this.pasosMisiones = [];
+        this.indiceMision = 0;
+        this.isLocked = false;
+        this.contadorToques = 0;
+        this.datosLugarGlobal = null;
+        location.reload();
+    }
+};
 
 // ============================================================
 // INICIALIZADOR CORE AUTOMÁTICO DE ENTORNO DOM
