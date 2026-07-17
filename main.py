@@ -13,7 +13,9 @@ PRICE_IDS = {
     "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
 }
 
-# ENDPOINT: Crear sesión de pago en Stripe
+# ============================================================
+# ¡MANTÉN ESTO!: ENPOINT PARA CREAR LA SESIÓN DE PAGO EN STRIPE
+# ============================================================
 @app.post("/api/create-checkout-session")
 async def create_checkout_session(request: Request):
     try:
@@ -30,6 +32,7 @@ async def create_checkout_session(request: Request):
             payment_method_types=['card'],
             line_items=[{'price': id_precio, 'quantity': 1}],
             mode=modo_checkout,
+            # ¡CORREGIDO!: Apunta exactamente a tu dominio del proyecto en Render
             success_url='https://onrender.com{CHECKOUT_SESSION_ID}',
             cancel_url='https://onrender.com',
         )
@@ -37,31 +40,29 @@ async def create_checkout_session(request: Request):
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=400)
 
-# COMPUERTA DE CONTROL DE ACCESO (Inyectar al inicio de tu app.post("/api/mando-integral"))
+# ============================================================
+# COMPUERTA DE ACCESO (Inyéctala DENTRO de @app.post("/api/mando-integral"))
 # Colócalo justo debajo de: payload = await request.json()
-"""
-username_cliente = str(payload.get("username", "")).strip()
-password_cliente = str(payload.get("password", "")).strip()
-session_token = str(payload.get("session_token", "")).strip()
+# ============================================================
+# (Asegúrate de que NO tenga comillas triples al inicio ni al final 
+# y que tenga los 4 espacios de sangría hacia la derecha)
 
-# Recupera los accesos configurados en tu panel de Render
-ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin_por_defecto")
-ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "clave_por_defecto")
+    username_cliente = str(payload.get("username", "")).strip()
+    password_cliente = str(payload.get("password", "")).strip()
+    session_token = str(payload.get("session_token", "")).strip()
 
-# COMPUERTA DE ENTRADA GRATIS
-es_admin_valido = (username_cliente == ADMIN_USER and password_cliente == ADMIN_PASS)
+    ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin_por_defecto")
+    ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "clave_por_defecto")
 
-# COMPUERTA DE STRIPE
-tiene_pago_valido = (session_token != "" and session_token.startswith("cs_"))
+    es_admin = (username_cliente == ADMIN_USER and password_cliente == ADMIN_PASS)
+    tiene_pago_valido = (session_token != "" and session_token.startswith("cs_"))
 
-# Si NO es admin de Render y NO tiene un token válido de Stripe Checkout, se le deniega el acceso
-if not es_admin_valido and not tiene_pago_valido:
-    return JSONResponse({
-        "error": "Acceso restringido.",
-        "requiere_pago": True,
-        "mensaje": "Se requiere una suscripción activa o credenciales válidas para usar el sistema."
-    }, status_code=403)
-"""
+    if not es_admin and not tiene_pago_valido:
+        return JSONResponse({
+            "error": "Acceso restringido.",
+            "requiere_pago": True,
+            "mensaje": "Suscripción o pago requerido para usar el motor de rutas contextuales."
+        }, status_code=403)
 
 # ============================================================
 # MOTOR DE HISTORIAL INTELIGENTE CWRE V2
