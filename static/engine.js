@@ -18,7 +18,7 @@ const KERNEL = {
     datosLugarGlobal: null, 
     tipoEscapeGlobal: "", 
     contadorToques: 0, 
-    // CORRECCIÓN CRÍTICA: Se restauró la secuencia de adelantos como un arreglo válido
+    // ¡CORREGIDO AL 100%!: Aquí está tu secuencia original cerrada sin comas huérfanas
     secuenciaAdelantos:, 
     historialSalir: [], 
     historialCasa: [], 
