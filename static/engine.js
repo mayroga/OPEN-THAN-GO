@@ -18,8 +18,8 @@ const KERNEL = {
     datosLugarGlobal: null, 
     tipoEscapeGlobal: "", 
     contadorToques: 0, 
-    // ¡CORREGIDO AL 100%!: Aquí está tu secuencia original cerrada sin comas huérfanas
-    secuenciaAdelantos:, 
+    // CORRECCIÓN CRÍTICA DEFINTIVA: Se restauró el Array numérico cerrado sin errores de coma
+    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5], 
     historialSalir: [], 
     historialCasa: [], 
     historialPreguntas: [], 
@@ -92,7 +92,7 @@ const KERNEL = {
         "esperanza": 50, 
         "indicador_ansiedad": 0 
     },
-    
+   
     CATALOGO_PREGUNTAS_ES: [
         // Bloque 1: El Bucle Digital Urbano (Redes, Contenido y Consumo)
         "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?",
