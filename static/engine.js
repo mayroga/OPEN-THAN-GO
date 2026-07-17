@@ -643,31 +643,6 @@ const KERNEL = {
         }
         this.validarZip();
     },
-        if (textarea) {
-            textarea.removeEventListener('input', this.textareaInputHandler);
-            this.textareaInputHandler = () => {
-                const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
-                if (textarea.value.trim().length > 3 && !isZipInvalid) {
-                    if (btnLibre) {
-                        btnLibre.style.background = "var(--green-action)";
-                        btnLibre.style.color = "#fff";
-                        btnLibre.style.borderColor = "var(--green-action)";
-                        btnLibre.disabled = false;
-                    }
-                } else {
-                    if (btnLibre) {
-                        btnLibre.style.background = "#111";
-                        btnLibre.style.color = "#555";
-                        btnLibre.style.borderColor = "#222";
-                        btnLibre.disabled = true;
-                    }
-                }
-                this.validarZip();
-            };
-            textarea.addEventListener('input', this.textareaInputHandler);
-        }
-        this.validarZip();
-    },
 
     /** Validates ZIP input and controls button state */
     validarZip() {
@@ -675,7 +650,7 @@ const KERNEL = {
         const btnActivarLibre = document.getElementById('btn-activar-libre');
         const textarea = document.getElementById('inp-text-libre');
         if (!zipInput || !btnActivarLibre || !textarea) return;
-        
+
         const zipValue = zipInput.value.trim();
         const isValidZip = zipInput.checkValidity();
         const hasTextareaContent = textarea.value.trim().length > 3;
