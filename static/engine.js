@@ -1353,7 +1353,7 @@ const KERNEL = {
         this.historialPreguntas = [];
         this.historialRetosSecuencias = [];
         this.pasosMisiones = [];
-        thisMision = 0;
+        this.indiceMision = 0;
         this.isLocked = false;
         this.contadorToques = 0;
         this.datosLugarGlobal = null;
@@ -1381,7 +1381,7 @@ Uber:"https://uber.com",
 Lyft:"https://lyft.com",
 American:"https://aa.com",
 Delta:"https://delta.com",
-JetBlue:"https://jetblue.com",
+Spirit:"https://spirit.com",
 JetBlue:"https://jetblue.com",
 Southwest:"https://southwest.com",
 Avianca:"https://avianca.com",
@@ -1578,37 +1578,45 @@ else this.seleccionadas=this.seleccionadas.filter(x=>x!==marca);
 },
 
 activarFaseTrivia(){
-        // 1. NUEVA VALIDACIÓN: Verificar si es Administrador con acceso gratis
-        let userRole = localStorage.getItem('otg_user_role');
-        
-        if (userRole === 'admin') {
-            console.log("Acceso de administrador verificado: Usos infinitos concedidos.");
-            // Al ser admin, el código ignora cualquier restricción y continúa libremente
-        } else {
-            console.log("Validando pase de cliente...");
-            // Aquí es donde irá tu lógica futura de clientes (Verificar pases de 1 o 5 usos)
-            // Por ahora, dejamos que continúe el flujo normal.
-        }
 
-        // 2. TU LÓGICA ACTUAL (No se cambia nada de su funcionamiento)
-        if(!this.seleccionadas.length){
-            alert("Selecciona al menos una opción.");
-            return;
-        }
-        document.getElementById("otg-fase-1").classList.add("hidden");
-        let f2=document.getElementById("otg-fase-2");
-        f2.classList.remove("hidden");
-        let p=this.preguntas[Math.floor(Math.random()*this.preguntas.length)];
-        let m=this.seleccionadas[0];
-        f2.innerHTML=`
-         <div style="background:#111;border:1px solid #222;padding:15px;border-radius:8px;margin-top:10px;">
-         <span style="color:#00bcd4;font-size:.65rem;font-weight:bold;text-transform:uppercase;display:block;margin-bottom:5px;"> Has seleccionado: ${m} </span>
-         <p style="font-size:1rem;font-weight:bold;line-height:1.45;margin:5px 0 15px;color:#fff;"> ${p} </p>
-         <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado','opcion1')"> Quiero usar este servicio ahora. </button>
-         <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('normal','opcion2')"> Solo estoy explorando opciones. </button>
-         <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('curioso','opcion3')"> Quiero descubrir nuevas ideas. </button>
-         </div>`;
-    },
+if(!this.seleccionadas.length){
+alert("Selecciona al menos una opción.");
+return;
+}
+
+document.getElementById("otg-fase-1").classList.add("hidden");
+
+let f2=document.getElementById("otg-fase-2");
+f2.classList.remove("hidden");
+
+let p=this.preguntas[Math.floor(Math.random()*this.preguntas.length)];
+let m=this.seleccionadas[0];
+
+f2.innerHTML=`
+<div style="background:#111;border:1px solid #222;padding:15px;border-radius:8px;margin-top:10px;">
+
+<span style="color:#00bcd4;font-size:.65rem;font-weight:bold;text-transform:uppercase;display:block;margin-bottom:5px;">
+Has seleccionado: ${m}
+</span>
+
+<p style="font-size:1rem;font-weight:bold;line-height:1.45;margin:5px 0 15px;color:#fff;">
+${p}
+</p>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado','opcion1')">
+Quiero usar este servicio ahora.
+</button>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('normal','opcion2')">
+Solo estoy explorando opciones.
+</button>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('curioso','opcion3')">
+Quiero descubrir nuevas ideas.
+</button>
+
+</div>`;
+},
 
 inyectarMenteBase(perfil,tipo){
 
@@ -1723,37 +1731,10 @@ Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una 
 </p>
 
 </div>`;
-},
-    // ============================================================
-    // NUEVA EXTENSIÓN: CONEXIÓN PASARELA STRIPE REAL - MAY ROGA LLC
-    // ============================================================
-    procesarPagoStripe(planSeleccionado){
-        // Recupera el ID del usuario de la sesión o asigna uno por defecto
-        let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo_real';
+}
 
-        fetch('/crear-checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tipo_plan: planSeleccionado, user_id: userId })
-        })
-        .then(response => {
-            if(!response.ok) throw new Error('Error en el servidor backend');
-            return response.json();
-        })
-        .then(data => {
-            if(data.url) {
-                // Redirige al cliente de golpe a tu pasarela de Stripe real
-                window.location.href = data.url;
-            } else {
-                alert("No se pudo iniciar la conexión de pago.");
-            }
-        })
-        .catch(error => {
-            console.error('Error crítico Stripe:', error);
-            alert("Ocurrió un problema técnico con la pasarela de cobro.");
-        });
-    }
 };
 
 OTG_SENSORIAL.init();
-})()
+
+})();
