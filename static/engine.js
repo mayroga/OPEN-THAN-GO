@@ -420,36 +420,51 @@ const KERNEL = {
             zipInput.addEventListener('input', () => this.validarZip());
             this.validarZip();
         }
-        
         document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
     },
 
     /** Starts the initial welcome sequence after user interaction. */
     despertarInicial() {
-        // Ejecuta validación de compra o bypass antes de activar el motor de voz
-        const usuarioAutorizado = this.verificarEstatusAcceso();
-
+        // 1. Ocultar inmediatamente la pantalla negra de bienvenida
         document.getElementById('pantalla-bienvenida').style.display = 'none';
-        document.getElementById('wrapper-form').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.remove('hidden'); 
-        document.getElementById('btn-whatsapp').classList.remove('hidden'); 
-        document.getElementById('btn-messenger').classList.remove('hidden'); 
         
+        // 2. Hacer visible el contenedor de la aplicación para que no se quede congelada
+        document.getElementById('wrapper-form').classList.remove('hidden');
+        document.getElementById('btn-volver-app').classList.remove('hidden');
+        document.getElementById('btn-whatsapp').classList.remove('hidden');
+        document.getElementById('btn-messenger').classList.remove('hidden');
+        
+        // 3. Evaluar de forma estricta si el usuario ya pagó con Stripe o es Administrador
+        const usuarioAutorizado = this.verificarEstatusAcceso();
         this.cambiarIdioma(this.idiomaActual);
 
-        // Si el usuario no tiene acceso válido, la app lo recibe solicitando su cobro
+        // 4. COMPUERTA INTEGRADA: Si el usuario NO tiene acceso válido, bloquear el paso
         if (!usuarioAutorizado) {
             const aviso_es = "Para desbloquear tu motor de enrutamiento somático, por favor selecciona un plan de acceso.";
             const aviso_en = "To unlock your somatic routing engine, please select an access plan.";
             this.hablar(this.idiomaActual === 'es' ? aviso_es : aviso_en);
-            
-            // Oculta el formulario del oráculo bloqueando el paso
+
+            // Opacar visualmente el formulario del oráculo y la caja de texto libre
             const oraculoBox = document.getElementById('bloque-escritura-libre');
             if (oraculoBox) oraculoBox.style.opacity = "0.15";
-            return; // Detiene la carga del bloque de preguntas
+            
+            const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo');
+            if (oraculoGrid) oraculoGrid.style.opacity = "0.15";
+
+            // Forzar de forma nativa que el contenedor de cobros sea visible en pantalla
+            const paywallEl = document.getElementById('paywall-container');
+            if (paywallEl) paywallEl.classList.remove('hidden');
+            
+            return; // Detiene la inyección de preguntas para proteger tu backend en Render
         }
 
-        // Si ya pagó o es administrador, corre tu flujo original con total normalidad:
+        // 5. FLUJO NORMAL: Si ya pagó, remueve opacidades e inyecta la app
+        const oraculoBox = document.getElementById('bloque-escritura-libre');
+        if (oraculoBox) oraculoBox.style.opacity = "1";
+        
+        const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo');
+        if (oraculoGrid) oraculoGrid.style.opacity = "1";
+
         const saludos_es = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
             "ópen dán go está activo. Concéntrate un momento. Mira las opciones en tu pantalla ya.",
@@ -462,6 +477,7 @@ const KERNEL = {
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
+        
         this.inyectarBloquePreguntas();
         this.iniciarMonitoreoInaccion();
         this.activarBotonMandoLibreInicial();
