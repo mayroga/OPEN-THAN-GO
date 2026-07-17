@@ -1,32 +1,102 @@
-# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 1 DE 2 (Backend Core)
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-import uvicorn
 import os
-import random
-import re
-from datetime import datetime
-import urllib.parse
+import stripe
+from fastapi import FastAPI, Request, Header, HTTPException
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles  # <- CORREGIDO: Importación añadida
 
-link_base = "https://www.google.com/maps/search/?api=1&query="
+# CREACIÓN DE LA APP (¡Debe ir antes de las rutas!)
+app = FastAPI()  # <- CORREGIDO: Movido arriba para evitar NameError
 
-app = FastAPI()
-
-# Ensure the 'static' directory exists before mounting
+# Asegurar que el directorio static existe antes de montarlo
 if not os.path.exists("static"):
     os.makedirs("static")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-DEFAULT_NECESSITY_VECTOR = {
-    "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
-    "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
-    "juego": 50, "contemplacion": 50, "descanso": 50, "organizacion": 50,
-    "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
-    "indicador_ansiedad": 0
+link_base = "https://www.google.com/maps/search/?api=1&query="
+
+# 1. INICIALIZACIÓN DE STRIPE CON TUS VARIABLES DE RENDER
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+# Mapeo exacto de tus Price IDs de Stripe
+PRICE_IDS = {
+    "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
+    "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
+    "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
 }
+
+# 2. ENDPOINT PARA CREAR LA SESIÓN DE CHECKOUT MULTIPLAN
+@app.post("/api/create-checkout-session")
+async def create_checkout_session(request: Request):
+    try:
+        payload = await request.json()
+        tipo_plan = payload.get("plan", "unico") 
+        
+        if tipo_plan not in PRICE_IDS:
+            return JSONResponse({"error": "Plan seleccionado inválido"}, status_code=400)
+            
+        id_precio_seleccionado = PRICE_IDS[tipo_plan]
+        modo_checkout = "payment" if tipo_plan == "unico" else "subscription"
+        
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price': id_precio_seleccionado,
+                'quantity': 1,
+            }],
+            mode=modo_checkout,
+            # CORREGIDO: URLs apuntando exactamente a tu servicio en Open Than Go
+            success_url='https://onrender.com{CHECKOUT_SESSION_ID}',
+            cancel_url='https://onrender.com',
+        )
+        return JSONResponse({"id": checkout_session.id, "url": checkout_session.url})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=400)
+
+# 3. ENDPOINT DEL WEBHOOK (Lee los bytes puros sin romper la firma)
+@app.post("/webhook")
+async def stripe_webhook(request: Request, stripe_signature: str = Header(None)):
+    payload = await request.body()
+    
+    if not stripe_signature:
+        raise HTTPException(status_code=400, detail="Falta la firma de Stripe")
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, stripe_signature, STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError:
+        return JSONResponse({"error": "Payload inválido"}, status_code=400)
+    except stripe.error.SignatureVerificationError:
+        return JSONResponse({"error": "Firma del webhook inválida"}, status_code=400)
+
+    if event['type'] in ['checkout.session.completed', 'invoice.payment_succeeded']:
+        session = event['data']['object']
+        print(f"Evento de pago exitoso procesado para: {session.id}")
+
+    return JSONResponse({"status": "success"})
+
+# 4. COMPUERTA DE ACCESO CON TUS VARIABLES DE ENTORNO DE RENDER
+# Recuerda quitarle las tres comillas (""") e insertarlo dentro de tu 
+# función real @app.post("/api/mando-integral") justo debajo de payload = await request.json()
+"""
+username_cliente = str(payload.get("username", "")).strip()
+password_cliente = str(payload.get("password", "")).strip()
+session_token = str(payload.get("session_token", "")).strip()
+
+ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin_por_defecto")
+ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "clave_por_defecto")
+
+es_admin = (username_cliente == ADMIN_USER and password_cliente == ADMIN_PASS)
+tiene_pago_valido = (session_token != "" and session_token.startswith("cs_"))
+
+if not es_admin and not tiene_pago_valido:
+    return JSONResponse({
+        "error": "Acceso restringido.",
+        "requiere_pago": True,
+        "mensaje": "Suscripción o pago requerido para usar el motor de rutas contextuales."
+    }, status_code=403)
+"""
 
 # ============================================================
 # MOTOR DE HISTORIAL INTELIGENTE CWRE V2
