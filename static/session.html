@@ -502,32 +502,31 @@
                 botonPago.innerText = "ACTIVAR CON STRIPE"; 
             } 
         }; 
+          // Procesamiento del formulario de acceso gratuito administrador
+KERNEL.procesarBypassAdmin = function() {
+    const userInp = document.getElementById('admin-username').value.trim();
+    const passInp = document.getElementById('admin-password').value.trim();
+    const errorBox = document.getElementById('error-display');
+    
+    if (!userInp || !passInp) {
+        if (errorBox) {
+            errorBox.textContent = "Por favor llene los campos / Fill all fields";
+            errorBox.classList.remove('hidden');
+        } else {
+            alert("Por favor llene los campos / Fill all fields");
+        }
+        return;
+    }
 
-        // Procesamiento del formulario de acceso gratuito administrador 
-        KERNEL.procesarBypassAdmin = function() { 
-            const userInp = document.getElementById('admin-username').value.trim(); 
-            const passInp = document.getElementById('admin-password').value.trim(); 
-            const errorBox = document.getElementById('error-display'); 
-            
-            if (!userInp || !passInp) { 
-                if (errorBox) { 
-                    errorBox.textContent = "Por favor llene los campos / Fill all fields"; 
-                    errorBox.classList.remove('hidden'); 
-                } else { 
-                    alert("Por favor llene los campos / Fill all fields"); 
-                } 
-                return; 
-            } 
+    // GUARDA LAS LLAVES CORRECTAS QUE REVISA ENGINE.JS
+    localStorage.setItem('tg_admin_user', userInp);
+    localStorage.setItem('tg_admin_pass', passInp);
+    localStorage.removeItem('tg_stripe_session');
 
-            // GUARDA LAS LLAVES CORRECTAS QUE REVISA ENGINE.JS 
-            localStorage.setItem('tg_admin_user', userInp); 
-            localStorage.setItem('tg_admin_pass', passInp); 
-            localStorage.removeItem('tg_stripe_session'); 
-
-            if (errorBox) errorBox.classList.add('hidden'); 
-            window.location.reload(); 
-        }; 
-
+    if (errorBox) errorBox.classList.add('hidden');
+    window.location.reload(); // Fuerza el reinicio limpio de la compuerta
+};
+        
         // Traductor nativo bilingüe de la interfaz de cobro
         KERNEL.traducirElementosPaywall = function(idiomaActivo) { 
             const traduccionesPaywall = { 
