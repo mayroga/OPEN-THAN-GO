@@ -727,14 +727,12 @@ const KERNEL = {
         this.validarZip();
     },
 
-    /** Monitors user inaction and advances question blocks or pauses. */
+        /** Monitors user inaction and advances question blocks or pauses. */
     iniciarMonitoreoInaccion() {
         clearInterval(this.timerInaccion);
         this.conteoInaccion = 0;
         this.timerInaccion = setInterval(() => {
-            // ============================================================
-            // COMPUERTA DE SEGURIDAD: Congela el monitor de inacción si la app está cobrando
-            // ============================================================
+            // Compuerta de seguridad: Congela el monitor si no hay acceso activo
             if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") &&
                 !(localStorage.getItem('tg_admin_user') && localStorage.getItem('tg_admin_pass'))) {
                 clearInterval(this.timerInaccion);
@@ -763,9 +761,12 @@ const KERNEL = {
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
         const textarea = document.getElementById('inp-text-libre');
-        if (textarea) textarea.value = textoPregunta;
+        if (textarea) {
+            textarea.value = textoPregunta;
+        }
         this.ejecutar();
     },
+
     /** * Converts text to speech using browser's SpeechSynthesis API safely without truncating */
     hablar(texto) {
         if (!('speechSynthesis' in window)) {
