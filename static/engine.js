@@ -19,7 +19,7 @@ const KERNEL = {
     tipoEscapeGlobal: "", 
     contadorToques: 0, 
     // CORRECCIÓN DEFINTIVA: Se restauró el arreglo numérico completo sin errores de comas
-    secuenciaAdelantos:, 
+    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
     historialSalir: [], 
     historialCasa: [], 
     historialPreguntas: [], 
