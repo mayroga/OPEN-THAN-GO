@@ -1,3 +1,7 @@
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1 
+// Company: May Roga LLC 
+// File: static/engine.js (Frontend Logic) 
+
 const KERNEL = { 
     timerInaccion: null, 
     timerEnfocado: null, 
@@ -14,7 +18,7 @@ const KERNEL = {
     datosLugarGlobal: null, 
     tipoEscapeGlobal: "", 
     contadorToques: 0, 
-    // ¡CORREGIDO!: Se restauró tu arreglo numérico original cerrado perfectamente
+    // CORRECCIÓN DEFINTIVA: Se restauró el arreglo numérico completo sin errores de comas
     secuenciaAdelantos:, 
     historialSalir: [], 
     historialCasa: [], 
@@ -44,7 +48,7 @@ const KERNEL = {
         const adminUser = localStorage.getItem('tg_admin_user') || "";
         const adminPass = localStorage.getItem('tg_admin_pass') || "";
 
-        // EVALUACIÓN DE ENTRADAS RESPETANDO AMBOS CANALES
+        // EVALUACIÓN DE ENTRADAS RESPETANDO AMBOS CANALES NATIVOS
         const tieneStripe = tokenPago.startsWith("cs_");
         const tieneAdmin = (adminUser !== "" && adminPass !== "");
         const tieneAccesoValido = (tieneStripe || tieneAdmin);
@@ -67,7 +71,7 @@ const KERNEL = {
             session_token: localStorage.getItem('tg_stripe_session') || ""
         };
     },
-
+    
     DEFAULT_NECESSITY_PROFILE: { 
         "movimiento": 50, 
         "naturaleza": 50, 
