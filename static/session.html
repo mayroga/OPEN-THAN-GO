@@ -631,13 +631,16 @@
     </a>
 
     <!-- ============================================================ -->
-    <!-- CORRECCIÓN SINTÁCTICA CRÍTICA: ETIQUETA SCRIPT AGREGADA -->
+    <!-- ENLAZADOR DE EVENTOS ACTIVO - EVITA CONGELACIÓN DE BOTONES -->
     <!-- ============================================================ -->
     <script>
-        // Asegura la existencia del objeto de inicialización global
+        // Asegurar que el contenedor KERNEL global esté disponible en el entorno de la página
         window.KERNEL = window.KERNEL || {};
-        let planSeleccionado = "unico";
+        
+        // CORRECCIÓN CRÍTICA: Cambiado el nombre para que no choque con engine.js
+        let planSeleccionadoActivo = "unico";
 
+        // Diccionario de traducción para los nuevos elementos de la pared de pago
         const traduccionesPaywall = {
             es: {
                 "txt-choose-plan": "Selecciona tu Plan de Acceso",
@@ -669,24 +672,29 @@
             }
         };
 
+        // Función para cambiar de tarjeta visualmente
         KERNEL.seleccionarTarjetaPlan = function(elementoCard) {
             document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('active'));
             elementoCard.classList.add('active');
-            planSeleccionado = elementoCard.getAttribute('data-plan');
+            planSeleccionadoActivo = elementoCard.getAttribute('data-plan');
         };
 
+        // Enlace directo al botón de Stripe para disparar el fetch multiplan
         KERNEL.procesarPagoStripe = async function() {
             const botonPago = document.getElementById('btn-pay-stripe');
             botonPago.disabled = true;
             botonPago.innerText = "...";
+            
             try {
                 const response = await fetch('/api/create-checkout-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ plan: planSeleccionado })
+                    body: JSON.stringify({ plan: planSeleccionadoActivo })
                 });
+                
                 const data = await response.json();
                 if (data.url) {
+                    // Redirige directamente a la pasarela oficial de Stripe Checkout
                     window.location.href = data.url;
                 } else {
                     alert('Error en pasarela: ' + (data.error || 'Intente más tarde'));
@@ -694,28 +702,40 @@
                     botonPago.innerText = "ACTIVAR CON STRIPE";
                 }
             } catch (err) {
-                console.error("Falla en la red de Stripe:", err);
+                console.error("Falla en la comunicación con Stripe en Render:", err);
                 botonPago.disabled = false;
                 botonPago.innerText = "ACTIVAR CON STRIPE";
             }
         };
 
+        // Enlace directo al botón de Administrador para guardar credenciales locales
         KERNEL.procesarBypassAdmin = function() {
             const userInp = document.getElementById('admin-username').value.trim();
             const passInp = document.getElementById('admin-password').value.trim();
             const errorBox = document.getElementById('error-display');
+            
             if (!userInp || !passInp) {
-                errorBox.textContent = "Por favor llene los campos / Fill all fields";
-                errorBox.classList.remove('hidden');
+                if (errorBox) {
+                    errorBox.textContent = "Por favor llene los campos / Fill all fields";
+                    errorBox.classList.remove('hidden');
+                } else {
+                    alert("Por favor llene los campos / Fill all fields");
+                }
                 return;
             }
+
+            // Almacenar credenciales en el navegador con las variables exactas que lee engine.js
             localStorage.setItem('tg_admin_user', userInp);
             localStorage.setItem('tg_admin_pass', passInp);
-            localStorage.removeItem('tg_stripe_session');
-            errorBox.classList.add('hidden');
+            localStorage.removeItem('tg_stripe_session'); // Limpiar token de pago previo si usa admin
+
+            if (errorBox) errorBox.classList.add('hidden');
+            
+            // Recarga la aplicación para que engine.js lea las nuevas credenciales y desbloquee el oráculo
             window.location.reload();
         };
 
+        // Traducción dinámica de la interfaz del Paywall
         KERNEL.traducirElementosPaywall = function(idiomaActivo) {
             const textos = traduccionesPaywall[idiomaActivo] || traduccionesPaywall['es'];
             for (const idElemento in textos) {
