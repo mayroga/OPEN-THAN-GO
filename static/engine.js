@@ -1,64 +1,102 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
-// Company: May Roga LLC
-// File: static/engine.js (Frontend Logic)
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1 
+// Company: May Roga LLC 
+// File: static/engine.js (Frontend Logic) 
 
-const KERNEL = {
-    timerInaccion: null,
-    timerEnfocado: null,
-    temporizadorCascada: null,
-    temporizadorCierre: null,
-    salidaSugeridaTimeoutId: null,
-    salidaTimerId: null, // New timer for SALIR mode 45s phrases
-    timeLeft: 600,
-    timeLeftCierre: 60,
-    isLocked: false,
-    idiomaActual: 'es',
-    pasosMisiones: [],
-    indiceMision: 0,
-    datosLugarGlobal: null, // Now stores the *selected* mission for SALIR
-    tipoEscapeGlobal: "",
-   
-    contadorToques: 0,
-    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],
-   
-    historialSalir: [],
-    historialCasa: [],
-    historialPreguntas: [],
-    historialRetosSecuencias: [],
+const KERNEL = { 
+    timerInaccion: null, 
+    timerEnfocado: null, 
+    temporizadorCascada: null, 
+    temporizadorCierre: null, 
+    salidaSugeridaTimeoutId: null, 
+    salidaTimerId: null, // New timer for SALIR mode 45s phrases 
+    timeLeft: 600, 
+    timeLeftCierre: 60, 
+    isLocked: false, 
+    idiomaActual: 'es', 
+    pasosMisiones: [], 
+    indiceMision: 0, 
+    datosLugarGlobal: null, // Now stores the selected mission for SALIR 
+    tipoEscapeGlobal: "", 
+    contadorToques: 0, 
+    secuenciaAdelantos:, 
+    historialSalir: [], 
+    historialCasa: [], 
+    historialPreguntas: [], 
+    historialRetosSecuencias: [], 
+    lastDecayTimestamp: null, 
+    sessionSeed: null, 
+    MAX_HISTORY_SALIR: 5, 
+    MAX_HISTORY_CASA: 8, 
+    MAX_HISTORY_ORACULO: 12, 
+    MAX_HISTORY_RETOS_SECUENCIAS: 3, 
+    DECAY_PER_DAY: 0.985, 
+    conteoInaccion: 0, 
+    indicePreguntaCascada: 0, 
+    
+    // ============================================================
+    // CONEXIÓN INTEGRADA CON LA COMPUERTA DE PAGOS STRIPE & ADMIN
+    // ============================================================
+    verificarEstatusAcceso: function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const stripeSessionId = urlParams.get('session_id');
+        
+        // Si el usuario regresa de un pago exitoso, guardamos su token permanentemente
+        if (stripeSessionId) {
+            localStorage.setItem('tg_stripe_session', stripeSessionId);
+            // Limpiamos los parámetros visuales de la URL de forma elegante
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
 
-    lastDecayTimestamp: null,
-    sessionSeed: null,
+        const tokenPago = localStorage.getItem('tg_stripe_session') || "";
+        const adminUser = localStorage.getItem('tg_admin_user') || "";
+        const adminPass = localStorage.getItem('tg_admin_pass') || "";
 
-    MAX_HISTORY_SALIR: 5,
-    MAX_HISTORY_CASA: 8,
-    MAX_HISTORY_ORACULO: 12,
-    MAX_HISTORY_RETOS_SECUENCIAS: 3,
-    DECAY_PER_DAY: 0.985,
+        const tieneAccesoValido = (tokenPago.startsWith("cs_") || (adminUser !== "" && adminPass !== ""));
+        
+        // Control visual de las pantallas basado en el estatus de pago
+        const paywallEl = document.getElementById('paywall-container');
+        const oraculoFormEl = document.getElementById('wrapper-form'); // O el id de tu bloque principal
 
-    conteoInaccion: 0,
-    indicePreguntaCascada: 0,
-
-    DEFAULT_NECESSITY_PROFILE: {
-        "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
-        "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
-        "juego": 50, "contemplacion": 50, "descanso": 50, "organizacion": 50,
-        "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
-        "indicador_ansiedad": 0
+        if (tieneAccesoValido) {
+            if (paywallEl) paywallEl.classList.add('hidden');
+            // Aquí puedes remover la clase 'hidden' de tus formularios para activar el uso normal
+        } else {
+            if (paywallEl) paywallEl.classList.remove('hidden');
+            // Forzar el ocultamiento de bloques interactivos si no ha pagado
+        }
+        return tieneAccesoValido;
     },
-   
-    CATALOGO_PREGUNTAS_ES: [
-        // Bloque 1: El Bucle Digital Urbano (Redes, Contenido y Consumo)
-        "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?",
-        "¿Te pierdes en contenido de video que olvidas en pocos segundos, buscando llenar un vacío?",
-        "¿Usas música para ahogar el ruido mental y la inquietud de tu día a día?",
-        "¿Sientes que lo digital te desconectó de la capacidad de observar el mundo real en calma?",
 
-        // Bloque 2: Evasión y Rutina Física (Comida, Descanso y Movimiento)
-        "¿Invierdes mucho en experiencias pasajeras buscando una satisfacción que se desvanece rápido?",
-        "¿Te refugias en espacios ajenos huyendo de situaciones que te acompañan a todas partes?",
-        "¿Conduces sin destino solo para escapar del encierro en tu propio entorno?",
-        "¿Mantienes hábitos por costumbre, sintiendo que te anestesian de tu realidad?",
-        "¿Te cuesta romper tu rutina por miedo a la incomodidad o el esfuerzo físico?",
+    inyectarTokensAcceso: function(payloadExistente) {
+        // Recolecta de forma automatizada las llaves de acceso locales para el backend
+        return {
+            ...payloadExistente,
+            username: localStorage.getItem('tg_admin_user') || "",
+            password: localStorage.getItem('tg_admin_pass') || "",
+            session_token: localStorage.getItem('tg_stripe_session') || ""
+        };
+    },
+
+    DEFAULT_NECESSITY_PROFILE: { 
+        "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50, 
+        "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, 
+        "aprendizaje": 50, "juego": 50, "contemplacion": 50, "descanso": 50, 
+        "organizacion": 50, "alimentacion": 50, "musica": 50, "risa": 50, 
+        "esperanza": 50, "indicador_ansiedad": 0 
+    }, 
+    
+    CATALOGO_PREGUNTAS_ES: [ 
+        // Bloque 1: El Bucle Digital Urbano (Redes, Contenido y Consumo) 
+        "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?", 
+        "¿Te pierdes en contenido de video que olvidas en pocos segundos, buscando llenar un vacío?", 
+        "¿Usas música para ahogar el ruido mental y la inquietud de tu día a día?", 
+        "¿Sientes que lo digital te desconectó de la capacidad de observar el mundo real en calma?", 
+        // Bloque 2: Evasión y Rutina Física (Comida, Descanso y Movimiento) 
+        "¿Invierdes mucho en experiences pasajeras buscando una satisfacción que se desvanece rápido?", 
+        "¿Te refugias en espacios ajenos huyendo de situaciones que te acompañan a todas partes?", 
+        "¿Conduces sin destino solo para escapar del encierro en tu propio entorno?", 
+        "¿Mantienes hábitos por costumbre, sintiendo que te anestesian de tu realidad?", 
+        "¿Te cuesta romper tu rutina por miedo a la incomodidad o el esfuerzo físico?", 
         "¿Tu cuerpo te pide actividad, pero eliges la comodidad estática del sofá?",
 
         // Bloque 3: Distracción Nocturna y Aislamiento Social
@@ -369,28 +407,49 @@ const KERNEL = {
             localStorage.removeItem("otg_historial_oraculo");
             localStorage.removeItem("otg_historial_retos_secuencias");
         }
+        
         this.obtenerPerfilLocal();
+        
+        // ============================================================
+        // CONTROL LOGICO CENTRAL DEL PAYWALL AL ARRANQUE
+        // ============================================================
+        this.verificarEstatusAcceso();
 
         const zipInput = document.getElementById('inp-zip');
         if (zipInput) {
             zipInput.addEventListener('input', () => this.validarZip());
             this.validarZip();
         }
-
-        // Add event listeners for the new floating buttons
+        
         document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
     },
 
     /** Starts the initial welcome sequence after user interaction. */
     despertarInicial() {
+        // Ejecuta validación de compra o bypass antes de activar el motor de voz
+        const usuarioAutorizado = this.verificarEstatusAcceso();
+
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.remove('hidden'); // Show return button
-        document.getElementById('btn-whatsapp').classList.remove('hidden'); // Show WhatsApp button
-        document.getElementById('btn-messenger').classList.remove('hidden'); // Show Messenger button
-       
+        document.getElementById('btn-volver-app').classList.remove('hidden'); 
+        document.getElementById('btn-whatsapp').classList.remove('hidden'); 
+        document.getElementById('btn-messenger').classList.remove('hidden'); 
+        
         this.cambiarIdioma(this.idiomaActual);
-       
+
+        // Si el usuario no tiene acceso válido, la app lo recibe solicitando su cobro
+        if (!usuarioAutorizado) {
+            const aviso_es = "Para desbloquear tu motor de enrutamiento somático, por favor selecciona un plan de acceso.";
+            const aviso_en = "To unlock your somatic routing engine, please select an access plan.";
+            this.hablar(this.idiomaActual === 'es' ? aviso_es : aviso_en);
+            
+            // Oculta el formulario del oráculo bloqueando el paso
+            const oraculoBox = document.getElementById('bloque-escritura-libre');
+            if (oraculoBox) oraculoBox.style.opacity = "0.15";
+            return; // Detiene la carga del bloque de preguntas
+        }
+
+        // Si ya pagó o es administrador, corre tu flujo original con total normalidad:
         const saludos_es = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
             "ópen dán go está activo. Concéntrate un momento. Mira las opciones en tu pantalla ya.",
@@ -403,10 +462,8 @@ const KERNEL = {
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-       
         this.inyectarBloquePreguntas();
         this.iniciarMonitoreoInaccion();
-       
         this.activarBotonMandoLibreInicial();
     },
 
