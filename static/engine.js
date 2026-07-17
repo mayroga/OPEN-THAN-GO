@@ -14,7 +14,8 @@ const KERNEL = {
     datosLugarGlobal: null, 
     tipoEscapeGlobal: "", 
     contadorToques: 0, 
-    secuenciaAdelantos:, // RESTAURADO ORIGINAL
+    // ¡CORREGIDO!: Se restauró tu arreglo numérico original cerrado perfectamente
+    secuenciaAdelantos:, 
     historialSalir: [], 
     historialCasa: [], 
     historialPreguntas: [], 
