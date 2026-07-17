@@ -1,7 +1,3 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1 
-// Company: May Roga LLC 
-// File: static/engine.js (Frontend Logic) 
-
 const KERNEL = { 
     timerInaccion: null, 
     timerEnfocado: null, 
@@ -18,8 +14,7 @@ const KERNEL = {
     datosLugarGlobal: null, 
     tipoEscapeGlobal: "", 
     contadorToques: 0, 
-    // CORRECCIÓN CRÍTICA DEFINTIVA: Se restauró el Array numérico cerrado sin errores de coma
-    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5], 
+    secuenciaAdelantos:, // RESTAURADO ORIGINAL
     historialSalir: [], 
     historialCasa: [], 
     historialPreguntas: [], 
@@ -33,10 +28,8 @@ const KERNEL = {
     DECAY_PER_DAY: 0.985, 
     conteoInaccion: 0, 
     indicePreguntaCascada: 0, 
-    
-    // ============================================================
-    // CONEXIÓN INTEGRADA CON LA COMPUERTA DE PAGOS STRIPE & ADMIN
-    // ============================================================
+
+    // VERIFICADOR INTEGRAL DE COMPUERTAS
     verificarEstatusAcceso: function() {
         const urlParams = new URLSearchParams(window.location.search);
         const stripeSessionId = urlParams.get('session_id');
@@ -50,7 +43,10 @@ const KERNEL = {
         const adminUser = localStorage.getItem('tg_admin_user') || "";
         const adminPass = localStorage.getItem('tg_admin_pass') || "";
 
-        const tieneAccesoValido = (tokenPago.startsWith("cs_") || (adminUser !== "" && adminPass !== ""));
+        // EVALUACIÓN DE ENTRADAS RESPETANDO AMBOS CANALES
+        const tieneStripe = tokenPago.startsWith("cs_");
+        const tieneAdmin = (adminUser !== "" && adminPass !== "");
+        const tieneAccesoValido = (tieneStripe || tieneAdmin);
         
         const paywallEl = document.getElementById('paywall-container');
         
