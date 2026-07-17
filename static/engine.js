@@ -19,7 +19,7 @@ const KERNEL = {
     tipoEscapeGlobal: "", 
     contadorToques: 0, 
     // CORRECCIÓN DEFINTIVA: Se restauró el arreglo numérico completo sin errores de comas
-    secuenciaAdelantos: [5, 7, 9, 10, 14, 16, 17, 19, 21, 5],  
+    secuenciaAdelantos:, 
     historialSalir: [], 
     historialCasa: [], 
     historialPreguntas: [], 
@@ -33,7 +33,7 @@ const KERNEL = {
     DECAY_PER_DAY: 0.985, 
     conteoInaccion: 0, 
     indicePreguntaCascada: 0, 
-
+    
     // VERIFICADOR INTEGRAL DE COMPUERTAS
     verificarEstatusAcceso: function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -333,88 +333,87 @@ const KERNEL = {
         {"id": 210, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "For two minutes, look at a distant point to allow your eyes to rest from the screen.", "img": "nature_sound.svg"},
     ],
 
-    /**
+        /**
      * Retrieves or initializes the user's dynamic profile from localStorage.
      * Ensures all 19 needs are present with default values if missing.
      * Applies gradual daily reduction (decay) towards base values.
      * @returns {Object} The user's dynamic profile.
      */
-    obtenerPerfilLocal() {
-        let perfilRaw = localStorage.getItem("otg_perfil_dinamico");
-        let perfil = {};
+    obtenerPerfilLocal() { 
+        let perfilRaw = localStorage.getItem("otg_perfil_dinamico"); 
+        let perfil = {}; 
+        
+        if (!perfilRaw) { 
+            perfil = { ...this.DEFAULT_NECESSITY_PROFILE }; 
+        } else { 
+            try { 
+                perfil = JSON.parse(perfilRaw); 
+                for (const need in this.DEFAULT_NECESSITY_PROFILE) { 
+                    if (!(need in perfil)) { 
+                        perfil[need] = this.DEFAULT_NECESSITY_PROFILE[need]; 
+                    } 
+                } 
+            } catch (e) { 
+                console.error("Error parsing otg_perfil_dinamico from localStorage, resetting.", e); 
+                perfil = { ...this.DEFAULT_NECESSITY_PROFILE }; 
+            } 
+        } 
+        
+        const now = Date.now(); 
+        let lastDecayTimestamp = parseInt(localStorage.getItem("otg_last_decay") || now); 
+        this.sessionSeed = localStorage.getItem("otg_session_seed") || Math.random().toString(36).substring(2, 15); 
+        
+        const daysPassed = (now - lastDecayTimestamp) / (1000 * 60 * 60 * 24); 
+        if (daysPassed >= 1) { 
+            const newPerfil = {}; 
+            const base = 50; 
+            for (const necesidad in perfil) { 
+                if (necesidad === "indicador_ansiedad") { 
+                    newPerfil[necesidad] = Math.max(0, perfil[necesidad] - (daysPassed * 2)); 
+                    continue; 
+                } 
+                const valor = perfil[necesidad]; 
+                let diferencia = valor - base; 
+                diferencia *= (this.DECAY_PER_DAY ** daysPassed); 
+                newPerfil[necesidad] = Math.round((base + diferencia) * 100) / 100; 
+            } 
+            perfil = newPerfil; 
+            lastDecayTimestamp = now; 
+        } 
+        
+        perfil.fecha = new Date(now).toISOString().split('T')[0]; 
+        perfil.timestamp = now; 
+        
+        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil)); 
+        localStorage.setItem("otg_last_decay", lastDecayTimestamp.toString()); 
+        localStorage.setItem("otg_session_seed", this.sessionSeed); 
+        return perfil; 
+    }, 
 
-        if (!perfilRaw) {
-            perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
-        } else {
-            try {
-                perfil = JSON.parse(perfilRaw);
-                for (const need in this.DEFAULT_NECESSITY_PROFILE) {
-                    if (!(need in perfil)) {
-                        perfil[need] = this.DEFAULT_NECESSITY_PROFILE[need];
-                    }
-                }
-            } catch (e) {
-                console.error("Error parsing otg_perfil_dinamico from localStorage, resetting.", e);
-                perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
-            }
-        }
-
-        const now = Date.now();
-        let lastDecayTimestamp = parseInt(localStorage.getItem("otg_last_decay") || now);
-        this.sessionSeed = localStorage.getItem("otg_session_seed") || Math.random().toString(36).substring(2, 15);
-
-        const daysPassed = (now - lastDecayTimestamp) / (1000 * 60 * 60 * 24);
-
-        if (daysPassed >= 1) {
-            const newPerfil = {};
-            const base = 50;
-            for (const necesidad in perfil) {
-                if (necesidad === "indicador_ansiedad") {
-                    newPerfil[necesidad] = Math.max(0, perfil[necesidad] - (daysPassed * 2));
-                    continue;
-                }
-                const valor = perfil[necesidad];
-                let diferencia = valor - base;
-                diferencia *= (this.DECAY_PER_DAY ** daysPassed);
-                newPerfil[necesidad] = Math.round((base + diferencia) * 100) / 100;
-            }
-            perfil = newPerfil;
-            lastDecayTimestamp = now;
-        }
-
-        perfil.fecha = new Date(now).toISOString().split('T')[0];
-        perfil.timestamp = now;
-
-        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-        localStorage.setItem("otg_last_decay", lastDecayTimestamp.toString());
-        localStorage.setItem("otg_session_seed", this.sessionSeed);
-
-        return perfil;
-    },
-
-    /** Initializes the KERNEL on DOMContentLoaded. */
-    init() {
-        const storedLang = localStorage.getItem("otg_language");
-        if (storedLang) {
-            this.idiomaActual = storedLang;
-        } else {
-            localStorage.setItem("otg_language", this.idiomaActual);
-        }
-        try {
-            this.historialSalir = JSON.parse(localStorage.getItem("otg_historial_salir") || "[]");
-            this.historialCasa = JSON.parse(localStorage.getItem("otg_historial_casa") || "[]");
-            this.historialPreguntas = JSON.parse(localStorage.getItem("otg_historial_oraculo") || "[]");
-            this.historialRetosSecuencias = JSON.parse(localStorage.getItem("otg_historial_retos_secuencias") || "[]");
-        } catch (e) {
-            console.error("Error parsing history from localStorage, resetting specific histories.", e);
-            this.historialSalir = [];
-            this.historialCasa = [];
-            this.historialPreguntas = [];
-            this.historialRetosSecuencias = [];
-            localStorage.removeItem("otg_historial_salir");
-            localStorage.removeItem("otg_historial_casa");
-            localStorage.removeItem("otg_historial_oraculo");
-            localStorage.removeItem("otg_historial_retos_secuencias");
+    /** Initializes the KERNEL on DOMContentLoaded. */ 
+    init() { 
+        const storedLang = localStorage.getItem("otg_language"); 
+        if (storedLang) { 
+            this.idiomaActual = storedLang; 
+        } else { 
+            localStorage.setItem("otg_language", this.idiomaActual); 
+        } 
+        
+        try { 
+            this.historialSalir = JSON.parse(localStorage.getItem("otg_historial_salir") || "[]"); 
+            this.historialCasa = JSON.parse(localStorage.getItem("otg_historial_casa") || "[]"); 
+            this.historialPreguntas = JSON.parse(localStorage.getItem("otg_historial_oraculo") || "[]"); 
+            this.historialRetosSecuencias = JSON.parse(localStorage.getItem("otg_historial_retos_secuencias") || "[]"); 
+        } catch (e) { 
+            console.error("Error parsing history from localStorage, resetting specific histories.", e); 
+            this.historialSalir = []; 
+            this.historialCasa = []; 
+            this.historialPreguntas = []; 
+            this.historialRetosSecuencias = []; 
+            localStorage.removeItem("otg_historial_salir"); 
+            localStorage.removeItem("otg_historial_casa"); 
+            localStorage.removeItem("otg_historial_oraculo"); 
+            localStorage.removeItem("otg_historial_retos_secuencias"); 
         }
 
         this.obtenerPerfilLocal();
@@ -851,128 +850,135 @@ const KERNEL = {
         document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
         document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
 
-        const cierreLogo = document.getElementById('cierre-logo');
-        if (cierreLogo) cierreLogo.innerText = t.title;
-        const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
-        if (cierreBoton) cierreBoton.innerText = t.recomenzar;
-        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
-        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
-        const btnVolverApp = document.getElementById('btn-volver-app');
-        if (btnVolverApp) btnVolverApp.title = t.volverApp;
+                const cierreLogo = document.getElementById('cierre-logo'); 
+        if (cierreLogo) cierreLogo.innerText = t.title; 
+        
+        const cierreBoton = document.getElementById('btn-recomenzar-experiencia'); 
+        if (cierreBoton) cierreBoton.innerText = t.recomenzar; 
+        
+        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
+        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta; 
+        
+        const btnVolverApp = document.getElementById('btn-volver-app'); 
+        if (btnVolverApp) btnVolverApp.title = t.volverApp; 
+        
+        // INYECCIÓN DE PASARELA: Traducir dinámicamente los elementos de Stripe 
+        if (typeof this.traducirElementosPaywall === "function") { 
+            this.traducirElementosPaywall(lang); 
+        } 
+        
+        this.hablar(t.alert); 
+        this.inyectarBloquePreguntas(); 
+        this.activarBotonMandoLibreInicial(); 
+    }, 
 
-        // INYECCIÓN DE PASARELA: Traducir dinámicamente los elementos de Stripe
-        if (typeof this.traducirElementosPaywall === "function") {
-            this.traducirElementosPaywall(lang);
+    /** 
+     * Executes the main logic to fetch recommendations from the backend. 
+     */ 
+    async ejecutar() { 
+        if (this.isLocked) return; 
+        this.isLocked = true; 
+        
+        clearInterval(this.timerInaccion); 
+        clearInterval(this.temporizadorCascada); 
+        clearInterval(this.timerEnfocado); 
+        clearInterval(this.salidaTimerId); 
+        window.speechSynthesis.cancel(); 
+        
+        if (this.salidaSugeridaTimeoutId) { 
+            clearTimeout(this.salidaSugeridaTimeoutId); 
+            this.salidaSugeridaTimeoutId = null; 
+        } 
+        
+        const modoSelector = document.getElementById('modo-selector');
+        const modoActual = modoSelector ? modoSelector.value : "SALIR"; 
+        const zipInput = document.getElementById('inp-zip'); 
+        const desahogoInput = document.getElementById('inp-text-libre'); 
+        
+        if (zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity()) { 
+            alert(this.idiomaActual === 'es' ? "Error: Código Postal inválido. Por favor, corrígelo." : "Error: Invalid ZIP Code. Please correct it."); 
+            this.isLocked = false; 
+            zipInput.focus(); 
+            return; 
+        } 
+        
+        const menteSelector = document.getElementById('mente-selector');
+        const budgetSelector = document.getElementById('budget-selector');
+        const perfilSelector = document.getElementById('perfil-selector');
+
+        let rawPayload = { 
+            zip: zipInput ? zipInput.value.trim() : "", 
+            modo: modoActual, 
+            desahogo: desahogoInput ? desahogoInput.value.trim() : "", 
+            lang: this.idiomaActual, 
+            mente: menteSelector ? menteSelector.value : "aburrido", 
+            budget: budgetSelector ? budgetSelector.value : "0", 
+            perfil: perfilSelector ? perfilSelector.value : "solo", 
+            perfil_local: this.obtenerPerfilLocal() 
+        }; 
+        
+        if (modoActual === "CASA") { 
+            rawPayload.historial_casa = this.historialCasa; 
+        } else { 
+            rawPayload.historial_salir = this.historialSalir; 
         }
 
-        this.hablar(t.alert);
-        this.inyectarBloquePreguntas();
-        this.activarBotonMandoLibreInicial();
-    },
-
-    /**
-     * Executes the main logic to fetch recommendations from the backend.
-     */
-    async ejecutar() {
-        if (this.isLocked) return;
-        this.isLocked = true;
-
-        clearInterval(this.timerInaccion);
-        clearInterval(this.temporizadorCascada);
-        clearInterval(this.timerEnfocado);
-        clearInterval(this.salidaTimerId);
-        window.speechSynthesis.cancel();
-
-        if (this.salidaSugeridaTimeoutId) {
-            clearTimeout(this.salidaSugeridaTimeoutId);
-            this.salidaSugeridaTimeoutId = null;
+               // ============================================================ 
+        // INTERCEPTOR CRÍTICO: Inyectar automáticamente credenciales y tokens de Stripe 
+        // ============================================================ 
+        const payload = this.inyectarTokensAcceso(rawPayload); 
+        const container = document.getElementById('wrapper-interactive'); 
+        
+        if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.add('hidden'); 
+        if (document.getElementById('pantalla-cierre')) document.getElementById('pantalla-cierre').classList.add('hidden'); 
+        
+        if (container) {
+            container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`; 
+            container.classList.remove('hidden'); 
         }
-
-        const modoActual = document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR";
-        const zipInput = document.getElementById('inp-zip');
-        const desahogoInput = document.getElementById('inp-text-libre');
-
-        if (zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity()) {
-            alert(this.idiomaActual === 'es' ? "Error: Código Postal inválido. Por favor, corrígelo." : "Error: Invalid ZIP Code. Please correct it.");
-            this.isLocked = false;
-            zipInput.focus();
-            return;
-        }
-
-        let rawPayload = {
-            zip: zipInput ? zipInput.value.trim() : "",
-            modo: modoActual,
-            desahogo: desahogoInput ? desahogoInput.value.trim() : "",
-            lang: this.idiomaActual,
-            mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido",
-            budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0",
-            perfil: document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo",
-            perfil_local: this.obtenerPerfilLocal(),
-        };
-
-        if (modoActual === "CASA") {
-            rawPayload.historial_casa = this.historialCasa;
-        } else {
-            rawPayload.historial_salir = this.historialSalir;
-        }
-
-        // ============================================================
-        // INTERCEPTOR CRÍTICO: Inyectar automáticamente credenciales y tokens de Stripe
-        // ============================================================
-        const payload = this.inyectarTokensAcceso(rawPayload);
-
-               const container = document.getElementById('wrapper-interactive');
-        document.getElementById('wrapper-form').classList.add('hidden');
-        document.getElementById('pantalla-cierre').classList.add('hidden');
-
-        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
-        container.classList.remove('hidden');
-
-        try {
-            const r = await fetch("/api/mando-integral", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-
-            // ============================================================
-            // INTERCEPTOR CRÍTICO: DETECTAR INTENTOS DE ACCESO SIN PAGO (403)
-            // ============================================================
-            if (r.status === 403) {
-                const errorData = await r.json();
-                if (errorData.requiere_pago) {
-                    console.warn("Acceso denegado por el servidor: Requiere validación financiera.");
-
-                    // Limpia tokens guardados viejos o alterados manualmente
-                    localStorage.removeItem('tg_stripe_session');
-
-                    // Restablece los contenedores para volver al menú principal
-                    document.getElementById('wrapper-form').classList.remove('hidden');
-                    container.classList.add('hidden');
-                    this.isLocked = false;
-
-                    // Fuerza la visualización inmediata del Paywall de Stripe
-                    const paywallEl = document.getElementById('paywall-container');
-                    if (paywallEl) paywallEl.classList.remove('hidden');
-
-                    const aviso = this.idiomaActual === 'es' ?
-                        "Acceso restringido. Por favor selecciona un plan para continuar." :
-                        "Access restricted. Please select a plan to continue.";
-                    this.hablar(aviso);
-                    return; // Detiene la ejecución para que no inyecte nada en pantalla
-                }
-            }
-
-            const data = await r.json();
-
-            if (data.error) {
-                alert(data.error);
-                document.getElementById('wrapper-form').classList.remove('hidden');
-                container.classList.add('hidden');
-                this.isLocked = false;
-                this.validarZip();
-                return;
-            }
+        
+        try { 
+            const r = await fetch("/api/mando-integral", { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify(payload) 
+            }); 
+            
+            // ============================================================ 
+            // INTERCEPTOR CRÍTICO: DETECTAR INTENTOS DE ACCESO SIN PAGO (403) 
+            // ============================================================ 
+            if (r.status === 403) { 
+                const errorData = await r.json(); 
+                if (errorData.requiere_pago) { 
+                    console.warn("Acceso denegado por el servidor: Requiere validación financiera."); 
+                    
+                    // Limpia tokens guardados viejos o alterados manualmente 
+                    localStorage.removeItem('tg_stripe_session'); 
+                    
+                    // Restablece los contenedores para volver al menú principal 
+                    if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden'); 
+                    if (container) container.classList.add('hidden'); 
+                    this.isLocked = false; 
+                    
+                    // Fuerza la visualización inmediata del Paywall de Stripe 
+                    const paywallEl = document.getElementById('paywall-container'); 
+                    if (paywallEl) paywallEl.classList.remove('hidden'); 
+                    
+                    const aviso = this.idiomaActual === 'es' ? "Acceso restringido. Por favor selecciona un plan para continuar." : "Access restricted. Please select a plan to continue."; 
+                    this.hablar(aviso); 
+                    return; // Detiene la ejecución para que no inyecte nada en pantalla 
+                } 
+            } 
+            
+            const data = await r.json(); 
+            if (data.error) { 
+                alert(data.error); 
+                if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden'); 
+                if (container) container.classList.add('hidden'); 
+                this.isLocked = false; 
+                this.validarZip(); 
+                return; 
+            } 
 
             // FLUJO NORMAL AUTORIZADO DE RECOMENDACIONES
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
@@ -1124,55 +1130,85 @@ const KERNEL = {
      * Processes the sequential flow based on the recommendation type (only for CASA mode now).
     */
     procesarFlujoSecuencial(container) {
-        // ============================================================
-        // COMPUERTA DE COBRO PREVENTIVA: Bloquea el flujo secuencial sin pago
-        // ============================================================
-        if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") &&
-            !(localStorage.getItem('tg_admin_user') && localStorage.getItem('tg_admin_pass'))) {
-            console.warn("Bloqueo de seguridad: No se puede procesar el flujo secuencial sin acceso.");
-            return;
+                const cierreLogo = document.getElementById('cierre-logo'); 
+        if (cierreLogo) cierreLogo.innerText = t.title; 
+        
+        const cierreBoton = document.getElementById('btn-recomenzar-experiencia'); 
+        if (cierreBoton) cierreBoton.innerText = t.recomenzar; 
+        
+        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
+        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta; 
+        
+        const btnVolverApp = document.getElementById('btn-volver-app'); 
+        if (btnVolverApp) btnVolverApp.title = t.volverApp; 
+        
+        // ============================================================ 
+        // INTERCEPTOR CRÍTICO: Inyectar automáticamente credenciales y tokens de Stripe 
+        // ============================================================ 
+        const payload = this.inyectarTokensAcceso(rawPayload); 
+        const container = document.getElementById('wrapper-interactive'); 
+        
+        if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.add('hidden'); 
+        if (document.getElementById('pantalla-cierre')) document.getElementById('pantalla-cierre').classList.add('hidden'); 
+        
+        if (container) {
+            container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`; 
+            container.classList.remove('hidden'); 
         }
-
-        clearInterval(this.timerEnfocado);
-        window.speechSynthesis.cancel();
-
-        const t = {
-            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo", internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido" },
-            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" }
-        }[this.idiomaActual];
-
-        if (this.indiceMision >= this.pasosMisiones.length) {
-            this.iniciarRelojEnfocadoCasa(container, t);
-            return;
-        }
-
-        const paso = this.pasosMisiones[this.indiceMision];
-        container.innerHTML = `
-        <div class="mision-card">
-            <small>${t.internalMission}</small>
-            <h3>${paso.titulo}</h3>
-            <p>${paso.descripcion}</p>
-            <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
-        </div>`;
-
-        this.hablar(paso.titulo + " . " + paso.descripcion);
-
-        document.getElementById('btn-next').onclick = () => {
-            try {
-                let perfil = this.obtenerPerfilLocal();
-                const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
-                for (const need in missionVector) {
-                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                        perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
-                    }
-                }
-                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
-                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-            } catch (e) {
-                console.error("Error updating local profile after CASA mission:", e);
+        
+        try { 
+            const r = await fetch("/api/mando-integral", { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify(payload) 
+            }); 
+            
+            if (r.status === 403) { 
+                const errorData = await r.json(); 
+                if (errorData.requiere_pago) { 
+                    localStorage.removeItem('tg_stripe_session'); 
+                    if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden'); 
+                    if (container) container.classList.add('hidden'); 
+                    this.isLocked = false; 
+                    const paywallEl = document.getElementById('paywall-container'); 
+                    if (paywallEl) paywallEl.classList.remove('hidden'); 
+                    this.hablar(this.idiomaActual === 'es' ? "Acceso restringido. Por favor selecciona un plan." : "Access restricted. Please select a plan."); 
+                    return; 
+                } 
+            } 
+            
+            const data = await r.json(); 
+            if (data.error) { 
+                alert(data.error); 
+                if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden'); 
+                if (container) container.classList.add('hidden'); 
+                this.isLocked = false; 
+                this.validarZip(); 
+                return; 
             }
-            this.avanzarPaso();
-        };
+
+            // PROCESAMIENTO AUTORIZADO DE RESPUESTAS DEL SERVIDOR
+            this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER; 
+            this.indiceMision = 0; 
+            
+            if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) { 
+                this.historialSalir = data.historial_salir_actualizado; 
+                localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir)); 
+                this.pasosMisiones = data.misiones; 
+                this.mostrarOpcionesSalir(container); 
+            } else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) { 
+                this.historialCasa = data.historial_casa_actualizado; 
+                localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa)); 
+                this.pasosMisiones = data.misiones; 
+                this.procesarFlujoSecuencial(container); 
+            } 
+        } catch (error) { 
+            console.error("Fetch error:", error); 
+            if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden'); 
+            if (container) container.classList.add('hidden'); 
+            this.isLocked = false; 
+            this.validarZip(); 
+        } 
     },
 
     /** Starts the 10-minute clinical breathing timer for CASA mode. */
