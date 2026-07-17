@@ -1,7 +1,7 @@
 import os
 import stripe
 from fastapi import FastAPI, Request, Header, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse 
 from fastapi.staticfiles import StaticFiles  # <- CORREGIDO: Importación añadida
 
 # CREACIÓN DE LA APP (¡Debe ir antes de las rutas!)
