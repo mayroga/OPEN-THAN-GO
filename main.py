@@ -1,51 +1,35 @@
 import os
 import stripe
 from fastapi import FastAPI, Request, Header, HTTPException
-from fastapi.responses import JSONResponse, FileResponse 
-from fastapi.staticfiles import StaticFiles  # <- CORREGIDO: Importación añadida
+from fastapi.responses import JSONResponse
 
-# CREACIÓN DE LA APP (¡Debe ir antes de las rutas!)
-app = FastAPI()  # <- CORREGIDO: Movido arriba para evitar NameError
-
-# Asegurar que el directorio static existe antes de montarlo
-if not os.path.exists("static"):
-    os.makedirs("static")
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-link_base = "https://www.google.com/maps/search/?api=1&query="
-
-# 1. INICIALIZACIÓN DE STRIPE CON TUS VARIABLES DE RENDER
+# Inicialización con tus variables exactas de Render
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
-# Mapeo exacto de tus Price IDs de Stripe
 PRICE_IDS = {
     "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
     "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
     "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
 }
 
-# 2. ENDPOINT PARA CREAR LA SESIÓN DE CHECKOUT MULTIPLAN
+# ENDPOINT: Crear sesión de pago en Stripe
 @app.post("/api/create-checkout-session")
 async def create_checkout_session(request: Request):
     try:
         payload = await request.json()
-        tipo_plan = payload.get("plan", "unico") 
+        tipo_plan = payload.get("plan", "unico")
         
         if tipo_plan not in PRICE_IDS:
-            return JSONResponse({"error": "Plan seleccionado inválido"}, status_code=400)
+            return JSONResponse({"error": "Plan inválido"}, status_code=400)
             
-        id_precio_seleccionado = PRICE_IDS[tipo_plan]
+        id_precio = PRICE_IDS[tipo_plan]
         modo_checkout = "payment" if tipo_plan == "unico" else "subscription"
         
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
-            line_items=[{
-                'price': id_precio_seleccionado,
-                'quantity': 1,
-            }],
+            line_items=[{'price': id_precio, 'quantity': 1}],
             mode=modo_checkout,
-            # CORREGIDO: URLs apuntando exactamente a tu servicio en Open Than Go
             success_url='https://onrender.com{CHECKOUT_SESSION_ID}',
             cancel_url='https://onrender.com',
         )
@@ -53,48 +37,29 @@ async def create_checkout_session(request: Request):
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=400)
 
-# 3. ENDPOINT DEL WEBHOOK (Lee los bytes puros sin romper la firma)
-@app.post("/webhook")
-async def stripe_webhook(request: Request, stripe_signature: str = Header(None)):
-    payload = await request.body()
-    
-    if not stripe_signature:
-        raise HTTPException(status_code=400, detail="Falta la firma de Stripe")
-
-    try:
-        event = stripe.Webhook.construct_event(
-            payload, stripe_signature, STRIPE_WEBHOOK_SECRET
-        )
-    except ValueError:
-        return JSONResponse({"error": "Payload inválido"}, status_code=400)
-    except stripe.error.SignatureVerificationError:
-        return JSONResponse({"error": "Firma del webhook inválida"}, status_code=400)
-
-    if event['type'] in ['checkout.session.completed', 'invoice.payment_succeeded']:
-        session = event['data']['object']
-        print(f"Evento de pago exitoso procesado para: {session.id}")
-
-    return JSONResponse({"status": "success"})
-
-# 4. COMPUERTA DE ACCESO CON TUS VARIABLES DE ENTORNO DE RENDER
-# Recuerda quitarle las tres comillas (""") e insertarlo dentro de tu 
-# función real @app.post("/api/mando-integral") justo debajo de payload = await request.json()
+# COMPUERTA DE CONTROL DE ACCESO (Inyectar al inicio de tu app.post("/api/mando-integral"))
+# Colócalo justo debajo de: payload = await request.json()
 """
 username_cliente = str(payload.get("username", "")).strip()
 password_cliente = str(payload.get("password", "")).strip()
 session_token = str(payload.get("session_token", "")).strip()
 
+# Recupera los accesos configurados en tu panel de Render
 ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin_por_defecto")
 ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "clave_por_defecto")
 
-es_admin = (username_cliente == ADMIN_USER and password_cliente == ADMIN_PASS)
+# COMPUERTA DE ENTRADA GRATIS
+es_admin_valido = (username_cliente == ADMIN_USER and password_cliente == ADMIN_PASS)
+
+# COMPUERTA DE STRIPE
 tiene_pago_valido = (session_token != "" and session_token.startswith("cs_"))
 
-if not es_admin and not tiene_pago_valido:
+# Si NO es admin de Render y NO tiene un token válido de Stripe Checkout, se le deniega el acceso
+if not es_admin_valido and not tiene_pago_valido:
     return JSONResponse({
         "error": "Acceso restringido.",
         "requiere_pago": True,
-        "mensaje": "Suscripción o pago requerido para usar el motor de rutas contextuales."
+        "mensaje": "Se requiere una suscripción activa o credenciales válidas para usar el sistema."
     }, status_code=403)
 """
 
