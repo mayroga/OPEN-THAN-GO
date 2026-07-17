@@ -37,95 +37,13 @@ DEFAULT_NECESSITY_VECTOR = {
     "organizacion": 50, "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50
 }
 
-# ============================================================
-# 2. RUTA DE STRIPE (Ahora registrada correctamente bajo 'app')
-# ============================================================
-@app.post("/api/create-checkout-session")
-async def create_checkout_session(request: Request):
-    try:
-        payload = await request.json()
-        tipo_plan = payload.get("plan", "unico")
-        
-        if tipo_plan not in PRICE_IDS:
-            return JSONResponse({"error": "Plan inválido"}, status_code=400)
-            
-        id_precio = PRICE_IDS[tipo_plan]
-        modo_checkout = "payment" if tipo_plan == "unico" else "subscription"
-        
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{'price': id_precio, 'quantity': 1}],
-            mode=modo_checkout,
-            # ¡CORREGIDO!: Apunta exactamente a tu dominio del proyecto en Render para evitar fallos de Stripe
-            success_url='https://onrender.com{CHECKOUT_SESSION_ID}',
-            cancel_url='https://onrender.com',
-        )
-        return JSONResponse({"id": checkout_session.id, "url": checkout_session.url})
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=400)
-
-# ============================================================
-# 3. MOTOR DE HISTORIAL INTELIGENTE CWRE V2
-# Anti-Repetición + Exploración Controlada
-# ============================================================
 MAX_HISTORY_SALIR = 5
 MAX_HISTORY_CASA = 8
-MAX_HISTORY_ORACULO = 12 # This is handled by frontend (engine.js)
-EXPLORATION_RATE = 0.20
 HISTORY_PENALTY_BASE = 40
-
-def limitar_historial(historial, limite):
-    if historial is None: 
-        return []
-    return historial[-limite:]
-
-def penalizacion_historial(mision_id, historial):
-    if not historial: 
-        return 0
-    historial = list(reversed(historial)) # Prioriza las más recientes
-    for posicion, antiguo_id in enumerate(historial):
-        if antiguo_id == mision_id:
-            if posicion == 0: # Última misión
-                return HISTORY_PENALTY_BASE * 1.5 # Más penalización para la última
-            elif posicion == 1:
-                return HISTORY_PENALTY_BASE
-            elif posicion == 2:
-                return HISTORY_PENALTY_BASE * 0.70
-            elif posicion <= (len(historial) - 1):
-                return HISTORY_PENALTY_BASE * 0.30
-    return 0
-
-def bonus_exploracion(mision_id, historial):
-    if not historial or mision_id not in historial: 
-        return 20 # Bonificación significativa si nunca se ha visto
-    # Reducir bonificación si ya se ha visto pero no está en el historial reciente
-    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)): 
-        return 5
-    return 0
-
-def actualizar_historial(historial, nuevo_id, limite):
-    historial = historial or []
-    if nuevo_id in historial:
-        historial.remove(nuevo_id)
-    historial.append(nuevo_id)
-    return historial[-limite:]
-
-def diversidad_vector(vector1, vector2):
-    distancia = 0
-    needs_to_consider = [k for k in DEFAULT_NECESSITY_VECTOR.keys() if k != "indicador_ansiedad"]
-    for k in needs_to_consider:
-        # Suma las diferencias absolutas de cada necesidad
-        distancia += abs(
-            vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) - vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
-        )
-    return distancia
-
-# === MODIFICACIÓN: CONSTANTES DE TIEMPO Y PROPÓSITO ACORTADAS PARA LECTURA RÁPIDA ===
 WHEN_ES = "Ahora. Levántate."
 WHEN_EN = "Now. Move."
 FOR_WHAT_ES = "Romper rutina. Recuérdate vivo."
 FOR_WHAT_EN = "Break routine. Remember life."
-
 # ============================================================
 # CATÁLOGO DE MISIONES CWRE V2.1
 # Adaptado para Microacciones de Recuperación Mental y sin elementos de estrés laboral/financiero.
@@ -1107,7 +1025,6 @@ BIG_TECH_RESOURCES = {
     "spotify_audio_en": "https://open.spotify.com/genre/mood/relax-stress-relief",
     "youtube_audio_en": "https://www.youtube.com/results?search_query=nature+sounds+relaxing",
 }
-
 # ============================================================
 # CWRE V2
 # SCORE INTELIGENTE (REFINADO)
@@ -1157,15 +1074,14 @@ def score_coincidencia(
     elif ansiedad >= 40: # Nivel medio de ansiedad
         score += vector_necesidades.get("descanso", 0) * 0.2
         score += vector_necesidades.get("silencio", 0) * 0.2
-   
+
     # --------------------------------------------------
     # Penalización por repetición histórica y bonus por exploración
-    # (Este bloque fue movido y corregido en su indentación)
     # --------------------------------------------------
     if mission_id is not None:
         score -= penalizacion_historial(mission_id, historial)
         score += bonus_exploracion(mission_id, historial)
-        
+
     return round(max(0, score), 2)
 
 # ============================================================
@@ -1174,36 +1090,31 @@ def score_coincidencia(
 def seleccionar_por_ranking(candidatos):
     if not candidatos:
         return None
-        
     candidatos = sorted(candidatos, key=lambda x: x["score"], reverse=True)
     if not candidatos:
         return None
-        
     mejor_score = candidatos[0]["score"]
-    
+
     # Si todos tienen un score bajo, y todos son iguales, elige uno al azar.
-    if mejor_score <= 100:  # Umbral para considerar que los scores son "bajos"
+    if mejor_score <= 100: # Umbral para considerar que los scores son "bajos"
         scores_unicos = {c["score"] for c in candidatos}
         if len(scores_unicos) == 1:
             return random.choice(candidatos)
-            
+
     # Considerar un umbral dinámico para seleccionar entre los mejores
-    score_umbral = max(mejor_score * 0.8, mejor_score - 150)  # El 80% del mejor o 150 puntos menos que el mejor
+    score_umbral = max(mejor_score * 0.8, mejor_score - 150) # El 80% del mejor o 150 puntos menos que el mejor
     mejores_candidatos_para_eleccion = [
         c for c in candidatos if c["score"] >= score_umbral
     ]
-    
     if not mejores_candidatos_para_eleccion:
         # Si el umbral fue demasiado estricto, relaja y toma del top 3
         mejores_candidatos_para_eleccion = candidatos[:min(3, len(candidatos))]
-        
     if not mejores_candidatos_para_eleccion:
         return None
-        
+
     pesos = [c["score"] for c in mejores_candidatos_para_eleccion]
     # Asegúrate de que ningún peso sea cero o negativo para random.choices
     pesos = [max(1, p) for p in pesos]
-    
     return random.choices(mejores_candidatos_para_eleccion, weights=pesos, k=1)[0]
 
 # ============================================================
@@ -1213,7 +1124,6 @@ def seleccionar_por_ranking(candidatos):
 def seleccionar_mision_inteligente(misiones, perfil_local, historial=None):
     historial = historial or []
     candidatos = []
-    
     for mision in misiones:
         mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
         score = score_coincidencia(
@@ -1223,12 +1133,10 @@ def seleccionar_mision_inteligente(misiones, perfil_local, historial=None):
             mission_id=mision["id"]
         )
         candidatos.append({ "mision": mision, "score": score })
-        
     seleccion = seleccionar_por_ranking(candidatos)
     if seleccion is None:
         return random.choice(misiones) if misiones else None
-        
-    return seleccion["mision"] 
+    return seleccion["mision"]
 
 # ============================================================
 # CWRE V2.1
@@ -1254,12 +1162,10 @@ def seleccionar_n_misiones_inteligentes(
             "mision": mision,
             "score": score
         })
-
     candidatos_base.sort(key=lambda x: x["score"], reverse=True)
-   
     seleccionadas = []
     ids_seleccionados = set()
-   
+
     # Prioriza las de mayor score y las que no estén en el historial
     for cand in candidatos_base:
         if len(seleccionadas) >= n:
@@ -1272,7 +1178,7 @@ def seleccionar_n_misiones_inteligentes(
                     sel_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
                 )
                 # Define un umbral de diversidad. Si son muy parecidas, no la elijas.
-                if distancia < 100:  # Ajusta este umbral según sea necesario para la diversidad
+                if distancia < 100: # Ajusta este umbral según sea necesario para la diversidad
                     es_diversa = False
                     break
             if es_diversa:
@@ -1291,7 +1197,7 @@ def seleccionar_n_misiones_inteligentes(
     if len(seleccionadas) < n and len(misiones) >= n:
         temp_misiones = [m for m in misiones if m["id"] not in ids_seleccionados]
         if len(temp_misiones) < n - len(seleccionadas):
-            temp_misiones = misiones  # Si no hay suficientes nuevas, recicla todo el catálogo
+            temp_misiones = misiones # Si no hay suficientes nuevas, recicla todo el catálogo
         random.shuffle(temp_misiones)
         for mision in temp_misiones:
             if len(seleccionadas) >= n:
@@ -1319,301 +1225,493 @@ def filtrar_historial(misiones, historial):
     ]
     return disponibles
 
-# ============================================================ 
-# CASA V2 
-# Selección inteligente de misiones domésticas 
-# ============================================================ 
-def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa=None, cantidad=3): 
-    historial_casa = historial_casa or [] 
-    disponibles = filtrar_historial(misiones, historial_casa) 
-    
-    if len(disponibles) < cantidad * 2: 
-        # Si quedan muy pocas sin repetir, considera todo el catálogo de nuevo 
-        disponibles = misiones 
-        
-    candidatos = [] 
-    for mision in disponibles: 
-        mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR) 
-        score = score_coincidencia( 
-            perfil_local=perfil_local, 
-            vector_necesidades=mission_vector, 
-            historial=historial_casa, 
-            mission_id=mision.get("id") 
-        ) 
-        candidatos.append({ "mision": mision, "score": score }) 
-        
-    candidatos.sort(key=lambda x: x["score"], reverse=True) 
-    
-    resultado = [] 
-    ids_en_resultado = set() 
-    
-    # Intenta seleccionar misiones diversas y de alto score 
-    for candidato in candidatos: 
-        mision = candidato["mision"] 
-        if mision["id"] in ids_en_resultado: 
-            continue 
-            
-        es_diversa = True 
-        for anterior_mision in resultado: 
-            distancia = diversidad_vector( 
-                mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR), 
-                anterior_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR) 
-            ) 
-            if distancia < 60: # Umbral de diversidad para misiones CASA 
-                es_diversa = False 
-                break 
-                
-        if es_diversa: 
-            resultado.append(mision) 
-            ids_en_resultado.add(mision["id"]) 
-        if len(resultado) >= cantidad: 
-            break 
-            
-    # Si no se alcanzan las 'cantidad' requeridas con diversidad, añade las siguientes mejores 
-    if len(resultado) < cantidad: 
-        for candidato in candidatos: 
-            mision = candidato["mision"] 
-            if mision["id"] not in ids_en_resultado: 
-                resultado.append(mision) 
-                ids_en_resultado.add(mision["id"]) 
-            if len(resultado) >= cantidad: 
-                break 
-                
-    # Fallback final: si aún no hay suficientes, toma las primeras 'cantidad' 
-    if len(resultado) < cantidad and len(misiones) >= cantidad: 
-        resultado = [c["mision"] for c in candidatos[:cantidad]] 
-        
-    return resultado 
+# ============================================================
+# CASA V2
+# Selección inteligente de misiones domésticas
+# ============================================================
+def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa=None, cantidad=3):
+    historial_casa = historial_casa or []
+    disponibles = filtrar_historial(misiones, historial_casa)
+    if len(disponibles) < cantidad * 2:
+        # Si quedan muy pocas sin repetir, considera todo el catálogo de nuevo
+        disponibles = misiones
+    candidatos = []
+    for mision in disponibles:
+        mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
+        score = score_coincidencia(
+            perfil_local=perfil_local,
+            vector_necesidades=mission_vector,
+            historial=historial_casa,
+            mission_id=mision.get("id")
+        )
+        candidatos.append({"mision": mision, "score": score})
 
-# ============================================================ 
-# NATIVE ROOT ROUTE DELIVERY 
-# ============================================================ 
-@app.get("/") 
-async def index(): 
-    """Serves the main static UI session HTML layer.""" 
-    return FileResponse('static/session.html') 
+candidatos.sort(key=lambda x: x["score"], reverse=True)
+
+resultado = []
+ids_en_resultado = set()
+
+for candidato in candidatos:
+    mision = candidato["mision"]
+
+    if mision["id"] in ids_en_resultado:
+        continue
+
+    es_diversa = True
+
+    for anterior_mision in resultado:
+        distancia = diversidad_vector(
+            mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
+            anterior_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
+        )
+
+        if distancia < 60:  # Umbral de diversidad para misiones CASA
+            es_diversa = False
+            break
+
+    if es_diversa:
+        resultado.append(mision)
+        ids_en_resultado.add(mision["id"])
+
+    if len(resultado) >= cantidad:
+        break
+
+# Si no se alcanzan las 'cantidad' requeridas con diversidad,
+# añade las siguientes mejores.
+
+if len(resultado) < cantidad:
+
+    for candidato in candidatos:
+        mision = candidato["mision"]
+
+        if mision["id"] not in ids_en_resultado:
+            resultado.append(mision)
+            ids_en_resultado.add(mision["id"])
+
+        if len(resultado) >= cantidad:
+            break
+
+# Fallback final: si aún no hay suficientes,
+# toma las primeras 'cantidad'.
+
+if len(resultado) < cantidad and len(misiones) >= cantidad:
+    resultado = [c["mision"] for c in candidatos[:cantidad]]
+
+return resultado
+# ============================================================
+# NATIVE ROOT ROUTE DELIVERY
+# ============================================================
+
+@app.get("/")
+async def index():
+    """Serves the main static UI session HTML layer."""
+    return FileResponse("static/session.html")
+
 
 # ============================================================
 # 3. ENDPOINT CORE INTERACTIVO: ENRUTAMIENTO Y COMPUERTAS
 # ============================================================
-@app.post("/api/mando-integral") 
-async def mando_integral(request: Request): 
-    """ 
-    Main API endpoint for OPEN THAN GO. 
-    Receives user input and local preference profile to return a personalized recommendation. 
-    """ 
-    payload = await request.json() 
-    
-    # ============================================================ 
-    # COMPUERTA DE SEGURIDAD ABSOLUTA INTERCEPTORA (STRIPE & ADMIN) 
-    # ============================================================ 
-    username_cliente = str(payload.get("username", "")).strip() 
-    password_cliente = str(payload.get("password", "")).strip() 
-    session_token = str(payload.get("session_token", "")).strip() 
-    
-    # Lee las llaves maestras configuradas en tu panel web de Render 
-    ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin_por_defecto") 
-    ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "clave_por_defecto") 
-    
-    es_admin_valido = (username_cliente == ADMIN_USER and password_cliente == ADMIN_PASS) 
-    tiene_pago_valido = (session_token != "" and session_token.startswith("cs_")) 
-    
-    # Si no pasa el bypass gratis de administrador ni tiene una compra activa, denegar fetch 
-    if not es_admin_valido and not tiene_pago_valido: 
-        return JSONResponse({ 
-            "error": "Acceso restringido.", 
-            "requiere_pago": True, 
-            "mensaje": "Se requiere una suscripción activa o credenciales válidas para usar el sistema." 
-        }, status_code=403) 
-        
-    # ============================================================ 
-    # PROCESAMIENTO ADAPTATIVO DEL PAYLOAD AUTORIZADO 
+
+@app.post("/api/mando-integral")
+async def mando_integral(request: Request):
+    """
+    Main API endpoint for OPEN THAN GO.
+
+    Receives user input and local preference profile
+    to return a personalized recommendation.
+    """
+
+    payload = await request.json()
+
     # ============================================================
-    opcion_usuario = str(payload.get("modo", "")).strip().upper() 
-    zip_code = str(payload.get("zip", "")).strip() 
-    estado = str(payload.get("estado", "FL")).strip() 
-    region = str(payload.get("region", "")).strip() 
-    mente = str(payload.get("mente", "aburrido")).lower() 
-    budget = str(payload.get("budget", "0")) 
-    perfil_tipo = str(payload.get("perfil", "solo")).lower() 
-    desahogo = str(payload.get("desahogo", "")).lower() 
-    lang = str(payload.get("lang", "es")).lower() 
-    
-    if zip_code and not re.fullmatch(r"^\d{5}$", zip_code): 
-        return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400) 
-        
-    perfil_local = payload.get("perfil_local", {}) 
-    if not isinstance(perfil_local, dict): 
-        perfil_local = {} 
-        
-    perfil_local = { 
-        **DEFAULT_NECESSITY_VECTOR, 
-        **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"} 
-    } 
-    if "indicador_ansiedad" not in perfil_local: 
-        perfil_local["indicador_ansiedad"] = 0
+    # COMPUERTA DE SEGURIDAD ABSOLUTA INTERCEPTORA (STRIPE & ADMIN)
+    # ============================================================
 
-    # ==========================================================================================
-    # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
-    # === LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
-    # ==========================================================================================
-    sensitive_keywords = [
-        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum",
-        "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income", "earn money",
-        "ganar dinero", "producir", "productividad", "buscar oportunidades", "buscar ofertas", "enviar currículo",
-        "actualizar linkedin", "conseguir empleo", "salir a buscar trabajo", "metas profesionales", "presion economica",
-        "presión económica", "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco",
-        "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo", "visitar empresas",
-        "buscando clientes", "producir dinero", "obligaciones laborales", "responsabilidades", "tareas", "negocio",
-        "negocios", "presión", "presiones"
-    ]
+    username_cliente = str(payload.get("username", "")).strip()
+    password_cliente = str(payload.get("password", "")).strip()
+    session_token = str(payload.get("session_token", "")).strip()
 
-    force_recovery_mission = False
-    explicitly_seeking_job = any(phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"])
+    # Lee las llaves maestras configuradas en Render
 
-    # DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
-    marca_detectada = None
-    if desahogo and not explicitly_seeking_job:
-        desahogo_lower = desahogo.lower()
-        for keyword in ["walmart", "amazon", "costco", "starbucks", "mcdonald", "spotify", "youtube", "tiktok", "instagram"]:
-            if keyword in desahogo_lower:
-                marca_detectada = keyword.capitalize()
-                break
-                
-        if marca_detectada:
-            force_recovery_mission = True
+    ADMIN_USER = os.getenv("ADMIN_USERNAME", "admin_por_defecto")
+    ADMIN_PASS = os.getenv("ADMIN_PASSWORD", "clave_por_defecto")
 
-    # ==============================================================================
-    # CONTINUACIÓN CONTINUA DEL FLUJO DE TRABAJO BASE DE LA PLATAFORMA OPEN THAN GO
-    # ==============================================================================
-    
-    # Extracción segura de variables contextuales requeridas para evitar NameError
-    perfil_tipo = str(payload.get("perfil", "solo")).strip()
-    zip_code = str(payload.get("zip", "33167")).strip()
-    link_base = "https://google.com/maps/search/"
-    DEFAULT_NECESSITY_VECTOR = {
-        "movimiento": 0, "naturaleza": 0, "silencio": 0, "agua": 0, "sol": 0,
-        "sombra": 0, "aire_fresco": 0, "creatividad": 0, "comunidad": 0,
-        "aprendizaje": 0, "juego": 0, "contemplacion": 0, "descanso": 0,
-        "organizacion": 0, "alimentacion": 0, "musica": 0, "risa": 0, "esperanza": 0
-    }
-
-    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
-    if opcion_usuario == "CASA":
-        idioma = "EN" if lang.lower() == "en" else "ES"
-        misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
-        historial_casa = payload.get("historial_casa", [])
-        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, cantidad=3)
-        
-        for m in misiones_casa:
-            historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
-            
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-            "misiones": misiones_casa,
-            "historial_casa_actualizado": historial_casa
-        })
-
-    # ==============================================================================
-    # 2. ACCIÓN DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
-    # ==============================================================================
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-    historial_salir = payload.get("historial_salir", [])
-    
-    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
-        n=3,
-        misiones=opciones_salir_candidatas,
-        perfil_local=perfil_local,
-        historial_actual=historial_salir
+    es_admin_valido = (
+        username_cliente == ADMIN_USER
+        and
+        password_cliente == ADMIN_PASS
     )
 
-    final_misiones_para_frontend = []
-    for info_seleccionada in misiones_seleccionadas_raw:
-        # === ACTUALIZACIÓN CRÍTICA: Registrar el ID en el historial para evitar repeticiones ===
-        historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
+    tiene_pago_valido = (
+        session_token != ""
+        and
+        session_token.startswith("cs_")
+    )
 
-        # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO ACORTADOS ===
-        precio_real = ""
-        if budget == "0":
-            precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
-        elif budget == "1":
-            precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
-        elif budget == "2":
-            precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
+    # Si no pasa el bypass gratis del administrador
+    # ni posee un pago válido, bloquear el acceso.
 
-        quienes_van = ""
-        if perfil_tipo == "solo":
-            quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
-        elif perfil_tipo == "familia":
-            quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
-        elif perfil_tipo == "accesible":
-            quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
+    if not es_admin_valido and not tiene_pago_valido:
 
-        titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
-        donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-        anclaje_geografico = zip_code
-        map_base_url = link_base
+        return JSONResponse(
+            {
+                "error": "Acceso restringido.",
+                "requiere_pago": True,
+                "mensaje": (
+                    "Se requiere una suscripción activa "
+                    "o credenciales válidas para usar el sistema."
+                ),
+            },
+            status_code=403,
+        )
 
-        if lang == "en":
-            # === guia_masticada (EN) ACORTADA ===
-            guia_masticada_en_content = (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
-        else:
-            # === guia_masticada (ES) ACORTADA ===
-            guia_masticada_es_content = (
-                f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
-                f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
-                f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
-                f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
-                f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
+    # ============================================================
+    # PROCESAMIENTO ADAPTATIVO DEL PAYLOAD AUTORIZADO
+    # ============================================================
 
-        search_query_parts = []
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
-        
-        search_query_parts.append(info_seleccionada["gps"])
-        search_query_parts.append(f"in {anclaje_geografico}")
-        
-        full_map_query_string = " ".join(search_query_parts)
-        target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-        
-        final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
-        
-        final_misiones_para_frontend.append({
-            "destino_id": info_seleccionada.get("id"),
-            "destino_titulo": titulo_ganador_lang,
-            "destino_titulo_en": info_seleccionada.get("titulo_en", info_seleccionada["titulo"]),
-            "que_hacer": info_seleccionada["que_hacer"],
-            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
-            "destino_entorno": donde_base,
-            "destino_instruccion": guia_masticada_es_content.strip() if lang == "es" else guia_masticada_en_content.strip(), # Corregido para sincronizar el idioma de la instrucción
-            "destino_instruccion_en": guia_masticada_en_content.strip() if lang == "en" else guia_masticada_es_content.strip(), # Corregido para sincronizar el idioma de la instrucción
-            "destino_coordenadas_gps": target_link,
-            "vector_entorno_seleccionado": final_vector_necesidades,
-        })
+    opcion_usuario = str(
+        payload.get("modo", "")
+    ).strip().upper()
 
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "misiones": final_misiones_para_frontend,
-        "historial_salir_actualizado": historial_salir
+    zip_code = str(
+        payload.get("zip", "")
+    ).strip()
+
+    estado = str(
+        payload.get("estado", "FL")
+    ).strip()
+
+    region = str(
+        payload.get("region", "")
+    ).strip()
+
+    mente = str(
+        payload.get("mente", "aburrido")
+    ).lower()
+
+    budget = str(
+        payload.get("budget", "0")
+    )
+
+    perfil_tipo = str(
+        payload.get("perfil", "solo")
+    ).lower()
+
+    desahogo = str(
+        payload.get("desahogo", "")
+    ).lower()
+
+    lang = str(
+        payload.get("lang", "es")
+    ).lower()
+
+    if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
+
+        return JSONResponse(
+            {
+                "error": (
+                    "Código Postal inválido. "
+                    "Debe ser 5 dígitos numéricos."
+                )
+            },
+            status_code=400,
+        )
+        perfil_local = payload.get("perfil_local", {})
+
+if not isinstance(perfil_local, dict):
+    perfil_local = {}
+
+perfil_local = {
+    **DEFAULT_NECESSITY_VECTOR,
+    **{
+        k: v
+        for k, v in perfil_local.items()
+        if k in DEFAULT_NECESSITY_VECTOR
+        or k == "indicador_ansiedad"
+    },
+}
+
+if "indicador_ansiedad" not in perfil_local:
+    perfil_local["indicador_ansiedad"] = 0
+
+
+# ==========================================================================================
+# MANIFIESTO MATRICIAL ABSOLUTO:
+# TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
+# LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS
+# ==========================================================================================
+
+sensitive_keywords = [
+    "trabajo",
+    "empleo",
+    "job",
+    "jobs",
+    "work",
+    "career",
+    "interview",
+    "resume",
+    "cv",
+    "curriculum",
+    "linkedin",
+    "indeed",
+    "networking",
+    "cliente",
+    "client",
+    "empresa",
+    "company",
+    "income",
+    "earn money",
+    "ganar dinero",
+    "producir",
+    "productividad",
+    "buscar oportunidades",
+    "buscar ofertas",
+    "enviar currículo",
+    "actualizar linkedin",
+    "conseguir empleo",
+    "salir a buscar trabajo",
+    "metas profesionales",
+    "presion economica",
+    "presión económica",
+    "biles",
+    "deudas",
+    "misery",
+    "exploitation",
+    "amazon",
+    "walmart",
+    "costco",
+    "fresco",
+    "tienda",
+    "comprar",
+    "dinero",
+    "economy",
+    "oportunidades laborales",
+    "solicitudes de empleo",
+    "visitar empresas",
+    "buscando clientes",
+    "producir dinero",
+    "obligaciones laborales",
+    "responsabilidades",
+    "tareas",
+    "negocio",
+    "negocios",
+    "presión",
+    "presiones",
+]
+
+force_recovery_mission = False
+
+explicitly_seeking_job = any(
+    phrase in desahogo
+    for phrase in [
+        "quiero buscar trabajo",
+        "necesito un empleo",
+        "busco trabajo",
+        "find a job",
+        "looking for work",
+    ]
+)
+
+# ==============================================================================
+# DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
+# ==============================================================================
+
+marca_detectada = None
+
+if desahogo and not explicitly_seeking_job:
+
+    desahogo_lower = desahogo.lower()
+
+    for keyword in [
+        "walmart",
+        "amazon",
+        "costco",
+        "starbucks",
+        "mcdonald",
+        "spotify",
+        "youtube",
+        "tiktok",
+        "instagram",
+    ]:
+
+        if keyword in desahogo_lower:
+            marca_detectada = keyword.capitalize()
+            break
+
+if marca_detectada:
+    force_recovery_mission = True
+
+
+# ==============================================================================
+# CONTINUACIÓN CONTINUA DEL FLUJO DE TRABAJO BASE DE LA PLATAFORMA OPEN THAN GO
+# ==============================================================================
+
+perfil_tipo = str(
+    payload.get("perfil", "solo")
+).strip()
+
+zip_code = str(
+    payload.get("zip", "33167")
+).strip()
+
+link_base = "google.com"
+
+
+# ==============================================================================
+# 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
+# ==============================================================================
+
+if opcion_usuario == "CASA":
+
+    idioma = "EN" if lang.lower() == "en" else "ES"
+
+    misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
+
+    historial_casa = payload.get("historial_casa", [])
+
+    misiones_casa = seleccionar_misiones_casa_inteligente(
+        misiones_completas,
+        perfil_local,
+        historial_casa,
+        cantidad=3,
+    )
+
+    for m in misiones_casa:
+        historial_casa = actualizar_historial(
+            historial_casa,
+            m["id"],
+            MAX_HISTORY_CASA,
+        )
+
+    return JSONResponse(
+        {
+            "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
+            "misiones": misiones_casa,
+            "historial_casa_actualizado": historial_casa,
+        }
+    )
+    # ==============================================================================
+# 2. ACCIÓN DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
+# ==============================================================================
+
+opciones_salir_candidatas=BASE_MISIONES["SALIR"].get(mente,BASE_MISIONES["SALIR"]["aburrido"])
+historial_salir=payload.get("historial_salir",[])
+
+misiones_seleccionadas_raw=seleccionar_n_misiones_inteligentes(
+    n=3,
+    misiones=opciones_salir_candidatas,
+    perfil_local=perfil_local,
+    historial_actual=historial_salir
+)
+
+final_misiones_para_frontend=[]
+
+for info_seleccionada in misiones_seleccionadas_raw:
+
+    historial_salir=actualizar_historial(
+        historial_salir,
+        info_seleccionada["id"],
+        MAX_HISTORY_SALIR
+    )
+
+    if budget=="0":
+        precio_real="GASTO: Cero. Recarga sin costo." if lang=="es" else "COST: Zero. Free recharge."
+    elif budget=="1":
+        precio_real="GASTO: Bajo. Pequeño gusto." if lang=="es" else "COST: Low. Small treat."
+    elif budget=="2":
+        precio_real="GASTO: Libre. Tu escape." if lang=="es" else "COST: Free. Your escape."
+    else:
+        precio_real=""
+
+    if perfil_tipo=="solo":
+        quienes_van="ACOMPAÑAMIENTO: Solo. Reconecta." if lang=="es" else "COMPANIONSHIP: Solo. Reconnect."
+    elif perfil_tipo=="familia":
+        quienes_van="ACOMPAÑAMIENTO: Familia. Desahogo." if lang=="es" else "COMPANIONSHIP: Family. Unwind."
+    elif perfil_tipo=="accesible":
+        quienes_van="ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang=="es" else "COMPANIONSHIP: Accessible route. No barriers."
+    else:
+        quienes_van=""
+
+    titulo_ganador=info_seleccionada.get(
+        "titulo_en",
+        info_seleccionada["titulo"]
+    ) if lang=="en" else info_seleccionada["titulo"]
+
+    donde_base=info_seleccionada.get(
+        "donde_en",
+        info_seleccionada["donde"]
+    ) if lang=="en" else info_seleccionada["donde"]
+
+    anclaje_geografico=zip_code
+    map_base_url=link_base
+
+    if lang=="en":
+        guia_masticada_en_content=(
+            f"TARGET: {info_seleccionada.get('titulo_en',info_seleccionada['titulo']) or ''}.\n"
+            f"WHAT TO DO: {info_seleccionada.get('que_hacer_en',info_seleccionada['que_hacer']) or ''}\n"
+            f"WHY: {info_seleccionada.get('porque_en',info_seleccionada['porque']) or ''}\n"
+            f"WHEN: {info_seleccionada.get('cuando_en',info_seleccionada['cuando']) or ''}\n"
+            f"FOR WHAT: {info_seleccionada.get('para_que_en',info_seleccionada['para_que']) or ''}\n"
+            f"{quienes_van}\n{precio_real}"
+        )
+                titulo_ganador_lang=(info_seleccionada.get("titulo_en",info_seleccionada["titulo"]) or "").upper()
+
+    else:
+        guia_masticada_es_content=(
+            f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
+            f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
+            f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
+            f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
+            f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
+            f"{quienes_van}\n{precio_real}"
+        )
+
+        titulo_ganador_lang=(info_seleccionada["titulo"] or "").upper()
+
+    search_query_parts=[]
+
+    if perfil_tipo=="accesible":
+        search_query_parts.append("wheelchair accessible")
+    elif perfil_tipo=="familia":
+        search_query_parts.append("family friendly")
+
+    search_query_parts.append(info_seleccionada["gps"])
+    search_query_parts.append(f"in {anclaje_geografico}")
+
+    full_map_query_string=" ".join(search_query_parts)
+
+    target_link=f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
+
+    final_vector_necesidades={
+        **DEFAULT_NECESSITY_VECTOR,
+        **info_seleccionada.get("vector_necesidades",{})
+    }
+
+    final_misiones_para_frontend.append({
+        "destino_id":info_seleccionada.get("id"),
+        "destino_titulo":titulo_ganador_lang,
+        "destino_titulo_en":info_seleccionada.get("titulo_en",info_seleccionada["titulo"]),
+        "que_hacer":info_seleccionada["que_hacer"],
+        "que_hacer_en":info_seleccionada.get("que_hacer_en",info_seleccionada["que_hacer"]),
+        "destino_entorno":donde_base,
+        "destino_instruccion":guia_masticada_es_content.strip() if lang=="es" else guia_masticada_en_content.strip(),
+        "destino_instruccion_en":guia_masticada_en_content.strip() if lang=="en" else guia_masticada_es_content.strip(),
+        "destino_coordenadas_gps":target_link,
+        "vector_entorno_seleccionado":final_vector_necesidades,
     })
 
+return JSONResponse({
+    "DIRECCIONAMIENTO_MASTER":"ACCION_CAMPO",
+    "misiones":final_misiones_para_frontend,
+    "historial_salir_actualizado":historial_salir,
+})
+
+
 # ==============================================================================
-# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
+# APERTURA NATIVA DEL SERVIDOR FASTAPI
+# (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==============================================================================
-if __name__ == "__main__":
-    import os
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
+if __name__=="__main__":
+    import os,uvicorn
+    uvicorn.run(app,host="0.0.0.0",port=int(os.environ.get("PORT",8000)))
