@@ -631,42 +631,32 @@
     </a>
 
     <!-- ============================================================ -->
-    <!-- ENLAZADOR DE EVENTOS ORIGINAL RESTAURADO - CONEXIÓN STRIPE -->
+    <!-- ENLAZADOR DIRECTO DE COMPUERTAS: STRIPE Y ENTRADA GRATIS -->
     <!-- ============================================================ -->
     <script>
-        // Asegurar que el objeto KERNEL global esté disponible
         window.KERNEL = window.KERNEL || {};
-        
-        // Variable original para rastrear el plan activo en el frontend
-        let planSeleccionado = "unico";
+        let planSeleccionado = "unico"; // Variable original restaurada
 
-        // RESTAURADO: Función original exacta que invocan tus tarjetas HTML al hacer clic
+        // Captura el clic táctil en los 3 planes de precio
         KERNEL.seleccionarTarjetaPlan = function(elementoCard) {
-            // Remueve la clase activa de los planes para actualizar el foco
             document.querySelectorAll('.plan-card').forEach(card => card.classList.remove('active'));
-            // Añade la clase activa a la tarjeta presionada
             elementoCard.classList.add('active');
-            // Guarda el ID del plan ('unico', 'mensual' o 'anual')
             planSeleccionado = elementoCard.getAttribute('data-plan');
         };
 
-        // RESTAURADO: Disparador original del Checkout seguro de Stripe
+        // Redirección oficial a Stripe Checkout
         KERNEL.procesarPagoStripe = async function() {
             const botonPago = document.getElementById('btn-pay-stripe');
             botonPago.disabled = true;
             botonPago.innerText = "...";
-            
             try {
-                // Conecta directamente con tu endpoint dinámico multiplan en Render
                 const response = await fetch('/api/create-checkout-session', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ plan: planSeleccionado }) // Envía el plan correcto
+                    body: JSON.stringify({ plan: planSeleccionado })
                 });
-                
                 const data = await response.json();
                 if (data.url) {
-                    // Redirección directa y segura a la pasarela de Stripe Checkout
                     window.location.href = data.url;
                 } else {
                     alert('Error en pasarela: ' + (data.error || 'Intente más tarde'));
@@ -674,13 +664,13 @@
                     botonPago.innerText = "ACTIVAR CON STRIPE";
                 }
             } catch (err) {
-                console.error("Falla crítica en la comunicación de red con Stripe:", err);
+                console.error("Error de red con Stripe:", err);
                 botonPago.disabled = false;
                 botonPago.innerText = "ACTIVAR CON STRIPE";
             }
         };
 
-        // RESTAURADO: Manejador del Bypass de Administrador local
+        // Procesamiento del formulario de acceso gratuito administrador
         KERNEL.procesarBypassAdmin = function() {
             const userInp = document.getElementById('admin-username').value.trim();
             const passInp = document.getElementById('admin-password').value.trim();
@@ -696,18 +686,17 @@
                 return;
             }
 
-            // Guarda localmente usando los tokens exactos que el validador del backend y engine.js exigen
+            // GUARDA LAS LLAVES CORRECTAS QUE REVISA ENGINE.JS
             localStorage.setItem('tg_admin_user', userInp);
             localStorage.setItem('tg_admin_pass', passInp);
-            localStorage.removeItem('tg_stripe_session'); // Limpia sesiones de pago para evitar conflictos
+            localStorage.removeItem('tg_stripe_session'); // Evita choques de tokens de pago viejos
 
             if (errorBox) errorBox.classList.add('hidden');
             
-            // Forzar recarga limpia: engine.js leerá las credenciales y abrirá el oráculo al instante
+            // Recarga la app: engine.js leerá las credenciales guardadas y liberará el oráculo
             window.location.reload();
         };
 
-        // Traductor nativo bilingüe de la interfaz de cobro
         KERNEL.traducirElementosPaywall = function(idiomaActivo) {
             const traduccionesPaywall = {
                 es: {
@@ -739,17 +728,13 @@
                     "btn-login-admin": "Log In with Credentials"
                 }
             };
-
             const textos = traduccionesPaywall[idiomaActivo] || traduccionesPaywall['es'];
             for (const idElemento in textos) {
                 const elementoEl = document.getElementById(idElemento);
-                if (elementoEl) {
-                    elementoEl.innerText = textos[idElemento];
-                }
+                if (elementoEl) elementoEl.innerText = textos[idElemento];
             }
         };
     </script>
-
     <script src="/static/engine.js"></script>
 </body>
 </html>
