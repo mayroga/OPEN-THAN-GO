@@ -411,7 +411,7 @@ const KERNEL = {
     },
 
        /**
-     * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
+     * Injects a block of 3 questions into the UI, ensuring they are distinct and not recent.
      */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
@@ -434,7 +434,7 @@ const KERNEL = {
         }
 
         // If not enough unseen questions, reset history and use all available questions
-        if (unseenIndices.length < 6) {
+        if (unseenIndices.length < 3) {
             this.historialPreguntas = []; // Reset history
             localStorage.removeItem("otg_historial_oraculo");
             for (let i = 0; i < catalogo.length; i++) {
@@ -450,18 +450,18 @@ const KERNEL = {
         }
 
         let preguntasSeleccionadasIndices = [];
-        // Select 6 distinct questions, prioritizing different "blocks" (categories)
-        let blockIndices = Array.from({length: Math.ceil(catalogo.length / 6)}, (_, i) => i); // Assumes 6 questions per block
+        // Select 3 distinct questions, prioritizing different "blocks" (categories)
+        let blockIndices = Array.from({length: Math.ceil(catalogo.length / 3)}, (_, i) => i); // Assumes 3 questions per block
         let blocksUsedInCurrentSelection = new Set();
        
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 3; i++) {
             if (unseenIndices.length === 0) break;
 
             let candidateIndex = -1;
             // Try to pick a question from a block not yet used in this 6-question set
             for (let j = 0; j < unseenIndices.length; j++) {
                 const currentIdx = unseenIndices[j];
-                const currentBlock = Math.floor(currentIdx / 6);
+                const currentBlock = Math.floor(currentIdx / 3);
                 if (!blocksUsedInCurrentSelection.has(currentBlock)) {
                     candidateIndex = j;
                     blocksUsedInCurrentSelection.add(currentBlock);
@@ -472,7 +472,7 @@ const KERNEL = {
             // If no unused block question found, just pick the next available shuffled unseen
             if (candidateIndex === -1) {
                 candidateIndex = 0;
-                const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6);
+                const currentBlock = Math.floor(unseenIndices[candidateIndex] / 3);
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
            
