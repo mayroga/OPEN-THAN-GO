@@ -409,19 +409,16 @@ const KERNEL = {
        
         this.activarBotonMandoLibreInicial();
     },
-
-     /**
+    
+        /**
      * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
      */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
 
-        // ============================================================
-        // REGLA DE ORO: LIMPIEZA TOTAL DE RELOJES PARA EVITAR RÁFAGAS
-        // ============================================================
+        // Limpieza de cualquier residuo de reloj previo
         if (this.temporizadorCascada) clearInterval(this.temporizadorCascada);
-
         grid.innerHTML = "";
         this.indicePreguntaCascada = 0;
 
@@ -467,6 +464,8 @@ const KERNEL = {
                 const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6);
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
+            
+            // ELIZADO Y RESTAURADO EL ERROR CON EL [0] OBLIGATORIO:
             const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0];
             preguntasSeleccionadasIndices.push(selectedIndex);
             this.historialPreguntas.push(selectedIndex);
@@ -491,18 +490,16 @@ const KERNEL = {
 
     /**
      * Initiates the fading cascade effect for questions with synchronous audio mapping.
-     * PROTECCIÓN TOTAL: Evita desbordamiento de índice y detiene saltos bruscos.
      */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
         const totalButtons = document.querySelectorAll('.btn-pregunta-crisis').length;
-        
         if (totalButtons === 0) {
             this.liberarCajonEscrituraLibre();
             return;
         }
 
-        // Leer la primera pregunta flotante inmediatamente en el segundo cero
+        // Leer la primera pregunta flotante de inmediato en el segundo cero
         let primerBoton = document.getElementById(`btn-pregunta-0`);
         if (primerBoton) {
             let textoPrimera = primerBoton.innerText.substring(3);
@@ -513,28 +510,23 @@ const KERNEL = {
             let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
             
             if (botonParaEliminar) {
-                // Aplicamos la animación visual de desvanecimiento
                 botonParaEliminar.classList.add('fade-out');
                 
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
                 
-                // ESCUDO MATEMÁTICO: Solo extrae texto si el botón realmente existe en el DOM
-                // Esto detiene el error que en la tercera vuelta congelaba la cola de JS
+                // ESCUDO DE CONTROL DE AUDIO: Evita el crash de la tercera vuelta
                 if (siguienteBoton && siguienteBoton.innerText) {
                     let textoLimpio = siguienteBoton.innerText.substring(3);
                     this.hablar(textoLimpio);
                 }
-                
                 this.indicePreguntaCascada++;
             } else {
-                // Al finalizar las 6 preguntas de la tanda actual, limpiamos el reloj limpiamente
                 clearInterval(this.temporizadorCascada);
                 this.liberarCajonEscrituraLibre();
             }
-        }, 8000); // 8 segundos exactos regulados por reloj de fábrica
+        }, 8000); // 8 segundos exactos por pregunta
     },
-
 
         // ============================================================
         // MEJORA CRÍTICA: LEER LA PRIMERA PREGUNTA EN EL SEGUNDO CERO
