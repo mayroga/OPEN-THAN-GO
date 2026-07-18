@@ -866,42 +866,22 @@ const KERNEL = {
             if (optCasa) optCasa.innerText = t.modoCasa;
         }
 
-        const cierreLogo = document.getElementById('cierre-logo');
-        if (cierreLogo) cierreLogo.innerText = t.title;
-        const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
-        if (cierreBoton) cierreBoton.innerText = t.recomenzar;
-        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
-        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
-        const btnVolverApp = document.getElementById('btn-volver-app');
-        if (btnVolverApp) btnVolverApp.title = t.volverApp;
-
-        // INTEGRACIÓN CRÍTICA: Synchronize language strings on Stripe / Admin panels
-        if (typeof this.traducirElementosPaywall === "function") {
-            this.traducirElementosPaywall(lang);
-        }
+        const cierreLogo = document.getElementById('cierre-logo'); 
+        if (cierreLogo) cierreLogo.innerText = t.title; 
+        const cierreBoton = document.getElementById('btn-recomenzar-experiencia'); 
+        if (cierreBoton) cierreBoton.innerText = t.recomenzar; 
+        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
+        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta; 
+        const btnVolverApp = document.getElementById('btn-volver-app'); 
+        if (btnVolverApp) btnVolverApp.title = t.volverApp; 
         
-        this.hablar(t.alert);
-        this.inyectarBloquePreguntas();
-        this.activarBotonMandoLibreInicial();
-    },
-
-                const cierreLogo = document.getElementById('cierre-logo');
-        if (cierreLogo) cierreLogo.innerText = t.title;
-        const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
-        if (cierreBoton) cierreBoton.innerText = t.recomenzar;
-        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
-        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
-        const btnVolverApp = document.getElementById('btn-volver-app');
-        if (btnVolverApp) btnVolverApp.title = t.volverApp;
-
-        // INTEGRACIÓN CRÍTICA: Synchronize language strings on Stripe / Admin panels
-        if (typeof this.traducirElementosPaywall === "function") {
-            this.traducirElementosPaywall(lang);
-        }
-
-        this.hablar(t.alert);
-        this.inyectarBloquePreguntas();
-        this.activarBotonMandoLibreInicial();
+        // INTEGRACIÓN CRÍTICA: Synchronize language strings on Stripe / Admin panels 
+        if (typeof this.traducirElementosPaywall === "function") { 
+            this.traducirElementosPaywall(lang); 
+        } 
+        this.hablar(t.alert); 
+        this.inyectarBloquePreguntas(); 
+        this.activarBotonMandoLibreInicial(); 
     },
 
     /**
