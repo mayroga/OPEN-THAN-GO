@@ -410,21 +410,26 @@ const KERNEL = {
         this.activarBotonMandoLibreInicial();
     },
 
-    /**
+       /**
      * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
      */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
-       
-        clearInterval(this.temporizadorCascada);
+
+        // ============================================================
+        // REGLA DE ORO: LIMPIEZA TOTAL DE RELOJES PARA EVITAR RÁFAGAS
+        // ============================================================
+        if (this.temporizadorCascada) clearInterval(this.temporizadorCascada);
+        if (this.preguntaTimer) clearInterval(this.preguntaTimer); // Apaga el reloj global si existía
+
         grid.innerHTML = "";
         this.indicePreguntaCascada = 0;
-       
+
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
         let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
-
         let unseenIndices = [];
+
         for (let i = 0; i < catalogo.length; i++) {
             if (!preguntasYaVistasRecientemente.has(i)) {
                 unseenIndices.push(i);
@@ -437,7 +442,7 @@ const KERNEL = {
             localStorage.removeItem("otg_historial_oraculo");
             unseenIndices = Array.from({length: catalogo.length}, (_, i) => i);
         }
-       
+
         for (let i = unseenIndices.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]];
@@ -445,10 +450,9 @@ const KERNEL = {
 
         let preguntasSeleccionadasIndices = [];
         let blocksUsedInCurrentSelection = new Set();
-       
+
         for (let i = 0; i < 6; i++) {
             if (unseenIndices.length === 0) break;
-
             let candidateIndex = -1;
             for (let j = 0; j < unseenIndices.length; j++) {
                 const currentIdx = unseenIndices[j];
@@ -459,25 +463,22 @@ const KERNEL = {
                     break;
                 }
             }
-
             if (candidateIndex === -1) {
                 candidateIndex = 0;
                 const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6);
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
-           
             const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0];
             preguntasSeleccionadasIndices.push(selectedIndex);
-           
             this.historialPreguntas.push(selectedIndex);
         }
+
         this.historialPreguntas = this.historialPreguntas.slice(-this.MAX_HISTORY_ORACULO);
         localStorage.setItem("otg_historial_oraculo", JSON.stringify(this.historialPreguntas));
 
         preguntasSeleccionadasIndices.forEach((questionIdx, i) => {
             let preguntaTexto = catalogo[questionIdx];
             if (!preguntaTexto) return;
-
             let btn = document.createElement('button');
             btn.className = 'btn-pregunta-crisis';
             btn.id = `btn-pregunta-${i}`;
@@ -489,34 +490,50 @@ const KERNEL = {
         this.iniciarEfectoCascada();
     },
 
-    /** Initiates the fading cascade effect for questions. */
+        /**
+     * Initiates the fading cascade effect for questions with synchronous audio mapping.
+     */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
-       
         const totalButtons = document.querySelectorAll('.btn-pregunta-crisis').length;
+        
         if (totalButtons === 0) {
             this.liberarCajonEscrituraLibre();
             return;
         }
 
+        // ============================================================
+        // MEJORA CRÍTICA: LEER LA PRIMERA PREGUNTA EN EL SEGUNDO CERO
+        // ============================================================
+        let primerBoton = document.getElementById(`btn-pregunta-0`);
+        if (primerBoton) {
+            let textoPrimera = primerBoton.innerText.substring(3);
+            this.hablar(textoPrimera); // Arranca hablando de inmediato sin silencios
+        }
+
         this.temporizadorCascada = setInterval(() => {
             let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
-           
+            
             if (botonParaEliminar) {
+                // Aplica el efecto visual de desvanecimiento
                 botonParaEliminar.classList.add('fade-out');
-               
+                
+                // Buscamos el siguiente botón para preparar su lectura de forma exacta
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
+                
                 if (siguienteBoton) {
                     let textoLimpio = siguienteBoton.innerText.substring(3);
-                    this.hablar(textoLimpio);
+                    this.hablar(textoLimpio); // Lee perfectamente al compás del reloj de 8s
                 }
+                
                 this.indicePreguntaCascada++;
             } else {
+                // Limpieza total al terminar las preguntas del bloque
                 clearInterval(this.temporizadorCascada);
                 this.liberarCajonEscrituraLibre();
             }
-        }, 8000);
+        }, 8000); // Tus 8 segundos limpios e inmutables de lectura de fábrica
     },
 
     /** Activates the free writing input field and button from start. */
@@ -1381,7 +1398,7 @@ Uber:"https://uber.com",
 Lyft:"https://lyft.com",
 American:"https://aa.com",
 Delta:"https://delta.com",
-Spirit:"https://spirit.com",
+XaelCharters: "https://xaelcharters.com",
 JetBlue:"https://jetblue.com",
 Southwest:"https://southwest.com",
 Avianca:"https://avianca.com",
