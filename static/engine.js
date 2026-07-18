@@ -345,7 +345,7 @@ const KERNEL = {
         return perfil;
     },
 
-        /** Initializes the KERNEL on DOMContentLoaded. */
+    /** Initializes the KERNEL on DOMContentLoaded. */
     init() {
         const storedLang = localStorage.getItem("otg_language");
         if (storedLang) {
@@ -370,73 +370,27 @@ const KERNEL = {
             localStorage.removeItem("otg_historial_retos_secuencias");
         }
         this.obtenerPerfilLocal();
-        
-        // ============================================================
-        // CONTROL LOGICO CENTRAL DEL PAYWALL AL ARRANQUE
-        // ============================================================
-        this.verificarEstatusAcceso();
-        
+
         const zipInput = document.getElementById('inp-zip');
         if (zipInput) {
             zipInput.addEventListener('input', () => this.validarZip());
             this.validarZip();
         }
-        
-        const btnVolver = document.getElementById('btn-volver-app');
-        if (btnVolver) {
-            btnVolver.addEventListener('click', () => this.reiniciarExperiencia());
-        }
+
+        // Add event listeners for the new floating buttons
+        document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
     },
 
     /** Starts the initial welcome sequence after user interaction. */
     despertarInicial() {
-        // 1. Ocultar inmediatamente la pantalla negra de bienvenida
-        const bienvenidaEl = document.getElementById('pantalla-bienvenida');
-        if (bienvenidaEl) bienvenidaEl.style.display = 'none';
-
-        // 2. Hacer visible el contenedor de la aplicación para que no se quede congelada
-        const wrapperEl = document.getElementById('wrapper-form');
-        if (wrapperEl) wrapperEl.classList.remove('hidden');
-        
-        const btnVolver = document.getElementById('btn-volver-app');
-        if (btnVolver) btnVolver.classList.remove('hidden');
-        
-        const btnWhatsapp = document.getElementById('btn-whatsapp');
-        if (btnWhatsapp) btnWhatsapp.classList.remove('hidden');
-        
-        const btnMessenger = document.getElementById('btn-messenger');
-        if (btnMessenger) btnMessenger.classList.remove('hidden');
-
-        // 3. Evaluar de forma estricta si el usuario ya pagó con Stripe o es Administrador
-        const usuarioAutorizado = this.verificarEstatusAcceso();
+        document.getElementById('pantalla-bienvenida').style.display = 'none';
+        document.getElementById('wrapper-form').classList.remove('hidden');
+        document.getElementById('btn-volver-app').classList.remove('hidden'); // Show return button
+        document.getElementById('btn-whatsapp').classList.remove('hidden'); // Show WhatsApp button
+        document.getElementById('btn-messenger').classList.remove('hidden'); // Show Messenger button
+       
         this.cambiarIdioma(this.idiomaActual);
-
-        // 4. COMPUERTA INTEGRADA: Si el usuario NO tiene acceso válido, bloquear el paso
-        if (!usuarioAutorizado) {
-            const aviso_es = "Para desbloquear tu motor de enrutamiento somático, por favor selecciona un plan de acceso.";
-            const aviso_en = "To unlock your somatic routing engine, please select an access plan.";
-            this.hablar(this.idiomaActual === 'es' ? aviso_es : aviso_en);
-
-            // Opacar visualmente el formulario del oráculo y la caja de texto libre
-            const oraculoBox = document.getElementById('bloque-escritura-libre');
-            if (oraculoBox) oraculoBox.style.opacity = "0.15";
-            
-            const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo');
-            if (oraculoGrid) oraculoGrid.style.opacity = "0.15";
-
-            // Forzar de forma nativa que el contenedor de cobros sea visible en pantalla
-            const paywallEl = document.getElementById('paywall-container');
-            if (paywallEl) paywallEl.classList.remove('hidden');
-            return; // Detiene la inyección de preguntas para proteger tu backend en Render
-        }
-
-        // 5. FLUJO NORMAL: Si ya pagó, remueve opacidades e inyecta la app
-        const oraculoBox = document.getElementById('bloque-escritura-libre');
-        if (oraculoBox) oraculoBox.style.opacity = "1";
-        
-        const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo');
-        if (oraculoGrid) oraculoGrid.style.opacity = "1";
-
+       
         const saludos_es = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
             "ópen dán go está activo. Concéntrate un momento. Mira las opciones en tu pantalla ya.",
@@ -449,57 +403,52 @@ const KERNEL = {
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-        
+       
         this.inyectarBloquePreguntas();
         this.iniciarMonitoreoInaccion();
+       
         this.activarBotonMandoLibreInicial();
     },
 
-    /** Injects a block of 6 questions into the UI, ensuring they are distinct and not recent. */
+    /**
+     * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
+     */
     inyectarBloquePreguntas() {
-        // ============================================================
-        // SEGURIDAD PERIMETRAL: Evita inyecciones accidentales si no hay pago
-        // ============================================================
-        if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") &&
-            !(localStorage.getItem('tg_admin_user') && localStorage.getItem('tg_admin_pass'))) {
-            console.warn("Bloqueo de seguridad: No se pueden inyectar preguntas sin acceso válido.");
-            return;
-        }
-        
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
-        
+       
         clearInterval(this.temporizadorCascada);
         grid.innerHTML = "";
         this.indicePreguntaCascada = 0;
-        
+       
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
         let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
+
         let unseenIndices = [];
-        
         for (let i = 0; i < catalogo.length; i++) {
             if (!preguntasYaVistasRecientemente.has(i)) {
                 unseenIndices.push(i);
             }
         }
-        
+
         if (unseenIndices.length < 6) {
             console.warn("Not enough unseen questions. Resetting Oracle history.");
             this.historialPreguntas = [];
             localStorage.removeItem("otg_historial_oraculo");
             unseenIndices = Array.from({length: catalogo.length}, (_, i) => i);
         }
-        
+       
         for (let i = unseenIndices.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]];
         }
-        
+
         let preguntasSeleccionadasIndices = [];
         let blocksUsedInCurrentSelection = new Set();
-        
+       
         for (let i = 0; i < 6; i++) {
             if (unseenIndices.length === 0) break;
+
             let candidateIndex = -1;
             for (let j = 0; j < unseenIndices.length; j++) {
                 const currentIdx = unseenIndices[j];
@@ -510,22 +459,25 @@ const KERNEL = {
                     break;
                 }
             }
+
             if (candidateIndex === -1) {
                 candidateIndex = 0;
                 const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6);
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
+           
             const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0];
             preguntasSeleccionadasIndices.push(selectedIndex);
+           
             this.historialPreguntas.push(selectedIndex);
         }
-        
         this.historialPreguntas = this.historialPreguntas.slice(-this.MAX_HISTORY_ORACULO);
         localStorage.setItem("otg_historial_oraculo", JSON.stringify(this.historialPreguntas));
-        
+
         preguntasSeleccionadasIndices.forEach((questionIdx, i) => {
             let preguntaTexto = catalogo[questionIdx];
             if (!preguntaTexto) return;
+
             let btn = document.createElement('button');
             btn.className = 'btn-pregunta-crisis';
             btn.id = `btn-pregunta-${i}`;
@@ -533,30 +485,28 @@ const KERNEL = {
             btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto);
             grid.appendChild(btn);
         });
+
         this.iniciarEfectoCascada();
     },
 
-        /** Initiates the fading cascade effect for questions keeping the voice queue alive */
+    /** Initiates the fading cascade effect for questions. */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
+       
         const totalButtons = document.querySelectorAll('.btn-pregunta-crisis').length;
         if (totalButtons === 0) {
             this.liberarCajonEscrituraLibre();
             return;
         }
-        // Lee de manera fluida el primer elemento del carrusel en pantalla de forma inmediata
-        let primerBoton = document.getElementById('btn-pregunta-0');
-        if (primerBoton) {
-            let textoInicial = primerBoton.innerText.substring(3);
-            this.hablar(textoInicial);
-        }
+
         this.temporizadorCascada = setInterval(() => {
             let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
+           
             if (botonParaEliminar) {
                 botonParaEliminar.classList.add('fade-out');
+               
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
-                // Encola la siguiente oración de forma orgánica sin tumbar el hilo acústico previo
                 if (siguienteBoton) {
                     let textoLimpio = siguienteBoton.innerText.substring(3);
                     this.hablar(textoLimpio);
@@ -566,7 +516,7 @@ const KERNEL = {
                 clearInterval(this.temporizadorCascada);
                 this.liberarCajonEscrituraLibre();
             }
-        }, 8000); // Ventana estable de 8 segundos para dar tiempo de lectura completo en el navegador
+        }, 8000);
     },
 
     /** Activates the free writing input field and button from start. */
@@ -576,18 +526,17 @@ const KERNEL = {
         const lblDesahogo = document.getElementById('lbl-desahogo');
         const instruccion = document.getElementById('lbl-oraculo-instruccion');
         const zipInput = document.getElementById('inp-zip');
-        
+
         if (instruccion) {
             instruccion.innerText = this.idiomaActual === 'es' ? "¿Qué te tiene atrapado hoy?" : "What has you trapped today?";
             instruccion.style.color = "var(--accent)";
         }
         if (lblDesahogo) lblDesahogo.style.color = "#666";
-        
+
         if (btnLibre) {
-            // CORRECCIÓN MECÁNICA DE ENTORNO SEGURO: Validación preventiva ante nulos si está oculto por Paywall
             const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
-            const isTextareaEmpty = textarea ? textarea.value.trim().length <= 3 : true;
-            
+            const isTextareaEmpty = textarea.value.trim().length <= 3;
+
             if (isZipInvalid || isTextareaEmpty) {
                 btnLibre.style.background = "#111";
                 btnLibre.style.color = "#555";
@@ -599,11 +548,11 @@ const KERNEL = {
                 btnLibre.style.borderColor = "var(--green-action)";
                 btnLibre.disabled = false;
             }
-            
+
             btnLibre.onclick = () => {
-                let textoEscrito = textarea ? textarea.value.trim() : "";
+                let textoEscrito = textarea.value.trim();
                 const isZipInvalidOnSubmit = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
-                
+
                 if (isZipInvalidOnSubmit) {
                     this.hablar(this.idiomaActual === 'es' ? "Por favor, introduce un código postal válido." : "Please enter a valid ZIP code.");
                     zipInput.focus();
@@ -616,11 +565,11 @@ const KERNEL = {
                 }
             };
         }
-        
-        // Escucha en tiempo real la escritura para activar el botón al instante
         if (textarea) {
+            textarea.removeEventListener('input', this.textareaInputHandler);
             this.textareaInputHandler = () => {
                 const isZipInvalid = zipInput && zipInput.value.trim().length > 0 && !zipInput.checkValidity();
+               
                 if (textarea.value.trim().length > 3 && !isZipInvalid) {
                     if (btnLibre) {
                         btnLibre.style.background = "var(--green-action)";
@@ -638,7 +587,6 @@ const KERNEL = {
                 }
                 this.validarZip();
             };
-            textarea.removeEventListener('input', this.textareaInputHandler);
             textarea.addEventListener('input', this.textareaInputHandler);
         }
         this.validarZip();
@@ -649,12 +597,13 @@ const KERNEL = {
         const zipInput = document.getElementById('inp-zip');
         const btnActivarLibre = document.getElementById('btn-activar-libre');
         const textarea = document.getElementById('inp-text-libre');
+
         if (!zipInput || !btnActivarLibre || !textarea) return;
 
         const zipValue = zipInput.value.trim();
         const isValidZip = zipInput.checkValidity();
         const hasTextareaContent = textarea.value.trim().length > 3;
-        
+
         if (zipValue.length > 0 && !isValidZip) {
             zipInput.style.borderColor = "var(--accent)";
             btnActivarLibre.disabled = true;
@@ -679,17 +628,10 @@ const KERNEL = {
 
     /** Activates the free writing input field and visually indicates readiness. */
     liberarCajonEscrituraLibre() {
-        // ============================================================
-        // COMPUERTA DE COBRO: Si no ha pagado, bloquear la liberación del cajón
-        // ============================================================
-        if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") &&
-            !(localStorage.getItem('tg_admin_user') && localStorage.getItem('tg_admin_pass'))) {
-            return;
-        }
         const textarea = document.getElementById('inp-text-libre');
         const lblDesahogo = document.getElementById('lbl-desahogo');
         const instruccion = document.getElementById('lbl-oraculo-instruccion');
-        
+
         if (instruccion) {
             instruccion.innerText = this.idiomaActual === 'es' ? "Mando libre listo. Cuéntame qué te pasa." : "Free control ready. Tell me what is happening.";
             instruccion.style.color = "var(--green-action)";
@@ -699,17 +641,13 @@ const KERNEL = {
         this.validarZip();
     },
 
-        /** Monitors user inaction and advances question blocks or pauses. */
+    /**
+     * Monitors user inaction and advances question blocks or pauses.
+     */
     iniciarMonitoreoInaccion() {
         clearInterval(this.timerInaccion);
         this.conteoInaccion = 0;
         this.timerInaccion = setInterval(() => {
-            // Compuerta de seguridad: Congela el monitor si no hay acceso activo
-            if (!localStorage.getItem('tg_stripe_session')?.startsWith("cs_") &&
-                !(localStorage.getItem('tg_admin_user') && localStorage.getItem('tg_admin_pass'))) {
-                clearInterval(this.timerInaccion);
-                return;
-            }
             this.conteoInaccion++;
             if (this.conteoInaccion === 3 || this.conteoInaccion === 6) {
                 clearInterval(this.temporizadorCascada);
@@ -728,160 +666,84 @@ const KERNEL = {
         }, 8000);
     },
 
-    /** Handles user selecting a question or entering free text. */
+    /**
+     * Handles user selecting a question or entering free text.
+     */
     reaccionarPreguntaSeleccionada(textoPregunta) {
         clearInterval(this.timerInaccion);
         clearInterval(this.temporizadorCascada);
-        const textarea = document.getElementById('inp-text-libre');
-        if (textarea) {
-            textarea.value = textoPregunta;
-        }
+       
+        document.getElementById('inp-text-libre').value = textoPregunta;
         this.ejecutar();
     },
 
-    /** * Converts text to speech using browser's SpeechSynthesis API safely without truncating */
+    /**
+     * Converts text to speech using browser's SpeechSynthesis API.
+     * Checks for API support and uses a fixed Spanish voice for consistency as per instructions.
+     * @param {string} texto - The text to speak.
+     */
     hablar(texto) {
         if (!('speechSynthesis' in window)) {
             console.warn("Speech Synthesis API not supported in this browser.");
             return;
         }
         if (!texto) return;
-
-        // ¡REPARADO!: Removed .cancel() to prevent voice truncating mid-word during cascades
+        window.speechSynthesis.cancel();
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
         msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
-        msg.rate = 1.05; // Balanced human speaking rate to prevent word cutting
-        
+        msg.rate = 1.20;
         window.speechSynthesis.speak(msg);
     },
 
-    /** * Changes the application's language and updates UI elements safely. * @param {string} lang - The target language ('es' or 'en'). */
+    /**
+     * Changes the application's language and updates UI elements.
+     * @param {string} lang - The target language ('es' or 'en').
+     */
     cambiarIdioma(lang) {
         this.idiomaActual = lang;
         localStorage.setItem("otg_language", lang);
-        
-        const langEs = document.getElementById('lang-es');
-        const langEn = document.getElementById('lang-en');
-        if (langEs) langEs.classList.toggle('active', lang === 'es');
-        if (langEn) langEn.classList.toggle('active', lang === 'en');
-        
+        document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+        document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+       
         const t = {
-            es: {
-                title: "OPEN THAN GO",
-                zip: "Código Postal",
-                instruccion: "¿Qué te tiene atrapado hoy?",
-                desahogo: "O escribe aquí tu propio agobio si no aparece arriba:",
-                placeholder: "Cuéntale al mando libremente qué te pasa hoy...",
-                btn: "Activar Mando Libre",
-                alert: "Idioma cambiado a español.",
-                budget0: "Gratis",
-                budget1: "Bajo",
-                budget2: "Abierto",
-                solo: "Solo",
-                familia: "Familia",
-                accesible: "Accesible",
-                menteAburrido: "Aburrido",
-                menteAgotado: "Agotado",
-                menteEstresado: "Estresado",
-                menteCansado: "Cansado",
-                menteAnsioso: "Ansioso",
-                modoSalir: "SALIR",
-                modoCasa: "CASA",
-                recomenzar: "RECOMENZAR EXPERIENCIA",
-                puertaAbierta: "La puerta está abierta. ¿Continuamos?",
-                volverApp: "Volver a la App"
-            },
-            en: {
-                title: "OPEN THAN GO",
-                zip: "ZIP Code",
-                instruccion: "What has you trapped today?",
-                desahogo: "Or write your own burden here if it does not appear above:",
-                placeholder: "Tell the control freely what is happening to you today...",
-                btn: "Activate Free Control",
-                alert: "Language switched to English.",
-                budget0: "Free",
-                budget1: "Low",
-                budget2: "Open",
-                solo: "Alone",
-                familia: "Family",
-                accesible: "Accessible",
-                menteAburrido: "Bored",
-                menteAgotado: "Exhausted",
-                menteEstresado: "Stressed",
-                menteCansado: "Tired",
-                menteAnsioso: "Anxious",
-                modoSalir: "OUT",
-                modoCasa: "HOME",
-                recomenzar: "RESTART EXPERIENCE",
-                puertaAbierta: "The door is open. Shall we continue?",
-                volverApp: "Return to App"
-            }
+            es: { title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", volverApp: "Volver a la App" },
+            en: { title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", desahogo: "Or write your own burden here if it does not appear above:", placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", volverApp: "Return to App" }
         }[lang];
+       
+        document.getElementById('html-title').innerText = t.title;
+        document.getElementById('txt-app-title').innerText = t.title;
+        document.getElementById('lbl-zip').innerText = t.zip;
+        document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
+        document.getElementById('lbl-desahogo').innerText = t.desahogo;
+        document.getElementById('inp-text-libre').placeholder = t.placeholder;
+        document.getElementById('btn-activar-libre').innerText = t.btn;
+        document.getElementById('opt-budget-0').innerText = t.budget0;
+        document.getElementById('opt-budget-1').innerText = t.budget1;
+        document.getElementById('opt-budget-2').innerText = t.budget2;
+        document.getElementById('opt-perfil-solo').innerText = t.solo;
+        document.getElementById('opt-perfil-familia').innerText = t.familia;
+        document.getElementById('opt-perfil-accesible').innerText = t.accesible;
+        document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido;
+        document.getElementById('opt-mente-agotado').innerText = t.menteAgotado;
+        document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
+        document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
+        document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
+        document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
+        document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
+       
+        const cierreLogo = document.getElementById('cierre-logo');
+        if (cierreLogo) cierreLogo.innerText = t.title;
+        const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
+        if (cierreBoton) cierreBoton.innerText = t.recomenzar;
+        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
+        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
+        const btnVolverApp = document.getElementById('btn-volver-app');
+        if (btnVolverApp) btnVolverApp.title = t.volverApp;
 
-        // ¡REPARADO!: Safe descriptive checks before assignments to keep the DOM from freezing
-        const htmlTitle = document.getElementById('html-title');
-        const txtAppTitle = document.getElementById('txt-app-title');
-        const lblZip = document.getElementById('lbl-zip');
-        const lblInstruccion = document.getElementById('lbl-oraculo-instruccion');
-        const lblDesahogo = document.getElementById('lbl-desahogo');
-        const inpTextLibre = document.getElementById('inp-text-libre');
-        const btnActivarLibre = document.getElementById('btn-activar-libre');
-        const optBudget0 = document.getElementById('opt-budget-0');
-        const optBudget1 = document.getElementById('opt-budget-1');
-        const optBudget2 = document.getElementById('opt-budget-2');
-        const optPerfilSolo = document.getElementById('opt-perfil-solo');
-        const optPerfilFamilia = document.getElementById('opt-perfil-family');
-        const optPerfilAccesible = document.getElementById('opt-perfil-accesible');
-        const optMenteAburrido = document.getElementById('opt-mente-aburrido');
-        const optMenteAgotado = document.getElementById('opt-mente-agotado');
-        const optMenteEstresado = document.getElementById('opt-mente-estresado');
-        const optMenteCansado = document.getElementById('opt-mente-cansado');
-        const optMenteAnsioso = document.getElementById('opt-mente-ansioso');
-        const modoSelector = document.getElementById('modo-selector');
-
-        if (htmlTitle) htmlTitle.innerText = t.title;
-        if (txtAppTitle) txtAppTitle.innerText = t.title;
-        if (lblZip) lblZip.innerText = t.zip;
-        if (lblInstruccion) lblInstruccion.innerText = t.instruccion;
-        if (lblDesahogo) lblDesahogo.innerText = t.desahogo;
-        if (inpTextLibre) inpTextLibre.placeholder = t.placeholder;
-        if (btnActivarLibre) btnActivarLibre.innerText = t.btn;
-        if (optBudget0) optBudget0.innerText = t.budget0;
-        if (optBudget1) optBudget1.innerText = t.budget1;
-        if (optBudget2) optBudget2.innerText = t.budget2;
-        if (optPerfilSolo) optPerfilSolo.innerText = t.solo;
-        if (optPerfilFamilia) optPerfilFamilia.innerText = t.familia;
-        if (optPerfilAccesible) optPerfilAccesible.innerText = t.accesible;
-        if (optMenteAburrido) optMenteAburrido.innerText = t.menteAburrido;
-        if (optMenteAgotado) optMenteAgotado.innerText = t.menteAgotado;
-        if (optMenteEstresado) optMenteEstresado.innerText = t.menteEstresado;
-        if (optMenteCansado) optMenteCansado.innerText = t.menteCansado;
-        if (optMenteAnsioso) optMenteAnsioso.innerText = t.menteAnsioso;
-        
-        if (modoSelector) {
-            const optSalir = modoSelector.querySelector('option[value="SALIR"]');
-            const optCasa = modoSelector.querySelector('option[value="CASA"]');
-            if (optSalir) optSalir.innerText = t.modoSalir;
-            if (optCasa) optCasa.innerText = t.modoCasa;
-        }
-
-        const cierreLogo = document.getElementById('cierre-logo'); 
-        if (cierreLogo) cierreLogo.innerText = t.title; 
-        const cierreBoton = document.getElementById('btn-recomenzar-experiencia'); 
-        if (cierreBoton) cierreBoton.innerText = t.recomenzar; 
-        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
-        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta; 
-        const btnVolverApp = document.getElementById('btn-volver-app'); 
-        if (btnVolverApp) btnVolverApp.title = t.volverApp; 
-        
-        // INTEGRACIÓN CRÍTICA: Synchronize language strings on Stripe / Admin panels 
-        if (typeof this.traducirElementosPaywall === "function") { 
-            this.traducirElementosPaywall(lang); 
-        } 
-        this.hablar(t.alert); 
-        this.inyectarBloquePreguntas(); 
-        this.activarBotonMandoLibreInicial(); 
+        this.hablar(t.alert);
+        this.inyectarBloquePreguntas();
+        this.activarBotonMandoLibreInicial();
     },
 
     /**
@@ -896,14 +758,12 @@ const KERNEL = {
         clearInterval(this.timerEnfocado);
         clearInterval(this.salidaTimerId);
         window.speechSynthesis.cancel();
-
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
             this.salidaSugeridaTimeoutId = null;
         }
 
-        const modoSelector = document.getElementById('modo-selector');
-        const modoActual = modoSelector ? modoSelector.value : "SALIR";
+        const modoActual = document.getElementById('modo-selector') ? document.getElementById('modo-selector').value : "SALIR";
         const zipInput = document.getElementById('inp-zip');
         const desahogoInput = document.getElementById('inp-text-libre');
 
@@ -914,109 +774,7 @@ const KERNEL = {
             return;
         }
 
-        const menteSelector = document.getElementById('mente-selector');
-        const budgetSelector = document.getElementById('budget-selector');
-        const perfilSelector = document.getElementById('perfil-selector');
-
-        let rawPayload = {
-            zip: zipInput ? zipInput.value.trim() : "",
-            modo: modoActual,
-            desahogo: desahogoInput ? desahogoInput.value.trim() : "",
-            lang: this.idiomaActual,
-            mente: menteSelector ? menteSelector.value : "aburrido",
-            budget: budgetSelector ? budgetSelector.value : "0",
-            perfil: perfilSelector ? perfilSelector.value : "solo",
-            perfil_local: this.obtenerPerfilLocal()
-        };
-
-        if (modoActual === "CASA") {
-            rawPayload.historial_casa = this.historialCasa;
-        } else {
-            rawPayload.historial_salir = this.historialSalir;
-        }
-
-        // ============================================================
-        // INTERCEPTOR CRÍTICO: Inyectar automáticamente credenciales y tokens de Stripe
-        // ============================================================
-        const payload = this.inyectarTokensAcceso(rawPayload);
-        const container = document.getElementById('wrapper-interactive');
-
-        if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.add('hidden');
-        if (document.getElementById('pantalla-cierre')) document.getElementById('pantalla-cierre').classList.add('hidden');
-
-        if (container) {
-            container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
-            container.classList.remove('hidden');
-        }
-
-        try {
-            const r = await fetch("/api/mando-integral", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-
-            // ============================================================
-            // INTERCEPTOR CRÍTICO: DETECTAR INTENTOS DE ACCESO SIN PAGO (403)
-            // ============================================================
-            if (r.status === 403) {
-                const errorData = await r.json();
-                if (errorData.requiere_pago) {
-                    console.warn("Acceso denegado por el servidor: Requiere validación financiera.");
-                    localStorage.removeItem('tg_stripe_session');
-                    
-                    if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden');
-                    if (container) container.classList.add('hidden');
-                    this.isLocked = false;
-                    
-                    // Forza la visualización inmediata del Paywall de Stripe
-                    const paywallEl = document.getElementById('paywall-container');
-                    if (paywallEl) paywallEl.classList.remove('hidden');
-                    
-                    const aviso = this.idiomaActual === 'es' ? "Acceso restringido. Por favor selecciona un plan." : "Access restricted. Please select a plan.";
-                    this.hablar(aviso);
-                    return;
-                }
-            }
-
-            const data = await r.json();
-            if (data.error) {
-                alert(data.error);
-                if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden');
-                if (container) container.classList.add('hidden');
-                this.isLocked = false;
-                this.validarZip();
-                return;
-            }
-
-            // PROCESAMIENTO AUTORIZADO DE RESPUESTAS DEL SERVIDOR
-            this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
-            this.indiceMision = 0;
-            
-            if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
-                this.historialSalir = data.historial_salir_actualizado;
-                localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                this.pasosMisiones = data.misiones;
-                this.mostrarOpcionesSalir(container);
-            } else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
-                this.historialCasa = data.historial_casa_actualizado;
-                localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
-                this.pasosMisiones = data.misiones;
-                this.procesarFlujoSecuencial(container);
-            }
-        } catch (error) {
-            console.error("Fetch error:", error);
-            if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden');
-            if (container) container.classList.add('hidden');
-            this.isLocked = false;
-            this.validarZip();
-        }
-    },
-
-                // ============================================================
-        // COMPILACIÓN DEL PAYLOAD CON CONTEXTO MAESTRO LOCAL
-        // ============================================================
-        let rawPayload = {
+        const payload = {
             zip: zipInput ? zipInput.value.trim() : "",
             modo: modoActual,
             desahogo: desahogoInput ? desahogoInput.value.trim() : "",
@@ -1024,31 +782,20 @@ const KERNEL = {
             mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido",
             budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0",
             perfil: document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo",
-            perfil_local: this.obtenerPerfilLocal()
+            perfil_local: this.obtenerPerfilLocal(),
         };
 
         if (modoActual === "CASA") {
-            rawPayload.historial_casa = this.historialCasa;
+            payload.historial_casa = this.historialCasa;
         } else {
-            rawPayload.historial_salir = this.historialSalir;
+            payload.historial_salir = this.historialSalir;
         }
 
-        // ============================================================
-        // INTERCEPTOR CRÍTICO: Inyectar automáticamente credenciales y tokens de Stripe
-        // ============================================================
-        const payload = this.inyectarTokensAcceso(rawPayload);
         const container = document.getElementById('wrapper-interactive');
-
-        const wrapperFormEl = document.getElementById('wrapper-form');
-        if (wrapperFormEl) wrapperFormEl.classList.add('hidden');
-        
-        const pantallaCierreEl = document.getElementById('pantalla-cierre');
-        if (pantallaCierreEl) pantallaCierreEl.classList.add('hidden');
-
-        if (container) {
-            container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
-            container.classList.remove('hidden');
-        }
+        document.getElementById('wrapper-form').classList.add('hidden');
+        document.getElementById('pantalla-cierre').classList.add('hidden');
+        container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
+        container.classList.remove('hidden');
 
         try {
             const r = await fetch("/api/mando-integral", {
@@ -1056,155 +803,115 @@ const KERNEL = {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
-
-            // ============================================================
-            // INTERCEPTOR CRÍTICO: DETECTAR INTENTOS DE ACCESO SIN PAGO (403)
-            // ============================================================
-            if (r.status === 403) {
-                const errorData = await r.json();
-                if (errorData.requiere_pago) {
-                    console.warn("Acceso denegado por el servidor: Requiere validación financiera.");
-                    localStorage.removeItem('tg_stripe_session');
-                    
-                    if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden');
-                    if (container) container.classList.add('hidden');
-                    this.isLocked = false;
-                    
-                    // Fuerza la visualización inmediata del Paywall de Stripe
-                    const paywallEl = document.getElementById('paywall-container');
-                    if (paywallEl) paywallEl.classList.remove('hidden');
-                    
-                    const aviso = this.idiomaActual === 'es' ? "Acceso restringido. Por favor selecciona un plan." : "Access restricted. Please select a plan.";
-                    this.hablar(aviso);
-                    return;
-                }
-            }
-
             const data = await r.json();
+
             if (data.error) {
                 alert(data.error);
-                if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden');
-                if (container) container.classList.add('hidden');
+                document.getElementById('wrapper-form').classList.remove('hidden');
+                container.classList.add('hidden');
                 this.isLocked = false;
                 this.validarZip();
                 return;
             }
 
-            // PROCESAMIENTO AUTORIZADO DE RESPUESTAS DEL SERVIDOR
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
-            
+           
             if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
                 this.historialSalir = data.historial_salir_actualizado;
                 localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                this.pasosMisiones = data.misiones;
+                this.pasosMisiones = data.misiones; // Now an array of 3 for SALIR
                 this.mostrarOpcionesSalir(container);
-            } else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
+            }
+            else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
                 this.historialCasa = data.historial_casa_actualizado;
                 localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
                 this.pasosMisiones = data.misiones;
                 this.procesarFlujoSecuencial(container);
             }
+
+
         } catch (error) {
             console.error("Fetch error:", error);
-            if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden');
-            if (container) container.classList.add('hidden');
+            alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
+            document.getElementById('wrapper-form').classList.remove('hidden');
+            container.classList.add('hidden');
             this.isLocked = false;
             this.validarZip();
         }
+    },
 
+    /**
+     * Displays the 3 options for SALIR mode and waits for user selection.
+     */
+    mostrarOpcionesSalir(container) {
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
 
-                } catch (error) { 
-            console.error("Fetch error:", error); 
-            alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again."); 
-            if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden'); 
-            if (container) container.classList.add('hidden'); 
-            this.isLocked = false; 
-            this.validarZip(); 
-        } 
-    }, 
+        const t = {
+            es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" },
+            en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:" }
+        }[this.idiomaActual];
 
-    /** 
-     * Displays the 3 options for SALIR mode and waits for user selection. 
-     */ 
-    mostrarOpcionesSalir(container) { 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.salidaTimerId); 
-        window.speechSynthesis.cancel(); 
-        
-        const t = { 
-            es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" }, 
-            en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:" } 
-        }[this.idiomaActual]; 
-        
-        if (container) {
-            container.innerHTML = ` 
-            <div class="mision-choices-container"> 
-                <h2 class="salida-main-title">${t.choosePath}</h2> 
-                <p class="salida-choose-instruction">${t.chooseOne}</p> 
-                <div id="salida-options-grid" class="salida-grid"></div> 
-            </div>`; 
-        }
-        
-        const optionsGrid = document.getElementById('salida-options-grid'); 
-        if (optionsGrid && this.pasosMisiones) {
-            this.pasosMisiones.forEach((mission, index) => { 
-                const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo; 
-                const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer; 
-                
-                const card = document.createElement('div'); 
-                card.className = 'salida-option-card'; 
-                card.innerHTML = ` 
-                    <h3 class="salida-option-title">${missionTitle || ""}</h3> 
-                    <p class="salida-option-desc">${missionWhatToDo || ""}</p> 
-                    <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button> 
-                `; 
-                
-                const selectBtn = card.querySelector('.btn-select-salida');
-                if (selectBtn) {
-                    selectBtn.onclick = () => this.iniciarSalidaConcreta(mission); 
-                }
-                optionsGrid.appendChild(card); 
-            }); 
-        }
-        this.hablar(t.chooseOne); 
-    }, 
+        container.innerHTML = `
+        <div class="mision-choices-container">
+            <h2 class="salida-main-title">${t.choosePath}</h2>
+            <p class="salida-choose-instruction">${t.chooseOne}</p>
+            <div id="salida-options-grid" class="salida-grid">
+                <!-- Options will be injected here -->
+            </div>
+        </div>`;
 
-    /** 
-     * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission. 
-     * @param {Object} selectedMission - The mission object chosen by the client. 
-     */ 
-    iniciarSalidaConcreta(selectedMission) { 
-        this.datosLugarGlobal = selectedMission; 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.salidaTimerId); 
-        window.speechSynthesis.cancel(); 
-        
-        const t = { 
-            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" }, 
-            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" } 
-        }[this.idiomaActual]; 
-        
-        const container = document.getElementById('wrapper-interactive'); 
-        const rawInstruccion = this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion;
-        let textoFormateado = (rawInstruccion || "").replace(/\n/g, '<br>');
+        const optionsGrid = document.getElementById('salida-options-grid');
+        this.pasosMisiones.forEach((mission, index) => {
+            const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
+            const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
+            const card = document.createElement('div');
+            card.className = 'salida-option-card';
+            card.innerHTML = `
+                <h3 class="salida-option-title">${missionTitle}</h3>
+                <p class="salida-option-desc">${missionWhatToDo}</p>
+                <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button>
+            `;
+            card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
+            optionsGrid.appendChild(card);
+        });
 
-                if (container) {
-            container.innerHTML = `
-            <div class="mision-card">
-                <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
-                <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
-                <div class="instruccion-text">${textoFormateado}</div>
-                <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
-                <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
-                <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
-            </div>`;
-        }
+        this.hablar(t.chooseOne);
+    },
 
-        const rawInstruccionText = this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion;
-        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (rawInstruccionText || "");
+    /**
+     * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
+     * @param {Object} selectedMission - The mission object chosen by the client.
+     */
+    iniciarSalidaConcreta(selectedMission) {
+        this.datosLugarGlobal = selectedMission; // Store the selected mission
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+
+        const t = {
+            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
+            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
+        }[this.idiomaActual];
+
+        const container = document.getElementById('wrapper-interactive');
+        let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
+       
+        container.innerHTML = `
+        <div class="mision-card">
+            <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
+            <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
+            <div class="instruccion-text">${textoFormateado}</div>
+            <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
+            <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
+            <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+        </div>`;
+
+        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
         this.hablar(speechText);
-
+       
         let retencion = 35;
         const btnCount = document.getElementById('btn-countdown-salida');
         const btnGps = document.getElementById('btn-gps-action');
@@ -1220,20 +927,16 @@ const KERNEL = {
                     // Transition to 45s phrase injection
                     retencion = -45; // Use negative to denote this phase
                     if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                    if (phrasesDiv && AUDIOS_SECUENCIALES_SALIR && AUDIOS_SECUENCIALES_SALIR[phraseIndex]) {
-                        phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                        this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                    }
+                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
                     phraseIndex++;
                 }
             } else if (retencion < 0) {
                 retencion++; // Count up towards 0
                 if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                if ((Math.abs(retencion) % 10 === 0) && AUDIOS_SECUENCIALES_SALIR && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
-                    if (phrasesDiv && AUDIOS_SECUENCIALES_SALIR[phraseIndex]) {
-                        phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                        this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                    }
+                if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
+                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
                     phraseIndex++;
                 }
                 if (retencion === 0) {
@@ -1246,13 +949,12 @@ const KERNEL = {
                         btnGps.classList.remove('hidden');
                         btnGps.onclick = () => {
                             try {
-                                let perfil = this.obtenerPerfilLocal();
-                                const selectedVector = this.datosLugarGlobal.vector_entorno_seleccionado;
-                                if (selectedVector) {
-                                    for (const need in selectedVector) {
-                                        if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                                            perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
-                                        }
+                                let perfil = KERNEL.obtenerPerfilLocal();
+                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+                               
+                                for (const need in selectedVector) {
+                                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                                        perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
                                     }
                                 }
                                 perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
@@ -1260,9 +962,8 @@ const KERNEL = {
                             } catch (e) {
                                 console.error("Error updating local profile after action:", e);
                             }
-                            if (this.datosLugarGlobal && this.datosLugarGlobal.destino_coordenadas_gps) {
-                                window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                            }
+                            window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+                            // KERNEL.reiniciarExperiencia(); // Keep the app in background, ready for return
                         };
                     }
                 }
@@ -1270,89 +971,86 @@ const KERNEL = {
         }, 1000);
     },
 
-        /**
+
+    /**
      * Processes the sequential flow based on the recommendation type (only for CASA mode now).
      */
     procesarFlujoSecuencial(container) {
         clearInterval(this.timerEnfocado);
-        
+        window.speechSynthesis.cancel();
+
         const t = {
             es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo", internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido" },
             en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" }
         }[this.idiomaActual];
 
+        // This function now only handles INTERVENCION_DOMESTICA (CASA mode)
         if (this.indiceMision >= this.pasosMisiones.length) {
             this.iniciarRelojEnfocadoCasa(container, t);
             return;
         }
 
         const paso = this.pasosMisiones[this.indiceMision];
-        if (container && paso) {
-            container.innerHTML = `
-            <div class="mision-card">
-                <small>${t.internalMission}</small>
-                <h3>${paso.titulo || ""}</h3>
-                <p>${paso.descripcion || ""}</p>
-                <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
-            </div>`;
-        }
+       
+        container.innerHTML = `
+        <div class="mision-card">
+            <small>${t.internalMission}</small>
+            <h3>${paso.titulo}</h3>
+            <p>${paso.descripcion}</p>
+            <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
+        </div>`;
 
-        if (paso) {
-            this.hablar((paso.titulo || "") + " . " + (paso.descripcion || ""));
-        }
-
-        const btnNext = document.getElementById('btn-next');
-        if (btnNext) {
-            btnNext.onclick = () => {
-                try {
-                    let perfil = this.obtenerPerfilLocal();
-                    const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_VECTOR;
-                    for (const need in missionVector) {
-                        if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                            perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
-                        }
+        this.hablar(paso.titulo + " . " + paso.descripcion);
+        document.getElementById('btn-next').onclick = () => {
+            try {
+                let perfil = this.obtenerPerfilLocal();
+                const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
+                for (const need in missionVector) {
+                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                        perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
                     }
-                    perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
-                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                } catch (e) {
-                    console.error("Error updating local profile after CASA mission:", e);
                 }
-                this.avanzarPaso();
-            };
-        }
+                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
+                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+            } catch (e) {
+                console.error("Error updating local profile after CASA mission:", e);
+            }
+            this.avanzarPaso();
+        };
     },
 
     /** Starts the 10-minute clinical breathing timer for CASA mode. */
-    iniciarRelojEnfocadoCasa(container, t) {
+    iniciarRelojEnfocadoCasa(container, t) { // Renamed from iniciarRelojClinicoCasa
         clearInterval(this.timerEnfocado);
-        
+        window.speechSynthesis.cancel();
+       
         let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
         this.hablar(msg);
        
-               if (container) {
-            container.innerHTML = `
-            <div style="text-align:center; width:100%;">
-                <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
-                <div id="timer">10:00</div>
-                <p id="txt-pulmon">INHALA / INHALE</p>
-                <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
-                    <p style="margin:0;">${t.suggestedEscape || ""}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
-                </div>
-            </div>`;
-        }
+        container.innerHTML = `
+        <div style="text-align:center; width:100%;">
+            <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
+            <div id="timer">10:00</div>
+            <p id="txt-pulmon">INHALA / INHALE</p>
+            <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
+                <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
+            </div>
+        </div>`;
 
         this.timeLeft = 600;
         this.contadorToques = 0;
-        
+
         const circleElement = document.getElementById('breath-circle');
         const timerDiv = document.getElementById('timer');
         const pulmonDiv = document.getElementById('txt-pulmon');
         const salidaSugeridaDiv = document.getElementById('salida-sugerida');
         const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
-        
+
+        const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
+
         if (circleElement) {
             circleElement.onclick = () => {
-                if (this.secuenciaAdelantos && this.contadorToques < this.secuenciaAdelantos.length) {
+                if (this.contadorToques < this.secuenciaAdelantos.length) {
                     let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
                     this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
                     this.contadorToques++;
@@ -1371,333 +1069,281 @@ const KERNEL = {
                 }
             };
         }
- 
-                if (this.salidaSugeridaTimeoutId) { 
-            clearTimeout(this.salidaSugeridaTimeoutId); 
-            this.salidaSugeridaTimeoutId = null; 
-        } 
-        
-        this.salidaSugeridaTimeoutId = setTimeout(async () => { 
-            try { 
-                // ============================================================
-                // INTERCEPTOR CRÍTICO: Inyectar de manera transparente tokens de Stripe / Admin
-                // ============================================================
-                let rawSugerenciaPayload = { 
-                    modo: "SALIR", 
-                    lang: this.idiomaActual, 
-                    mente: "agotado", 
-                    budget: "0", 
-                    perfil: "solo", 
-                    desahogo: "", 
-                    zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "", 
-                    perfil_local: this.obtenerPerfilLocal(), 
-                    historial_salir: this.historialSalir 
-                };
-                
-                const payloadSugerencia = this.inyectarTokensAcceso(rawSugerenciaPayload);
 
-                const r = await fetch("/api/mando-integral", { 
-                    method: "POST", 
-                    headers: { "Content-Type": "application/json" }, 
-                    body: JSON.stringify(payloadSugerencia) 
-                }); 
-                
-                // ============================================================ 
-                // INTERCEPTOR DE SEGURIDAD AUTOMÁTICO EN RUTA SUGERIDA (403) 
-                // ============================================================ 
-                if (r.status === 403) { 
-                    clearInterval(this.timerEnfocado); 
-                    clearTimeout(this.salidaSugeridaTimeoutId); 
-                    this.salidaSugeridaTimeoutId = null; 
-                    localStorage.removeItem('tg_stripe_session'); 
-                    if (document.getElementById('wrapper-form')) document.getElementById('wrapper-form').classList.remove('hidden'); 
-                    if (container) container.classList.add('hidden'); 
-                    this.isLocked = false; 
-                    const paywallEl = document.getElementById('paywall-container'); 
-                    if (paywallEl) paywallEl.classList.remove('hidden'); 
-                    return; 
-                } 
-                
-                const data = await r.json(); 
-                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) { 
-                    const suggestedMission = data.misiones[0]; 
-                    if (data.historial_salir_actualizado) { 
-                        this.historialSalir = data.historial_salir_actualizado; 
-                        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir)); 
-                    } 
-                    linkSalidaSugerida.innerText = suggestedMission.destino_titulo; 
-                    linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps; 
-                    salidaSugeridaDiv.classList.remove('hidden'); 
-                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`); 
-                } 
-            } catch (e) { 
-                console.error("Error fetching SALIR suggestion in CASA mode:", e); 
-            } finally { 
-                this.salidaSugeridaTimeoutId = null; 
-            } 
-        }, 180000); 
-
-        this.timerEnfocado = setInterval(() => { 
-            if (this.timeLeft > 0) this.timeLeft--; 
-            let m = Math.floor(this.timeLeft / 60); 
-            let s = this.timeLeft % 60; 
-            
-            if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`; 
-            
-            if (pulmonDiv) { 
-                let ciclo = this.timeLeft % 8; 
-                if (ciclo >= 4) { 
-                    pulmonDiv.innerText = t.inspira.toUpperCase(); 
-                    pulmonDiv.style.color = "var(--cyan-inhale)"; 
-                } else { 
-                    pulmonDiv.innerText = t.expira.toUpperCase(); 
-                    pulmonDiv.style.color = "var(--accent)"; 
-                } 
-            } 
-            
-            if (this.timeLeft < 600 && (600 - this.timeLeft) % 20 === 0 && (600 - this.timeLeft) !== 0) { 
-                let pasoAudioIdx = Math.floor((600 - this.timeLeft) / 20) - 1; 
-                if (pasoAudioIdx >= 0) { 
-                    const catalogAudios = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
-                    if (catalogAudios && pasoAudioIdx < catalogAudios.length) { 
-                        let recordatorioTexto = catalogAudios[pasoAudioIdx]; 
-                        if (recordatorioTexto) { 
-                            this.hablar(recordatorioTexto); 
-                        } 
-                    } 
-                } 
-            }
-
-                        if (this.timeLeft <= 0) { 
-                clearInterval(this.timerEnfocado); 
-                if (this.salidaSugeridaTimeoutId) {
-                    clearTimeout(this.salidaSugeridaTimeoutId); 
-                    this.salidaSugeridaTimeoutId = null; 
-                }
-                if (circleElement) { 
-                    circleElement.style.animation = "none"; 
-                    circleElement.style.transform = "scale(1)"; 
-                } 
-                this.iniciarRetoCierre60Segundos(); 
-            } 
-        }, 1000); 
-    }, 
-
-    /** Advances to the next internal mission step. */ 
-    avanzarPaso() { 
-        this.indiceMision++; 
-        const container = document.getElementById('wrapper-interactive'); 
-        this.procesarFlujoSecuencial(container); 
-    }, 
-
-    /** 
-     * Initiates the 60-second closing challenge phase. 
-     */ 
-    iniciarRetoCierre60Segundos() { 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.temporizadorCierre); 
-        
-        const t = { 
-            es: { logo: "OPEN THAN GO", cierreMensaje: "Gracias por tu presencia.", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", retoInicial: "Prepárate para un reto combinado en 3, 2, 1..." }, 
-            en: { logo: "OPEN THAN GO", cierreMensaje: "Thank you for your presence.", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", retoInicial: "Get ready for a combined challenge in 3, 2, 1..." } 
-        }[this.idiomaActual]; 
-        
-        const container = document.getElementById('wrapper-interactive'); 
-        const cierrePantalla = document.getElementById('pantalla-cierre'); 
-        const retoTitulo = document.getElementById('reto-titulo'); 
-        const retoDescripcion = document.getElementById('reto-descripcion'); 
-        const retoImg = document.getElementById('reto-img'); 
-        const cierreTimer = document.getElementById('cierre-timer'); 
-        const btnRecomenzar = document.getElementById('btn-recomenzar-experiencia'); 
-        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
-        
-        if (container) container.classList.add('hidden'); 
-        if (cierrePantalla) cierrePantalla.classList.remove('hidden'); 
-        if (cierreMensajeFinal) cierreMensajeFinal.classList.add('hidden'); 
-        if (btnRecomenzar) {
-            btnRecomenzar.classList.add('hidden'); 
-            btnRecomenzar.disabled = true; 
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
         }
-        
-        this.timeLeftCierre = 60; 
-        const catalogoRetos = this.idiomaActual === 'es' ? this.CATALOGO_RETOS_ES : this.CATALOGO_RETOS_EN; 
-        let secuenciaRetos = []; 
-        let numRetos = 3; 
-        let candidateSequenceIds; 
-        let sequenceString; 
-        let maxAttempts = 10; 
-        
-        while(maxAttempts > 0) { 
-            secuenciaRetos = []; 
-            let tempRetos = catalogoRetos ? [...catalogoRetos] : []; 
-            for (let i = tempRetos.length - 1; i > 0; i--) { 
-                const j = Math.floor(Math.random() * (i + 1)); 
-                [tempRetos[i], tempRetos[j]] = [tempRetos[j], tempRetos[i]]; 
-            }
 
-                       for (let i = 0; i < numRetos; i++) { 
-                if (tempRetos.length === 0) break; 
-                secuenciaRetos.push(tempRetos.shift()); 
-            } 
-            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-'); 
-            if (!this.historialRetosSecuencias.includes(candidateSequenceIds)) { 
-                sequenceString = candidateSequenceIds; 
-                break; 
-            } 
-            maxAttempts--; 
-            if (maxAttempts === 0) { 
-                console.warn("Could not find a unique challenge sequence after multiple attempts, reusing one."); 
-                sequenceString = candidateSequenceIds; 
-            } 
-        } 
-
-        if (sequenceString) { 
-            this.historialRetosSecuencias.push(sequenceString); 
-            this.historialRetosSecuencias = this.historialRetosSecuencias.slice(-this.MAX_HISTORY_RETOS_SECUENCIAS); 
-            localStorage.setItem("otg_historial_retos_secuencias", JSON.stringify(this.historialRetosSecuencias)); 
-        } 
-
-        let currentRetoIndex = 0; 
-        const displayNextReto = () => { 
-            if (currentRetoIndex < secuenciaRetos.length) { 
-                const reto = secuenciaRetos[currentRetoIndex]; 
-                if (retoTitulo) { 
-                    retoTitulo.innerText = reto.titulo; 
-                    retoTitulo.classList.remove('hidden'); 
-                } 
-                if (retoDescripcion) { 
-                    retoDescripcion.innerText = reto.descripcion; 
-                    retoDescripcion.classList.remove('hidden'); 
-                } 
-                if (retoImg) { 
-                    retoImg.src = `/static/${reto.img}`; 
-                    retoImg.classList.remove('hidden'); 
-                } 
-                // ENLAZADOR: Sigue la cola fluida sin cancelaciones
-                this.hablar(reto.descripcion); 
-                currentRetoIndex++; 
-            } 
-        }; 
-
-        // Hide previous challenge elements for smooth transition 
-        if (retoTitulo) retoTitulo.classList.add('hidden'); 
-        if (retoDescripcion) retoDescripcion.classList.add('hidden'); 
-        if (retoImg) retoImg.classList.add('hidden'); 
-        
-        this.hablar(t.retoInicial); 
-
-        setTimeout(() => { 
-            displayNextReto(); 
-            this.temporizadorCierre = setInterval(() => { 
-                if (this.timeLeftCierre > 0) this.timeLeftCierre--; 
-                if (cierreTimer) cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0'); 
-                
-                // Advance challenge every ~20 seconds for 3 challenges in 60s 
-                if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) { 
-                    // Hide current reto before displaying next to ensure clean transition 
-                    if (retoTitulo) retoTitulo.classList.add('hidden'); 
-                    if (retoDescripcion) retoDescripcion.classList.add('hidden'); 
-                    if (retoImg) retoImg.classList.add('hidden'); 
-                    displayNextReto(); 
-                }
-
-                                if (this.timeLeftCierre <= 0) { 
-                    clearInterval(this.temporizadorCierre); 
-                    
-                    if (retoTitulo) retoTitulo.innerText = ""; 
-                    if (retoDescripcion) retoDescripcion.innerText = ""; 
-                    if (retoImg) retoImg.src = ""; 
-                    if (cierreTimer) cierreTimer.classList.add('hidden'); 
-                    if (cierreMensajeFinal) cierreMensajeFinal.classList.remove('hidden'); 
-                    
-                    if (btnRecomenzar) {
-                        btnRecomenzar.classList.remove('hidden'); 
-                        btnRecomenzar.disabled = false; 
+        this.salidaSugeridaTimeoutId = setTimeout(async () => {
+            try {
+                const r = await fetch("/api/mando-integral", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        modo: "SALIR",
+                        lang: this.idiomaActual,
+                        mente: "agotado",
+                        budget: "0",
+                        perfil: "solo",
+                        desahogo: "",
+                        zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
+                        perfil_local: this.obtenerPerfilLocal(),
+                        historial_salir: this.historialSalir
+                    })
+                });
+                const data = await r.json();
+               
+                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
+                    const suggestedMission = data.misiones[0]; // Take the first one as suggestion
+                    if (data.historial_salir_actualizado) {
+                        this.historialSalir = data.historial_salir_actualizado;
+                        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
                     }
-                    this.hablar(t.puertaAbierta); 
-                } 
-            }, 1000); 
-        }, 5000); 
 
-        if (btnRecomenzar) {
-            btnRecomenzar.onclick = () => { 
-                this.reiniciarExperiencia(); 
-            }; 
+                    linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
+                    linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
+                    salidaSugeridaDiv.classList.remove('hidden');
+                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
+                }
+            } catch (e) {
+                console.error("Error fetching SALIR suggestion in CASA mode:", e);
+            } finally {
+                this.salidaSugeridaTimeoutId = null;
+            }
+        }, 180000);
+
+        this.timerEnfocado = setInterval(() => {
+            if (this.timeLeft > 0) this.timeLeft--;
+
+            let m = Math.floor(this.timeLeft / 60);
+            let s = this.timeLeft % 60;
+            if (timerDiv) timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+           
+            if (pulmonDiv) {
+                let ciclo = this.timeLeft % 8;
+                if (ciclo >= 4) {
+                    pulmonDiv.innerText = t.inspira.toUpperCase();
+                    pulmonDiv.style.color = "var(--cyan-inhale)";
+                } else {
+                    pulmonDiv.innerText = t.expira.toUpperCase();
+                    pulmonDiv.style.color = "var(--accent)";
+                }
+            }
+
+            if (this.timeLeft < 600 && (600 - this.timeLeft) % 20 === 0 && (600 - this.timeLeft) !== 0) {
+                let pasoAudioIdx = Math.floor((600 - this.timeLeft) / 20) - 1;
+                if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
+                    let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
+                    if (recordatorioTexto) {
+                        this.hablar(recordatorioTexto);
+                    }
+                }
+            }
+
+            if (this.timeLeft <= 0) {
+                clearInterval(this.timerEnfocado);
+                clearTimeout(this.salidaSugeridaTimeoutId);
+                this.salidaSugeridaTimeoutId = null;
+                window.speechSynthesis.cancel();
+                if (circleElement) {
+                    circleElement.style.animation = "none";
+                    circleElement.style.transform = "scale(1)";
+                }
+                this.iniciarRetoCierre60Segundos();
+            }
+        }, 1000);
+    },
+
+    /** Advances to the next internal mission step. */
+    avanzarPaso() {
+        this.indiceMision++;
+        const container = document.getElementById('wrapper-interactive');
+        this.procesarFlujoSecuencial(container);
+    },
+
+    /**
+     * Initiates the 60-second closing challenge phase.
+     */
+    iniciarRetoCierre60Segundos() {
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCierre);
+        window.speechSynthesis.cancel();
+
+        const t = {
+            es: { logo: "OPEN THAN GO", cierreMensaje: "Gracias por tu presencia.", recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", retoInicial: "Prepárate para un reto combinado en 3, 2, 1..." },
+            en: { logo: "OPEN THAN GO", cierreMensaje: "Thank you for your presence.", recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", retoInicial: "Get ready for a combined challenge in 3, 2, 1..." }
+        }[this.idiomaActual];
+
+        const container = document.getElementById('wrapper-interactive');
+        const cierrePantalla = document.getElementById('pantalla-cierre');
+        const retoTitulo = document.getElementById('reto-titulo');
+        const retoDescripcion = document.getElementById('reto-descripcion');
+        const retoImg = document.getElementById('reto-img');
+        const cierreTimer = document.getElementById('cierre-timer');
+        const btnRecomenzar = document.getElementById('btn-recomenzar-experiencia');
+        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
+
+        container.classList.add('hidden');
+        cierrePantalla.classList.remove('hidden');
+       
+        cierreMensajeFinal.classList.add('hidden');
+        btnRecomenzar.classList.add('hidden');
+        btnRecomenzar.disabled = true;
+
+        this.timeLeftCierre = 60;
+
+        const catalogoRetos = this.idiomaActual === 'es' ? this.CATALOGO_RETOS_ES : this.CATALOGO_RETOS_EN;
+       
+        let secuenciaRetos = [];
+        let numRetos = 3;
+       
+        let candidateSequenceIds;
+        let sequenceString;
+        let maxAttempts = 10;
+
+        while(maxAttempts > 0) {
+            secuenciaRetos = [];
+            let tempRetos = [...catalogoRetos];
+            for (let i = tempRetos.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tempRetos[i], tempRetos[j]] = [tempRetos[j], tempRetos[i]];
+            }
+
+            for (let i = 0; i < numRetos; i++) {
+                if (tempRetos.length === 0) break;
+                secuenciaRetos.push(tempRetos.shift());
+            }
+           
+            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-');
+           
+            if (!this.historialRetosSecuencias.includes(candidateSequenceIds)) {
+                sequenceString = candidateSequenceIds;
+                break;
+            }
+            maxAttempts--;
+            if (maxAttempts === 0) {
+                console.warn("Could not find a unique challenge sequence after multiple attempts, reusing one.");
+                sequenceString = candidateSequenceIds;
+            }
         }
-    }, 
-
-    /** 
-     * Resets the UI to the initial form state without clearing persistent data. 
-     */ 
-    reiniciarExperiencia() { 
-        clearInterval(this.timerInaccion); 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.temporizadorCascada); 
-        clearInterval(this.temporizadorCierre); 
-        clearInterval(this.salidaTimerId); 
-        
-        if (this.salidaSugeridaTimeoutId) { 
-            clearTimeout(this.salidaSugeridaTimeoutId); 
-            this.salidaSugeridaTimeoutId = null; 
-        } 
-        
-        this.pasosMisiones = []; 
-        this.indiceMision = 0; 
-        this.isLocked = false; 
-        this.contadorToques = 0; 
-        this.datosLugarGlobal = null; 
-        
-        const pantallaCierreEl = document.getElementById('pantalla-cierre');
-        if (pantallaCierreEl) pantallaCierreEl.classList.add('hidden');
-        
-        const interactiveEl = document.getElementById('wrapper-interactive');
-        if (interactiveEl) interactiveEl.classList.add('hidden');
-        
-        const wrapperFormEl = document.getElementById('wrapper-form');
-        if (wrapperFormEl) wrapperFormEl.classList.remove('hidden');
-        
-        const textLibreEl = document.getElementById('inp-text-libre');
-        if (textLibreEl) textLibreEl.value = ""; 
-
-        // ============================================================
-        // COMPUERTA DE RE-EVALUACIÓN: Asegura que siga teniendo el pago activo al reiniciar
-        // ============================================================
-        const accesoValido = this.verificarEstatusAcceso();
-        if (!accesoValido) {
-            const aviso_es = "Tu sesión requiere un pago activo para continuar. Selecciona un plan.";
-            const aviso_en = "Your session requires an active payment to continue. Select a plan.";
-            this.hablar(this.idiomaActual === 'es' ? aviso_es : aviso_en);
-            
-            const oraculoBox = document.getElementById('bloque-escritura-libre');
-            if (oraculoBox) oraculoBox.style.opacity = "0.15";
-            const oraculoGrid = document.getElementById('contenedor-preguntas-oraculo');
-            if (oraculoGrid) oraculoGrid.style.opacity = "0.15";
-            return; // Bloquea el reinicio si no se ha pagado
+       
+        if (sequenceString) {
+            this.historialRetosSecuencias.push(sequenceString);
+            this.historialRetosSecuencias = this.historialRetosSecuencias.slice(-this.MAX_HISTORY_RETOS_SECUENCIAS);
+            localStorage.setItem("otg_historial_retos_secuencias", JSON.stringify(this.historialRetosSecuencias));
         }
 
-        // Si su estatus financiero es correcto, corre el flujo normal:
-        this.inyectarBloquePreguntas(); 
-        this.activarBotonMandoLibreInicial(); 
-        
-        const saludos_es = ["Bienvenido de nuevo. Tu escape inteligente. Escucha mis preguntas en pantalla.", "ópen dán go activo. Toca lo que sientes hoy para continuar."]; 
-        const saludos_en = ["Welcome back. Your smart escape. Listen to my questions on screen.", "Open Than Go active. Tap what you feel today to continue."]; 
-        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en; 
-        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
-    }, 
+        let currentRetoIndex = 0;
+        const displayNextReto = () => {
+            if (currentRetoIndex < secuenciaRetos.length) {
+                const reto = secuenciaRetos[currentRetoIndex];
+                if (retoTitulo) {
+                    retoTitulo.innerText = reto.titulo;
+                    retoTitulo.classList.remove('hidden');
+                }
+                if (retoDescripcion) {
+                    retoDescripcion.innerText = reto.descripcion;
+                    retoDescripcion.classList.remove('hidden');
+                }
+                if (retoImg) {
+                    retoImg.src = `/static/${reto.img}`;
+                    retoImg.classList.remove('hidden');
+                }
+                this.hablar(reto.descripcion);
+                currentRetoIndex++;
+            }
+        };
+        // Hide previous challenge elements for smooth transition
+        if (retoTitulo) retoTitulo.classList.add('hidden');
+        if (retoDescripcion) retoDescripcion.classList.add('hidden');
+        if (retoImg) retoImg.classList.add('hidden');
 
-    /** 
-     * Clears ALL session data and reloads the application. 
-     */ 
-    destruirYReiniciar() { 
-        clearInterval(this.timerInaccion); 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.temporizadorCascada); 
-        clearInterval(this.temporizadorCierre); 
-        clearInterval(this.salidaTimerId); 
-        
-        if (this.salidaSugeridaTimeoutId) { 
-            clearTimeout(this.salidaSugeridaTimeoutId); 
-            this.salidaSugeridaTimeoutId = null; 
+        this.hablar(t.retoInicial);
+        setTimeout(() => {
+            displayNextReto();
+            this.temporizadorCierre = setInterval(() => {
+                this.timeLeftCierre--;
+                if (cierreTimer) cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0');
+
+                // Advance challenge every ~20 seconds for 3 challenges in 60s
+                if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) {
+                    // Hide current reto before displaying next to ensure clean transition
+                    if (retoTitulo) retoTitulo.classList.add('hidden');
+                    if (retoDescripcion) retoDescripcion.classList.add('hidden');
+                    if (retoImg) retoImg.classList.add('hidden');
+                    displayNextReto();
+                }
+
+                if (this.timeLeftCierre <= 0) {
+                    clearInterval(this.temporizadorCierre);
+                    window.speechSynthesis.cancel();
+                    if (retoTitulo) retoTitulo.innerText = "";
+                    if (retoDescripcion) retoDescripcion.innerText = "";
+                    if (retoImg) retoImg.src = "";
+                   
+                    cierreTimer.classList.add('hidden');
+                    cierreMensajeFinal.classList.remove('hidden');
+                    btnRecomenzar.classList.remove('hidden');
+                    btnRecomenzar.disabled = false;
+                    this.hablar(t.puertaAbierta);
+                }
+            }, 1000);
+        }, 5000);
+
+        btnRecomenzar.onclick = () => {
+            this.reiniciarExperiencia();
+        };
+    },
+
+    /**
+     * Resets the UI to the initial form state without clearing persistent data.
+     */
+    reiniciarExperiencia() {
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCascada);
+        clearInterval(this.temporizadorCierre);
+        clearInterval(this.salidaTimerId); // Clear SALIR specific timer
+        window.speechSynthesis.cancel();
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+
+        this.pasosMisiones = [];
+        this.indiceMision = 0;
+        this.isLocked = false;
+        this.contadorToques = 0;
+        this.datosLugarGlobal = null; // Clear selected mission
+
+        document.getElementById('pantalla-cierre').classList.add('hidden');
+        document.getElementById('wrapper-interactive').classList.add('hidden');
+        document.getElementById('wrapper-form').classList.remove('hidden');
+       
+        document.getElementById('inp-text-libre').value = "";
+        this.inyectarBloquePreguntas();
+        this.activarBotonMandoLibreInicial();
+       
+        const saludos_es = ["Bienvenido de nuevo. Tu escape inteligente. Escucha mis preguntas en pantalla.", "Ópen Dán Go activo. Toca lo que sientes hoy para continuar."];
+        const saludos_en = ["Welcome back. Your smart escape. Listen to my questions on screen.", "Open Than Go active. Tap what you feel today to continue."];
+        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
+        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
+    },
+
+    /**
+     * Clears ALL session data and reloads the application.
+     */
+    destruirYReiniciar() {
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCascada);
+        clearInterval(this.temporizadorCierre);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
         }
 
         localStorage.clear();
@@ -1774,70 +1420,57 @@ preguntas:[
 "¿Cuál de estos servicios forma parte de tu rutina hoy?",
 "¿Qué opción representa mejor lo que buscas ahora?",
 "¿Qué servicio te gustaría utilizar en este momento?"
-// ============================================================
-// SENSORY INTERACTION CONTROL LOOP (PARTE 1)
-// ============================================================
-        seleccionadas: [],
+],
+seleccionadas:[],
+init(){this.inyectarMetasYEstilos();this.modificarBienvenida();this.crearEstructurasFlotantes();},
+inyectarMetasYEstilos(){
+["apple-mobile-web-app-capable","mobile-web-app-capable"].forEach(n=>{if(!document.querySelector(`meta[name="${n}"]`)){let m=document.createElement("meta");m.name=n;m.content="yes";document.head.appendChild(m);}});
+let s=document.createElement("style");
+s.textContent=`
+.otg-power-btn{position:fixed;top:15px;right:15px;z-index:999999;background:#d84315;border:none;color:#fff;padding:10px;border-radius:50%;cursor:pointer;font-weight:bold;box-shadow:0 0 10px rgba(0,0,0,.5);}
+.otg-grid-logos{display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:6px;margin:15px 0;}
+.otg-card-logo{background:#111;border:1px solid #333;padding:10px 4px;border-radius:6px;text-align:center;font-size:.75rem;cursor:pointer;font-weight:bold;transition:.2s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.otg-card-logo.active{border-color:#00bcd4!important;color:#00bcd4!important;background:rgba(0,188,212,.1)!important;box-shadow:0 0 8px rgba(0,188,212,.3);}
+.otg-btn-opt{width:100%;background:none;border:1px solid #444;color:#ccc;padding:10px;text-align:left;border-radius:6px;margin-bottom:6px;cursor:pointer;font-size:.8rem;}
+.otg-btn-opt:hover{border-color:#2e7d32;color:#fff;}
+`;
+document.head.appendChild(s);
+},
+modificarBienvenida(){
+let pb=document.getElementById("pantalla-bienvenida");
+if(!pb)return;
 
-        init() {
-            this.inyectarMetasYEstilos();
-            this.modificarBienvenida();
-            this.crearEstructurasFlotantes();
-        },
+let sintomas=[
+"No sabes qué hacer",
+"Te encuentras en la monotonía",
+"Estás agobiado por el entorno",
+"Te sientes estresado",
+"Te sientes cansado",
+"Necesitas un descanso",
+"Buscas un momento para ti"
+];
 
-        inyectarMetasYEstilos() {
-            ["apple-mobile-web-app-capable", "mobile-web-app-capable"].forEach(n => {
-                if (!document.querySelector(`meta[name="${n}"]`)) {
-                    let m = document.createElement("meta");
-                    m.name = n;
-                    m.content = "yes";
-                    document.head.appendChild(m);
-                }
-            });
+sintomas.sort(()=>Math.random()-.5);
 
-            let s = document.createElement("style");
-            s.textContent = `
-                .otg-power-btn{position:fixed;top:15px;right:15px;z-index:999999;background:#d84315;border:none;color:#fff;padding:10px;border-radius:50%;cursor:pointer;font-weight:bold;box-shadow:0 0 10px rgba(0,0,0,.5);}
-                .otg-grid-logos{display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:6px;margin:15px 0;}
-                .otg-card-logo{background:#111;border:1px solid #333;padding:10px 4px;border-radius:6px;text-align:center;font-size:.75rem;cursor:pointer;font-weight:bold;transition:.2s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-                .otg-card-logo.active{border-color:#00bcd4!important;color:#00bcd4!important;background:rgba(0,188,212,.1)!important;box-shadow:0 0 8px rgba(0,188,212,.3);}
-                .otg-btn-opt{width:100%;background:none;border:1px solid #444;color:#ccc;padding:10px;text-align:left;border-radius:6px;margin-bottom:6px;cursor:pointer;font-size:.8rem;}
-                .otg-btn-opt:hover{border-color:#2e7d32;color:#fff;}
-            `;
-            document.head.appendChild(s);
-        },
-            document.head.appendChild(s); 
-        }, 
+pb.innerHTML=`
+<div style="max-width:390px;width:95%;padding:15px;text-align:center;font-family:sans-serif;color:#fff;overflow-y:auto;max-height:100vh;">
 
-        modificarBienvenida() { 
-            let pb = document.getElementById("pantalla-bienvenida"); 
-            if (!pb) return; 
-            
-            let sintomas = [ 
-                "No sabes qué hacer", 
-                "Te encuentras en la monotonía", 
-                "Estás agobiado por el entorno", 
-                "Te sientes estresado", 
-                "Te sientes cansado", 
-                "Necesitas un descanso", 
-                "Buscas un momento para ti" 
-            ]; 
-            
-            // Randomize the emotional state elements on load
-            sintomas.sort(() => Math.random() - .5); 
-            
-            pb.innerHTML = ` 
-                <div style="max-width:390px;width:95%;padding:15px;text-align:center;font-family:sans-serif;color:#fff;overflow-y:auto;max-height:100vh;"> 
-                    <h2 style="color:#00bcd4;font-weight:900;letter-spacing:2px;font-size:1.3rem;margin-bottom:12px;"> OPEN THAN GO </h2> 
-                    <p style="font-size:.9rem;line-height:1.45;color:#eee;font-weight:bold;margin-bottom:15px;"> Hoy: <span style="color:#d84315;">${sintomas[0]}</span>.<br> OPEN THAN GO te ayuda a encontrar pequeños momentos de bienestar para ti y tu familia. </p> 
-                    <div style="background:#111;border:1px solid #222;border-radius:8px;padding:12px;text-align:left;font-size:.76rem;line-height:1.5;color:#bbb;margin-bottom:14px;"> 
-                        <b style="color:#2e7d32;display:block;margin-bottom:6px;text-transform:uppercase;"> Cómo funciona </b> 
-                        • <b>SALIR:</b> Descubre lugares cercanos para cambiar de ambiente.<br>
-                        • <b>CASA:</b> Encuentra actividades sencillas para realizar en tu hogar.<br>
-                        • <b>MODO LIBRE:</b> Escribe lo que sientes para personalizar tu ruta en tiempo real.
-                    </div>
-                </div>`;
-        },
+<h2 style="color:#00bcd4;font-weight:900;letter-spacing:2px;font-size:1.3rem;margin-bottom:12px;">
+OPEN THAN GO
+</h2>
+
+<p style="font-size:.9rem;line-height:1.45;color:#eee;font-weight:bold;margin-bottom:15px;">
+Hoy: <span style="color:#d84315;">${sintomas[0]}</span>.<br>
+OPEN THAN GO te ayuda a encontrar pequeños momentos de bienestar para ti y tu familia.
+</p>
+
+<div style="background:#111;border:1px solid #222;border-radius:8px;padding:12px;text-align:left;font-size:.76rem;line-height:1.5;color:#bbb;margin-bottom:14px;">
+
+<b style="color:#2e7d32;display:block;margin-bottom:6px;text-transform:uppercase;">
+Cómo funciona
+</b>
+
+• <b>SALIR:</b> Descubre lugares cercanos para cambiar de ambiente.<br>
 
 • <b>CASA:</b> Encuentra actividades sencillas para hacer en casa.<br>
 
@@ -1878,137 +1511,182 @@ b.title="Cerrar";
 b.onclick=()=>this.apagarSistemaTotal();
 document.body.appendChild(b);
 
-            let m = document.createElement("div"); 
-            m.id = "otg-oasis-entretenimiento"; 
-            m.className = "hidden"; 
-            m.style = "position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.98);z-index:9999999;backdrop-filter:blur(15px);overflow-y:auto;padding:20px;color:#fff;font-family:sans-serif;"; 
-            document.body.appendChild(m); 
-        }, 
+let m=document.createElement("div");
+m.id="otg-oasis-entretenimiento";
+m.className="hidden";
+m.style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,.98);z-index:9999999;backdrop-filter:blur(15px);overflow-y:auto;padding:20px;color:#fff;font-family:sans-serif;";
+document.body.appendChild(m);
+},
+interceptarBotonStart(){
+setTimeout(()=>this.forzarCierre15Minutos(),900000);
+this.abrirOasisOcio();
+},
+abrirOasisOcio(){
+let m=document.getElementById("otg-oasis-entretenimiento");
+if(!m)return;
+m.classList.remove("hidden");
+document.body.style.overflow="hidden";
+this.marcas.sort(()=>Math.random()-.5);
+let zip=document.getElementById("inp-zip")?document.getElementById("inp-zip").value.trim():"";
+let txtUsa=zip?`Opciones disponibles para el Código Postal ${zip}`:"Personaliza tu experiencia";
 
-        interceptarBotonStart() { 
-            setTimeout(() => this.forzarCierre15Minutos(), 900000); 
-            
-            // ============================================================
-            // ENLACE MAESTRO CRÍTICO: Despierta las compuertas de pago y admin
-            // ============================================================
-            if (typeof KERNEL !== "undefined" && typeof KERNEL.despertarInicial === "function") {
-                KERNEL.despertarInicial();
-            }
-            
-            this.abrirOasisOcio(); 
-        }, 
+m.innerHTML=`
+<div style="max-width:460px;margin:0 auto;padding-top:5px;">
 
-        abrirOasisOcio() { 
-            let m = document.getElementById("otg-oasis-entretenimiento"); 
-            if (!m) return; 
-            m.classList.remove("hidden"); 
-            document.body.style.overflow = "hidden"; 
-            this.marcas.sort(() => Math.random() - .5); 
-            
-            let zip = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""; 
-            let txtUsa = zip ? `Opciones disponibles para el Código Postal ${zip}` : "Personaliza tu experiencia"; 
-            
-            m.innerHTML = ` 
-                <div style="max-width:460px;margin:0 auto;padding-top:5px;"> 
-                    <div style="text-align:center;margin-bottom:15px;"> 
-                        <span style="background:#2e7d32;padding:3px 8px;border-radius:4px;font-size:.65rem;font-weight:bold;text-transform:uppercase;"> Bienestar Inicial </span> 
-                        <h4 style="color:#00bcd4;font-weight:900;margin:8px 0 3px;font-size:1.15rem;"> PERSONALIZA TU EXPERIENCIA </h4> 
-                        <p style="color:#aaa;font-size:.72rem;margin:0;"> ${txtUsa}. Tiempo aproximado: 1 minuto. </p> 
-                    </div> 
-                    <div id="otg-fase-1"> 
-                        <p style="font-size:.85rem;font-weight:bold;color:#fff;text-align:center;line-height:1.45;margin-bottom:10px;"> Selecciona el servicio que mejor representa lo que deseas hacer en este momento. </p> 
-                        <div class="otg-grid-logos"> 
-                            ${this.marcas.map(x => `<div class="otg-card-logo" onclick="OTG_SENSORIAL.seleccionarMarca(this,'${x}')">${x}</div>`).join("")} 
-                        </div> 
-                        <button onclick="OTG_SENSORIAL.activarFaseTrivia()" style="width:100%;background:#2e7d32;border:none;color:#fff;padding:14px;border-radius:6px;font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:.8rem;letter-spacing:.5px;"> Continuar → </button> 
-                    </div> 
-                    <div id="otg-fase-2" class="hidden"></div> 
-                    <div id="otg-fase-3" class="hidden" style="text-align:center;"></div> 
-                </div>`; 
-        },
+<div style="text-align:center;margin-bottom:15px;">
 
-        seleccionarMarca(el, marca) {
-            el.classList.toggle("active");
-            if (el.classList.contains("active")) {
-                this.seleccionadas.push(marca);
-            } else {
-                this.seleccionadas = this.seleccionadas.filter(x => x !== marca);
-            }
-        },
+<span style="background:#2e7d32;padding:3px 8px;border-radius:4px;font-size:.65rem;font-weight:bold;text-transform:uppercase;">
+Bienestar Inicial
+</span>
 
-        activarFaseTrivia() {
-            if (!this.seleccionadas || !this.seleccionadas.length) {
-                alert("Selecciona al menos una opción / Please select at least one option.");
-                return;
-            }
-            
-            const fase1 = document.getElementById("otg-fase-1");
-            if (fase1) fase1.classList.add("hidden");
-            
-            let f2 = document.getElementById("otg-fase-2");
-            if (!f2) return; // ¡REPARADO!: Safe descriptive check preventing null runtime crashes
-            
-            f2.classList.remove("hidden");
-            
-            let p = this.preguntas && this.preguntas.length ? this.preguntas[Math.floor(Math.random() * this.preguntas.length)] : "...";
-            let m = this.seleccionadas[0] || "";
-            
-            f2.innerHTML = `
-                <div style="background:#111;border:1px solid #222;padding:15px;border-radius:8px;margin-top:10px;">
-                    <span style="color:#00bcd4;font-size:.65rem;font-weight:bold;text-transform:uppercase;display:block;margin-bottom:5px;"> Has seleccionado: ${m} </span>
-                    <p style="font-size:1rem;font-weight:bold;line-height:1.45;margin:5px 0 15px;color:#fff;"> ${p} </p>
-                    <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado','opcion1')"> Quiero usar este servicio ahora. </button>
-                    <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('normal','opcion2')"> Solo estoy explorando opciones. </button>
-                    <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('curioso','opcion3')"> Quiero descubrir nuevas ideas. </button>
-                </div>
-            `;
-        },
+<h4 style="color:#00bcd4;font-weight:900;margin:8px 0 3px;font-size:1.15rem;">
+PERSONALIZA TU EXPERIENCIA
+</h4>
 
-        inyectarMenteBase(perfil, tipo) {
-            let s = document.getElementById("mente-selector");
-            if (s) {
-                s.value = perfil;
-                s.dispatchEvent(new Event("change"));
-            }
-            
-            const fase2 = document.getElementById("otg-fase-2");
-            if (fase2) fase2.classList.add("hidden");
-            
-            let f3 = document.getElementById("otg-fase-3");
-            if (!f3) return; // ¡REPARADO!: Safe descriptive check preventing null execution crashes
-            f3.classList.remove("hidden");
-            
-            let marca = this.seleccionadas && this.seleccionadas.length ? this.seleccionadas : "";
-            let url = this.urls && this.urls[marca] ? this.urls[marca] : "https://google.com";
-            
-            let mensaje = tipo === "opcion1" 
-                ? `Tu experiencia ha sido personalizada usando "${marca}".` 
-                : tipo === "opcion2" 
-                    ? `Hemos preparado una experiencia basada en tu selección.` 
-                    : `Explora nuevas opciones y encuentra actividades que se adapten a ti.`;
-            
-            f3.innerHTML = `
-                <div style="background:rgba(0,188,212,.05);border:1px solid #00bcd4;padding:15px;border-radius:8px;text-align:left;font-size:.82rem;line-height:1.5;margin-bottom:15px;color:#eee;">
-                    <b style="color:#00bcd4;display:block;margin-bottom:6px;"> Experiencia lista </b> ${mensaje}
-                </div>
-                <div style="display:flex;gap:8px;">
-                    <button onclick="window.open('${url}','_blank')" style="flex:1;background:#2e7d32;border:none;color:#fff;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;"> Abrir sitio web </button>
-                    <button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()" style="flex:1;background:none;border:1px solid #00bcd4;color:#00bcd4;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;"> Continuar </button>
-                </div>
-            `;
-        },
+<p style="color:#aaa;font-size:.72rem;margin:0;">
+${txtUsa}. Tiempo aproximado: 1 minuto.
+</p>
 
-        cerrarOasisYDarPasoAAppBase() {
-            let m = document.getElementById("otg-oasis-entretenimiento");
-            if (m) m.classList.add("hidden");
-            document.body.style.overflow = "auto";
-            
-            // ¡REPARADO!: Removed redundant KERNEL.despertarInicial() loop execution to avoid recursive token processing
-            let b = document.getElementById("otg-btn-power");
-            if (b) b.classList.remove("hidden");
-            this.seleccionadas = [];
-            console.log("OPEN THAN GO iniciado.");
-        },
+</div>
+<div id="otg-fase-1">
+
+<p style="font-size:.85rem;font-weight:bold;color:#fff;text-align:center;line-height:1.45;margin-bottom:10px;">
+Selecciona el servicio que mejor representa lo que deseas hacer en este momento.
+</p>
+
+<div class="otg-grid-logos">
+${this.marcas.map(x=>`<div class="otg-card-logo" onclick="OTG_SENSORIAL.seleccionarMarca(this,'${x}')">${x}</div>`).join("")}
+</div>
+
+<button onclick="OTG_SENSORIAL.activarFaseTrivia()"
+style="width:100%;background:#2e7d32;border:none;color:#fff;padding:14px;border-radius:6px;font-weight:bold;cursor:pointer;text-transform:uppercase;font-size:.8rem;letter-spacing:.5px;">
+Continuar →
+</button>
+
+</div>
+
+<div id="otg-fase-2" class="hidden"></div>
+<div id="otg-fase-3" class="hidden" style="text-align:center;"></div>
+
+</div>`;
+},
+
+seleccionarMarca(el,marca){
+el.classList.toggle("active");
+if(el.classList.contains("active"))this.seleccionadas.push(marca);
+else this.seleccionadas=this.seleccionadas.filter(x=>x!==marca);
+},
+
+activarFaseTrivia(){
+
+if(!this.seleccionadas.length){
+alert("Selecciona al menos una opción.");
+return;
+}
+
+document.getElementById("otg-fase-1").classList.add("hidden");
+
+let f2=document.getElementById("otg-fase-2");
+f2.classList.remove("hidden");
+
+let p=this.preguntas[Math.floor(Math.random()*this.preguntas.length)];
+let m=this.seleccionadas[0];
+
+f2.innerHTML=`
+<div style="background:#111;border:1px solid #222;padding:15px;border-radius:8px;margin-top:10px;">
+
+<span style="color:#00bcd4;font-size:.65rem;font-weight:bold;text-transform:uppercase;display:block;margin-bottom:5px;">
+Has seleccionado: ${m}
+</span>
+
+<p style="font-size:1rem;font-weight:bold;line-height:1.45;margin:5px 0 15px;color:#fff;">
+${p}
+</p>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado','opcion1')">
+Quiero usar este servicio ahora.
+</button>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('normal','opcion2')">
+Solo estoy explorando opciones.
+</button>
+
+<button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('curioso','opcion3')">
+Quiero descubrir nuevas ideas.
+</button>
+
+</div>`;
+},
+
+inyectarMenteBase(perfil,tipo){
+
+let s=document.getElementById("mente-selector");
+
+if(s){
+s.value=perfil;
+s.dispatchEvent(new Event("change"));
+}
+
+document.getElementById("otg-fase-2").classList.add("hidden");
+
+let f3=document.getElementById("otg-fase-3");
+f3.classList.remove("hidden");
+
+let marca=this.seleccionadas[0];
+let url=this.urls[marca]||"https://google.com";
+
+let mensaje=
+tipo==="opcion1"
+?`Tu experiencia ha sido personalizada usando "${marca}".`
+:tipo==="opcion2"
+?`Hemos preparado una experiencia basada en tu selección.`
+:`Explora nuevas opciones y encuentra actividades que se adapten a ti.`;
+
+f3.innerHTML=`
+
+<div style="background:rgba(0,188,212,.05);border:1px solid #00bcd4;padding:15px;border-radius:8px;text-align:left;font-size:.82rem;line-height:1.5;margin-bottom:15px;color:#eee;">
+
+<b style="color:#00bcd4;display:block;margin-bottom:6px;">
+Experiencia lista
+</b>
+
+${mensaje}
+
+</div>
+
+<div style="display:flex;gap:8px;">
+
+<button onclick="window.open('${url}','_blank')"
+style="flex:1;background:#2e7d32;border:none;color:#fff;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">
+Abrir sitio web
+</button>
+
+<button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()"
+style="flex:1;background:none;border:1px solid #00bcd4;color:#00bcd4;padding:12px;border-radius:6px;font-weight:bold;cursor:pointer;font-size:.75rem;text-transform:uppercase;">
+Continuar
+</button>
+
+</div>`;
+},
+
+cerrarOasisYDarPasoAAppBase(){
+
+let m=document.getElementById("otg-oasis-entretenimiento");
+if(m)m.classList.add("hidden");
+
+document.body.style.overflow="auto";
+
+if(typeof KERNEL!=="undefined"&&typeof KERNEL.despertarInicial==="function"){
+KERNEL.despertarInicial();
+}
+
+let b=document.getElementById("otg-btn-power");
+if(b)b.classList.remove("hidden");
+
+this.seleccionadas=[];
+
+console.log("OPEN THAN GO iniciado.");
+},
 
 apagarSistemaTotal(){
 
