@@ -1,123 +1,94 @@
-# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1 
-# Company: May Roga LLC 
-# File: main.py - SECCIÓN 1 DE 2 (Backend Core) 
-
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse, FileResponse 
-from fastapi.staticfiles import StaticFiles 
-import uvicorn 
-import os 
-import random 
-import re 
-from datetime import datetime 
+# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
+# Company: May Roga LLC
+# File: main.py - SECCIÓN 1 DE 2 (Backend Core)
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+import uvicorn
+import os
+import random
+import re
+from datetime import datetime
 import urllib.parse
-import stripe
 
-# ============================================================
-# INYECCIÓN CRÍTICA DE CONTROL: PASARELA STRIPE & BYPASS MAESTRO
-# ============================================================
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
-ADMIN_USER = os.environ.get("ADMIN_USERNAME")
-ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
+link_base = "https://www.google.com/maps/search/?api=1&query="
 
-# Matriz oficial de Price IDs inmutables de Stripe
-PLANES_STRIPE = {
-    "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
-    "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
-    "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
+app = FastAPI()
+
+# Ensure the 'static' directory exists before mounting
+if not os.path.exists("static"):
+    os.makedirs("static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+DEFAULT_NECESSITY_VECTOR = {
+    "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
+    "sombra": 50, "aire_fresco": 50, "creatividad": 50, "comunidad": 50, "aprendizaje": 50,
+    "juego": 50, "contemplacion": 50, "descanso": 50, "organizacion": 50,
+    "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
+    "indicador_ansiedad": 0
 }
+
 # ============================================================
+# MOTOR DE HISTORIAL INTELIGENTE CWRE V2
+# Anti-Repetición + Exploración Controlada
+# ============================================================
+MAX_HISTORY_SALIR = 5
+MAX_HISTORY_CASA = 8
+MAX_HISTORY_ORACULO = 12 # This is handled by frontend (engine.js)
+EXPLORATION_RATE = 0.20
+HISTORY_PENALTY_BASE = 40
 
-link_base = "https://www.google.com/maps/search/?api=1&query=" 
-app = FastAPI() 
+def limitar_historial(historial, limite):
+    if historial is None:
+        return []
+    return historial[-limite:]
 
-# Ensure the 'static' directory exists before mounting 
-if not os.path.exists("static"): 
-    os.makedirs("static") 
-app.mount("/static", StaticFiles(directory="static"), name="static") 
+def penalizacion_historial(mision_id, historial):
+    if not historial:
+        return 0
+    historial = list(reversed(historial)) # Prioriza las más recientes
+    for posicion, antiguo_id in enumerate(historial):
+        if antiguo_id == mision_id:
+            if posicion == 0: # Última misión
+                return HISTORY_PENALTY_BASE * 1.5 # Más penalización para la última
+            elif posicion == 1:
+                return HISTORY_PENALTY_BASE
+            elif posicion == 2:
+                return HISTORY_PENALTY_BASE * 0.70
+            elif posicion <= (len(historial) - 1):
+                return HISTORY_PENALTY_BASE * 0.30
+    return 0
 
-DEFAULT_NECESSITY_VECTOR = { 
-    "movimiento": 50, 
-    "naturaleza": 50, 
-    "silencio": 50, 
-    "agua": 50, 
-    "sol": 50, 
-    "sombra": 50, 
-    "aire_fresco": 50, 
-    "creatividad": 50, 
-    "comunidad": 50, 
-    "aprendizaje": 50, 
-    "juego": 50, 
-    "contemplacion": 50, 
-    "descanso": 50, 
-    "organizacion": 50, 
-    "alimentacion": 50, 
-    "musica": 50, 
-    "risa": 50, 
-    "esperanza": 50, 
-    "indicador_ansiedad": 0 
-} 
+def bonus_exploracion(mision_id, historial):
+    if not historial or mision_id not in historial:
+        return 20 # Bonificación significativa si nunca se ha visto
+    # Reducir bonificación si ya se ha visto pero no está en el historial reciente
+    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)):
+        return 5
+    return 0
 
-# ============================================================ 
-# MOTOR DE HISTORIAL INTELIGENTE CWRE V2 
-# Anti-Repetición + Exploración Controlada 
-# ============================================================ 
-MAX_HISTORY_SALIR = 5 
-MAX_HISTORY_CASA = 8 
-MAX_HISTORY_ORACULO = 12 # This is handled by frontend (engine.js) 
-EXPLORATION_RATE = 0.20 
-HISTORY_PENALTY_BASE = 40 
+def actualizar_historial(historial, nuevo_id, limite):
+    historial = historial or []
+    if nuevo_id in historial:
+        historial.remove(nuevo_id)
+    historial.append(nuevo_id)
+    return historial[-limite:]
 
-def limitar_historial(historial, limite): 
-    if historial is None: 
-        return [] 
-    return historial[-limite:] 
+def diversidad_vector(vector1, vector2):
+    distancia = 0
+    needs_to_consider = [k for k in DEFAULT_NECESSITY_VECTOR.keys() if k != "indicador_ansiedad"]
+    for k in needs_to_consider:
+        # Suma las diferencias absolutas de cada necesidad
+        distancia += abs(
+            vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) -
+            vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
+        )
+    return distancia
 
-def penalizacion_historial(mision_id, historial): 
-    if not historial: 
-        return 0 
-    historial = list(reversed(historial)) # Prioriza las más recientes 
-    for posicion, antiguo_id in enumerate(historial): 
-        if antiguo_id == mision_id: 
-            if posicion == 0: # Última misión 
-                return HISTORY_PENALTY_BASE * 1.5 # Más penalización para la última 
-            elif posicion == 1: 
-                return HISTORY_PENALTY_BASE 
-            elif posicion == 2: 
-                return HISTORY_PENALTY_BASE * 0.70 
-            elif posicion <= (len(historial) - 1): 
-                return HISTORY_PENALTY_BASE * 0.30 
-    return 0 
-
-def bonus_exploracion(mision_id, historial): 
-    if not historial or mision_id not in historial: 
-        return 20 # Bonificación significativa si nunca se ha visto 
-    # Reducir bonificación si ya se ha visto pero no está en el historial reciente 
-    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)): 
-        return 5 
-    return 0 
-
-def actualizar_historial(historial, nuevo_id, limite): 
-    historial = historial or [] 
-    if nuevo_id in historial: 
-        historial.remove(nuevo_id) 
-    historial.append(nuevo_id) 
-    return historial[-limite:] 
-
-def diversidad_vector(vector1, vector2): 
-    distancia = 0 
-    needs_to_consider = [k for k in DEFAULT_NECESSITY_VECTOR.keys() if k != "indicador_ansiedad"] 
-    for k in needs_to_consider: # Suma las diferencias absolutas de cada necesidad 
-        distancia += abs( 
-            vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) - vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) 
-        ) 
-    return distancia 
-
-# === MODIFICACIÓN: CONSTANTES DE TIEMPO Y PROPÓSITO ACORTADAS PARA LECTURA RÁPIDA === 
-WHEN_ES = "Ahora. Levántate." 
-WHEN_EN = "Now. Move." 
-FOR_WHAT_ES = "Romper rutina. Recuérdate vivo." 
+# === MODIFICACIÓN: CONSTANTES DE TIEMPO Y PROPÓSITO ACORTADAS PARA LECTURA RÁPIDA ===
+WHEN_ES = "Ahora. Levántate."
+WHEN_EN = "Now. Move."
+FOR_WHAT_ES = "Romper rutina. Recuérdate vivo."
 FOR_WHAT_EN = "Break routine. Remember life."
 
 # ============================================================
@@ -634,20 +605,9 @@ def seleccionar_misiones_casa_inteligente(
         if len(resultado) >= cantidad:
             break
            
-    # Si no se alcanzan las 'cantidad' requeridas con diversidad, añade las siguientes mejores
-    if len(resultado) < cantidad:
-        for candidato in candidatos:
-            mision = candidato["mision"]
-            if mision["id"] not in ids_en_resultado:
-                resultado.append(mision)
-                ids_en_resultado.add(mision["id"])
-            if len(resultado) >= cantidad:
-                break
-   
-    # Fallback final: si aún no hay suficientes, toma las primeras 'cantidad'
+   # ... Viene de la función anterior de tu catálogo ...
     if len(resultado) < cantidad and len(misiones) >= cantidad:
         resultado = [c["mision"] for c in candidatos[:cantidad]]
-       
     return resultado
 
 @app.get("/")
@@ -655,62 +615,8 @@ async def index():
     """Serves the main HTML page."""
     return FileResponse('static/session.html')
 
-# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1 
-# Company: May Roga LLC 
-# File: main.py - SECCIÓN 2 DE 2 (CWRE Logic) 
-
-@app.post("/api/mando-integral") 
-async def mando_integral(request: Request): 
-    """ 
-    Main API endpoint for OPEN THAN GO. 
-    Receives user input and local preference profile to return a personalized recommendation. 
-    """ 
-    payload = await request.json() 
-    opcion_usuario = str(payload.get("modo", "")).strip().upper() 
-    zip_code = str(payload.get("zip", "")).strip() 
-    estado = str(payload.get("estado", "FL")).strip() # Estado no se utiliza directamente en el motor de URL query params, es un placeholder 
-    region = str(payload.get("region", "")).strip() # Region no se utiliza directamente en el motor de URL query params, es un placeholder 
-    mente = str(payload.get("mente", "aburrido")).lower() 
-    budget = str(payload.get("budget", "0")) 
-    perfil_tipo = str(payload.get("perfil", "solo")).lower() 
-    desahogo = str(payload.get("desahogo", "")).lower() 
-    lang = str(payload.get("lang", "es")).lower() 
-    
-    if zip_code and not re.fullmatch(r"^\d{5}$", zip_code): 
-        return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400) 
-        
-    perfil_local = payload.get("perfil_local", {}) 
-    if not isinstance(perfil_local, dict): 
-        perfil_local = {} 
-        
-    perfil_local = { 
-        **DEFAULT_NECESSITY_VECTOR, 
-        **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"} 
-    } 
-    
-    if "indicador_ansiedad" not in perfil_local: 
-        perfil_local["indicador_ansiedad"] = 0 
-        
-    # ========================================================================================== 
-    # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2 
-    # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS === 
-    # ========================================================================================== 
-    sensitive_keywords = [ 
-        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum", 
-        "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income", "earn money", 
-        "ganar dinero", "producir", "productividad", "buscar oportunidades", "buscar ofertas", "enviar currículo", 
-        "actualizar linkedin", "conseguir empleo", "salir a buscar trabajo", "metas profesionales", "presion economica", 
-        "presión económica", "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco", 
-        "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo", "visitar empresas", 
-        "buscando clientes", "producir dinero", "obligaciones laborales", "responsabilidades", "tareas", "negocio", 
-        "negocios", "presión", "presiones" 
-    ] 
-    
-    force_recovery_mission = False 
-    explicitly_seeking_job = any(phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"])
-
 # ==========================================================================================
-# INYECCIÓN CORREGIDA: CONTROLADORES DE COMPRA Y ACCESO ADMINISTRATIVO CON REQUEST SEGURO
+# INYECCIÓN OPERATIVA: CONTROLADORES DE COMPRA Y ACCESO ADMINISTRATIVO CON REQUEST SEGURO
 # ==========================================================================================
 @app.post("/crear-checkout")
 async def crear_checkout(request: Request):
@@ -759,6 +665,24 @@ async def webhook_stripe(request: Request):
     return {"status": "success"}
 # ==========================================================================================
 
+# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
+# Company: May Roga LLC
+# File: main.py - SECCIÓN 2 DE 2 (CWRE Logic)
+@app.post("/api/mando-integral")
+async def mando_integral(request: Request):
+# ... Sigue toda tu lógica matricial de sensitive_keywords e itinerarios ...
+       
+    # ==========================================================================================
+    # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
+    # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
+    # ==========================================================================================
+    sensitive_keywords = [
+        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum", "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income", "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades", "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo", "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica", "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo", "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales", "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
+    ]
+   
+    force_recovery_mission = False
+    explicitly_seeking_job = any(phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"])
+   
     # DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
     marca_detectada = None
     if desahogo and not explicitly_seeking_job:
