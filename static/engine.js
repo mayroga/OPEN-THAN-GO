@@ -409,43 +409,36 @@ const KERNEL = {
        
         this.activarBotonMandoLibreInicial();
     },
-    
-         /**
+
+      /**
      * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
      */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
-        
         clearInterval(this.temporizadorCascada);
         grid.innerHTML = "";
         this.indicePreguntaCascada = 0;
-        
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
         let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
         let unseenIndices = [];
-        
         for (let i = 0; i < catalogo.length; i++) {
             if (!preguntasYaVistasRecientemente.has(i)) {
                 unseenIndices.push(i);
             }
         }
-        
         if (unseenIndices.length < 6) {
             console.warn("Not enough unseen questions. Resetting Oracle history.");
             this.historialPreguntas = [];
             localStorage.removeItem("otg_historial_oraculo");
             unseenIndices = Array.from({length: catalogo.length}, (_, i) => i);
         }
-        
         for (let i = unseenIndices.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]];
         }
-        
         let preguntasSeleccionadasIndices = [];
         let blocksUsedInCurrentSelection = new Set();
-        
         for (let i = 0; i < 6; i++) {
             if (unseenIndices.length === 0) break;
             let candidateIndex = -1;
@@ -467,10 +460,8 @@ const KERNEL = {
             preguntasSeleccionadasIndices.push(selectedIndex);
             this.historialPreguntas.push(selectedIndex);
         }
-        
         this.historialPreguntas = this.historialPreguntas.slice(-this.MAX_HISTORY_ORACULO);
         localStorage.setItem("otg_historial_oraculo", JSON.stringify(this.historialPreguntas));
-        
         preguntasSeleccionadasIndices.forEach((questionIdx, i) => {
             let preguntaTexto = catalogo[questionIdx];
             if (!preguntaTexto) return;
@@ -481,13 +472,10 @@ const KERNEL = {
             btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto);
             grid.appendChild(btn);
         });
-        
         this.iniciarEfectoCascada();
     },
 
-    /**
-     * Initiates the fading cascade effect for questions.
-     */
+    /** Initiates the fading cascade effect for questions. */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
         const totalButtons = document.querySelectorAll('.btn-pregunta-crisis').length;
@@ -495,16 +483,23 @@ const KERNEL = {
             this.liberarCajonEscrituraLibre();
             return;
         }
-        
+
+        // ============================================================
+        // NUEVA LÍNEA: Lee la primera pregunta inmediatamente al iniciar
+        // ============================================================
+        let botonCero = document.getElementById('btn-pregunta-0');
+        if (botonCero && botonCero.innerText) {
+            this.hablar(botonCero.innerText.substring(3));
+        }
+
         this.temporizadorCascada = setInterval(() => {
             let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
             if (botonParaEliminar) {
                 botonParaEliminar.classList.add('fade-out');
-                
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
                 
-                // ESCUDO TOTAL: Verifica de forma ultra-segura que el botón exista antes de intentar leerlo
+                // ESCUDO DE CONTROL: Solo lee si el botón siguiente existe en pantalla
                 if (siguienteBoton && siguienteBoton.innerText) {
                     let textoLimpio = siguienteBoton.innerText.substring(3);
                     this.hablar(textoLimpio);
@@ -515,40 +510,6 @@ const KERNEL = {
                 this.liberarCajonEscrituraLibre();
             }
         }, 8000);
-    },
-
-        // ============================================================
-        // MEJORA CRÍTICA: LEER LA PRIMERA PREGUNTA EN EL SEGUNDO CERO
-        // ============================================================
-        let primerBoton = document.getElementById(`btn-pregunta-0`);
-        if (primerBoton) {
-            let textoPrimera = primerBoton.innerText.substring(3);
-            this.hablar(textoPrimera); // Arranca hablando de inmediato sin silencios
-        }
-
-        this.temporizadorCascada = setInterval(() => {
-            let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
-            
-            if (botonParaEliminar) {
-                // Aplica el efecto visual de desvanecimiento
-                botonParaEliminar.classList.add('fade-out');
-                
-                // Buscamos el siguiente botón para preparar su lectura de forma exacta
-                let siguienteIdx = this.indicePreguntaCascada + 1;
-                let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
-                
-                if (siguienteBoton) {
-                    let textoLimpio = siguienteBoton.innerText.substring(3);
-                    this.hablar(textoLimpio); // Lee perfectamente al compás del reloj de 8s
-                }
-                
-                this.indicePreguntaCascada++;
-            } else {
-                // Limpieza total al terminar las preguntas del bloque
-                clearInterval(this.temporizadorCascada);
-                this.liberarCajonEscrituraLibre();
-            }
-        }, 8000); // Tus 8 segundos limpios e inmutables de lectura de fábrica
     },
 
     /** Activates the free writing input field and button from start. */
@@ -1413,7 +1374,7 @@ Uber:"https://uber.com",
 Lyft:"https://lyft.com",
 American:"https://aa.com",
 Delta:"https://delta.com",
-XaelCharters: "https://xaelcharters.com",
+Spirit:"https://spirit.com",
 JetBlue:"https://jetblue.com",
 Southwest:"https://southwest.com",
 Avianca:"https://avianca.com",
