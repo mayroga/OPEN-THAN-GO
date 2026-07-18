@@ -1,4 +1,3 @@
-
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
 // Company: May Roga LLC
 // File: static/engine.js (Frontend Logic)
@@ -810,22 +809,31 @@ const KERNEL = {
         container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
         container.classList.remove('hidden');
 
-        try {
-            const r = await fetch("/api/mando-integral", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-            const data = await r.json();
+                    try {
+                const r = await fetch("/api/mando-integral", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await r.json();
+                
+                if (data.error) {
+                    alert(data.error);
+                    document.getElementById('wrapper-form').classList.remove('hidden');
+                    container.classList.add('hidden');
+                    this.isLocked = false;
+                    this.validarZip();
+                    return;
+                }
 
-            if (data.error) {
-                alert(data.error);
-                document.getElementById('wrapper-form').classList.remove('hidden');
-                container.classList.add('hidden');
-                this.isLocked = false;
-                this.validarZip();
-                return;
-            }
+                // ==========================================================================================
+                // INYECCIÓN TÁCTICA: DETONA EL RESBORDAMIENTO DEL CÍRCULO GIGANTE PARA EL MODO SALIR DIRECTO
+                // ==========================================================================================
+                if (payload && (payload.modo === "SALIR" || data.modo_activo === "SALIR")) {
+                    this.iniciarSecuenciaMenteSalir();
+                }
+                // ==========================================================================================
+
 
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
@@ -1698,12 +1706,6 @@ Continuar
     // ==========================================================================================
     procesarPagoStripe(planSeleccionado) { let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo'; fetch('/crear-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipo_plan: planSeleccionado, user_id: userId }) }).then(res => res.json()).then(data => { if(data.url) window.location.href = data.url; }).catch(err => console.error('Error de pasarela:', err)); },
     inicializarBypassDesarrollador() { let clics = 0; let t; const trigger = document.getElementById('cierre-logo') || document.body; trigger.addEventListener('click', () => { clics++; clearTimeout(t); t = setTimeout(() => { clics = 0; }, 1500); if (clics === 3) { clics = 0; let user = prompt("Mantenimiento OTG - Usuario:"); let pass = prompt("Mantenimiento OTG - Contraseña:"); if (!user || !pass) return; fetch('/login-admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: user, password: pass }) }).then(res => { if (!res.ok) throw new Error(); return res.json(); }).then(data => { if (data.status === "success") { localStorage.setItem('otg_user_role', 'admin'); alert("Acceso Desarrollador Concedido. Servicio Infinito Activo."); location.reload(); } }).catch(() => alert("Credenciales inválidas de Render. Acceso denegado.")); } }); },
-
-    // ==========================================================================================
-    // INYECCIÓN MÓDULO ADICIONAL: CÍRCULO RESPIRATORIO DE 7 MINUTOS Y RETO DE SILENCIO VARIABLE
-    // ==========================================================================================
-    iniciarSecuenciaMenteSalir() { console.log("Activando Secuencia de Homeostasis para Modo Salir - 7 Minutos."); const palabrasRespirar = ["Inhala vida", "Suelta el tráfico", "Siente el aire", "Aquí y ahora", "Rompe el bucle", "Mente limpia", "Cuerpo libre", "Presencia pura", "Calma interna", "Respira hondo", "Fuera tensiones", "Habita tu ser", "Pausa el mundo", "Dopamina natural", "Fuerza interna"]; const retosSilencio = [{ desc: "Cierra los ojos. Escucha los latidos de tu corazón en total quietud.", frases: ["Siente el latido", "Quédate ahí", "Quietud absoluta", "Silencio mental"] }, { desc: "Escucha el sonido del viento afuera. No pienses en nada más.", frases: ["Escucha el aire", "Fluye sin prisa", "Cero pensamientos", "Paz profunda"] }, { desc: "Nota el peso de tu cuerpo sobre el asiento. Siente la inmovilidad.", frases: ["Siente tu peso", "Ancla tu mente", "Presencia corporal", "Calma somática"] }]; const capa = document.createElement('div'); capa.id = 'otg-respirador-salir'; capa.style = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:sans-serif;z-index:100000;text-align:center;padding:20px;box-sizing:border-box;'; const estiloCircle = document.createElement('style'); estiloCircle.innerHTML = `@keyframes pulsoRespirar { 0% { transform: scale(0.85); box-shadow: 0 0 40px rgba(0,188,212,0.2); border-color: #00bcd4; } 50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(46,125,50,0.5); border-color: #2e7d32; } 100% { transform: scale(0.85); box-shadow: 0 0 40px rgba(0,188,212,0.2); border-color: #00bcd4; } } .circulo-gigante { width: 85vw; height: 85vw; max-width: 360px; max-height: 360px; border: 8px solid #00bcd4; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; animation: pulsoRespirar 8s infinite ease-in-out; transition: all 0.5s ease; }`; document.head.appendChild(estiloCircle); document.body.appendChild(capa); let tiempoRespirar = 420; let contadorPalabra = 0; const relojRespirar = setInterval(() => { let m = Math.floor(tiempoRespirar / 60), s = tiempoRespirar % 60; if (contadorPalabra % 15 === 0) { const txt = palabrasRespirar[Math.floor(Math.random() * palabrasRespirar.length)]; capa.innerHTML = `<div class="circulo-gigante"><h2 id="otg-txt-dinamico" style="font-size:1.4rem;letter-spacing:1px;font-weight:900;margin:0 15px;text-transform:uppercase;">${txt}</h2><div style="font-size:2.5rem;font-weight:900;margin-top:15px;font-variant-numeric:tabular-nums;">${m}:${s<10?'0':''}${s}</div></div><button id="otg-btn-skip-resp" style="background:transparent;border:none;color:#333;margin-top:25px;font-size:.8rem;text-decoration:underline;cursor:pointer;">Saltar preparación</button>`; document.getElementById('otg-btn-skip-resp').onclick = () => { clearInterval(relojRespirar); capa.remove(); }; } else { const timerDiv = capa.querySelector('.circulo-gigante div'); if(timerDiv) timerDiv.innerText = `${m}:${s<10?'0':''}${s}`; } if (tiempoRespirar <= 0) { clearInterval(relojRespirar); capa.innerHTML = ""; let tiempoSilencio = Math.floor(Math.random() * (80 - 60 + 1)) + 60; ejecutarRetoSilencio(tiempoSilencio); } tiempoRespirar--; contadorPalabra++; }, 1000); const ejecutarRetoSilencio = (segundosTotales) => { const retoSeleccionado = retosSilencio[Math.floor(Math.random() * retosSilencio.length)]; let tSilencio = segundosTotales; let contadorFrase = 0; const relojSilencio = setInterval(() => { let m = Math.floor(tSilencio / 60), s = tSilencio % 60; if (contadorFrase % 10 === 0) { const fraseCortante = retoSeleccionado.frases[Math.floor(Math.random() * retoSeleccionado.frases.length)]; capa.innerHTML = `<span style="color:#d84315;font-size:.75rem;text-transform:uppercase;letter-spacing:3px;margin-bottom:15px;font-weight:bold;">Reto de Silencio</span><p style="color:#fff;max-width:280px;font-size:.95rem;line-height:1.5;margin:0 0 25px 0;font-weight:500;">${retoSeleccionado.desc}</p><h3 style="color:#00bcd4;font-size:1.1rem;margin-bottom:25px;text-transform:uppercase;letter-spacing:1px;">${fraseCortante}</h3><div style="font-size:3.5rem;font-weight:900;font-variant-numeric:tabular-nums;color:#fff;">${m}:${s<10?'0':''}${s}</div>`; } else { const timerDiv = capa.querySelector('div'); if(timerDiv) timerDiv.innerText = `${m}:${s<10?'0':''}${s}`; } if (tSilencio <= 0) { clearInterval(relojSilencio); capa.remove(); alert("Mente despierta. Estás listo para salir con un propósito."); } tSilencio--; contadorFrase++; }, 1000); }; }
-}; // <-- ESTA LLAVE CIERRA EL OBJETO PRINCIPAL DE LA APP DE FORMA CORRECTA
 
 // DISPARADOR INDEPENDIENTE EN PARALELO: Lanza tu triple toque sin sobreescribir tu init() original de fábrica
 document.addEventListener("DOMContentLoaded", () => {
