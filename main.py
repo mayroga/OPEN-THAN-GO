@@ -720,6 +720,16 @@ async def mando_integral(request: Request):
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
+    # ==========================================================================================
+    # ENLACE OPERATIVO: RETORNO ESTRUCTURADO COMPACTO PARA EL MODO SALIR DIRECTO
+    # ==========================================================================================
+    if opcion_usuario == "SALIR":
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "modo_activo": "SALIR",
+            "status": "success"
+        })
+    # ==========================================================================================
     
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
         return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
