@@ -410,38 +410,55 @@ const KERNEL = {
         this.activarBotonMandoLibreInicial();
     },
 
-      /**
+       /**
      * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
      */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
-        clearInterval(this.temporizadorCascada);
-        grid.innerHTML = "";
+       
+        clearInterval(this.temporizadorCascada); // Stop any existing cascade
+        grid.innerHTML = ""; // Clear previous questions
         this.indicePreguntaCascada = 0;
+       
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
+        let preguntasDisponiblesIndices = [];
         let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
+
+        // Prioritize questions not seen recently
         let unseenIndices = [];
         for (let i = 0; i < catalogo.length; i++) {
             if (!preguntasYaVistasRecientemente.has(i)) {
                 unseenIndices.push(i);
             }
         }
+
+        // If not enough unseen questions, reset history and use all available questions
         if (unseenIndices.length < 6) {
-            console.warn("Not enough unseen questions. Resetting Oracle history.");
-            this.historialPreguntas = [];
+            this.historialPreguntas = []; // Reset history
             localStorage.removeItem("otg_historial_oraculo");
-            unseenIndices = Array.from({length: catalogo.length}, (_, i) => i);
+            for (let i = 0; i < catalogo.length; i++) {
+                unseenIndices.push(i); // Add all indices again for selection
+            }
         }
+       
+        // Shuffle the available indices to get a random, distinct selection
+        // Fisher-Yates shuffle
         for (let i = unseenIndices.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]];
         }
+
         let preguntasSeleccionadasIndices = [];
+        // Select 6 distinct questions, prioritizing different "blocks" (categories)
+        let blockIndices = Array.from({length: Math.ceil(catalogo.length / 6)}, (_, i) => i); // Assumes 6 questions per block
         let blocksUsedInCurrentSelection = new Set();
+       
         for (let i = 0; i < 6; i++) {
             if (unseenIndices.length === 0) break;
+
             let candidateIndex = -1;
+            // Try to pick a question from a block not yet used in this 6-question set
             for (let j = 0; j < unseenIndices.length; j++) {
                 const currentIdx = unseenIndices[j];
                 const currentBlock = Math.floor(currentIdx / 6);
@@ -451,20 +468,28 @@ const KERNEL = {
                     break;
                 }
             }
+
+            // If no unused block question found, just pick the next available shuffled unseen
             if (candidateIndex === -1) {
                 candidateIndex = 0;
                 const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6);
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
-            const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0];
+           
+            const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0]; // Get one, remove from pool
             preguntasSeleccionadasIndices.push(selectedIndex);
+           
+            // Add to history and keep it limited
             this.historialPreguntas.push(selectedIndex);
         }
         this.historialPreguntas = this.historialPreguntas.slice(-this.MAX_HISTORY_ORACULO);
         localStorage.setItem("otg_historial_oraculo", JSON.stringify(this.historialPreguntas));
+
+        // Create buttons for selected questions
         preguntasSeleccionadasIndices.forEach((questionIdx, i) => {
             let preguntaTexto = catalogo[questionIdx];
-            if (!preguntaTexto) return;
+            if (!preguntaTexto) return; // Should not happen with robust selection
+
             let btn = document.createElement('button');
             btn.className = 'btn-pregunta-crisis';
             btn.id = `btn-pregunta-${i}`;
@@ -472,44 +497,38 @@ const KERNEL = {
             btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto);
             grid.appendChild(btn);
         });
+
         this.iniciarEfectoCascada();
     },
 
     /** Initiates the fading cascade effect for questions. */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
+       
         const totalButtons = document.querySelectorAll('.btn-pregunta-crisis').length;
-        if (totalButtons === 0) {
+        if (totalButtons === 0) { // If no questions, immediately enable free writing
             this.liberarCajonEscrituraLibre();
             return;
         }
 
-        // ============================================================
-        // NUEVA LÍNEA: Lee la primera pregunta inmediatamente al iniciar
-        // ============================================================
-        let botonCero = document.getElementById('btn-pregunta-0');
-        if (botonCero && botonCero.innerText) {
-            this.hablar(botonCero.innerText.substring(3));
-        }
-
         this.temporizadorCascada = setInterval(() => {
             let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
+           
             if (botonParaEliminar) {
                 botonParaEliminar.classList.add('fade-out');
+               
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
-                
-                // ESCUDO DE CONTROL: Solo lee si el botón siguiente existe en pantalla
-                if (siguienteBoton && siguienteBoton.innerText) {
-                    let textoLimpio = siguienteBoton.innerText.substring(3);
+                if (siguienteBoton) {
+                    let textoLimpio = siguienteBoton.innerText.substring(3); // Remove the number prefix
                     this.hablar(textoLimpio);
                 }
                 this.indicePreguntaCascada++;
             } else {
                 clearInterval(this.temporizadorCascada);
-                this.liberarCajonEscrituraLibre();
+                this.liberarCajonEscrituraLibre(); // Once all questions are faded, activate free writing
             }
-        }, 8000);
+        }, 8000); // 8 seconds per question exactly
     },
 
     /** Activates the free writing input field and button from start. */
