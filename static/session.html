@@ -476,71 +476,11 @@
             </div>
         </div>
        
-            <!-- THE FREE WRITING BOX HEALED 100% -->
+        <!-- THE FREE WRITING BOX HEALED 100% -->
         <div class="field" id="bloque-escritura-libre">
             <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label>
             <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea>
             <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
-        </div>
-
-        <!-- ============================================================ -->
-        <!-- LA COMPUERTA DE COBRO DE STRIPE Y ENTRADA GRATIS PARA ADMIN  -->
-        <!-- ============================================================ -->
-        <div id="paywall-container" class="plans-grid" style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #222;">
-            <h3 id="txt-choose-plan" style="text-align: center; font-size: 0.85rem; letter-spacing: 0.15em; color: #888; text-transform: uppercase; margin-bottom: 15px;">
-                Select Plan / Selecciona tu Plan de Acceso
-            </h3>
-            
-            <!-- Plan 1: Pago Único -->
-            <div class="plan-card active" data-plan="unico" onclick="KERNEL.seleccionarTarjetaPlan(this)" style="background:#111; border:1px solid #333; padding:15px; border-radius:6px; margin-bottom:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <div class="plan-info">
-                    <span class="plan-title" id="lbl-plan-unico-tit" style="font-weight:900; display:block; color:#fff;">PAGO ÚNICO</span>
-                    <span class="plan-desc" id="lbl-plan-unico-desc" style="font-size:0.75rem; color:#888;">Acceso instantáneo para un solo uso diario</span>
-                </div>
-                <div class="plan-price" style="font-weight:900; color:var(--cyan-inhale); font-size:1.2rem; margin-left:auto;">$15.99</div>
-            </div>
-            
-            <!-- Plan 2: Mensual -->
-            <div class="plan-card" data-plan="mensual" onclick="KERNEL.seleccionarTarjetaPlan(this)" style="background:#111; border:1px solid #222; padding:15px; border-radius:6px; margin-bottom:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <div class="plan-info">
-                    <span class="plan-title" id="lbl-plan-mes-tit" style="font-weight:900; display:block; color:#aaa;">SUSCRIPCIÓN MENSUAL</span>
-                    <span class="plan-desc" id="lbl-plan-mes-desc" style="font-size:0.75rem; color:#666;">Hasta 5 consultas al día durante un mes</span>
-                </div>
-                <div class="plan-price" style="font-weight:900; color:#aaa; font-size:1.2rem; margin-left:auto;">$25.99</div>
-            </div>
-            
-            <!-- Plan 3: Anual -->
-            <div class="plan-card" data-plan="anual" onclick="KERNEL.seleccionarTarjetaPlan(this)" style="background:#111; border:1px solid #222; padding:15px; border-radius:6px; margin-bottom:15px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <div class="plan-info">
-                    <span class="plan-title" id="lbl-plan-ano-tit" style="font-weight:900; display:block; color:#aaa;">MEMBRESÍA ANUAL</span>
-                    <span class="plan-desc" id="lbl-plan-ano-desc" style="font-size:0.75rem; color:#666;">Hasta 5 consultas al día por todo un año</span>
-                </div>
-                <div class="plan-price" style="font-weight:900; color:#aaa; font-size:1.2rem; margin-left:auto;">$250.00</div>
-            </div>
-            
-            <!-- Botón de Envío a Stripe -->
-            <button id="btn-pay-stripe" class="btn-primary-action" onclick="KERNEL.procesarPagoStripe()" style="width:100%; background:var(--green-action); color:#fff; border:none; padding:15px; font-weight:900; border-radius:4px; cursor:pointer; text-transform:uppercase; letter-spacing:1px; margin-bottom:20px;">
-                ACTIVAR CON STRIPE
-            </button>
-            
-            <!-- Divisor de Administración -->
-            <div class="admin-divider" id="lbl-admin-divider" style="text-align:center; font-size:0.7rem; text-transform:uppercase; color:#555; letter-spacing:2px; margin-bottom:15px; border-top:1px dashed #222; padding-top:15px;">Acceso de Administrador</div>
-            
-            <!-- Formulario Bypass Admin -->
-            <div class="admin-login-box" style="background:#0a0a0a; border:1px solid #222; padding:15px; border-radius:6px;">
-                <div class="field" style="margin-bottom: 8px;">
-                    <label id="lbl-user-field">Usuario / Admin User</label>
-                    <input type="text" id="admin-username" placeholder="..." style="background:#111; border:1px solid #222; padding:10px; color:#fff; width:100%;">
-                </div>
-                <div class="field" style="margin-bottom: 12px;">
-                    <label id="lbl-pass-field">Contraseña / Password</label>
-                    <input type="password" id="admin-password" placeholder="••••••••" style="background:#111; border:1px solid #222; padding:10px; color:#fff; width:100%;">
-                </div>
-                <button id="btn-login-admin" class="btn-secondary-action" onclick="KERNEL.procesarBypassAdmin()" style="width:100%; background:var(--secondary); color:#fff; border:none; padding:12px; font-weight:900; border-radius:4px; cursor:pointer; text-transform:uppercase; font-size:0.8rem;">
-                    Ingresar con Credenciales
-                </button>
-                <div id="error-display" class="hidden" style="color:var(--accent); font-size:0.8rem; text-align:center; margin-top:10px;"></div>
-            </div>
         </div>
     </div>
 
@@ -573,125 +513,10 @@
     <a id="btn-whatsapp" class="floating-btn hidden" href="https://wa.me/" target="_blank" title="Chatear por WhatsApp">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24px" height="24px"><path d="M12.04 2C6.58 2 2.11 6.47 2.11 11.93C2.11 13.66 2.59 15.26 3.44 16.63L2 22L7.61 20.61C8.98 21.46 10.58 21.94 12.31 21.94H12.04C17.5 21.94 21.97 17.47 21.97 12C21.97 7.08 18.06 2 12.04 2ZM17.15 15.35C16.92 15.78 16.39 15.89 16.03 15.79C15.67 15.69 15.39 15.26 15.16 14.8C14.73 13.94 14.1 13.62 14.07 13.48C14.03 13.34 14.05 13.38 13.88 13.04C13.71 12.7 13.15 12.35 12.98 12.18C12.81 12.01 12.65 11.93 12.42 11.75C12.2 11.57 11.95 11.45 11.66 11.3C11.37 11.14 11.02 11.01 10.74 10.97C10.45 10.93 10.16 10.93 9.94 11.05C9.71 11.17 9.47 11.44 9.24 11.75C9.01 12.07 8.52 12.68 8.41 12.93C8.3 13.18 8.19 13.31 8.08 13.43C7.97 13.55 7.82 13.61 7.68 13.61C7.54 13.61 7.27 13.54 7.05 13.27C6.84 13 6.48 12.22 6.35 12.02C6.22 11.82 6.1 11.77 5.99 11.77C5.88 11.77 5.76 11.77 5.6 11.77C5.45 11.77 5.25 11.94 5.09 12.11C4.94 12.29 4.67 12.57 4.67 13.11C4.67 13.66 5.06 14.24 5.16 14.36C5.26 14.48 5.62 14.97 5.92 15.32C6.22 15.68 6.55 16 6.94 16.14C7.33 16.27 7.74 16.39 8.16 16.39C8.58 16.39 9.07 16.36 9.49 16.11C9.91 15.86 10.3 15.22 10.56 14.89C10.74 14.66 11.16 14.07 11.34 14.28C11.52 14.49 11.74 15.11 11.92 15.34C12.1 15.58 12.31 15.75 12.55 15.84C12.78 15.93 13.23 16 13.65 15.98C14.06 15.96 14.68 15.65 15.01 15.48C15.34 15.31 16.89 14.56 17.15 14.21C17.41 13.86 17.57 13.65 17.65 13.53C17.73 13.4 17.73 13.34 17.61 13.22C17.5 13.1 17.29 12.78 17.15 12.57L17.15 12.57C17.01 12.36 16.89 12.24 16.78 12.24C16.67 12.24 16.58 12.24 16.48 12.24C16.38 12.24 16.25 12.26 16.14 12.27C16.03 12.28 15.91 12.31 15.79 12.34C15.67 12.37 15.57 12.41 15.48 12.44L15.48 12.44Z"/></svg>
     </a>
-        <a id="btn-messenger" class="floating-btn hidden" href="https://m.me/" target="_blank" title="Chatear por Messenger">
+    <a id="btn-messenger" class="floating-btn hidden" href="https://m.me/" target="_blank" title="Chatear por Messenger">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="24px" height="24px"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13.06 17.65L10.02 11.2L16.28 6.35L13.06 17.65Z"/></svg>
     </a>
 
-    <!-- ============================================================ --> 
-    <!-- ENLAZADOR DIRECTO DE COMPUERTAS: STRIPE Y ENTRADA GRATIS    --> 
-    <!-- ============================================================ --> 
-    <script> 
-        window.KERNEL = window.KERNEL || {}; 
-        let planSeleccionado = "unico"; 
-
-        // Captura el clic táctil en los 3 planes de precio de la pasarela
-        KERNEL.seleccionarTarjetaPlan = function(elementoCard) { 
-            document.querySelectorAll('.plan-card').forEach(card => {
-                card.classList.remove('active');
-                card.style.borderColor = '#222';
-                card.querySelector('.plan-title').style.color = '#aaa';
-            }); 
-            elementoCard.classList.add('active'); 
-            elementoCard.style.borderColor = '#00bcd4';
-            elementoCard.querySelector('.plan-title').style.color = '#fff';
-            planSeleccionado = elementoCard.getAttribute('data-plan'); 
-        }; 
-
-        // Redirección oficial a Stripe Checkout
-        KERNEL.procesarPagoStripe = async function() { 
-            const botonPago = document.getElementById('btn-pay-stripe'); 
-            botonPago.disabled = true; 
-            botonPago.innerText = "..."; 
-            try { 
-                const response = await fetch('/api/create-checkout-session', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ plan: planSeleccionado }) 
-                }); 
-                const data = await response.json(); 
-                if (data.url) { 
-                    window.location.href = data.url; 
-                } else { 
-                    alert('Error en pasarela: ' + (data.error || 'Intente más tarde')); 
-                    botonPago.disabled = false; 
-                    botonPago.innerText = "ACTIVAR CON STRIPE"; 
-                } 
-            } catch (err) { 
-                console.error("Error de red con Stripe:", err); 
-                botonPago.disabled = false; 
-                botonPago.innerText = "ACTIVAR CON STRIPE"; 
-            } 
-        }; 
-
-        // Procesamiento del formulario de acceso gratuito administrador
-        KERNEL.procesarBypassAdmin = function() { 
-            const userInp = document.getElementById('admin-username').value.trim(); 
-            const passInp = document.getElementById('admin-password').value.trim(); 
-            const errorBox = document.getElementById('error-display'); 
-            
-            if (!userInp || !passInp) { 
-                if (errorBox) { 
-                    errorBox.textContent = "Por favor llene los campos / Fill all fields"; 
-                    errorBox.classList.remove('hidden'); 
-                } else { 
-                    alert("Por favor llene los campos / Fill all fields"); 
-                } 
-                return; 
-            } 
-
-            // GUARDA LAS LLAVES CORRECTAS QUE REVISA ENGINE.JS 
-            localStorage.setItem('tg_admin_user', userInp); 
-            localStorage.setItem('tg_admin_pass', passInp); 
-            localStorage.removeItem('tg_stripe_session'); 
-
-            if (errorBox) errorBox.classList.add('hidden'); 
-            window.location.reload(); 
-        }; 
-
-        // Traductor nativo bilingüe de la interfaz de cobro
-        KERNEL.traducirElementosPaywall = function(idiomaActivo) { 
-            const traduccionesPaywall = { 
-                es: { 
-                    "txt-choose-plan": "Selecciona tu Plan de Acceso", 
-                    "lbl-plan-unico-tit": "PAGO ÚNICO", 
-                    "lbl-plan-unico-desc": "Acceso instantáneo para un solo uso diario", 
-                    "lbl-plan-mes-tit": "SUSCRIPCIÓN MENSUAL", 
-                    "lbl-plan-mes-desc": "Hasta 5 consultas al día durante un mes", 
-                    "lbl-plan-ano-tit": "MEMBRESÍA ANUAL", 
-                    "lbl-plan-ano-desc": "Hasta 5 consultas al día por todo un año", 
-                    "btn-pay-stripe": "ACTIVAR CON STRIPE", 
-                    "lbl-admin-divider": "Acceso de Administrador", 
-                    "lbl-user-field": "Usuario Administrador", 
-                    "lbl-pass-field": "Contraseña", 
-                    "btn-login-admin": "Ingresar con Credenciales" 
-                }, 
-                en: { 
-                    "txt-choose-plan": "Select Your Access Plan", 
-                    "lbl-plan-unico-tit": "ONE-TIME PAYMENT", 
-                    "lbl-plan-unico-desc": "Instant access for a single daily use", 
-                    "lbl-plan-mes-tit": "MONTHLY SUBSCRIPTION", 
-                    "lbl-plan-mes-desc": "Up to 5 daily queries for a full month", 
-                    "lbl-plan-ano-tit": "ANNUAL MEMBERSHIP", 
-                    "lbl-plan-ano-desc": "Up to 5 daily queries for an entire year", 
-                    "btn-pay-stripe": "ACTIVATE WITH STRIPE", 
-                    "lbl-admin-divider": "Administrator Access", 
-                    "lbl-user-field": "Admin Username", 
-                    "lbl-pass-field": "Password", 
-                    "btn-login-admin": "Log In with Credentials" 
-                } 
-            }; 
-            const textos = traduccionesPaywall[idiomaActivo] || traduccionesPaywall['es']; 
-            for (const idElemento in textos) { 
-                const elementoEl = document.getElementById(idElemento); 
-                if (elementoEl) { 
-                    if(elementoEl.tagName === "INPUT") elementoEl.placeholder = textos[idElemento]; 
-                    else elementoEl.innerText = textos[idElemento]; 
-                } 
-            } 
-        }; 
-    </script>
-
-    <!-- CARGA DEL MOTOR MAESTRO FINAL -->
     <script src="/static/engine.js"></script>
 </body>
 </html>
