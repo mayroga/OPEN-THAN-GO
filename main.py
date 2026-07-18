@@ -605,7 +605,17 @@ def seleccionar_misiones_casa_inteligente(
         if len(resultado) >= cantidad:
             break
            
-   # ... Viene de la función anterior de tu catálogo ...
+        # Si no se alcanzan las 'cantidad' requeridas con diversidad, añade las siguientes mejores
+    if len(resultado) < cantidad:
+        for candidato in candidatos:
+            mision = candidato["mision"]
+            if mision["id"] not in ids_en_resultado:
+                resultado.append(mision)
+                ids_en_resultado.add(mision["id"])
+            if len(resultado) >= cantidad:
+                break
+                
+    # Fallback final: si aún no hay suficientes, toma las primeras 'cantidad'
     if len(resultado) < cantidad and len(misiones) >= cantidad:
         resultado = [c["mision"] for c in candidatos[:cantidad]]
     return resultado
@@ -670,7 +680,34 @@ async def webhook_stripe(request: Request):
 # File: main.py - SECCIÓN 2 DE 2 (CWRE Logic)
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
-# ... Sigue toda tu lógica matricial de sensitive_keywords e itinerarios ...
+    """
+    Main API endpoint for OPEN THAN GO.
+    Receives user input and local preference profile to return a personalized recommendation.
+    """
+    payload = await request.json()
+    opcion_usuario = str(payload.get("modo", "")).strip().upper()
+    zip_code = str(payload.get("zip", "")).strip()
+    estado = str(payload.get("estado", "FL")).strip()
+    region = str(payload.get("region", "")).strip()
+    mente = str(payload.get("mente", "aburrido")).lower()
+    budget = str(payload.get("budget", "0"))
+    perfil_tipo = str(payload.get("perfil", "solo")).lower()
+    desahogo = str(payload.get("desahogo", "")).lower()
+    lang = str(payload.get("lang", "es")).lower()
+    
+    if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
+        return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
+        
+    perfil_local = payload.get("perfil_local", {})
+    if not isinstance(perfil_local, dict):
+        perfil_local = {}
+        
+    perfil_local = {
+        **DEFAULT_NECESSITY_VECTOR,
+        **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
+    }
+    if "indicador_ansiedad" not in perfil_local:
+        perfil_local["indicador_ansiedad"] = 0
        
     # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
