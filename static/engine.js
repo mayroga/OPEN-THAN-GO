@@ -410,7 +410,7 @@ const KERNEL = {
         this.activarBotonMandoLibreInicial();
     },
     
-        /**
+      /**
      * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
      */
     inyectarBloquePreguntas() {
@@ -465,7 +465,7 @@ const KERNEL = {
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
             
-            // ELIZADO Y RESTAURADO EL ERROR CON EL [0] OBLIGATORIO:
+            // CORREGIDO: Se restauró el [0] original que evita que la app se congele
             const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0];
             preguntasSeleccionadasIndices.push(selectedIndex);
             this.historialPreguntas.push(selectedIndex);
@@ -515,8 +515,8 @@ const KERNEL = {
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
                 
-                // ESCUDO DE CONTROL DE AUDIO: Evita el crash de la tercera vuelta
-                if (siguienteBoton && siguienteBoton.innerText) {
+                // ESCUDO DE CONTROL DE AUDIO: Evita que el audio salte o rompa el temporizador
+                if (siguienteBoton) {
                     let textoLimpio = siguienteBoton.innerText.substring(3);
                     this.hablar(textoLimpio);
                 }
@@ -525,7 +525,7 @@ const KERNEL = {
                 clearInterval(this.temporizadorCascada);
                 this.liberarCajonEscrituraLibre();
             }
-        }, 8000); // 8 segundos exactos por pregunta
+        }, 8000); // Tus 8 segundos inmutables de fábrica
     },
 
         // ============================================================
