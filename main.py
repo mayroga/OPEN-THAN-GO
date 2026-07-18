@@ -710,15 +710,17 @@ async def mando_integral(request: Request):
     explicitly_seeking_job = any(phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"])
 
 # ==========================================================================================
-# INYECCIÓN OPERATIVA: CONTROLADORES DE COMPRA Y ACCESO ADMINISTRATIVO MAESTRO
+# INYECCIÓN CORREGIDA: CONTROLADORES DE COMPRA Y ACCESO ADMINISTRATIVO CON REQUEST SEGURO
 # ==========================================================================================
 @app.post("/crear-checkout")
-async def crear_checkout(data: dict):
-    tipo_plan = data.get("tipo_plan")
-    user_id = data.get("user_id", "cliente_otg")
-    if tipo_plan not in PLANES_STRIPE:
-        raise HTTPException(status_code=400, detail="Plan inválido")
+async def crear_checkout(request: Request):
     try:
+        data = await request.json()
+        tipo_plan = data.get("tipo_plan")
+        user_id = data.get("user_id", "cliente_otg")
+        if tipo_plan not in PLANES_STRIPE:
+            raise HTTPException(status_code=400, detail="Plan inválido")
+        
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             line_items=[{"price": PLANES_STRIPE[tipo_plan], "quantity": 1}],
@@ -732,12 +734,16 @@ async def crear_checkout(data: dict):
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 @app.post("/login-admin")
-async def login_admin(data: dict):
-    username = data.get("username")
-    password = data.get("password")
-    if username == ADMIN_USER and password == ADMIN_PASS:
-        return {"status": "success", "role": "admin", "user_id": "admin_master"}
-    raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+async def login_admin(request: Request):
+    try:
+        data = await request.json()
+        username = data.get("username")
+        password = data.get("password")
+        if username == ADMIN_USER and password == ADMIN_PASS:
+            return {"status": "success", "role": "admin", "user_id": "admin_master"}
+        return JSONResponse(status_code=401, content={"error": "Credenciales incorrectas"})
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": "Payload malformado"})
 
 @app.post("/webhook-stripe")
 async def webhook_stripe(request: Request):
