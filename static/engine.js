@@ -1,3 +1,4 @@
+
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
 // Company: May Roga LLC
 // File: static/engine.js (Frontend Logic)
@@ -1681,42 +1682,24 @@ Continuar
 </div>`;
 },
 
-cerrarOasisYDarPasoAAppBase(){
-
-let m=document.getElementById("otg-oasis-entretenimiento");
-if(m)m.classList.add("hidden");
-
-document.body.style.overflow="auto";
-
-if(typeof KERNEL!=="undefined"&&typeof KERNEL.despertarInicial==="function"){
-KERNEL.despertarInicial();
-}
-
-let b=document.getElementById("otg-btn-power");
-if(b)b.classList.remove("hidden");
-
-this.seleccionadas=[];
-
-console.log("OPEN THAN GO iniciado.");
-},
-
+    cerrarOasisYDarPasoAAppBase(){ let m=document.getElementById("otg-oasis-entretenimiento"); if(m)m.classList.add("hidden"); document.body.style.overflow="auto"; if(typeof KERNEL!=="undefined"&&typeof KERNEL.despertarInicial==="function"){ KERNEL.despertarInicial(); } let b=document.getElementById("otg-btn-power"); if(b)b.classList.remove("hidden"); this.seleccionadas=[]; console.log("OPEN THAN GO iniciado."); }, 
     apagarSistemaTotal(){ let m=document.getElementById("otg-oasis-entretenimiento"); if(m)m.classList.add("hidden"); let pc=document.getElementById("pantalla-cierre"); if(pc)pc.classList.add("hidden"); let wf=document.getElementById("wrapper-form"); if(wf)wf.classList.remove("hidden"); let pb=document.getElementById("pantalla-bienvenida"); if(pb)pb.classList.remove("hidden"); let b=document.getElementById("otg-btn-power"); if(b)b.classList.add("hidden"); let t=document.getElementById("inp-text-libre"); if(t)t.value=""; this.seleccionadas=[]; console.log("Sistema reiniciado."); }, 
     forzarCierre15Minutos(){ let m=document.getElementById("otg-oasis-entretenimiento"); if(m)m.classList.add("hidden"); document.body.innerHTML=` <div style="width:100vw;height:100vh;background:#000;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:25px;"> <h1 style="color:#00bcd4;font-size:1.4rem;margin-bottom:12px;"> Sesión finalizada </h1> <p style="max-width:420px;font-size:.95rem;line-height:1.5;color:#ddd;"> Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una pausa y continuar con tus actividades. </p> </div>`; },
-    
+
     // ==========================================================================================
-    // MÉTODOS DE STRIPE Y ENTRADA SECRETA ENLAZADOS NATIVAMENTE AL KERNEL ORIGINAL
+    // MÉTODOS DE STRIPE Y ENTRADA SECRETA ENLAZADOS NATIVAMENTE AL COMPÁS DEL KERNEL ORIGINAL
     // ==========================================================================================
     procesarPagoStripe(planSeleccionado) { let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo'; fetch('/crear-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tipo_plan: planSeleccionado, user_id: userId }) }).then(res => res.json()).then(data => { if(data.url) window.location.href = data.url; }).catch(err => console.error('Error de pasarela:', err)); },
     inicializarBypassDesarrollador() { let clics = 0; let t; const trigger = document.getElementById('cierre-logo') || document.body; trigger.addEventListener('click', () => { clics++; clearTimeout(t); t = setTimeout(() => { clics = 0; }, 1500); if (clics === 3) { clics = 0; let user = prompt("Mantenimiento OTG - Usuario:"); let pass = prompt("Mantenimiento OTG - Contraseña:"); if (!user || !pass) return; fetch('/login-admin', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: user, password: pass }) }).then(res => { if (!res.ok) throw new Error(); return res.json(); }).then(data => { if (data.status === "success") { localStorage.setItem('otg_user_role', 'admin'); alert("Acceso Desarrollador Concedido. Servicio Infinito Activo."); location.reload(); } }).catch(() => alert("Credenciales inválidas de Render. Acceso denegado.")); } }); }
 };
 
-// DISPARADOR INDEPENDIENTE EN PARALELO: Lanza tu triple toque sin sobreescribir tu init() original
+// DISPARADOR INDEPENDIENTE EN PARALELO: Lanza tu triple toque sin sobreescribir tu init() original de fábrica
 document.addEventListener("DOMContentLoaded", () => {
-    if (typeof KERNEL !== 'undefined' && KERNEL.inicializarBypassDesarrollador) {
-        KERNEL.inicializarBypassDesarrollador();
-        console.log("Escudo administrativo KERNEL activado de forma externa.");
+    if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.inicializarBypassDesarrollador) {
+        OTG_SENSORIAL.inicializarBypassDesarrollador();
+        console.log("Escudo administrativo activado de forma externa y segura.");
     }
 });
 
-KERNEL.init(); 
+OTG_SENSORIAL.init(); 
 })();
