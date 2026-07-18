@@ -410,43 +410,42 @@ const KERNEL = {
         this.activarBotonMandoLibreInicial();
     },
     
-      /**
+         /**
      * Injects a block of 6 questions into the UI, ensuring they are distinct and not recent.
      */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo');
         if (!grid) return;
-
-        // Limpieza de cualquier residuo de reloj previo
-        if (this.temporizadorCascada) clearInterval(this.temporizadorCascada);
+        
+        clearInterval(this.temporizadorCascada);
         grid.innerHTML = "";
         this.indicePreguntaCascada = 0;
-
+        
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
         let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
         let unseenIndices = [];
-
+        
         for (let i = 0; i < catalogo.length; i++) {
             if (!preguntasYaVistasRecientemente.has(i)) {
                 unseenIndices.push(i);
             }
         }
-
+        
         if (unseenIndices.length < 6) {
             console.warn("Not enough unseen questions. Resetting Oracle history.");
             this.historialPreguntas = [];
             localStorage.removeItem("otg_historial_oraculo");
             unseenIndices = Array.from({length: catalogo.length}, (_, i) => i);
         }
-
+        
         for (let i = unseenIndices.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]];
         }
-
+        
         let preguntasSeleccionadasIndices = [];
         let blocksUsedInCurrentSelection = new Set();
-
+        
         for (let i = 0; i < 6; i++) {
             if (unseenIndices.length === 0) break;
             let candidateIndex = -1;
@@ -464,16 +463,14 @@ const KERNEL = {
                 const currentBlock = Math.floor(unseenIndices[candidateIndex] / 6);
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
-            
-            // CORREGIDO: Se restauró el [0] original que evita que la app se congele
             const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0];
             preguntasSeleccionadasIndices.push(selectedIndex);
             this.historialPreguntas.push(selectedIndex);
         }
-
+        
         this.historialPreguntas = this.historialPreguntas.slice(-this.MAX_HISTORY_ORACULO);
         localStorage.setItem("otg_historial_oraculo", JSON.stringify(this.historialPreguntas));
-
+        
         preguntasSeleccionadasIndices.forEach((questionIdx, i) => {
             let preguntaTexto = catalogo[questionIdx];
             if (!preguntaTexto) return;
@@ -484,12 +481,12 @@ const KERNEL = {
             btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto);
             grid.appendChild(btn);
         });
-
+        
         this.iniciarEfectoCascada();
     },
 
     /**
-     * Initiates the fading cascade effect for questions with synchronous audio mapping.
+     * Initiates the fading cascade effect for questions.
      */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
@@ -498,25 +495,17 @@ const KERNEL = {
             this.liberarCajonEscrituraLibre();
             return;
         }
-
-        // Leer la primera pregunta flotante de inmediato en el segundo cero
-        let primerBoton = document.getElementById(`btn-pregunta-0`);
-        if (primerBoton) {
-            let textoPrimera = primerBoton.innerText.substring(3);
-            this.hablar(textoPrimera);
-        }
-
+        
         this.temporizadorCascada = setInterval(() => {
             let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
-            
             if (botonParaEliminar) {
                 botonParaEliminar.classList.add('fade-out');
                 
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
                 
-                // ESCUDO DE CONTROL DE AUDIO: Evita que el audio salte o rompa el temporizador
-                if (siguienteBoton) {
+                // ESCUDO TOTAL: Verifica de forma ultra-segura que el botón exista antes de intentar leerlo
+                if (siguienteBoton && siguienteBoton.innerText) {
                     let textoLimpio = siguienteBoton.innerText.substring(3);
                     this.hablar(textoLimpio);
                 }
@@ -525,7 +514,7 @@ const KERNEL = {
                 clearInterval(this.temporizadorCascada);
                 this.liberarCajonEscrituraLibre();
             }
-        }, 8000); // Tus 8 segundos inmutables de fábrica
+        }, 8000);
     },
 
         // ============================================================
