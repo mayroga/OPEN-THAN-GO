@@ -809,49 +809,69 @@ const KERNEL = {
         container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
         container.classList.remove('hidden');
 
-        try {
-            const r = await fetch("/api/mando-integral", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-            const data = await r.json();
+                    try {
+                const r = await fetch("/api/mando-integral", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await r.json();
+                
+                if (data.error) {
+                    alert(data.error);
+                    document.getElementById('wrapper-form').classList.remove('hidden');
+                    container.classList.add('hidden');
+                    this.isLocked = false;
+                    this.validarZip();
+                    return;
+                }
 
-            if (data.error) {
-                alert(data.error);
+                this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
+                this.indiceMision = 0;
+                
+                if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
+                    this.historialSalir = data.historial_salir_actualizado;
+                    localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+                    this.pasosMisiones = data.misiones; // Now an array of 3 for SALIR
+                    
+                    // ==========================================================================================
+                    // ORÁCULO EN ORDEN ESTRICTO: SELECCIÓN LOCAL SECUENCIAL SCON 3 MANIFIESTOS REALES
+                    // ==========================================================================================
+                    let indiceActual = parseInt(localStorage.getItem('otg_indice_manifiesto') || "0");
+                    let listaTextos = [
+                        "Una persona que abre esta aplicación muchas veces no está buscando un parque. Está buscando sentirse diferente. Lo que desgasta no es la falta de destinos, sino la rutina de salir siempre sin un propósito. El verdadero problema no es encontrar un sitio nuevo, el problema es que las salidas comienzan con la pregunta equivocada. En lugar de preguntarse a dónde vamos, sería mucho más útil preguntarse qué necesitamos hoy como familia. Cuando primero se identifica esa necesidad, elegir el destino deja de ser un problema y pasa a ser una consecuencia natural. Un parque deja de ser otro parque cuando la misión es construir juntos el barco más creativo usando hojas y ramas. El lugar cambia muy poco; lo que realmente cambia es la experiencia y el propósito con el que se vive. No se trata únicamente de decirte a dónde ir. Se trata de entender cómo te sientes y proponerte una experiencia con un propósito.",
+                        "Quien abre esta pantalla carga con un cansancio que el descanso pasivo no puede curar. El agobio no es falta de sueño, es un exceso de entorno predecible. Te encierras en el auto huyendo de la rutina, pero manejas con la mente fija en los problemas de la semana. El error fundamental es creer que un lugar nuevo va a cambiar tu estado interno por arte de magia. El espacio físico no hace nada si tu atención sigue secuestrada por las mismas preocupaciones. Un rincón con sombra deja de ser un simple banco cuando tu objetivo real es escuchar tres sonidos diferentes de la naturaleza. El entorno cambia radicalmente cuando tú inyectas una intención clara a tus sentidos. No busques que el mundo te entretenga. Cambia tu frecuencia interna antes de abrir la puerta. Tu misión es detener el piloto automático.",
+                        "Quien abre esta pantalla siente que arrastra el peso del mundo sobre los hombros. El agotamiento no es solo cansancio muscular, es fatiga de decisiones acumuladas. Tu cerebro ha procesado demasiadas elecciones obligatorias durante la semana. Buscas un escape pero te mueves en piloto automático, repitiendo los mismos recorridos sin registrar el entorno. Una plaza pública deja de ser un fondo borroso cuando te sientas en un banco céntrico a observar el flujo de los transeúntes en silencio. Ver la vida avanzar a su propio ritmo te devuelve la perspectiva de inmediato. El mundo es inmenso y tus problemas actuales son transitorios. No busques resolver tu existencia hoy. Sal a recuperar tu espacio."
+                    ];
+
+                    if (indiceActual >= listaTextos.length) { indiceActual = 0; }
+                    let textoElegido = listaTextos[indiceActual];
+                    
+                    if (typeof OTG_SENSORIAL.hablar === 'function') {
+                        OTG_SENSORIAL.hablar(textoElegido);
+                    }
+
+                    let siguienteIndice = (indiceActual + 1) % listaTextos.length;
+                    localStorage.setItem('otg_indice_manifiesto', siguienteIndice.toString());
+                    // ==========================================================================================
+
+                    this.mostrarOpcionesSalir(container);
+                    
+                } else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
+                    this.historialCasa = data.historial_casa_actualizado;
+                    localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+                    this.pasosMisiones = data.misiones;
+                    this.procesarFlujoSecuencial(container);
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+                alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
                 document.getElementById('wrapper-form').classList.remove('hidden');
                 container.classList.add('hidden');
                 this.isLocked = false;
                 this.validarZip();
-                return;
             }
-
-            this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
-            this.indiceMision = 0;
-           
-            if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
-                this.historialSalir = data.historial_salir_actualizado;
-                localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                this.pasosMisiones = data.misiones; // Now an array of 3 for SALIR
-                this.mostrarOpcionesSalir(container);
-            }
-            else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
-                this.historialCasa = data.historial_casa_actualizado;
-                localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
-                this.pasosMisiones = data.misiones;
-                this.procesarFlujoSecuencial(container);
-            }
-
-
-        } catch (error) {
-            console.error("Fetch error:", error);
-            alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
-            document.getElementById('wrapper-form').classList.remove('hidden');
-            container.classList.add('hidden');
-            this.isLocked = false;
-            this.validarZip();
-        }
-    },
+        },
 
     /**
      * Displays the 3 options for SALIR mode and waits for user selection.
