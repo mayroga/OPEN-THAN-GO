@@ -1,5 +1,5 @@
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1 # Company: May Roga LLC # File: main.py - SECCIÓN 1 DE 2 (Backend Core) 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException # Added HTTPException
 from fastapi.responses import JSONResponse, FileResponse 
 from fastapi.staticfiles import StaticFiles 
 import uvicorn 
