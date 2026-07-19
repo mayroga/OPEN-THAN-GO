@@ -813,7 +813,7 @@ const KERNEL = {
         document.getElementById('pantalla-cierre').classList.add('hidden');
         container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
         container.classList.remove('hidden');
-            try {
+                       try {
                 const r = await fetch("/api/mando-integral", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -831,15 +831,16 @@ const KERNEL = {
                 }
 
                 // ==========================================================================================
-                // SECUENCIA SEGURA: EL CÍRCULO SE DETONA JUSTO AQUÍ, DESPUÉS DE QUE EL SERVIDOR RESPONDIÓ
+                // FLUJO DE FÁBRICA RECONECTADO: LA PETICIÓN CORRE E INICIALIZA TUS VARIABLES ORIGINALES
                 // ==========================================================================================
-                if (payload && payload.modo === "SALIR") {
-                    OTG_SENSORIAL.iniciarSecuenciaMenteSalir();
-                }
-                // ==========================================================================================
-                                
                 this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
                 this.indiceMision = 0;
+                
+            } catch (e) {
+                console.error("Error en conexión:", e);
+            } finally {
+                this.isLocked = false;
+            }
                
                 if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
                     this.historialSalir = data.historial_salir_actualizado;
@@ -864,32 +865,34 @@ const KERNEL = {
             }
     },
 
-    /**
+       /**
      * Displays the 3 options for SALIR mode and waits for user selection.
      */
     mostrarOpcionesSalir(container) {
         clearInterval(this.timerEnfocado);
         clearInterval(this.salidaTimerId);
         window.speechSynthesis.cancel();
-
+        
         const t = {
             es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" },
             en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:" }
         }[this.idiomaActual];
-
+        
         container.innerHTML = `
-        <div class="mision-choices-container">
-            <h2 class="salida-main-title">${t.choosePath}</h2>
-            <p class="salida-choose-instruction">${t.chooseOne}</p>
-            <div id="salida-options-grid" class="salida-grid">
-                <!-- Options will be injected here -->
-            </div>
-        </div>`;
-
+            <div class="mision-choices-container">
+                <h2 class="salida-main-title">${t.choosePath}</h2>
+                <p class="salida-choose-instruction">${t.chooseOne}</p>
+                <div id="salida-options-grid" class="salida-grid">
+                    <!-- Options will be injected here -->
+                </div>
+            </div>`;
+            
         const optionsGrid = document.getElementById('salida-options-grid');
+        
         this.pasosMisiones.forEach((mission, index) => {
             const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
             const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
+            
             const card = document.createElement('div');
             card.className = 'salida-option-card';
             card.innerHTML = `
@@ -897,12 +900,21 @@ const KERNEL = {
                 <p class="salida-option-desc">${missionWhatToDo}</p>
                 <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button>
             `;
+            
             card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
             optionsGrid.appendChild(card);
         });
-
+        
         this.hablar(t.chooseOne);
-    },
+
+        // ==========================================================================================
+        // INYECCIÓN TÁCTICA FIN DE SECUENCIA: ACTIVA EL HACKEO MENTAL CUANDO EL ITINERARIO ESTÁ LISTO
+        // ==========================================================================================
+        if (this.modoActual === "SALIR" || localStorage.getItem("otg_ultimo_modo") === "SALIR") {
+            OTG_SENSORIAL.iniciarSecuenciaMenteSalir();
+        }
+        // ==========================================================================================
+    }
 
     /**
      * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
