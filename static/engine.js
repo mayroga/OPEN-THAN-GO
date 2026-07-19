@@ -817,6 +817,14 @@ const KERNEL = {
                 });
                 const data = await r.json();
                 
+                            try {
+                const r = await fetch("/api/mando-integral", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await r.json();
+                
                 if (data.error) {
                     alert(data.error);
                     document.getElementById('wrapper-form').classList.remove('hidden');
@@ -827,24 +835,13 @@ const KERNEL = {
                 }
 
                 // ==========================================================================================
-                // INYECCIÓN REPARADA: LLAMADO EXPLÍCITO AL OBJETO GLOBAL PARA EVITAR ERRORES DE SCOPE
+                // INYECCIÓN REPARADA: CONEXIÓN ABSOLUTA MEDIANTE EL OBJETO GLOBAL INMUTABLE
                 // ==========================================================================================
                 if (payload && (payload.modo === "SALIR" || data.modo_activo === "SALIR")) {
                     OTG_SENSORIAL.iniciarSecuenciaMenteSalir();
                 }
                 // ==========================================================================================
-
-
-                   
-                // ==========================================================================================
-                // INYECCIÓN TÁCTICA: DETONA EL RESBORDAMIENTO DEL CÍRCULO GIGANTE PARA EL MODO SALIR DIRECTO
-                // ==========================================================================================
-                if (payload && (payload.modo === "SALIR" || data.modo_activo === "SALIR")) {
-                    this.iniciarSecuenciaMenteSalir();
-                }
-                // ==========================================================================================
-
-
+                                
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
            
