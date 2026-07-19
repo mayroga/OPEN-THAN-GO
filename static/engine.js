@@ -809,7 +809,7 @@ const KERNEL = {
         container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
         container.classList.remove('hidden');
                 
-                            try {
+                                        try {
                 const r = await fetch("/api/mando-integral", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -827,12 +827,19 @@ const KERNEL = {
                 }
 
                 // ==========================================================================================
-                // INYECCIÓN REPARADA: CONEXIÓN ABSOLUTA MEDIANTE EL OBJETO GLOBAL INMUTABLE
+                // INYECCIÓN REPARADA: CONEXIÓN MAESTRA SIN ERRORES DE SCOPE NI ESTRUCTURAS ABIERTAS
                 // ==========================================================================================
                 if (payload && (payload.modo === "SALIR" || data.modo_activo === "SALIR")) {
                     OTG_SENSORIAL.iniciarSecuenciaMenteSalir();
                 }
                 // ==========================================================================================
+            } catch (e) {
+                console.error("Error en la ejecución del mando integral de salida:", e);
+                this.isLocked = false;
+            } finally {
+                this.isLocked = false;
+            }
+
                                 
             this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
             this.indiceMision = 0;
