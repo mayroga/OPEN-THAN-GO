@@ -808,14 +808,6 @@ const KERNEL = {
         document.getElementById('pantalla-cierre').classList.add('hidden');
         container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
         container.classList.remove('hidden');
-        
-                    try {
-                const r = await fetch("/api/mando-integral", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                const data = await r.json();
                 
                             try {
                 const r = await fetch("/api/mando-integral", {
