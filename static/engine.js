@@ -834,7 +834,7 @@ const KERNEL = {
                     localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
                     this.pasosMisiones = data.misiones; // Now an array of 3 for SALIR
                     
-                    try {
+                               try {
                 const r = await fetch("/api/mando-integral", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -857,7 +857,7 @@ const KERNEL = {
                 if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
                     this.historialSalir = data.historial_salir_actualizado;
                     localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                    this.pasosMisiones = data.misiones; // Tu array original de misiones
+                    this.pasosMisiones = data.misiones;
                     this.mostrarOpcionesSalir(container);
                 } else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
                     this.historialCasa = data.historial_casa_actualizado;
