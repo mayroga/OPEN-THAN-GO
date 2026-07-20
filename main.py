@@ -914,7 +914,6 @@ async def mando_integral(request: Request):
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
         })
-
     # ==============================================================================
     # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
     # ==============================================================================
@@ -927,7 +926,7 @@ async def mando_integral(request: Request):
         historial_actual=historial_salir
     )
 
-        final_misiones_para_frontend = []
+    final_misiones_para_frontend = []
     for info_seleccionada in misiones_seleccionadas_raw:
         # === MODIFICACIÓN: MENSAJES DE ACOMPAÑAMIENTO Y GASTO ACORTADOS ===
         precio_real = ""
@@ -973,7 +972,7 @@ async def mando_integral(request: Request):
                 f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
                 f"{quienes_van}\n{precio_real}"
             )
-            titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
+            titulo_ganador_lang = (info_seleccionada['titulo'] or "").upper()
             que_hacer_lang = info_seleccionada["que_hacer"] or ""
             
         search_query_parts = []
@@ -1005,9 +1004,9 @@ async def mando_integral(request: Request):
             "destino_instruccion": guia_masticada.strip(),
             "destino_instruccion_en": guia_masticada.strip(),
             "destino_coordenadas_gps": target_link,
-            "enlace_youtube": enlace_yt,  # <--- Inyección vía YouTube para la misión
-            "enlace_spotify": enlace_sp,  # <--- Inyección vía Spotify para la misión
-            "enlace_tiktok": enlace_tk,    # <--- Inyección vía TikTok para la misión
+            "enlace_youtube": enlace_yt,
+            "enlace_spotify": enlace_sp,
+            "enlace_tiktok": enlace_tk,
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
         
@@ -1020,7 +1019,7 @@ async def mando_integral(request: Request):
     # --- RETORNAR: Respuesta final unificada con misiones enriquecidas y oráculo ---
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "calidez_humana": manifiesto_humano_salir,  # <--- Enviamos la calidez al frontend
+        "calidez_humana": manifiesto_humano_salir,
         "misiones": final_misiones_para_frontend,
         "historial_salir_actualizado": historial_salir
     })
@@ -1032,3 +1031,6 @@ if __name__ == "__main__":
     import os
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+
+
+    
