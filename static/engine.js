@@ -845,7 +845,7 @@ const KERNEL = {
     this.validarZip();
 }
 
-   /**
+  /**
  * Displays the 3 options for SALIR mode and waits for user selection.
  */
 mostrarOpcionesSalir(container) {
@@ -866,13 +866,11 @@ mostrarOpcionesSalir(container) {
         }
     }[this.idiomaActual];
 
-    // Extraemos la calidez humana de forma segura
     const textoOraculo = this.mensajeCalidezHumanaActual || "";
     let HTMLOraculo = "";
     
-    // Construimos el cuadro sin usar condicionales embebidos de riesgo
     if (textoOraculo) {
-        HTMLOraculo = '<div class="oraculo-calidez-box" style="background: rgba(255,255,255,0.07); border-left: 4px solid #ff9f43; padding: 15px; margin-bottom: 20px; border-radius: 4px; font-style: italic; color: #f1f2f6; text-align: left; font-size: 0.95rem; line-height: 1.4;">' + textoOraculo + '</div>';
+        HTMLOraculo = '<div class="oraculo-calidez-box" style="background: rgba(255,255,255,0.07); border-left: 4px solid #ff9f43; padding: 15px; margin-bottom: 20px; border-radius: 4px; font-style: italic; color: #f1f2f6; text-align: left; font-size: 0.95rem; line-height: 1.4;">"' + textoOraculo + '"</div>';
     }
 
     container.innerHTML = `
@@ -933,6 +931,101 @@ mostrarOpcionesSalir(container) {
     });
 
     this.hablar(textoOraculo || t.chooseOne);
+},
+
+/**
+ * Processes the sequential flow based on the recommendation type (only for CASA mode now).
+ */
+procesarFlujoSecuencial(container) {
+    clearInterval(this.timerEnfocado);
+    window.speechSynthesis.cancel();
+    
+    const t = {
+        es: {
+            inspira: "Inhala ahora",
+            expira: "Exhala ahora",
+            fin: "Protocolo completado. Borrando rastro.",
+            listen: "ESCUCHA MI GUÍA",
+            launch: "ABRIR CANAL EXTERNO YA",
+            fieldAction: "Acción de Campo",
+            internalMission: "Misión Interna",
+            doItNow: "HAZLO AHORA",
+            suggestedEscape: "Escape sugerido",
+            escapeDigital: "O usa una vía de escape digital inmediata:"
+        },
+        en: {
+            inspira: "Inhale now",
+            expira: "Exhale now",
+            fin: "Protocol completed. Clearing tracks.",
+            listen: "LISTEN TO THE GUIDE",
+            launch: "OPEN EXTERNAL CHANNEL NOW",
+            fieldAction: "Field Action",
+            internalMission: "Internal Mission",
+            doItNow: "DO IT NOW",
+            suggestedEscape: "Suggested escape",
+            escapeDigital: "Or use an immediate digital escape route:"
+        }
+    }[this.idiomaActual];
+
+    if (this.indiceMision >= this.pasosMisiones.length) {
+        this.iniciarRelojEnfocadoCasa(container, t);
+        return;
+    }
+
+    const paso = this.pasosMisiones[this.indiceMision];
+    const textoOraculo = this.mensajeCalidezHumanaActual || "";
+    let HTMLOraculo = "";
+    
+    if (textoOraculo) {
+        HTMLOraculo = '<div class="oraculo-calidez-box" style="background: rgba(255,255,255,0.06); border-left: 4px solid #ff9f43; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-style: italic; color: #f1f2f6; text-align: left; font-size: 0.9rem; line-height: 1.4;">"' + textoOraculo + '"</div>';
+    }
+    
+    const urlYT = paso.enlace_youtube || "https://youtube.com";
+    const urlSP = paso.enlace_spotify || "https://spotify.com";
+    const urlTK = paso.enlace_tiktok || "https://tiktok.com";
+
+    container.innerHTML = `
+        <div class="mision-card">
+            <!-- 1% CALIDEZ HUMANA -->
+            ` + HTMLOraculo + `
+
+            <small>${t.internalMission}</small>
+            <h3 style="margin-top: 5px;">${paso.titulo}</h3>
+            <p>${paso.descripcion}</p>
+            
+            <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
+            
+            <div class="escape-digital-container" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 20px;">
+                <span style="font-size: 0.75rem; color: #a4b0be; display: block; margin-bottom: 8px; font-weight: bold; text-align: center; text-transform: uppercase;">
+                    ${t.escapeDigital}
+                </span>
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <a href="${urlYT}" target="_blank" style="flex: 1; text-align: center; background: #ff0000; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold;">YouTube</a>
+                    <a href="${urlSP}" target="_blank" style="flex: 1; text-align: center; background: #1DB954; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold;">Spotify</a>
+                    <a href="${urlTK}" target="_blank" style="flex: 1; text-align: center; background: #000000; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; border: 1px solid rgba(255,255,255,0.2);">TikTok</a>
+                </div>
+            </div>
+        </div>
+    `;
+
+    this.hablar(paso.titulo + " . " + paso.descripcion);
+
+    document.getElementById('btn-next').onclick = () => {
+        try {
+            let perfil = this.obtenerPerfilLocal();
+            const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
+            for (const need in missionVector) {
+                if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                    perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
+                }
+            }
+            perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
+            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+        } catch (e) {
+            console.error("Error updating local profile after CASA mission:", e);
+        }
+        this.avanzarPaso();
+    };
 },
 
     /**
