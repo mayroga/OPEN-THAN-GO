@@ -178,7 +178,7 @@ const KERNEL = {
         "Suelta la mandíbula ahora. Libera esa carga que aprietas sin darte cuenta.",
         "Tu mente está despertando poco a poco. Estás ganando control real.",
         "Eres mucho más grande que tus preocupaciones. Respira hondo y despacio.",
-        "Rompe el bucle que el ruido externo quiere que seas. Quédate en la sala conmigo.",
+        "Rompe el círculo del ruido externo. Quédate aquí conmigo en este instante.",
         "Escucha mi voz. Nota cómo tu respiración se vuelve más profunda y limpia.",
         "Tus ojos están descansando finalmente de las luces artificiales de la pantalla.",
         "Siente los latidos de tu pecho. Es tu motor vivo latiendo para ti.",
@@ -186,15 +186,15 @@ const KERNEL = {
         "No dejes que los pensamientos rápidos te saquen de este momento de paz.",
         "Abandona la prisa de la ciudad hoy. Aquí el tiempo es tuyo.",
         "Tu calma regresará, pero este segundo de paz no se repite.",
-        "Siente cómo tus pulmones se llenan de fuerza con cada ciclo de aire azul.",
+        "Siente cómo tus pulmones se llenan de fuerza con cada bocanada de aire limpio.",
         "Tu familia necesita que estés fuerte por dentro. Recupérate ahora.",
         "Estás borrando el ruido del día. Quédate en la sala respirando conmigo.",
         "La rutina diaria se ha roto. Tú gobiernas tus decisiones en este instante.",
         "El suelo está firme debajo tuyo. Siente la estabilidad de la tierra.",
-        "Tu pecho está libre de agobios ahora. Expulsa todo lo malo de golpe.",
-        "Estás recuperando tu centro biopsicosocial. Sigue la luz del círculo.",
+        "Libera tu pecho de todo agobio ahora. Expulsa lo malo de golpe con tu respiración.",
+        "Estás recuperando tu centro y tu equilibrio natural. Sigue la luz del círculo.",
         "Tu mente es fuerte. Has domado el miedo a las presiones de hoy.",
-        "Faltan pocos segundos para el reinicio definitivo. Siente la esperanza.",
+        "Faltan pocos segundos para volver a empezar con calma. Siente la esperanza.",
         "Estás completamente a salvo aquí. Quédate en paz absoluta en este segundo."
     ],
     AUDIOS_SECUENCIALES_CASA_EN: [
@@ -233,11 +233,11 @@ const KERNEL = {
     AUDIOS_SECUENCIALES_SALIR_ES: [
         "Respira hondo. El mundo exterior espera, pero tú controlas tu paz.",
         "Cada segundo es una oportunidad para soltar lo que no te sirve.",
-        "Visualiza tu destino. Siente la libertad de ir hacia él con propósito.",
+        "Imagina tu destino. Siente la libertad de ir hacia él con propósito.",
         "Elige tu camino. No hay errores, solo nuevas rutas de bienestar.",
         "Estás en control. Tu decisión te guía a un nuevo espacio de calma.",
-        "Siente la expectativa. La aventura te espera, sin agobios ni prisa.",
-        "Estás a punto de romper el patrón. Un nuevo aire te revitaliza.",
+        "Siente la emoción. La aventura te espera, sin agobios ni prisa.",
+        "Estás a punto de romper la rutina. Un nuevo aire te llena de energía.",
         "Concéntrate en el momento. Tu mente es libre para explorar y disfrutar.",
         "Suelta las cadenas mentales. Tu cuerpo te pide movimiento y libertad.",
         "Estás eligiendo tu bienestar. Cada paso es un acto de amor propio."
@@ -262,29 +262,9 @@ const KERNEL = {
 
     // NUEVO CATÁLOGO DE RETOS DE CIERRE (Microacciones de Recuperación Mental)
     CATALOGO_RETOS_ES: [
-        {"id": 201, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Abre tu correo o tu aplicación bancaria. Busca 'Subscription', 'Invoice' o 'Payment' y cancela una sola suscripción que ya no utilices. Recuperar el control también es ahorrar.", "img": "gratitude.svg"},
-        {"id": 202, "titulo": "EL RETO DE LOS TRES GASTOS", "descripcion": "Abre una nota en tu teléfono y escribe únicamente los tres gastos inevitables de esta semana. No pienses en todo el mes. Solo en esta semana.", "img": "words.svg"},
-        {"id": 203, "titulo": "EL RETO DEL ORDEN DIGITAL", "descripcion": "Borra veinte capturas de pantalla, archivos o documentos que ya no necesites. El orden digital también reduce la carga mental.", "img": "observe.svg"},
-        {"id": 204, "titulo": "EL RETO DEL SILENCIO", "descripcion": "Silencia durante una hora las aplicaciones que más ansiedad te generan. Tu atención también necesita descansar.", "img": "silence.svg"},
-        {"id": 205, "titulo": "EL RETO DE LA GRATITUD", "descripcion": "Escribe tres cosas que hoy tienes y que hace algunos años deseabas. Tu mente necesita recordar que también has avanzado.", "img": "gratitude.svg"},
-        {"id": 206, "titulo": "EL RETO DEL AGUA", "descripcion": "Levántate despacio, bebe un vaso completo de agua y vuelve respirando con calma.", "img": "stretch.svg"},
-        {"id": 207, "titulo": "EL RETO DE LA VENTANA", "descripcion": "Abre una ventana durante dos minutos y observa el cielo sin mirar el teléfono.", "img": "nature_sound.svg"},
-        {"id": 208, "titulo": "EL RETO DEL ORDEN", "descripcion": "Guarda únicamente cinco objetos que estén fuera de lugar. Cinco son suficientes por hoy.", "img": "observe.svg"},
-        {"id": 209, "titulo": "EL RETO DE LA RESPIRACIÓN", "descripcion": "Realiza cinco respiraciones profundas siguiendo un ritmo lento. No tienes que hacer nada más.", "img": "square_breath.svg"},
-        {"id": 210, "titulo": "EL RETO DEL DESCANSO VISUAL", "descripcion": "Durante dos minutos mira un punto lejano para permitir que tus ojos descansen de la pantalla.", "img": "nature_sound.svg"},
-    ],
+       {"id": 201, "titulo": "EL RETO DE LA SUSCRIPCIÓN OLVIDADA", "descripcion": "Abre tu correo electrónico o la aplicación de tu banco por un momento. Busca y cancela alguna aplicación o servicio que ya no uses. Recuperar el control también es cuidar tu dinero.", "img": "gratitude.svg"}, {"id": 202, "titulo": "EL RETO DE LOS TRES GASTOS", "descripcion": "Abre una nota en tu teléfono y escribe únicamente los tres gastos obligatorios de esta semana. No pienses en todo el mes. Concéntrate solo en los días de esta semana.", "img": "words.svg"}, {"id": 203, "titulo": "EL RETO DEL ORDEN DIGITAL", "descripcion": "Abre la galería de fotos de tu teléfono móvil. Borra veinte capturas de pantalla o imágenes repetidas que ya no te sirvan. Ordenar tu teléfono ayuda a tranquilizar tus pensamientos.", "img": "observe.svg"}, {"id": 204, "titulo": "EL RETO DEL SILENCIO", "descripcion": "Pon en modo de silencio las aplicaciones de tu teléfono que te causen alertas o mensajes continuos durante una hora completa. Regálale un descanso tranquilo a tu atención.", "img": "silence.svg"}, {"id": 205, "titulo": "EL RETO DE LA GRATITUD", "descripcion": "Escribe en una hoja de papel tres cosas hermosas que tienes en tu vida hoy y que hace un tiempo deseabas con el corazón. Recuerda con alegría todo tu progreso.", "img": "gratitude.svg"}, {"id": 206, "titulo": "EL RETO DE LA RESPIRACIÓN", "descripcion": "Levántate muy despacio de tu asiento. Camina con calma hacia la cocina, sirve un vaso de agua fresca y tómalo con total tranquilidad antes de regresar respirando lento.", "img": "stretch.svg"}, {"id": 207, "titulo": "EL RETO DE LA VENTANA", "descripcion": "Abre la ventana más cercana de tu casa durante dos minutos exactos. Guarda tu teléfono en el bolsillo y quédate observando el cielo con los brazos relajados.", "img": "nature_sound.svg"}, {"id": 208, "titulo": "EL RETO DEL ORDEN", "descripcion": "Mira a tu alrededor dentro de la habitación. Busca cinco objetos que estén desordenados y colócalos en su lugar correcto. Con solo esos cinco bastará por el día de hoy.", "img": "observe.svg"}, {"id": 209, "titulo": "EL RETO DE LA RESPIRACIÓN", "descripcion": "Quédate sentado en una postura muy cómoda. Haz cinco respiraciones profundas y lentas por la nariz, sintiendo cómo entra el aire puro a tu cuerpo. Nada más.", "img": "square_breath.svg"}, {"id": 210, "titulo": "EL RETO DEL DESCANSO VISUAL", "descripcion": "Busca un punto u objeto que esté muy lejano a ti a través de la ventana. Quédate mirando ese lugar fijamente durante dos minutos para descansar tus ojos de las pantallas.", "img": "nature_sound.svg"} ],
     CATALOGO_RETOS_EN: [
-        {"id": 201, "titulo": "THE FORGOTTEN SUBSCRIPTION CHALLENGE", "descripcion": "Open your email or banking app. Search for 'Subscription', 'Invoice', or 'Payment' and cancel a single subscription you no longer use. Regaining control is also saving.", "img": "gratitude.svg"},
-        {"id": 202, "titulo": "THE THREE EXPENSES CHALLENGE", "descripcion": "Open a note on your phone and write down only the three unavoidable expenses for this week. Don't think about the whole month. Just this week.", "img": "words.svg"},
-        {"id": 203, "titulo": "THE DIGITAL ORDER CHALLENGE", "descripcion": "Delete twenty screenshots, files, or documents you no longer need. Digital order also reduces mental load.", "img": "observe.svg"},
-        {"id": 204, "titulo": "THE SILENCE CHALLENGE", "descripcion": "Silence the apps that generate the most anxiety for an hour. Your attention also needs rest.", "img": "silence.svg"},
-        {"id": 205, "titulo": "THE GRATITUDE CHALLENGE", "descripcion": "Write down three things you have today that you wished for a few years ago. Your mind needs to remember that you have also made progress.", "img": "gratitude.svg"},
-        {"id": 206, "titulo": "THE WATER CHALLENGE", "descripcion": "Slowly stand up, drink a full glass of water, and return, breathing calmly.", "img": "stretch.svg"},
-        {"id": 207, "titulo": "THE WINDOW CHALLENGE", "descripcion": "Open a window for two minutes and observe the sky without looking at your phone.", "img": "nature_sound.svg"},
-        {"id": 208, "titulo": "THE ORDER CHALLENGE", "descripcion": "Put away only five objects that are out of place. Five are enough for today.", "img": "observe.svg"},
-        {"id": 209, "titulo": "THE BREATHING CHALLENGE", "descripcion": "Take five deep breaths following a slow rhythm. You don't have to do anything else.", "img": "square_breath.svg"},
-        {"id": 210, "titulo": "THE VISUAL REST CHALLENGE", "descripcion": "For two minutes, look at a distant point to allow your eyes to rest from the screen.", "img": "nature_sound.svg"},
-    ],
+        {"id": 201, "titulo_en": "THE FORGOTTEN SUBSCRIPTION CHALLENGE", "descripcion_en": "Open your email or your bank application for a moment. Find and cancel an application or service that you no longer use. Regaining control is also about taking care of your money.", "img": "gratitude.svg"}, {"id": 202, "titulo_en": "THE THREE EXPENSES CHALLENGE", "descripcion_en": "Open a note on your phone and write down only the three mandatory expenses for this week. Do not think about the whole month. Focus only on the days of this week.", "img": "words.svg"}, {"id": 203, "titulo_en": "THE DIGITAL ORDER CHALLENGE", "descripcion_en": "Open the photo gallery on your mobile phone. Delete twenty screenshots or repeated pictures that no longer serve you. Organizing your phone helps quiet your thoughts.", "img": "observe.svg"}, {"id": 204, "titulo_en": "THE SILENCE CHALLENGE", "descripcion_en": "Mute the applications on your phone that cause you continuous alerts or messages for one full hour. Give a peaceful rest to your attention.", "img": "silence.svg"}, {"id": 205, "titulo_en": "THE GRATITUDE CHALLENGE", "descripcion_en": "Write down on a sheet of paper three beautiful things you have in your life today that you wished for with all your heart some time ago. Remember all your progress with joy.", "img": "gratitude.svg"}, {"id": 206, "titulo_en": "THE BREATHING CHALLENGE", "descripcion_en": "Get up very slowly from your seat. Walk calmly to the kitchen, pour a fresh glass of water, and drink it with total peace of mind before walking back while breathing slowly.", "img": "stretch.svg"}, {"id": 207, "titulo_en": "THE WINDOW CHALLENGE", "descripcion_en": "Open the nearest window of your house for exactly two minutes. Keep your phone in your pocket and stay observing the sky with relaxed arms.", "img": "nature_sound.svg"}, {"id": 208, "titulo_en": "THE CLEANUP CHALLENGE", "descripcion_en": "Look around you inside the room. Search for five objects that are out of place and put them in their correct spot. Just those five will be enough for today.", "img": "observe.svg"}, {"id": 209, "titulo_en": "THE BREATHING CHALLENGE", "descripcion_en": "Stay seated in a very comfortable posture. Take five deep and slow breaths through your nose, feeling how the pure air enters your body. Nothing more.", "img": "square_breath.svg"}, {"id": 210, "titulo_en": "THE VISUAL REST CHALLENGE", "descripcion_en": "Look for a spot or an object that is very far away from you through the window. Keep your eyes on that place fixedly for two minutes to rest your eyes from screens.", "img": "nature_sound.svg"} ],
 
     /**
      * Retrieves or initializes the user's dynamic profile from localStorage.
