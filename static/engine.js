@@ -834,7 +834,7 @@ const KERNEL = {
                     localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
                     this.pasosMisiones = data.misiones; // Now an array of 3 for SALIR
                     
-                            try {
+                    try {
                 const r = await fetch("/api/mando-integral", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
