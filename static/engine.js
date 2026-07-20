@@ -790,256 +790,388 @@ const KERNEL = {
         container.classList.remove('hidden');
 
                     try {
-                const r = await fetch("/api/mando-integral", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                const data = await r.json();
-                
-                if (data.error) {
-                    alert(data.error);
-                    document.getElementById('wrapper-form').classList.remove('hidden');
-                    container.classList.add('hidden');
-                    this.isLocked = false;
-                    this.validarZip();
-                    return;
-                }
+    const r = await fetch("/api/mando-integral", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    });
+    const data = await r.json();
 
-                this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
-                this.indiceMision = 0;
-                
-                if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
-                    this.historialSalir = data.historial_salir_actualizado;
-                    localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                    this.pasosMisiones = data.misiones; // Now an array of 3 for SALIR
-                    
-                    // ==========================================================================================
-                    // ORÁCULO EN ORDEN ESTRICTO: SELECCIÓN LOCAL SECUENCIAL SCON 3 MANIFIESTOS REALES
-                    // ==========================================================================================
-                    let indiceActual = parseInt(localStorage.getItem('otg_indice_manifiesto') || "0");
-                    let listaTextos = [
-                        "Una persona que abre esta aplicación muchas veces no está buscando un parque. Está buscando sentirse diferente. Lo que desgasta no es la falta de destinos, sino la rutina de salir siempre sin un propósito. El verdadero problema no es encontrar un sitio nuevo, el problema es que las salidas comienzan con la pregunta equivocada. En lugar de preguntarse a dónde vamos, sería mucho más útil preguntarse qué necesitamos hoy como familia. Cuando primero se identifica esa necesidad, elegir el destino deja de ser un problema y pasa a ser una consecuencia natural. Un parque deja de ser otro parque cuando la misión es construir juntos el barco más creativo usando hojas y ramas. El lugar cambia muy poco; lo que realmente cambia es la experiencia y el propósito con el que se vive. No se trata únicamente de decirte a dónde ir. Se trata de entender cómo te sientes y proponerte una experiencia con un propósito.",
-                        "Quien abre esta pantalla carga con un cansancio que el descanso pasivo no puede curar. El agobio no es falta de sueño, es un exceso de entorno predecible. Te encierras en el auto huyendo de la rutina, pero manejas con la mente fija en los problemas de la semana. El error fundamental es creer que un lugar nuevo va a cambiar tu estado interno por arte de magia. El espacio físico no hace nada si tu atención sigue secuestrada por las mismas preocupaciones. Un rincón con sombra deja de ser un simple banco cuando tu objetivo real es escuchar tres sonidos diferentes de la naturaleza. El entorno cambia radicalmente cuando tú inyectas una intención clara a tus sentidos. No busques que el mundo te entretenga. Cambia tu frecuencia interna antes de abrir la puerta. Tu misión es detener el piloto automático.",
-                        "Quien abre esta pantalla siente que arrastra el peso del mundo sobre los hombros. El agotamiento no es solo cansancio muscular, es fatiga de decisiones acumuladas. Tu cerebro ha procesado demasiadas elecciones obligatorias durante la semana. Buscas un escape pero te mueves en piloto automático, repitiendo los mismos recorridos sin registrar el entorno. Una plaza pública deja de ser un fondo borroso cuando te sientas en un banco céntrico a observar el flujo de los transeúntes en silencio. Ver la vida avanzar a su propio ritmo te devuelve la perspectiva de inmediato. El mundo es inmenso y tus problemas actuales son transitorios. No busques resolver tu existencia hoy. Sal a recuperar tu espacio."
-                    ];
+    if (data.error) {
+        alert(data.error);
+        document.getElementById('wrapper-form').classList.remove('hidden');
+        container.classList.add('hidden');
+        this.isLocked = false;
+        this.validarZip();
+        return;
+    }
 
-                    if (indiceActual >= listaTextos.length) { indiceActual = 0; }
-                    let textoElegido = listaTextos[indiceActual];
-                   
-                    if (typeof OTG_SENSORIAL.hablar === 'function') {
-                        OTG_SENSORIAL.hablar(textoElegido);
-                    }
+    this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
+    this.indiceMision = 0;
+    
+    // --- ACTUALIZADO: Captura el 1% de Calidez Humana dinámica enviada por el Servidor ---
+    let textoElegido = data.calidez_humana || "Respira profundo. Estás aquí. Estás vivo.";
+    
+    // --- ACTUALIZADO: Ejecuta el dictado por voz nativo usando la calidez del Oráculo ---
+    if (typeof OTG_SENSORIAL.hablar === 'function') {
+        OTG_SENSORIAL.hablar(textoElegido);
+    }
+    
+    // Guardamos la calidez humana en la instancia por si tu interfaz necesita pintarla en un cuadro de texto
+    this.mensajeCalidezHumanaActual = textoElegido;
 
-                    let siguienteIndice = (indiceActual + 1) % listaTextos.length;
-                    localStorage.setItem('otg_indice_manifiesto', siguienteIndice.toString());
-                    // ==========================================================================================
-
-                    this.mostrarOpcionesSalir(container);
-                   
-                } else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
-                    this.historialCasa = data.historial_casa_actualizado;
-                    localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
-                    this.pasosMisiones = data.misiones;
-                    this.procesarFlujoSecuencial(container);
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-                alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
-                document.getElementById('wrapper-form').classList.remove('hidden');
-                container.classList.add('hidden');
-                this.isLocked = false;
-                this.validarZip();
-            }
-        },
+    if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
+        this.historialSalir = data.historial_salir_actualizado;
+        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+        
+        // Guardamos las misiones que ya contienen sus enlaces parásitos a YouTube, Spotify y TikTok
+        this.pasosMisiones = data.misiones; 
+        
+        this.mostrarOpcionesSalir(container);
+        
+    } else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
+        this.historialCasa = data.historial_casa_actualizado;
+        localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+        
+        this.pasosMisiones = data.misiones;
+        this.procesarFlujoSecuencial(container);
+    }
+} catch (error) {
+    console.error("Fetch error:", error);
+    alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
+    document.getElementById('wrapper-form').classList.remove('hidden');
+    container.classList.add('hidden');
+    this.isLocked = false;
+    this.validarZip();
+}
 
     /**
-     * Displays the 3 options for SALIR mode and waits for user selection.
-     */
-    mostrarOpcionesSalir(container) {
-        clearInterval(this.timerEnfocado);
-        clearInterval(this.salidaTimerId);
-        window.speechSynthesis.cancel();
+ * Displays the 3 options for SALIR mode and waits for user selection.
+ */
+mostrarOpcionesSalir(container) {
+    clearInterval(this.timerEnfocado);
+    clearInterval(this.salidaTimerId);
+    window.speechSynthesis.cancel();
 
-        const t = {
-            es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" },
-            en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:" }
-        }[this.idiomaActual];
+    const t = {
+        es: {
+            choosePath: "ELIGE TU CAMINO DE LIBERTAD",
+            chooseOne: "Escucha a tu guía y toca una opción para continuar:",
+            escapeDigital: "Vías de Escape Inmediatas:"
+        },
+        en: {
+            choosePath: "CHOOSE YOUR PATH TO FREEDOM",
+            chooseOne: "Listen to your guide and tap an option to continue:",
+            escapeDigital: "Immediate Escape Routes:"
+        }
+    }[this.idiomaActual];
 
-        container.innerHTML = `
+    // Extraemos la calidez humana guardada o asignamos una por defecto
+    const textoOraculo = this.mensajeCalidezHumanaActual || "";
+
+    container.innerHTML = `
         <div class="mision-choices-container">
-            <h2 class="salida-main-title">${t.choosePath}</h2>
-            <p class="salida-choose-instruction">${t.chooseOne}</p>
+            <!-- 1% CALIDEZ HUMANA: Cuadro destacado con el Manifiesto del Oráculo -->
+            ${textoOraculo ? `
+                <div class="oraculo-calidez-box" style="background: rgba(255,255,255,0.07); border-left: 4px solid #ff9f43; padding: 15px; margin-bottom: 20px; border-radius: 4px; font-style: italic; color: #f1f2f6; text-align: left; font-size: 0.95rem; line-height: 1.4;">
+                    "${textoOraculo}"
+                </div>
+            ` : ''}
+            
+            <h2 class="salida-main-title" style="margin-top: 10px;">${t.choosePath}</h2>
+            <p class="salida-choose-instruction" style="margin-bottom: 20px;">${t.chooseOne}</p>
             <div id="salida-options-grid" class="salida-grid">
                 <!-- Options will be injected here -->
             </div>
-        </div>`;
+        </div>
+    `;
 
-        const optionsGrid = document.getElementById('salida-options-grid');
-        this.pasosMisiones.forEach((mission, index) => {
-            const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
-            const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
-            const card = document.createElement('div');
-            card.className = 'salida-option-card';
-            card.innerHTML = `
+    const optionsGrid = document.getElementById('salida-options-grid');
+
+    this.pasosMisiones.forEach((mission, index) => {
+        const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
+        const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
+        
+        // Extraemos las rutas de escape digitales generadas por el Backend
+        const urlYT = mission.enlace_youtube || "#";
+        const urlSP = mission.enlace_spotify || "#";
+        const urlTK = mission.enlace_tiktok || "#";
+
+        const card = document.createElement('div');
+        card.className = 'salida-option-card';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.justifyContent = 'space-between';
+        
+        card.innerHTML = `
+            <div>
                 <h3 class="salida-option-title">${missionTitle}</h3>
                 <p class="salida-option-desc">${missionWhatToDo}</p>
-                <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button>
-            `;
-            card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
-            optionsGrid.appendChild(card);
-        });
+            </div>
+            
+            <div style="margin-top: 15px;">
+                <!-- Botón de selección principal -->
+                <button class="btn-select-salida" style="width: 100%; margin-bottom: 12px;">
+                    ${this.idiomaActual === 'es' ? 'Seleccionar Misión Física' : 'Select Physical Mission'}
+                </button>
+                
+                <!-- 30% FALTANTE: Ecosistema parásito de plataformas americanas -->
+                <div class="escape-digital-container" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                    <span style="font-size: 0.75rem; color: #a4b0be; display: block; margin-bottom: 6px; font-weight: bold; text-align: center;">
+                        ${t.escapeDigital}
+                    </span>
+                    <div style="display: flex; gap: 8px; justify-content: center;">
+                        <a href="${urlYT}" target="_blank" style="flex: 1; text-align: center; background: #ff0000; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">YouTube</a>
+                        <a href="${urlSP}" target="_blank" style="flex: 1; text-align: center; background: #1DB954; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">Spotify</a>
+                        <a href="${urlTK}" target="_blank" style="flex: 1; text-align: center; background: #000000; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">TikTok</a>
+                    </div>
+                </div>
+            </div>
+        `;
 
-        this.hablar(t.chooseOne);
-    },
+        card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
+        optionsGrid.appendChild(card);
+    });
+
+    // --- ACTUALIZADO: Tu sistema de voz ahora leerá el profundo Manifiesto del Oráculo en vez del texto genérico ---
+    this.hablar(textoOraculo || t.chooseOne);
+},
 
     /**
-     * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
-     * @param {Object} selectedMission - The mission object chosen by the client.
-     */
-    iniciarSalidaConcreta(selectedMission) {
-        this.datosLugarGlobal = selectedMission; // Store the selected mission
-        clearInterval(this.timerEnfocado);
-        clearInterval(this.salidaTimerId);
-        window.speechSynthesis.cancel();
+ * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
+ * @param {Object} selectedMission - The mission object chosen by the client.
+ */
+iniciarSalidaConcreta(selectedMission) {
+    this.datosLugarGlobal = selectedMission; // Store the selected mission
+    clearInterval(this.timerEnfocado);
+    clearInterval(this.salidaTimerId);
+    window.speechSynthesis.cancel();
 
-        const t = {
-            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
-            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
-        }[this.idiomaActual];
+    const t = {
+        es: { 
+            listen: "ESCUCHA MI GUÍA", 
+            launch: "ABRIR MAPA DE ACCIÓN",
+            digitalRoutes: "O ELIGE TU ANTÍDOTO DIGITAL AHORA:"
+        },
+        en: { 
+            listen: "LISTEN TO THE GUIDE", 
+            launch: "OPEN ACTION MAP NOW",
+            digitalRoutes: "OR CHOOSE YOUR DIGITAL ANTIDOTE NOW:"
+        }
+    }[this.idiomaActual];
 
-        const container = document.getElementById('wrapper-interactive');
-        let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
-       
-        container.innerHTML = `
+    const container = document.getElementById('wrapper-interactive');
+    let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
+
+    // Extraemos las recetas específicas enviadas desde el backend para esta misión
+    const urlYT = this.datosLugarGlobal.enlace_youtube || "#";
+    const urlSP = this.datosLugarGlobal.enlace_spotify || "#";
+    const urlTK = this.datosLugarGlobal.enlace_tiktok || "#";
+
+    container.innerHTML = `
         <div class="mision-card">
             <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
             <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
             <div class="instruccion-text">${textoFormateado}</div>
+            
             <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
+            
+            <!-- Botón de control de cuenta regresiva original -->
             <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
+            
+            <!-- Botón de GPS de Google Maps Dinámico (Ocio/Hoteles/Discotecas/Costo Cero) -->
             <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
-        </div>`;
+            
+            <!-- 30% FALTANTE INYECTADO AL FINALIZAR: Alternativas digitales curadas de rescate inmediato -->
+            <div id="digital-escape-final" class="hidden" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <span style="font-size: 0.8rem; color: #a4b0be; display: block; margin-bottom: 10px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">
+                    ${t.digitalRoutes}
+                </span>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <a href="${urlYT}" target="_blank" style="flex: 1; text-align: center; background: #ff0000; color: white; padding: 12px; border-radius: 4px; font-size: 0.85rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">YouTube</a>
+                    <a href="${urlSP}" target="_blank" style="flex: 1; text-align: center; background: #1DB954; color: white; padding: 12px; border-radius: 4px; font-size: 0.85rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">Spotify</a>
+                    <a href="${urlTK}" target="_blank" style="flex: 1; text-align: center; background: #000000; color: white; padding: 12px; border-radius: 4px; font-size: 0.85rem; text-decoration: none; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">TikTok</a>
+                </div>
+            </div>
+        </div>
+    `;
 
-        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
-        this.hablar(speechText);
-       
-        let retencion = 35;
-        const btnCount = document.getElementById('btn-countdown-salida');
-        const btnGps = document.getElementById('btn-gps-action');
-        const phrasesDiv = document.getElementById('salida-countdown-phrases');
-        const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
-        let phraseIndex = 0;
+    let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
+    this.hablar(speechText);
 
-        this.salidaTimerId = setInterval(() => {
-            if (retencion > 0) {
-                retencion--;
-                if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
-                if (retencion === 0) {
-                    // Transition to 45s phrase injection
-                    retencion = -45; // Use negative to denote this phase
-                    if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                    phraseIndex++;
-                }
-            } else if (retencion < 0) {
-                retencion++; // Count up towards 0
+    let retencion = 35;
+    const btnCount = document.getElementById('btn-countdown-salida');
+    const btnGps = document.getElementById('btn-gps-action');
+    const btnDigital = document.getElementById('digital-escape-final'); // Captura el contenedor de Big Tech
+    const phrasesDiv = document.getElementById('salida-countdown-phrases');
+    const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
+    let phraseIndex = 0;
+
+    this.salidaTimerId = setInterval(() => {
+        if (retencion > 0) {
+            retencion--;
+            if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
+            if (retencion === 0) {
+                // Transition to 45s phrase injection
+                retencion = -45; // Use negative to denote this phase
                 if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
-                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                    phraseIndex++;
-                }
-                if (retencion === 0) {
-                    // 45 seconds are over
-                    clearInterval(this.salidaTimerId);
-                    window.speechSynthesis.cancel();
-                    if (btnCount) btnCount.style.display = 'none';
-                    if (phrasesDiv) phrasesDiv.innerText = "";
-                    if (btnGps) {
-                        btnGps.classList.remove('hidden');
-                        btnGps.onclick = () => {
-                            try {
-                                let perfil = KERNEL.obtenerPerfilLocal();
-                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
-                               
-                                for (const need in selectedVector) {
-                                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                                        perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
-                                    }
+                if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                phraseIndex++;
+            }
+        } else if (retencion < 0) {
+            retencion++; // Count up towards 0
+            if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+            if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
+                if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                phraseIndex++;
+            }
+            if (retencion === 0) {
+                // 45 seconds are over (Total 80 seconds completed)
+                clearInterval(this.salidaTimerId);
+                window.speechSynthesis.cancel();
+                if (btnCount) btnCount.style.display = 'none';
+                if (phrasesDiv) phrasesDiv.innerText = "";
+                
+                // MUESTRA EL BOTÓN DE GOOGLE MAPS ORIENTADO AL PRESUPUESTO REAL
+                if (btnGps) {
+                    btnGps.classList.remove('hidden');
+                    btnGps.onclick = () => {
+                        try {
+                            let perfil = KERNEL.obtenerPerfilLocal();
+                            const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+                            for (const need in selectedVector) {
+                                if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                                    perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
                                 }
-                                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
-                                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                            } catch (e) {
-                                console.error("Error updating local profile after action:", e);
                             }
-                            window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                            // KERNEL.reiniciarExperiencia(); // Keep the app in background, ready for return
-                        };
-                    }
+                            perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
+                            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                        } catch (e) {
+                            console.error("Error updating local profile after action:", e);
+                        }
+                        window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+                    };
+                }
+
+                // DESBLOQUEA EN SIMULTÁNEO LAS VÍAS DE ESCAPE DIGITALES ULTRA-ESPECÍFICAS
+                if (btnDigital) {
+                    btnDigital.classList.remove('hidden');
                 }
             }
-        }, 1000);
-    },
-
-
-    /**
-     * Processes the sequential flow based on the recommendation type (only for CASA mode now).
-     */
-    procesarFlujoSecuencial(container) {
-        clearInterval(this.timerEnfocado);
-        window.speechSynthesis.cancel();
-
-        const t = {
-            es: { inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo", internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido" },
-            en: { inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" }
-        }[this.idiomaActual];
-
-        // This function now only handles INTERVENCION_DOMESTICA (CASA mode)
-        if (this.indiceMision >= this.pasosMisiones.length) {
-            this.iniciarRelojEnfocadoCasa(container, t);
-            return;
         }
+    }, 1000);
+},
 
-        const paso = this.pasosMisiones[this.indiceMision];
-       
-        container.innerHTML = `
+   /**
+ * Processes the sequential flow based on the recommendation type (only for CASA mode now).
+ */
+procesarFlujoSecuencial(container) {
+    clearInterval(this.timerEnfocado);
+    window.speechSynthesis.cancel();
+    
+    const t = {
+        es: {
+            inspira: "Inhala ahora",
+            expira: "Exhala ahora",
+            fin: "Protocolo completado. Borrando rastro.",
+            listen: "ESCUCHA MI GUÍA",
+            launch: "ABRIR CANAL EXTERNO YA",
+            fieldAction: "Acción de Campo",
+            internalMission: "Misión Interna",
+            doItNow: "HAZLO AHORA",
+            suggestedEscape: "Escape sugerido",
+            escapeDigital: "O usa una vía de escape digital inmediata:"
+        },
+        en: {
+            inspira: "Inhale now",
+            expira: "Exhale now",
+            fin: "Protocol completed. Clearing tracks.",
+            listen: "LISTEN TO THE GUIDE",
+            launch: "OPEN EXTERNAL CHANNEL NOW",
+            fieldAction: "Field Action",
+            internalMission: "Internal Mission",
+            doItNow: "DO IT NOW",
+            suggestedEscape: "Suggested escape",
+            escapeDigital: "Or use an immediate digital escape route:"
+        }
+    }[this.idiomaActual];
+
+    // This function now only handles INTERVENCION_DOMESTICA (CASA mode)
+    if (this.indiceMision >= this.pasosMisiones.length) {
+        this.iniciarRelojEnfocadoCasa(container, t);
+        return;
+    }
+
+    const paso = this.pasosMisiones[this.indiceMision];
+    
+    // Capturamos el manifiesto existencial de calidez humana enviado desde el backend
+    const textoOraculo = this.mensajeCalidezHumanaActual || "";
+    
+    // Extraemos las recetas dinámicas de Big Tech asignadas para el estado actual de casa
+    // Como las misiones de casa usan la base local, apuntamos a variables seguras o fallback
+    const urlYT = paso.enlace_youtube || `https://youtube.com`;
+    const urlSP = paso.enlace_spotify || `https://spotify.com`;
+    const urlTK = paso.enlace_tiktok || `https://tiktok.com`;
+
+    container.innerHTML = `
         <div class="mision-card">
+            <!-- 1% CALIDEZ HUMANA: Cuadro destacado con el Manifiesto del Oráculo Existencial -->
+            ${textoOraculo ? `
+                <div class="oraculo-calidez-box" style="background: rgba(255,255,255,0.06); border-left: 4px solid #ff9f43; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-style: italic; color: #f1f2f6; text-align: left; font-size: 0.9rem; line-height: 1.4;">
+                    "${textoOraculo}"
+                </div>
+            ` : ''}
+
             <small>${t.internalMission}</small>
-            <h3>${paso.titulo}</h3>
+            <h3 style="margin-top: 5px;">${paso.titulo}</h3>
             <p>${paso.descripcion}</p>
+            
+            <!-- Botón de acción física en casa original -->
             <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
-        </div>`;
+            
+            <!-- 30% FALTANTE: Ecosistema parásito de plataformas americanas para el hogar -->
+            <div class="escape-digital-container" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 20px;">
+                <span style="font-size: 0.75rem; color: #a4b0be; display: block; margin-bottom: 8px; font-weight: bold; text-align: center; text-transform: uppercase;">
+                    ${t.escapeDigital}
+                </span>
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <a href="${urlYT}" target="_blank" style="flex: 1; text-align: center; background: #ff0000; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">YouTube</a>
+                    <a href="${urlSP}" target="_blank" style="flex: 1; text-align: center; background: #1DB954; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">Spotify</a>
+                    <a href="${urlTK}" target="_blank" style="flex: 1; text-align: center; background: #000000; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">TikTok</a>
+                </div>
+            </div>
+        </div>
+    `;
 
-        this.hablar(paso.titulo + " . " + paso.descripcion);
-        document.getElementById('btn-next').onclick = () => {
-            try {
-                let perfil = this.obtenerPerfilLocal();
-                const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
-                for (const need in missionVector) {
-                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                        perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
-                    }
+    this.hablar(paso.titulo + " . " + paso.descripcion);
+
+    document.getElementById('btn-next').onclick = () => {
+        try {
+            let perfil = this.obtenerPerfilLocal();
+            const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
+            for (const need in missionVector) {
+                if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                    perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
                 }
-                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
-                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-            } catch (e) {
-                console.error("Error updating local profile after CASA mission:", e);
             }
-            this.avanzarPaso();
-        };
-    },
+            perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
+            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+        } catch (e) {
+            console.error("Error updating local profile after CASA mission:", e);
+        }
+        this.avanzarPaso();
+    };
+},
 
-    /** Starts the 10-minute clinical breathing timer for CASA mode. */
-    iniciarRelojEnfocadoCasa(container, t) { // Renamed from iniciarRelojClinicoCasa
-        clearInterval(this.timerEnfocado);
-        window.speechSynthesis.cancel();
-       
-        let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
-        this.hablar(msg);
-       
-        container.innerHTML = `
+/** Starts the 10-minute clinical breathing timer for CASA mode. */
+iniciarRelojEnfocadoCasa(container, t) {
+    clearInterval(this.timerEnfocado);
+    window.speechSynthesis.cancel();
+    let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
+    this.hablar(msg);
+    container.innerHTML = `
         <div style="text-align:center; width:100%;">
             <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
             <div id="timer">10:00</div>
@@ -1047,40 +1179,38 @@ const KERNEL = {
             <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
                 <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
             </div>
-        </div>`;
-
-        this.timeLeft = 600;
-        this.contadorToques = 0;
-
-        const circleElement = document.getElementById('breath-circle');
-        const timerDiv = document.getElementById('timer');
-        const pulmonDiv = document.getElementById('txt-pulmon');
-        const salidaSugeridaDiv = document.getElementById('salida-sugerida');
-        const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
-
-        const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
-
-        if (circleElement) {
-            circleElement.onclick = () => {
-                if (this.contadorToques < this.secuenciaAdelantos.length) {
-                    let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
-                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
-                    this.contadorToques++;
-                    try {
-                        let perfil = this.obtenerPerfilLocal();
-                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
-                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                    } catch (e) {
-                        console.error("Error updating anxiety indicator:", e);
-                    }
-                    let m = Math.floor(this.timeLeft / 60);
-                    let s = this.timeLeft % 60;
-                    if (timerDiv) {
-                        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-                    }
+        </div>
+    `;
+    this.timeLeft = 600;
+    this.contadorToques = 0;
+    const circleElement = document.getElementById('breath-circle');
+    const timerDiv = document.getElementById('timer');
+    const pulmonDiv = document.getElementById('txt-pulmon');
+    const salidaSugeridaDiv = document.getElementById('salida-sugerida');
+    const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
+    const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
+    if (circleElement) {
+        circleElement.onclick = () => {
+            if (this.contadorToques < this.secuenciaAdelantos.length) {
+                let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
+                this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
+                this.contadorToques++;
+                try {
+                    let perfil = this.obtenerPerfilLocal();
+                    perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
+                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                } catch (e) {
+                    console.error("Error updating anxiety indicator:", e);
                 }
-            };
-        }
+                let m = Math.floor(this.timeLeft / 60);
+                let s = this.timeLeft % 60;
+                if (timerDiv) {
+                    timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                }
+            }
+        };
+    }
+}, 
 
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
