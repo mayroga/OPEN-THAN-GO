@@ -1382,7 +1382,8 @@ window.KERNEL = KERNEL;
 //==========================================================================================
 (function(){
 window.OTG_SENSORIAL={
-marcas:["TikTok","Instagram","YouTube","Spotify","Netflix","Uber","Lyft","American","Delta","JetBlue","Southwest","Avianca","LATAM","Aeromexico","Copa","Volaris","WesternUnion","Zelle","Amazon","Temu","Walmart","Costco","Target","DollarTree","McDonald's","Starbucks","Burger King","Airbnb","Booking.com","Expedia","Hotels.com","Trivago","Priceline","Motel 6","Super 8","Days Inn","Holiday Inn","Marriott","Hilton","Tinder","ChatGPT"],
+marcas:["TikTok","Instagram","YouTube","Spotify","Netflix","Uber","Lyft","American","Delta","JetBlue","Southwest","Avianca","LATAM","Aeromexico","Copa","Volaris","WesternUnion","Zelle","Amazon","Temu","Walmart","Costco","Target","DollarTree","McDonald's","Starbucks","Burger King","Airbnb","Booking.com","Expedia","Hotels.com","Trivago","Priceline","Motel 6","Super 8","Days Inn","Holiday Inn","Marriott","Hilton","Tinder","ChatGPT","GetMyBoat", "Boatsetter", "Click&Boat", "Sailo", "Carnival", "Celebrity Cruises", "MSC Cruises", "Viajes El Corte Inglés", "Despegar", "Pizza Hut", "Papa Johns", "Little Caesars", "Domino's", "Wendy's", "Chick fil A", "Nike", "Adidas", "Ross Dress for Less", "Burlington", "DD'S Discounts", "Crowley Carbon", "Transcargo", "CubaMax", "Va Cuba", "Cargolux", "Aeroméxico Cargo", "Dachser", "Seaboard Marine", "Popeyes", "KFC", "PolloTropical", "Church's Texas Chicken", "Miami Dade Transit", "Brightline", "SunPass", "FLHSMV", "Fair Health Consumer", "GoRenew", "Clear Health Costs", "Florida Health Finder", "DentalPlans", "NeedyMeds Clinic Finder", "Florida Blue", "Aetna", "UnitedHealthcare", "Cigna", "Oscar Health", "Molina Healthcare", "Sunshine Health", "Indeed", "LinkedIn", "USAJOBS", "CareerOneStop", "Upwork", "Fiverr", "FlexJobs"
+],
 urls:{
 "TikTok":"https://tiktok.com",
 "Instagram":"https://instagram.com",
