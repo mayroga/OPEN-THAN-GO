@@ -1382,7 +1382,7 @@ window.KERNEL = KERNEL;
 //==========================================================================================
 (function(){
 window.OTG_SENSORIAL={
-marcas:["TikTok","Instagram","YouTube","Spotify","Netflix","Uber","Lyft","American","Delta","Spirit","JetBlue","Southwest","Avianca","LATAM","Aeromexico","Copa","Volaris","WesternUnion","Zelle","Amazon","Temu","Walmart","Costco","Target","DollarTree","McDonald's","Starbucks","Burger King","Airbnb","Booking.com","Expedia","Hotels.com","Trivago","Priceline","Motel 6","Super 8","Days Inn","Holiday Inn","Marriott","Hilton","Tinder","ChatGPT"],
+marcas:["TikTok","Instagram","YouTube","Spotify","Netflix","Uber","Lyft","American","Delta","JetBlue","Southwest","Avianca","LATAM","Aeromexico","Copa","Volaris","WesternUnion","Zelle","Amazon","Temu","Walmart","Costco","Target","DollarTree","McDonald's","Starbucks","Burger King","Airbnb","Booking.com","Expedia","Hotels.com","Trivago","Priceline","Motel 6","Super 8","Days Inn","Holiday Inn","Marriott","Hilton","Tinder","ChatGPT"],
 urls:{
 "TikTok":"https://tiktok.com",
 "Instagram":"https://instagram.com",
@@ -1413,7 +1413,7 @@ urls:{
 "Avianca":"https://avianca.com",
 "LATAM":"https://latamairlines.com",
 "Aeromexico":"https://aeromexico.com",
-"Copa":"https://copaair.com",
+"Copa": "https://copaairlines.com",
 "Volaris":"https://volaris.com",
 "WesternUnion":"https://westernunion.com",
 "Zelle":"https://zellepay.com",
