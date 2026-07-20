@@ -767,10 +767,10 @@ async def webhook_stripe(request: Request):
         print(f"Pago exitoso para usuario: {session.get('client_reference_id')}")
     return {"status": "success"}
 # ==========================================================================================
-
 # OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
 # Company: May Roga LLC
 # File: main.py - SECCIÓN 2 DE 2 (CWRE Logic)
+# ==========================================================================================
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
     """
@@ -854,6 +854,11 @@ async def mando_integral(request: Request):
         query_mapa_url = urllib.parse.quote_plus(f"{marca_detectada} in {zip_code}")
         target_link = f"{link_base}{query_mapa_url}"
 
+        # --- ACTUALIZADO: Los 3 enlaces parásitos de escape para el modo de hackeo corporativo directo ---
+        enlace_yt = f"https://youtube.com{urllib.parse.quote_plus('breaking the routine loop meditation')}"
+        enlace_sp = f"https://spotify.com{urllib.parse.quote_plus('mental health escape ambient')}"
+        enlace_tk = f"https://tiktok.com{urllib.parse.quote_plus('mindfulness hack exit autopilot')}"
+
         final_misiones_para_frontend = [{
             "destino_id": 999,
             "destino_titulo": f"HACKEO A {marca_detectada.upper()}",
@@ -861,51 +866,68 @@ async def mando_integral(request: Request):
             "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
             "que_hacer_en": "Mental Control Interruption & Return to Body.",
             "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
-            "destino_instruccion": instruccion_fisiologica_es, # Instrucción concisa ES
-            "destino_instruccion_en": instruccion_fisiologica_en, # Instrucción concisa EN
+            "destino_instruccion": instruccion_fisiologica_es,
+            "destino_instruccion_en": instruccion_fisiologica_en,
             "destino_coordenadas_gps": target_link,
+            "enlace_youtube": enlace_yt,  # <--- Inyección de vía YouTube
+            "enlace_spotify": enlace_sp,  # <--- Inyección de vía Spotify
+            "enlace_tiktok": enlace_tk,    # <--- Inyección de vía TikTok
             "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
             "diagnostico_sintoma_es": diagnostico_sintoma_es,
             "diagnostico_sintoma_en": diagnostico_sintoma_en,
         }]
 
+        # --- ACTUALIZADO: Extrae un manifiesto existencial del Oráculo de la Calidez Humana ---
+        textos_oraculo_urgente = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
+        manifiesto_humano_urgente = random.choice(textos_oraculo_urgente)
+
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "calidez_humana": manifiesto_humano_urgente,  # <--- Enviamos la calidez inyectada
             "misiones": final_misiones_para_frontend,
             "historial_salir_actualizado": payload.get("historial_salir", []),
             "forced_recovery": True
         })
 
+       # ==============================================================================
     # CONTINUACIÓN CONTINUA DEL FLUJO DE TRABAJO BASE DE LA PLATAFORMA OPEN THAN GO
+    # ==============================================================================
+    
     # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
+        # --- ACTUALIZADO: Captura el manifiesto existencial para el 1% de Calidez Humana ---
+        textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
+        manifiesto_humano_casa = random.choice(textos_oraculo_casa)
+
         idioma = "EN" if lang.lower() == "en" else "ES"
         misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
         historial_casa = payload.get("historial_casa", [])
         misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, cantidad=3)
+        
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
+            
+        # --- ACTUALIZADO: Retornamos la respuesta agregando la calidez humana al frontend ---
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
+            "calidez_humana": manifiesto_humano_casa,  # <--- Inyección de texto humano
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
         })
-       
+
     # ==============================================================================
     # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
     # ==============================================================================
     opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     historial_salir = payload.get("historial_salir", [])
-   
     misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
         n=3,
         misiones=opciones_salir_candidatas,
         perfil_local=perfil_local,
         historial_actual=historial_salir
     )
-   
-    final_misiones_para_frontend = []
-   
+
+        final_misiones_para_frontend = []
     for info_seleccionada in misiones_seleccionadas_raw:
         # === MODIFICACIÓN: MENSAJES DE ACOMPAÑAMIENTO Y GASTO ACORTADOS ===
         precio_real = ""
@@ -915,7 +937,7 @@ async def mando_integral(request: Request):
             precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
         elif budget == "2":
             precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
-
+            
         quienes_van = ""
         if perfil_tipo == "solo":
             quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
@@ -923,12 +945,12 @@ async def mando_integral(request: Request):
             quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
         elif perfil_tipo == "accesible":
             quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
-
+            
         titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
         donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
         anclaje_geografico = zip_code
         map_base_url = link_base
-
+        
         if lang == "en":
             # === MODIFICACIÓN: guia_masticada (EN) ACORTADA ===
             guia_masticada = (
@@ -953,21 +975,26 @@ async def mando_integral(request: Request):
             )
             titulo_ganador_lang = (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada["que_hacer"] or ""
-
+            
         search_query_parts = []
         if perfil_tipo == "accesible":
             search_query_parts.append("wheelchair accessible")
         elif perfil_tipo == "familia":
             search_query_parts.append("family friendly")
-
+            
         search_query_parts.append(info_seleccionada["gps"])
         search_query_parts.append(f"in {anclaje_geografico}")
-
         full_map_query_string = " ".join(search_query_parts)
         target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
+        
+        # --- NUEVO ENLACES DEL 30% FALTANTE: Automatización parásita por cada misión ---
+        query_escape_ingles = urllib.parse.quote_plus(info_seleccionada.get("titulo_en", "mindfulness escape"))
+        enlace_yt = f"https://youtube.com{query_escape_ingles}+4k+cinematic"
+        enlace_sp = f"https://spotify.com{query_escape_ingles}"
+        enlace_tk = f"https://tiktok.com{query_escape_ingles}+comfort"
 
         final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
-
+        
         final_misiones_para_frontend.append({
             "destino_id": info_seleccionada.get("id"),
             "destino_titulo": titulo_ganador_lang,
@@ -976,13 +1003,24 @@ async def mando_integral(request: Request):
             "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
             "destino_entorno": donde_base,
             "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": guia_masticada.strip(), # Ambos usan el mismo guia_masticada que ya fue construido en el idioma correcto
+            "destino_instruccion_en": guia_masticada.strip(),
             "destino_coordenadas_gps": target_link,
+            "enlace_youtube": enlace_yt,  # <--- Inyección vía YouTube para la misión
+            "enlace_spotify": enlace_sp,  # <--- Inyección vía Spotify para la misión
+            "enlace_tiktok": enlace_tk,    # <--- Inyección vía TikTok para la misión
             "vector_entorno_seleccionado": final_vector_necesidades,
         })
+        
+        historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
+    # --- NUEVO: Extrae el Manifiesto de Calidez Humana (1%) para inyectar en la calle ---
+    textos_oraculo_salir = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
+    manifiesto_humano_salir = random.choice(textos_oraculo_salir)
+
+    # --- RETORNAR: Respuesta final unificada con misiones enriquecidas y oráculo ---
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+        "calidez_humana": manifiesto_humano_salir,  # <--- Enviamos la calidez al frontend
         "misiones": final_misiones_para_frontend,
         "historial_salir_actualizado": historial_salir
     })
