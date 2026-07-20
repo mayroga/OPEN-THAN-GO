@@ -845,7 +845,7 @@ const KERNEL = {
     this.validarZip();
 }
 
-    /**
+   /**
  * Displays the 3 options for SALIR mode and waits for user selection.
  */
 mostrarOpcionesSalir(container) {
@@ -866,17 +866,19 @@ mostrarOpcionesSalir(container) {
         }
     }[this.idiomaActual];
 
-    // Extraemos la calidez humana guardada o asignamos una por defecto
+    // Extraemos la calidez humana de forma segura
     const textoOraculo = this.mensajeCalidezHumanaActual || "";
+    let HTMLOraculo = "";
+    
+    // Construimos el cuadro sin usar condicionales embebidos de riesgo
+    if (textoOraculo) {
+        HTMLOraculo = '<div class="oraculo-calidez-box" style="background: rgba(255,255,255,0.07); border-left: 4px solid #ff9f43; padding: 15px; margin-bottom: 20px; border-radius: 4px; font-style: italic; color: #f1f2f6; text-align: left; font-size: 0.95rem; line-height: 1.4;">' + textoOraculo + '</div>';
+    }
 
     container.innerHTML = `
         <div class="mision-choices-container">
-            <!-- 1% CALIDEZ HUMANA: Cuadro destacado con el Manifiesto del Oráculo -->
-            ${textoOraculo ? `
-                <div class="oraculo-calidez-box" style="background: rgba(255,255,255,0.07); border-left: 4px solid #ff9f43; padding: 15px; margin-bottom: 20px; border-radius: 4px; font-style: italic; color: #f1f2f6; text-align: left; font-size: 0.95rem; line-height: 1.4;">
-                    "${textoOraculo}"
-                </div>
-            ` : ''}
+            <!-- 1% CALIDEZ HUMANA -->
+            ` + HTMLOraculo + `
             
             <h2 class="salida-main-title" style="margin-top: 10px;">${t.choosePath}</h2>
             <p class="salida-choose-instruction" style="margin-bottom: 20px;">${t.chooseOne}</p>
@@ -892,7 +894,6 @@ mostrarOpcionesSalir(container) {
         const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
         const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
         
-        // Extraemos las rutas de escape digitales generadas por el Backend
         const urlYT = mission.enlace_youtube || "#";
         const urlSP = mission.enlace_spotify || "#";
         const urlTK = mission.enlace_tiktok || "#";
@@ -910,20 +911,18 @@ mostrarOpcionesSalir(container) {
             </div>
             
             <div style="margin-top: 15px;">
-                <!-- Botón de selección principal -->
                 <button class="btn-select-salida" style="width: 100%; margin-bottom: 12px;">
                     ${this.idiomaActual === 'es' ? 'Seleccionar Misión Física' : 'Select Physical Mission'}
                 </button>
                 
-                <!-- 30% FALTANTE: Ecosistema parásito de plataformas americanas -->
                 <div class="escape-digital-container" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                     <span style="font-size: 0.75rem; color: #a4b0be; display: block; margin-bottom: 6px; font-weight: bold; text-align: center;">
                         ${t.escapeDigital}
                     </span>
                     <div style="display: flex; gap: 8px; justify-content: center;">
-                        <a href="${urlYT}" target="_blank" style="flex: 1; text-align: center; background: #ff0000; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">YouTube</a>
-                        <a href="${urlSP}" target="_blank" style="flex: 1; text-align: center; background: #1DB954; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">Spotify</a>
-                        <a href="${urlTK}" target="_blank" style="flex: 1; text-align: center; background: #000000; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">TikTok</a>
+                        <a href="${urlYT}" target="_blank" style="flex: 1; text-align: center; background: #ff0000; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold;">YouTube</a>
+                        <a href="${urlSP}" target="_blank" style="flex: 1; text-align: center; background: #1DB954; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold;">Spotify</a>
+                        <a href="${urlTK}" target="_blank" style="flex: 1; text-align: center; background: #000000; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; border: 1px solid rgba(255,255,255,0.2);">TikTok</a>
                     </div>
                 </div>
             </div>
@@ -933,7 +932,6 @@ mostrarOpcionesSalir(container) {
         optionsGrid.appendChild(card);
     });
 
-    // --- ACTUALIZADO: Tu sistema de voz ahora leerá el profundo Manifiesto del Oráculo en vez del texto genérico ---
     this.hablar(textoOraculo || t.chooseOne);
 },
 
