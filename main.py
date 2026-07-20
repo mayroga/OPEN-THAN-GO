@@ -592,8 +592,8 @@ async def crear_checkout(request: Request):
             payment_method_types=["card"],
             line_items=[{"price": PLANES_STRIPE[tipo_plan], "quantity": 1}],
             mode="subscription" if tipo_plan != "unico" else "payment",
-            success_url="https://onrender.com",
-            cancel_url="https://onrender.com",
+            success_url="https://open-than-go.onrender.com",
+            cancel_url="https://open-than-go.onrender.com",
             client_reference_id=user_id
         )
         return {"url": session.url}
