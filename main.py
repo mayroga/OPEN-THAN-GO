@@ -1083,7 +1083,7 @@ async def mando_integral(request: Request):
             "forced_recovery": True
         })
         
-            # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
+               # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
         # Captura el manifiesto existencial para el 1% de Calidez Humana
         textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
@@ -1092,35 +1092,67 @@ async def mando_integral(request: Request):
         idioma = "EN" if lang == "en" else "ES"
         target_key = f"CASA_{idioma}"
         
+        # SISTEMA ANTICAÍDAS EXTRA-SEGURO: Recupera el catálogo analizando variantes
         misiones_completas = []
         if "BASE_MISIONES" in globals():
-            misiones_completas = BASE_MISIONES.get(target_key, BASE_MISIONES.get("casa", []))
+            misiones_completas = (
+                BASE_MISIONES.get(target_key) or 
+                BASE_MISIONES.get(f"casa_{lang}") or 
+                BASE_MISIONES.get("CASA_ES") or 
+                BASE_MISIONES.get("casa") or 
+                []
+            )
             
-        # CONEXIÓN DE DATOS: Mapea el catálogo real al formato exacto del Frontend
+        # CONEXIÓN INTELIGENTE: Mapea asegurando la existencia de TODOS los campos que usa el CWRE y el frontend
         final_misiones_casa = []
         for m in misiones_completas:
-            final_misiones_casa.append({
-                "id": m.get("id"),
-                "titulo": m.get("titulo", "Misión Interna"),
-                # Usa 'que_hacer' de tu base de datos y llévalo a 'descripcion' para el frontend
-                "descripcion": m.get("que_hacer", m.get("descripcion", "")),
-                "vector_necesidades": m.get("vector_necesidades", {})
-            })
+            if isinstance(m, dict):
+                final_misiones_casa.append({
+                    "id": m.get("id", 800),
+                    "titulo": m.get("titulo", "Misión Interna"),
+                    # Sincroniza la descripción buscando cualquier variante de texto para evitar undefined
+                    "descripcion": m.get("descripcion", m.get("que_hacer", m.get("porque", "Pausa de bienestar somática."))),
+                    "vector_necesidades": m.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
+                })
 
-        # RESPALDO: Solo si tu catálogo global estuviera vacío
+        # RESPALDO ABSOLUTO: Si la base de datos sigue vacía o corrupta, inyecta objetos con estructura nativa impecable
         if not final_misiones_casa:
-            final_misiones_casa = [
-                {
-                    "id": 801,
-                    "titulo": "Pausa de Respiración Somática" if idioma == "ES" else "Somatic Breathing Pause",
-                    "descripcion": "Inhala profundamente por 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos." if idioma == "ES" else "Inhale for 4s, hold 4s, and exhale for 4s.",
-                    "vector_necesidades": {"silencio": 80, "descanso": 80}
-                }
-            ]
+            if idioma == "ES":
+                final_misiones_casa = [
+                    {
+                        "id": 801,
+                        "titulo": "Pausa de Respiración Somática",
+                        "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos.",
+                        "vector_necesidades": {**DEFAULT_NECESSITY_VECTOR, "silencio": 80, "descanso": 80}
+                    },
+                    {
+                        "id": 802,
+                        "titulo": "Desconexión Analógica Corta",
+                        "descripcion": "Tu atención está saturada por notificaciones. Deja el teléfono en otra habitación. Camina hacia una ventana y observa el punto más lejano por 1 minuto.",
+                        "vector_necesidades": {**DEFAULT_NECESSITY_VECTOR, "silencio": 90, "contemplacion": 70}
+                    }
+                ]
+            else:
+                final_misiones_casa = [
+                    {
+                        "id": 801,
+                        "titulo": "Somatic Breathing Pause",
+                        "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
+                        "vector_necesidades": {**DEFAULT_NECESSITY_VECTOR, "silencio": 80, "descanso": 80}
+                    },
+                    {
+                        "id": 802,
+                        "titulo": "Short Analog Disconnect",
+                        "descripcion": "Your attention is saturated. Leave your phone in another room. Walk to a window and look at the furthest point you can see for 1 minute.",
+                        "vector_necesidades": {**DEFAULT_NECESSITY_VECTOR, "silencio": 90, "contemplacion": 70}
+                    }
+                ]
 
         historial_casa = payload.get("historial_casa", [])
+        
+        # El optimizador recibe objetos perfectamente estructurados, evitando errores 500
         misiones_casa = seleccionar_misiones_casa_inteligente(
-            final_misiones_casa, # Pasa la lista con el mapeo de campos corregido
+            final_misiones_casa, 
             perfil_local, 
             historial_casa, 
             cantidad=3
