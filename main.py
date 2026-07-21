@@ -1090,13 +1090,14 @@ async def mando_integral(request: Request):
     opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     historial_salir = payload.get("historial_salir", [])
     
-    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
+        misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
         n=3,
         misiones=opciones_salir_candidatas,
         perfil_local=perfil_local,
         historial_actual=historial_salir
     )
-                final_misiones_para_frontend = []
+
+    final_misiones_para_frontend = []
     for info_seleccionada in misiones_seleccionadas_raw:
         # === MODIFICACIÓN: MENSAJES DE ACOMPAÑAMIENTO Y GASTO ACORTADOS ===
         precio_real = ""
@@ -1120,7 +1121,7 @@ async def mando_integral(request: Request):
         
         anclaje_geografico = zip_code
         map_base_url = link_base
-        
+
         if lang == "en":
             # === MODIFICACIÓN: guia_masticada (EN) ACORTADA ===
             guia_masticada = (
@@ -1151,7 +1152,7 @@ async def mando_integral(request: Request):
             search_query_parts.append("wheelchair accessible")
         elif perfil_tipo == "familia":
             search_query_parts.append("family friendly")
-            
+
         # ==========================================================================================
         # CONSTRUCCIÓN DE LA RECETA DE ECONOMÍA REAL (DESVÍO DENTRO DE GOOGLE MAPS)
         # ==========================================================================================
@@ -1177,19 +1178,19 @@ async def mando_integral(request: Request):
                 "2": "glamping+resort+cabin+rental"
             }
         }
-        
+
         matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
         gasto_key = budget if budget in ["0", "1", "2"] else "0"
         actividad_base = matriz_ocio[gasto_key]
-        
+
         search_query_parts.append(actividad_base)
         search_query_parts.append(info_seleccionada["gps"])
         search_query_parts.append(f"in {anclaje_geografico}")
-        
+
         full_map_query_string = " ".join(search_query_parts)
         target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-        
-        # CORRECCIÓN DE ENLACES PARÁSITOS: Agregados los endpoints de búsqueda reales de cada app
+
+        # Enlaces embebidos seguros
         query_escape_ingles = urllib.parse.quote_plus(info_seleccionada.get("titulo_en", "mindfulness escape"))
         info_seleccionada["enlace_youtube"] = f"https://youtube.com{query_escape_ingles}+4k+cinematic"
         info_seleccionada["enlace_spotify"] = f"https://spotify.com{query_escape_ingles}"
@@ -1212,8 +1213,7 @@ async def mando_integral(request: Request):
         
         historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
-        # Retornamos el JSON original exacto. Removemos la llave "calidez_humana" de la respuesta
-    # para evitar cualquier desincronización de milisegundos en los scripts controladores
+    # Retornamos el JSON original exacto.
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
