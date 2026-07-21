@@ -1082,7 +1082,7 @@ async def mando_integral(request: Request):
             "historial_salir_actualizado": payload.get("historial_salir", []),
             "forced_recovery": True
         })
-       # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
+         # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
         # --- Captura el manifiesto existencial para el 1% de Calidez Humana ---
         textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
@@ -1096,43 +1096,39 @@ async def mando_integral(request: Request):
         if "BASE_MISIONES" in globals():
             misiones_completas = BASE_MISIONES.get(target_key, BASE_MISIONES.get("casa", []))
         
-        # RESPALDO EN ESPAÑOL: Si no se encuentra nada en tu catálogo, inyecta misiones automáticas de emergencia
+        # RESPALDO SEGURO: Si no se encuentra en el catálogo, inyecta misiones con la estructura exacta del frontend
         if not misiones_completas:
             print(f"Alerta: No se encontró la llave {target_key} en BASE_MISIONES. Usando misiones de respaldo.")
-            misiones_completas = [
-                {
-                    "id": 801,
-                    "titulo": "Pausa de Respiración Somática",
-                    "titulo_en": "Somatic Breathing Pause",
-                    "donde": "Un rincón cómodo de tu casa",
-                    "donde_en": "A comfortable corner at home",
-                    "porque": "Romper el bucle del estrés digital.",
-                    "porque_en": "Break the digital stress loop.",
-                    "que_hacer": "Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos. Repite 3 veces.",
-                    "que_hacer_en": "Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds. Repeat 3 times.",
-                    "cuando": "Ahora mismo",
-                    "cuando_en": "Right now",
-                    "para_que": "Estabilizar tu ritmo biológico y relajar el sistema nervioso.",
-                    "para_que_en": "Stabilize your biological rhythm and relax the nervous system.",
-                    "vector_necesidades": {"silencio": 80, "descanso": 80}
-                },
-                {
-                    "id": 802,
-                    "titulo": "Desconexión Analógica Corta",
-                    "titulo_en": "Short Analog Disconnect",
-                    "donde": "Lejos de cualquier pantalla",
-                    "donde_en": "Away from any screen",
-                    "porque": "Tu atención está saturada por las notificaciones.",
-                    "porque_en": "Your attention is saturated by notifications.",
-                    "que_hacer": "Deja el teléfono en otra habitación. Camina hacia una ventana y observa el punto más lejano que veas por 1 minuto.",
-                    "que_hacer_en": "Leave your phone in another room. Walk to a window and look at the furthest point you can see for 1 minute.",
-                    "cuando": "Inmediatamente",
-                    "cuando_en": "Immediately",
-                    "para_que": "Descansar los músculos oculares y bajar las revoluciones mentales.",
-                    "para_que_en": "Rest your eye muscles and slow down your mental gears.",
-                    "vector_necesidades": {"silencio": 90, "contemplacion": 70}
-                }
-            ]
+            if idioma == "ES":
+                misiones_completas = [
+                    {
+                        "id": 801,
+                        "titulo": "Pausa de Respiración Somática",
+                        "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente por 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos. Repite 3 veces.",
+                        "vector_necesidades": {"silencio": 80, "descanso": 80}
+                    },
+                    {
+                        "id": 802,
+                        "titulo": "Desconexión Analógica Corta",
+                        "descripcion": "Tu atención está saturada. Deja el teléfono en otra habitación. Camina hacia una ventana y observa el punto más lejano que veas por 1 minuto.",
+                        "vector_necesidades": {"silencio": 90, "contemplacion": 70}
+                    }
+                ]
+            else:
+                misiones_completas = [
+                    {
+                        "id": 801,
+                        "titulo": "Somatic Breathing Pause",
+                        "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds. Repeat 3 times.",
+                        "vector_necesidades": {"silencio": 80, "descanso": 80}
+                    },
+                    {
+                        "id": 802,
+                        "titulo": "Short Analog Disconnect",
+                        "descripcion": "Your attention is saturated. Leave your phone in another room. Walk to a window and look at the furthest point you can see for 1 minute.",
+                        "vector_necesidades": {"silencio": 90, "contemplacion": 70}
+                    }
+                ]
 
         historial_casa = payload.get("historial_casa", [])
         misiones_casa = seleccionar_misiones_casa_inteligente(
