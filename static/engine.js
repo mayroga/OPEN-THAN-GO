@@ -845,190 +845,52 @@ const KERNEL = {
     this.validarZip();
 }
 
-  /**
+ /**
  * Displays the 3 options for SALIR mode and waits for user selection.
  */
 mostrarOpcionesSalir(container) {
     clearInterval(this.timerEnfocado);
     clearInterval(this.salidaTimerId);
     window.speechSynthesis.cancel();
-
     const t = {
         es: {
             choosePath: "ELIGE TU CAMINO DE LIBERTAD",
-            chooseOne: "Escucha a tu guía y toca una opción para continuar:",
-            escapeDigital: "Vías de Escape Inmediatas:"
+            chooseOne: "Toca una opción para continuar:"
         },
         en: {
             choosePath: "CHOOSE YOUR PATH TO FREEDOM",
-            chooseOne: "Listen to your guide and tap an option to continue:",
-            escapeDigital: "Immediate Escape Routes:"
+            chooseOne: "Tap an option to continue:"
         }
     }[this.idiomaActual];
-
-    const textoOraculo = this.mensajeCalidezHumanaActual || "";
-    let HTMLOraculo = "";
-    
-    if (textoOraculo) {
-        HTMLOraculo = '<div class="oraculo-calidez-box" style="background: rgba(255,255,255,0.07); border-left: 4px solid #ff9f43; padding: 15px; margin-bottom: 20px; border-radius: 4px; font-style: italic; color: #f1f2f6; text-align: left; font-size: 0.95rem; line-height: 1.4;">"' + textoOraculo + '"</div>';
-    }
-
     container.innerHTML = `
         <div class="mision-choices-container">
-            <!-- 1% CALIDEZ HUMANA -->
-            ` + HTMLOraculo + `
-            
-            <h2 class="salida-main-title" style="margin-top: 10px;">${t.choosePath}</h2>
-            <p class="salida-choose-instruction" style="margin-bottom: 20px;">${t.chooseOne}</p>
+            <h2 class="salida-main-title">${t.choosePath}</h2>
+            <p class="salida-choose-instruction">${t.chooseOne}</p>
             <div id="salida-options-grid" class="salida-grid">
                 <!-- Options will be injected here -->
             </div>
-        </div>
-    `;
-
+        </div>`;
     const optionsGrid = document.getElementById('salida-options-grid');
-
     this.pasosMisiones.forEach((mission, index) => {
         const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
         const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
-        
-        const urlYT = mission.enlace_youtube || "#";
-        const urlSP = mission.enlace_spotify || "#";
-        const urlTK = mission.enlace_tiktok || "#";
-
         const card = document.createElement('div');
         card.className = 'salida-option-card';
-        card.style.display = 'flex';
-        card.style.flexDirection = 'column';
-        card.style.justifyContent = 'space-between';
-        
         card.innerHTML = `
-            <div>
-                <h3 class="salida-option-title">${missionTitle}</h3>
-                <p class="salida-option-desc">${missionWhatToDo}</p>
-            </div>
-            
-            <div style="margin-top: 15px;">
-                <button class="btn-select-salida" style="width: 100%; margin-bottom: 12px;">
-                    ${this.idiomaActual === 'es' ? 'Seleccionar Misión Física' : 'Select Physical Mission'}
-                </button>
-                
-                <div class="escape-digital-container" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
-                    <span style="font-size: 0.75rem; color: #a4b0be; display: block; margin-bottom: 6px; font-weight: bold; text-align: center;">
-                        ${t.escapeDigital}
-                    </span>
-                    <div style="display: flex; gap: 8px; justify-content: center;">
-                        <a href="${urlYT}" target="_blank" style="flex: 1; text-align: center; background: #ff0000; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold;">YouTube</a>
-                        <a href="${urlSP}" target="_blank" style="flex: 1; text-align: center; background: #1DB954; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold;">Spotify</a>
-                        <a href="${urlTK}" target="_blank" style="flex: 1; text-align: center; background: #000000; color: white; padding: 6px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; border: 1px solid rgba(255,255,255,0.2);">TikTok</a>
-                    </div>
-                </div>
-            </div>
+            <h3 class="salida-option-title">${missionTitle}</h3>
+            <p class="salida-option-desc">${missionWhatToDo}</p>
+            <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button>
         `;
-
         card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
         optionsGrid.appendChild(card);
     });
-
-    this.hablar(textoOraculo || t.chooseOne);
+    
+    // Inyectamos el Manifiesto del Oráculo directo a tu voz asistida original sin obstruir el flujo visual
+    const textoOraculo = this.mensajeCalidezHumanaActual || t.chooseOne;
+    this.hablar(textoOraculo);
 },
 
 /**
- * Processes the sequential flow based on the recommendation type (only for CASA mode now).
- */
-procesarFlujoSecuencial(container) {
-    clearInterval(this.timerEnfocado);
-    window.speechSynthesis.cancel();
-    
-    const t = {
-        es: {
-            inspira: "Inhala ahora",
-            expira: "Exhala ahora",
-            fin: "Protocolo completado. Borrando rastro.",
-            listen: "ESCUCHA MI GUÍA",
-            launch: "ABRIR CANAL EXTERNO YA",
-            fieldAction: "Acción de Campo",
-            internalMission: "Misión Interna",
-            doItNow: "HAZLO AHORA",
-            suggestedEscape: "Escape sugerido",
-            escapeDigital: "O usa una vía de escape digital inmediata:"
-        },
-        en: {
-            inspira: "Inhale now",
-            expira: "Exhale now",
-            fin: "Protocol completed. Clearing tracks.",
-            listen: "LISTEN TO THE GUIDE",
-            launch: "OPEN EXTERNAL CHANNEL NOW",
-            fieldAction: "Field Action",
-            internalMission: "Internal Mission",
-            doItNow: "DO IT NOW",
-            suggestedEscape: "Suggested escape",
-            escapeDigital: "Or use an immediate digital escape route:"
-        }
-    }[this.idiomaActual];
-
-    if (this.indiceMision >= this.pasosMisiones.length) {
-        this.iniciarRelojEnfocadoCasa(container, t);
-        return;
-    }
-
-    const paso = this.pasosMisiones[this.indiceMision];
-    const textoOraculo = this.mensajeCalidezHumanaActual || "";
-    let HTMLOraculo = "";
-    
-    if (textoOraculo) {
-        HTMLOraculo = '<div class="oraculo-calidez-box" style="background: rgba(255,255,255,0.06); border-left: 4px solid #ff9f43; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-style: italic; color: #f1f2f6; text-align: left; font-size: 0.9rem; line-height: 1.4;">"' + textoOraculo + '"</div>';
-    }
-    
-    const urlYT = paso.enlace_youtube || "https://youtube.com";
-    const urlSP = paso.enlace_spotify || "https://spotify.com";
-    const urlTK = paso.enlace_tiktok || "https://tiktok.com";
-
-    container.innerHTML = `
-        <div class="mision-card">
-            <!-- 1% CALIDEZ HUMANA -->
-            ` + HTMLOraculo + `
-
-            <small>${t.internalMission}</small>
-            <h3 style="margin-top: 5px;">${paso.titulo}</h3>
-            <p>${paso.descripcion}</p>
-            
-            <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
-            
-            <div class="escape-digital-container" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 20px;">
-                <span style="font-size: 0.75rem; color: #a4b0be; display: block; margin-bottom: 8px; font-weight: bold; text-align: center; text-transform: uppercase;">
-                    ${t.escapeDigital}
-                </span>
-                <div style="display: flex; gap: 8px; justify-content: center;">
-                    <a href="${urlYT}" target="_blank" style="flex: 1; text-align: center; background: #ff0000; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold;">YouTube</a>
-                    <a href="${urlSP}" target="_blank" style="flex: 1; text-align: center; background: #1DB954; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold;">Spotify</a>
-                    <a href="${urlTK}" target="_blank" style="flex: 1; text-align: center; background: #000000; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; border: 1px solid rgba(255,255,255,0.2);">TikTok</a>
-                </div>
-            </div>
-        </div>
-    `;
-
-    this.hablar(paso.titulo + " . " + paso.descripcion);
-
-    document.getElementById('btn-next').onclick = () => {
-        try {
-            let perfil = this.obtenerPerfilLocal();
-            const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
-            for (const need in missionVector) {
-                if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                    perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
-                }
-            }
-            perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
-            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-        } catch (e) {
-            console.error("Error updating local profile after CASA mission:", e);
-        }
-        this.avanzarPaso();
-    };
-},
-
-    /**
  * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
  * @param {Object} selectedMission - The mission object chosen by the client.
  */
@@ -1037,67 +899,30 @@ iniciarSalidaConcreta(selectedMission) {
     clearInterval(this.timerEnfocado);
     clearInterval(this.salidaTimerId);
     window.speechSynthesis.cancel();
-
     const t = {
-        es: { 
-            listen: "ESCUCHA MI GUÍA", 
-            launch: "ABRIR MAPA DE ACCIÓN",
-            digitalRoutes: "O ELIGE TU ANTÍDOTO DIGITAL AHORA:"
-        },
-        en: { 
-            listen: "LISTEN TO THE GUIDE", 
-            launch: "OPEN ACTION MAP NOW",
-            digitalRoutes: "OR CHOOSE YOUR DIGITAL ANTIDOTE NOW:"
-        }
+        es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
+        en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
     }[this.idiomaActual];
-
     const container = document.getElementById('wrapper-interactive');
     let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
-
-    // Extraemos las recetas específicas enviadas desde el backend para esta misión
-    const urlYT = this.datosLugarGlobal.enlace_youtube || "#";
-    const urlSP = this.datosLugarGlobal.enlace_spotify || "#";
-    const urlTK = this.datosLugarGlobal.enlace_tiktok || "#";
-
     container.innerHTML = `
         <div class="mision-card">
             <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
             <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
             <div class="instruccion-text">${textoFormateado}</div>
-            
             <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
-            
-            <!-- Botón de control de cuenta regresiva original -->
             <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
-            
-            <!-- Botón de GPS de Google Maps Dinámico (Ocio/Hoteles/Discotecas/Costo Cero) -->
             <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
-            
-            <!-- 30% FALTANTE INYECTADO AL FINALIZAR: Alternativas digitales curadas de rescate inmediato -->
-            <div id="digital-escape-final" class="hidden" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                <span style="font-size: 0.8rem; color: #a4b0be; display: block; margin-bottom: 10px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 0.5px;">
-                    ${t.digitalRoutes}
-                </span>
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <a href="${urlYT}" target="_blank" style="flex: 1; text-align: center; background: #ff0000; color: white; padding: 12px; border-radius: 4px; font-size: 0.85rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">YouTube</a>
-                    <a href="${urlSP}" target="_blank" style="flex: 1; text-align: center; background: #1DB954; color: white; padding: 12px; border-radius: 4px; font-size: 0.85rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">Spotify</a>
-                    <a href="${urlTK}" target="_blank" style="flex: 1; text-align: center; background: #000000; color: white; padding: 12px; border-radius: 4px; font-size: 0.85rem; text-decoration: none; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">TikTok</a>
-                </div>
-            </div>
         </div>
     `;
-
     let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
     this.hablar(speechText);
-
     let retencion = 35;
     const btnCount = document.getElementById('btn-countdown-salida');
     const btnGps = document.getElementById('btn-gps-action');
-    const btnDigital = document.getElementById('digital-escape-final'); // Captura el contenedor de Big Tech
     const phrasesDiv = document.getElementById('salida-countdown-phrases');
     const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
     let phraseIndex = 0;
-
     this.salidaTimerId = setInterval(() => {
         if (retencion > 0) {
             retencion--;
@@ -1119,13 +944,11 @@ iniciarSalidaConcreta(selectedMission) {
                 phraseIndex++;
             }
             if (retencion === 0) {
-                // 45 seconds are over (Total 80 seconds completed)
+                // 45 seconds are over
                 clearInterval(this.salidaTimerId);
                 window.speechSynthesis.cancel();
                 if (btnCount) btnCount.style.display = 'none';
                 if (phrasesDiv) phrasesDiv.innerText = "";
-                
-                // MUESTRA EL BOTÓN DE GOOGLE MAPS ORIENTADO AL PRESUPUESTO REAL
                 if (btnGps) {
                     btnGps.classList.remove('hidden');
                     btnGps.onclick = () => {
@@ -1142,26 +965,33 @@ iniciarSalidaConcreta(selectedMission) {
                         } catch (e) {
                             console.error("Error updating local profile after action:", e);
                         }
+                        
+                        // SECUENCIA DE TIEMPOS LIMPIA SIN OBSTRUIR LA APP:
+                        // 1. Abre Google Maps (Hoteles, tiendas, playas según presupuesto)
                         window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+                        
+                        // 2. Abre las recetas digitales con un desfase de tiempo seguro para no saturar al navegador
+                        setTimeout(() => {
+                            if (this.datosLugarGlobal.enlace_youtube) {
+                                window.open(this.datosLugarGlobal.enlace_youtube, '_blank');
+                            }
+                            if (this.datosLugarGlobal.enlace_spotify) {
+                                window.open(this.datosLugarGlobal.enlace_spotify, '_blank');
+                            }
+                        }, 500);
                     };
-                }
-
-                // DESBLOQUEA EN SIMULTÁNEO LAS VÍAS DE ESCAPE DIGITALES ULTRA-ESPECÍFICAS
-                if (btnDigital) {
-                    btnDigital.classList.remove('hidden');
                 }
             }
         }
     }, 1000);
 },
 
-   /**
+/**
  * Processes the sequential flow based on the recommendation type (only for CASA mode now).
  */
 procesarFlujoSecuencial(container) {
     clearInterval(this.timerEnfocado);
     window.speechSynthesis.cancel();
-    
     const t = {
         es: {
             inspira: "Inhala ahora",
@@ -1172,8 +1002,7 @@ procesarFlujoSecuencial(container) {
             fieldAction: "Acción de Campo",
             internalMission: "Misión Interna",
             doItNow: "HAZLO AHORA",
-            suggestedEscape: "Escape sugerido",
-            escapeDigital: "O usa una vía de escape digital inmediata:"
+            suggestedEscape: "Escape sugerido"
         },
         en: {
             inspira: "Inhale now",
@@ -1184,60 +1013,22 @@ procesarFlujoSecuencial(container) {
             fieldAction: "Field Action",
             internalMission: "Internal Mission",
             doItNow: "DO IT NOW",
-            suggestedEscape: "Suggested escape",
-            escapeDigital: "Or use an immediate digital escape route:"
+            suggestedEscape: "Suggested escape"
         }
     }[this.idiomaActual];
-
-    // This function now only handles INTERVENCION_DOMESTICA (CASA mode)
     if (this.indiceMision >= this.pasosMisiones.length) {
         this.iniciarRelojEnfocadoCasa(container, t);
         return;
     }
-
     const paso = this.pasosMisiones[this.indiceMision];
-    
-    // Capturamos el manifiesto existencial de calidez humana enviado desde el backend
-    const textoOraculo = this.mensajeCalidezHumanaActual || "";
-    
-    // Extraemos las recetas dinámicas de Big Tech asignadas para el estado actual de casa
-    // Como las misiones de casa usan la base local, apuntamos a variables seguras o fallback
-    const urlYT = paso.enlace_youtube || `https://youtube.com`;
-    const urlSP = paso.enlace_spotify || `https://spotify.com`;
-    const urlTK = paso.enlace_tiktok || `https://tiktok.com`;
-
     container.innerHTML = `
         <div class="mision-card">
-            <!-- 1% CALIDEZ HUMANA: Cuadro destacado con el Manifiesto del Oráculo Existencial -->
-            ${textoOraculo ? `
-                <div class="oraculo-calidez-box" style="background: rgba(255,255,255,0.06); border-left: 4px solid #ff9f43; padding: 12px; margin-bottom: 15px; border-radius: 4px; font-style: italic; color: #f1f2f6; text-align: left; font-size: 0.9rem; line-height: 1.4;">
-                    "${textoOraculo}"
-                </div>
-            ` : ''}
-
             <small>${t.internalMission}</small>
-            <h3 style="margin-top: 5px;">${paso.titulo}</h3>
+            <h3>${paso.titulo}</h3>
             <p>${paso.descripcion}</p>
-            
-            <!-- Botón de acción física en casa original -->
             <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
-            
-            <!-- 30% FALTANTE: Ecosistema parásito de plataformas americanas para el hogar -->
-            <div class="escape-digital-container" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; margin-top: 20px;">
-                <span style="font-size: 0.75rem; color: #a4b0be; display: block; margin-bottom: 8px; font-weight: bold; text-align: center; text-transform: uppercase;">
-                    ${t.escapeDigital}
-                </span>
-                <div style="display: flex; gap: 8px; justify-content: center;">
-                    <a href="${urlYT}" target="_blank" style="flex: 1; text-align: center; background: #ff0000; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">YouTube</a>
-                    <a href="${urlSP}" target="_blank" style="flex: 1; text-align: center; background: #1DB954; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">Spotify</a>
-                    <a href="${urlTK}" target="_blank" style="flex: 1; text-align: center; background: #000000; color: white; padding: 10px; border-radius: 4px; font-size: 0.75rem; text-decoration: none; font-weight: bold; border: 1px solid rgba(255,255,255,0.2); transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">TikTok</a>
-                </div>
-            </div>
-        </div>
-    `;
-
+        </div>`;
     this.hablar(paso.titulo + " . " + paso.descripcion);
-
     document.getElementById('btn-next').onclick = () => {
         try {
             let perfil = this.obtenerPerfilLocal();
@@ -1255,6 +1046,7 @@ procesarFlujoSecuencial(container) {
         this.avanzarPaso();
     };
 },
+ 
 
 /** Starts the 10-minute clinical breathing timer for CASA mode. */
 iniciarRelojEnfocadoCasa(container, t) {
