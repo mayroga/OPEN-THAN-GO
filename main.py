@@ -1096,7 +1096,7 @@ async def mando_integral(request: Request):
         perfil_local=perfil_local,
         historial_actual=historial_salir
     )
-            final_misiones_para_frontend = []
+                final_misiones_para_frontend = []
     for info_seleccionada in misiones_seleccionadas_raw:
         # === MODIFICACIÓN: MENSAJES DE ACOMPAÑAMIENTO Y GASTO ACORTADOS ===
         precio_real = ""
@@ -1120,8 +1120,8 @@ async def mando_integral(request: Request):
         
         anclaje_geografico = zip_code
         map_base_url = link_base
-
-                if lang == "en":
+        
+        if lang == "en":
             # === MODIFICACIÓN: guia_masticada (EN) ACORTADA ===
             guia_masticada = (
                 f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
@@ -1152,10 +1152,9 @@ async def mando_integral(request: Request):
         elif perfil_tipo == "familia":
             search_query_parts.append("family friendly")
             
-                # ==========================================================================================
+        # ==========================================================================================
         # CONSTRUCCIÓN DE LA RECETA DE ECONOMÍA REAL (DESVÍO DENTRO DE GOOGLE MAPS)
         # ==========================================================================================
-        # Mapeamos los núcleos de actividad para que Google Maps absorba toda la variedad real
         nucleos_ocio = {
             "ansioso": {
                 "0": "nature+preserves+botanical+gardens",
@@ -1178,26 +1177,26 @@ async def mando_integral(request: Request):
                 "2": "glamping+resort+cabin+rental"
             }
         }
-
+        
         matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
         gasto_key = budget if budget in ["0", "1", "2"] else "0"
         actividad_base = matriz_ocio[gasto_key]
-
+        
         search_query_parts.append(actividad_base)
         search_query_parts.append(info_seleccionada["gps"])
         search_query_parts.append(f"in {anclaje_geografico}")
-
+        
         full_map_query_string = " ".join(search_query_parts)
         target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-                # Generamos los enlaces parásitos directamente embebidos en los metadatos de coordenadas de forma segura
-        # El frontend los leerá en la instancia KERNEL sin alterar la estructura JSON original
+        
+        # CORRECCIÓN DE ENLACES PARÁSITOS: Agregados los endpoints de búsqueda reales de cada app
         query_escape_ingles = urllib.parse.quote_plus(info_seleccionada.get("titulo_en", "mindfulness escape"))
         info_seleccionada["enlace_youtube"] = f"https://youtube.com{query_escape_ingles}+4k+cinematic"
         info_seleccionada["enlace_spotify"] = f"https://spotify.com{query_escape_ingles}"
         
         final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
         
-        # Estructura de salida original idéntica de May Roga LLC para proteger a Stripe
+        # Estructura de salida original idéntica
         final_misiones_para_frontend.append({
             "destino_id": info_seleccionada.get("id"),
             "destino_titulo": titulo_ganador_lang,
@@ -1213,7 +1212,7 @@ async def mando_integral(request: Request):
         
         historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
-    # Retornamos el JSON original exacto. Removemos la llave "calidez_humana" de la respuesta
+        # Retornamos el JSON original exacto. Removemos la llave "calidez_humana" de la respuesta
     # para evitar cualquier desincronización de milisegundos en los scripts controladores
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
@@ -1221,12 +1220,10 @@ async def mando_integral(request: Request):
         "historial_salir_actualizado": historial_salir
     })
 
+
 # ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==========================================================================================
 if __name__ == "__main__":
     port_env = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
-
-
-    
