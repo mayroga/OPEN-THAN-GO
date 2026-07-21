@@ -22,10 +22,10 @@ const KERNEL = {
     datosLugarGlobal: null, // Now stores the *selected* mission for SALIR
     tipoEscapeGlobal: "",
     contadorToques: 0,
-    secuenciaAdelantos:,
+    secuenciaAdelantos: [], // REPARADO: Se agregó un array vacío para corregir la sintaxis.
     historialSalir: [],
     historialCasa: [],
-    historialPreguntas: [],
+    historialPregorialPreguntas: [],
     historialRetosSecuencias: [],
     lastDecayTimestamp: null,
     sessionSeed: null,
@@ -1084,34 +1084,7 @@ iniciarSalidaConcreta(selectedMission) {
         }
     }, 1000);
 },
-
-                         // SECCIÓN DE TIEMPOS DE REDIRECCIÓN SECUENCIAL INCORPORADA:
-                        // 1. Detona Google Maps con el filtrado maestro de economía real
-                        window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                        
-                        // 2. Agrega el desfase de tiempo de 500ms para abrir los escapes de YouTube y Spotify de forma parásita
-                        setTimeout(() => {
-                            if (this.datosLugarGlobal.enlace_youtube) {
-                                window.open(this.datosLugarGlobal.enlace_youtube, '_blank');
-                            }
-                            if (this.datosLugarGlobal.enlace_spotify) {
-                                window.open(this.datosLugarGlobal.enlace_spotify, '_blank');
-                            }
-                        }, 500);
-
-                        // ==============================================================================
-                        // ORDEN SOBERANA: EL TIEMPO COMIENZA A CORRER DESDE CERO AUTOMÁTICAMENTE (SALIR)
-                        // ==============================================================================
-                        // Una vez acarreada toda la acción externa, reactivamos el temporizador maestro desde cero.
-                        this.iniciarMonitoreoInaccion();
-                        this.horaInicioSesionAbsoluta = Date.now(); // Reseteamos la estampa de tiempo absoluta
-                        // ==============================================================================
-                    };
-                }
-            }
-        }
-    }, 1000);
-},
+// REPARADO: Se eliminó el bloque de código duplicado que causaba un error de sintaxis aquí.
 
 /**
  * Processes the sequential flow based on the recommendation type (only for CASA mode now).
@@ -1272,8 +1245,6 @@ iniciarRelojEnfocadoCasa(container, t) {
             this.salidaSugeridaTimeoutId = null;
         }
     }, 180000);
-},
-
            // Ciclo principal del temporizador de respiración (1 segundo por tick)
     this.timerEnfocado = setInterval(() => {
         if (this.timeLeft > 0) {
@@ -1324,7 +1295,7 @@ iniciarRelojEnfocadoCasa(container, t) {
             this.iniciarRetoCierre60Segundos();
         }
     }, 1000);
-},
+}, // REPARADO: Se eliminó un '},' extra que cerraba prematuramente la función.
 
 /** 
  * Advances to the next internal mission step. 
@@ -1816,7 +1787,6 @@ window.KERNEL = KERNEL;
         pb.innerHTML = `
             <div style="max-width:390px;width:95%;padding:15px;text-align:center;font-family:sans-serif;color:#fff;overflow-y:auto;max-height:100vh;">
                 <h2 style="color:#00bcd4;font-weight:900;letter-spacing:2px;font-size:1.3rem;margin-bottom:12px;"> OPEN THAN GO </h2>
-        `;
                 <p style="font-size: .9rem; line-height: 1.45; color: #eee; font-weight: bold; margin-bottom: 15px;"> 
                     Hoy: <span style="color: #d84315;">${sintomas[0]}</span>.<br> 
                     OPEN THAN GO te ayuda a encontrar pequeños momentos de bienestar para ti y tu familia. 
@@ -1844,7 +1814,7 @@ window.KERNEL = KERNEL;
                     INICIAR SESIÓN / START
                 </button>
             </div>
-        `;
+        `; // REPARADO: Se corrigió la finalización prematura del template literal.
     },
 
     crearEstructurasFlotantes() {
@@ -1883,8 +1853,6 @@ window.KERNEL = KERNEL;
         m.innerHTML = `
             <div style="max-width:460px;margin:0 auto;padding-top:5px;">
                 <div style="text-align:center;margin-bottom:15px;">
-        `;
-
                     <span style="background: #2e7d32; padding: 3px 8px; border-radius: 4px; font-size: .65rem; font-weight: bold; text-transform: uppercase;"> Bienestar Inicial </span> 
                     <h4 style="color: #00bcd4; font-weight: 900; margin: 8px 0 3px; font-size: 1.15rem;"> PERSONALIZA TU EXPERIENCIA </h4> 
                     <p style="color: #aaa; font-size: .72rem; margin: 0;"> ${txtUsa}. Tiempo aproximado: 1 minuto. </p> 
@@ -1903,7 +1871,7 @@ window.KERNEL = KERNEL;
                 <div id="otg-fase-2" class="hidden"></div> 
                 <div id="otg-fase-3" class="hidden" style="text-align: center;"></div> 
             </div>
-        `;
+        `; // REPARADO: Se corrigió la finalización prematura del template literal.
     }, 
 
     seleccionarMarca(el, marca) {
@@ -1981,14 +1949,11 @@ window.KERNEL = KERNEL;
                 <button onclick="window.open('${url}', '_blank')" style="flex: 1; background: #2e7d32; border: none; color: #fff; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: .75rem; text-transform: uppercase;">
                     Abrir sitio web
                 </button>
-        `;
-    },
-
-                        <button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()" style="flex: 1; background: none; border: 1px solid #00bcd4; color: #00bcd4; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: .75rem; text-transform: uppercase;"> 
+                <button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()" style="flex: 1; background: none; border: 1px solid #00bcd4; color: #00bcd4; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: .75rem; text-transform: uppercase;"> 
                     Continuar 
                 </button> 
             </div>
-        `;
+        `; // REPARADO: Se corrigió la finalización prematura del template literal.
     }, 
 
     cerrarOasisYDarPasoAAppBase() {
@@ -2111,5 +2076,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
 OTG_SENSORIAL.init();
 })();
-
 
