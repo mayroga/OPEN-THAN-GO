@@ -1082,34 +1082,72 @@ async def mando_integral(request: Request):
             "historial_salir_actualizado": payload.get("historial_salir", []),
             "forced_recovery": True
         })
-    # ==========================================================================================
-    # CONTINUACIÓN CONTINUA DEL FLUJO DE TRABAJO BASE DE LA PLATAFORMA OPEN THAN GO
-    # ==========================================================================================
-
-    # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
+       # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
-        # --- ACTUALIZADO: Captura el manifiesto existencial para el 1% de Calidez Humana ---
+        # --- Captura el manifiesto existencial para el 1% de Calidez Humana ---
         textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
         manifiesto_humano_casa = random.choice(textos_oraculo_casa)
-
+        
         idioma = "EN" if lang == "en" else "ES"
-        misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
-        historial_casa = payload.get("historial_casa", [])
+        target_key = f"CASA_{idioma}"
+        
+        # SISTEMA ANTICAÍDAS: Intenta buscar la llave de forma segura sin romper el servidor
+        misiones_completas = []
+        if "BASE_MISIONES" in globals():
+            misiones_completas = BASE_MISIONES.get(target_key, BASE_MISIONES.get("casa", []))
+        
+        # RESPALDO EN ESPAÑOL: Si no se encuentra nada en tu catálogo, inyecta misiones automáticas de emergencia
+        if not misiones_completas:
+            print(f"Alerta: No se encontró la llave {target_key} en BASE_MISIONES. Usando misiones de respaldo.")
+            misiones_completas = [
+                {
+                    "id": 801,
+                    "titulo": "Pausa de Respiración Somática",
+                    "titulo_en": "Somatic Breathing Pause",
+                    "donde": "Un rincón cómodo de tu casa",
+                    "donde_en": "A comfortable corner at home",
+                    "porque": "Romper el bucle del estrés digital.",
+                    "porque_en": "Break the digital stress loop.",
+                    "que_hacer": "Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos. Repite 3 veces.",
+                    "que_hacer_en": "Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds. Repeat 3 times.",
+                    "cuando": "Ahora mismo",
+                    "cuando_en": "Right now",
+                    "para_que": "Estabilizar tu ritmo biológico y relajar el sistema nervioso.",
+                    "para_que_en": "Stabilize your biological rhythm and relax the nervous system.",
+                    "vector_necesidades": {"silencio": 80, "descanso": 80}
+                },
+                {
+                    "id": 802,
+                    "titulo": "Desconexión Analógica Corta",
+                    "titulo_en": "Short Analog Disconnect",
+                    "donde": "Lejos de cualquier pantalla",
+                    "donde_en": "Away from any screen",
+                    "porque": "Tu atención está saturada por las notificaciones.",
+                    "porque_en": "Your attention is saturated by notifications.",
+                    "que_hacer": "Deja el teléfono en otra habitación. Camina hacia una ventana y observa el punto más lejano que veas por 1 minuto.",
+                    "que_hacer_en": "Leave your phone in another room. Walk to a window and look at the furthest point you can see for 1 minute.",
+                    "cuando": "Inmediatamente",
+                    "cuando_en": "Immediately",
+                    "para_que": "Descansar los músculos oculares y bajar las revoluciones mentales.",
+                    "para_que_en": "Rest your eye muscles and slow down your mental gears.",
+                    "vector_necesidades": {"silencio": 90, "contemplacion": 70}
+                }
+            ]
 
+        historial_casa = payload.get("historial_casa", [])
         misiones_casa = seleccionar_misiones_casa_inteligente(
-            misiones_completas,
-            perfil_local,
-            historial_casa,
+            misiones_completas, 
+            perfil_local, 
+            historial_casa, 
             cantidad=3
         )
-
+        
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
-
-        # --- ACTUALIZADO: Retornamos la respuesta agregando la calidez humana al frontend ---
+            
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-            "calidez_humana": manifiesto_humano_casa,  # <--- Inyección de texto humano
+            "calidez_humana": manifiesto_humano_casa,
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
         })
