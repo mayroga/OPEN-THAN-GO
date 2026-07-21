@@ -21,7 +21,7 @@ const KERNEL = {
     datosLugarGlobal: null, // Now stores the *selected* mission for SALIR 
     tipoEscapeGlobal: "", 
     contadorToques: 0, 
-    secuenciaAdelantos: [], // CORREGIDO: Coma inesperada eliminada y asignación a array vacío 
+    secuenciaAdelantos: [], 
     historialSalir: [], 
     historialCasa: [], 
     historialPreguntas: [], 
@@ -34,8 +34,7 @@ const KERNEL = {
     MAX_HISTORY_RETOS_SECUENCIAS: 3, 
     DECAY_PER_DAY: 0.985, 
     conteoInaccion: 0, 
-    indicePreguntaCascada: 0 // <-- CORREGIDO: Se eliminó la coma huérfana que congelaba el script
-};
+    indicePreguntaCascada: 0, // <-- RECONECTADO: La coma es necesaria porque el objeto CONTINÚA abajo
 
         // ==============================================================================
         // SENSOR DE FONDO ABSOLUTO (Indestructible si hay llamadas o chat en segundo plano)
