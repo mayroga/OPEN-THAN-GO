@@ -1082,57 +1082,45 @@ async def mando_integral(request: Request):
             "historial_salir_actualizado": payload.get("historial_salir", []),
             "forced_recovery": True
         })
-         # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
+        
+            # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
-        # --- Captura el manifiesto existencial para el 1% de Calidez Humana ---
+        # Captura el manifiesto existencial para el 1% de Calidez Humana
         textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
         manifiesto_humano_casa = random.choice(textos_oraculo_casa)
         
         idioma = "EN" if lang == "en" else "ES"
         target_key = f"CASA_{idioma}"
         
-        # SISTEMA ANTICAÍDAS: Intenta buscar la llave de forma segura sin romper el servidor
         misiones_completas = []
         if "BASE_MISIONES" in globals():
             misiones_completas = BASE_MISIONES.get(target_key, BASE_MISIONES.get("casa", []))
-        
-        # RESPALDO SEGURO: Si no se encuentra en el catálogo, inyecta misiones con la estructura exacta del frontend
-        if not misiones_completas:
-            print(f"Alerta: No se encontró la llave {target_key} en BASE_MISIONES. Usando misiones de respaldo.")
-            if idioma == "ES":
-                misiones_completas = [
-                    {
-                        "id": 801,
-                        "titulo": "Pausa de Respiración Somática",
-                        "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente por 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos. Repite 3 veces.",
-                        "vector_necesidades": {"silencio": 80, "descanso": 80}
-                    },
-                    {
-                        "id": 802,
-                        "titulo": "Desconexión Analógica Corta",
-                        "descripcion": "Tu atención está saturada. Deja el teléfono en otra habitación. Camina hacia una ventana y observa el punto más lejano que veas por 1 minuto.",
-                        "vector_necesidades": {"silencio": 90, "contemplacion": 70}
-                    }
-                ]
-            else:
-                misiones_completas = [
-                    {
-                        "id": 801,
-                        "titulo": "Somatic Breathing Pause",
-                        "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds. Repeat 3 times.",
-                        "vector_necesidades": {"silencio": 80, "descanso": 80}
-                    },
-                    {
-                        "id": 802,
-                        "titulo": "Short Analog Disconnect",
-                        "descripcion": "Your attention is saturated. Leave your phone in another room. Walk to a window and look at the furthest point you can see for 1 minute.",
-                        "vector_necesidades": {"silencio": 90, "contemplacion": 70}
-                    }
-                ]
+            
+        # CONEXIÓN DE DATOS: Mapea el catálogo real al formato exacto del Frontend
+        final_misiones_casa = []
+        for m in misiones_completas:
+            final_misiones_casa.append({
+                "id": m.get("id"),
+                "titulo": m.get("titulo", "Misión Interna"),
+                # Usa 'que_hacer' de tu base de datos y llévalo a 'descripcion' para el frontend
+                "descripcion": m.get("que_hacer", m.get("descripcion", "")),
+                "vector_necesidades": m.get("vector_necesidades", {})
+            })
+
+        # RESPALDO: Solo si tu catálogo global estuviera vacío
+        if not final_misiones_casa:
+            final_misiones_casa = [
+                {
+                    "id": 801,
+                    "titulo": "Pausa de Respiración Somática" if idioma == "ES" else "Somatic Breathing Pause",
+                    "descripcion": "Inhala profundamente por 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos." if idioma == "ES" else "Inhale for 4s, hold 4s, and exhale for 4s.",
+                    "vector_necesidades": {"silencio": 80, "descanso": 80}
+                }
+            ]
 
         historial_casa = payload.get("historial_casa", [])
         misiones_casa = seleccionar_misiones_casa_inteligente(
-            misiones_completas, 
+            final_misiones_casa, # Pasa la lista con el mapeo de campos corregido
             perfil_local, 
             historial_casa, 
             cantidad=3
@@ -1147,7 +1135,7 @@ async def mando_integral(request: Request):
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
         })
-
+ 
     # ==========================================================================================
     # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
     # ==========================================================================================
