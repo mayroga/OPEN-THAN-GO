@@ -1197,7 +1197,7 @@ async def mando_integral(request: Request):
         
         final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
         
-        # Estructura de salida original idéntica
+        # Estructura de salida original idéntica de May Roga LLC para proteger a Stripe
         final_misiones_para_frontend.append({
             "destino_id": info_seleccionada.get("id"),
             "destino_titulo": titulo_ganador_lang,
@@ -1213,7 +1213,7 @@ async def mando_integral(request: Request):
         
         historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
-    # Retornamos el JSON original exacto.
+    # Retornamos el JSON original exacto
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
@@ -1227,3 +1227,4 @@ async def mando_integral(request: Request):
 if __name__ == "__main__":
     port_env = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
+  
