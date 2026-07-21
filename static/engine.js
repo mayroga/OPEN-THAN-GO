@@ -845,49 +845,48 @@ const KERNEL = {
     this.validarZip();
 }
 
- /**
+/**
  * Displays the 3 options for SALIR mode and waits for user selection.
  */
 mostrarOpcionesSalir(container) {
-    clearInterval(this.timerEnfocado);
-    clearInterval(this.salidaTimerId);
-    window.speechSynthesis.cancel();
-    const t = {
-        es: {
-            choosePath: "ELIGE TU CAMINO DE LIBERTAD",
-            chooseOne: "Toca una opción para continuar:"
-        },
-        en: {
-            choosePath: "CHOOSE YOUR PATH TO FREEDOM",
-            chooseOne: "Tap an option to continue:"
-        }
-    }[this.idiomaActual];
-    container.innerHTML = `
-        <div class="mision-choices-container">
-            <h2 class="salida-main-title">${t.choosePath}</h2>
-            <p class="salida-choose-instruction">${t.chooseOne}</p>
-            <div id="salida-options-grid" class="salida-grid">
-                <!-- Options will be injected here -->
-            </div>
-        </div>`;
-    const optionsGrid = document.getElementById('salida-options-grid');
-    this.pasosMisiones.forEach((mission, index) => {
-        const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
-        const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
-        const card = document.createElement('div');
-        card.className = 'salida-option-card';
-        card.innerHTML = `
-            <h3 class="salida-option-title">${missionTitle}</h3>
-            <p class="salida-option-desc">${missionWhatToDo}</p>
-            <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button>
-        `;
-        card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
-        optionsGrid.appendChild(card);
-    });
-    
-    // Inyectamos el Manifiesto del Oráculo directo a tu voz asistida original sin obstruir el flujo visual
-    const textoOraculo = this.mensajeCalidezHumanaActual || t.chooseOne;
-    this.hablar(textoOraculo);
+ clearInterval(this.timerEnfocado);
+ clearInterval(this.salidaTimerId);
+ window.speechSynthesis.cancel();
+ const t = {
+ es: {
+ choosePath: "ELIGE TU CAMINO DE LIBERTAD",
+ chooseOne: "Toca una opción para continuar:"
+ },
+ en: {
+ choosePath: "CHOOSE YOUR PATH TO FREEDOM",
+ chooseOne: "Tap an option to continue:"
+ }
+ }[this.idiomaActual];
+ container.innerHTML = `
+ <div class="mision-choices-container">
+ <h2 class="salida-main-title">${t.choosePath}</h2>
+ <p class="salida-choose-instruction">${t.chooseOne}</p>
+ <div id="salida-options-grid" class="salida-grid">
+ <!-- Options will be injected here -->
+ </div>
+ </div>`;
+ const optionsGrid = document.getElementById('salida-options-grid');
+ this.pasosMisiones.forEach((mission, index) => {
+ const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
+ const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
+ const card = document.createElement('div');
+ card.className = 'salida-option-card';
+ card.innerHTML = `
+ <h3 class="salida-option-title">${missionTitle}</h3>
+ <p class="salida-option-desc">${missionWhatToDo}</p>
+ <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button>
+ `;
+ card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
+ optionsGrid.appendChild(card);
+ });
+ // Inyectamos de forma segura la Calidez Humana dinámica del oráculo directo a tu voz asistida
+ const textoOraculo = this.mensajeCalidezHumanaActual || t.chooseOne;
+ this.hablar(textoOraculo);
 },
 
 /**
@@ -895,95 +894,95 @@ mostrarOpcionesSalir(container) {
  * @param {Object} selectedMission - The mission object chosen by the client.
  */
 iniciarSalidaConcreta(selectedMission) {
-    this.datosLugarGlobal = selectedMission; // Store the selected mission
-    clearInterval(this.timerEnfocado);
-    clearInterval(this.salidaTimerId);
-    window.speechSynthesis.cancel();
-    const t = {
-        es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
-        en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
-    }[this.idiomaActual];
-    const container = document.getElementById('wrapper-interactive');
-    let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
-    container.innerHTML = `
-        <div class="mision-card">
-            <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
-            <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
-            <div class="instruccion-text">${textoFormateado}</div>
-            <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
-            <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
-            <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
-        </div>
-    `;
-    let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
-    this.hablar(speechText);
-    let retencion = 35;
-    const btnCount = document.getElementById('btn-countdown-salida');
-    const btnGps = document.getElementById('btn-gps-action');
-    const phrasesDiv = document.getElementById('salida-countdown-phrases');
-    const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
-    let phraseIndex = 0;
-    this.salidaTimerId = setInterval(() => {
-        if (retencion > 0) {
-            retencion--;
-            if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
-            if (retencion === 0) {
-                // Transition to 45s phrase injection
-                retencion = -45; // Use negative to denote this phase
-                if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                phraseIndex++;
-            }
-        } else if (retencion < 0) {
-            retencion++; // Count up towards 0
-            if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-            if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
-                if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                phraseIndex++;
-            }
-            if (retencion === 0) {
-                // 45 seconds are over
-                clearInterval(this.salidaTimerId);
-                window.speechSynthesis.cancel();
-                if (btnCount) btnCount.style.display = 'none';
-                if (phrasesDiv) phrasesDiv.innerText = "";
-                if (btnGps) {
-                    btnGps.classList.remove('hidden');
-                    btnGps.onclick = () => {
-                        try {
-                            let perfil = KERNEL.obtenerPerfilLocal();
-                            const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
-                            for (const need in selectedVector) {
-                                if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                                    perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
-                                }
-                            }
-                            perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
-                            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                        } catch (e) {
-                            console.error("Error updating local profile after action:", e);
-                        }
-                        
-                        // SECUENCIA DE TIEMPOS LIMPIA SIN OBSTRUIR LA APP:
-                        // 1. Abre Google Maps (Hoteles, tiendas, playas según presupuesto)
-                        window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                        
-                        // 2. Abre las recetas digitales con un desfase de tiempo seguro para no saturar al navegador
-                        setTimeout(() => {
-                            if (this.datosLugarGlobal.enlace_youtube) {
-                                window.open(this.datosLugarGlobal.enlace_youtube, '_blank');
-                            }
-                            if (this.datosLugarGlobal.enlace_spotify) {
-                                window.open(this.datosLugarGlobal.enlace_spotify, '_blank');
-                            }
-                        }, 500);
-                    };
-                }
-            }
-        }
-    }, 1000);
+ this.datosLugarGlobal = selectedMission; // Store the selected mission
+ clearInterval(this.timerEnfocado);
+ clearInterval(this.salidaTimerId);
+ window.speechSynthesis.cancel();
+ const t = {
+ es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
+ en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
+ }[this.idiomaActual];
+ const container = document.getElementById('wrapper-interactive');
+ let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
+ container.innerHTML = `
+ <div class="mision-card">
+ <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
+ <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
+ <div class="instruccion-text">${textoFormateado}</div>
+ <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
+ <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
+ <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+ </div>
+ `;
+ let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
+ this.hablar(speechText);
+ let retencion = 35;
+ const btnCount = document.getElementById('btn-countdown-salida');
+ const btnGps = document.getElementById('btn-gps-action');
+ const phrasesDiv = document.getElementById('salida-countdown-phrases');
+ const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
+ let phraseIndex = 0;
+ this.salidaTimerId = setInterval(() => {
+ if (retencion > 0) {
+ retencion--;
+ if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
+ if (retencion === 0) {
+ // Transition to 45s phrase injection
+ retencion = -45; // Use negative to denote this phase
+ if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+ if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+ this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+ phraseIndex++;
+ }
+ } else if (retencion < 0) {
+ retencion++; // Count up towards 0
+ if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+ if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
+ if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+ this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+ phraseIndex++;
+ }
+ if (retencion === 0) {
+ // 45 seconds are over
+ clearInterval(this.salidaTimerId);
+ window.speechSynthesis.cancel();
+ if (btnCount) btnCount.style.display = 'none';
+ if (phrasesDiv) phrasesDiv.innerText = "";
+ if (btnGps) {
+ btnGps.classList.remove('hidden');
+ btnGps.onclick = () => {
+ try {
+ let perfil = KERNEL.obtenerPerfilLocal();
+ const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+ for (const need in selectedVector) {
+ if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+ perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
+ }
+ }
+ perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
+ localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+ } catch (e) {
+ console.error("Error updating local profile after action:", e);
+ }
+ 
+ // SECCIÓN DE TIEMPOS DE REDIRECCIÓN SECUENCIAL INCORPORADA:
+ // 1. Detona Google Maps con el filtrado maestro de economía real
+ window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+ 
+ // 2. Agrega el desfase de tiempo de 500ms para abrir los escapes de YouTube y Spotify de forma parásita
+ setTimeout(() => {
+ if (this.datosLugarGlobal.enlace_youtube) {
+ window.open(this.datosLugarGlobal.enlace_youtube, '_blank');
+ }
+ if (this.datosLugarGlobal.enlace_spotify) {
+ window.open(this.datosLugarGlobal.enlace_spotify, '_blank');
+ }
+ }, 500);
+ };
+ }
+ }
+ }
+ }, 1000);
 },
 
 /**
