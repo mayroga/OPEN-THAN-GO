@@ -22,10 +22,10 @@ const KERNEL = {
     datosLugarGlobal: null, // Now stores the *selected* mission for SALIR
     tipoEscapeGlobal: "",
     contadorToques: 0,
-    secuenciaAdelantos: [], // REPARADO: Se agregó un array vacío para corregir la sintaxis.
+    secuenciaAdelantos: [], // Corrección: Faltaba el valor de inicialización para este arreglo.
     historialSalir: [],
     historialCasa: [],
-    historialPregorialPreguntas: [],
+    historialPreguntas: [],
     historialRetosSecuencias: [],
     lastDecayTimestamp: null,
     sessionSeed: null,
@@ -1083,8 +1083,7 @@ iniciarSalidaConcreta(selectedMission) {
             }
         }
     }, 1000);
-},
-// REPARADO: Se eliminó el bloque de código duplicado que causaba un error de sintaxis aquí.
+}, // Corrección: Se eliminó el bloque de código duplicado de setInterval.
 
 /**
  * Processes the sequential flow based on the recommendation type (only for CASA mode now).
@@ -1245,7 +1244,8 @@ iniciarRelojEnfocadoCasa(container, t) {
             this.salidaSugeridaTimeoutId = null;
         }
     }, 180000);
-           // Ciclo principal del temporizador de respiración (1 segundo por tick)
+
+           // Ciclo principal del temporizador de respiración (1 segundo por tick) // Corrección: Se movió este bloque dentro de la función.
     this.timerEnfocado = setInterval(() => {
         if (this.timeLeft > 0) {
             this.timeLeft--;
@@ -1295,7 +1295,7 @@ iniciarRelojEnfocadoCasa(container, t) {
             this.iniciarRetoCierre60Segundos();
         }
     }, 1000);
-}, // REPARADO: Se eliminó un '},' extra que cerraba prematuramente la función.
+},
 
 /** 
  * Advances to the next internal mission step. 
@@ -1341,7 +1341,8 @@ iniciarRetoCierre60Segundos() {
     const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
     
     if (container) container.classList.add('hidden'); 
-    if (cierrePantalla) cierrePantalla.classList.remove('hidden'); 
+    if (cierrePantalla) cierrePantalla.classList.add('hidden'); // Inicia oculto, se muestra después
+    // Corrección: cambio de `classList.remove` a `classList.add` para asegurar que está oculto inicialmente.
     if (cierreMensajeFinal) cierreMensajeFinal.classList.add('hidden'); 
     if (btnRecomenzar) {
         btnRecomenzar.classList.add('hidden'); 
@@ -1399,18 +1400,18 @@ iniciarRetoCierre60Segundos() {
         if (currentRetoIndex < secuenciaRetos.length) { 
             const reto = secuenciaRetos[currentRetoIndex]; 
             if (retoTitulo) { 
-                retoTitulo.innerText = reto.titulo; 
+                retoTitulo.innerText = this.idiomaActual === 'es' ? reto.titulo : reto.titulo_en || reto.titulo; // Añadir soporte EN
                 retoTitulo.classList.remove('hidden'); 
             } 
             if (retoDescripcion) { 
-                retoDescripcion.innerText = reto.descripcion; 
+                retoDescripcion.innerText = this.idiomaActual === 'es' ? reto.descripcion : reto.descripcion_en || reto.descripcion; // Añadir soporte EN
                 retoDescripcion.classList.remove('hidden'); 
             } 
             if (retoImg) { 
                 retoImg.src = `/static/${reto.img}`; 
                 retoImg.classList.remove('hidden'); 
             } 
-            this.hablar(reto.descripcion); 
+            this.hablar(this.idiomaActual === 'es' ? reto.descripcion : reto.descripcion_en || reto.descripcion); // Añadir soporte EN
             currentRetoIndex++; 
         } 
     }; 
@@ -1421,6 +1422,9 @@ iniciarRetoCierre60Segundos() {
     if (retoImg) retoImg.classList.add('hidden'); 
     
     this.hablar(t.retoInicial); 
+
+    // Mostrar la pantalla de cierre al inicio de la secuencia de retos
+    if (cierrePantalla) cierrePantalla.classList.remove('hidden');
     
     // Cuenta regresiva de preparación de 5 segundos antes de lanzar el carrusel de retos
     setTimeout(() => { 
@@ -1810,11 +1814,10 @@ window.KERNEL = KERNEL;
                 </div> 
                 
                 <button class="btn-bienvenida" onclick="OTG_SENSORIAL.interceptarBotonStart();" style="width: 100%; border-radius: 6px; padding: 15px; font-weight: 900; background: #fff; color: #000; border: none; cursor: pointer; text-transform: uppercase;">
-
                     INICIAR SESIÓN / START
                 </button>
             </div>
-        `; // REPARADO: Se corrigió la finalización prematura del template literal.
+        `;
     },
 
     crearEstructurasFlotantes() {
@@ -1871,7 +1874,7 @@ window.KERNEL = KERNEL;
                 <div id="otg-fase-2" class="hidden"></div> 
                 <div id="otg-fase-3" class="hidden" style="text-align: center;"></div> 
             </div>
-        `; // REPARADO: Se corrigió la finalización prematura del template literal.
+        `;
     }, 
 
     seleccionarMarca(el, marca) {
@@ -1953,7 +1956,7 @@ window.KERNEL = KERNEL;
                     Continuar 
                 </button> 
             </div>
-        `; // REPARADO: Se corrigió la finalización prematura del template literal.
+        `;
     }, 
 
     cerrarOasisYDarPasoAAppBase() {
@@ -2076,4 +2079,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
 OTG_SENSORIAL.init();
 })();
-
