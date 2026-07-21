@@ -1,42 +1,115 @@
-# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1 # Company: May Roga LLC # File: main.py - SECCIÓN 1 DE 2 (Backend Core)
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
-import uvicorn
+# ==========================================================================================
+# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
+# Company: May Roga LLC
+# File: main.py - SECCIÓN 1 DE 2 (Backend Core)
+# ==========================================================================================
+
 import os
 import random
 import re
-from datetime import datetime
 import urllib.parse
+from datetime import datetime
+
 import stripe
+import uvicorn
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+
 # ==========================================================================================
 # MATRIZ INFINITA DE MANIFIESTOS EXISTENCIALES PARA EL ORÁCULO DE BIENESTAR (3 POR ESTADO)
 # ==========================================================================================
 MANIFIESTOS_ORACULO = {
     "agotado": [
-        "Una persona que abre esta aplicación muchas veces no está buscando un parque. Está buscando sentirse diferente. Lo que desgasta no es la falta de destinos, sino la rutina de salir siempre sin un propósito. El verdadero problema no es encontrar un sitio nuevo, el problema es que las salidas comienzan con la pregunta equivocada. En lugar de preguntarse a dónde vamos, sería mucho más útil preguntarse qué necesitamos hoy como familia. Cuando primero se identifica esa necesidad, elegir el destino deja de ser un problema y pasa a ser una consecuencia natural. Un parque deja de ser otro parque cuando la misión es construir juntos el barco más creativo usando hojas y ramas. El lugar cambia muy poco; lo que realmente cambia es la experiencia y el propósito con el que se vive. No se trata únicamente de decirte a dónde ir. Se trata de entender cómo te sientes y proponerte una experiencia con un propósito.",
-        "Quien abre esta pantalla carga con un cansancio que el descanso pasivo no puede curar. El agobio no es falta de sueño, es un exceso de entorno predecible. Te encierras en el auto huyendo de la rutina, pero manejas con la mente fija en los problemas de la semana. El error fundamental es creer que un lugar nuevo va a cambiar tu estado interno por arte de magia. El espacio físico no hace nada si tu atención sigue secuestrada por las mismas preocupaciones. Un rincón con sombra deja de ser un simple banco cuando tu objetivo real es escuchar tres sonidos diferentes de la naturaleza. El entorno cambia radicalmente cuando tú inyectas una intención clara a tus sentidos. No busques que el mundo te entretenga. Cambia tu frecuencia interna antes de abrir la puerta. Tu misión es detener el piloto automático.",
-        "Quien abre esta pantalla siente que arrastra el peso del mundo sobre los hombros. El agotamiento no es solo cansancio muscular, es fatiga de decisiones acumuladas. Tu cerebro ha procesado demasiadas elecciones obligatorias durante la semana. Buscas un escape pero te mueves en piloto automático, repitiendo los mismos recorridos sin registrar el entorno. Una plaza pública deja de ser un fondo borroso cuando te sientas en un banco céntrico a observar el flujo de los transeúntes en silencio. Ver la vida avanzar a su propio ritmo te devuelve la perspectiva de inmediato. El mundo es inmenso y tus problemas actuales son transitorios. No busques resolver tu existencia hoy. Sal a recuperar tu espacio."
+        "Una persona que abre esta aplicación muchas veces no está buscando un parque. Está buscando "
+        "sentirse diferente. Lo que desgasta no es la falta de destinos, sino la rutina de salir siempre "
+        "sin un propósito. El verdadero problema no es encontrar un sitio nuevo, el problema es que las "
+        "salidas comienzan con la pregunta equivocada. En lugar de preguntarse a dónde vamos, sería mucho "
+        "más útil preguntarse qué necesitamos hoy como familia. Cuando primero se identifica esa necesidad, "
+        "elegir el destino deja de ser un problema y pasa a ser una consecuencia natural. Un parque deja de "
+        "ser otro parque cuando la misión es construir juntos el barco más creativo usando hojas y ramas. "
+        "El lugar cambia muy poco; lo que realmente cambia es la experiencia y el propósito con el que se vive. "
+        "No se trata únicamente de decirte a dónde ir. Se trata de entender cómo te sientes y proponerte una "
+        "experiencia con un propósito.",
+        
+        "Quien abre esta pantalla carga con un cansancio que el descanso pasivo no puede curar. El agobio no "
+        "es falta de sueño, es un exceso de entorno predecible. Te encierras en el auto huyendo de la rutina, "
+        "pero manejas con la mente fija en los problemas de la semana. El error fundamental es creer que un "
+        "lugar nuevo va a cambiar tu estado interno por arte de magia. El espacio físico no hace nada si tu "
+        "atención sigue secuestrada por las mismas preocupaciones. Un rincón con sombra deja de ser un simple "
+        "banco cuando tu objetivo real es escuchar tres sonidos diferentes de la naturaleza. El entorno cambia "
+        "radicalmente cuando tú inyectas una intención clara a tus sentidos. No busques que el mundo te "
+        "entretenga. Cambia tu frecuencia interna antes de abrir la puerta. Tu misión es detener el piloto automático.",
+        
+        "Quien abre esta pantalla siente que arrastra el peso del mundo sobre los hombros. El agotamiento no "
+        "es solo cansancio muscular, es fatiga de decisiones acumuladas. Tu cerebro ha procesado demasiadas "
+        "elecciones obligatorias durante la semana. Buscas un escape pero te mueves en piloto automático, "
+        "repitiendo los mismos recorridos sin registrar el entorno. Una plaza pública deja de ser un fondo "
+        "borroso cuando te sientas en un banco céntrico a observar el flujo de los transeúntes en silencio. "
+        "Ver la vida avanzar a su propio ritmo te devuelve la perspectiva de inmediato. El mundo es inmenso "
+        "y tus problemas actuales son transitorios. No busques resolver tu existencia hoy. Sal a recuperar tu espacio."
     ],
     "estresado": [
-        "Quien abre esta aplicación muchas veces cree que le falta tiempo, pero lo que realmente le falta es espacio interior. La prisa industrial nos enseña a correr hacia destinos vacíos solo para tachar una lista de tareas los fines de semana. Subes al auto con el pulso acelerado, manejas con tensión y exiges que el lugar te cure el estrés en cinco minutos. El verdadero problema no es la velocidad del mundo exterior, sino que intentas habitar un lugar nuevo cargando con el mismo cuerpo rígido y la misma mente saturada. Una cafetería deja de ser un sitio de consumo rápido cuando tu misión es cerrar los ojos y aislar el ruido del entorno durante dos minutos. No busques que el destino te calme; cambia tu frecuencia somática antes de llegar. Hoy tu misión es desacelerar el ritmo biológico.",
-        "Tu cuerpo está rígido por la velocidad del día y las notificaciones continuas. Buscas un escape pero caminas con prisa, devorando el paisaje sin registrar nada de lo que te rodea. La ansiedad te hace saltar de un estímulo a otro sin encontrar paz en ningún rincón. El asfalto y las pantallas fragmentan tu atención por completo. Un sendero natural deja de ser un camino genérico cuando el reto es sincronizar cada paso con una exhalación profunda y prolongada. Tocar la corteza rugosa de un árbol te devuelve al suelo de inmediato. No corras hacia el destino para huir de ti mismo. Detén la marcha. Siente el aire fresco en tu rostro. Tu organismo exige recuperar el ritmo natural de la vida.",
-        "Tu mente corre más rápido que tus piernas y tu respiración es corta. Las alertas del teléfono y las demandas del día han fragmentado tu atención por completo. Buscas un rincón de paz pero caminas apurado, devorando el trayecto con tensión muscular en el cuello y la mandíbula. Estás huyendo de la prisa cometiendo el error de correr hacia el destino. Un espejo de agua o una fuente local dejan de ser paisaje invisible cuando te detienes frente a la orilla por tres minutos exactos. Seguir el flujo de la corriente estabiliza tu ritmo cardíaco de forma somática. No le exijas velocidad al día. Detén la marcha. Siente la inmovilidad de tu cuerpo en este instante."
+        "Quien abre esta aplicación muchas veces cree que le falta tiempo, pero lo que realmente le falta es "
+        "espacio interior. La prisa industrial nos enseña a correr hacia destinos vacíos solo para tachar una "
+        "lista de tareas los fines de semana. Subes al auto con el pulso acelerado, manejas con tensión y "
+        "exiges que el lugar te cure el estrés en cinco minutos. El verdadero problema no es la velocidad del "
+        "mundo exterior, sino que intentas habitar un lugar nuevo cargando con el mismo cuerpo rígido y la "
+        "misma mente saturada. Una cafetería deja de ser un sitio de consumo rápido cuando tu misión es cerrar "
+        "los ojos y aislar el ruido del entorno durante dos minutos. No busques que el destino te calme; cambia "
+        "tu frecuencia somática antes de llegar. Hoy tu misión es desacelerar el ritmo biológico.",
+        
+        "Tu cuerpo está rígido por la velocidad del día y las notificaciones continuas. Buscas un escape pero "
+        "caminas con prisa, devorando el paisaje sin registrar nada de lo que te rodea. La ansiedad te hace "
+        "saltar de un estímulo a otro sin encontrar paz en ningún rincón. El asfalto y las pantallas "
+        "fragmentan tu atención por completo. Un sendero natural deja de ser un camino genérico cuando el "
+        "reto es sincronizar cada paso con una exhalación profunda y prolongada. Tocar la corteza rugosa de "
+        "un árbol te devuelve al suelo de inmediato. No corras hacia el destino para huir de ti mismo. Detén "
+        "la marcha. Siente el aire fresco en tu rostro. Tu organismo exige recuperar el ritmo natural de la vida.",
+        
+        "Tu mente corre más rápido que tus piernas y tu respiración es corta. Las alertas del teléfono y las "
+        "demandas del día han fragmentado tu atención por completo. Buscas un rincón de paz pero caminas "
+        "apurado, devorando el trayecto con tensión muscular en el cuello y la mandíbula. Estás huyendo de "
+        "la prisa cometiendo el error de correr hacia el destino. Un espejo de agua o una fuente local dejan "
+        "de ser paisaje invisible cuando te detienes frente a la orilla por tres minutos exactos. Seguir el "
+        "flujo de la corriente estabiliza tu ritmo cardíaco de forma somática. No le exijas velocidad al día. "
+        "Detén la marcha. Siente la inmovilidad de tu cuerpo en este instante."
     ],
     "aburrido": [
-        "Muchas personas salen de casa con la falsa certeza de que comprar algo nuevo va a llenar el vacío de un día plano. La inercia te arrastra hacia el centro comercial, las tiendas de descuento o el restaurante de moda. Gastas dinero en objetos que no necesitas y a la hora regresas al mismo sillón con la rumiación intacta. Lo que tu mente busca desesperadamente no es una mercancía, es una experiencia sensorial viva. Un almacén gigante deja de ser una prisión de consumo cuando lo utilizas como un laboratorio para activar tus piernas caminando a paso firme. El aburrimiento no se cura acumulando cosas, se cura inyectando intención a tus movimientos. Sal a descubrir con los ojos abiertos, no con la tarjeta de crédito.",
-        "Pasamos el día entero atrapados a través de una ventana de cristal de cinco pulgadas. Miras el mapa digital, caminas respondiendo mensajes y te sientas a comer fotografiando el plato para personas que no están ahí. Tu cuerpo se mueve por la ciudad, pero tu mente nunca sale del ecosistema de las redes sociales. Lo que desgasta tu existencia es la desconexión total con la materia real que te rodea. Una plaza pública deja de ser un fondo borroso cuando te obligas a observar el flujo de los seres humanos en silencio. El mundo físico está vivo y lleno de misterios esperando por ti. Tu misión de hoy exige un acto de soberanía: guarda el teléfono en el bolsillo. Habita el día de verdad.",
-        "La rutina predecible ha apagado tu curiosidad y tus días se sienten idénticos. Caes en el bucle de consuming contenido digital basura esperando que una pantalla te devuelva el entusiasmo por vivir. Tu cuerpo está estancado en el sedentarismo visual de las mismas cuatro paredes. Lo que tu organismo exige con urgencia es un impacto de asombro analógico real. Una librería de segunda mano o un pequeño museo local dejan de ser espacios estáticos cuando buscas un título o un cartel inesperado. Perderte entre objetos físicos reales despierta tu agudeza óptica de inmediato. El aburrimiento no está en tu ciudad, está en la forma predecible de mirar tu entorno. Guarda el teléfono. Sal a descubrir el mundo con los ojos abiertos."
+        "Muchas personas salen de casa con la falsa certeza de que comprar algo nuevo va a llenar el vacío de "
+        "un día plano. La inercia te arrastra hacia el centro comercial, las tiendas de descuento o el "
+        "restaurante de moda. Gastas dinero en objetos que no necesitas y a la hora regresas al mismo sillón "
+        "con la rumiación intacta. Lo que tu mente busca desesperadamente no es una mercancía, es una "
+        "experiencia sensorial viva. Un almacén gigante deja de ser una prisión de consumo cuando lo utilizas "
+        "como un laboratorio para activar tus piernas caminando a paso firme. El aburrimiento no se cura "
+        "acumulando cosas, se cura inyectando intención a tus movimientos. Sal a descubrir con los ojos "
+        "abiertos, no con la tarjeta de crédito.",
+        
+        "Pasamos el día entero atrapados a través de una ventana de cristal de cinco pulgadas. Miras el mapa "
+        "digital, caminas respondiendo mensajes y te sientas a comer fotografiando el plato para personas "
+        "que no están ahí. Tu cuerpo se mueve por la ciudad, pero tu mente nunca sale del ecosistema de las "
+        "redes sociales. Lo que desgasta tu existencia es la desconexión total con la materia real que te "
+        "rodea. Una plaza pública deja de ser un fondo borroso cuando te obligas a observar el flujo de los "
+        "seres humanos en silencio. El mundo físico está vivo y lleno de misterios esperando por ti. Tu misión "
+        "de hoy exige un acto de soberanía: guarda el teléfono en el bolsillo. Habita el día de verdad.",
+        
+        "La rutina predecible ha apagado tu curiosidad y tus días se sienten idénticos. Caes en el bucle de "
+        "consumir contenido digital basura esperando que una pantalla te devuelva el entusiasmo por vivir. "
+        "Tu cuerpo está estancado en el sedentarismo visual de las mismas cuatro paredes. Lo que tu organismo "
+        "exige con urgencia es un impacto de asombro analógico real. Una librería de segunda mano o un "
+        "pequeño museo local dejan de ser espacios estáticos cuando buscas un título o un cartel inesperado. "
+        "Perderte entre objetos físicos reales despierta tu agudeza óptica de inmediato. El aburrimiento no "
+        "está en tu ciudad, está en la forma predecible de mirar tu entorno. Guarda el teléfono. Sal a "
+        "descubrir el mundo con los ojos abiertos."
     ]
 }
 
-# AQUÍ CONTINÚA TU CÓDIGO ORIGINAL CON LA CONFIGURACIÓN DE STRIPE ABAJO...
-
-# ============================================================
+# ==========================================================================================
 # INYECCIÓN CRÍTICA DE CONTROL: PASARELA STRIPE & BYPASS MAESTRO
-# ============================================================
+# ==========================================================================================
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
+
 ADMIN_USER = os.environ.get("ADMIN_USERNAME")
 ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
 
@@ -46,14 +119,16 @@ PLANES_STRIPE = {
     "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
     "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
 }
-# ============================================================
 
+# ==========================================================================================
 link_base = "https://www.google.com/maps/search/?api=1&query="
+
 app = FastAPI()
 
 # Ensure the 'static' directory exists before mounting
 if not os.path.exists("static"):
     os.makedirs("static")
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 DEFAULT_NECESSITY_VECTOR = {
@@ -77,14 +152,15 @@ DEFAULT_NECESSITY_VECTOR = {
     "esperanza": 50,
     "indicador_ansiedad": 0
 }
-
-# ============================================================
+# ==========================================================================================
 # MOTOR DE HISTORIAL INTELIGENTE CWRE V2
 # Anti-Repetición + Exploración Controlada
-# ============================================================
+# ==========================================================================================
 MAX_HISTORY_SALIR = 5
 MAX_HISTORY_CASA = 8
-MAX_HISTORY_ORACULO = 12 # This is handled by frontend (engine.js)
+MAX_HISTORY_ORACULO = 12
+
+# This is handled by frontend (engine.js)
 EXPLORATION_RATE = 0.20
 HISTORY_PENALTY_BASE = 40
 
@@ -96,11 +172,14 @@ def limitar_historial(historial, limite):
 def penalizacion_historial(mision_id, historial):
     if not historial:
         return 0
-    historial = list(reversed(historial)) # Prioriza las más recientes
+    
+    # Prioriza las más recientes
+    historial = list(reversed(historial)) 
+    
     for posicion, antiguo_id in enumerate(historial):
         if antiguo_id == mision_id:
-            if posicion == 0: # Última misión
-                return HISTORY_PENALTY_BASE * 1.5 # Más penalización para la última
+            if posicion == 0:  # Última misión
+                return HISTORY_PENALTY_BASE * 1.5
             elif posicion == 1:
                 return HISTORY_PENALTY_BASE
             elif posicion == 2:
@@ -111,9 +190,11 @@ def penalizacion_historial(mision_id, historial):
 
 def bonus_exploracion(mision_id, historial):
     if not historial or mision_id not in historial:
-        return 20 # Bonificación significativa si nunca se ha visto
+        return 20  # Bonificación significativa si nunca se ha visto
+        
     # Reducir bonificación si ya se ha visto pero no está en el historial reciente
-    if mision_id not in limitar_historial(historial, int(MAX_HISTORY_SALIR / 2)):
+    limite_reciente = int(MAX_HISTORY_SALIR / 2)
+    if mision_id not in limitar_historial(historial, limite_reciente):
         return 5
     return 0
 
@@ -127,10 +208,13 @@ def actualizar_historial(historial, nuevo_id, limite):
 def diversidad_vector(vector1, vector2):
     distancia = 0
     needs_to_consider = [k for k in DEFAULT_NECESSITY_VECTOR.keys() if k != "indicador_ansiedad"]
-    for k in needs_to_consider: # Suma las diferencias absolutas de cada necesidad
-        distancia += abs(
-            vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50)) - vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
-        )
+    
+    for k in needs_to_consider:
+        # Suma las diferencias absolutas de cada necesidad
+        v1_val = vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
+        v2_val = vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
+        distancia += abs(v1_val - v2_val)
+        
     return distancia
 
 # === MODIFICACIÓN: CONSTANTES DE TIEMPO Y PROPÓSITO ACORTADAS PARA LECTURA RÁPIDA ===
@@ -414,117 +498,111 @@ BIG_TECH_RESOURCES = {
     "youtube_audio_en": "https://www.youtube.com/results?search_query=nature+sounds+relaxing",
 }
 
-# ============================================================
+# ==========================================================================================
 # CWRE V2
 # SCORE INTELIGENTE (REFINADO)
-# ============================================================
-def score_coincidencia(
-    perfil_local,
-    vector_necesidades,
-    historial=None,
-    mission_id=None
-):
+# ==========================================================================================
+def score_coincidencia(perfil_local, vector_necesidades, historial=None, mission_id=None):
     historial = historial or []
     score = 0
-    # --------------------------------------------------
+    
+    # --------------------------------------------------------------------------------------
     # Coincidencia principal: Cuanto más cerca esté la necesidad
     # del usuario del objetivo de la misión, mayor el score.
-    # --------------------------------------------------
+    # --------------------------------------------------------------------------------------
     for necesidad, objetivo in vector_necesidades.items():
         if necesidad == "indicador_ansiedad":
             continue
         usuario = perfil_local.get(necesidad, DEFAULT_NECESSITY_VECTOR.get(necesidad, 50))
         diferencia = abs(usuario - objetivo)
-        score += (100 - diferencia) * 0.5 # Ponderación base
-
-    # --------------------------------------------------
-    # Priorizar necesidades insatisfechas (altas en perfil)
-    # y que la misión las cubra bien.
-    # --------------------------------------------------
+        score += (100 - diferencia) * 0.5  # Ponderación base
+        
+    # --------------------------------------------------------------------------------------
+    # Priorizar necesidades insatisfechas (altas en perfil) y que la misión las cubra bien.
+    # --------------------------------------------------------------------------------------
     for necesidad, valor_usuario in perfil_local.items():
         if necesidad == "indicador_ansiedad":
             continue
-        # Si la necesidad del usuario es alta (insatisfecha) y la misión también tiene un alto objetivo para esa necesidad
-        if valor_usuario > 70 and vector_necesidades.get(necesidad, 0) > 70:
-            score += (valor_usuario * 0.3) # Bonificación fuerte
-        elif valor_usuario > 50 and vector_necesidades.get(necesidad, 0) > 50:
-            score += (valor_usuario * 0.1) # Bonificación moderada
+            
+        # Si la necesidad del usuario es alta (insatisfecha) y la misión la cubre bien
+        obj_mision = vector_necesidades.get(necesidad, 0)
+        if valor_usuario > 70 and obj_mision > 70:
+            score += (valor_usuario * 0.3)  # Bonificación fuerte
+        elif valor_usuario > 50 and obj_mision > 50:
+            score += (valor_usuario * 0.1)  # Bonificación moderada
 
-    # --------------------------------------------------
+        # --------------------------------------------------------------------------------------
     # Priorizar ansiedad: Misiones que atienden directamente la ansiedad.
-    # --------------------------------------------------
+    # --------------------------------------------------------------------------------------
     ansiedad = perfil_local.get("indicador_ansiedad", 0)
-    if ansiedad >= 70: # Nivel alto de ansiedad
+    
+    if ansiedad >= 70:  # Nivel alto de ansiedad
         score += vector_necesidades.get("silencio", 0) * 0.5
         score += vector_necesidades.get("descanso", 0) * 0.5
         score += vector_necesidades.get("esperanza", 0) * 0.4
         score += vector_necesidades.get("naturaleza", 0) * 0.3
         score += vector_necesidades.get("agua", 0) * 0.3
-    elif ansiedad >= 40: # Nivel medio de ansiedad
+    elif ansiedad >= 40:  # Nivel medio de ansiedad
         score += vector_necesidades.get("descanso", 0) * 0.2
         score += vector_necesidades.get("silencio", 0) * 0.2
-   
-    # --------------------------------------------------
+        
+    # --------------------------------------------------------------------------------------
     # Penalización por repetición histórica y bonus por exploración
-    # --------------------------------------------------
+    # --------------------------------------------------------------------------------------
     if mission_id is not None:
         score -= penalizacion_historial(mission_id, historial)
         score += bonus_exploracion(mission_id, historial)
-   
+        
     return round(max(0, score), 2)
 
-# ============================================================
+# ==========================================================================================
 # Selección por Ranking Inteligente
-# ============================================================
+# ==========================================================================================
 def seleccionar_por_ranking(candidatos):
     if not candidatos:
         return None
-   
+        
     candidatos = sorted(candidatos, key=lambda x: x["score"], reverse=True)
-   
     if not candidatos:
         return None
-
+        
     mejor_score = candidatos[0]["score"]
    
-    # Si todos tienen un score bajo, y todos son iguales, elige uno al azar.
-    if mejor_score <= 100: # Umbral para considerar que los scores son "bajos"
+        # Si todos tienen un score bajo, y todos son iguales, elige uno al azar.
+    if mejor_score <= 100:  # Umbral para considerar que los scores son "bajos"
         scores_unicos = {c["score"] for c in candidatos}
         if len(scores_unicos) == 1:
             return random.choice(candidatos)
 
     # Considerar un umbral dinámico para seleccionar entre los mejores
-    score_umbral = max(mejor_score * 0.8, mejor_score - 150) # El 80% del mejor o 150 puntos menos que el mejor
-   
+    score_umbral = max(mejor_score * 0.8, mejor_score - 150)  # El 80% del mejor o 150 puntos menos que el mejor
     mejores_candidatos_para_eleccion = [
         c for c in candidatos if c["score"] >= score_umbral
     ]
-   
-    if not mejores_candidatos_para_eleccion: # Si el umbral fue demasiado estricto, relaja y toma del top 3
+    
+    if not mejores_candidatos_para_eleccion:
+        # Si el umbral fue demasiado estricto, relaja y toma del top 3
         mejores_candidatos_para_eleccion = candidatos[:min(3, len(candidatos))]
-        if not mejores_candidatos_para_eleccion: return None
-
+        
+    if not mejores_candidatos_para_eleccion:
+        return None
+        
     pesos = [c["score"] for c in mejores_candidatos_para_eleccion]
     # Asegúrate de que ningún peso sea cero o negativo para random.choices
     pesos = [max(1, p) for p in pesos]
-
+    
     return random.choices(mejores_candidatos_para_eleccion, weights=pesos, k=1)[0]
 
-
-# ============================================================
+# ==========================================================================================
 # CWRE V2
 # Selector Universal de Misiones
-# ============================================================
-def seleccionar_mision_inteligente(
-    misiones,
-    perfil_local,
-    historial=None
-):
+# ==========================================================================================
+def seleccionar_mision_inteligente(misiones, perfil_local, historial=None):
     historial = historial or []
     candidatos = []
+    
     for mision in misiones:
         mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
-       
         score = score_coincidencia(
             perfil_local=perfil_local,
             vector_necesidades=mission_vector,
@@ -535,23 +613,21 @@ def seleccionar_mision_inteligente(
             "mision": mision,
             "score": score
         })
+        
     seleccion = seleccionar_por_ranking(candidatos)
     if seleccion is None:
         return random.choice(misiones) if misiones else None
+        
     return seleccion["mision"]
 
-# ============================================================
+# ==========================================================================================
 # CWRE V2.1
 # Seleccionar N misiones inteligentes y diversas (para modo SALIR)
-# ============================================================
-def seleccionar_n_misiones_inteligentes(
-    n,
-    misiones,
-    perfil_local,
-    historial_actual=None
-):
+# ==========================================================================================
+def seleccionar_n_misiones_inteligentes(n, misiones, perfil_local, historial_actual=None):
     historial_actual = historial_actual or []
     candidatos_base = []
+    
     for mision in misiones:
         mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
         score = score_coincidencia(
@@ -564,44 +640,51 @@ def seleccionar_n_misiones_inteligentes(
             "mision": mision,
             "score": score
         })
-
+        
     candidatos_base.sort(key=lambda x: x["score"], reverse=True)
-   
     seleccionadas = []
     ids_seleccionados = set()
-   
+    
     # Prioriza las de mayor score y las que no estén en el historial
     for cand in candidatos_base:
         if len(seleccionadas) >= n:
             break
-        if cand["mision"]["id"] not in ids_seleccionados and cand["mision"]["id"] not in historial_actual:
+            
+        mision_id = cand["mision"]["id"]
+        if mision_id not in ids_seleccionados and mision_id not in historial_actual:
             es_diversa = True
+            
             for sel_mision in seleccionadas:
                 distancia = diversidad_vector(
                     cand["mision"].get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
                     sel_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
                 )
                 # Define un umbral de diversidad. Si son muy parecidas, no la elijas.
-                if distancia < 100: # Ajusta este umbral según sea necesario para la diversidad
+                if distancia < 100:  # Ajusta este umbral según sea necesario para la diversidad
                     es_diversa = False
                     break
+                    
             if es_diversa:
                 seleccionadas.append(cand["mision"])
-                ids_seleccionados.add(cand["mision"]["id"])
-   
-    # Si aún no tenemos suficientes, toma las siguientes mejores aunque no sean tan diversas
+                ids_seleccionados.add(mision_id)
+                    # Si aún no tenemos suficientes, toma las siguientes mejores aunque no sean tan diversas
     for cand in candidatos_base:
         if len(seleccionadas) >= n:
             break
-        if cand["mision"]["id"] not in ids_seleccionados and cand["mision"]["id"] not in historial_actual:
+            
+        mision_id = cand["mision"]["id"]
+        if mision_id not in ids_seleccionados and mision_id not in historial_actual:
             seleccionadas.append(cand["mision"])
-            ids_seleccionados.add(cand["mision"]["id"])
+            ids_seleccionados.add(mision_id)
 
     # Si todavía no tenemos suficientes, y el historial se ha agotado, reinicia y toma al azar
     if len(seleccionadas) < n and len(misiones) >= n:
         temp_misiones = [m for m in misiones if m["id"] not in ids_seleccionados]
+        
+        # Si no hay suficientes nuevas, recicla todo el catálogo
         if len(temp_misiones) < n - len(seleccionadas):
-            temp_misiones = misiones # Si no hay suficientes nuevas, recicla todo el catálogo
+            temp_misiones = misiones 
+            
         random.shuffle(temp_misiones)
         for mision in temp_misiones:
             if len(seleccionadas) >= n:
@@ -613,50 +696,38 @@ def seleccionar_n_misiones_inteligentes(
     # Asegúrate de que el resultado final sea exactamente 'n' misiones si es posible
     while len(seleccionadas) < n and len(misiones) > len(seleccionadas):
         mision_aleatoria = random.choice(misiones)
-        if mision_aleatoria["id"] not in ids_seleccionados:
+        mision_aleatoria_id = mision_aleatoria["id"]
+        if mision_aleatoria_id not in ids_seleccionados:
             seleccionadas.append(mision_aleatoria)
-            ids_seleccionados.add(mision["id"])
+            ids_seleccionados.add(mision_aleatoria_id)
 
     return seleccionadas[:n]
 
-
-# ============================================================
+# ==========================================================================================
 # Filtrar historial (para disponibilidad de misiones)
-# ============================================================
+# ==========================================================================================
 def filtrar_historial(misiones, historial):
     historial = historial or []
-    disponibles = [
-        m
-        for m in misiones
-        if m["id"] not in historial
-    ]
+    disponibles = [m for m in misiones if m["id"] not in historial]
     return disponibles
 
-# ============================================================
+# ==========================================================================================
 # CASA V2
 # Selección inteligente de misiones domésticas
-# ============================================================
-def seleccionar_misiones_casa_inteligente(
-    misiones,
-    perfil_local,
-    historial_casa=None,
-    cantidad=3
-):
+# ==========================================================================================
+def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa=None, cantidad=3):
     historial_casa = historial_casa or []
-   
-    disponibles = filtrar_historial(
-        misiones,
-        historial_casa
-    )
-   
-    if len(disponibles) < cantidad * 2: # Si quedan muy pocas sin repetir, considera todo el catálogo de nuevo
+    disponibles = filtrar_historial(misiones, historial_casa)
+    
+    if len(disponibles) < cantidad * 2:
+        # Si quedan muy pocas sin repetir, considera todo el catálogo de nuevo
         disponibles = misiones
-
+        
     candidatos = []
     for mision in disponibles:
         mission_vector = mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
 
-        score = score_coincidencia(
+                score = score_coincidencia(
             perfil_local=perfil_local,
             vector_necesidades=mission_vector,
             historial=historial_casa,
@@ -666,51 +737,53 @@ def seleccionar_misiones_casa_inteligente(
             "mision": mision,
             "score": score
         })
-   
-    candidatos.sort(
-        key=lambda x: x["score"],
-        reverse=True
-    )
-   
+        
+    candidatos.sort(key=lambda x: x["score"], reverse=True)
     resultado = []
     ids_en_resultado = set()
-   
+    
     # Intenta seleccionar misiones diversas y de alto score
     for candidato in candidatos:
-        mision = candidato["mision"]
-        if mision["id"] in ids_en_resultado:
+        mision_actual = candidato["mision"]
+        mision_id = mision_actual["id"]
+        
+        if mision_id in ids_en_resultado:
             continue
-
+            
         es_diversa = True
         for anterior_mision in resultado:
             distancia = diversidad_vector(
-                mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
+                mision_actual.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR),
                 anterior_mision.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
             )
-            if distancia < 60: # Umbral de diversidad para misiones CASA
+            if distancia < 60:  # Umbral de diversidad para misiones CASA
                 es_diversa = False
                 break
-       
+                
         if es_diversa:
-            resultado.append(mision)
-            ids_en_resultado.add(mision["id"])
-       
+            resultado.append(mision_actual)
+            ids_en_resultado.add(mision_id)
+            
         if len(resultado) >= cantidad:
             break
-           
-        # Si no se alcanzan las 'cantidad' requeridas con diversidad, añade las siguientes mejores
+
+               # Si no se alcanzan las 'cantidad' requeridas con diversidad, añade las siguientes mejores
     if len(resultado) < cantidad:
         for candidato in candidatos:
-            mision = candidato["mision"]
-            if mision["id"] not in ids_en_resultado:
-                resultado.append(mision)
-                ids_en_resultado.add(mision["id"])
+            mision_actual = candidato["mision"]
+            mision_id = mision_actual["id"]
+            
+            if mision_id not in ids_en_resultado:
+                resultado.append(mision_actual)
+                ids_en_resultado.add(mision_id)
+                
             if len(resultado) >= cantidad:
                 break
-               
+
     # Fallback final: si aún no hay suficientes, toma las primeras 'cantidad'
     if len(resultado) < cantidad and len(misiones) >= cantidad:
         resultado = [c["mision"] for c in candidatos[:cantidad]]
+        
     return resultado
 
 @app.get("/")
@@ -721,15 +794,18 @@ async def index():
 # ==========================================================================================
 # INYECCIÓN OPERATIVA: CONTROLADORES DE COMPRA Y ACCESO ADMINISTRATIVO CON REQUEST SEGURO
 # ==========================================================================================
+from fastapi import HTTPException  # Asegura la importación para evitar fallos de ejecución
+
 @app.post("/crear-checkout")
 async def crear_checkout(request: Request):
     try:
         data = await request.json()
         tipo_plan = data.get("tipo_plan")
         user_id = data.get("user_id", "cliente_otg")
+        
         if tipo_plan not in PLANES_STRIPE:
             raise HTTPException(status_code=400, detail="Plan inválido")
-       
+            
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             line_items=[{"price": PLANES_STRIPE[tipo_plan], "quantity": 1}],
@@ -738,7 +814,8 @@ async def crear_checkout(request: Request):
             cancel_url="https://open-than-go.onrender.com",
             client_reference_id=user_id
         )
-        return {"url": session.url}
+
+              return {"url": session.url}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
@@ -748,8 +825,10 @@ async def login_admin(request: Request):
         data = await request.json()
         username = data.get("username")
         password = data.get("password")
+        
         if username == ADMIN_USER and password == ADMIN_PASS:
             return {"status": "success", "role": "admin", "user_id": "admin_master"}
+            
         return JSONResponse(status_code=401, content={"error": "Credenciales incorrectas"})
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": "Payload malformado"})
@@ -758,14 +837,18 @@ async def login_admin(request: Request):
 async def webhook_stripe(request: Request):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
+    
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
+        
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
         print(f"Pago exitoso para usuario: {session.get('client_reference_id')}")
+        
     return {"status": "success"}
+
 # ==========================================================================================
 # OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
 # Company: May Roga LLC
@@ -787,54 +870,75 @@ async def mando_integral(request: Request):
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
-   
+    
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
-        return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
-       
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}
+        )
+        
     perfil_local = payload.get("perfil_local", {})
     if not isinstance(perfil_local, dict):
         perfil_local = {}
-       
+        
     perfil_local = {
         **DEFAULT_NECESSITY_VECTOR,
         **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
     }
+    
     if "indicador_ansiedad" not in perfil_local:
         perfil_local["indicador_ansiedad"] = 0
-       
-    # ==========================================================================================
+
+           # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
     # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
     # ==========================================================================================
     sensitive_keywords = [
-        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", "curriculum", "linkedin", "indeed", "networking", "cliente", "client", "empresa", "company", "income", "earn money", "ganar dinero", "producir", "productividad", "buscar oportunidades", "buscar ofertas", "enviar currículo", "actualizar linkedin", "conseguir empleo", "salir a buscar trabajo", "metas profesionales", "presion economica", "presión económica", "biles", "deudas", "misery", "exploitation", "amazon", "walmart", "costco", "fresco", "tienda", "comprar", "dinero", "economy", "oportunidades laborales", "solicitudes de empleo", "visitar empresas", "buscando clientes", "producir dinero", "obligaciones laborales", "responsabilidades", "tareas", "negocio", "negocios", "presión", "presiones"
+        "trabajo", "empleo", "job", "jobs", "work", "career", "interview", "resume", "cv", 
+        "curriculum", "linkedin", "indeed", "networking", "cliente", "client", "empresa", 
+        "company", "income", "earn money", "ganar dinero", "producir", "productividad", 
+        "buscar oportunidades", "buscar ofertas", "enviar currículo", "actualizar linkedin", 
+        "conseguir empleo", "salir a buscar trabajo", "metas profesionales", "presion economica", 
+        "presión económica", "biles", "deudas", "misery", "exploitation", "amazon", "walmart", 
+        "costco", "fresco", "tienda", "comprar", "dinero", "economy", "oportunidades laborales", 
+        "solicitudes de empleo", "visitar empresas", "buscando clientes", "producir dinero", 
+        "obligaciones laborales", "responsabilidades", "tareas", "negocio", "negocios", 
+        "presión", "presiones"
     ]
-   
+
     force_recovery_mission = False
-    explicitly_seeking_job = any(phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"])
-   
+    explicitly_seeking_job = any(
+        phrase in desahogo 
+        for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"]
+    )
+
     # DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
     marca_detectada = None
     if desahogo and not explicitly_seeking_job:
         desahogo_lower = desahogo.lower()
-        for keyword in ["walmart", "amazon", "costco", "starbucks", "mcdonald", "spotify", "youtube", "tiktok", "instagram"]: # Agregadas marcas de redes
+        target_brands = [
+            "walmart", "amazon", "costco", "starbucks", "mcdonald", 
+            "spotify", "youtube", "tiktok", "instagram"
+        ]
+        for keyword in target_brands:
             if keyword in desahogo_lower:
                 marca_detectada = keyword.capitalize()
                 break
-        if marca_detectada: # Solo forzar si se detectó una marca
-             force_recovery_mission = True
 
-       # INVERSIÓN SISTÉMICA CRÍTICA: SI HAY SÍNTOMA CORPORATIVO, NO HUYES A CASA, EJECUTAS UN CONTRAATAQUE DE CAMPO
+    if marca_detectada:
+        # Solo forzar si se detectó una marca
+        force_recovery_mission = True
+
+    # INVERSIÓN SISTÉMICA CRÍTICA: SI HAY SÍNTOMA CORPORATIVO, NO HUYES A CASA, EJECUTAS UN CONTRAATAQUE DE CAMPO
     if force_recovery_mission and marca_detectada:
         mente_str_es = mente.upper()
         mente_str_en = mente.upper()
-
         diagnostico_sintoma_es = f"Diagnóstico: El cliente experimenta [{mente_str_es}] en relación al estímulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
         diagnostico_sintoma_en = f"Diagnostic: Client experiences [{mente_str_en}] linked to corporate stimulus [{marca_detectada}] in Zip Code {zip_code}."
 
-        instruccion_fisiologica_es = ""
+                instruccion_fisiologica_es = ""
         instruccion_fisiologica_en = ""
-       
+        
         if marca_detectada == "Walmart":
             instruccion_fisiologica_es = "Estás en el templo del consumo. Hackea: detén tu marcha, inhala/exhala profundo. Repite: 'Yo soy el único producto que importa hoy'. Sal de la rutina."
             instruccion_fisiologica_en = "You are in the consumption temple. Hack it: stop, inhale/exhale deeply. Repeat: 'I am the only product that matters today'. Exit routine."
@@ -847,92 +951,127 @@ async def mando_integral(request: Request):
         elif marca_detectada == "Spotify":
             instruccion_fisiologica_es = "Usas sonidos para aislarte. Detén el audio. Ejecuta el Módulo Silencio Mental 1 minuto. Siente tu ritmo cardíaco en este Código Postal."
             instruccion_fisiologica_en = "You use sounds to isolate. Stop audio. Execute 1-minute Mental Silence Module. Feel your heart rhythm in this Zip Code."
-        else: # Default case
+        else:
+            # Default case
             instruccion_fisiologica_es = f"Identificaste que [{marca_detectada}] satura tu mente. Rebélate: usa pasillos, aire libre o ventanas. Haz una pausa biológica profunda de 60 segundos. Recupera el control."
             instruccion_fisiologica_en = f"You identified [{marca_detectada}] saturating your mind. Rebel: use halls, open air, or windows. Take a deep 60-sec biological pause. Regain control."
 
-        # ==============================================================================
-        # CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL (GOOGLE MAPS UNIVERSAL)
-        # ==============================================================================
-        # Respetamos rigurosamente tu formato de budget ("0", "1", "2") y perfil_tipo ("solo", "familia", "accesible")
-        nucleos_ocio = {
-            "ansioso":   {"0": "nature+preserves+botanical+gardens", "1": "cozy+tea+house+bookstore+cafe", "2": "luxury+spa+wellness+resort"},
-            "estresado": {"0": "public+beaches+hiking+trails",       "1": "jazz+club+lounge+bar+comedy",    "2": "fine+dining+restaurant+boutique+hotel"},
-            "aburrido":  {"0": "skate+parks+street+art+squares",     "1": "bowling+alley+arcade+sports+bar", "2": "theme+parks+live+concerts+cruises"},
-            "agotado":   {"0": "scenic+lakes+quiet+public+parks",    "1": "local+coffee+shop+bakery",       "2": "glamping+resort+cabin+rental"}
+           # ==========================================================================================
+    # CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL (GOOGLE MAPS UNIVERSAL)
+    # ==========================================================================================
+    # Respetamos rigurosamente tu formato de budget ("0", "1", "2") y perfil_tipo ("solo", "familia", "accesible")
+    nucleos_ocio = {
+        "ansioso": {
+            "0": "nature+preserves+botanical+gardens",
+            "1": "cozy+tea+house+bookstore+cafe",
+            "2": "luxury+spa+wellness+resort"
+        },
+        "estresado": {
+            "0": "public+beaches+hiking+trails",
+            "1": "jazz+club+lounge+bar+comedy",
+            "2": "fine+dining+restaurant+boutique+hotel"
+        },
+        "aburrido": {
+            "0": "skate+parks+street+art+squares",
+            "1": "bowling+alley+arcade+sports+bar",
+            "2": "theme+parks+live+concerts+cruises"
+        },
+        "agotado": {
+            "0": "scenic+lakes+quiet+public+parks",
+            "1": "local+coffee+shop+bakery",
+            "2": "glamping+resort+cabin+rental"
         }
-        
-        matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
-        gasto_key = budget if budget in ["0", "1", "2"] else "0"
-        actividad_base = matriz_ocio[gasto_key]
+    }
 
-        modificador_compania = ""
-        if perfil_tipo == "familia":
-            modificador_compania = "+family+friendly"
-        elif perfil_tipo == "accesible":
-            modificador_compania = "+wheelchair+accessible"
-        elif perfil_tipo == "solo":
-            modificador_compania = "+hidden+gems"
+    matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
+    gasto_key = budget if budget in ["0", "1", "2"] else "0"
+    actividad_base = matriz_ocio[gasto_key]
 
-        # Armamos el misil exacto para Google Maps respetando el código postal original
-        full_query = f"{actividad_base}{modificador_compania}+in+{zip_code}"
-        target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
+    modificador_compania = ""
+    if perfil_tipo == "familia":
+        modificador_compania = "+family+friendly"
+    elif perfil_tipo == "accesible":
+        modificador_compania = "+wheelchair+accessible"
+    elif perfil_tipo == "solo":
+        modificador_compania = "+hidden+gems"
 
-        # ==============================================================================
-        # CONSTRUCCIÓN DE RECETAS DIGITALES AMERICANAS ASOCIADAS (YOUTUBE Y SPOTIFY)
-        # ==============================================================================
-        antidotos_digitales = {
-            "ansioso":   {"yt": "5+minute+anxiety+grounding+technique+4k", "sp": "binaural+beats+anxiety+relief+solfeggio"},
-            "estresado": {"yt": "vagus+nerve+stimulation+relaxing+visuals+4k", "sp": "deep+cortisol+reduction+ambient+music"},
-            "aburrido":  {"yt": "mind+blowing+science+documentary+short+4k", "sp": "high+dopamine+indie+boost"},
-            "agotado":   {"yt": "deep+mental+rest+nsdr+huberman+4k", "sp": "healing+nostalgia+acoustic+calm"}
+    # Armamos el misil exacto para Google Maps respetando el código postal original
+    full_query = f"{actividad_base}{modificador_compania}+in+{zip_code}"
+    target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
+
+    # ==========================================================================================
+    # CONSTRUCCIÓN DE RECETAS DIGITALES AMERICANAS ASOCIADAS (YOUTUBE Y SPOTIFY)
+    # ==========================================================================================
+    antidotos_digitales = {
+        "ansioso": {
+            "yt": "5+minute+anxiety+grounding+technique+4k",
+            "sp": "binaural+beats+anxiety+relief+solfeggio"
+        },
+        "estresado": {
+            "yt": "vagus+nerve+stimulation+relaxing+visuals+4k",
+            "sp": "deep+cortisol+reduction+ambient+music"
+        },
+        "aburrido": {
+            "yt": "mind+blowing+science+documentary+short+4k",
+            "sp": "high+dopamine+indie+boost"
+        },
+        "agotado": {
+            "yt": "deep+mental+rest+nsdr+huberman+4k",
+            "sp": "healing+nostalgia+acoustic+calm"
         }
-        receta_digital = antidotos_digitales.get(mente, antidotos_digitales["aburrido"])
+    }
 
-        enlace_yt = f"https://youtube.com{receta_digital['yt']}"
-        enlace_sp = f"https://spotify.com{receta_digital['sp']}"
+    receta_digital = antidotos_digitales.get(mente, antidotos_digitales["aburrido"])
 
-        # Inyectamos de forma segura las variables al objeto de la misión respetando tu esquema original
-        final_misiones_para_frontend = [{
-            "destino_id": 999,
-            "destino_titulo": f"HACKEO A {marca_detectada.upper()}",
-            "destino_titulo_en": f"HACKING {marca_detectada.upper()}",
-            "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
-            "que_hacer_en": "Mental Control Interruption & Return to Body.",
-            "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
-            "destino_instruccion": instruccion_fisiologica_es,
-            "destino_instruccion_en": instruccion_fisiologica_en,
-            "destino_coordenadas_gps": target_link,
-            "enlace_youtube": enlace_yt,  # Variables seguras integradas en la estructura de la misión
-            "enlace_spotify": enlace_sp,  # Variables seguras integradas en la estructura de la misión
-            "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
-            "diagnostico_sintoma_es": diagnostico_sintoma_es,
-            "diagnostico_sintoma_en": diagnostico_sintoma_en,
-        }]
+           enlace_yt = f"https://youtube.com{receta_digital['yt']}"
+    enlace_sp = f"https://spotify.com{receta_digital['sp']}"
 
-        # Retornamos el JSONResponse respetando estrictamente los campos originales que tus scripts esperan
-        # Retiramos inyecciones pesadas de texto para proteger la sincronización y evitar congelamientos
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "misiones": final_misiones_para_frontend,
-            "historial_salir_actualizado": payload.get("historial_salir", []),
-            "forced_recovery": True
-        })
+    # Inyectamos de forma segura las variables al objeto de la misión respetando tu esquema original
+    final_misiones_para_frontend = [{
+        "destino_id": 999,
+        "destino_titulo": f"HACKEO A {marca_detectada.upper()}",
+        "destino_titulo_en": f"HACKING {marca_detectada.upper()}",
+        "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
+        "que_hacer_en": "Mental Control Interruption & Return to Body.",
+        "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
+        "destino_instruccion": instruccion_fisiologica_es,
+        "destino_instruccion_en": instruccion_fisiologica_en,
+        "destino_coordenadas_gps": target_link,
+        "enlace_youtube": enlace_yt,  # Variables seguras integradas en la estructura de la misión
+        "enlace_spotify": enlace_sp,  # Variables seguras integradas en la estructura de la misión
+        "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
+        "diagnostico_sintoma_es": diagnostico_sintoma_es,
+        "diagnostico_sintoma_en": diagnostico_sintoma_en,
+    }]
 
-       # ==============================================================================
+    # Retornamos el JSONResponse respetando estrictamente los campos originales que tus scripts esperan
+    # Retiramos inyecciones pesadas de texto para proteger la sincronización y evitar congelamientos
+    return JSONResponse({
+        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+        "misiones": final_misiones_para_frontend,
+        "historial_salir_actualizado": payload.get("historial_salir", []),
+        "forced_recovery": True
+    })
+    # ==========================================================================================
     # CONTINUACIÓN CONTINUA DEL FLUJO DE TRABAJO BASE DE LA PLATAFORMA OPEN THAN GO
-    # ==============================================================================
+    # ==========================================================================================
     
     # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
         # --- ACTUALIZADO: Captura el manifiesto existencial para el 1% de Calidez Humana ---
         textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
         manifiesto_humano_casa = random.choice(textos_oraculo_casa)
-
-        idioma = "EN" if lang.lower() == "en" else "ES"
+        
+        idioma = "EN" if lang == "en" else "ES"
         misiones_completas = BASE_MISIONES[f"CASA_{idioma}"]
         historial_casa = payload.get("historial_casa", [])
-        misiones_casa = seleccionar_misiones_casa_inteligente(misiones_completas, perfil_local, historial_casa, cantidad=3)
+        
+        misiones_casa = seleccionar_misiones_casa_inteligente(
+            misiones_completas, 
+            perfil_local, 
+            historial_casa, 
+            cantidad=3
+        )
         
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
@@ -944,19 +1083,20 @@ async def mando_integral(request: Request):
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
         })
-            # ==============================================================================
+
+    # ==========================================================================================
     # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
-    # ==============================================================================
+    # ==========================================================================================
     opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
     historial_salir = payload.get("historial_salir", [])
+    
     misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
         n=3,
         misiones=opciones_salir_candidatas,
         perfil_local=perfil_local,
         historial_actual=historial_salir
     )
-
-    final_misiones_para_frontend = []
+            final_misiones_para_frontend = []
     for info_seleccionada in misiones_seleccionadas_raw:
         # === MODIFICACIÓN: MENSAJES DE ACOMPAÑAMIENTO Y GASTO ACORTADOS ===
         precio_real = ""
@@ -977,10 +1117,11 @@ async def mando_integral(request: Request):
             
         titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
         donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
+        
         anclaje_geografico = zip_code
         map_base_url = link_base
-        
-        if lang == "en":
+
+                if lang == "en":
             # === MODIFICACIÓN: guia_masticada (EN) ACORTADA ===
             guia_masticada = (
                 f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
@@ -1011,34 +1152,49 @@ async def mando_integral(request: Request):
         elif perfil_tipo == "familia":
             search_query_parts.append("family friendly")
             
-        # ==============================================================================
+                # ==========================================================================================
         # CONSTRUCCIÓN DE LA RECETA DE ECONOMÍA REAL (DESVÍO DENTRO DE GOOGLE MAPS)
-        # ==============================================================================
+        # ==========================================================================================
         # Mapeamos los núcleos de actividad para que Google Maps absorba toda la variedad real
         nucleos_ocio = {
-            "ansioso":   {"0": "nature+preserves+botanical+gardens", "1": "cozy+tea+house+bookstore+cafe", "2": "luxury+spa+wellness+resort"},
-            "estresado": {"0": "public+beaches+hiking+trails",       "1": "jazz+club+lounge+bar+comedy",    "2": "fine+dining+restaurant+boutique+hotel"},
-            "aburrido":  {"0": "skate+parks+street+art+squares",     "1": "bowling+alley+arcade+sports+bar", "2": "theme+parks+live+concerts+cruises"},
-            "agotado":   {"0": "scenic+lakes+quiet+public+parks",    "1": "local+coffee+shop+bakery",       "2": "glamping+resort+cabin+rental"}
+            "ansioso": {
+                "0": "nature+preserves+botanical+gardens",
+                "1": "cozy+tea+house+bookstore+cafe",
+                "2": "luxury+spa+wellness+resort"
+            },
+            "estresado": {
+                "0": "public+beaches+hiking+trails",
+                "1": "jazz+club+lounge+bar+comedy",
+                "2": "fine+dining+restaurant+boutique+hotel"
+            },
+            "aburrido": {
+                "0": "skate+parks+street+art+squares",
+                "1": "bowling+alley+arcade+sports+bar",
+                "2": "theme+parks+live+concerts+cruises"
+            },
+            "agotado": {
+                "0": "scenic+lakes+quiet+public+parks",
+                "1": "local+coffee+shop+bakery",
+                "2": "glamping+resort+cabin+rental"
+            }
         }
-        
+
         matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
         gasto_key = budget if budget in ["0", "1", "2"] else "0"
         actividad_base = matriz_ocio[gasto_key]
-        
+
         search_query_parts.append(actividad_base)
         search_query_parts.append(info_seleccionada["gps"])
         search_query_parts.append(f"in {anclaje_geografico}")
-        
+
         full_map_query_string = " ".join(search_query_parts)
         target_link = f"{map_base_url}{urllib.parse.quote_plus(full_map_query_string)}"
-        
-        # Generamos los enlaces parásitos directamente embebidos en los metadatos de coordenadas de forma segura
+                # Generamos los enlaces parásitos directamente embebidos en los metadatos de coordenadas de forma segura
         # El frontend los leerá en la instancia KERNEL sin alterar la estructura JSON original
         query_escape_ingles = urllib.parse.quote_plus(info_seleccionada.get("titulo_en", "mindfulness escape"))
         info_seleccionada["enlace_youtube"] = f"https://youtube.com{query_escape_ingles}+4k+cinematic"
         info_seleccionada["enlace_spotify"] = f"https://spotify.com{query_escape_ingles}"
-
+        
         final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
         
         # Estructura de salida original idéntica de May Roga LLC para proteger a Stripe
@@ -1065,13 +1221,12 @@ async def mando_integral(request: Request):
         "historial_salir_actualizado": historial_salir
     })
 
-# ==============================================================================
+# ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
-# ==============================================================================
+# ==========================================================================================
 if __name__ == "__main__":
-    import os
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+    port_env = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
 
 
     
