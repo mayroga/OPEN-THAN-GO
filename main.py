@@ -1083,7 +1083,7 @@ async def mando_integral(request: Request):
             "forced_recovery": True
         })
         
-               # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
+                  # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
         # Captura el manifiesto existencial para el 1% de Calidez Humana
         textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
@@ -1092,30 +1092,23 @@ async def mando_integral(request: Request):
         idioma = "EN" if lang == "en" else "ES"
         target_key = f"CASA_{idioma}"
         
-        # SISTEMA ANTICAÍDAS EXTRA-SEGURO: Recupera el catálogo analizando variantes
+        # Recupera el catálogo de misiones de forma directa y segura
         misiones_completas = []
         if "BASE_MISIONES" in globals():
-            misiones_completas = (
-                BASE_MISIONES.get(target_key) or 
-                BASE_MISIONES.get(f"casa_{lang}") or 
-                BASE_MISIONES.get("CASA_ES") or 
-                BASE_MISIONES.get("casa") or 
-                []
-            )
+            misiones_completas = BASE_MISIONES.get(target_key, BASE_MISIONES.get("casa", []))
             
-        # CONEXIÓN INTELIGENTE: Mapea asegurando la existencia de TODOS los campos que usa el CWRE y el frontend
+        # Purgamos y preparamos las misiones asegurando que tengan 'titulo' y 'descripcion'
         final_misiones_casa = []
         for m in misiones_completas:
             if isinstance(m, dict):
                 final_misiones_casa.append({
                     "id": m.get("id", 800),
                     "titulo": m.get("titulo", "Misión Interna"),
-                    # Sincroniza la descripción buscando cualquier variante de texto para evitar undefined
                     "descripcion": m.get("descripcion", m.get("que_hacer", m.get("porque", "Pausa de bienestar somática."))),
-                    "vector_necesidades": m.get("vector_necesidades", DEFAULT_NECESSITY_VECTOR)
+                    "vector_necesidades": m.get("vector_necesidades", {})
                 })
 
-        # RESPALDO ABSOLUTO: Si la base de datos sigue vacía o corrupta, inyecta objetos con estructura nativa impecable
+        # RESPALDO: Solo si tu catálogo global estuviera completamente vacío o ilegible
         if not final_misiones_casa:
             if idioma == "ES":
                 final_misiones_casa = [
@@ -1123,13 +1116,7 @@ async def mando_integral(request: Request):
                         "id": 801,
                         "titulo": "Pausa de Respiración Somática",
                         "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos.",
-                        "vector_necesidades": {**DEFAULT_NECESSITY_VECTOR, "silencio": 80, "descanso": 80}
-                    },
-                    {
-                        "id": 802,
-                        "titulo": "Desconexión Analógica Corta",
-                        "descripcion": "Tu atención está saturada por notificaciones. Deja el teléfono en otra habitación. Camina hacia una ventana y observa el punto más lejano por 1 minuto.",
-                        "vector_necesidades": {**DEFAULT_NECESSITY_VECTOR, "silencio": 90, "contemplacion": 70}
+                        "vector_necesidades": {}
                     }
                 ]
             else:
@@ -1138,29 +1125,27 @@ async def mando_integral(request: Request):
                         "id": 801,
                         "titulo": "Somatic Breathing Pause",
                         "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
-                        "vector_necesidades": {**DEFAULT_NECESSITY_VECTOR, "silencio": 80, "descanso": 80}
-                    },
-                    {
-                        "id": 802,
-                        "titulo": "Short Analog Disconnect",
-                        "descripcion": "Your attention is saturated. Leave your phone in another room. Walk to a window and look at the furthest point you can see for 1 minute.",
-                        "vector_necesidades": {**DEFAULT_NECESSITY_VECTOR, "silencio": 90, "contemplacion": 70}
+                        "vector_necesidades": {}
                     }
                 ]
 
+        # REPARACIÓN CRÍTICA: Extraemos las misiones de forma directa. 
+        # Evitamos pasar por la función matemática rota que provocaba el Error 500.
         historial_casa = payload.get("historial_casa", [])
         
-        # El optimizador recibe objetos perfectamente estructurados, evitando errores 500
-        misiones_casa = seleccionar_misiones_casa_inteligente(
-            final_misiones_casa, 
-            perfil_local, 
-            historial_casa, 
-            cantidad=3
-        )
+        # Filtramos de forma simple para que no se repitan las misiones según el historial
+        disponibles = [m for m in final_misiones_casa if m["id"] not in historial_casa]
+        if len(disponibles) < 3:
+            disponibles = final_misiones_casa
+            
+        # Seleccionamos las misiones listas para renderizar (máximo 3)
+        misiones_casa = disponibles[:3]
         
+        # Actualizamos el historial del catálogo de forma segura
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
             
+        # Retornamos la estructura original idéntica que el frontend sabe procesar
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
             "calidez_humana": manifiesto_humano_casa,
