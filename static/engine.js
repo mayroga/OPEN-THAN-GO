@@ -1,41 +1,41 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
-    // Company: May Roga LLC
-    // File: static/engine.js (Frontend Logic)
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1 
+// Company: May Roga LLC 
+// File: static/engine.js (Frontend Logic) 
 
-    const KERNEL = {
-        timerInaccion: null,
-        timerEnfocado: null,
-        temporizadorCascada: null,
-        temporizadorCierre: null,
-        salidaSugeridaTimeoutId: null,
-        salidaTimerId: null, // New timer for SALIR mode 45s phrases
-        
-        // --- NUEVO ENGRANAJE INDESTRUCTIBLE (TIPO TIKTOK) ---
-        horaInicioSesionAbsoluta: null, // Almacena la estampa de tiempo Unix de la CPU real
-        
-        timeLeft: 600,
-        timeLeftCierre: 60,
-        isLocked: false,
-        idiomaActual: 'es',
-        pasosMisiones: [],
-        indiceMision: 0,
-        datosLugarGlobal: null, // Now stores the *selected* mission for SALIR
-        tipoEscapeGlobal: "",
-        contadorToques: 0,
-        secuenciaAdelantos: [], // CORREGIDO: Coma inesperada eliminada y asignación a array vacío
-        historialSalir: [],
-        historialCasa: [],
-        historialPreguntas: [],
-        historialRetosSecuencias: [],
-        lastDecayTimestamp: null,
-        sessionSeed: null,
-        MAX_HISTORY_SALIR: 5,
-        MAX_HISTORY_CASA: 8,
-        MAX_HISTORY_ORACULO: 12,
-        MAX_HISTORY_RETOS_SECUENCIAS: 3,
-        DECAY_PER_DAY: 0.985,
-        conteoInaccion: 0,
-        indicePreguntaCascada: 0,
+const KERNEL = { 
+    timerInaccion: null, 
+    timerEnfocado: null, 
+    temporizadorCascada: null, 
+    temporizadorCierre: null, 
+    salidaSugeridaTimeoutId: null, 
+    salidaTimerId: null, // New timer for SALIR mode 45s phrases 
+    
+    // --- NUEVO ENGRANAJE INDESTRUCTIBLE (TIPO TIKTOK) --- 
+    horaInicioSesionAbsoluta: null, // Almacena la estampa de tiempo Unix de la CPU real 
+    timeLeft: 600, 
+    timeLeftCierre: 60, 
+    isLocked: false, 
+    idiomaActual: 'es', 
+    pasosMisiones: [], 
+    indiceMision: 0, 
+    datosLugarGlobal: null, // Now stores the *selected* mission for SALIR 
+    tipoEscapeGlobal: "", 
+    contadorToques: 0, 
+    secuenciaAdelantos: [], // CORREGIDO: Coma inesperada eliminada y asignación a array vacío 
+    historialSalir: [], 
+    historialCasa: [], 
+    historialPreguntas: [], 
+    historialRetosSecuencias: [], 
+    lastDecayTimestamp: null, 
+    sessionSeed: null, 
+    MAX_HISTORY_SALIR: 5, 
+    MAX_HISTORY_CASA: 8, 
+    MAX_HISTORY_ORACULO: 12, 
+    MAX_HISTORY_RETOS_SECUENCIAS: 3, 
+    DECAY_PER_DAY: 0.985, 
+    conteoInaccion: 0, 
+    indicePreguntaCascada: 0 // <-- CORREGIDO: Se eliminó la coma huérfana que congelaba el script
+};
 
         // ==============================================================================
         // SENSOR DE FONDO ABSOLUTO (Indestructible si hay llamadas o chat en segundo plano)
@@ -874,61 +874,68 @@
             container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
             container.classList.remove('hidden');
 
-            try {
-                const r = await fetch("/api/mando-integral", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                const data = await r.json();
-
-                if (data.error) {
-                    alert(data.error);
-                    document.getElementById('wrapper-form').classList.remove('hidden');
-                    container.classList.add('hidden');
-                    this.isLocked = false;
-                    this.validarZip();
-                    return;
-                }
-
-                this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
-                this.indiceMision = 0;
-        
-                // --- ACTUALIZADO: Captura el 1% de Calidez Humana dinámica enviada por el Servidor ---
-                let textoElegido = data.calidez_humana || "Respira profundo. Estás aquí. Estás vivo.";
-                
-                // --- ACTUALIZADO: Ejecuta el dictado por voz nativo usando la calidez del Oráculo ---
-                if (typeof OTG_SENSORIAL.hablar === 'function') {
-                    OTG_SENSORIAL.hablar(textoElegido);
-                }
-                
-                // Guardamos la calidez humana en la instancia por si tu interfaz necesita pintarla en un cuadro de texto
-                this.mensajeCalidezHumanaActual = textoElegido;
-
-                if (this.tipoEscapeGlobal === "ACCION_CAMPO" && data.historial_salir_actualizado) {
-                    this.historialSalir = data.historial_salir_actualizado;
-                    localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                    
-                    // Guardamos las misiones que ya contienen sus enlaces parásitos a YouTube, Spotify y TikTok
-                    this.pasosMisiones = data.misiones;
-                    this.mostrarOpcionesSalir(container);
-                    
-                } else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" && data.historial_casa_actualizado) {
-                    this.historialCasa = data.historial_casa_actualizado;
-                    localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
-                    
-                    this.pasosMisiones = data.misiones;
-                    this.procesarFlujoSecuencial(container);
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-                alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
+                    try {
+            const r = await fetch("/api/mando-integral", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            
+            const data = await r.json();
+            
+            if (data.error) {
+                alert(data.error);
                 document.getElementById('wrapper-form').classList.remove('hidden');
                 container.classList.add('hidden');
                 this.isLocked = false;
                 this.validarZip();
+                return;
             }
-        },
+            
+            this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
+            this.indiceMision = 0;
+            
+            // --- Captura el 1% de Calidez Humana dinámica enviada por el Servidor ---
+            let textoElegido = data.calidez_humana || "Respira profundo. Estás aquí. Estás vivo.";
+            
+            // --- Ejecuta el dictado por voz nativo usando la calidez del Oráculo ---
+            if (typeof OTG_SENSORIAL !== 'undefined' && typeof OTG_SENSORIAL.hablar === 'function') {
+                OTG_SENSORIAL.hablar(textoElegido);
+            }
+            
+            // Guardamos la calidez humana en la instancia
+            this.mensajeCalidezHumanaActual = textoElegido;
+            
+            // MODO: ACCIÓN DE CAMPO (SALIR)
+            if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
+                this.historialSalir = data.historial_salir_actualizado || [];
+                localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+                
+                this.pasosMisiones = data.misiones || [];
+                this.mostrarOpcionesSalir(container);
+            } 
+            // MODO: INTERVENCIÓN DOMÉSTICA (CASA)
+            else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
+                // CORRECCIÓN CRÍTICA: Se eliminó la validación estricta que congelaba el flujo si el historial venía vacío
+                this.historialCasa = data.historial_casa_actualizado || [];
+                localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+                
+                this.pasosMisiones = data.misiones || [];
+                this.procesarFlujoSecuencial(container);
+            }
+            
+        } catch (error) {
+            console.error("Fetch error:", error);
+            alert(this.idiomaActual === 'es' 
+                ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." 
+                : "Connection error with the server. Please try again."
+            );
+            document.getElementById('wrapper-form').classList.remove('hidden');
+            container.classList.add('hidden');
+            this.isLocked = false;
+            this.validarZip();
+        }
+    },
 
         /**
          * Displays the 3 options for SALIR mode and waits for user selection.
