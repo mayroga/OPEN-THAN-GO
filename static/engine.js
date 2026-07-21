@@ -1094,66 +1094,65 @@ const KERNEL = {
         /**
          * Processes the sequential flow based on the recommendation type (only for CASA mode now).
          */
-        procesarFlujoSecuencial(container) {
-            clearInterval(this.timerEnfocado);
-            window.speechSynthesis.cancel();
-            
-            const t = {
-                es: { 
-                    inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.", 
-                    listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo", 
-                    internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido" 
-                },
-                en: { 
-                    inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.", 
-                    listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action", 
-                    internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape" 
-                }
-            }[this.idiomaActual];
+            procesarFlujoSecuencial(container) {
+        clearInterval(this.timerEnfocado);
+        window.speechSynthesis.cancel();
+        const t = {
+            es: {
+                inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.",
+                listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo",
+                internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido"
+            },
+            en: {
+                inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.",
+                listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action",
+                internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape"
+            }
+        }[this.idiomaActual];
 
-            if (this.indiceMision >= this.pasosMisiones.length) {
-                this.iniciarRelojEnfocadoCasa(container, t);
-                return;
+        if (this.indiceMision >= this.pasosMisiones.length) {
+            this.iniciarRelojEnfocadoCasa(container, t);
+            return;
+        }
+
+        const paso = this.pasosMisiones[this.indiceMision];
+        // CORREGIDO: Se restauró el padding a 16px para evitar el desborde y el congelamiento del renderizado
+        container.innerHTML = `
+            <div class="mision-card">
+                <small>${t.internalMission}</small>
+                <h3>${paso.titulo}</h3>
+                <p>${paso.descripcion}</p>
+                <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
+            </div>`;
+
+        this.hablar(paso.titulo + " . " + paso.descripcion);
+        
+        document.getElementById('btn-next').onclick = () => {
+            try {
+                let perfil = this.obtenerPerfilLocal();
+                const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
+                for (const need in missionVector) {
+                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                        perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
+                    }
+                }
+                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
+                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+            } catch (e) {
+                console.error("Error updating local profile after CASA mission:", e);
             }
 
-            const paso = this.pasosMisiones[this.indiceMision];
+            // ==============================================================================
+            // ORDEN SOBERANA INDEPENDIENTE: EL RECOMIENZA DESDE CERO
+            // ==============================================================================
+            this.iniciarMonitoreoInaccion();
+            this.horaInicioSesionAbsoluta = Date.now(); 
+            // ==============================================================================
             
-            container.innerHTML = `
-                <div class="mision-card">
-                    <small>${t.internalMission}</small>
-                    <h3>${paso.titulo}</h3>
-                    <p>${paso.descripcion}</p>
-                    <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:166px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
-                </div>`;
-                
-            this.hablar(paso.titulo + " . " + paso.descripcion);
-            
-            document.getElementById('btn-next').onclick = () => {
-                try {
-                    let perfil = this.obtenerPerfilLocal();
-                    const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
-                    for (const need in missionVector) {
-                        if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                            perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
-                        }
-                    }
-                    perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
-                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                } catch (e) {
-                    console.error("Error updating local profile after CASA mission:", e);
-                }
+            this.avanzarPaso();
+        };
+    },
 
-                // ==============================================================================
-                // ORDEN SOBERANA: EL TIEMPO COMIENZA A CORRER DESDE CERO AUTOMÁTICAMENTE (CASA)
-                // ==============================================================================
-                // Al ejecutar el paso, limpiamos el reloj de inacción maestro y lo reactivamos desde cero
-                this.iniciarMonitoreoInaccion();
-                this.horaInicioSesionAbsoluta = Date.now(); // Reseteamos la estampa de tiempo absoluta
-                // ==============================================================================
-
-                this.avanzarPaso();
-            };
-        },
 
         /**
          * Starts the 10-minute clinical breathing timer for CASA mode.
