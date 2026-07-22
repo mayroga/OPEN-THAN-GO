@@ -90,21 +90,41 @@
         .mision-card p, .mision-card .instruccion-text { font-size: 1.25rem; line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid var(--green-action); padding-left: 14px; text-align: left; font-weight: bold; }
        
         #breath-circle {
-            width: 135px; height: 135px;
-            background: rgba(0, 188, 212, 0.15); /* Light cyan */
-            border: 3px solid var(--cyan-inhale); /* Cyan border */
-            border-radius: 50%;
-            margin: 35px auto;
-            box-shadow: 0 0 20px rgba(0,188,212,0.2);
-            animation: elasticLung 8s infinite ease-in-out;
-        }
-        @keyframes elasticLung {
-            0% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); } /* Inhale state */
-            50% { transform: scale(1.15); background: rgba(216, 67, 21, 0.3); border-color: var(--accent); } /* Exhale state with orange tint */
-            100% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); }
-        }
-        #timer { font-weight: 900; text-align: center; font-size: 3.2rem; margin: 15px 0; color: #fff; }
-        #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: var(--cyan-inhale); text-align: center; letter-spacing: 2px; }
+  /* === REDISEÑO VISUAL DE SEGURIDAD Y ATENCIÓN === */
+  /* Incrementamos el diámetro base a 165px para mejorar la inmersión del usuario */
+  width: 165px;
+  height: 165px;
+  background: rgba(0, 188, 212, 0.15); /* Light cyan */
+  border: 3px solid var(--cyan-inhale); /* Cyan border */
+  border-radius: 50%;
+  
+  /* Ajuste de margen estratégico: reducimos a 20px para compensar el crecimiento y no desplazar textos */
+  margin: 20px auto;
+  
+  box-shadow: 0 0 30px rgba(0,188,212,0.3); /* Brillo expandido proporcionalmente */
+  animation: elasticLung 8s infinite ease-in-out;
+}
+@keyframes elasticLung {
+  0% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); } /* Inhale state */
+  50% { transform: scale(1.15); background: rgba(216, 67, 21, 0.3); border-color: var(--accent); } /* Exhale state with orange tint */
+  100% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); }
+}
+#timer {
+  font-weight: 900;
+  text-align: center;
+  font-size: 3.2rem;
+  margin: 15px 0;
+  color: #fff;
+}
+#txt-pulmon {
+  font-size: 15px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: var(--cyan-inhale);
+  text-align: center;
+  letter-spacing: 2px;
+}
+
 
         /* CIERRE CONSCIENTE STYLING */
         #pantalla-cierre {
