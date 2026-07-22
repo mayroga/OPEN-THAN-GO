@@ -747,25 +747,37 @@ const KERNEL = {
     },
 
     /**
-     * Converts text to speech using browser's SpeechSynthesis API.
-     * Checks for API support and uses a fixed voice for consistency as per instructions.
-     * @param {string} texto - The text to speak.
-     */
-    hablar(texto) {
-        if (!('speechSynthesis' in window)) {
-            console.warn("Speech Synthesis API not supported in this browser.");
-            return;
-        }
-        if (!texto) return;
+ * Converts text to speech using browser's SpeechSynthesis API.
+ * CALIBRACIÓN DE CIRUJANO: Respeta tu velocidad original de 1.20 calculada por reloj.
+ * Añade la compuerta de milisegundos pasiva para aislar los canales sin alterar los tiempos.
+ * @param {string} texto - The text to speak.
+ */
+hablar(texto) {
+    if (!('speechSynthesis' in window)) {
+        console.warn("Speech Synthesis API not supported in this browser.");
+        return;
+    }
+    if (!texto) return;
 
-        window.speechSynthesis.cancel();
+    // 1. Detiene de inmediato cualquier residuo de audio previo de forma segura
+    window.speechSynthesis.cancel();
+
+    // 2. ESCUDO DE SEPARACIÓN (150ms): Le da tiempo al procesador para vaciar el búfer viejo.
+    // Evita que la voz de las preguntas se meta en el círculo de CASA y salva la frase de 45s en SALIR.
+    setTimeout(() => {
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
-        
         const msg = new SpeechSynthesisUtterance(fx);
+        
+        // Mantiene la configuración idiomática nativa de fábrica
         msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+        
+        // TU VELOCIDAD DE VOZ ORIGINAL EXACTA CALCULADA: Inmutable y perfecta
         msg.rate = 1.20;
+
+        // Dispara la locución sobre un canal de audio limpio y en reposo absoluto
         window.speechSynthesis.speak(msg);
-    },
+    }, 150);
+},
 
     /**
     * Changes the application's language and updates UI elements.
