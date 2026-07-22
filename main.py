@@ -925,23 +925,18 @@ async def mando_integral(request: Request):
         **DEFAULT_NECESSITY_VECTOR,
         **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
     }
-
      if "indicador_ansiedad" not in perfil_local:
  perfil_local["indicador_ansiedad"] = 0
 
  # === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ===
- # Queda estrictamente PROHIBIDO operar, interactuar o leer esta aplicación mientras se conduce un vehículo en movimiento.
- # El uso de este sistema es bajo el propio riesgo del usuario, eximiendo de toda responsabilidad civil, penal o legal
- # a la aplicación OPEN THAN GO y a su empresa dueña MAY ROGA LLC.
- ADVERTENCIA_LEGAL_ES = (
-     "AVISO DE SEGURIDAD: Está prohibido usar Open Than Go mientras manejas. Tu seguridad es lo primero. "
-     "El uso es bajo tu propio riesgo y exime de toda responsabilidad a May Roga LLC."
- )
- ADVERTENCIA_LEGAL_EN = (
-     "SAFETY NOTICE: Using Open Than Go while driving is strictly prohibited. Your safety comes first. "
-     "Use is at your own risk and exempts May Roga LLC from all liability."
- )
-
+    ADVERTENCIA_LEGAL_ES = (
+        "AVISO DE SEGURIDAD: Está prohibido usar Open Than Go mientras manejas. Tu seguridad es lo primero. "
+        "El uso es bajo tu propio riesgo y exime de toda responsabilidad a May Roga LLC."
+    )
+    ADVERTENCIA_LEGAL_EN = (
+        "SAFETY NOTICE: Using Open Than Go while driving is strictly prohibited. Your safety comes first. "
+        "Use is at your own risk and exempts May Roga LLC from all liability."
+    )
     # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
     # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
