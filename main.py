@@ -1261,7 +1261,7 @@ for info_seleccionada in misiones_seleccionadas_raw:
 
         final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
 
-      # Estructura de salida original idéntica (Alineada dentro de la función)
+# Estructura de salida original idéntica purificada
         final_misiones_para_frontend.append({
             "destino_id": info_seleccionada.get("id"),
             "destino_titulo": titulo_ganador_lang,
@@ -1278,8 +1278,7 @@ for info_seleccionada in misiones_seleccionadas_raw:
         })
         historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
-         # El return ya no está suelto en la nada; lleva la misma sangría de la función principal
-    
+    # ESTA LÍNEA DEBE LLEVAR EXACTAMENTE 4 ESPACIOS DESDE LA PARED IZQUIERDA
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
