@@ -746,7 +746,7 @@ const KERNEL = {
         this.ejecutar();
     },
 
-    /**
+ /**
  * Converts text to speech using browser's SpeechSynthesis API.
  * CALIBRACIÓN DE CIRUJANO: Respeta tu velocidad original de 1.20 calculada por reloj.
  * Añade la compuerta de milisegundos pasiva para aislar los canales sin alterar los tiempos.
@@ -762,21 +762,24 @@ hablar(texto) {
     // 1. Detiene de inmediato cualquier residuo de audio previo de forma segura
     window.speechSynthesis.cancel();
 
-    // 2. ESCUDO DE SEPARACIÓN (150ms): Le da tiempo al procesador para vaciar el búfer viejo.
-    // Evita que la voz de las preguntas se meta en el círculo de CASA y salva la frase de 45s en SALIR.
+    // 2. ESCUDO DE SEPARACIÓN AMPLIADO (300ms): Otorga el tiempo justo al procesador 
+    // nativo para liberar el hardware del búfer de las preguntas iniciales.
     setTimeout(() => {
+        // Segunda limpieza de seguridad en la entrada del canal
+        window.speechSynthesis.cancel();
+
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
-        
+
         // Mantiene la configuración idiomática nativa de fábrica
         msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
-        
+
         // TU VELOCIDAD DE VOZ ORIGINAL EXACTA CALCULADA: Inmutable y perfecta
         msg.rate = 1.20;
 
         // Dispara la locución sobre un canal de audio limpio y en reposo absoluto
         window.speechSynthesis.speak(msg);
-    }, 150);
+    }, 300);
 },
 
     /**
@@ -1186,58 +1189,94 @@ hablar(texto) {
     };
 },
 
-
     /**
-     * Starts the 10-minute clinical breathing timer for CASA mode.
-     */
-    iniciarRelojEnfocadoCasa(container, t) {
-        clearInterval(this.timerEnfocado);
-        window.speechSynthesis.cancel();
-        let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
-        this.hablar(msg);
-        
-        container.innerHTML = `
-            <div style="text-align:center; width:100%;">
-                <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
-                <div id="timer">10:00</div>
-                <p id="txt-pulmon">INHALA / INHALE</p>
-                <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
-                    <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
-                </div>
+ * Starts the 10-minute clinical breathing timer for CASA mode.
+ */
+iniciarRelojEnfocadoCasa(container, t) {
+    // ======================================================================
+    // RECTIFICACIÓN MECÁNICA CRÍTICA: APAGÓN DE PREGUNTAS EN CASCADA
+    // ======================================================================
+    // 1. Destruye los temporizadores del oráculo inicial para que no se mezclen
+    if (this.oraculoTimer1) clearTimeout(this.oraculoTimer1);
+    if (this.oraculoTimer2) clearTimeout(this.oraculoTimer2);
+    if (this.oraculoTimer3) clearTimeout(this.oraculoTimer3);
+    
+    // 2. Limpia intervalos y buffers de audio previos
+    clearInterval(this.timerEnfocado);
+    if (this.intervaloVozCasa) clearInterval(this.intervaloVozCasa); // Limpia bucles de voz viejos
+    window.speechSynthesis.cancel();
+
+    let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
+    this.hablar(msg);
+
+    container.innerHTML = `
+        <div style="text-align:center; width:100%;">
+            <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
+            <div id="timer">10:00</div>
+            <p id="txt-pulmon">INHALA / INHALE</p>
+            <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
+                <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
             </div>
-        `;
-        
-        this.timeLeft = 600;
-        this.contadorToques = 0;
-        
-        const circleElement = document.getElementById('breath-circle');
-        const timerDiv = document.getElementById('timer');
-        const pulmonDiv = document.getElementById('txt-pulmon');
-        const salidaSugeridaDiv = document.getElementById('salida-sugerida');
-        const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
-        const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
-        
-        if (circleElement) {
-            circleElement.onclick = () => {
-                if (this.contadorToques < this.secuenciaAdelantos.length) {
-                    let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
-                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
-                    this.contadorToques++;
-                    try {
-                        let perfil = this.obtenerPerfilLocal();
-                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
-                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                    } catch (e) {
-                        console.error("Error updating anxiety indicator:", e);
-                    }
-                    let m = Math.floor(this.timeLeft / 60);
-                    let s = this.timeLeft % 60;
-                    if (timerDiv) {
-                        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-                    }
-                }
-            };
+        </div>
+    `;
+
+    this.timeLeft = 600;
+    this.contadorToques = 0;
+    let indiceAudioCasa = 0; // Rastreador secuencial de las frases de bienestar
+
+    const circleElement = document.getElementById('breath-circle');
+    const timerDiv = document.getElementById('timer');
+    const pulmonDiv = document.getElementById('txt-pulmon');
+    const salidaSugeridaDiv = document.getElementById('salida-sugerida');
+    const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
+
+    const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
+
+    // ======================================================================
+    // LOGICA DE FRASES CADA 20 SEGUNDOS (SISTEMA TOTALMENTE AISLADO)
+    // ======================================================================
+    this.intervaloVozCasa = setInterval(() => {
+        if (this.timeLeft > 0 && AUDIOS_SECUENCIALES_CASA && AUDIOS_SECUENCIALES_CASA.length > 0) {
+            // Lanza la frase correspondiente de forma ordenada y limpia
+            if (indiceAudioCasa < AUDIOS_SECUENCIALES_CASA.length) {
+                this.hablar(AUDIOS_SECUENCIALES_CASA[indiceAudioCasa]);
+                indiceAudioCasa++;
+            } else {
+                indiceAudioCasa = 0; // Reinicia el ciclo de frases si se acaban antes de los 10 minutos
+                this.hablar(AUDIOS_SECUENCIALES_CASA[indiceAudioCasa]);
+                indiceAudioCasa++;
+            }
+        } else {
+            clearInterval(this.intervaloVozCasa);
         }
+    }, 20000); // Bucle estricto cada 20 segundos
+
+    if (circleElement) {
+        circleElement.onclick = () => {
+            if (this.contadorToques < this.secuenciaAdelantos.length) {
+                let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
+                this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
+                this.contadorToques++;
+
+                try {
+                    let perfil = this.obtenerPerfilLocal();
+                    perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
+                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                } catch (e) {
+                    console.error("Error updating anxiety indicator:", e);
+                }
+
+                let m = Math.floor(this.timeLeft / 60);
+                let s = this.timeLeft % 60;
+                if (timerDiv) {
+                    timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                }
+            }
+        };
+    }
+
+    // Aquí continúa la ejecución del intervalo principal del reloj (this.timerEnfocado = setInterval...)
+    // Asegúrate de que al terminar el tiempo (this.timeLeft <= 0) ejecutes también: clearInterval(this.intervaloVozCasa);
 
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
