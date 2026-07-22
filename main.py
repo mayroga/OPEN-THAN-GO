@@ -262,7 +262,7 @@ def diversidad_vector(vector1, vector2):
 # === MODIFICACIÓN: CONSTANTES DE TIEMPO Y PROPÓSITO ACORTADAS PARA LECTURA RÁPIDA ===
 WHEN_ES = "Ahora. Levántate."
 WHEN_EN = "Now. Move."
-FOR_WHAT_ES = "Romper rutina. Recuérdate vivo."
+FOR_WHAT_ES = "Romper rutina. Recuérdate estoy vivo."
 FOR_WHAT_EN = "Break routine. Remember life."
 
 # ============================================================
