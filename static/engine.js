@@ -256,30 +256,30 @@ const KERNEL = {
   "Only a few seconds left for the definitive reset. Feel the hope rising inside.",
   "You are completely safe here. Remain in absolute peace, feeling your gentle, deep breath."
 ],
-    "AUDIOS_SECUENCIALES_SALIR_ES": [
-  "Respira hondo en este instante. El mundo exterior espera afuera, pero solo tú controlas tu paz interna con total autonomía y tranquilidad.",
-  "Cada segundo de este conteo es una oportunidad legítima para soltar por completo lo que ya no te sirve en tu vida.",
-  "Imagina tu destino con absoluta claridad. Siente la libertad de ir hacia él con un propósito claro, libre de toda prisa.",
-  "Elige tu camino con total confianza hoy. No existen los errores en esta experiencia, solo nuevas rutas para recuperar tu bienestar natural.",
-  "Estás en control absoluto de tus pensamientos. Tu decisión presente te guía con suavidad hacia un nuevo espacio de calma y seguridad.",
-  "Siente la agradable emoción del viaje. La aventura te espera ahí afuera, en un entorno completamente libre de agobios y de apuros.",
-  "Estás a punto de romper el piloto automático diario. Un nuevo aire limpio llena tu pecho de energía positiva ahora mismo. Camina.",
-  "Concéntrate únicamente en este momento presente. Tu mente es libre para explorar el entorno y disfrutar del paisaje con total quietud hoy.",
-  "Suelta las cadenas mentales de las obligaciones rutinarias. Tu cuerpo te pide movimiento libre y reconexión sensorial directa con el mundo exterior.",
-  "Estás eligiendo tu bienestar de forma consciente. Cada paso que das en esta ruta es un acto puro de verdadero amor propio."
-],
+        "AUDIOS_SECUENCIALES_SALIR_ES": [
+        "Es momento de levantarse. Deja el teléfono en la mesa ahora mismo.",
+        "Camina despacio hacia otra habitación. Respira hondo.",
+        "Estás retomando el control de tu tiempo. Sigue adelante.",
+        "Elige tu camino con total confianza hoy. Visualiza tu paz.",
+        "Estás en control absoluto de tus pensamientos. Siente la calma.",
+        "Siente la agradable emoción del viaje. La aventura te espera.",
+        "Estás a punto de romper el piloto automático. Avanza.",
+        "Concéntrate únicamente en este momento presente. Observa tu entorno.",
+        "Suelta las cadenas mentales de la rutina. Muévete libre.",
+        "Estás eligiendo tu bienestar de forma consciente. Respira."
+    ],
     "AUDIOS_SECUENCIALES_SALIR_EN": [
-  "Breathe deeply at this very moment. The outside world waits for you, but you control your inner peace with absolute autonomy.",
-  "Every second of this countdown is a legitimate opportunity to completely release what no longer serves you in your life right now.",
-  "Visualize your destination with absolute clarity. Feel the complete freedom of moving towards it with a clear purpose and no rush.",
-  "Choose your path with total confidence today. There are no mistakes in this experience, only new routes to recover your well-being.",
-  "You are in full control of your thoughts. Your present decision gently guides you to a new space of calm and safety.",
-  "Feel the pleasant anticipation of the journey. Adventure awaits you out there, inside an environment completely free of worries or rush.",
-  "You are about to break the daily automatic pilot. A fresh air completely revitalizes your chest with positive energy right now.",
-  "Focus solely on this present moment. Your mind is free to explore your surroundings and enjoy the scenery with deep quietness.",
-  "Release the mental chains of routine obligations. Your body craves free movement and direct sensory reconnection with the outside world.",
-  "You are choosing your well-being in a conscious way. Every step you take is a pure act of true self-love."
-],
+        "It's time to stand up. Leave your phone on the table right now.",
+        "Walk slowly to another room. Take a deep breath.",
+        "You are regaining control of your time. Keep moving forward.",
+        "Choose your path with total confidence today. Visualize peace.",
+        "You are in full control of your thoughts. Feel calm.",
+        "Feel the pleasant anticipation of the journey. Adventure awaits.",
+        "You are about to break the daily automatic pilot. Step out.",
+        "Focus solely on this present moment. Look at your surroundings.",
+        "Release the mental chains of routine. Move freely.",
+        "You are choosing your well-being consciously. Breathe."
+    ],
 
 "AUDIOS_CONDUCCION_ES": "Modo de trayecto seguro activo. Para proteger tu atención en la vía, OPEN THAN GO mantiene la interfaz visual en reposo pasivo. Tu cuerpo viaja por carretera; mantén tus manos firmes en el volante y tus ojos enfocados exclusivamente en el camino. No mires ni manipules este teléfono bajo ninguna circunstancia. Si notas tensión o agobio por la monotonía del tráfico, regálate una respiración completamente natural, lenta y profunda, sin perder jamás la concentración absoluta en los autos que te rodean. Siente el soporte seguro de tu asiento y recuerda que tú gobiernas tu paz interna, no el tráfico. Conduce con total responsabilidad.",
 "AUDIOS_CONDUCCION_EN": "Safe travel mode active. To protect your attention on the road, OPEN THAN GO keeps the visual interface in passive rest. Your body is traveling on the highway; keep your hands firmly on the wheel and your eyes focused exclusively on the road. Do not look at or handle this phone under any circumstances. If you notice tension or overload from the monotony of traffic, grant yourself a completely natural, slow, and deep breath, never losing absolute concentration on the cars around you. Feel the secure support of your seat and remember that you govern your inner peace, not the traffic. Drive with full responsibility.",
@@ -308,7 +308,7 @@ const KERNEL = {
   {"id": 210, "titulo_en": "THE VISUAL REST CHALLENGE", "descripcion_en": "Look for a spot or an object that is very far away from you through the window. Keep your eyes on that place fixedly for two minutes to rest your eyes from screens completely. Expand your visual horizon, relax your eyelids, and allow your thoughts to flow in total stillness.", "img": "nature_sound.svg"}
 ],
 
-    /**
+       /**
      * Retrieves or initializes the user's dynamic profile from localStorage.
      * Ensures all 19 needs are present with default values if missing.
      * Applies gradual daily reduction (decay) towards base values.
@@ -317,7 +317,6 @@ const KERNEL = {
     obtenerPerfilLocal() {
         let perfilRaw = localStorage.getItem("otg_perfil_dinamico");
         let perfil = {};
-
         if (!perfilRaw) {
             perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
         } else {
@@ -333,13 +332,10 @@ const KERNEL = {
                 perfil = { ...this.DEFAULT_NECESSITY_PROFILE };
             }
         }
-
         const now = Date.now();
         let lastDecayTimestamp = parseInt(localStorage.getItem("otg_last_decay") || now);
         this.sessionSeed = localStorage.getItem("otg_session_seed") || Math.random().toString(36).substring(2, 15);
-
         const daysPassed = (now - lastDecayTimestamp) / (1000 * 60 * 60 * 24);
-
         if (daysPassed >= 1) {
             const newPerfil = {};
             const base = 50;
@@ -356,20 +352,76 @@ const KERNEL = {
             perfil = newPerfil;
             lastDecayTimestamp = now;
         }
-
         perfil.fecha = new Date(now).toISOString().split('T')[0];
         perfil.timestamp = now;
-
         localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
         localStorage.setItem("otg_last_decay", lastDecayTimestamp.toString());
         localStorage.setItem("otg_session_seed", this.sessionSeed);
-
         return perfil;
     },
 
     /**
-    * Initializes the KERNEL on DOMContentLoaded.
-    */
+     * Renders the authentication gate, developer access, and secure payment options.
+     */
+    inyectarPasarelaYAutenticacion(container) {
+        container.innerHTML = `
+            <div class="auth-gate-card" style="padding:20px; background:#000; border:1px solid #222; border-radius:8px; max-width:400px; margin:0 auto; text-align:center;">
+                <h3 style="color:#fff; font-size:1.1rem; margin-bottom:20px;">ACCESO AUTORIZADO / SECURE LOGIN</h3>
+                
+                <div style="margin-bottom:15px;">
+                    <input type="text" id="auth-username" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #333; border-radius:4px; box-sizing:border-box;">
+                    <input type="password" id="auth-password" placeholder="Password" style="width:100%; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:4px; box-sizing:border-box;">
+                </div>
+
+                <button id="btn-submit-auth" style="width:100%; background:var(--green-action); color:#fff; padding:14px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; font-size:0.95rem; margin-bottom:20px;">INGRESAR AL SISTEMA</button>
+                
+                <div id="stripe-payment-box" style="padding:15px; border:1px solid var(--accent); border-radius:6px; background:rgba(255,0,0,0.02); margin-bottom:20px;">
+                    <p style="margin:0 0 10px 0; font-size:0.85rem; color:#888;">Activación comercial vía Stripe segura:</p>
+                    <button id="btn-stripe-checkout" class="btn" style="width:100%; background:var(--accent); color:#fff; font-weight:bold; padding:12px; border:none; border-radius:4px; cursor:pointer;">COMPRAR ACCESO / BUY NOW</button>
+                </div>
+
+                <div style="margin-top:15px; border-top:1px solid #111; padding-top:15px;">
+                    <button id="btn-modo-desarrollador" style="background:transparent; color:#555; border:1px dashed #333; padding:8px 12px; font-size:0.8rem; border-radius:4px; cursor:pointer; width:100%;">
+                        MODO DESARROLLADOR / BYPASS CODE
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // 1. Clic del botón de ingreso tradicional
+        document.getElementById('btn-submit-auth').onclick = () => {
+            const user = document.getElementById('auth-username').value.trim();
+            const pass = document.getElementById('auth-password').value.trim();
+            if (user && pass) {
+                container.innerHTML = "";
+                this.despertarInicial();
+            } else {
+                this.hablar(this.idiomaActual === 'es' ? "Introduce credenciales válidas." : "Please enter valid credentials.");
+            }
+        };
+
+        // 2. Clic del botón seguro de Stripe
+        document.getElementById('btn-stripe-checkout').onclick = async () => {
+            this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela Stripe." : "Connecting to Stripe gateway.");
+            try {
+                const response = await fetch("/api/create-checkout-session", { method: "POST" });
+                const session = await response.json();
+                if (session.url) window.location.href = session.url;
+            } catch (e) {
+                console.error("Stripe initialization error:", e);
+            }
+        };
+
+        // 3. Clic del botón de desarrollador (Bypass directo al oráculo de preguntas)
+        document.getElementById('btn-modo-desarrollador').onclick = () => {
+            container.innerHTML = "";
+            this.despertarInicial();
+        };
+    },
+
+    /**
+     * Initializes the KERNEL on DOMContentLoaded.
+     */
     init() {
         const storedLang = localStorage.getItem("otg_language");
         if (storedLang) {
@@ -394,19 +446,21 @@ const KERNEL = {
             localStorage.removeItem("otg_historial_retos_secuencias");
         }
         this.obtenerPerfilLocal();
-        this.mensajeCalidezHumanaActual = ""; // Initialize the variable for robustness
-        
-        // --- ACTIVO: Inicializamos el receptor indestructible de segundo plano para llamadas/chats ---
+        this.mensajeCalidezHumanaActual = ""; 
         this.activarSensorSegundoPlano();
-        
         const zipInput = document.getElementById('inp-zip');
         if (zipInput) {
             zipInput.addEventListener('input', () => this.validarZip());
             this.validarZip();
         }
-        
-        // Add event listeners for the new floating buttons
         document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
+
+        // CARGA LA PUERTA DE LOGIN Y COBRO DE STRIPE DIRECTO EN EL CONTENEDOR INTERACTIVO
+        const container = document.getElementById('wrapper-interactive') || document.getElementById('contenedor-interactivo');
+        if (container) {
+            container.classList.remove('hidden');
+            this.inyectarPasarelaYAutenticacion(container);
+        }
     },
 
     /**
@@ -415,9 +469,9 @@ const KERNEL = {
     despertarInicial() {
         document.getElementById('pantalla-bienvenida').style.display = 'none';
         document.getElementById('wrapper-form').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.remove('hidden'); // Show return button
-        document.getElementById('btn-whatsapp').classList.remove('hidden'); // Show WhatsApp button
-        document.getElementById('btn-messenger').classList.remove('hidden'); // Show Messenger button
+        document.getElementById('btn-volver-app').classList.remove('hidden'); 
+        document.getElementById('btn-whatsapp').classList.remove('hidden'); 
+        document.getElementById('btn-messenger').classList.remove('hidden'); 
         this.cambiarIdioma(this.idiomaActual);
         
         // ==============================================================================
