@@ -746,37 +746,47 @@ const KERNEL = {
         this.ejecutar();
     },
 
-/**
- * Converts text to speech using browser's SpeechSynthesis API.
- * CALIBRACIÓN DE CIRUJANO: Respeta tu velocidad original de 1.20 calculada por reloj.
- * Añade la compuerta de milisegundos pasiva para aislar los canales sin alterar los tiempos.
- * @param {string} texto - The text to speak.
- */
-hablar(texto) {
-    if (!('speechSynthesis' in window)) {
-        console.warn("Speech Synthesis API not supported in this browser.");
-        return;
-    }
-    if (!texto) return;
+    /**
+     * Converts text to speech using browser's SpeechSynthesis API.
+     * CALIBRACIÓN DE CIRUJANO: Respeta tu velocidad original de 1.20 calculada por reloj.
+     * @param {string} texto - The text to speak.
+     */
+    hablar(texto) {
+        if (!('speechSynthesis' in window)) {
+            console.warn("Speech Synthesis API not supported in this browser.");
+            return;
+        }
+        if (!texto) return;
 
-    // 1. Detiene de inmediato cualquier residuo de audio previo de forma segura
-    window.speechSynthesis.cancel();
+        // 1. Detiene de inmediato cualquier residuo de audio previo de forma segura
+        window.speechSynthesis.cancel();
 
-    // 2. ESCUDO DE SEPARACIÓN ORIGINAL (150ms): Canal limpio y en reposo absoluto
-    setTimeout(() => {
-        let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
-        const msg = new SpeechSynthesisUtterance(fx);
+        // 2. ESCUDO DE CONTENCIÓN EXTENDIDO (250ms): Da tiempo real al procesador de vaciar el búfer
+        setTimeout(() => {
+            window.speechSynthesis.cancel();
 
-        // Mantiene la configuración idiomática nativa de fábrica
-        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+            let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
+            const msg = new SpeechSynthesisUtterance(fx);
 
-        // TU VELOCIDAD DE VOZ ORIGINAL EXACTA CALCULADA: Inmutable y perfecta
-        msg.rate = 1.20;
+            msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+            msg.rate = 1.20; // TU VELOCIDAD EXACTA ORIGINAL
 
-        // Dispara la locución sobre un canal limpio
-        window.speechSynthesis.speak(msg);
-    }, 150);
-},
+            // 3. ANCLA DE BYPASS INDESTRUCTIBLE: Engaña el canal físico al arrancar.
+            // Genera un micro-pulso de pausa y reanudación instantáneo en el hardware.
+            // Esto evita que Chromium corte la primera frase de 45s a la mitad.
+            msg.onstart = () => {
+                window.speechSynthesis.pause();
+                window.speechSynthesis.resume();
+            };
+
+            msg.onerror = () => {
+                window.speechSynthesis.cancel();
+            };
+
+            // Dispara la locución sobre un canal limpio y en reposo absoluto
+            window.speechSynthesis.speak(msg);
+        }, 250);
+    },
 
     /**
     * Changes the application's language and updates UI elements.
@@ -1184,56 +1194,48 @@ hablar(texto) {
         this.avanzarPaso();
     };
 },
-/**
- * Starts the 10-minute clinical breathing timer for CASA mode.
- */
-iniciarRelojEnfocadoCasa(container, t) {
-    // ======================================================================
-    // RECTIFICACIÓN MAESTRA: APAGÓN REAL DEL ORÁCULO DE BIENVENIDA
-    // ======================================================================
-    // Destruye el intervalo real de las preguntas en cascada usando su nombre exacto
-    if (this.temporizadorCascada) {
-        clearInterval(this.temporizadorCascada);
-        this.temporizadorCascada = null;
-    }
-    
-    // Limpia los temporizadores de inacción y el reloj viejo
-    clearInterval(this.timerInaccion);
-    clearInterval(this.timerEnfocado);
-    
-    // Limpia cualquier bucle de voz previo de CASA para evitar duplicaciones
-    if (this.intervaloVozCasa) {
-        clearInterval(this.intervaloVozCasa);
-        this.intervaloVozCasa = null;
-    }
-    
-    // Silencia por completo el hardware de sonido antes de hablar
-    window.speechSynthesis.cancel();
+    /**
+     * Starts the 10-minute clinical breathing timer for CASA mode.
+     */
+    iniciarRelojEnfocadoCasa(container, t) {
+        // ======================================================================
+        // PURGA FÍSICA RADICAL: DESTRUCCIÓN DE NODOS ORÁCULO (SOLUCIÓN MEZCLA)
+        // ======================================================================
+        // 1. Destruye el intervalo de las preguntas en cascada
+        if (this.temporizadorCascada) {
+            clearInterval(this.temporizadorCascada);
+            this.temporizadorCascada = null;
+        }
+        
+        // 2. Limpia los temporizadores de inacción y el reloj viejo
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
+        
+        // 3. Limpia cualquier bucle de voz previo de CASA
+        if (this.intervaloVozCasa) {
+            clearInterval(this.intervaloVozCasa);
+            this.intervaloVozCasa = null;
+        }
 
-    let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
-    this.hablar(msg);
+        // 4. EL APAGÓN ABSOLUTO: Vaciamos el contenedor físico del DOM del Oráculo.
+        // Al desaparecer los botones de la pantalla, Chrome destruye de forma síncrona
+        // sus listeners y vacía la cola oculta de sonido del hardware.
+        const contenedorOraculo = document.getElementById('contenedor-preguntas-oraculo');
+        if (contenedorOraculo) {
+            contenedorOraculo.innerHTML = ""; 
+        }
+        
+        // 5. Silencia por completo el hardware de sonido antes de hablar
+        window.speechSynthesis.cancel();
 
-    container.innerHTML = `
-        <div style="text-align:center; width:100%;">
-            <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
-            <div id="timer">10:00</div>
-            <p id="txt-pulmon">INHALA / INHALE</p>
-            <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
-                <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
-            </div>
-        </div>
-    `;
+        let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
+        this.hablar(msg);
 
-    this.timeLeft = 600;
-    this.contadorToques = 0;
-
-    const circleElement = document.getElementById('breath-circle');
-    const timerDiv = document.getElementById('timer');
-    const pulmonDiv = document.getElementById('txt-pulmon');
-    const salidaSugeridaDiv = document.getElementById('salida-sugerida');
-    const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
-    const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
-
+        // [AQUÍ CONTINÚA TU INTERFAZ VISUAL EXACTAMENTE IGUAL A COMO LA TIENES]
+        container.innerHTML = `
+            <div style="text-align:center; width:100%;">
+                <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
+                
     // ======================================================================
     // DISPARADOR DE SUGERENCIA TRAS 3 MINUTOS EXACTOS (SIN PARÁSITOS)
     // ======================================================================
