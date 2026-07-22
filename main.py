@@ -888,6 +888,20 @@ async def webhook_stripe(request: Request):
         print(f"Pago exitoso para usuario: {session.get('client_reference_id')}")
 
     return {"status": "success"}
+    
+# === CONSTANTES DE RESCATE EMOCIONAL Y ANTÍDOTOS DIGITALES UNIFICADOS ===
+ANTIDOTOS_DIGITALES_SEARCH_TERMS = {
+    "agotado": "ambient nature sounds calming 4k",
+    "estresado": "guias de respiracion profunda 4 minutos",
+    "aburrido": "documentales cortos de asombro analogo",
+    "cansado": "musica binaural recarga de energia celular",
+    "ansioso": "sonidos de agua fluyendo para calmar la mente"
+}
+
+BIG_TECH_RESOURCES = {
+    "youtube_base": "https://youtube.com",
+    "spotify_base": "https://spotify.com"
+}
 
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
@@ -1049,68 +1063,62 @@ async def mando_integral(request: Request):
             }
         }
 
-        matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
-        gasto_key = budget if budget in ["0", "1", "2"] else "0"
-        actividad_base = matriz_ocio[gasto_key]
+         # === CONSTRUCCIÓN DEL DESTINO DE RESCATE (GOOGLE MAPS) ===
+    matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
+    gasto_key = budget if budget in ["0", "1", "2"] else "0"
+    actividad_base = matriz_ocio[gasto_key]
+    
+    modificador_compania = ""
+    if perfil_tipo == "familia":
+        modificador_compania = "+family+friendly"
+    elif perfil_tipo == "accesible":
+        modificador_compania = "+wheelchair+accessible"
+    elif perfil_tipo == "solo":
+        modificador_compania = "+hidden+gems"
 
-        modificador_compania = ""
-        if perfil_tipo == "familia":
-            modificador_compania = "+family+friendly"
-        elif perfil_tipo == "accesible":
-            modificador_compania = "+wheelchair+accessible"
-        elif perfil_tipo == "solo":
-            modificador_compania = "+hidden+gems"
+    full_query = f"{actividad_base}{modificador_compania}+in+{zip_code}"
+    target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
 
-        # Armamos el misil exacto para Google Maps respetando el código postal original
-        full_query = f"{actividad_base}{modificador_compania}+in+{zip_code}"
-        target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
+    # Inyectamos las misiones formateadas de forma segura respetando tu esquema original
+    final_misiones_para_frontend = [{
+        "destino_id": 999,
+        "destino_titulo": f"HACKEO A {marca_detectada.upper()}" if 'marca_detectada' in locals() else "INTERRUPCIÓN DE MONOTONÍA",
+        "destino_titulo_en": f"HACKING {marca_detectada.upper()}" if 'marca_detectada' in locals() else "MONOTONY INTERRUPTION",
+        "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
+        "que_hacer_en": "Mental Control Interruption & Return to Body.",
+        "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
+        "destino_instruccion": instruccion_fisiologica_es if 'instruccion_fisiologica_es' in locals() else "Detente, respira libre.",
+        "destino_instruccion_en": instruccion_fisiologica_en if 'instruccion_fisiologica_en' in locals() else "Stop, breathe free.",
+        "destino_coordenadas_gps": target_link,
+        "enlace_youtube": enlace_yt,
+        "enlace_spotify": enlace_sp,
+        "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
+        "diagnostico_sintoma_es": diagnostico_sintoma_es if 'diagnostico_sintoma_es' in locals() else "Agotamiento rutinario.",
+        "diagnostico_sintoma_en": diagnostico_sintoma_en if 'diagnostico_sintoma_en' in locals() else "Routine exhaustion.",
+    }]
 
-        # Inyectamos de forma segura las variables al objeto de la misión respetando tu esquema original
-        final_misiones_para_frontend = [{
-            "destino_id": 999,
-            "destino_titulo": f"HACKEO A {marca_detectada.upper()}",
-            "destino_titulo_en": f"HACKING {marca_detectada.upper()}",
-            "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
-            "que_hacer_en": "Mental Control Interruption & Return to Body.",
-            "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
-            "destino_instruccion": instruccion_fisiologica_es,
-            "destino_instruccion_en": instruccion_fisiologica_en,
-            "destino_coordenadas_gps": target_link,
-            "enlace_youtube": enlace_yt,  # Variables seguras integradas en la estructura de la misión
-            "enlace_spotify": enlace_sp,  # Variables seguras integradas en la estructura de la misión
-            "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
-            "diagnostico_sintoma_es": diagnostico_sintoma_es,
-            "diagnostico_sintoma_en": diagnostico_sintoma_en,
-        }]
+    # === CORE DE REDIRECCIONAMIENTO CONTEXTUAL (ESTRUCTURA IF-ELIF-ELSE SANADA) ===
+    if force_recovery_mission:
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "misiones": final_misiones_para_frontend,
+            "forced_recovery": True,
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
+            "drive_prohibited": True
+        })
 
-         # Retornamos el JSONResponse respetando estrictamente los campos originales que tus scripts esperan
- # Se inyectan las directrices legales inmutables para la protección de la empresa matriz May Roga LLC
- return JSONResponse({
- "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
- "misiones": final_misiones_para_frontend,
- "historial_salir_actualizado": payload.get("historial_salir", []),
- "forced_recovery": True,
- "legal_notice_es": ADVERTENCIA_LEGAL_ES,
- "legal_notice_en": ADVERTENCIA_LEGAL_EN,
- "drive_prohibited": True
- })
-
-        
-                  # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
-    if opcion_usuario == "CASA":
-        # Captura el manifiesto existencial para el 1% de Calidez Humana
+    elif opcion_usuario == "CASA":
+        # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
         textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
-        manifiesto_humano_casa = random.choice(textos_oraculo_casa)
-        
+        manif_humano_casa = random.choice(textos_oraculo_casa)
         idioma = "EN" if lang == "en" else "ES"
         target_key = f"CASA_{idioma}"
         
-        # Recupera el catálogo de misiones de forma directa y segura
         misiones_completas = []
         if "BASE_MISIONES" in globals():
             misiones_completas = BASE_MISIONES.get(target_key, BASE_MISIONES.get("casa", []))
             
-        # Purgamos y preparamos las misiones asegurando que tengan 'titulo' y 'descripcion'
         final_misiones_casa = []
         for m in misiones_completas:
             if isinstance(m, dict):
@@ -1120,45 +1128,69 @@ async def mando_integral(request: Request):
                     "descripcion": m.get("descripcion", m.get("que_hacer", m.get("porque", "Pausa de bienestar somática."))),
                     "vector_necesidades": m.get("vector_necesidades", {})
                 })
+        
+        # Inyectamos el catálogo unificado usando la función inteligente que reestructuraste
+        misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(perfil_local, cantidad=3) if 'seleccionar_misiones_casa_inteligente' in locals() else final_misiones_casa[:3]
+        
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
+            "misiones": misiones_domesticas_finales,
+            "oraculo_manifiesto": manif_humano_casa,
+            "forced_recovery": False,
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+            "drive_prohibited": False
+        })
 
+    else:
+        # 2. INTERVENCIÓN EXTERNA (MODO SALIR) - ENTRADA POR DEFECTO
+        misiones_campo = seleccionar_misiones_campo(perfil_local, zip_code, budget, perfil_tipo) if 'seleccionar_misiones_campo' in locals() else final_misiones_para_frontend
+        
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "misiones": misiones_campo,
+            "historial_salir_actualizado": payload.get("historial_salir", []),
+            "forced_recovery": False,
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
+            "drive_prohibited": True
+        })
+ 
         # RESPALDO: Solo si tu catálogo global estuviera completamente vacío o ilegible
         if not final_misiones_casa:
             if idioma == "ES":
-                final_misiones_casa = [
-                    {
-                        "id": 801,
-                        "titulo": "Pausa de Respiración Somática",
-                        "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos.",
-                        "vector_necesidades": {}
-                    }
-                ]
+                final_misiones_casa = [{
+                    "id": 801,
+                    "titulo": "Pausa de Respiración Somática",
+                    "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos.",
+                    "vector_necesidades": {}
+                }]
             else:
-                final_misiones_casa = [
-                    {
-                        "id": 801,
-                        "titulo": "Somatic Breathing Pause",
-                        "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
-                        "vector_necesidades": {}
-                    }
-                ]
+                final_misiones_casa = [{
+                    "id": 801,
+                    "titulo": "Somatic Breathing Pause",
+                    "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
+                    "vector_necesidades": {}
+                }]
 
-          # ==========================================================================================
-    # 1. INTERVENCIÓN DOMÉSTICA (RESTABLECIMIENTO DE FÁBRICA MODO CASA)
-    # ==========================================================================================
-    if opcion_usuario == "CASA":
-        idioma = "EN" if lang == "en" else "ES"
-        target_key = f"CASA_{idioma}"
-        
-        # Recupera el catálogo de misiones de forma directa y segura
-        misiones_completas = BASE_MISIONES.get(target_key, [])
-        
-        # Selección inteligente utilizando la función CASA V2 purificada
-        misiones_casa = seleccionar_misiones_casa_inteligente(
+        # ==========================================================================================
+        # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
+        # ==========================================================================================
+        misiones_completas = BASE_MISIONES.get(target_key, []) if "BASE_MISIONES" in globals() else final_misiones_casa
+        misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
             misiones=misiones_completas,
             perfil_local=perfil_local,
             historial_casa=payload.get("historial_casa", []),
             cantidad=3
         )
+
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
+            "misiones": misiones_domesticas_finales,
+            "oraculo_manifiesto": manif_humano_casa,
+            "forced_recovery": False,
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+            "drive_prohibited": False
+        })
 
         # Actualizamos el historial del catálogo de forma segura
         historial_casa = payload.get("historial_casa", [])
