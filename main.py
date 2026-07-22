@@ -889,11 +889,6 @@ async def webhook_stripe(request: Request):
 
     return {"status": "success"}
 
-# ==========================================================================================
-# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
-# Company: May Roga LLC
-# File: main.py - SECCIÓN 2 DE 2 (CWRE Logic)
-# ==========================================================================================
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
     """
@@ -903,8 +898,8 @@ async def mando_integral(request: Request):
     payload = await request.json()
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
-    estado = str(payload.get("estado", "FL")).strip() # 'estado' parameter is defined but not used elsewhere in this function
-    region = str(payload.get("region", "")).strip() # 'region' parameter is defined but not used elsewhere in this function
+    estado = str(payload.get("estado", "FL")).strip()
+    region = str(payload.get("region", "")).strip()
     mente = str(payload.get("mente", "aburrido")).lower()
     budget = str(payload.get("budget", "0"))
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
@@ -925,19 +920,20 @@ async def mando_integral(request: Request):
         **DEFAULT_NECESSITY_VECTOR,
         **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
     }
-            if "indicador_ansiedad" not in perfil_local:
-            perfil_local["indicador_ansiedad"] = 0
 
-        # === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ===
-        ADVERTENCIA_LEGAL_ES = (
-            "AVISO DE SEGURIDAD: Está prohibido usar Open Than Go mientras manejas. Tu seguridad es lo primero. "
-            "El uso es bajo tu propio riesgo y exime de toda responsabilidad a May Roga LLC."
-        )
-        ADVERTENCIA_LEGAL_EN = (
-            "SAFETY NOTICE: Using Open Than Go while driving is strictly prohibited. Your safety comes first. "
-            "Use is at your own risk and exempts May Roga LLC from all liability."
-        )
- 
+    if "indicador_ansiedad" not in perfil_local:
+        perfil_local["indicador_ansiedad"] = 0
+
+    # === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ===
+    ADVERTENCIA_LEGAL_ES = (
+        "AVISO DE SEGURIDAD: Está prohibido usar Open Than Go mientras manejas. Tu seguridad es lo primero. "
+        "El uso es bajo tu propio riesgo y exime de toda responsabilidad a May Roga LLC."
+    )
+    ADVERTENCIA_LEGAL_EN = (
+        "SAFETY NOTICE: Using Open Than Go while driving is strictly prohibited. Your safety comes first. "
+        "Use is at your own risk and exempts May Roga LLC from all liability."
+    )
+
     # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
     # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
@@ -957,8 +953,7 @@ async def mando_integral(request: Request):
 
     force_recovery_mission = False
     explicitly_seeking_job = any(
-        phrase in desahogo
-        for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"]
+        phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"]
     )
 
     # DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
