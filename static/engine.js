@@ -747,46 +747,30 @@ const KERNEL = {
     },
 
     /**
-     * Converts text to speech using browser's SpeechSynthesis API.
-     * CALIBRACIÓN DE CIRUJANO: Respeta tu velocidad original de 1.20 calculada por reloj.
-     * @param {string} texto - The text to speak.
-     */
-    hablar(texto) {
-        if (!('speechSynthesis' in window)) {
-            console.warn("Speech Synthesis API not supported in this browser.");
-            return;
-        }
-        if (!texto) return;
+ * Converts text to speech using browser's SpeechSynthesis API.
+ */
+hablar(texto) {
+    if (!('speechSynthesis' in window)) return;
+    if (!texto) return;
 
-        // 1. Detiene de inmediato cualquier residuo de audio previo de forma segura
-        window.speechSynthesis.cancel();
+    // Limpieza asíncrona segura
+    window.speechSynthesis.cancel();
 
-        // 2. ESCUDO DE CONTENCIÓN EXTENDIDO (250ms): Da tiempo real al procesador de vaciar el búfer
-        setTimeout(() => {
+    setTimeout(() => {
+        let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
+        const msg = new SpeechSynthesisUtterance(fx);
+
+        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+        msg.rate = 1.20; // Velocidad inmutable calculada por reloj
+
+        // Manejo básico de errores para mantener estable el hardware
+        msg.onerror = () => {
             window.speechSynthesis.cancel();
+        };
 
-            let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
-            const msg = new SpeechSynthesisUtterance(fx);
-
-            msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
-            msg.rate = 1.20; // TU VELOCIDAD EXACTA ORIGINAL
-
-            // 3. ANCLA DE BYPASS INDESTRUCTIBLE: Engaña el canal físico al arrancar.
-            // Genera un micro-pulso de pausa y reanudación instantáneo en el hardware.
-            // Esto evita que Chromium corte la primera frase de 45s a la mitad.
-            msg.onstart = () => {
-                window.speechSynthesis.pause();
-                window.speechSynthesis.resume();
-            };
-
-            msg.onerror = () => {
-                window.speechSynthesis.cancel();
-            };
-
-            // Dispara la locución sobre un canal limpio y en reposo absoluto
-            window.speechSynthesis.speak(msg);
-        }, 250);
-    },
+        window.speechSynthesis.speak(msg);
+    }, 150); // Escudo original estable de 150ms
+},
 
     /**
     * Changes the application's language and updates UI elements.
@@ -1194,50 +1178,60 @@ const KERNEL = {
         this.avanzarPaso();
     };
 },
+    
     /**
-     * Starts the 10-minute clinical breathing timer for CASA mode.
-     */
-    iniciarRelojEnfocadoCasa(container, t) {
-        // ======================================================================
-        // PURGA FÍSICA RADICAL: DESTRUCCIÓN DE NODOS ORÁCULO (SOLUCIÓN MEZCLA)
-        // ======================================================================
-        // 1. Destruye el intervalo de las preguntas en cascada
-        if (this.temporizadorCascada) {
-            clearInterval(this.temporizadorCascada);
-            this.temporizadorCascada = null;
-        }
-        
-        // 2. Limpia los temporizadores de inacción y el reloj viejo
-        clearInterval(this.timerInaccion);
-        clearInterval(this.timerEnfocado);
-        
-        // 3. Limpia cualquier bucle de voz previo de CASA
-        if (this.intervaloVozCasa) {
-            clearInterval(this.intervaloVozCasa);
-            this.intervaloVozCasa = null;
-        }
-
-        // 4. EL APAGÓN ABSOLUTO: Vaciamos el contenedor físico del DOM del Oráculo.
-        // Al desaparecer los botones de la pantalla, Chrome destruye de forma síncrona
-        // sus listeners y vacía la cola oculta de sonido del hardware.
-        const contenedorOraculo = document.getElementById('contenedor-preguntas-oraculo');
-        if (contenedorOraculo) {
-            contenedorOraculo.innerHTML = ""; 
-        }
-        
-        // 5. Silencia por completo el hardware de sonido antes de hablar
-        window.speechSynthesis.cancel();
-
-        let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
-        this.hablar(msg);
-
-        // [AQUÍ CONTINÚA TU INTERFAZ VISUAL EXACTAMENTE IGUAL A COMO LA TIENES]
-        container.innerHTML = `
-            <div style="text-align:center; width:100%;">
-                <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
-                
+ * Starts the 10-minute clinical breathing timer for CASA mode.
+ */
+iniciarRelojEnfocadoCasa(container, t) {
     // ======================================================================
-    // DISPARADOR DE SUGERENCIA TRAS 3 MINUTOS EXACTOS (SIN PARÁSITOS)
+    // RECTIFICACIÓN MAESTRA SEGURA: SIN TOCAR EL DOM PARA EVITAR CONGELAMIENTO
+    // ======================================================================
+    // 1. Destruye el intervalo real de las preguntas en cascada usando su nombre exacto
+    if (this.temporizadorCascada) {
+        clearInterval(this.temporizadorCascada);
+        this.temporizadorCascada = null;
+    }
+    
+    // 2. Limpia los temporizadores de inacción y el reloj viejo
+    clearInterval(this.timerInaccion);
+    clearInterval(this.timerEnfocado);
+    
+    // 3. Limpia cualquier bucle de voz previo de CASA para evitar duplicaciones
+    if (this.intervaloVozCasa) {
+        clearInterval(this.intervaloVozCasa);
+        this.intervaloVozCasa = null;
+    }
+    
+    // 4. SILENCIADO ASÍNCRONO SEGURO: Desvincula la cola de audio nativa de Chrome
+    window.speechSynthesis.getVoices(); 
+    window.speechSynthesis.cancel();
+
+    let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
+    this.hablar(msg);
+
+    container.innerHTML = `
+        <div style="text-align:center; width:100%;">
+            <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
+            <div id="timer">10:00</div>
+            <p id="txt-pulmon">INHALA / INHALE</p>
+            <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
+                <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
+            </div>
+        </div>
+    `;
+
+    this.timeLeft = 600;
+    this.contadorToques = 0;
+
+    const circleElement = document.getElementById('breath-circle');
+    const timerDiv = document.getElementById('timer');
+    const pulmonDiv = document.getElementById('txt-pulmon');
+    const salidaSugeridaDiv = document.getElementById('salida-sugerida');
+    const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
+    const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
+
+    // ======================================================================
+    // DISPARADOR DE SUGERENCIA TRAS 3 MINUTOS EXACTOS
     // ======================================================================
     if (this.salidaSugeridaTimeoutId) {
         clearTimeout(this.salidaSugeridaTimeoutId);
@@ -1262,14 +1256,12 @@ const KERNEL = {
                 })
             });
             const data = await r.json();
-            
             if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
-                const suggestedMission = data.misiones[0]; // Take the first one as suggestion
+                const suggestedMission = data.misiones[0];
                 if (data.historial_salir_actualizado) {
                     this.historialSalir = data.historial_salir_actualizado;
                     localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
                 }
-
                 linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
                 linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
                 salidaSugeridaDiv.classList.remove('hidden');
@@ -1282,14 +1274,12 @@ const KERNEL = {
         }
     }, 180000);
 
-    // Mapeo del Clicker táctil para adelantos de tiempo manuales
     if (circleElement) {
         circleElement.onclick = () => {
             if (this.contadorToques < this.secuenciaAdelantos.length) {
                 let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
                 this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
                 this.contadorToques++;
-
                 try {
                     let perfil = this.obtenerPerfilLocal();
                     perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
@@ -1297,7 +1287,6 @@ const KERNEL = {
                 } catch (e) {
                     console.error("Error updating anxiety indicator:", e);
                 }
-
                 let m = Math.floor(this.timeLeft / 60);
                 let s = this.timeLeft % 60;
                 if (timerDiv) {
@@ -1322,7 +1311,6 @@ const KERNEL = {
             timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
         }
         
-        // Control visual del ritmo de inhalación / exhalación (Ciclos de 8 segundos nativos)
         if (pulmonDiv) {
             let ciclo = this.timeLeft % 8;
             if (ciclo >= 4) {
@@ -1334,7 +1322,6 @@ const KERNEL = {
             }
         }
         
-        // Recordatorios de audio secuenciales disparados cada 20 segundos sin mezcla
         if (this.timeLeft < 600 && (600 - this.timeLeft) % 20 === 0 && (600 - this.timeLeft) !== 0) {
             let pasoAudioIdx = Math.floor((600 - this.timeLeft) / 20) - 1;
             if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
@@ -1345,7 +1332,6 @@ const KERNEL = {
             }
         }
         
-        // Finalización natural de los 10 minutos de limpieza mental
         if (this.timeLeft <= 0) {
             clearInterval(this.timerEnfocado);
             clearTimeout(this.salidaSugeridaTimeoutId);
@@ -1356,12 +1342,11 @@ const KERNEL = {
                 circleElement.style.animation = "none";
                 circleElement.style.transform = "scale(1)";
             }
-            // Transición directa a tu reto de cierre original estable de 60 segundos
             this.iniciarRetoCierre60Segundos();
         }
     }, 1000);
 },
-
+    
     /** 
      * Advances to the next internal mission step. 
      */
