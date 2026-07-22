@@ -1184,22 +1184,30 @@ hablar(texto) {
         this.avanzarPaso();
     };
 },
-
-    /**
+/**
  * Starts the 10-minute clinical breathing timer for CASA mode.
  */
 iniciarRelojEnfocadoCasa(container, t) {
     // ======================================================================
-    // RECTIFICACIÓN MECÁNICA CRÍTICA: APAGÓN DE PREGUNTAS EN CASCADA
+    // RECTIFICACIÓN MAESTRA: APAGÓN REAL DEL ORÁCULO DE BIENVENIDA
     // ======================================================================
-    // 1. Destruye los temporizadores del oráculo inicial para que no se mezclen
-    if (this.oraculoTimer1) clearTimeout(this.oraculoTimer1);
-    if (this.oraculoTimer2) clearTimeout(this.oraculoTimer2);
-    if (this.oraculoTimer3) clearTimeout(this.oraculoTimer3);
+    // Destruye el intervalo real de las preguntas en cascada usando su nombre exacto
+    if (this.temporizadorCascada) {
+        clearInterval(this.temporizadorCascada);
+        this.temporizadorCascada = null;
+    }
     
-    // 2. Limpia intervalos y buffers de audio previos
+    // Limpia los temporizadores de inacción y el reloj viejo
+    clearInterval(this.timerInaccion);
     clearInterval(this.timerEnfocado);
-    if (this.intervaloVozCasa) clearInterval(this.intervaloVozCasa); // Limpia bucles de voz viejos
+    
+    // Limpia cualquier bucle de voz previo de CASA para evitar duplicaciones
+    if (this.intervaloVozCasa) {
+        clearInterval(this.intervaloVozCasa);
+        this.intervaloVozCasa = null;
+    }
+    
+    // Silencia por completo el hardware de sonido antes de hablar
     window.speechSynthesis.cancel();
 
     let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
@@ -1218,35 +1226,61 @@ iniciarRelojEnfocadoCasa(container, t) {
 
     this.timeLeft = 600;
     this.contadorToques = 0;
-    let indiceAudioCasa = 0; // Rastreador secuencial de las frases de bienestar
 
     const circleElement = document.getElementById('breath-circle');
     const timerDiv = document.getElementById('timer');
     const pulmonDiv = document.getElementById('txt-pulmon');
     const salidaSugeridaDiv = document.getElementById('salida-sugerida');
     const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
-
     const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
 
     // ======================================================================
-    // LOGICA DE FRASES CADA 20 SEGUNDOS (SISTEMA TOTALMENTE AISLADO)
+    // DISPARADOR DE SUGERENCIA TRAS 3 MINUTOS EXACTOS (SIN PARÁSITOS)
     // ======================================================================
-    this.intervaloVozCasa = setInterval(() => {
-        if (this.timeLeft > 0 && AUDIOS_SECUENCIALES_CASA && AUDIOS_SECUENCIALES_CASA.length > 0) {
-            // Lanza la frase correspondiente de forma ordenada y limpia
-            if (indiceAudioCasa < AUDIOS_SECUENCIALES_CASA.length) {
-                this.hablar(AUDIOS_SECUENCIALES_CASA[indiceAudioCasa]);
-                indiceAudioCasa++;
-            } else {
-                indiceAudioCasa = 0; // Reinicia el ciclo de frases si se acaban antes de los 10 minutos
-                this.hablar(AUDIOS_SECUENCIALES_CASA[indiceAudioCasa]);
-                indiceAudioCasa++;
-            }
-        } else {
-            clearInterval(this.intervaloVozCasa);
-        }
-    }, 20000); // Bucle estricto cada 20 segundos
+    if (this.salidaSugeridaTimeoutId) {
+        clearTimeout(this.salidaSugeridaTimeoutId);
+        this.salidaSugeridaTimeoutId = null;
+    }
 
+    this.salidaSugeridaTimeoutId = setTimeout(async () => {
+        try {
+            const r = await fetch("/api/mando-integral", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    modo: "SALIR",
+                    lang: this.idiomaActual,
+                    mente: "agotado",
+                    budget: "0",
+                    perfil: "solo",
+                    desahogo: "",
+                    zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
+                    perfil_local: this.obtenerPerfilLocal(),
+                    historial_salir: this.historialSalir
+                })
+            });
+            const data = await r.json();
+            
+            if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
+                const suggestedMission = data.misiones[0]; // Take the first one as suggestion
+                if (data.historial_salir_actualizado) {
+                    this.historialSalir = data.historial_salir_actualizado;
+                    localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+                }
+
+                linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
+                linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
+                salidaSugeridaDiv.classList.remove('hidden');
+                this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
+            }
+        } catch (e) {
+            console.error("Error fetching SALIR suggestion in CASA mode:", e);
+        } finally {
+            this.salidaSugeridaTimeoutId = null;
+        }
+    }, 180000);
+
+    // Mapeo del Clicker táctil para adelantos de tiempo manuales
     if (circleElement) {
         circleElement.onclick = () => {
             if (this.contadorToques < this.secuenciaAdelantos.length) {
@@ -1271,103 +1305,60 @@ iniciarRelojEnfocadoCasa(container, t) {
         };
     }
 
-    // Aquí continúa la ejecución del intervalo principal del reloj (this.timerEnfocado = setInterval...)
-    // Asegúrate de que al terminar el tiempo (this.timeLeft <= 0) ejecutes también: clearInterval(this.intervaloVozCasa);
-
-        if (this.salidaSugeridaTimeoutId) {
+    // ======================================================================
+    // CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL (CADA 20 SEGUNDOS)
+    // ======================================================================
+    this.timerEnfocado = setInterval(() => {
+        if (this.timeLeft > 0) {
+            this.timeLeft--;
+        }
+        
+        let m = Math.floor(this.timeLeft / 60);
+        let s = this.timeLeft % 60;
+        
+        if (timerDiv) {
+            timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+        }
+        
+        // Control visual del ritmo de inhalación / exhalación (Ciclos de 8 segundos nativos)
+        if (pulmonDiv) {
+            let ciclo = this.timeLeft % 8;
+            if (ciclo >= 4) {
+                pulmonDiv.innerText = t.inspira.toUpperCase();
+                pulmonDiv.style.color = "var(--cyan-inhale)";
+            } else {
+                pulmonDiv.innerText = t.expira.toUpperCase();
+                pulmonDiv.style.color = "var(--accent)";
+            }
+        }
+        
+        // Recordatorios de audio secuenciales disparados cada 20 segundos sin mezcla
+        if (this.timeLeft < 600 && (600 - this.timeLeft) % 20 === 0 && (600 - this.timeLeft) !== 0) {
+            let pasoAudioIdx = Math.floor((600 - this.timeLeft) / 20) - 1;
+            if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
+                let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
+                if (recordatorioTexto) {
+                    this.hablar(recordatorioTexto);
+                }
+            }
+        }
+        
+        // Finalización natural de los 10 minutos de limpieza mental
+        if (this.timeLeft <= 0) {
+            clearInterval(this.timerEnfocado);
             clearTimeout(this.salidaSugeridaTimeoutId);
             this.salidaSugeridaTimeoutId = null;
+            window.speechSynthesis.cancel();
+            
+            if (circleElement) {
+                circleElement.style.animation = "none";
+                circleElement.style.transform = "scale(1)";
+            }
+            // Transición directa a tu reto de cierre original estable de 60 segundos
+            this.iniciarRetoCierre60Segundos();
         }
-
-        // Disparamos el Mando de Sugerencia tras 3 minutos exactos sin obstruir la respiración biológica
-        this.salidaSugeridaTimeoutId = setTimeout(async () => {
-            try {
-                const r = await fetch("/api/mando-integral", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        modo: "SALIR",
-                        lang: this.idiomaActual,
-                        mente: "agotado",
-                        budget: "0",
-                        perfil: "solo",
-                        desahogo: "",
-                        zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
-                        perfil_local: this.obtenerPerfilLocal(),
-                        historial_salir: this.historialSalir
-                    })
-                });
-                const data = await r.json();
-            
-                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
-                    const suggestedMission = data.misiones[0]; // Take the first one as suggestion
-                    if (data.historial_salir_actualizado) {
-                        this.historialSalir = data.historial_salir_actualizado;
-                        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                    }
-
-                    linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
-                    linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
-                    salidaSugeridaDiv.classList.remove('hidden');
-                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
-                }
-            } catch (e) {
-                console.error("Error fetching SALIR suggestion in CASA mode:", e);
-            } finally {
-                this.salidaSugeridaTimeoutId = null;
-            }
-        }, 180000);
-        // Ciclo principal del temporizador de respiración (1 segundo por tick)
-        this.timerEnfocado = setInterval(() => {
-            if (this.timeLeft > 0) {
-                this.timeLeft--;
-            }
-            
-            let m = Math.floor(this.timeLeft / 60);
-            let s = this.timeLeft % 60;
-            
-            if (timerDiv) {
-                timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-            }
-            
-            // Control visual del ritmo de inhalación / exhalación (Ciclos de 8 segundos)
-            if (pulmonDiv) {
-                let ciclo = this.timeLeft % 8;
-                if (ciclo >= 4) {
-                    pulmonDiv.innerText = t.inspira.toUpperCase();
-                    pulmonDiv.style.color = "var(--cyan-inhale)";
-                } else {
-                    pulmonDiv.innerText = t.expira.toUpperCase();
-                    pulmonDiv.style.color = "var(--accent)";
-                }
-            }
-            
-            // Recordatorios de audio secuenciales disparados cada 20 segundos exactos
-            if (this.timeLeft < 600 && (600 - this.timeLeft) % 20 === 0 && (600 - this.timeLeft) !== 0) {
-                let pasoAudioIdx = Math.floor((600 - this.timeLeft) / 20) - 1;
-                if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
-                    let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
-                    if (recordatorioTexto) {
-                        this.hablar(recordatorioTexto);
-                    }
-                }
-            }
-            
-            // Finalización natural de los 10 minutos de limpieza mental
-            if (this.timeLeft <= 0) {
-                clearInterval(this.timerEnfocado);
-                clearTimeout(this.salidaSugeridaTimeoutId);
-                this.salidaSugeridaTimeoutId = null;
-                window.speechSynthesis.cancel();
-                
-                if (circleElement) {
-                    circleElement.style.animation = "none";
-                    circleElement.style.transform = "scale(1)";
-                }
-                this.iniciarRetoCierre60Segundos();
-            }
-        }, 1000);
-    },
+    }, 1000);
+},
 
     /** 
      * Advances to the next internal mission step. 
