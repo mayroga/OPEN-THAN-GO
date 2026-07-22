@@ -1184,9 +1184,9 @@ hablar(texto) {
  */
 iniciarRelojEnfocadoCasa(container, t) {
     // ======================================================================
-    // RECTIFICACIÓN MAESTRA SEGURA: SIN TOCAR EL DOM PARA EVITAR CONGELAMIENTO
+    // RECTIFICACIÓN MAESTRA DE EQUILIBRIO: APAGÓN DE ORÁCULO RECOBRANDO EL FLUJO
     // ======================================================================
-    // 1. Destruye el intervalo real de las preguntas en cascada usando su nombre exacto
+    // 1. Destruye el intervalo de las preguntas en cascada usando su nombre exacto
     if (this.temporizadorCascada) {
         clearInterval(this.temporizadorCascada);
         this.temporizadorCascada = null;
@@ -1202,9 +1202,12 @@ iniciarRelojEnfocadoCasa(container, t) {
         this.intervaloVozCasa = null;
     }
     
-    // 4. SILENCIADO ASÍNCRONO SEGURO: Desvincula la cola de audio nativa de Chrome
-    window.speechSynthesis.getVoices(); 
-    window.speechSynthesis.cancel();
+    // 4. RETORNO DE MOTOR RECOBRADO: Despierta y limpia el hardware de sonido
+    // sin alterar el flujo de las pantallas iniciales ni congelar la app.
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.getVoices(); 
+        window.speechSynthesis.cancel();
+    }
 
     let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
     this.hablar(msg);
@@ -1346,7 +1349,7 @@ iniciarRelojEnfocadoCasa(container, t) {
         }
     }, 1000);
 },
-    
+
     /** 
      * Advances to the next internal mission step. 
      */
