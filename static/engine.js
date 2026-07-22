@@ -872,30 +872,28 @@ const KERNEL = {
         this.ejecutar();
     },
 
-    /**
+ /**
  * Converts text to speech using browser's SpeechSynthesis API.
  */
 hablar(texto) {
-    if (!('speechSynthesis' in window)) return;
-    if (!texto) return;
-
-    // Limpieza asíncrona segura
-    window.speechSynthesis.cancel();
-
-    setTimeout(() => {
-        let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
-        const msg = new SpeechSynthesisUtterance(fx);
-
-        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
-        msg.rate = 1.20; // Velocidad inmutable calculada por reloj
-
-        // Manejo básico de errores para mantener estable el hardware
-        msg.onerror = () => {
-            window.speechSynthesis.cancel();
-        };
-
-        window.speechSynthesis.speak(msg);
-    }, 150); // Escudo original estable de 150ms
+ if (!('speechSynthesis' in window)) return;
+ if (!texto) return;
+ window.speechSynthesis.cancel();
+ setTimeout(() => {
+ let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
+ const msg = new SpeechSynthesisUtterance(fx);
+ msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+ 
+ // === OPTIMIZACIÓN DE VOZ HUMANA Abajo la prisa y la robotización ===
+ msg.rate = 0.95; // Velocidad reducida a 0.95 para máxima calidez y entendimiento
+ msg.pitch = 1.0; // Tono orgánico estable
+ 
+ // Manejo básico de errores para mantener estable el hardware
+ msg.onerror = () => {
+ window.speechSynthesis.cancel();
+ };
+ window.speechSynthesis.speak(msg);
+ }, 150); // Escudo original estable de 150ms
 },
 
     /**
@@ -1410,35 +1408,30 @@ iniciarRelojEnfocadoCasa(container, t) {
         this.salidaSugeridaTimeoutId = null;
     }
 
-    this.salidaSugeridaTimeoutId = setTimeout(async () => {
-        try {
-            const r = await fetch("/api/mando-integral", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    modo: "SALIR",
-                    lang: this.idiomaActual,
-                    mente: "agotado",
-                    budget: "0",
-                    perfil: "solo",
-                    desahogo: "",
-                    zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
-                    perfil_local: this.obtenerPerfilLocal(),
-                    historial_salir: this.historialSalir
-                })
-            });
-            const data = await r.json();
-            if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
-                const suggestedMission = data.misiones[0];
-                if (data.historial_salir_actualizado) {
-                    this.historialSalir = data.historial_salir_actualizado;
-                    localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-                }
-                linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
-                linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
-                salidaSugeridaDiv.classList.remove('hidden');
-                this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
-            }
+   this.salidaSugeridaTimeoutId = setTimeout(async () => {
+ try {
+ const r = await fetch("/api/mando-integral", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modo: "SALIR", lang: this.idiomaActual, mente: "agotado", budget: "0", perfil: "solo", desahogo: "", zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "", perfil_local: this.obtenerPerfilLocal(), historial_salir: this.historialSalir }) });
+ const data = await r.json();
+ 
+ // === PROTOCOLO LEGAL DE SEGURIDAD (MAY ROGA LLC) ===
+ if (data.drive_prohibited && data.legal_notice_es) {
+     console.warn("ALERT:", this.idiomaActual === 'es' ? data.legal_notice_es : data.legal_notice_en);
+ }
+
+ if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
+ const suggestedMission = data.misiones[0];
+ if (data.historial_salir_actualizado) {
+ this.historialSalir = data.historial_salir_actualizado;
+ localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+ }
+ linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
+ linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
+ salidaSugeridaDiv.classList.remove('hidden');
+ 
+ // Lectura fluida, pausada y sin prisas
+ this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
+ }
+ 
         } catch (e) {
             console.error("Error fetching SALIR suggestion in CASA mode:", e);
         } finally {
@@ -1494,8 +1487,10 @@ iniciarRelojEnfocadoCasa(container, t) {
             }
         }
         
-        if (this.timeLeft < 600 && (600 - this.timeLeft) % 20 === 0 && (600 - this.timeLeft) !== 0) {
-            let pasoAudioIdx = Math.floor((600 - this.timeLeft) / 20) - 1;
+              // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
+        // Reemplazamos los 600 segundos originales por 840 para dar 4 minutos más de calma humana
+        if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
+            let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
             if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
                 let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
                 if (recordatorioTexto) {
@@ -1503,6 +1498,7 @@ iniciarRelojEnfocadoCasa(container, t) {
                 }
             }
         }
+
         
         if (this.timeLeft <= 0) {
             clearInterval(this.timerEnfocado);
