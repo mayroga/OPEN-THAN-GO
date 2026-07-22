@@ -1063,7 +1063,7 @@ async def mando_integral(request: Request):
             }
         }
 
-         # === CONSTRUCCIÓN DEL DESTINO DE RESCATE (GOOGLE MAPS) ===
+    # === CONSTRUCCIÓN DEL DESTINO DE RESCATE (GOOGLE MAPS) ===
     matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
     gasto_key = budget if budget in ["0", "1", "2"] else "0"
     actividad_base = matriz_ocio[gasto_key]
@@ -1097,7 +1097,7 @@ async def mando_integral(request: Request):
         "diagnostico_sintoma_en": diagnostico_sintoma_en if 'diagnostico_sintoma_en' in locals() else "Routine exhaustion.",
     }]
 
-    # === CORE DE REDIRECCIONAMIENTO CONTEXTUAL (ESTRUCTURA IF-ELIF-ELSE SANADA) ===
+       # === CORE DE REDIRECCIONAMIENTO CONTEXTUAL (ESTRUCTURA IF-ELIF-ELSE SANADA) ===
     if force_recovery_mission:
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
@@ -1128,9 +1128,32 @@ async def mando_integral(request: Request):
                     "descripcion": m.get("descripcion", m.get("que_hacer", m.get("porque", "Pausa de bienestar somática."))),
                     "vector_necesidades": m.get("vector_necesidades", {})
                 })
-        
-        # Inyectamos el catálogo unificado usando la función inteligente que reestructuraste
-        misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(perfil_local, cantidad=3) if 'seleccionar_misiones_casa_inteligente' in locals() else final_misiones_casa[:3]
+
+        # RESPALDO: Solo si tu catálogo global estuviera completamente vacío o ilegible
+        if not final_misiones_casa:
+            if idioma == "ES":
+                final_misiones_casa = [{
+                    "id": 801,
+                    "titulo": "Pausa de Respiración Somática",
+                    "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos.",
+                    "vector_necesidades": {}
+                }]
+            else:
+                final_misiones_casa = [{
+                    "id": 801,
+                    "titulo": "Somatic Breathing Pause",
+                    "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
+                    "vector_necesidades": {}
+                }]
+
+        # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
+        misiones_completas_procesar = BASE_MISIONES.get(target_key, []) if "BASE_MISIONES" in globals() else final_misiones_casa
+        misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
+            misiones=misiones_completas_procesar,
+            perfil_local=perfil_local,
+            historial_casa=payload.get("historial_casa", []),
+            cantidad=3
+        )
         
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
@@ -1139,6 +1162,20 @@ async def mando_integral(request: Request):
             "forced_recovery": False,
             "legal_notice_es": ADVERTENCIA_LEGAL_ES,
             "drive_prohibited": False
+        })
+
+    else:
+        # 2. INTERVENCIÓN EXTERNA (MODO SALIR) - ENTRADA POR DEFECTO Y CIERRE SEGURO
+        misiones_campo = seleccionar_misiones_campo(perfil_local, zip_code, budget, perfil_tipo) if 'seleccionar_misiones_campo' in locals() else final_misiones_para_frontend
+        
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "misiones": misiones_campo,
+            "historial_salir_actualizado": payload.get("historial_salir", []),
+            "forced_recovery": False,
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
+            "drive_prohibited": True
         })
 
     else:
