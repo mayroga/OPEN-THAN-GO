@@ -1278,7 +1278,8 @@ for info_seleccionada in misiones_seleccionadas_raw:
         })
         historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
-    # El return ya no está suelto en la nada; lleva la misma sangría de la función principal
+         # El return ya no está suelto en la nada; lleva la misma sangría de la función principal
+    
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
