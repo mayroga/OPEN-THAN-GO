@@ -1261,7 +1261,7 @@ for info_seleccionada in misiones_seleccionadas_raw:
 
         final_vector_necesidades = {**DEFAULT_NECESSITY_VECTOR, **info_seleccionada.get("vector_necesidades", {})}
 
-        # Estructura de salida original idéntica
+      # Estructura de salida original idéntica (Alineada dentro de la función)
         final_misiones_para_frontend.append({
             "destino_id": info_seleccionada.get("id"),
             "destino_titulo": titulo_ganador_lang,
@@ -1273,19 +1273,17 @@ for info_seleccionada in misiones_seleccionadas_raw:
             "destino_instruccion_en": guia_masticada.strip(),
             "destino_coordenadas_gps": target_link,
             "vector_entorno_seleccionado": final_vector_necesidades,
-            "enlace_youtube": info_seleccionada["enlace_youtube"], # Ensure these are passed from info_seleccionada
-            "enlace_spotify": info_seleccionada["enlace_spotify"], # Ensure these are passed from info_seleccionada
+            "enlace_youtube": info_seleccionada["enlace_youtube"],
+            "enlace_spotify": info_seleccionada["enlace_spotify"]
         })
-
         historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
-    # Retornamos el JSON original exacto.
+    # El return ya no está suelto en la nada; lleva la misma sangría de la función principal
     return JSONResponse({
         "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
         "misiones": final_misiones_para_frontend,
         "historial_salir_actualizado": historial_salir
     })
-
 
 # ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
