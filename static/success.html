@@ -2,48 +2,71 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Than Go - Acceso Verificado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OPEN THAN GO - Pago Exitoso</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center;
+            background-color: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
-        .success-box {
-            border: 1px solid #222; padding: 35px; background: #0a0a0a; border-radius: 12px; max-width: 380px; width: 100%;
+        .container-exito {
+            max-width: 400px;
+            width: 100%;
+            background: #111;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #222;
         }
-        h2 { color: #00bcd4; margin-bottom: 12px; font-size: 1.4rem; letter-spacing: 1px; }
-        p { color: #777; font-size: 0.9rem; line-height: 1.5; margin-bottom: 25px; }
-        .loader {
-            width: 28px; height: 28px; border: 3px solid #111; border-top: 3px solid #00bcd4; border-radius: 50%; margin: 0 auto; animation: spin 0.8s linear infinite;
+        h2 {
+            color: #2e7d32;
+            margin-top: 0;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        p {
+            color: #ccc;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            text-align: justify;
+        }
+        .btn-acceso {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #2e7d32;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .btn-acceso:hover {
+            background: #1b5e20;
+        }
     </style>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const params = new URLSearchParams(window.location.search);
-            const stripeSessionId = params.get('session_id');
-
-            // Verificación estructural estricta antes de escribir en localStorage
-            if (stripeSessionId && (stripeSessionId.startsWith('cs_live_') || stripeSessionId.startsWith('cs_test_'))) {
-                localStorage.setItem('otg_pase_stripe', stripeSessionId);
-                localStorage.setItem('otg_user_role', 'user');
-                
-                // Transferencia inmediata al motor principal sin demoras de CPU
-                window.location.href = "/static/session.html";
-            } else {
-                // Si intentan forzar la URL de éxito manualmente, rebote automático
-                window.location.href = "/static/session.html";
-            }
-        });
-    </script>
 </head>
 <body>
-    <div class="success-box">
-        <h2>ACCESO AUTORIZADO</h2>
-        <p>Sincronizando pasarela segura con tu motor de bienestar. Inicializando variables...</p>
-        <div class="loader"></div>
+
+    <div class="container-exito">
+        <h2>PAGO PROCESADO CON ÉXITO</h2>
+        <p>Tu pase comercial ha sido activado correctamente a través de Stripe. A partir de este momento, tienes acceso total y seguro a todas las funciones de bienestar del motor. Disfruta de tu experiencia pasiva.</p>
+        
+        <a href="/static/session.html" class="btn-acceso">INGRESAR A OPEN THAN GO</a>
     </div>
+
 </body>
 </html>
