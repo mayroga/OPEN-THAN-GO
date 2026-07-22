@@ -1142,127 +1142,127 @@ async def mando_integral(request: Request):
                     }
                 ]
 
-        # REPARACIÓN CRÍTICA: Extraemos las misiones de forma directa. 
-        # Evitamos pasar por la función matemática rota que provocaba el Error 500.
-        historial_casa = payload.get("historial_casa", [])
+          # ==========================================================================================
+    # 1. INTERVENCIÓN DOMÉSTICA (RESTABLECIMIENTO DE FÁBRICA MODO CASA)
+    # ==========================================================================================
+    if opcion_usuario == "CASA":
+        idioma = "EN" if lang == "en" else "ES"
+        target_key = f"CASA_{idioma}"
         
-        # Filtramos de forma simple para que no se repitan las misiones según el historial
-        disponibles = [m for m in final_misiones_casa if m["id"] not in historial_casa]
-        if len(disponibles) < 3:
-            disponibles = final_misiones_casa
-            
-        # Seleccionamos las misiones listas para renderizar (máximo 3)
-        misiones_casa = disponibles[:3]
+        # Recupera el catálogo de misiones de forma directa y segura
+        misiones_completas = BASE_MISIONES.get(target_key, [])
         
+        # Selección inteligente utilizando la función CASA V2 purificada
+        misiones_casa = seleccionar_misiones_casa_inteligente(
+            misiones=misiones_completas,
+            perfil_local=perfil_local,
+            historial_casa=payload.get("historial_casa", []),
+            cantidad=3
+        )
+
         # Actualizamos el historial del catálogo de forma segura
+        historial_casa = payload.get("historial_casa", [])
         for m in misiones_casa:
             historial_casa = actualizar_historial(historial_casa, m["id"], MAX_HISTORY_CASA)
-            
-        # Retornamos la estructura original idéntica que el frontend sabe procesar
+
+        # RETORNO LIMPIO DE CASA: Evita colisiones eliminando la calidez humana inflada
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "INTERVENCION_DOMESTICA",
-            "calidez_humana": manifiesto_humano_casa,
             "misiones": misiones_casa,
             "historial_casa_actualizado": historial_casa
         })
- 
+
     # ==========================================================================================
-    # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL PURIFICADA)
+    # 2. ACTION DE CAMPO (RESTABLECIMIENTO DE FÁBRICA MODO SALIR)
     # ==========================================================================================
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-    historial_salir = payload.get("historial_salir", [])
-    
-    # [CORRECCIÓN 1]: Uso estricto de los parámetros correctos para evitar NameError
-    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
-        n=3,
-        misiones=opciones_salir_candidatas,
-        perfil_local=perfil_local,
-        historial_actual=historial_salir
-    )
+    else:
+        opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
+        historial_salir = payload.get("historial_salir", [])
+        
+        misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
+            n=3,
+            misiones=opciones_salir_candidatas,
+            perfil_local=perfil_local,
+            historial_actual=historial_salir
+        )
 
-    final_misiones_para_frontend = []
-    
-    # Diccionario de control de medios para evitar NameError de antidotos_digitales
-    antidotos_digitales = {
-        "youtube": "https://youtube.com",
-        "spotify": "https://spotify.com"
-    }
+        final_misiones_para_frontend = []
+        antidotos_digitales = {
+            "youtube": "https://youtube.com",
+            "spotify": "https://spotify.com"
+        }
 
-    for info_seleccionada in misiones_seleccionadas_raw:
-        # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO AISLADOS PARA LA INTERFAZ ===
-        precio_real = ""
-        if budget == "0":
-            precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
-        elif budget == "1":
-            precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
-        elif budget == "2":
-            precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
+        for info_seleccionada in misiones_seleccionadas_raw:
+            # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO AISLADOS PARA LA INTERFAZ ===
+            precio_real = ""
+            if budget == "0":
+                precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
+            elif budget == "1":
+                precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
+            elif budget == "2":
+                precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
 
-        quienes_van = ""
-        if perfil_tipo == "solo":
-            quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
-        elif perfil_tipo == "familia":
-            quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
-        elif perfil_tipo == "accesible":
-            quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
+            quienes_van = ""
+            if perfil_tipo == "solo":
+                quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
+            elif perfil_tipo == "familia":
+                quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
+            elif perfil_tipo == "accesible":
+                quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
 
-        titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
-        donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-        anclaje_geografico = zip_code
-        map_base_url = link_base
+            titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
+            donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
+            anclaje_geografico = zip_code
+            map_base_url = link_base
 
-        # [CORRECCIÓN 2]: Condicionales de idioma limpios e independientes
-        if lang == "en":
-            guia_masticada = info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''
-            guia_masticada_en = info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''
-            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
-            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
-            que_hacer_en_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
-        else:
-            guia_masticada = info_seleccionada['porque'] or ''
-            guia_masticada_en = info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''
-            titulo_ganador_lang = (info_seleccionada['titulo'] or "").upper()
-            que_hacer_lang = info_seleccionada["que_hacer"] or ""
-            que_hacer_en_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
+            # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
+            if lang == "en":
+                guia_masticada_es = info_seleccionada.get('porque', '')
+                guia_masticada_en = info_seleccionada.get('porque_en', info_seleccionada.get('porque', ''))
+                titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
+                que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
+            else:
+                guia_masticada_es = info_seleccionada.get('porque', '')
+                guia_masticada_en = info_seleccionada.get('porque_en', info_seleccionada.get('porque', ''))
+                titulo_ganador_lang = (info_seleccionada['titulo'] or "").upper()
+                que_hacer_lang = info_seleccionada["que_hacer"] or ""
 
-        # [CORRECCIÓN 3]: Bloque de búsqueda de mapas extraído fuera del bucle familiar
-        search_query_parts = []
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
-            
-        search_query_parts.append(info_seleccionada.get("gps", "park"))
-        target_link = f"{map_base_url}?q={'+'.join(search_query_parts)}+{anclaje_geografico}"
-        final_vector_necesidades = info_seleccionada.get("vector_necesidades", {})
+            search_query_parts = []
+            if perfil_tipo == "accesible":
+                search_query_parts.append("wheelchair accessible")
+            elif perfil_tipo == "familia":
+                search_query_parts.append("family friendly")
+                
+            search_query_parts.append(info_seleccionada.get("gps", "park"))
+            target_link = f"{map_base_url}?q={'+'.join(search_query_parts)}+{anclaje_geografico}"
+            final_vector_necesidades = info_seleccionada.get("vector_necesidades", {})
 
-        # Asegurar consistencia de campos en force_recovery_mission
-        enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales["youtube"])
-        enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales["spotify"])
+            enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales["youtube"])
+            enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales["spotify"])
 
-        # === ESTRUCTURA DE SALIR ORIGINAL IDÉNTICA EXACTA ===
-        final_misiones_para_frontend.append({
-            "destino_id": info_seleccionada.get("id"),
-            "destino_titulo": titulo_ganador_lang,
-            "destino_titulo_en": titulo_ganador,
-            "que_hacer": que_hacer_lang,
-            "que_hacer_en": que_hacer_en_lang,
-            "destino_entorno": donde_base,
-            "destino_instruccion": guia_masticada.strip(),
-            "destino_instruccion_en": guia_masticada_en.strip(),
-            "destino_coordenadas_gps": target_link,
-            "vector_entorno_seleccionado": final_vector_necesidades,
-            "enlace_youtube": enlace_yt,
-            "enlace_spotify": enlace_sp
-        })
-        historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
+            # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
+            final_misiones_para_frontend.append({
+                "destino_id": info_seleccionada.get("id"),
+                "destino_titulo": titulo_ganador_lang,
+                "destino_titulo_en": titulo_ganador,
+                "que_hacer": que_hacer_lang,
+                "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
+                "destino_entorno": donde_base,
+                "destino_instruccion": guia_masticada_es.strip(),
+                "destino_instruccion_en": guia_masticada_en.strip(),
+                "destino_coordenadas_gps": target_link,
+                "vector_entorno_seleccionado": final_vector_necesidades,
+                "enlace_youtube": enlace_yt,
+                "enlace_spotify": enlace_sp
+            })
+            historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
-    # [CORRECCIÓN 4]: El return lleva exactamente la misma identación que el inicio de la función
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "misiones": final_misiones_para_frontend,
-        "historial_salir_actualizado": historial_salir
-    })
+        # RETORNO LIMPIO DE SALIR: Alineado con la función principal para evitar SyntaxError
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "misiones": final_misiones_para_frontend,
+            "historial_salir_actualizado": historial_salir
+        }) 
 # ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==========================================================================================
