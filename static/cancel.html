@@ -2,36 +2,79 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Than Go - Transacción Cancelada</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OPEN THAN GO - Estado de Pago</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; text-align: center;
+            background-color: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
         }
-        .cancel-box {
-            border: 1px solid #222; padding: 35px; background: #0a0a0a; border-radius: 12px; max-width: 380px; width: 100%;
+        .container-aviso {
+            max-width: 400px;
+            width: 100%;
+            background: #111;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #222;
         }
-        h2 { color: #ff5722; margin-bottom: 12px; font-size: 1.4rem; }
-        p { color: #777; font-size: 0.9rem; line-height: 1.5; margin-bottom: 25px; }
-        .btn-retry {
-            display: inline-block; width: 100%; padding: 14px; background: #111; border: 1px solid #333; color: #fff; border-radius: 6px; font-weight: bold; text-decoration: none; font-size: 0.85rem;
+        h2 {
+            color: #d84315;
+            margin-top: 0;
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+        p {
+            color: #ccc;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            text-align: justify;
+        }
+        .btn-retorno {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #222;
+            color: #00bcd4;
+            border: 1px solid #333;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-retorno:hover {
+            background: #00bcd4;
+            color: #000;
         }
     </style>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Limpieza absoluta de credenciales alteradas al cancelar el flujo
-            localStorage.removeItem('otg_user_role');
-            localStorage.removeItem('otg_pase_stripe');
-        });
-    </script>
 </head>
 <body>
-    <div class="cancel-box">
-        <h2>PROCESO INTERRUMPIDO</h2>
-        <p>No se ha realizado ningún cargo. El acceso al sistema permanecerá cerrado hasta confirmar el pago.</p>
-        <a href="/static/session.html" class="btn-retry">Volver al Módulo Principal</a>
+
+    <div class="container-aviso">
+        <h2>PAGO CANCELADO</h2>
+        <p>El proceso de pago a través de Stripe no se ha completado. No se ha realizado ningún cargo económico a tu tarjeta. Puedes regresar a la plataforma para seleccionar tu pase comercial o ingresar con tus credenciales de soporte cuando lo consideres oportuno de forma segura.</p>
+        
+        <a href="/static/session.html" class="btn-retorno">VOLVER A LA APLICACIÓN / BACK</a>
     </div>
+
+    <script>
+        (function() {
+            localStorage.removeItem('otg_intent_stripe_failed');
+            console.log("Módulo de cancelación de Stripe procesado en modo pasivo protector.");
+        })();
+    </script>
+
 </body>
 </html>
