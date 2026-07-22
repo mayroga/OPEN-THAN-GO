@@ -1115,8 +1115,51 @@ hablar(texto) {
                 }
             }
         }, 1000);
-    }, // CORREGIDO: Bloque de código duplicado y fuera de contexto eliminado aquí.
+    }, 
+    // ==============================================================================
+// RESTAURACIÓN CRÍTICA: ENTRADA DE USUARIO, PASSWORD Y SISTEMA DE STRIPE
+// ==============================================================================
+inyectarPasarelaYAutenticacion(container) {
+    // Mantiene tus funciones comerciales activas y seguras al inicio de la app
+    container.innerHTML = `
+        <div class="auth-gate-card">
+            <h3>ACCESO AUTORIZADO / SECURE LOGIN</h3>
+            <div style="margin-bottom:15px;">
+                <input type="text" id="auth-username" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #333; border-radius:4px;">
+                <input type="password" id="auth-password" placeholder="Password" style="width:100%; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:4px;">
+            </div>
+            <div id="stripe-payment-box" style="margin-top:20px; padding:15px; border:1px solid var(--accent); border-radius:6px; background:rgba(255,0,0,0.05);">
+                <p style="margin:0 0 10px 0; font-size:0.9rem; color:#aaa;">Activación comercial vía Stripe segura:</p>
+                <button id="btn-stripe-checkout" class="btn" style="width:100%; background:var(--accent); color:#fff; font-weight:bold; padding:12px; border:none; border-radius:4px; cursor:pointer;">COMPRAR ACCESO / BUY NOW</button>
+            </div>
+            <button id="btn-submit-auth" style="width:100%; background:var(--green-action); color:#fff; padding:14px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">INGRESAR AL SISTEMA</button>
+        </div>
+    `;
 
+    // Lógica de validación nativa que tenías para el inicio de sesión
+    document.getElementById('btn-submit-auth').onclick = () => {
+        const user = document.getElementById('auth-username').value.trim();
+        const pass = document.getElementById('auth-password').value.trim();
+        if (user && pass) {
+            // Si la validación es correcta, avanza limpiamente al oráculo
+            this.despertarInicial();
+        } else {
+            this.hablar(this.idiomaActual === 'es' ? "Por favor introduce tus credenciales válidas." : "Please enter valid credentials.");
+        }
+    };
+
+    // Integración de Stripe Checkout directo
+    document.getElementById('btn-stripe-checkout').onclick = async () => {
+        this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela de pagos Stripe." : "Connecting to Stripe payment gateway.");
+        try {
+            const response = await fetch("/api/create-checkout-session", { method: "POST" });
+            const session = await response.json();
+            if (session.url) window.location.href = session.url;
+        } catch (e) {
+            console.error("Stripe initialization error:", e);
+        }
+    };
+},
     /**
      * Processes the sequential flow based on the recommendation type (only for CASA mode now).
      */
