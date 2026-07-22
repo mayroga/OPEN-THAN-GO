@@ -1156,74 +1156,58 @@ async def mando_integral(request: Request):
             "historial_casa_actualizado": historial_casa
         })
  
-    # ==========================================================================================
-    # 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL)
-    # ==========================================================================================
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-    historial_salir = payload.get("historial_salir", [])
+# ==========================================================================================
+# 2. ACTION DE CAMPO (MODO SALIR - SELECCIÓN PREDICTIVA ORIGINAL PURIFICADA)
+# ==========================================================================================
+opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
+historial_salir = payload.get("historial_salir", [])
+misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
+    n=3,
+    misiones=opciones_salir_candidatas,
+    perfil_local=perfil_local,
+    historial_actual=historial_salir
+)
 
-    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
-        n=3,
-        misiones=opciones_salir_candidatas,
-        perfil_local=perfil_local,
-        historial_actual=historial_salir
-    )
+final_misiones_para_frontend = []
+for info_seleccionada in misiones_seleccionadas_raw:
+    # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO AISLADOS PARA LA INTERFAZ ===
+    precio_real = ""
+    if budget == "0":
+        precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
+    elif budget == "1":
+        precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
+    elif budget == "2":
+        precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
 
-    final_misiones_para_frontend = []
-    for info_seleccionada in misiones_seleccionadas_raw:
-        # === MODIFICACIÓN: MENSAJES DE ACOMPAÑAMIENTO Y GASTO ACORTADOS ===
-        precio_real = ""
-        if budget == "0":
-            precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
-        elif budget == "1":
-            precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
-        elif budget == "2":
-            precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
+    quienes_van = ""
+    if perfil_tipo == "solo":
+        quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
+    elif perfil_tipo == "familia":
+        quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
+    elif perfil_tipo == "accesible":
+        quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
 
-        quienes_van = ""
-        if perfil_tipo == "solo":
-            quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
-        elif perfil_tipo == "familia":
-            quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
-        elif perfil_tipo == "accesible":
-            quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
+    titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
+    donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
+    anclaje_geografico = zip_code
+    map_base_url = link_base
 
-        titulo_ganador = info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) if lang == "en" else info_seleccionada["titulo"]
-        donde_base = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
+    if lang == "en":
+        # === FILTRO DE CIRUJANO: LA VOZ SOLO LEE LA NARRATIVA POÉTICA ORIGINAL ===
+        guia_masticada = info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''
+        titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
+        que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
+    else:
+        # === FILTRO DE CIRUJANO: LA VOZ SOLO LEE LA NARRATIVA POÉTICA ORIGINAL ===
+        guia_masticada = info_seleccionada['porque'] or ''
+        titulo_ganador_lang = (info_seleccionada['titulo'] or "").upper()
+        que_hacer_lang = info_seleccionada["que_hacer"] or ""
 
-        anclaje_geografico = zip_code
-        map_base_url = link_base
-
-        if lang == "en":
-            # === MODIFICACIÓN: guia_masticada (EN) ACORTADA ===
-            guia_masticada = (
-                f"TARGET: {info_seleccionada.get('titulo_en', info_seleccionada['titulo']) or ''}.\n"
-                f"WHAT TO DO: {info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''}\n"
-                f"WHY: {info_seleccionada.get('porque_en', info_seleccionada['porque']) or ''}\n"
-                f"WHEN: {info_seleccionada.get('cuando_en', info_seleccionada['cuando']) or ''}\n"
-                f"FOR WHAT: {info_seleccionada.get('para_que_en', info_seleccionada['para_que']) or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
-            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or ''
-        else:
-            # === MODIFICACIÓN: guia_masticada (ES) ACORTADA ===
-            guia_masticada = (
-                f"DESTINO: {info_seleccionada['titulo'] or ''}.\n"
-                f"POR QUÉ: {info_seleccionada['porque'] or ''}\n"
-                f"QUÉ HACER: {info_seleccionada['que_hacer'] or ''}\n"
-                f"CUÁNDO: {info_seleccionada['cuando'] or ''}\n"
-                f"PARA QUÉ: {info_seleccionada['para_que'] or ''}\n"
-                f"{quienes_van}\n{precio_real}"
-            )
-            titulo_ganador_lang = (info_seleccionada['titulo'] or "").upper()
-            que_hacer_lang = info_seleccionada["que_hacer"] or ""
-
-        search_query_parts = []
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
+    search_query_parts = []
+    if perfil_tipo == "accesible":
+        search_query_parts.append("wheelchair accessible")
+    elif perfil_tipo == "familia":
+        search_query_parts.append("family friendly")
 
         # ==========================================================================================
         # CONSTRUCCIÓN DE LA RECETA DE ECONOMÍA REAL (DESVÍO DENTRO DE GOOGLE MAPS)
