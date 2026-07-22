@@ -419,7 +419,7 @@ const KERNEL = {
         };
     },
 
-    /**
+        /**
      * Initializes the KERNEL on DOMContentLoaded.
      */
     init() {
@@ -429,6 +429,7 @@ const KERNEL = {
         } else {
             localStorage.setItem("otg_language", this.idiomaActual);
         }
+
         try {
             this.historialSalir = JSON.parse(localStorage.getItem("otg_historial_salir") || "[]");
             this.historialCasa = JSON.parse(localStorage.getItem("otg_historial_casa") || "[]");
@@ -445,21 +446,101 @@ const KERNEL = {
             localStorage.removeItem("otg_historial_oraculo");
             localStorage.removeItem("otg_historial_retos_secuencias");
         }
+
         this.obtenerPerfilLocal();
         this.mensajeCalidezHumanaActual = ""; 
         this.activarSensorSegundoPlano();
+
         const zipInput = document.getElementById('inp-zip');
         if (zipInput) {
             zipInput.addEventListener('input', () => this.validarZip());
             this.validarZip();
         }
-        document.getElementById('btn-volver-app').addEventListener('click', () => this.reiniciarExperiencia());
 
-        // CARGA LA PUERTA DE LOGIN Y COBRO DE STRIPE DIRECTO EN EL CONTENEDOR INTERACTIVO
-        const container = document.getElementById('wrapper-interactive') || document.getElementById('contenedor-interactivo');
-        if (container) {
-            container.classList.remove('hidden');
-            this.inyectarPasarelaYAutenticacion(container);
+        const btnVolverApp = document.getElementById('btn-volver-app');
+        if (btnVolverApp) {
+            btnVolverApp.addEventListener('click', () => this.reiniciarExperiencia());
+        }
+
+        // ==============================================================================
+        // ENLACE DIRECTO A LOS 3 PASES DE STRIPE DE TU HTML NATIVO (FASTAPI)
+        // ==============================================================================
+        const pasesStripe = ['btn-stripe-pase1', 'btn-stripe-pase2', 'btn-stripe-pase3'];
+        pasesStripe.forEach((idBoton, index) => {
+            const btnStripe = document.getElementById(idBoton);
+            if (btnStripe) {
+                btnStripe.onclick = async () => {
+                    this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela de pagos Stripe." : "Connecting to Stripe payment gateway.");
+                    try {
+                        const response = await fetch("/api/create-checkout-session", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ pase_tipo: index + 1 })
+                        });
+                        const session = await response.json();
+                        if (session.url) {
+                            localStorage.setItem('otg_pase_stripe', session.id);
+                            window.location.href = session.url;
+                        }
+                    } catch (e) {
+                        console.error("FastAPI Stripe Checkout link error:", e);
+                    }
+                };
+            }
+        });
+
+        // ==============================================================================
+        // ENLACE DIRECTO AL LOGIN DE USUARIO Y CONTRASEÑA REAL (FASTAPI)
+        // ==============================================================================
+        const btnLogin = document.getElementById('btn-submit-auth') || document.getElementById('btn-login');
+        if (btnLogin) {
+            btnLogin.onclick = async () => {
+                const usernameInput = document.getElementById('auth-username');
+                const passwordInput = document.getElementById('auth-password');
+                if (!usernameInput || !passwordInput) return;
+                
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                if (!username || !password) {
+                    this.hablar(this.idiomaActual === 'es' ? "Por favor, introduce tu usuario y contraseña." : "Please enter your username and password.");
+                    return;
+                }
+                
+                try {
+                    const response = await fetch("/api/login-verificar", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        localStorage.setItem('otg_user_role', data.role || 'user');
+                        const bienvenidaPanel = document.getElementById('pantalla-bienvenida') || document.getElementById('auth-gate-wrapper');
+                        if (bienvenidaPanel) bienvenidaPanel.style.display = 'none';
+                        this.despertarInicial();
+                    } else {
+                        this.hablar(this.idiomaActual === 'es' ? "Credenciales incorrectas. Inténtalo de nuevo." : "Incorrect credentials. Please try again.");
+                    }
+                } catch (e) {
+                    console.error("FastAPI Auth Gate error:", e);
+                }
+            };
+        }
+
+        // ==============================================================================
+        // ENLACE DIRECTO AL BOTÓN DE BYPASS DEL DESARROLLADOR NATIVO
+        // ==============================================================================
+        const btnDev = document.getElementById('btn-modo-desarrollador') || document.getElementById('btn-dev');
+        if (btnDev) {
+            btnDev.onclick = () => {
+                console.log("Acceso de desarrollador concedido. Saltando pasarelas.");
+                localStorage.setItem('otg_user_role', 'admin');
+                const bienvenidaPanel = document.getElementById('pantalla-bienvenida') || document.getElementById('auth-gate-wrapper');
+                if (bienvenidaPanel) bienvenidaPanel.style.display = 'none';
+                this.despertarInicial();
+            };
         }
     },
 
@@ -467,19 +548,16 @@ const KERNEL = {
      * Starts the initial welcome sequence after user interaction.
      */
     despertarInicial() {
-        document.getElementById('pantalla-bienvenida').style.display = 'none';
+        const welcomeScreen = document.getElementById('pantalla-bienvenida');
+        if (welcomeScreen) welcomeScreen.style.display = 'none';
+        
         document.getElementById('wrapper-form').classList.remove('hidden');
         document.getElementById('btn-volver-app').classList.remove('hidden'); 
         document.getElementById('btn-whatsapp').classList.remove('hidden'); 
         document.getElementById('btn-messenger').classList.remove('hidden'); 
-        this.cambiarIdioma(this.idiomaActual);
+        this.cambiarIdioma(this.idiomaActual); 
         
-        // ==============================================================================
-        // CONTROL DE TIEMPO SOBERANO (TIPO TIKTOK)
-        // ==============================================================================
-        // Al despertar la aplicación por primera vez, capturamos el tiempo absoluto Unix de la CPU
-        this.horaInicioSesionAbsoluta = Date.now();
-        // ==============================================================================
+        this.horaInicioSesionAbsoluta = Date.now(); 
 
         const saludos_es = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
@@ -493,43 +571,37 @@ const KERNEL = {
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-        
-        this.inyectarBloquePreguntas();
-        this.iniciarMonitoreoInaccion();
-        this.activarBotonMandoLibreInicial();
+        this.inyectarBloquePreguntas(); 
+        this.iniciarMonitoreoInaccion(); 
+        this.activarBotonMandoLibreInicial(); 
     },
 
     /**
-    * Injects a block of 3 questions into the UI, ensuring they are distinct and not recent.
-    */
+     * Injects a block of 3 questions into the UI, ensuring they are distinct and not recent.
+     */
     inyectarBloquePreguntas() {
-        const grid = document.getElementById('contenedor-preguntas-oraculo');
-        if (!grid) return;
+        const grid = document.getElementById('contenedor-preguntas-oraculo') || document.getElementById('grid-preguntas') || document.getElementById('contenedor-preguntas');
+        if (!grid) return; 
         
-        // Detenemos de forma segura el intervalo previo para evitar colisiones en el hilo de ejecución
         clearInterval(this.temporizadorCascada);
-        grid.innerHTML = ""; // Clear previous questions
+        grid.innerHTML = ""; 
         this.indicePreguntaCascada = 0;
-        
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
-        let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
-        
-        // Prioritize questions not seen recently
-        let unseenIndices = [];
+        let preguntasYaVistasRecientemente = new Set(this.historialPreguntas); 
+        let unseenIndices = []; 
         for (let i = 0; i < catalogo.length; i++) {
             if (!preguntasYaVistasRecientemente.has(i)) {
                 unseenIndices.push(i);
             }
         }
-        
-        // If not enough unseen questions, reset history and use all available questions
         if (unseenIndices.length < 3) {
-            this.historialPreguntas = []; // Reset history
+            this.historialPreguntas = []; 
             localStorage.removeItem("otg_historial_oraculo");
             for (let i = 0; i < catalogo.length; i++) {
-                unseenIndices.push(i); // Add all indices again for selection
+                unseenIndices.push(i); 
             }
         }
+
         
         // Shuffle the available indices to get a random, distinct selection (Fisher-Yates shuffle)
         for (let i = unseenIndices.length - 1; i > 0; i--) {
