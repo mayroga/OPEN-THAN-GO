@@ -746,7 +746,7 @@ const KERNEL = {
         this.ejecutar();
     },
 
- /**
+/**
  * Converts text to speech using browser's SpeechSynthesis API.
  * CALIBRACIÓN DE CIRUJANO: Respeta tu velocidad original de 1.20 calculada por reloj.
  * Añade la compuerta de milisegundos pasiva para aislar los canales sin alterar los tiempos.
@@ -762,12 +762,8 @@ hablar(texto) {
     // 1. Detiene de inmediato cualquier residuo de audio previo de forma segura
     window.speechSynthesis.cancel();
 
-    // 2. ESCUDO DE SEPARACIÓN AMPLIADO (300ms): Otorga el tiempo justo al procesador 
-    // nativo para liberar el hardware del búfer de las preguntas iniciales.
+    // 2. ESCUDO DE SEPARACIÓN ORIGINAL (150ms): Canal limpio y en reposo absoluto
     setTimeout(() => {
-        // Segunda limpieza de seguridad en la entrada del canal
-        window.speechSynthesis.cancel();
-
         let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
         const msg = new SpeechSynthesisUtterance(fx);
 
@@ -777,9 +773,9 @@ hablar(texto) {
         // TU VELOCIDAD DE VOZ ORIGINAL EXACTA CALCULADA: Inmutable y perfecta
         msg.rate = 1.20;
 
-        // Dispara la locución sobre un canal de audio limpio y en reposo absoluto
+        // Dispara la locución sobre un canal limpio
         window.speechSynthesis.speak(msg);
-    }, 300);
+    }, 150);
 },
 
     /**
