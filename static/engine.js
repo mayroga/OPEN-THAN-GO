@@ -1055,19 +1055,19 @@ hablar(texto) {
         // Guardamos la calidez humana en la instancia
         this.mensajeCalidezHumanaActual = textoElegido;
         
-        // MODO: ACCIÓN DE CAMPO (SALIR)
-        if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
-            this.historialSalir = data.historial_salir_actualizado || [];
-            localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-            
-            this.pasosMisiones = data.misiones || [];
-            this.mostrarOpcionesSalir(container);
-        } 
-        // MODO: INTERVENCIÓN DOMÉSTICA (CASA)
-        else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA") {
-            // CORRECCIÓN CRÍTICA: Se eliminó la validación estricta que congelaba el flujo si el historial venía vacío
-            this.historialCasa = data.historial_casa_actualizado || [];
-            localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+     // MADO: ACCIÓN DE CAMPO (SALIR)
+ if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
+ this.historialSalir = data.historial_salir_actualizado || [];
+ localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+ this.pasosMisiones = data.misiones || [];
+ this.mostrarOpcionesSalir(container);
+ }
+ // === CORRECCIÓN MAESTRA: SINOPSIS DE ENRUTAMIENTO PARA EL MODO CASA ===
+ // Cambiamos "INTERVENCION_DOMESTICA" por "MODO_CASA" para que enganche perfectamente con el Backend
+ else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
+ this.historialCasa = data.historial_casa_actualizado || [];
+ localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+
             
             this.pasosMisiones = data.misiones || [];
             this.procesarFlujoSecuencial(container);
