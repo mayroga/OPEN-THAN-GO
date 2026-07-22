@@ -247,23 +247,15 @@ def actualizar_historial(historial, nuevo_id, limite):
     historial.append(nuevo_id)
     return historial[-limite:]
 
-def diversidad_vector(vector1, vector2):
-    distancia = 0
-    needs_to_consider = [k for k in DEFAULT_NECESSITY_VECTOR.keys() if k != "indicador_ansiedad"]
+# === CONFIGURACIÓN DE PAUSA EXTENDIDA Y PROPÓSITO HUMANO CON CALIDEZ ===
+# Se añaden 4 minutos (240 segundos) al tiempo base del sistema para evitar lecturas apuradas.
+TIEMPO_EXTRA_REPOSO_SEGUNDOS = 240
+VELOCIDAD_VOZ_HUMANA = 0.95
 
-    for k in needs_to_consider:
-        # Suma las diferencias absolutas de cada necesidad
-        v1_val = vector1.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
-        v2_val = vector2.get(k, DEFAULT_NECESSITY_VECTOR.get(k, 50))
-        distancia += abs(v1_val - v2_val)
-
-    return distancia
-
-# === MODIFICACIÓN: CONSTANTES DE TIEMPO Y PROPÓSITO ACORTADAS PARA LECTURA RÁPIDA ===
-WHEN_ES = "Ahora. Levántate."
-WHEN_EN = "Now. Move."
-FOR_WHAT_ES = "Romper rutina. Recuérdate estoy vivo."
-FOR_WHAT_EN = "Break routine. Remember life."
+WHEN_ES = "Tómate tu tiempo. Respira. Levántate sin prisa."
+WHEN_EN = "Take your time. Breathe. Move without rushing."
+FOR_WHAT_ES = "Romper el piloto automático. Sentirte libre y recordar que estás vivo."
+FOR_WHAT_EN = "Break the autopilot. Feel completely free and remember you are alive."
 
 # ============================================================
 # CATÁLOGO DE MISIONES CWRE V2.1
@@ -934,8 +926,21 @@ async def mando_integral(request: Request):
         **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
     }
 
-    if "indicador_ansiedad" not in perfil_local:
-        perfil_local["indicador_ansiedad"] = 0
+     if "indicador_ansiedad" not in perfil_local:
+ perfil_local["indicador_ansiedad"] = 0
+
+ # === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ===
+ # Queda estrictamente PROHIBIDO operar, interactuar o leer esta aplicación mientras se conduce un vehículo en movimiento.
+ # El uso de este sistema es bajo el propio riesgo del usuario, eximiendo de toda responsabilidad civil, penal o legal
+ # a la aplicación OPEN THAN GO y a su empresa dueña MAY ROGA LLC.
+ ADVERTENCIA_LEGAL_ES = (
+     "AVISO DE SEGURIDAD: Está prohibido usar Open Than Go mientras manejas. Tu seguridad es lo primero. "
+     "El uso es bajo tu propio riesgo y exime de toda responsabilidad a May Roga LLC."
+ )
+ ADVERTENCIA_LEGAL_EN = (
+     "SAFETY NOTICE: Using Open Than Go while driving is strictly prohibited. Your safety comes first. "
+     "Use is at your own risk and exempts May Roga LLC from all liability."
+ )
 
     # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
@@ -1087,14 +1092,18 @@ async def mando_integral(request: Request):
             "diagnostico_sintoma_en": diagnostico_sintoma_en,
         }]
 
-        # Retornamos el JSONResponse respetando estrictamente los campos originales que tus scripts esperan
-        # Retiramos inyecciones pesadas de texto para proteger la sincronización y evitar congelamientos
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "misiones": final_misiones_para_frontend,
-            "historial_salir_actualizado": payload.get("historial_salir", []),
-            "forced_recovery": True
-        })
+         # Retornamos el JSONResponse respetando estrictamente los campos originales que tus scripts esperan
+ # Se inyectan las directrices legales inmutables para la protección de la empresa matriz May Roga LLC
+ return JSONResponse({
+ "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+ "misiones": final_misiones_para_frontend,
+ "historial_salir_actualizado": payload.get("historial_salir", []),
+ "forced_recovery": True,
+ "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+ "legal_notice_en": ADVERTENCIA_LEGAL_EN,
+ "drive_prohibited": True
+ })
+
         
                   # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     if opcion_usuario == "CASA":
