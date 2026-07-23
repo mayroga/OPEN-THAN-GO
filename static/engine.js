@@ -2227,69 +2227,106 @@ window.KERNEL = KERNEL;
         `;
     },
 
-    // ==========================================================================================
-    // MÉTODOS DE STRIPE Y ENTRADA SECRETA ENLAZADOS NATIVAMENTE AL COMPÁS DEL KERNEL ORIGINAL
-    // ==========================================================================================
-    procesarPagoStripe(planSeleccionado) {
-        let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo';
-       
-        fetch('/crear-checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tipo_plan: planSeleccionado, user_id: userId })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.url) window.location.href = data.url;
-        })
-        .catch(err => console.error('Error de pasarela:', err));
-    },
+    /**
+ * ==========================================================================================
+ * COMPLEMENTO NATIVO DE BIENESTAR: MOTOR SENSORIAL DE OPEN THAN GO
+ * ==========================================================================================
+ */
 
-    inicializarBypassDesarrollador() {
-        let clics = 0;
-        let t;
-        const trigger = document.getElementById('cierre-logo') || document.body;
-       
-        trigger.addEventListener('click', () => {
-            clics++;
-            clearTimeout(t);
-            t = setTimeout(() => { clics = 0; }, 1500);
-           
-            if (clics === 3) {
-                clics = 0;
-                let user = prompt("Mantenimiento OTG - Usuario:");
-                let pass = prompt("Mantenimiento OTG - Contraseña:");
-                if (!user || !pass) return;
-               
-                fetch('/login-admin', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: user, password: pass })
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error();
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.status === "success") {
-                        localStorage.setItem('otg_user_role', 'admin');
-                        alert("Acceso Desarrollador Concedido. Servicio Infinito Activo.");
-                        location.reload();
-                    }
-                })
-                .catch(() => alert("Credenciales inválidas de Render. Acceso denegado."));
-            }
-        });
-    }
+const OTG_SENSORIAL = {
+  
+  // 1. INICIALIZADOR DE FÁBRICA
+  init: function() {
+    console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");
+    // Aquí puedes incluir otras funciones iniciales que ejecute tu aplicación al arrancar
+  },
+
+  // 2. INYECCIÓN DE LLAMADAS DE PAGO A STRIPE
+  procesarPagoStripe: function(planSeleccionado) {
+    let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo';
+    
+    fetch('/crear-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        tipo_plan: planSeleccionado,
+        user_id: userId
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    })
+    .catch(err => console.error('Error de pasarela:', err));
+  },
+
+  // 3. SISTEMA DE LOGIN Y TRIPLE TOQUE PARA EL DESARROLLADOR
+  inicializarBypassDesarrollador: function() {
+    let clics = 0;
+    let t;
+    
+    // Apuntar al elemento 'cierre-logo' o a la cabecera principal de Open Than Go
+    const trigger = document.getElementById('cierre-logo') || document.body;
+    
+    trigger.addEventListener('click', () => {
+      clics++;
+      clearTimeout(t);
+      
+      t = setTimeout(() => {
+        clics = 0;
+      }, 1500); // Ventana de tiempo límite de 1.5 segundos
+      
+      if (clics === 3) {
+        clics = 0;
+        let user = prompt("Mantenimiento OTG - Usuario:");
+        let pass = prompt("Mantenimiento OTG - Contraseña:");
+        
+        if (!user || !pass) return;
+        
+        fetch('/login-admin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: user,
+            password: pass
+          })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then(data => {
+          if (data.status === "success") {
+            localStorage.setItem('otg_user_role', 'admin');
+            alert("Acceso Desarrollador Concedido. Servicio Infinito Activo.");
+            location.reload(); // Recarga para aplicar el bypass de seguridad sin paywalls
+          }
+        })
+        .catch(() => alert("Credenciales inválidas de Render. Acceso denegado."));
+      }
+    });
+  }
 };
 
-// DISPARADOR INDEPENDIENTE EN PARALELO: Lanza tu triple toque sin sobreescribir tu init() original de fábrica
+/**
+ * ==========================================================================================
+ * DISPARADOR INDEPENDIENTE EN PARALELO
+ * Lanza tu triple toque sin sobreescribir tu init() original de fábrica
+ * ==========================================================================================
+ */
 document.addEventListener("DOMContentLoaded", () => {
-    if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.inicializarBypassDesarrollador) {
-        OTG_SENSORIAL.inicializarBypassDesarrollador();
-        console.log("Escudo administrativo activado de forma externa y segura.");
-    }
+  // Verificación de seguridad del espacio de nombres
+  if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.inicializarBypassDesarrollador) {
+    OTG_SENSORIAL.inicializarBypassDesarrollador();
+    console.log("Escudo administrativo activado de forma externa y segura.");
+  }
+  
+  // Ejecución del núcleo del sistema
+  OTG_SENSORIAL.init();
 });
-
-OTG_SENSORIAL.init();
-})();
