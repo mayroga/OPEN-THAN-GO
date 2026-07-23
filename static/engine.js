@@ -2179,8 +2179,7 @@ window.KERNEL = KERNEL;
     `;
   },
 
-
-          cerrarOasisYDarPasoAAppBase() {
+  cerrarOasisYDarPasoAAppBase() {
     let m = document.getElementById("otg-oasis-entretenimiento");
     if (m) m.classList.add("hidden");
     
@@ -2226,26 +2225,21 @@ window.KERNEL = KERNEL;
     
     document.body.innerHTML = `
       <div style="width: 100vw; height: 100vh; background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 25px;">
-        <h1 style="color: #00bcd4; font-size: 1.4rem; margin-bottom: 12px;">
-          Sesión finalizada
-        </h1>
-        <p style="max-width: 420px; font-size: .95rem; line-height: 1.5; color: #ddd;">
-          Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una pausa y continuar con tus actividades.
-        </p>
+        <h1 style="color: #00bcd4; font-size: 1.4rem; margin-bottom: 12px;"> Sesión finalizada </h1>
+        <p style="max-width: 420px; font-size: .95rem; line-height: 1.5; color: #ddd;"> Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una pausa y continuar con tus actividades. </p>
       </div>
     `;
-  },
+  }
+}; // CORRECCIÓN CRÍTICA: Se añade cierre de llave y punto y coma para aislar las estructuras
 
-/**
- * ==========================================================================================
- * COMPLEMENTO NATIVO DE BIENESTAR: MOTOR SENSORIAL DE OPEN THAN GO
- * ==========================================================================================
- */
+/* ========================================================================================== */
+/* COMPLEMENTO NATIVO DE BIENESTAR: MOTOR SENSORIAL DE OPEN THAN GO                          */
+/* ========================================================================================== */
 const OTG_SENSORIAL = {
+  
   // 1. INICIALIZADOR DE FÁBRICA
   init: function() {
     console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");
-    // Aquí puedes incluir otras funciones iniciales que ejecute tu aplicación al arrancar
   },
 
   // 2. INYECCIÓN DE LLAMADAS DE PAGO A STRIPE
@@ -2275,9 +2269,8 @@ const OTG_SENSORIAL = {
   inicializarBypassDesarrollador: function() {
     let clics = 0;
     let t;
-
     
-      // Apuntar al elemento 'cierre-logo' o a la cabecera principal de Open Than Go
+    // Apuntar al elemento 'cierre-logo' o a la cabecera principal de Open Than Go
     const trigger = document.getElementById('cierre-logo') || document.body;
     
     trigger.addEventListener('click', () => {
@@ -2340,4 +2333,5 @@ document.addEventListener("DOMContentLoaded", () => {
     OTG_SENSORIAL.init();
   }
 });
- 
+
+         
