@@ -8,50 +8,8 @@ const KERNEL = {
     temporizadorCascada: null,
     temporizadorCierre: null,
     salidaSugeridaTimeoutId: null,
-    salidaTimerId: null
-}; 
-// <--- AQUÍ SE CIERRA CORRECTAMENTE EL OBJETO KERNEL
-
-// ==========================================================================
-// MÓDULO DE MÚSICA Y RETOS DE CIERRE / ANSIEDAD (4 MINUTOS - OPEN THAN GO)
-// ==========================================================================
-const audioRelajacionCierre = new Audio('/static/audio/antistress_music.mp3');
-audioRelajacionCierre.loop = true;
-
-const frasesBienestarVariantes = [
-    ["Respira hondo, un momento a la vez.", "Suelta toda la tensión acumulada en tus hombros."],
-    ["Un paso pequeño sigue siendo avanzar.", "Permítete un instante de pausa y quietud consciente."],
-    ["Todo se acomoda a su debido tiempo.", "Inhala calma profunda, exhala toda prisa innecesaria."],
-    ["Estás haciendo lo mejor que puedes hoy.", "Escucha con atención el ritmo natural de tu respiración."],
-    ["No hay prisa, concéntrate en tu centro.", "Siente el apoyo firme del espacio bajo tus pies."]
-];
-
-function iniciarCierreAntiestress4Minutos() {
-    // 1. Reproducir música relajante
-    audioRelajacionCierre.play().catch(e => console.log("Audio bloqueado por políticas del navegador, esperando interacción:", e));
-
-    let contadorVariante = 0;
-    // 2. Alternar retos de silencio y frases cortas cada 8-10 segundos (9 segundos)
-    if (window.intervaloRetosCierre) clearInterval(window.intervaloRetosCierre);
-    
-    window.intervaloRetosCierre = setInterval(() => {
-        let parActual = frasesBienestarVariantes[contadorVariante % frasesBienestarVariantes.length];
-        mostrarFrasePantallaDinamica(parActual[0], parActual[1]);
-        contadorVariante++;
-    }, 9000); // Cada 9 segundos exactos
-}
-
-function mostrarFrasePantallaDinamica(frase1, frase2) {
-    const contenedorMision = document.getElementById('mision-display-container');
-    if(contenedorMision) {
-        contenedorMision.innerHTML = `
-            <div style="text-align: center; animation: fadeInOut 2s ease; padding: 10px;">
-                <p style="font-size: 1rem; color: #00bcd4; margin: 0 0 5px 0;">${frase1}</p>
-                <p style="font-size: 0.85rem; color: #aaa; margin: 0;">${frase2}</p>
-            </div>
-        `;
-    }
-}
+    salidaTimerId: null, // New timer for SALIR mode 45s phrases
+   
     // --- NUEVO ENGRANAJE INDESTRUCTIBLE (TIPO TIKTOK) ---
     horaInicioSesionAbsoluta: null, // Almacena la estampa de tiempo Unix de la CPU real
     timeLeft: 600,
@@ -89,7 +47,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                 if (KERNEL.horaInicioSesionAbsoluta) {
                     let tiempoTranscurridoMs = Date.now() - KERNEL.horaInicioSesionAbsoluta;
                     let tiempoTranscurridoSegundos = Math.floor(tiempoTranscurridoMs / 1000);
-                    
+                   
                     // Si el tiempo transcurrido total ya superó el ciclo de vida de la sesión, cerramos limpio
                     if (tiempoTranscurridoSegundos >= 660) {
                         if (typeof KERNEL.forzarCierre11MinutosEfectivo === 'function') {
@@ -115,7 +73,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
         "alimentacion": 50, "musica": 50, "risa": 50, "esperanza": 50,
         "indicador_ansiedad": 0
     },
-    
+   
     CATALOGO_PREGUNTAS_ES: [
         // Bloque 1: El Bucle Digital Urbano (Redes, Contenido y Consumo)
         "¿Abres redes sociales por inercia, comparando tu día con imágenes idealizadas?",
@@ -349,7 +307,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
   {"id": 209, "titulo_en": "THE BREATHING CHALLENGE", "descripcion_en": "Stay seated in a very comfortable posture at this instant. Take five deep and slow breaths through your nose, feeling how the pure air enters your body. Release all tension from your shoulders, empty your mind of worries, and allow this biological truce to completely calm you now.", "img": "square_breath.svg"},
   {"id": 210, "titulo_en": "THE VISUAL REST CHALLENGE", "descripcion_en": "Look for a spot or an object that is very far away from you through the window. Keep your eyes on that place fixedly for two minutes to rest your eyes from screens completely. Expand your visual horizon, relax your eyelids, and allow your thoughts to flow in total stillness.", "img": "nature_sound.svg"}
 ],
-// ==============================================================================
+
        /**
      * Retrieves or initializes the user's dynamic profile from localStorage.
      * Ensures all 19 needs are present with default values if missing.
@@ -401,7 +359,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
         localStorage.setItem("otg_session_seed", this.sessionSeed);
         return perfil;
     },
-// ==============================================================================
+
     /**
      * Renders the authentication gate, developer access, and secure payment options.
      */
@@ -409,14 +367,14 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
         container.innerHTML = `
             <div class="auth-gate-card" style="padding:20px; background:#000; border:1px solid #222; border-radius:8px; max-width:400px; margin:0 auto; text-align:center;">
                 <h3 style="color:#fff; font-size:1.1rem; margin-bottom:20px;">ACCESO AUTORIZADO / SECURE LOGIN</h3>
-                
+               
                 <div style="margin-bottom:15px;">
                     <input type="text" id="auth-username" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #333; border-radius:4px; box-sizing:border-box;">
                     <input type="password" id="auth-password" placeholder="Password" style="width:100%; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:4px; box-sizing:border-box;">
                 </div>
 
                 <button id="btn-submit-auth" style="width:100%; background:var(--green-action); color:#fff; padding:14px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; font-size:0.95rem; margin-bottom:20px;">INGRESAR AL SISTEMA</button>
-                
+               
                 <div id="stripe-payment-box" style="padding:15px; border:1px solid var(--accent); border-radius:6px; background:rgba(255,0,0,0.02); margin-bottom:20px;">
                     <p style="margin:0 0 10px 0; font-size:0.85rem; color:#888;">Activación comercial vía Stripe segura:</p>
                     <button id="btn-stripe-checkout" class="btn" style="width:100%; background:var(--accent); color:#fff; font-weight:bold; padding:12px; border:none; border-radius:4px; cursor:pointer;">COMPRAR ACCESO / BUY NOW</button>
@@ -429,7 +387,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                 </div>
             </div>
         `;
-// ==============================================================================
+
         // 1. Clic del botón de ingreso tradicional
         document.getElementById('btn-submit-auth').onclick = () => {
             const user = document.getElementById('auth-username').value.trim();
@@ -441,7 +399,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                 this.hablar(this.idiomaActual === 'es' ? "Introduce credenciales válidas." : "Please enter valid credentials.");
             }
         };
-// ==============================================================================
+
         // 2. Clic del botón seguro de Stripe
         document.getElementById('btn-stripe-checkout').onclick = async () => {
             this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela Stripe." : "Connecting to Stripe gateway.");
@@ -460,7 +418,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
             this.despertarInicial();
         };
     },
-// ==============================================================================
+
         /**
      * Initializes the KERNEL on DOMContentLoaded.
      */
@@ -490,7 +448,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
         }
 
         this.obtenerPerfilLocal();
-        this.mensajeCalidezHumanaActual = ""; 
+        this.mensajeCalidezHumanaActual = "";
         this.activarSensorSegundoPlano();
 
         const zipInput = document.getElementById('inp-zip');
@@ -503,7 +461,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
         if (btnVolverApp) {
             btnVolverApp.addEventListener('click', () => this.reiniciarExperiencia());
         }
-// ==============================================================================
+
         // ==============================================================================
         // ENLACE DIRECTO A LOS 3 PASES DE STRIPE DE TU HTML NATIVO (FASTAPI)
         // ==============================================================================
@@ -530,7 +488,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                 };
             }
         });
-// ==============================================================================
+
         // ==============================================================================
         // ENLACE DIRECTO AL LOGIN DE USUARIO Y CONTRASEÑA REAL (FASTAPI)
         // ==============================================================================
@@ -540,15 +498,15 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                 const usernameInput = document.getElementById('auth-username');
                 const passwordInput = document.getElementById('auth-password');
                 if (!usernameInput || !passwordInput) return;
-                
+               
                 const username = usernameInput.value.trim();
                 const password = passwordInput.value.trim();
-                
+               
                 if (!username || !password) {
                     this.hablar(this.idiomaActual === 'es' ? "Por favor, introduce tu usuario y contraseña." : "Please enter your username and password.");
                     return;
                 }
-                
+               
                 try {
                     const response = await fetch("/api/login-verificar", {
                         method: "POST",
@@ -556,7 +514,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                         body: JSON.stringify({ username, password })
                     });
                     const data = await response.json();
-                    
+                   
                     if (data.success) {
                         localStorage.setItem('otg_user_role', data.role || 'user');
                         const bienvenidaPanel = document.getElementById('pantalla-bienvenida') || document.getElementById('auth-gate-wrapper');
@@ -570,7 +528,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                 }
             };
         }
-// ==============================================================================
+
         // ==============================================================================
         // ENLACE DIRECTO AL BOTÓN DE BYPASS DEL DESARROLLADOR NATIVO
         // ==============================================================================
@@ -585,21 +543,21 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
             };
         }
     },
-// ==============================================================================
+
     /**
      * Starts the initial welcome sequence after user interaction.
      */
     despertarInicial() {
         const welcomeScreen = document.getElementById('pantalla-bienvenida');
         if (welcomeScreen) welcomeScreen.style.display = 'none';
-        
+       
         document.getElementById('wrapper-form').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.remove('hidden'); 
-        document.getElementById('btn-whatsapp').classList.remove('hidden'); 
-        document.getElementById('btn-messenger').classList.remove('hidden'); 
-        this.cambiarIdioma(this.idiomaActual); 
-        
-        this.horaInicioSesionAbsoluta = Date.now(); 
+        document.getElementById('btn-volver-app').classList.remove('hidden');
+        document.getElementById('btn-whatsapp').classList.remove('hidden');
+        document.getElementById('btn-messenger').classList.remove('hidden');
+        this.cambiarIdioma(this.idiomaActual);
+       
+        this.horaInicioSesionAbsoluta = Date.now();
 
         const saludos_es = [
             "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
@@ -613,52 +571,52 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-        this.inyectarBloquePreguntas(); 
-        this.iniciarMonitoreoInaccion(); 
-        this.activarBotonMandoLibreInicial(); 
+        this.inyectarBloquePreguntas();
+        this.iniciarMonitoreoInaccion();
+        this.activarBotonMandoLibreInicial();
     },
-// ==============================================================================
+
     /**
      * Injects a block of 3 questions into the UI, ensuring they are distinct and not recent.
      */
     inyectarBloquePreguntas() {
         const grid = document.getElementById('contenedor-preguntas-oraculo') || document.getElementById('grid-preguntas') || document.getElementById('contenedor-preguntas');
-        if (!grid) return; 
-        
+        if (!grid) return;
+       
         clearInterval(this.temporizadorCascada);
-        grid.innerHTML = ""; 
+        grid.innerHTML = "";
         this.indicePreguntaCascada = 0;
         const catalogo = this.idiomaActual === 'es' ? this.CATALOGO_PREGUNTAS_ES : this.CATALOGO_PREGUNTAS_EN;
-        let preguntasYaVistasRecientemente = new Set(this.historialPreguntas); 
-        let unseenIndices = []; 
+        let preguntasYaVistasRecientemente = new Set(this.historialPreguntas);
+        let unseenIndices = [];
         for (let i = 0; i < catalogo.length; i++) {
             if (!preguntasYaVistasRecientemente.has(i)) {
                 unseenIndices.push(i);
             }
         }
         if (unseenIndices.length < 3) {
-            this.historialPreguntas = []; 
+            this.historialPreguntas = [];
             localStorage.removeItem("otg_historial_oraculo");
             for (let i = 0; i < catalogo.length; i++) {
-                unseenIndices.push(i); 
+                unseenIndices.push(i);
             }
         }
 
-// ============================================================================== 
+       
         // Shuffle the available indices to get a random, distinct selection (Fisher-Yates shuffle)
         for (let i = unseenIndices.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [unseenIndices[i], unseenIndices[j]] = [unseenIndices[j], unseenIndices[i]];
         }
-        
+       
         let preguntasSeleccionadasIndices = [];
         // Select 3 distinct questions, prioritizing different "blocks" (categories)
         let blocksUsedInCurrentSelection = new Set();
-        
+       
         for (let i = 0; i < 3; i++) {
             if (unseenIndices.length === 0) break;
             let candidateIndex = -1;
-            
+           
             // Try to pick a question from a block not yet used in this 6-question set
             for (let j = 0; j < unseenIndices.length; j++) {
                 const currentIdx = unseenIndices[j];
@@ -669,27 +627,27 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                     break;
                 }
             }
-// ==============================================================================        
+           
             // If no unused block question found, just pick the next available shuffled unseen
             if (candidateIndex === -1) {
                 candidateIndex = 0;
                         const currentBlock = Math.floor(unseenIndices[candidateIndex] / 3);
                 blocksUsedInCurrentSelection.add(currentBlock);
             }
-            
+           
             const selectedIndex = unseenIndices.splice(candidateIndex, 1)[0]; // Get one, remove from pool
             preguntasSeleccionadasIndices.push(selectedIndex);
             this.historialPreguntas.push(selectedIndex); // Add to history
         }
-        
+       
         this.historialPreguntas = this.historialPreguntas.slice(-this.MAX_HISTORY_ORACULO);
         localStorage.setItem("otg_historial_oraculo", JSON.stringify(this.historialPreguntas));
-        
+       
         // Create buttons for selected questions
         preguntasSeleccionadasIndices.forEach((questionIdx, i) => {
             let preguntaTexto = catalogo[questionIdx];
             if (!preguntaTexto) return; // Should not happen with robust selection
-            
+           
             let btn = document.createElement('button');
             btn.className = 'btn-pregunta-crisis';
             btn.id = `btn-pregunta-${i}`;
@@ -697,23 +655,23 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
             btn.onclick = () => this.reaccionarPreguntaSeleccionada(preguntaTexto);
             grid.appendChild(btn);
         });
-        
+       
         this.iniciarEfectoCascada();
     },
-// ==============================================================================
+
     /**
      * Initiates the fading cascade effect for questions.
      */
     iniciarEfectoCascada() {
         this.indicePreguntaCascada = 0;
         const totalButtons = document.querySelectorAll('.btn-pregunta-crisis').length;
-        
+       
         if (totalButtons === 0) {
             // If no questions, immediately enable free writing
             this.liberarCajonEscrituraLibre();
             return;
         }
-// ==============================================================================        
+       
         // Respetamos estrictamente los 8 segundos por pregunta asignados en tu flujo temporal original
         this.temporizadorCascada = setInterval(() => {
             let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
@@ -721,7 +679,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                 botonParaEliminar.classList.add('fade-out');
                 let siguienteIdx = this.indicePreguntaCascada + 1;
                 let siguienteBoton = document.getElementById(`btn-pregunta-${siguienteIdx}`);
-                
+               
                 if (siguienteBoton) {
                     let textoLimpio = siguienteBoton.innerText.substring(3); // Remove the number prefix
                     this.hablar(textoLimpio);
@@ -733,7 +691,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
             }
         }, 8000); // 8 seconds per question exactly
     },
-// ==============================================================================
+
     /**
     * Activates the free writing input field and button from start.
     */
@@ -785,7 +743,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                 }
             };
         }
-// ==============================================================================
+
         if (textarea) {
             textarea.removeEventListener('input', this.textareaInputHandler);
             this.textareaInputHandler = () => {
@@ -813,7 +771,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
 
         this.validarZip();
     },
-// ==============================================================================
+
     /**
     * Validates ZIP input and controls button state.
     */
@@ -848,7 +806,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
             }
         }
     },
-// ==============================================================================
+
     /**
      * Activates the free writing input field and visually indicates readiness.
      */
@@ -867,18 +825,18 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
 
         this.validarZip();
     },
-// ==============================================================================
+
     /**
     * Monitors user inaction and advances question blocks or pauses.
     */
     iniciarMonitoreoInaccion() {
         clearInterval(this.timerInaccion);
         this.conteoInaccion = 0;
-        
+       
         // Respetamos estrictamente tu intervalo nativo de 8 segundos por cada tick de inactividad
         this.timerInaccion = setInterval(() => {
             this.conteoInaccion++;
-            
+           
             if (this.conteoInaccion === 3 || this.conteoInaccion === 6) {
                 clearInterval(this.temporizadorCascada);
                 this.inyectarBloquePreguntas();
@@ -887,7 +845,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
                 clearInterval(this.timerInaccion);
                 clearInterval(this.temporizadorCascada);
                 this.hablar(this.idiomaActual === 'es' ? "Disculpa. Te daré tu tiempo. Sé que tu mente está cansada. Estaré aquí esperando." : "Apologies. I will give you time. I know your mind is tired. I will be waiting here.");
-                
+               
                 const instruccion = document.getElementById('lbl-oraculo-instruccion');
                 if (instruccion) {
                     instruccion.innerText = this.idiomaActual === 'es' ? "Tomando un respiro. Toca cuando estés listo..." : "Taking a breath. Tap when you are ready...";
@@ -896,7 +854,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
             }
         }, 8000);
     },
-// ==============================================================================
+
     /**
      * Handles user selecting a question or entering free text.
      */
@@ -913,7 +871,7 @@ function mostrarFrasePantallaDinamica(frase1, frase2) {
         document.getElementById('inp-text-libre').value = textoPregunta;
         this.ejecutar();
     },
-// ==============================================================================
+
  /**
  * Converts text to speech using browser's SpeechSynthesis API.
  */
@@ -925,13 +883,13 @@ hablar(texto) {
  let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
  const msg = new SpeechSynthesisUtterance(fx);
  msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
- msg.rate = 1.10; 
- msg.pitch = 1.05; 
+ msg.rate = 1.10;
+ msg.pitch = 1.05;
  msg.onerror = () => { window.speechSynthesis.cancel(); };
  window.speechSynthesis.speak(msg);
  }, 150);
 },
-// ==============================================================================
+
     /**
     * Changes the application's language and updates UI elements.
     * @param {string} lang - The target language ('es' or 'en').
@@ -941,28 +899,28 @@ hablar(texto) {
         localStorage.setItem("otg_language", lang);
         document.getElementById('lang-es').classList.toggle('active', lang === 'es');
         document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-        
+       
         const t = {
             es: {
-                title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?", 
-                desahogo: "O escribe aquí tu propio agobio si no aparece arriba:", 
-                placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre", 
-                alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto", 
-                solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido", 
-                menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado", 
-                menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA", 
-                recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?", 
+                title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?",
+                desahogo: "O escribe aquí tu propio agobio si no aparece arriba:",
+                placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre",
+                alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto",
+                solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido",
+                menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado",
+                menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA",
+                recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?",
                 volverApp: "Volver a la App"
             },
             en: {
-                title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?", 
-                desahogo: "Or write your own burden here if it does not appear above:", 
-                placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control", 
-                alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open", 
-                solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored", 
-                menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired", 
-                menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME", 
-                recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?", 
+                title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?",
+                desahogo: "Or write your own burden here if it does not appear above:",
+                placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control",
+                alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open",
+                solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored",
+                menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired",
+                menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME",
+                recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?",
                 volverApp: "Return to App"
             }
         }[lang];
@@ -987,7 +945,7 @@ hablar(texto) {
         document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
         document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
         document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
-        
+       
         const cierreLogo = document.getElementById('cierre-logo');
         if (cierreLogo) cierreLogo.innerText = t.title;
         const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
@@ -1001,14 +959,14 @@ hablar(texto) {
         this.inyectarBloquePreguntas();
         this.activarBotonMandoLibreInicial();
     },
-// ==============================================================================
+
     /**
      * Executes the main logic to fetch recommendations from the backend.
      */
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
-        
+       
         // ==============================================================================
         // SANEAMIENTO ABSOLUTO DE INTERVALOS (Limpieza Radical de Relojes de Fondo)
         // ==============================================================================
@@ -1056,7 +1014,7 @@ hablar(texto) {
         const container = document.getElementById('wrapper-interactive');
         document.getElementById('wrapper-form').classList.add('hidden');
         document.getElementById('pantalla-cierre').classList.add('hidden');
-        
+       
         container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
         container.classList.remove('hidden');
 
@@ -1066,9 +1024,9 @@ hablar(texto) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
-        
+       
         const data = await r.json();
-        
+       
         if (data.error) {
             alert(data.error);
             document.getElementById('wrapper-form').classList.remove('hidden');
@@ -1077,20 +1035,20 @@ hablar(texto) {
             this.validarZip();
             return;
         }
-        
+       
         this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
         this.indiceMision = 0;
-        
+       
         // --- Captura el 1% de Calidez Humana dinámica enviada por el Servidor ---
         let textoElegido = data.calidez_humana || (this.idiomaActual === 'es' ? "Respira profundo. Siente. Estás vivo. Respira." : "Breathe deeply. You are here. You are alive.");
-        
+       
         // --- Ejecuta el dictado por voz nativo usando la calidez del Oráculo ---
         // CORRECCIÓN: Usar el método hablar de KERNEL consistentemente
         this.hablar(textoElegido);
-        
+       
         // Guardamos la calidez humana en la instancia
         this.mensajeCalidezHumanaActual = textoElegido;
-// ==============================================================================        
+       
      // MADO: ACCIÓN DE CAMPO (SALIR)
  if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
  this.historialSalir = data.historial_salir_actualizado || [];
@@ -1104,15 +1062,15 @@ hablar(texto) {
  this.historialCasa = data.historial_casa_actualizado || [];
  localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
 
-            
+           
             this.pasosMisiones = data.misiones || [];
             this.procesarFlujoSecuencial(container);
         }
-        
+       
     } catch (error) {
         console.error("Fetch error:", error);
-        alert(this.idiomaActual === 'es' 
-            ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." 
+        alert(this.idiomaActual === 'es'
+            ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo."
             : "Connection error with the server. Please try again."
         );
         document.getElementById('wrapper-form').classList.remove('hidden');
@@ -1121,7 +1079,7 @@ hablar(texto) {
         this.validarZip();
     }
 },
-// ==============================================================================
+
     /**
      * Displays the 3 options for SALIR mode and waits for user selection.
      */
@@ -1129,12 +1087,12 @@ hablar(texto) {
         clearInterval(this.timerEnfocado);
         clearInterval(this.salidaTimerId);
         window.speechSynthesis.cancel();
-        
+       
         const t = {
             es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" },
             en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:" }
         }[this.idiomaActual];
-        
+       
         container.innerHTML = `
             <div class="mision-choices-container">
                 <h2 class="salida-main-title">${t.choosePath}</h2>
@@ -1143,13 +1101,13 @@ hablar(texto) {
                     <!-- Options will be injected here -->
                 </div>
             </div>`;
-            
+           
         const optionsGrid = document.getElementById('salida-options-grid');
-        
+       
         this.pasosMisiones.forEach((mission, index) => {
             const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
             const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
-            
+           
             const card = document.createElement('div');
             card.className = 'salida-option-card';
             card.innerHTML = `
@@ -1157,130 +1115,102 @@ hablar(texto) {
                 <p class="salida-option-desc">${missionWhatToDo}</p>
                 <button class="btn-select-salida">${this.idiomaActual === 'es' ? 'Seleccionar' : 'Select'}</button>
             `;
-            
+           
             card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
             optionsGrid.appendChild(card);
         });
-        
+       
         // Inyectamos de forma segura la Calidez Humana dinámica del oráculo directo a tu voz asistida
         const textoOraculo = this.mensajeCalidezHumanaActual || t.chooseOne;
         this.hablar(textoOraculo);
     },
-// ==============================================================================
-/**
- * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
- * @param {Object} selectedMission - The mission object chosen by the client.
- */
-iniciarSalidaConcreta(selectedMission) {
-    this.datosLugarGlobal = selectedMission; // Store the selected mission
-    clearInterval(this.timerEnfocado);
-    clearInterval(this.salidaTimerId);
-    window.speechSynthesis.cancel();
-    
-    const t = {
-        es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
-        en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
-    }[this.idiomaActual];
-    
-    const container = document.getElementById('wrapper-interactive');
-    let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
-    
-    container.innerHTML = `
-        <div class="mision-card">
-            <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
-            <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
-            <div class="instruccion-text">${textoFormateado}</div>
-            <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
-            <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
-            <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
-        </div>
-    `;
-    
-    let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
-    this.hablar(speechText);
-    
-    let retencion = 35;
-    const btnCount = document.getElementById('btn-countdown-salida');
-    const btnGps = document.getElementById('btn-gps-action');
-    const phrasesDiv = document.getElementById('salida-countdown-phrases');
-    const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? (this.AUDIOS_SECUENCIALES_SALIR_ES || [
-        "Analizando opciones de entorno y rutas cercanas.",
-        "Preparando alternativas de flujo y pausa activa.",
-        "Conectando con espacios de bienestar y confort."
-    ]) : (this.AUDIOS_SECUENCIALES_SALIR_EN || [
-        "Analyzing environment options and nearby routes.",
-        "Preparing flow alternatives and active pause.",
-        "Connecting with wellness and comfort spaces."
-    ]);
-    let phraseIndex = 0;
-    
-    this.salidaTimerId = setInterval(() => {
-        if (retencion > 0) {
-            retencion--;
-            if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
-            if (retencion === 0) {
-                retencion = -45; // Transition to 45s phrase injection phase
+
+    /**
+     * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
+     * @param {Object} selectedMission - The mission object chosen by the client.
+     */
+    iniciarSalidaConcreta(selectedMission) {
+        this.datosLugarGlobal = selectedMission; // Store the selected mission
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+       
+        const t = {
+            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
+            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
+        }[this.idiomaActual];
+       
+        const container = document.getElementById('wrapper-interactive');
+        let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
+       
+        container.innerHTML = `
+            <div class="mision-card">
+                <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
+                <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
+                <div class="instruccion-text">${textoFormateado}</div>
+                <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
+                <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
+                <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+            </div>
+        `;
+       
+        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
+        this.hablar(speechText);
+       
+        let retencion = 35;
+        const btnCount = document.getElementById('btn-countdown-salida');
+        const btnGps = document.getElementById('btn-gps-action');
+        const phrasesDiv = document.getElementById('salida-countdown-phrases');
+        const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
+        let phraseIndex = 0;
+       
+        this.salidaTimerId = setInterval(() => {
+            if (retencion > 0) {
+                retencion--;
+                if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
+                if (retencion === 0) {
+                    // Transition to 45s phrase injection
+                    retencion = -45; // Use negative to denote this phase
+                    if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                    phraseIndex++;
+                }
+            } else if (retencion < 0) {
+                retencion++; // Count up towards 0
                 if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                if (phrasesDiv && AUDIOS_SECUENCIALES_SALIR[phraseIndex]) {
-                    phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
+                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
                     this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                    phraseIndex++;
                 }
-                phraseIndex++;
-            }
-        } else if (retencion < 0) {
-            retencion++; // Count up towards 0
-            if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-            if ((Math.abs(retencion) % 15 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
-                if (phrasesDiv && AUDIOS_SECUENCIALES_SALIR[phraseIndex]) {
-                    phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                }
-                phraseIndex++;
-            }
-            if (retencion === 0) {
-                // 45 seconds are over
-                clearInterval(this.salidaTimerId);
-                window.speechSynthesis.cancel();
-                if (btnCount) btnCount.style.display = 'none';
-                if (phrasesDiv) phrasesDiv.innerText = "Opciones y sugerencias listas para visualizar.";
-                if (btnGps) {
-                    btnGps.classList.remove('hidden');
-                    btnGps.onclick = () => {
-                        try {
-                            let perfil = KERNEL.obtenerPerfilLocal ? KERNEL.obtenerPerfilLocal() : {};
-                            const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
-                            if (selectedVector) {
+                if (retencion === 0) {
+                    // 45 seconds are over
+                    clearInterval(this.salidaTimerId);
+                    window.speechSynthesis.cancel();
+                    if (btnCount) btnCount.style.display = 'none';
+                    if (phrasesDiv) phrasesDiv.innerText = "";
+                    if (btnGps) {
+                        btnGps.classList.remove('hidden');
+                        btnGps.onclick = () => {
+                            try {
+                                let perfil = KERNEL.obtenerPerfilLocal();
+                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
                                 for (const need in selectedVector) {
                                     if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
                                         perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
                                     }
                                 }
-                            }
-                            if (perfil["indicador_ansiedad"] !== undefined) {
                                 perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
+                                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                            } catch (e) {
+                                console.error("Error updating local profile after action:", e);
                             }
-                            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                        } catch (e) {
-                            console.error("Error updating local profile after action:", e);
-                        }
-                        
-                        // Invocar salida externa con confort y recordatorio
-                        if (typeof manejarSalidaExternaConfort === 'function') {
-                            manejarSalidaExternaConfort('mapas');
-                        } else {
-                            window.open('https://maps.google.com', '_blank');
-                        }
-                    };
-                }
-            }
-        }
-    }, 1000);
-}
-  // ==============================================================================                          
+                           
                             // SECCIÓN DE TIEMPOS DE REDIRECCIÓN SECUENCIAL INCORPORADA:
                             // 1. Detona Google Maps con el filtrado maestro de economía real
                             window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                            
+                           
                             // 2. Agrega el desfase de tiempo de tiempo de 500ms para abrir los escapes de YouTube y Spotify de forma parásita
                             setTimeout(() => {
                                 if (this.datosLugarGlobal.enlace_youtube) {
@@ -1290,7 +1220,7 @@ iniciarSalidaConcreta(selectedMission) {
                                     window.open(this.datosLugarGlobal.enlace_spotify, '_blank');
                                 }
                             }, 500);
-// ==============================================================================
+
                             // ==============================================================================
                             // ORDEN SOBERANA: EL TIEMPO COMIENZA A CORRER DESDE CERO AUTOMÁTICAMENTE
                             // ==============================================================================
@@ -1303,7 +1233,7 @@ iniciarSalidaConcreta(selectedMission) {
                 }
             }
         }, 1000);
-    }, 
+    },
     // ==============================================================================
 // RESTAURACIÓN CRÍTICA: ENTRADA DE USUARIO, PASSWORD Y SISTEMA DE STRIPE
 // ==============================================================================
@@ -1323,7 +1253,7 @@ inyectarPasarelaYAutenticacion(container) {
             <button id="btn-submit-auth" style="width:100%; background:var(--green-action); color:#fff; padding:14px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">INGRESAR AL SISTEMA</button>
         </div>
     `;
-// ==============================================================================
+
     // Lógica de validación nativa que tenías para el inicio de sesión
     document.getElementById('btn-submit-auth').onclick = () => {
         const user = document.getElementById('auth-username').value.trim();
@@ -1348,7 +1278,6 @@ inyectarPasarelaYAutenticacion(container) {
         }
     };
 },
-// ==============================================================================
     /**
      * Processes the sequential flow based on the recommendation type (only for CASA mode now).
      */
@@ -1372,7 +1301,7 @@ inyectarPasarelaYAutenticacion(container) {
         this.iniciarRelojEnfocadoCasa(container, t);
         return;
     }
-// ==============================================================================
+
     const paso = this.pasosMisiones[this.indiceMision];
     // CORREGIDO: Se restauró el padding a 16px para evitar el desborde y el congelamiento del renderizado
     container.innerHTML = `
@@ -1384,7 +1313,7 @@ inyectarPasarelaYAutenticacion(container) {
         </div>`;
 
     this.hablar(paso.titulo + " . " + paso.descripcion);
-    
+   
     document.getElementById('btn-next').onclick = () => {
         try {
             let perfil = this.obtenerPerfilLocal();
@@ -1399,18 +1328,18 @@ inyectarPasarelaYAutenticacion(container) {
         } catch (e) {
             console.error("Error updating local profile after CASA mission:", e);
         }
-// ==============================================================================
+
         // ==============================================================================
         // ORDEN SOBERANA INDEPENDIENTE: EL RECOMIENZA DESDE CERO
         // ==============================================================================
         this.iniciarMonitoreoInaccion();
-        this.horaInicioSesionAbsoluta = Date.now(); 
+        this.horaInicioSesionAbsoluta = Date.now();
         // ==============================================================================
-        
+       
         this.avanzarPaso();
     };
 },
-// ==============================================================================    
+   
     /**
  * Starts the 10-minute clinical breathing timer for CASA mode.
  */
@@ -1423,21 +1352,21 @@ iniciarRelojEnfocadoCasa(container, t) {
         clearInterval(this.temporizadorCascada);
         this.temporizadorCascada = null;
     }
-// ==============================================================================    
+   
     // 2. Limpia los temporizadores de inacción y el reloj viejo
     clearInterval(this.timerInaccion);
     clearInterval(this.timerEnfocado);
-    
+   
     // 3. Limpia cualquier bucle de voz previo de CASA para evitar duplicaciones
     if (this.intervaloVozCasa) {
         clearInterval(this.intervaloVozCasa);
         this.intervaloVozCasa = null;
     }
-// ==============================================================================    
+   
     // 4. RETORNO DE MOTOR RECOBRADO: Despierta y limpia el hardware de sonido
     // sin alterar el flujo de las pantallas iniciales ni congelar la app.
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.getVoices(); 
+        window.speechSynthesis.getVoices();
         window.speechSynthesis.cancel();
     }
 
@@ -1464,7 +1393,7 @@ iniciarRelojEnfocadoCasa(container, t) {
     const salidaSugeridaDiv = document.getElementById('salida-sugerida');
     const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
     const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
-// ==============================================================================
+
     // ======================================================================
     // DISPARADOR DE SUGERENCIA TRAS 3 MINUTOS EXACTOS
     // ======================================================================
@@ -1528,7 +1457,7 @@ iniciarRelojEnfocadoCasa(container, t) {
             }
         };
     }
-// ==============================================================================
+
     // ======================================================================
     // CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL (CADA 20 SEGUNDOS)
     // ======================================================================
@@ -1536,14 +1465,14 @@ iniciarRelojEnfocadoCasa(container, t) {
         if (this.timeLeft > 0) {
             this.timeLeft--;
         }
-        
+       
         let m = Math.floor(this.timeLeft / 60);
         let s = this.timeLeft % 60;
-        
+       
         if (timerDiv) {
             timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
         }
-        
+       
         if (pulmonDiv) {
             let ciclo = this.timeLeft % 8;
             if (ciclo >= 4) {
@@ -1554,7 +1483,7 @@ iniciarRelojEnfocadoCasa(container, t) {
                 pulmonDiv.style.color = "var(--accent)";
             }
         }
-        
+       
               // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
         // Reemplazamos los 600 segundos originales por 840 para dar 4 minutos más de calma humana
         if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
@@ -1567,13 +1496,13 @@ iniciarRelojEnfocadoCasa(container, t) {
             }
         }
 
-// ==============================================================================        
+       
         if (this.timeLeft <= 0) {
             clearInterval(this.timerEnfocado);
             clearTimeout(this.salidaSugeridaTimeoutId);
             this.salidaSugeridaTimeoutId = null;
             window.speechSynthesis.cancel();
-            
+           
             if (circleElement) {
                 circleElement.style.animation = "none";
                 circleElement.style.transform = "scale(1)";
@@ -1582,16 +1511,16 @@ iniciarRelojEnfocadoCasa(container, t) {
         }
     }, 1000);
 },
-// ==============================================================================
-    /** 
-     * Advances to the next internal mission step. 
+
+    /**
+     * Advances to the next internal mission step.
      */
     avanzarPaso() {
         this.indiceMision++;
         const container = document.getElementById('wrapper-interactive');
         this.procesarFlujoSecuencial(container);
     },
-// ==============================================================================
+
     /**
      * Initiates the 60-second closing challenge phase.
      */
@@ -1599,237 +1528,237 @@ iniciarRelojEnfocadoCasa(container, t) {
         clearInterval(this.timerEnfocado);
         clearInterval(this.temporizadorCierre);
         window.speechSynthesis.cancel();
-        
-        const t = { 
-            es: { 
-                logo: "OPEN THAN GO", 
-                cierreMensaje: "Gracias por tu presencia.", 
-                recomenzar: "RECOMENZAR EXPERIENCIA", 
-                puertaAbierta: "La puerta está abierta. ¿Continuamos?", 
-                retoInicial: "Prepárate para un reto combinado en 3, 2, 1..." 
-            }, 
-            en: { 
-                logo: "OPEN THAN GO", 
-                cierreMensaje: "Thank you for your presence.", 
-                recomenzar: "RESTART EXPERIENCE", 
-                puertaAbierta: "The door is open. Shall we continue?", 
-                retoInicial: "Get ready for a combined challenge in 3, 2, 1..." 
-            } 
+       
+        const t = {
+            es: {
+                logo: "OPEN THAN GO",
+                cierreMensaje: "Gracias por tu presencia.",
+                recomenzar: "RECOMENZAR EXPERIENCIA",
+                puertaAbierta: "La puerta está abierta. ¿Continuamos?",
+                retoInicial: "Prepárate para un reto combinado en 3, 2, 1..."
+            },
+            en: {
+                logo: "OPEN THAN GO",
+                cierreMensaje: "Thank you for your presence.",
+                recomenzar: "RESTART EXPERIENCE",
+                puertaAbierta: "The door is open. Shall we continue?",
+                retoInicial: "Get ready for a combined challenge in 3, 2, 1..."
+            }
         }[this.idiomaActual];
 
-        const container = document.getElementById('wrapper-interactive'); 
-        const cierrePantalla = document.getElementById('pantalla-cierre'); 
-        const retoTitulo = document.getElementById('reto-titulo'); 
-        const retoDescripcion = document.getElementById('reto-descripcion'); 
-        const retoImg = document.getElementById('reto-img'); 
-        const cierreTimer = document.getElementById('cierre-timer'); 
-        const btnRecomenzar = document.getElementById('btn-recomenzar-experiencia'); 
-        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
-        
-        if (container) container.classList.add('hidden'); 
-        if (cierrePantalla) cierrePantalla.classList.remove('hidden'); 
-        if (cierreMensajeFinal) cierreMensajeFinal.classList.add('hidden'); 
+        const container = document.getElementById('wrapper-interactive');
+        const cierrePantalla = document.getElementById('pantalla-cierre');
+        const retoTitulo = document.getElementById('reto-titulo');
+        const retoDescripcion = document.getElementById('reto-descripcion');
+        const retoImg = document.getElementById('reto-img');
+        const cierreTimer = document.getElementById('cierre-timer');
+        const btnRecomenzar = document.getElementById('btn-recomenzar-experiencia');
+        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
+       
+        if (container) container.classList.add('hidden');
+        if (cierrePantalla) cierrePantalla.classList.remove('hidden');
+        if (cierreMensajeFinal) cierreMensajeFinal.classList.add('hidden');
         if (btnRecomenzar) {
-            btnRecomenzar.classList.add('hidden'); 
+            btnRecomenzar.classList.add('hidden');
             btnRecomenzar.disabled = true;
         }
-        
-        this.timeLeftCierre = 60; 
-        const catalogoRetos = this.idiomaActual === 'es' ? this.CATALOGO_RETOS_ES : this.CATALOGO_RETOS_EN; 
-        let secuenciaRetos = []; 
-        let numRetos = 3; 
-        let candidateSequenceIds; 
-        let sequenceString; 
-        let maxAttempts = 10; 
-// ==============================================================================        
+       
+        this.timeLeftCierre = 60;
+        const catalogoRetos = this.idiomaActual === 'es' ? this.CATALOGO_RETOS_ES : this.CATALOGO_RETOS_EN;
+        let secuenciaRetos = [];
+        let numRetos = 3;
+        let candidateSequenceIds;
+        let sequenceString;
+        let maxAttempts = 10;
+       
         // Algoritmo de descarte para evitar repeticiones de secuencias de retos previos
-        while (maxAttempts > 0) { 
-            secuenciaRetos = []; 
-            let tempRetos = [...catalogoRetos]; 
-            
+        while (maxAttempts > 0) {
+            secuenciaRetos = [];
+            let tempRetos = [...catalogoRetos];
+           
             // Barajado Fisher-Yates sobre el catálogo de retos clínico
-            for (let i = tempRetos.length - 1; i > 0; i--) { 
-                const j = Math.floor(Math.random() * (i + 1)); 
-                [tempRetos[i], tempRetos[j]] = [tempRetos[j], tempRetos[i]]; 
-            } 
-            
-            for (let i = 0; i < numRetos; i++) { 
-                if (tempRetos.length === 0) break; 
-                secuenciaRetos.push(tempRetos.shift()); 
-            } 
-            
-            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-'); 
-            
-            if (!this.historialRetosSecuencias.includes(candidateSequenceIds)) { 
-                sequenceString = candidateSequenceIds; 
-                break; 
-            } 
-            maxAttempts--; 
-            
-            if (maxAttempts === 0) { 
-                console.warn("Could not find a unique challenge sequence after multiple attempts, reusing one."); 
-                sequenceString = candidateSequenceIds; 
-            } 
-        } 
-// ==============================================================================        
+            for (let i = tempRetos.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tempRetos[i], tempRetos[j]] = [tempRetos[j], tempRetos[i]];
+            }
+           
+            for (let i = 0; i < numRetos; i++) {
+                if (tempRetos.length === 0) break;
+                secuenciaRetos.push(tempRetos.shift());
+            }
+           
+            candidateSequenceIds = secuenciaRetos.map(r => r.id).sort((a, b) => a - b).join('-');
+           
+            if (!this.historialRetosSecuencias.includes(candidateSequenceIds)) {
+                sequenceString = candidateSequenceIds;
+                break;
+            }
+            maxAttempts--;
+           
+            if (maxAttempts === 0) {
+                console.warn("Could not find a unique challenge sequence after multiple attempts, reusing one.");
+                sequenceString = candidateSequenceIds;
+            }
+        }
+       
         // Actualización del registro histórico en memoria local para no duplicar flujos de cierre
-        if (sequenceString) { 
-            this.historialRetosSecuencias.push(sequenceString); 
-            this.historialRetosSecuencias = this.historialRetosSecuencias.slice(-this.MAX_HISTORY_RETOS_SECUENCIAS); 
-            localStorage.setItem("otg_historial_retos_secuencias", JSON.stringify(this.historialRetosSecuencias)); 
+        if (sequenceString) {
+            this.historialRetosSecuencias.push(sequenceString);
+            this.historialRetosSecuencias = this.historialRetosSecuencias.slice(-this.MAX_HISTORY_RETOS_SECUENCIAS);
+            localStorage.setItem("otg_historial_retos_secuencias", JSON.stringify(this.historialRetosSecuencias));
         }
 
-        let currentRetoIndex = 0; 
-        
-        const displayNextReto = () => { 
-            if (currentRetoIndex < secuenciaRetos.length) { 
-                const reto = secuenciaRetos[currentRetoIndex]; 
-                if (retoTitulo) { 
-                    retoTitulo.innerText = reto.titulo; 
-                    retoTitulo.classList.remove('hidden'); 
-                } 
-                if (retoDescripcion) { 
-                    retoDescripcion.innerText = reto.descripcion; 
-                    retoDescripcion.classList.remove('hidden'); 
-                } 
-                if (retoImg) { 
-                    retoImg.src = `/static/${reto.img}`; 
-                    retoImg.classList.remove('hidden'); 
-                } 
-                this.hablar(reto.descripcion); 
-                currentRetoIndex++; 
-            } 
-        }; 
-// ==============================================================================        
-        // Ocultamos elementos previos para garantizar una transición visual fluida
-        if (retoTitulo) retoTitulo.classList.add('hidden'); 
-        if (retoDescripcion) retoDescripcion.classList.add('hidden'); 
-        if (retoImg) retoImg.classList.add('hidden'); 
-        
-        this.hablar(t.retoInicial); 
-        
-        // Cuenta regresiva de preparación de 5 segundos antes de lanzar el carrusel de retos
-        setTimeout(() => { 
-            displayNextReto(); 
-            
-            this.temporizadorCierre = setInterval(() => { 
-                this.timeLeftCierre--; 
-                if (cierreTimer) {
-                    cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0'); 
+        let currentRetoIndex = 0;
+       
+        const displayNextReto = () => {
+            if (currentRetoIndex < secuenciaRetos.length) {
+                const reto = secuenciaRetos[currentRetoIndex];
+                if (retoTitulo) {
+                    retoTitulo.innerText = reto.titulo;
+                    retoTitulo.classList.remove('hidden');
                 }
-                
+                if (retoDescripcion) {
+                    retoDescripcion.innerText = reto.descripcion;
+                    retoDescripcion.classList.remove('hidden');
+                }
+                if (retoImg) {
+                    retoImg.src = `/static/${reto.img}`;
+                    retoImg.classList.remove('hidden');
+                }
+                this.hablar(reto.descripcion);
+                currentRetoIndex++;
+            }
+        };
+       
+        // Ocultamos elementos previos para garantizar una transición visual fluida
+        if (retoTitulo) retoTitulo.classList.add('hidden');
+        if (retoDescripcion) retoDescripcion.classList.add('hidden');
+        if (retoImg) retoImg.classList.add('hidden');
+       
+        this.hablar(t.retoInicial);
+       
+        // Cuenta regresiva de preparación de 5 segundos antes de lanzar el carrusel de retos
+        setTimeout(() => {
+            displayNextReto();
+           
+            this.temporizadorCierre = setInterval(() => {
+                this.timeLeftCierre--;
+                if (cierreTimer) {
+                    cierreTimer.innerText = this.timeLeftCierre.toString().padStart(2, '0');
+                }
+               
                 // Avanza el reto de forma equitativa cada 20 segundos (3 retos en 60s)
-                if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) { 
-                    if (retoTitulo) retoTitulo.classList.add('hidden'); 
-                    if (retoDescripcion) retoDescripcion.classList.add('hidden'); 
-                    if (retoImg) retoImg.classList.add('hidden'); 
-                    displayNextReto(); 
-                } 
-// ==============================================================================                
+                if (this.timeLeftCierre > 0 && currentRetoIndex < numRetos && (this.timeLeftCierre % Math.floor(60 / numRetos) === 0)) {
+                    if (retoTitulo) retoTitulo.classList.add('hidden');
+                    if (retoDescripcion) retoDescripcion.classList.add('hidden');
+                    if (retoImg) retoImg.classList.add('hidden');
+                    displayNextReto();
+                }
+               
                 // Cierre definitivo del ciclo clínico de 60 segundos
-                if (this.timeLeftCierre <= 0) { 
-                    clearInterval(this.temporizadorCierre); 
-                    window.speechSynthesis.cancel(); 
-                    
-                    if (retoTitulo) retoTitulo.innerText = ""; 
-                    if (retoDescripcion) retoDescripcion.innerText = ""; 
-                    if (retoImg) retoImg.src = ""; 
-                    
-                    if (cierreTimer) cierreTimer.classList.add('hidden'); 
-                    if (cierreMensajeFinal) cierreMensajeFinal.classList.remove('hidden'); 
-                    
+                if (this.timeLeftCierre <= 0) {
+                    clearInterval(this.temporizadorCierre);
+                    window.speechSynthesis.cancel();
+                   
+                    if (retoTitulo) retoTitulo.innerText = "";
+                    if (retoDescripcion) retoDescripcion.innerText = "";
+                    if (retoImg) retoImg.src = "";
+                   
+                    if (cierreTimer) cierreTimer.classList.add('hidden');
+                    if (cierreMensajeFinal) cierreMensajeFinal.classList.remove('hidden');
+                   
                     if (btnRecomenzar) {
-                        btnRecomenzar.classList.remove('hidden'); 
-                        btnRecomenzar.disabled = false; 
+                        btnRecomenzar.classList.remove('hidden');
+                        btnRecomenzar.disabled = false;
                     }
-                    this.hablar(t.puertaAbierta); 
-                } 
-            }, 1000); 
-        }, 5000); 
-        
+                    this.hablar(t.puertaAbierta);
+                }
+            }, 1000);
+        }, 5000);
+       
         if (btnRecomenzar) {
-            btnRecomenzar.onclick = () => { 
-                this.reiniciarExperiencia(); 
-            }; 
+            btnRecomenzar.onclick = () => {
+                this.reiniciarExperiencia();
+            };
         }
     },
-// ==============================================================================
+
     /**
      * Resets the UI to the initial form state without clearing persistent data.
      */
-    reiniciarExperiencia() { 
-        clearInterval(this.timerInaccion); 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.temporizadorCascada); 
-        clearInterval(this.temporizadorCierre); 
-        clearInterval(this.salidaTimerId); // Clear SALIR specific timer 
-        window.speechSynthesis.cancel(); 
-        
-        if (this.salidaSugeridaTimeoutId) { 
-            clearTimeout(this.salidaSugeridaTimeoutId); 
-            this.salidaSugeridaTimeoutId = null; 
-        } 
-        
-        this.pasosMisiones = []; 
-        this.indiceMision = 0; 
-        this.isLocked = false; 
-        this.contadorToques = 0; 
-        this.datosLugarGlobal = null; // Clear selected mission 
-        
+    reiniciarExperiencia() {
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCascada);
+        clearInterval(this.temporizadorCierre);
+        clearInterval(this.salidaTimerId); // Clear SALIR specific timer
+        window.speechSynthesis.cancel();
+       
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+       
+        this.pasosMisiones = [];
+        this.indiceMision = 0;
+        this.isLocked = false;
+        this.contadorToques = 0;
+        this.datosLugarGlobal = null; // Clear selected mission
+       
         const pantallaCierre = document.getElementById('pantalla-cierre');
         const wrapperInteractive = document.getElementById('wrapper-interactive');
         const wrapperForm = document.getElementById('wrapper-form');
         const inpTextLibre = document.getElementById('inp-text-libre');
 
-        if (pantallaCierre) pantallaCierre.classList.add('hidden'); 
-        if (wrapperInteractive) wrapperInteractive.classList.add('hidden'); 
-        if (wrapperForm) wrapperForm.classList.remove('hidden'); 
-        if (inpTextLibre) inpTextLibre.value = ""; 
-        
-        this.inyectarBloquePreguntas(); 
-        this.activarBotonMandoLibreInicial(); 
-        
+        if (pantallaCierre) pantallaCierre.classList.add('hidden');
+        if (wrapperInteractive) wrapperInteractive.classList.add('hidden');
+        if (wrapperForm) wrapperForm.classList.remove('hidden');
+        if (inpTextLibre) inpTextLibre.value = "";
+       
+        this.inyectarBloquePreguntas();
+        this.activarBotonMandoLibreInicial();
+       
         const saludos_es = [
-            "Bienvenido de nuevo. Tu escape inteligente. Escucha mis preguntas en pantalla.", 
+            "Bienvenido de nuevo. Tu escape inteligente. Escucha mis preguntas en pantalla.",
             "Ópen Dán Go activo. Toca lo que sientes hoy para continuar."
-        ]; 
+        ];
         const saludos_en = [
-            "Welcome back. Your smart escape. Listen to my questions on screen.", 
+            "Welcome back. Your smart escape. Listen to my questions on screen.",
             "Open Than Go active. Tap what you feel today to continue."
-        ]; 
-        
-        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en; 
-        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
-    }, 
-// ==============================================================================
+        ];
+       
+        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
+        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
+    },
+
     /**
      * Clears ALL session data and reloads the application.
      */
-    destruirYReiniciar() { 
-        clearInterval(this.timerInaccion); 
-        clearInterval(this.timerEnfocado); 
-        clearInterval(this.temporizadorCascada); 
-        clearInterval(this.temporizadorCierre); 
-        clearInterval(this.salidaTimerId); 
-        window.speechSynthesis.cancel(); 
-        
-        if (this.salidaSugeridaTimeoutId) { 
-            clearTimeout(this.salidaSugeridaTimeoutId); 
-            this.salidaSugeridaTimeoutId = null; 
-        } 
-        
-        localStorage.clear(); 
-        this.historialSalir = []; 
-        this.historialCasa = []; 
-        this.historialPreguntas = []; 
-        this.historialRetosSecuencias = []; 
-        this.pasosMisiones = []; 
-        this.indiceMision = 0; 
-        this.isLocked = false; 
-        this.contadorToques = 0; 
-        this.datosLugarGlobal = null; 
-        
-        location.reload(); 
+    destruirYReiniciar() {
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
+        clearInterval(this.temporizadorCascada);
+        clearInterval(this.temporizadorCierre);
+        clearInterval(this.salidaTimerId);
+        window.speechSynthesis.cancel();
+       
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+       
+        localStorage.clear();
+        this.historialSalir = [];
+        this.historialCasa = [];
+        this.historialPreguntas = [];
+        this.historialRetosSecuencias = [];
+        this.pasosMisiones = [];
+        this.indiceMision = 0;
+        this.isLocked = false;
+        this.contadorToques = 0;
+        this.datosLugarGlobal = null;
+       
+        location.reload();
     }
 }; // Cierre absoluto del objeto KERNEL
 
@@ -1839,58 +1768,58 @@ document.addEventListener('DOMContentLoaded', () => {
         KERNEL.init();
     }
 });
-// ==============================================================================
+
 // Exposición global del KERNEL en el objeto window para depuración y control externo
 window.KERNEL = KERNEL;
 
-//========================================================================================== 
-// KERNEL INTEGRADO V3 (PARTE 1) 
-//========================================================================================== 
-(function() { 
-    window.OTG_SENSORIAL = { 
+//==========================================================================================
+// KERNEL INTEGRADO V3 (PARTE 1)
+//==========================================================================================
+(function() {
+    window.OTG_SENSORIAL = {
         marcas: [
-            "TikTok", "Instagram", "YouTube", "Spotify", "Netflix", "Uber", "Lyft", 
-            "American", "Delta", "JetBlue", "Southwest", "Avianca", "LATAM", "Aeromexico", 
-            "Copa", "Volaris", "WesternUnion", "Zelle", "Amazon", "Temu", "Walmart", 
-            "Costco", "Target", "DollarTree", "McDonald's", "Starbucks", "Burger King", 
-            "Airbnb", "Booking.com", "Expedia", "Hotels.com", "Trivago", "Priceline", 
-            "Motel 6", "Super 8", "Days Inn", "Holiday Inn", "Marriott", "Hilton", 
-            "Tinder", "ChatGPT", "GetMyBoat", "Boatsetter", "Click&Boat", "Sailo", 
-            "Carnival", "Celebrity Cruises", "MSC Cruises", "Viajes El Corte Inglés", 
-            "Despegar", "Pizza Hut", "Papa Johns", "Little Caesars", "Domino's", 
-            "Wendy's", "Chick fil A", "Nike", "Adidas", "Ross Dress for Less", 
-            "Burlington", "DD'S Discounts", "Crowley Carbon", "Transcargo", "CubaMax", 
-            "Va Cuba", "Cargolux", "Aeroméxico Cargo", "Dachser", "Seaboard Marine", 
-            "Popeyes", "KFC", "PolloTropical", "Church's Texas Chicken", "Miami Dade Transit", 
-            "Brightline", "SunPass", "FLHSMV", "Fair Health Consumer", "GoRenew", 
-            "Clear Health Costs", "Florida Health Finder", "DentalPlans", "NeedyMeds Clinic Finder", 
-            "Florida Blue", "Aetna", "UnitedHealthcare", "Cigna", "Oscar Health", 
-            "Molina Healthcare", "Sunshine Health", "Indeed", "LinkedIn", "USAJOBS", 
+            "TikTok", "Instagram", "YouTube", "Spotify", "Netflix", "Uber", "Lyft",
+            "American", "Delta", "JetBlue", "Southwest", "Avianca", "LATAM", "Aeromexico",
+            "Copa", "Volaris", "WesternUnion", "Zelle", "Amazon", "Temu", "Walmart",
+            "Costco", "Target", "DollarTree", "McDonald's", "Starbucks", "Burger King",
+            "Airbnb", "Booking.com", "Expedia", "Hotels.com", "Trivago", "Priceline",
+            "Motel 6", "Super 8", "Days Inn", "Holiday Inn", "Marriott", "Hilton",
+            "Tinder", "ChatGPT", "GetMyBoat", "Boatsetter", "Click&Boat", "Sailo",
+            "Carnival", "Celebrity Cruises", "MSC Cruises", "Viajes El Corte Inglés",
+            "Despegar", "Pizza Hut", "Papa Johns", "Little Caesars", "Domino's",
+            "Wendy's", "Chick fil A", "Nike", "Adidas", "Ross Dress for Less",
+            "Burlington", "DD'S Discounts", "Crowley Carbon", "Transcargo", "CubaMax",
+            "Va Cuba", "Cargolux", "Aeroméxico Cargo", "Dachser", "Seaboard Marine",
+            "Popeyes", "KFC", "PolloTropical", "Church's Texas Chicken", "Miami Dade Transit",
+            "Brightline", "SunPass", "FLHSMV", "Fair Health Consumer", "GoRenew",
+            "Clear Health Costs", "Florida Health Finder", "DentalPlans", "NeedyMeds Clinic Finder",
+            "Florida Blue", "Aetna", "UnitedHealthcare", "Cigna", "Oscar Health",
+            "Molina Healthcare", "Sunshine Health", "Indeed", "LinkedIn", "USAJOBS",
             "CareerOneStop", "Upwork", "Fiverr", "FlexJobs"
-        ], 
-        urls: { 
-            "TikTok": "https://tiktok.com", 
-            "Instagram": "https://instagram.com", 
-            "YouTube": "https://youtube.com", 
-            "Spotify": "https://spotify.com", 
-            "Netflix": "https://netflix.com", 
-            "Uber": "https://uber.com", 
-            "Lyft": "https://lyft.com", 
-            "GetMyBoat": "https://getmyboat.com", 
-            "Boatsetter": "https://boatsetter.com", 
-            "Click&Boat": "https://clickandboat.com", 
-            "Sailo": "https://sailo.com", 
-            "Carnival": "https://carnival.com", 
-            "Celebrity Cruises": "https://celebritycruises.com", 
-            "MSC Cruises": "https://msccruises.com", 
-            "Viajes El Corte Inglés": "https://viajeselcorteingles.com", 
-            "Despegar": "https://despegar.com", 
-            "American": "https://aa.com", 
-            "Delta": "https://delta.com", 
-            "Pizza Hut": "https://pizzahut.com", 
-            "Papa Johns": "https://papajohns.com", 
+        ],
+        urls: {
+            "TikTok": "https://tiktok.com",
+            "Instagram": "https://instagram.com",
+            "YouTube": "https://youtube.com",
+            "Spotify": "https://spotify.com",
+            "Netflix": "https://netflix.com",
+            "Uber": "https://uber.com",
+            "Lyft": "https://lyft.com",
+            "GetMyBoat": "https://getmyboat.com",
+            "Boatsetter": "https://boatsetter.com",
+            "Click&Boat": "https://clickandboat.com",
+            "Sailo": "https://sailo.com",
+            "Carnival": "https://carnival.com",
+            "Celebrity Cruises": "https://celebritycruises.com",
+            "MSC Cruises": "https://msccruises.com",
+            "Viajes El Corte Inglés": "https://viajeselcorteingles.com",
+            "Despegar": "https://despegar.com",
+            "American": "https://aa.com",
+            "Delta": "https://delta.com",
+            "Pizza Hut": "https://pizzahut.com",
+            "Papa Johns": "https://papajohns.com",
             "Little Caesars": "https://littlecaesars.com",
-            "Domino's": "https://dominos.com",   
+            "Domino's": "https://dominos.com",  
             "Wendy's": "https://wendys.com",
             "Chick fil A": "https://chick-fil-a.com",  
             "JetBlue": "https://jetblue.com",
@@ -1911,25 +1840,25 @@ window.KERNEL = KERNEL;
             "DD'S Discounts": "https://ddsdiscounts.com",
             "Crowley Carbon": "https://crowley.com",
             "Transcargo": "https://transcargo.com",
-            "CubaMax": "https://cubamax.com", 
-            "Va Cuba": "https://vacuba.com", 
-            "Cargolux": "https://cargolux.com", 
-            "Aeroméxico Cargo": "https://aeromexicocargo.com.mx", 
-            "Dachser": "https://dachser.com", 
-            "Seaboard Marine": "https://seaboardmarine.com", 
-            "Walmart": "https://walmart.com", 
-            "Costco": "https://costco.com", 
-            "Target": "https://target.com", 
-            "DollarTree": "https://dollartree.com", 
-            "Popeyes": "https://popeyes.com", 
-            "KFC": "https://kfc.com", 
-            "PolloTropical": "https://pollotropical.com", 
-            "Church's Texas Chicken": "https://churchs.com", 
-            "McDonald's": "https://mcdonalds.com", 
-            "Starbucks": "https://starbucks.com", 
-            "Burger King": "https://bk.com", 
-            "Airbnb": "https://airbnb.com", 
-            "Booking.com": "https://booking.com", 
+            "CubaMax": "https://cubamax.com",
+            "Va Cuba": "https://vacuba.com",
+            "Cargolux": "https://cargolux.com",
+            "Aeroméxico Cargo": "https://aeromexicocargo.com.mx",
+            "Dachser": "https://dachser.com",
+            "Seaboard Marine": "https://seaboardmarine.com",
+            "Walmart": "https://walmart.com",
+            "Costco": "https://costco.com",
+            "Target": "https://target.com",
+            "DollarTree": "https://dollartree.com",
+            "Popeyes": "https://popeyes.com",
+            "KFC": "https://kfc.com",
+            "PolloTropical": "https://pollotropical.com",
+            "Church's Texas Chicken": "https://churchs.com",
+            "McDonald's": "https://mcdonalds.com",
+            "Starbucks": "https://starbucks.com",
+            "Burger King": "https://bk.com",
+            "Airbnb": "https://airbnb.com",
+            "Booking.com": "https://booking.com",
             "Expedia": "https://expedia.com",
             "Hotels.com": "https://hotels.com",
             "Trivago": "https://trivago.com",
@@ -1966,21 +1895,21 @@ window.KERNEL = KERNEL;
             "Hilton": "https://hilton.com",
             "Tinder": "https://tinder.com",
             "ChatGPT": "https://chatgpt.com"
-        }, 
+        },
         preguntas: [
             "¿Qué actividad quieres realizar en este momento?",
             "¿Cuál de estos servicios forma parte de tu rutina hoy?",
             "¿Qué opción representa mejor lo que buscas ahora?",
             "¿Qué servicio te gustaría utilizar en este momento?"
         ],
-        
-    seleccionadas: [], 
+       
+    seleccionadas: [],
 
     init() {
         this.inyectarMetasYEstilos();
         this.modificarBienvenida();
         this.crearEstructurasFlotantes();
-    }, 
+    },
 
     inyectarMetasYEstilos() {
         ["apple-mobile-web-app-capable", "mobile-web-app-capable"].forEach(n => {
@@ -2052,7 +1981,7 @@ window.KERNEL = KERNEL;
             }
         `;
         document.head.appendChild(s);
-    }, 
+    },
 
     modificarBienvenida() {
         let pb = document.getElementById("pantalla-bienvenida");
@@ -2067,35 +1996,35 @@ window.KERNEL = KERNEL;
             "Necesitas un descanso",
             "Buscas un momento para ti"
         ];
-        
+       
         sintomas.sort(() => Math.random() - .5);
-// ==============================================================================
+
         // CORREGIDO: Template literal unificado para `pb.innerHTML`
         pb.innerHTML = `
             <div style="max-width:390px;width:95%;padding:15px;text-align:center;font-family:sans-serif;color:#fff;overflow-y:auto;max-height:100vh;">
                 <h2 style="color:#00bcd4;font-weight:900;letter-spacing:2px;font-size:1.3rem;margin-bottom:12px;"> OPEN THAN GO </h2>
-                <p style="font-size: .9rem; line-height: 1.45; color: #eee; font-weight: bold; margin-bottom: 15px;"> 
-                    Hoy: <span style="color: #d84315;">${sintomas[0]}</span>.<br> 
-                    OPEN THAN GO te ayuda a encontrar pequeños momentos de bienestar para ti y tu familia. 
-                </p> 
-                
-                <div style="background: #111; border: 1px solid #222; border-radius: 8px; padding: 12px; text-align: left; font-size: .76rem; line-height: 1.5; color: #bbb; margin-bottom: 14px;"> 
-                    <b style="color: #2e7d32; display: block; margin-bottom: 6px; text-transform: uppercase;"> Cómo funciona </b> 
-                    • <b>SALIR:</b> Descubre lugares cercanos para cambiar de ambiente.<br> 
-                    • <b>CASA:</b> Encuentra actividades sencillas para hacer en casa.<br> 
-                    • <b>MODO LIBRE:</b> Escribe un lugar, una marca o un servicio para personalizar tu experiencia.<br> 
-                    • <b>ORÁCULO:</b> Recibe una sugerencia cuando no sepas qué hacer. 
-                </div> 
-                
-                <p style="font-size: .72rem; color: #00bcd4; font-weight: bold; margin-bottom: 12px;"> 
-                    🎵 Enciende el audio y disfruta una experiencia más completa. 
-                </p> 
-                
-                <div style="background: rgba(255,255,255,.05); border: 1px solid #333; border-radius: 8px; padding: 10px; font-size: .67rem; line-height: 1.45; color: #cfcfcf; text-align: left; margin-bottom: 14px;"> 
-                    <b style="color: #fff;">Aviso</b><br> 
-                    OPEN THAN GO es una herramienta de bienestar y orientación. No ofrece atención médica, psicológica ni de emergencia. Si tienes una emergencia médica o de salud mental, llama a los servicios de emergencia o busca ayuda profesional. Usa esta aplicación bajo tu propio criterio. 
-                </div> 
-                
+                <p style="font-size: .9rem; line-height: 1.45; color: #eee; font-weight: bold; margin-bottom: 15px;">
+                    Hoy: <span style="color: #d84315;">${sintomas[0]}</span>.<br>
+                    OPEN THAN GO te ayuda a encontrar pequeños momentos de bienestar para ti y tu familia.
+                </p>
+               
+                <div style="background: #111; border: 1px solid #222; border-radius: 8px; padding: 12px; text-align: left; font-size: .76rem; line-height: 1.5; color: #bbb; margin-bottom: 14px;">
+                    <b style="color: #2e7d32; display: block; margin-bottom: 6px; text-transform: uppercase;"> Cómo funciona </b>
+                    • <b>SALIR:</b> Descubre lugares cercanos para cambiar de ambiente.<br>
+                    • <b>CASA:</b> Encuentra actividades sencillas para hacer en casa.<br>
+                    • <b>MODO LIBRE:</b> Escribe un lugar, una marca o un servicio para personalizar tu experiencia.<br>
+                    • <b>ORÁCULO:</b> Recibe una sugerencia cuando no sepas qué hacer.
+                </div>
+               
+                <p style="font-size: .72rem; color: #00bcd4; font-weight: bold; margin-bottom: 12px;">
+                    🎵 Enciende el audio y disfruta una experiencia más completa.
+                </p>
+               
+                <div style="background: rgba(255,255,255,.05); border: 1px solid #333; border-radius: 8px; padding: 10px; font-size: .67rem; line-height: 1.45; color: #cfcfcf; text-align: left; margin-bottom: 14px;">
+                    <b style="color: #fff;">Aviso</b><br>
+                    OPEN THAN GO es una herramienta de bienestar y orientación. No ofrece atención médica, psicológica ni de emergencia. Si tienes una emergencia médica o de salud mental, llama a los servicios de emergencia o busca ayuda profesional. Usa esta aplicación bajo tu propio criterio.
+                </div>
+               
                 <button class="btn-bienvenida" onclick="OTG_SENSORIAL.interceptarBotonStart();" style="width: 100%; border-radius: 6px; padding: 15px; font-weight: 900; background: #fff; color: #000; border: none; cursor: pointer; text-transform: uppercase;">
                     INICIAR SESIÓN / START
                 </button>
@@ -2127,39 +2056,39 @@ window.KERNEL = KERNEL;
     abrirOasisOcio() {
         let m = document.getElementById("otg-oasis-entretenimiento");
         if (!m) return;
-        
+       
         m.classList.remove("hidden");
         document.body.style.overflow = "hidden";
-        
+       
         this.marcas.sort(() => Math.random() - .5);
-        
+       
         let zip = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
         let txtUsa = zip ? `Opciones disponibles para el Código Postal ${zip}` : "Personaliza tu experiencia";
-// ==============================================================================        
+       
         // CORREGIDO: Template literal unificado para `m.innerHTML`
         m.innerHTML = `
             <div style="max-width:460px;margin:0 auto;padding-top:5px;">
                 <div style="text-align:center;margin-bottom:15px;">
-                    <span style="background: #2e7d32; padding: 3px 8px; border-radius: 4px; font-size: .65rem; font-weight: bold; text-transform: uppercase;"> Bienestar Inicial </span> 
-                    <h4 style="color: #00bcd4; font-weight: 900; margin: 8px 0 3px; font-size: 1.15rem;"> PERSONALIZA TU EXPERIENCIA </h4> 
-                    <p style="color: #aaa; font-size: .72rem; margin: 0;"> ${txtUsa}. Tiempo aproximado: 1 minuto. </p> 
-                </div> 
-                
-                <div id="otg-fase-1"> 
-                    <p style="font-size: .85rem; font-weight: bold; color: #fff; text-align: center; line-height: 1.45; margin-bottom: 10px;"> 
-                        Selecciona el servicio que mejor representa lo que deseas hacer en este momento. 
-                    </p> 
-                    <div class="otg-grid-logos"> 
-                        ${this.marcas.map(x => `<div class="otg-card-logo" onclick="OTG_SENSORIAL.seleccionarMarca(this,'${x}')">${x}</div>`).join("")} 
-                    </div> 
-                    <button onclick="OTG_SENSORIAL.activarFaseTrivia()" style="width: 100%; background: #2e7d32; border: none; color: #fff; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: .8rem; letter-spacing: .5px;"> Continuar → </button> 
-                </div> 
-                
-                <div id="otg-fase-2" class="hidden"></div> 
-                <div id="otg-fase-3" class="hidden" style="text-align: center;"></div> 
+                    <span style="background: #2e7d32; padding: 3px 8px; border-radius: 4px; font-size: .65rem; font-weight: bold; text-transform: uppercase;"> Bienestar Inicial </span>
+                    <h4 style="color: #00bcd4; font-weight: 900; margin: 8px 0 3px; font-size: 1.15rem;"> PERSONALIZA TU EXPERIENCIA </h4>
+                    <p style="color: #aaa; font-size: .72rem; margin: 0;"> ${txtUsa}. Tiempo aproximado: 1 minuto. </p>
+                </div>
+               
+                <div id="otg-fase-1">
+                    <p style="font-size: .85rem; font-weight: bold; color: #fff; text-align: center; line-height: 1.45; margin-bottom: 10px;">
+                        Selecciona el servicio que mejor representa lo que deseas hacer en este momento.
+                    </p>
+                    <div class="otg-grid-logos">
+                        ${this.marcas.map(x => `<div class="otg-card-logo" onclick="OTG_SENSORIAL.seleccionarMarca(this,'${x}')">${x}</div>`).join("")}
+                    </div>
+                    <button onclick="OTG_SENSORIAL.activarFaseTrivia()" style="width: 100%; background: #2e7d32; border: none; color: #fff; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: .8rem; letter-spacing: .5px;"> Continuar → </button>
+                </div>
+               
+                <div id="otg-fase-2" class="hidden"></div>
+                <div id="otg-fase-3" class="hidden" style="text-align: center;"></div>
             </div>
         `;
-    }, 
+    },
 
     seleccionarMarca(el, marca) {
         el.classList.toggle("active");
@@ -2168,7 +2097,7 @@ window.KERNEL = KERNEL;
         } else {
             this.seleccionadas = this.seleccionadas.filter(x => x !== marca);
         }
-    }, 
+    },
 
     activarFaseTrivia() {
         if (!this.seleccionadas.length) {
@@ -2177,29 +2106,29 @@ window.KERNEL = KERNEL;
         }
 
         document.getElementById("otg-fase-1").classList.add("hidden");
-        
+       
         let f2 = document.getElementById("otg-fase-2");
         f2.classList.remove("hidden");
-        
+       
         let p = this.preguntas[Math.floor(Math.random() * this.preguntas.length)];
         let m = this.seleccionadas[0];
-        
+       
         f2.innerHTML = `
             <div style="background: #111; border: 1px solid #222; padding: 15px; border-radius: 8px; margin-top: 10px;">
-                <span style="color: #00bcd4; font-size: .65rem; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;"> 
-                    Has seleccionado: ${m} 
+                <span style="color: #00bcd4; font-size: .65rem; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">
+                    Has seleccionado: ${m}
                 </span>
-                <p style="font-size: 1rem; font-weight: bold; line-height: 1.45; margin: 5px 0 15px; color: #fff;"> 
-                    ${p} 
+                <p style="font-size: 1rem; font-weight: bold; line-height: 1.45; margin: 5px 0 15px; color: #fff;">
+                    ${p}
                 </p>
-                <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado', 'opcion1')"> 
-                    Quiero usar este servicio ahora. 
+                <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado', 'opcion1')">
+                    Quiero usar este servicio ahora.
                 </button>
-                <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('normal', 'opcion2')"> 
-                    Solo estoy explorando opciones. 
+                <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('normal', 'opcion2')">
+                    Solo estoy explorando opciones.
                 </button>
-                <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('curioso', 'opcion3')"> 
-                    Quiero descubrir nuevas ideas. 
+                <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('curioso', 'opcion3')">
+                    Quiero descubrir nuevas ideas.
                 </button>
             </div>
         `;
@@ -2211,99 +2140,99 @@ window.KERNEL = KERNEL;
             s.value = perfil;
             s.dispatchEvent(new Event("change"));
         }
-        
+       
         document.getElementById("otg-fase-2").classList.add("hidden");
-        
+       
         let f3 = document.getElementById("otg-fase-3");
         f3.classList.remove("hidden");
-        
+       
         let marca = this.seleccionadas[0];
         let url = this.urls[marca] || "https://google.com";
-        
-        let mensaje = tipo === "opcion1" 
-            ? `Tu experiencia ha sido personalizada usando "${marca}".` 
-            : tipo === "opcion2" 
-                ? `Hemos preparado una experiencia basada en tu selección.` 
+       
+        let mensaje = tipo === "opcion1"
+            ? `Tu experiencia ha sido personalizada usando "${marca}".`
+            : tipo === "opcion2"
+                ? `Hemos preparado una experiencia basada en tu selección.`
                 : `Explora nuevas opciones y encuentra actividades que se adapten a ti.`;
-// ==============================================================================        
+       
         // CORREGIDO: Template literal unificado para `f3.innerHTML`
         f3.innerHTML = `
             <div style="background: rgba(0, 188, 212, .05); border: 1px solid #00bcd4; padding: 15px; border-radius: 8px; text-align: left; font-size: .82rem; line-height: 1.5; margin-bottom: 15px; color: #eee;">
                 <b style="color: #00bcd4; display: block; margin-bottom: 6px;"> Experiencia lista </b>
                 ${mensaje}
             </div>
-            
+           
             <div style="display: flex; gap: 8px;">
                 <button onclick="window.open('${url}', '_blank')" style="flex: 1; background: #2e7d32; border: none; color: #fff; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: .75rem; text-transform: uppercase;">
                     Abrir sitio web
                 </button>
-                <button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()" style="flex: 1; background: none; border: 1px solid #00bcd4; color: #00bcd4; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: .75rem; text-transform: uppercase;"> 
-                    Continuar 
-                </button> 
+                <button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()" style="flex: 1; background: none; border: 1px solid #00bcd4; color: #00bcd4; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: .75rem; text-transform: uppercase;">
+                    Continuar
+                </button>
             </div>
         `;
-    }, 
+    },
 
     cerrarOasisYDarPasoAAppBase() {
         let m = document.getElementById("otg-oasis-entretenimiento");
         if (m) m.classList.add("hidden");
-        
+       
         document.body.style.overflow = "auto";
-        
+       
         if (typeof KERNEL !== "undefined" && typeof KERNEL.despertarInicial === "function") {
             KERNEL.despertarInicial();
         }
-        
+       
         let b = document.getElementById("otg-btn-power");
         if (b) b.classList.remove("hidden");
-        
+       
         this.seleccionadas = [];
         console.log("OPEN THAN GO iniciado.");
-    }, 
+    },
 
     apagarSistemaTotal() {
         let m = document.getElementById("otg-oasis-entretenimiento");
         if (m) m.classList.add("hidden");
-        
+       
         let pc = document.getElementById("pantalla-cierre");
         if (pc) pc.classList.add("hidden");
-        
+       
         let wf = document.getElementById("wrapper-form");
         if (wf) wf.classList.remove("hidden");
-        
+       
         let pb = document.getElementById("pantalla-bienvenida");
         if (pb) pb.classList.remove("hidden");
-        
+       
         let b = document.getElementById("otg-btn-power");
         if (b) b.classList.add("hidden");
-        
+       
         let t = document.getElementById("inp-text-libre");
         if (t) t.value = "";
-        
+       
         this.seleccionadas = [];
         console.log("Sistema reiniciado.");
-    }, 
+    },
 
     forzarCierre15Minutos() {
         let m = document.getElementById("otg-oasis-entretenimiento");
         if (m) m.classList.add("hidden");
-        
+       
         document.body.innerHTML = `
             <div style="width: 100vw; height: 100vh; background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 25px;">
                 <h1 style="color: #00bcd4; font-size: 1.4rem; margin-bottom: 12px;"> Sesión finalizada </h1>
-                <p style="max-width: 420px; font-size: .95rem; line-height: 1.5; color: #ddd;"> 
-                    Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una pausa y continuar con tus actividades. 
+                <p style="max-width: 420px; font-size: .95rem; line-height: 1.5; color: #ddd;">
+                    Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una pausa y continuar con tus actividades.
                 </p>
             </div>
         `;
-    }, 
+    },
 
     // ==========================================================================================
     // MÉTODOS DE STRIPE Y ENTRADA SECRETA ENLAZADOS NATIVAMENTE AL COMPÁS DEL KERNEL ORIGINAL
     // ==========================================================================================
     procesarPagoStripe(planSeleccionado) {
         let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo';
-        
+       
         fetch('/crear-checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -2314,24 +2243,24 @@ window.KERNEL = KERNEL;
             if (data.url) window.location.href = data.url;
         })
         .catch(err => console.error('Error de pasarela:', err));
-    }, 
+    },
 
     inicializarBypassDesarrollador() {
         let clics = 0;
         let t;
         const trigger = document.getElementById('cierre-logo') || document.body;
-        
+       
         trigger.addEventListener('click', () => {
             clics++;
             clearTimeout(t);
             t = setTimeout(() => { clics = 0; }, 1500);
-            
+           
             if (clics === 3) {
                 clics = 0;
                 let user = prompt("Mantenimiento OTG - Usuario:");
                 let pass = prompt("Mantenimiento OTG - Contraseña:");
                 if (!user || !pass) return;
-                
+               
                 fetch('/login-admin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2352,8 +2281,8 @@ window.KERNEL = KERNEL;
             }
         });
     }
-}; 
-// ==============================================================================
+};
+
 // DISPARADOR INDEPENDIENTE EN PARALELO: Lanza tu triple toque sin sobreescribir tu init() original de fábrica
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.inicializarBypassDesarrollador) {
