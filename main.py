@@ -10,11 +10,23 @@ import re
 import urllib.parse
 from datetime import datetime
 
+import os
 import stripe
-import uvicorn
-from fastapi import FastAPI, Request, HTTPException # HTTPException import fixed
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi import Request, HTTPException
+from fastapi.responses import JSONResponse
+
+# Inicialización segura con las variables de entorno de Render
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
+ADMIN_USER = os.environ.get("ADMIN_USERNAME")
+ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
+
+# Matriz oficial de Price IDs inmutables
+PLANES_STRIPE = {
+    "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
+    "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
+    "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
+}
 
 # ==========================================================================================
 # MATRIZ INFINITA DE MANIFIESTOS EXISTENCIALES PARA EL ORÁCULO DE BIENESTAR (3 POR ESTADO)
@@ -742,7 +754,7 @@ def seleccionar_n_misiones_inteligentes(n, misiones, perfil_local, historial_act
             if mision_id not in ids_seleccionados and mision_id not in historial_actual:
                 seleccionadas.append(cand["mision"])
                 ids_seleccionados.add(mision_id)
-
+# ==========================================================================================
     # Si todavía no tenemos suficientes, y el historial se ha agotado, reinicia y toma al azar
     # o desde las que ya están en historial pero con menos penalización.
     if len(seleccionadas) < n:
@@ -802,7 +814,7 @@ def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa
     candidatos.sort(key=lambda x: x["score"], reverse=True)
     resultado = []
     ids_en_resultado = set()
-
+# ==========================================================================================
     # Intenta seleccionar misiones diversas y de alto score
     for candidato in candidatos:
         mision_actual = candidato["mision"]
@@ -827,7 +839,7 @@ def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa
 
         if len(resultado) >= cantidad:
             break
-
+# ==========================================================================================
     # Bucle de respaldo seguro si la diversidad fue muy estricta o no se alcanzó la cantidad
     if len(resultado) < cantidad:
         # Usar la lista 'candidatos' ya ordenada por score
@@ -838,7 +850,7 @@ def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa
                 ids_en_resultado.add(mision_actual["id"])
             if len(resultado) >= cantidad:
                 break
-    
+    # ==========================================================================================
     # Fallback final: si aún no hay suficientes, toma las primeras 'cantidad' del catálogo completo
     # Asegúrate de no tomar duplicados si el catálogo es pequeño.
     while len(resultado) < cantidad and len(misiones) > len(ids_en_resultado):
@@ -859,59 +871,46 @@ async def index():
 # INYECCIÓN OPERATIVA: CONTROLADORES DE COMPRA Y ACCESO ADMINISTRATIVO CON REQUEST SEGURO
 # ==========================================================================================
 @app.post("/crear-checkout")
-async def crear_checkout(request: Request):
+async def crear_checkout(data: dict):
+    tipo_plan = data.get("tipo_plan")
+    user_id = data.get("user_id", "cliente_otg")
+    if tipo_plan not in PLANES_STRIPE:
+        raise HTTPException(status_code=400, detail="Plan inválido")
     try:
-        data = await request.json()
-        tipo_plan = data.get("tipo_plan")
-        user_id = data.get("user_id", "cliente_otg")
-
-        if tipo_plan not in PLANES_STRIPE:
-            raise HTTPException(status_code=400, detail="Plan inválido")
-
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             line_items=[{"price": PLANES_STRIPE[tipo_plan], "quantity": 1}],
             mode="subscription" if tipo_plan != "unico" else "payment",
-            success_url="https://open-than-go.onrender.com",
-            cancel_url="https://open-than-go.onrender.com",
+            success_url="https://onrender.com",
+            cancel_url="https://onrender.com",
             client_reference_id=user_id
         )
-
         return {"url": session.url}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 @app.post("/login-admin")
-async def login_admin(request: Request):
-    try:
-        data = await request.json()
-        username = data.get("username")
-        password = data.get("password")
-
-        if username == ADMIN_USER and password == ADMIN_PASS:
-            return {"status": "success", "role": "admin", "user_id": "admin_master"}
-
-        return JSONResponse(status_code=401, content={"error": "Credenciales incorrectas"})
-    except Exception as e:
-        return JSONResponse(status_code=400, content={"error": "Payload malformado"})
+async def login_admin(data: dict):
+    username = data.get("username")
+    password = data.get("password")
+    if username == ADMIN_USER and password == ADMIN_PASS:
+        return {"status": "success", "role": "admin", "user_id": "admin_master"}
+    raise HTTPException(status_code=401, detail="Credenciales incorrectas")
 
 @app.post("/webhook-stripe")
 async def webhook_stripe(request: Request):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
-
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
-
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
+        # Aquí puedes manejar la activación estática si decides guardar pases locales
         print(f"Pago exitoso para usuario: {session.get('client_reference_id')}")
-
     return {"status": "success"}
-    
-
+# ==========================================================================================
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
     """
@@ -946,17 +945,23 @@ async def mando_integral(request: Request):
 
     if "indicador_ansiedad" not in perfil_local:
         perfil_local["indicador_ansiedad"] = 0
-
-    # === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ===
-    ADVERTENCIA_LEGAL_ES = (
-        "AVISO DE SEGURIDAD: Está prohibido usar Open Than Go mientras manejas. Tu seguridad es lo primero. "
-        "El uso es bajo tu propio riesgo y exime de toda responsabilidad a May Roga LLC."
-    )
-    ADVERTENCIA_LEGAL_EN = (
-        "SAFETY NOTICE: Using Open Than Go while driving is strictly prohibited. Your safety comes first. "
-        "Use is at your own risk and exempts May Roga LLC from all liability."
-    )
-
+# ==========================================================================================
+     # === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ACTUALIZADO ===
+ ADVERTENCIA_LEGAL_ES = (
+  "AVISO DE SEGURIDAD Y USO LEGAL EXCLUSIVO (May Roga LLC): Queda estrictamente prohibido utilizar "
+  "la plataforma OPEN THAN GO mientras se conduce, maneja vehículos, maquinaria pesada o se realiza "
+  "cualquier actividad que pueda causar daño o lesión al individuo o a terceros. Esta aplicación "
+  "constituye una herramienta de orientación y sugerencia personal; el usuario asume la total y "
+  "absoluta responsabilidad sobre el uso de su atención."
+ )
+ ADVERTENCIA_LEGAL_EN = (
+  "SAFETY NOTICE AND LEGAL USE EXCLUSIVE (May Roga LLC): It is strictly prohibited to use the "
+  "OPEN THAN GO platform while driving, operating vehicles, heavy machinery, or performing any activity "
+  "that may cause damage or injury to the individual or third parties. This application constitutes "
+  "a tool for personal guidance and suggestion; the user assumes total and absolute responsibility "
+  "for the use of their attention."
+ )
+# ==========================================================================================
     # Inicialización de variables para evitar NameError en todas las ramas de ejecución
     marca_detectada = None
     instruccion_fisiologica_es = "Detente, respira libre."
@@ -975,7 +980,7 @@ async def mando_integral(request: Request):
     explicitly_seeking_job = any(
         phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"]
     )
-
+# ==========================================================================================
     # DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
     if desahogo and not explicitly_seeking_job:
         desahogo_lower = desahogo.lower()
@@ -1061,7 +1066,7 @@ async def mando_integral(request: Request):
 
         full_query = f"{actividad_base}{modificador_compania}+in+{zip_code}"
         target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
-
+# ==========================================================================================
         # Inyectamos la misión formateada de forma segura respetando tu esquema original
         final_misiones_para_frontend = [{
             "destino_id": 999,
@@ -1129,7 +1134,7 @@ async def mando_integral(request: Request):
                         "descripcion_en": m.get("descripcion_en", m.get("que_hacer_en", m.get("porque_en", "Somatic wellness pause."))),
                         "vector_necesidades": m.get("vector_necesidades", {})
                     })
-
+# ==========================================================================================
         # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
         misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
             misiones=final_misiones_casa, # Use the prepared list
@@ -1170,6 +1175,7 @@ async def mando_integral(request: Request):
 
 
         for info_seleccionada in misiones_seleccionadas_raw:
+            # ==========================================================================================
             # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO AISLADOS PARA LA INTERFAZ ===
             precio_real = ""
             if budget == "0":
@@ -1186,7 +1192,7 @@ async def mando_integral(request: Request):
                 quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
             elif perfil_tipo == "accesible":
                 quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
-
+# ==========================================================================================
             # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
             titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or ""
@@ -1206,7 +1212,7 @@ async def mando_integral(request: Request):
             # Usar los enlaces por defecto si no están definidos en la misión
             enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
             enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
-
+# ==========================================================================================
             # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
             final_misiones_para_frontend.append({
                 "destino_id": info_seleccionada.get("id"),
