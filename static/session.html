@@ -242,21 +242,83 @@
 </head>
            
         /* MOVING WHITE CLOUDS SCENERY */
-        .sky-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.25; z-index: 1; }
-        .cloud { position: absolute; background: #fff; border-radius: 100px; filter: blur(4px); animation: windMove 18s infinite linear; }
-        .cloud::before, .cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
-        .cloud.c1 { width: 60px; height: 20px; top: 10px; left: -70px; animation-duration: 22s; }
-        .cloud.c1::before { width: 30px; height: 30px; top: -15px; left: 10px; }
-        .cloud.c1::after { width: 20px; height: 20px; top: -10px; left: 30px; }
-        .cloud.c2 { width: 80px; height: 25px; top: 35px; left: -90px; animation-duration: 16s; animation-delay: 4s; }
-        .cloud.c2::before { width: 40px; height: 40px; top: -20px; left: 15px; }
-        .cloud.c2::after { width: 30px; height: 35px; top: -15px; left: 40px; }
-        @keyframes windMove {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(520px); } /* Cloud should move across the full width + some */
-        }
-       
-       /* THE ORACLE: CASCADE UP EFFECT */
+.sky-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.25;
+  z-index: 1;
+}
+
+.cloud {
+  position: absolute;
+  background: #fff;
+  border-radius: 100px;
+  filter: blur(4px);
+  animation: windMove 18s infinite linear;
+}
+
+.cloud::before, .cloud::after {
+  content: '';
+  position: absolute;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.cloud.c1 {
+  width: 60px;
+  height: 20px;
+  top: 10px;
+  left: -70px;
+  animation-duration: 22s;
+}
+
+.cloud.c1::before {
+  width: 30px;
+  height: 30px;
+  top: -15px;
+  left: 10px;
+}
+
+.cloud.c1::after {
+  width: 20px;
+  height: 20px;
+  top: -10px;
+  left: 30px;
+}
+
+.cloud.c2 {
+  width: 80px;
+  height: 25px;
+  top: 35px;
+  left: -90px;
+  animation-duration: 16s;
+  animation-delay: 4s;
+}
+
+.cloud.c2::before {
+  width: 40px;
+  height: 40px;
+  top: -20px;
+  left: 15px;
+}
+
+.cloud.c2::after {
+  width: 30px;
+  height: 35px;
+  top: -15px;
+  left: 40px;
+}
+
+@keyframes windMove {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(520px); }
+}
+
+/* THE ORACLE: CASCADE UP EFFECT */
 .oraculo-scroll-box {
   position: relative;
   min-height: 280px;
@@ -426,26 +488,33 @@ textarea {
   font-weight: bold;
 }
 
-        #breath-circle {
-  /* === REDISEÑO VISUAL DE SEGURIDAD Y ATENCIÓN === */
-  /* Incrementamos el diámetro base a 165px para mejorar la inmersión del usuario */
+#breath-circle {
   width: 165px;
   height: 165px;
-  background: rgba(0, 188, 212, 0.15); /* Light cyan */
-  border: 3px solid var(--cyan-inhale); /* Cyan border */
+  background: rgba(0, 188, 212, 0.15);
+  border: 3px solid var(--cyan-inhale);
   border-radius: 50%;
- 
-  /* Ajuste de margen estratégico: reducimos a 20px para compensar el crecimiento y no desplazar textos */
   margin: 20px auto;
- 
-  box-shadow: 0 0 30px rgba(0,188,212,0.3); /* Brillo expandido proporcionalmente */
+  box-shadow: 0 0 30px rgba(0,188,212,0.3);
   animation: elasticLung 8s infinite ease-in-out;
 }
+
 @keyframes elasticLung {
-  0% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); } /* Inhale state */
-  50% { transform: scale(1.15); background: rgba(216, 67, 21, 0.3); border-color: var(--accent); } /* Exhale state with orange tint */
-  100% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); }
+  0% {
+    transform: scale(0.85);
+    background: rgba(0, 188, 212, 0.15);
+  }
+  50% {
+    transform: scale(1.15);
+    background: rgba(216, 67, 21, 0.3);
+    border-color: var(--accent);
+  }
+  100% {
+    transform: scale(0.85);
+    background: rgba(0, 188, 212, 0.15);
+  }
 }
+
 #timer {
   font-weight: 900;
   text-align: center;
@@ -453,6 +522,7 @@ textarea {
   margin: 15px 0;
   color: #fff;
 }
+
 #txt-pulmon {
   font-size: 15px;
   text-transform: uppercase;
@@ -461,7 +531,29 @@ textarea {
   text-align: center;
   letter-spacing: 2px;
 }
+</style>
+</head>
+<body>
 
+  <!-- PANTALLA INICIAL DE BIENVENIDA -->
+  <div id="pantalla-bienvenida">
+    <button class="btn-bienvenida" onclick="document.getElementById('pantalla-bienvenida').classList.add('hidden')">
+      Iniciar Sesión / Start
+    </button>
+  </div>
+
+  <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN -->
+  <div class="container">
+    <!-- BARRA DE IDIOMAS -->
+    <div class="lang-bar">
+      <button class="btn-lang active">ESP</button>
+      <button class="btn-lang">ENG</button>
+    </div>
+
+    <!-- CABECERA -->
+    <div class="header-wrapper">
+      <h1 class="dynamic-title">OPEN THAN GO</h1>
+    </div>
 
         /* CIERRE CONSCIENTE STYLING */
         #pantalla-cierre {
