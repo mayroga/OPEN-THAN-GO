@@ -1094,7 +1094,7 @@ return JSONResponse({
     "drive_prohibited": True
 })
 
-elif opcion_usuario == "CASA":
+if opcion_usuario == "CASA":
     # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
     textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
     manif_humano_casa = random.choice(textos_oraculo_casa)
