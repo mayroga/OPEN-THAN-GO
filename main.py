@@ -1039,6 +1039,132 @@ async def mando_integral(request: Request):
         })
 
     # ==========================================================================================
+    # CASO 2: MODO CASA (Continuación simétrica de la condición anterior)
+    # ==========================================================================================
+    elif opcion_usuario == "CASA":
+        textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
+        manif_humano_casa = random.choice(textos_oraculo_casa)
+        idioma = "EN" if lang == "en" else "ES"
+        target_key = f"CASA_{idioma}"
+        
+        misiones_completas_base = BASE_MISIONES.get(target_key, [])
+        final_misiones_casa = []
+        
+        if not misiones_completas_base:
+            if idioma == "ES":
+                final_misiones_casa = [{
+                    "id": 801,
+                    "titulo": "Pausa de Respiración Somática",
+                    "titulo_en": "Somatic Breathing Pause",
+                    "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos.",
+                    "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
+                    "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90}
+                }]
+            else:
+                final_misiones_casa = [{
+                    "id": 801,
+                    "titulo": "Somatic Breathing Pause",
+                    "titulo_en": "Somatic Breathing Pause",
+                    "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
+                    "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
+                    "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90}
+                }]
+        else:
+            for m in misiones_completas_base:
+                if isinstance(m, dict):
+                    final_misiones_casa.append({
+                        "id": m.get("id", 800),
+                        "titulo": m.get("titulo", "Misión Interna"),
+                        "titulo_en": m.get("titulo_en", "Internal Mission"),
+                        "descripcion": m.get("descripcion", m.get("que_hacer", m.get("porque", "Pausa de bienestar somática."))),
+                        "descripcion_en": m.get("descripcion_en", m.get("que_hacer_en", m.get("porque_en", "Somatic wellness pause."))),
+                        "vector_necesidades": m.get("vector_necesidades", {})
+                    })
+
+        misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
+            misiones=final_misiones_casa,
+            perfil_local=perfil_local,
+            historial_casa=payload.get("historial_casa", []),
+            cantidad=3
+        )
+
+        historial_casa_actualizado = payload.get("historial_casa", [])
+        for m in misiones_domesticas_finales:
+            historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
+
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
+            "misiones": misiones_domesticas_finales,
+            "oraculo_manifiesto": manif_humano_casa,
+            "historial_casa_actualizado": historial_casa_actualizado,
+            "forced_recovery": False,
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+            "drive_prohibited": False
+        })
+
+    # ==========================================================================================
+    # CASO 3: MODO SALIR (POR DEFECTO)
+    # ==========================================================================================
+    else:
+        opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
+        historial_salir = payload.get("historial_salir", [])
+        
+        misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
+            n=3,
+            misiones=opciones_salir_candidatas,
+            perfil_local=perfil_local,
+            historial_actual=historial_salir
+        )
+
+        final_misiones_para_frontend = []
+        antidotos_digitales_default_yt = BIG_TECH_RESOURCES['youtube_base_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
+        antidotos_digitales_default_sp = BIG_TECH_RESOURCES['spotify_base_search_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'spotify_default_genre_link_{lang}'])
+
+        for info_seleccionada in misiones_seleccionadas_raw:
+            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
+            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or ""
+            donde_base_lang = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
+            guia_masticada_lang = info_seleccionada.get('porque_en', info_seleccionada.get('porque', '')) if lang == "en" else info_seleccionada.get('porque', '')
+
+            search_query_parts = []
+            if perfil_tipo == "accesible":
+                search_query_parts.append("wheelchair accessible")
+            elif perfil_tipo == "familia":
+                search_query_parts.append("family friendly")
+                
+            search_query_parts.append(info_seleccionada.get("gps", "park"))
+            target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}"
+            final_vector_necesidades = info_seleccionada.get("vector_necesidades", {})
+
+            enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
+            enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
+
+            final_misiones_para_frontend.append({
+                "destino_id": info_seleccionada.get("id"),
+                "destino_titulo": titulo_ganador_lang,
+                "destino_titulo_en": (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper(),
+                "que_hacer": que_hacer_lang,
+                "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
+                "destino_entorno": donde_base_lang,
+                "destino_instruccion": guia_masticada_lang.strip(),
+                "destino_instruccion_en": info_seleccionada.get("porque_en", info_seleccionada.get("porque", "")).strip(),
+                "destino_coordenadas_gps": target_link,
+                "vector_entorno_seleccionado": final_vector_necesidades,
+                "enlace_youtube": enlace_yt,
+                "enlace_spotify": enlace_sp
+            })
+            historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
+
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "misiones": final_misiones_para_frontend,
+            "historial_salir_actualizado": historial_salir,
+            "forced_recovery": False,
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
+            "drive_prohibited": True
+        })
+    # ==========================================================================================
     # CASO 2: MODO CASA
     # ==========================================================================================
     elif opcion_usuario == "CASA":
