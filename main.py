@@ -1018,17 +1018,19 @@ if force_recovery_mission:
         instruccion_fisiologica_en = f"You identified [{marca_detectada}] saturating your mind. Rebel: use halls, open air, or windows. Take a deep 60-sec biological pause. Regain control."
 
     search_term_antidoto = ANTIDOTOS_DIGITALES_SEARCH_TERMS.get(mente, BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
-    enlace_yt = f"{BIG_TECH_RESOURCES['youtube_base_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
-    enlace_sp = f"{BIG_TECH_RESOURCES['spotify_base_search_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
-        # ==========================================================================================
-        # CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL (GOOGLE MAPS UNIVERSAL)
-        # ==========================================================================================
-        nucleos_ocio = {
-            "ansioso": {
-                "0": "nature+preserves+botanical+gardens",
-                "1": "cozy+tea+house+bookstore+cafe",
-                "2": "luxury+spa+wellness+resort"
-            },
+enlace_yt = f"{BIG_TECH_RESOURCES['youtube_base_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
+enlace_sp = f"{BIG_TECH_RESOURCES['spotify_base_search_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
+
+# ==========================================================================================
+# CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL (GOOGLE MAPS UNIVERSAL)
+# ==========================================================================================
+nucleos_ocio = {
+    "ansioso": {
+        "0": "nature+preserves+botanical+gardens",
+        "1": "cozy+tea+house+bookstore+cafe",
+        "2": "luxury+spa+wellness+resort"
+    }
+}
             "estresado": {
                 "0": "public+beaches+hiking+trails",
                 "1": "jazz+club+lounge+bar+comedy",
