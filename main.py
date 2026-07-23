@@ -1256,7 +1256,7 @@ if opcion_usuario == "CASA":
                 quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
             elif perfil_tipo == "accesible":
                 quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
-        # ==========================================================================================
+       # ==========================================================================================
         # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
         titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
         que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or ""
@@ -1277,33 +1277,32 @@ if opcion_usuario == "CASA":
         enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
         enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
         # ==========================================================================================
-# === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
-            final_misiones_para_frontend.append({
-                "destino_id": info_seleccionada.get("id"),
-                "destino_titulo": titulo_ganador_lang,
-                "destino_titulo_en": (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper(),
-                "que_hacer": que_hacer_lang,
-                "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
-                "destino_entorno": donde_base_lang,
-                "destino_instruccion": guia_masticada_lang.strip(),
-                "destino_instruccion_en": info_seleccionada.get("porque_en", info_seleccionada.get("porque", "")).strip(),
-                "destino_coordenadas_gps": target_link,
-                "vector_entorno_seleccionado": final_vector_necesidades,
-                "enlace_youtube": enlace_yt,
-                "enlace_spotify": enlace_sp
-            })
-            historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
+        # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
+        final_misiones_para_frontend.append({
+            "destino_id": info_seleccionada.get("id"),
+            "destino_titulo": titulo_ganador_lang,
+            "destino_titulo_en": (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper(),
+            "que_hacer": que_hacer_lang,
+            "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
+            "destino_entorno": donde_base_lang,
+            "destino_instruccion": guia_masticada_lang.strip(),
+            "destino_instruccion_en": info_seleccionada.get("porque_en", info_seleccionada.get("porque", "")).strip(),
+            "destino_coordenadas_gps": target_link,
+            "vector_entorno_seleccionado": final_vector_necesidades,
+            "enlace_youtube": enlace_yt,
+            "enlace_spotify": enlace_sp
+        })
+        historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "misiones": final_misiones_para_frontend,
-            "historial_salir_actualizado": historial_salir,
-            "forced_recovery": False,
-            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
-            "drive_prohibited": True
-        }) 
-
+    return JSONResponse({
+        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+        "misiones": final_misiones_para_frontend,
+        "historial_salir_actualizado": historial_salir,
+        "forced_recovery": False,
+        "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+        "legal_notice_en": ADVERTENCIA_LEGAL_EN,
+        "drive_prohibited": True
+    })
 # ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==========================================================================================
