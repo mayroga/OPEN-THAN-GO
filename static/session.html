@@ -1,104 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script>
-    (function() {
-      // 1. Validaciones iniciales de roles y pases de Stripe
-      const r = localStorage.getItem('otg_user_role');
-      const p = localStorage.getItem('otg_pase_stripe');
-      
-      if (r && r !== 'admin') {
-        if (!p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'))) {
-          localStorage.removeItem('otg_user_role');
-          localStorage.removeItem('otg_pase_stripe');
-        }
-      } else if (!r && p) {
-        localStorage.removeItem('otg_pase_stripe');
-      }
-      
-      console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");
-      
-      // 2. Controladores de renderizado tras la carga del DOM
-      document.addEventListener("DOMContentLoaded", () => {
-        // --- SECCIÓN: CAPA FLOTANTE SEGURA (STRIPE & PAYWALL) ---
-        if (!(r === 'admin' || p)) {
-          console.log("Paywall activo en capa flotante segura.");
-          
-          const paywall = document.createElement('div');
-          paywall.id = 'otg-muro-comercial';
-          paywall.style = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; color:#fff; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:sans-serif; text-align:center; padding:20px; box-sizing:border-box; z-index:99999;';
-          
-          paywall.innerHTML = `
-            <h2 style="color:#00bcd4; margin-bottom:5px; font-size:1.4rem;">Open Than Go</h2>
-            <p style="color:#888; font-size:.9rem; margin-bottom:20px; max-width:300px;">Selecciona un plan oficial para activar el servicio de bienestar.</p>
-            
-            <button onclick="OTG_SENSORIAL.procesarPagoStripe('unico')" style="width:260px; padding:12px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; font-weight:bold; cursor:pointer; margin:6px; font-size:.9rem;">
-              Pase Único — $15.99
-            </button>
-            <button onclick="OTG_SENSORIAL.procesarPagoStripe('mensual')" style="width:260px; padding:12px; background:#0d47a1; border:none; color:#fff; border-radius:6px; font-weight:bold; cursor:pointer; margin:6px; font-size:.9rem;">
-              Suscripción Mensual — $25.99
-            </button>
-            <button onclick="OTG_SENSORIAL.procesarPagoStripe('anual')" style="width:260px; padding:12px; background:#2e7d32; border:none; color:#fff; border-radius:6px; font-weight:bold; cursor:pointer; margin:6px; font-size:.9rem;">
-              Membresía Anual — $250.00
-            </button>
-            
-            <button onclick="document.getElementById('otg-admin-form').style.display='flex'" style="background:transparent; border:none; color:#555; margin-top:25px; font-size:.75rem; cursor:pointer; text-decoration:underline;">
-              Mantenimiento desarrollador
-            </button>
-            
-            <div id="otg-admin-form" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; flex-direction:column; justify-content:center; align-items:center; z-index:100000;">
-              <h3 style="color:#00bcd4; margin-bottom:15px; font-size:1.1rem;">Acceso Desarrollador</h3>
-              <input type="text" id="otg-user" placeholder="Username" style="width:240px; padding:10px; margin:5px; background:#111; border:1px solid #333; color:#fff; border-radius:4px; outline:none;">
-              <input type="password" id="otg-pass" placeholder="Password" style="width:240px; padding:10px; margin:5px; background:#111; border:1px solid #333; color:#fff; border-radius:4px; outline:none;">
-              
-              <button onclick="
-                const u = document.getElementById('otg-user').value;
-                const p = document.getElementById('otg-pass').value;
-                if (!u || !p) return;
-                fetch('/login-admin', {
-                  method: 'POST',
-                  headers: {'Content-Type': 'application/json'},
-                  body: JSON.stringify({username: u, password: p})
-                })
-                .then(res => {
-                  if (!res.ok) throw new Error();
-                  return res.json();
-                })
-                .then(data => {
-                  if (data.status === 'success') {
-                    localStorage.setItem('otg_user_role', 'admin');
-                    alert('Acceso Concedido.');
-                    location.reload();
-                  }
-                })
-                .catch(() => alert('Credenciales inválidas.'));
-              " style="width:240px; padding:10px; background:#00bcd4; border:none; color:#000; font-weight:bold; border-radius:4px; margin-top:10px; cursor:pointer;">
-                Entrar al Sistema
-              </button>
-              <button onclick="document.getElementById('otg-admin-form').style.display='none'" style="background:transparent; border:none; color:#888; margin-top:15px; cursor:pointer; font-size:.8rem;">
-                Volver
-              </button>
-            </div>
-          `;
-          document.body.appendChild(paywall);
-        }
-      });
-    })();
-  </script>
-
-                // --- SECCIÓN: AVISO LEGAL Y ASUNCIÓN DE RIESGO CORREGIDO ---
-        const legalContainer = document.createElement('div');
-        legalContainer.id = 'otg-legal-shield-pasivo';
-        legalContainer.style = 'width:100%;max-width:420px;font-size:0.72rem;color:#ccc;text-align:justify;line-height:1.3;margin:25px auto 15px auto;padding:12px;border-top:1px solid #222;background:#0a0a0a;border-radius:6px;max-height:130px;overflow-y:auto;border:1px solid #1a1a1a;position:relative;z-index:9999;box-sizing:border-box;clear:both;';
-        
-        legalContainer.innerHTML = `<strong>ADVERTENCIA_LEGAL_ES =</strong> "AVISO DE SEGURIDAD Y USO LEGAL EXCLUSIVO (May Roga LLC): Queda estrictamente prohibido utilizar la plataforma OPEN THAN GO mientras se conduce, maneja vehículos, maquinaria pesada o se realiza cualquier actividad que pueda causar daño o lesión al individuo o a terceros. Esta aplicación constituye una herramienta de orientación y sugerencia personal; el usuario asume la total y absoluta responsabilidad sobre el uso de su atención. No somos médicos, psicólogos, ni damos consejos médicos ni ningún tipo de asesoramiento relacionado. Si tiene una emergencia de salud o de cualquier tipo, llame inmediatamente al 911 o busque ayuda profesional." <br><br> <strong>ADVERTENCIA_LEGAL_EN =</strong> <span style="color:#999;">"SAFETY NOTICE AND LEGAL USE EXCLUSIVE (May Roga LLC): It is strictly prohibited to use the OPEN THAN GO platform while driving, operating vehicles, heavy machinery, or performing any activity that may cause damage or injury to the individual or third parties. This application constitutes a tool for personal guidance and suggestion; the user assumes total and absolute responsibility for the use of their attention. We are not doctors, psychologists, nor do we provide medical advice or any related health guidance. If you have a medical or any other emergency, please call 911 immediately or seek professional help."</span>`;
-        
-        const target = document.querySelector('.container') || document.body;
-        target.appendChild(legalContainer);
-      });
-    })();
-  </script>
-  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title id="html-title">OPEN THAN GO</title>
@@ -192,7 +94,6 @@
       100% { transform: translateY(0px); }
     }
 
-
     @keyframes colorShift {
       0% {
         color: var(--cyan-inhale);
@@ -204,7 +105,6 @@
       }
     }
     
-    /* CONTENEDOR DEL CÍRCULO CON AISLAMIENTO DE MARGEN VERTICAL ANTI-ROCE */
     .circle-container {
       display: flex;
       justify-content: center;
@@ -215,7 +115,6 @@
       clear: both;
     }
     
-    /* EL CÍRCULO RESPIRATORIO IMPONENTE, REACTIVO Y MAGNÉTICO */
     .breathing-circle {
       width: 220px !important;
       height: 220px !important;
@@ -232,7 +131,6 @@
       transition: transform 4s ease-in-out, border-color 4s ease-in-out, box-shadow 4s ease-in-out;
     }
     
-    /* PROTECCIÓN Y SEPARACIÓN DE LA TARJETA DE TEXTO DE MISIONES */
     #mision-display-container {
       margin-top: 25px !important;
       padding: 12px 10px;
@@ -242,7 +140,6 @@
       clear: both;
     }
     
-    /* MOVING WHITE CLOUDS SCENERY */
     .sky-container {
       position: absolute;
       top: 0;
@@ -269,282 +166,345 @@
       border-radius: 50%;
     }
     
-    .cloud.c1 {
-      width: 60px;
-      height: 20px;
-      top: 10px;
-      left: -70px;
-      animation-duration: 22s;
-    }
-    
-    .cloud.c1::before {
-      width: 30px;
-      height: 30px;
-      top: -15px;
-      left: 10px;
-    }
-    
-    .cloud.c1::after {
-      width: 20px;
-      height: 20px;
-      top: -10px;
-      left: 30px;
-    }
-    
-    .cloud.c2 {
-      width: 80px;
-      height: 25px;
-      top: 35px;
-      left: -90px;
-      animation-duration: 16s;
-      animation-delay: 4s;
-    }
-    
-    .cloud.c2::before {
-      width: 40px;
-      height: 40px;
-      top: -20px;
-      left: 15px;
-    }
-    
-    .cloud.c2::after {
-      width: 30px;
-      height: 35px;
-      top: -15px;
-      left: 40px;
-    }
+    .cloud.c1 { width: 60px; height: 20px; top: 10px; left: -70px; animation-duration: 22s; }
+    .cloud.c1::before { width: 30px; height: 30px; top: -15px; left: 10px; }
+    .cloud.c1::after { width: 20px; height: 20px; top: -10px; left: 30px; }
+    .cloud.c2 { width: 80px; height: 25px; top: 35px; left: -90px; animation-duration: 16s; animation-delay: 4s; }
+    .cloud.c2::before { width: 40px; height: 40px; top: -20px; left: 15px; }
+    .cloud.c2::after { width: 30px; height: 35px; top: -15px; left: 40px; }
     
     @keyframes windMove {
       0% { transform: translateX(0); }
       100% { transform: translateX(520px); }
     }
-  </style>
-</head>
 
-
-/* THE ORACLE: CASCADE UP EFFECT */
-.oraculo-scroll-box {
-  position: relative;
-  min-height: 280px;
-  overflow: hidden;
-  margin-bottom: 20px;
+    .oraculo-scroll-box { position: relative; min-height: 280px; overflow: hidden; margin-bottom: 20px; }
+    .oraculo-grid { display: flex; flex-direction: column; gap: 12px; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+    .btn-pregunta-crisis { width: 100%; background: var(--panel); color: #eee; border: 1px solid #222; padding: 16px; font-size: 1.05rem; font-weight: bold; text-align: left; border-radius: 8px; cursor: pointer; transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s; line-height: 1.4; transform-origin: top center; }
+    .btn-pregunta-crisis:hover { border-color: var(--accent); }
+    .btn-pregunta-crisis.fade-out { opacity: 0; transform: scale(0.8) translateY(-30px); margin-bottom: -64px; pointer-events: none; }
+    .field { margin-bottom: 12px; transition: all 0.5s ease; }
+    label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 4px; font-weight: bold; }
+    input, select, textarea { width: 100%; background: var(--panel); border: 1px solid #222; color: var(--text); padding: 12px; border-radius: 4px; font-size: 0.95rem; outline: none; -webkit-appearance: none; -moz-appearance: none; appearance: none; transition: border-color 0.3s ease; }
+    textarea:focus { border-color: var(--green-action); }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://w3.org/2000/svg' width='16' height='16' fill='%23666' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; }
+    input:focus, select:focus { border-color: var(--green-action); }
+    textarea { height: 65px; resize: vertical; border-color: #333; max-height: 150px; }
+    #pantalla-bienvenida { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+    .btn-bienvenida { background: #fff; color: #000; padding: 22px 45px; font-weight: 900; cursor: pointer; text-transform: uppercase; border-radius: 4px; font-size: 0.95rem; border: none; letter-spacing: 1px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .btn-bienvenida:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2); }
+    .mision-card { border: 1px solid #222; padding: 26px; text-align: left; background: #0a0a0a; border-radius: 12px; width: 100%; }
+    .mision-card small { color: #666; font-weight: bold; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
+    .mision-card h2, .mision-card h3 { color: var(--green-action); font-size: 1.45rem; font-weight: 900; text-transform: uppercase; margin-top: 0; margin-bottom: 15px; }
+    .mision-card p, .mision-card .instruccion-text { font-size: 1.25rem; line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid var(--green-action); padding-left: 14px; text-align: left; font-weight: bold; }
+    #breath-circle { width: 165px; height: 165px; background: rgba(0, 188, 212, 0.15); border: 3px solid var(--cyan-inhale); border-radius: 50%; margin: 20px auto; box-shadow: 0 0 30px rgba(0, 188, 212, 0.3); animation: elasticLung 8s infinite ease-in-out; }
+    @keyframes elasticLung { 0% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); } 50% { transform: scale(1.15); background: rgba(216, 67, 21, 0.3); border-color: var(--accent); } 100% { transform: scale(0.85); background: rgba(0, 188, 212, 0.15); } }
+    #timer { font-weight: 900; text-align: center; font-size: 3.2rem; margin: 15px 0; color: #fff; }
+    #txt-pulmon { font-size: 15px; text-transform: uppercase; font-weight: bold; color: var(--cyan-inhale); text-align: center; letter-spacing: 2px; }
+    #pantalla-cierre { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; flex-direction: column; text-align: center; z-index: 9998; padding: 20px; }
+    .cierre-content { background: #0a0a0a; border: 1px solid #222; padding: 30px; border-radius: 12px; max-width: 380px; width: 100%; box-shadow: 0 0 30px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden; }
+    .cierre-content .sky-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.15; z-index: 1; }
+    .cierre-content > * { z-index: 2; position: relative; }
+    #cierre-logo { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; margin: 0 0 20px 0; color: var(--cyan-inhale); text-shadow: 0 0 10px rgba(0, 188, 212, 0.3); }
+    #cierre-message { font-size: 1.2rem; color: #ccc; margin-bottom: 25px; line-height: 1.5; min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    #reto-img { max-width: 80px; height: auto; margin-bottom: 15px; filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2)); }
+#reto-titulo {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: var(--green-action);
+  margin-bottom: 10px;
 }
 
-.oraculo-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.btn-pregunta-crisis {
-  width: 100%;
-  background: var(--panel);
+#reto-descripcion {
+  font-size: 1rem;
   color: #eee;
-  border: 1px solid #222;
-  padding: 16px;
-  font-size: 1.05rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+#cierre-timer {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--accent);
+  margin: 20px 0;
+}
+
+#cierre-mensaje-final {
+  font-size: 1.2rem;
+  color: #fff;
+  margin: 25px 0;
   font-weight: bold;
-  text-align: left;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s;
-  line-height: 1.4;
-  transform-origin: top center;
+  letter-spacing: 0.5px;
 }
 
-.btn-pregunta-crisis:hover {
-  border-color: var(--accent);
-}
-
-.btn-pregunta-crisis.fade-out {
-  opacity: 0;
-  transform: scale(0.8) translateY(-30px);
-  margin-bottom: -64px;
-  pointer-events: none;
-}
-
-.field {
-  margin-bottom: 12px;
-  transition: all 0.5s ease;
-}
-
-label {
-  display: block;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15rem;
-  color: #666;
-  margin-bottom: 4px;
-  font-weight: bold;
-}
-
-input, select, textarea {
+#btn-recomenzar-experiencia {
   width: 100%;
-  background: var(--panel);
-  border: 1px solid #222;
-  color: var(--text);
-  padding: 12px;
+  background: var(--secondary);
+  color: #fff;
+  padding: 17px;
+  font-weight: bold;
+  border: none;
+  text-transform: uppercase;
   border-radius: 4px;
+  cursor: pointer;
   font-size: 0.95rem;
-  outline: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  transition: border-color 0.3s ease;
+  letter-spacing: 0.5px;
+  transition: background-color 0.3s, opacity 0.3s;
 }
 
-textarea:focus {
+#btn-recomenzar-experiencia:disabled {
+  background: #333;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.salida-main-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 10px;
+  color: var(--cyan-inhale);
+  letter-spacing: 0.05em;
+}
+
+.salida-choose-instruction {
+  font-size: 1.05rem;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #ccc;
+  font-weight: bold;
+}
+
+.salida-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+.salida-option-card {
+  background: #0a0a0a;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+}
+
+.salida-option-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
   border-color: var(--green-action);
 }
 
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 30px;
+.salida-option-title {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--green-action);
+  margin-top: 0;
+  margin-bottom: 10px;
 }
 
-input:focus, select:focus {
-  border-color: var(--green-action);
+.salida-option-desc {
+  font-size: 0.9rem;
+  color: #bbb;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  min-height: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
-textarea {
-  height: 65px;
-  resize: vertical;
-  border-color: #333;
-  max-height: 150px;
+.btn-select-salida {
+  background: var(--secondary);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background-color 0.2s;
 }
 
+.btn-select-salida:hover {
+  background: #0b3a8a;
+}
+
+.floating-btn {
+  position: fixed;
+  bottom: 20px;
+  width: 45px;
+  height: 45px;
+  background: var(--panel);
+  color: var(--text);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  z-index: 1000;
+  transition: background-color 0.2s, transform 0.2s ease;
+  border: 1px solid #333;
+}
+
+.floating-btn:hover {
+  transform: translateY(-2px);
+  background: #222;
+}
+
+#btn-volver-app {
+  left: 20px;
+  font-size: 1.2rem;
+}
+
+#btn-whatsapp {
+  right: 75px;
+  background-color: #25d366;
+  border-color: #25d366;
+}
+
+#btn-whatsapp:hover {
+  background-color: #128c7e;
+}
+
+#btn-messenger {
+  right: 20px;
+  background-color: #0078FF;
+  border-color: #0078FF;
+}
+
+#btn-messenger:hover {
+  background-color: #0056b3;
+}
+
+@media (min-width: 480px) {
+  .salida-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 768px) {
+  .salida-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* ESTADO INMUTABLE EXCLUSIVO DE OCULTACIÓN */
 .hidden {
   display: none !important;
 }
 
-#pantalla-bienvenida {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.btn-bienvenida {
-  background: #fff;
-  color: #000;
-  padding: 22px 45px;
-  font-weight: 900;
-  cursor: pointer;
-  text-transform: uppercase;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  border: none;
-  letter-spacing: 1px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.btn-bienvenida:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
-}
-
-/* INTERACTIVE CONTENT STYLING */
-.mision-card {
-  border: 1px solid #222;
-  padding: 26px;
-  text-align: left;
-  background: #0a0a0a;
-  border-radius: 12px;
-  width: 100%;
-}
-
-.mision-card small {
-  color: #666;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 0.75rem;
-}
-
-
-    .mision-card h2, .mision-card h3 {
-      color: var(--green-action);
-      font-size: 1.45rem;
-      font-weight: 900;
-      text-transform: uppercase;
-      margin-top: 0;
-      margin-bottom: 15px;
-    }
-    
-    .mision-card p, .mision-card .instruccion-text {
-      font-size: 1.25rem;
-      line-height: 1.6;
-      color: #eee;
-      margin: 18px 0;
-      border-left: 4px solid var(--green-action);
-      padding-left: 14px;
-      text-align: left;
-      font-weight: bold;
-    }
-    
-    #breath-circle {
-      width: 165px;
-      height: 165px;
-      background: rgba(0, 188, 212, 0.15);
-      border: 3px solid var(--cyan-inhale);
-      border-radius: 50%;
-      margin: 20px auto;
-      box-shadow: 0 0 30px rgba(0, 188, 212, 0.3);
-      animation: elasticLung 8s infinite ease-in-out;
-    }
-    
-    @keyframes elasticLung {
-      0% {
-        transform: scale(0.85);
-        background: rgba(0, 188, 212, 0.15);
+<script>
+    // 1. OBJETO DE MOTOR GLOBAL PARA LA PASARELA DE CHECKOUT
+    window.OTG_STRIPE_FLOW = {
+      pagar: function(plan) {
+        let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo';
+        
+        fetch('/crear-checkout', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify({ 
+            tipo_plan: plan, 
+            user_id: userId 
+          })
+        })
+        .then(res => res.json())
+        .then(data => { 
+          if (data.url) window.location.href = data.url; 
+        })
+        .catch(err => console.error('Error en pasarela:', err));
       }
-      50% {
-        transform: scale(1.15);
-        background: rgba(216, 67, 21, 0.3);
-        border-color: var(--accent);
-      }
-      100% {
-        transform: scale(0.85);
-        background: rgba(0, 188, 212, 0.15);
-      }
-    }
-    
-    #timer {
-      font-weight: 900;
-      text-align: center;
-      font-size: 3.2rem;
-      margin: 15px 0;
-      color: #fff;
-    }
-    
-    #txt-pulmon {
-      font-size: 15px;
-      text-transform: uppercase;
-      font-weight: bold;
-      color: var(--cyan-inhale);
-      text-align: center;
-      letter-spacing: 2px;
-    }
-  </style>
-</head>
-<body>
+    };
 
-  <!-- PANTALLA INICIAL DE BIENVENIDA -->
-  <div id="pantalla-bienvenida">
-    <button class="btn-bienvenida" onclick="document.getElementById('pantalla-bienvenida').classList.add('hidden')">
-      Iniciar Sesión / Start
-    </button>
+    // 2. FUNCIÓN AUTOEJECUTABLE DE AUTENTICACIÓN PASIVA Y PAYWALL
+    (function() {
+      const r = localStorage.getItem('otg_user_role');
+      const p = localStorage.getItem('otg_pase_stripe');
+      
+      if (r && r !== 'admin') {
+        if (!p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'))) {
+          localStorage.removeItem('otg_user_role');
+          localStorage.removeItem('otg_pase_stripe');
+        }
+      } else if (!r && p) {
+        localStorage.removeItem('otg_pase_stripe');
+      }
+      
+      document.addEventListener("DOMContentLoaded", () => {
+        if (!(r === 'admin' || p)) {
+          const m = document.createElement('div');
+          m.id = 'otg-muro-comercial';
+          m.style = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; color:#fff; display:flex; flex-direction:column; justify-content:center; align-items:center; font-family:sans-serif; text-align:center; padding:20px; box-sizing:border-box; z-index:999999;';
+          
+          m.innerHTML = `
+            <h2 style="color:#00bcd4; margin-bottom:5px; font-size:1.4rem;">Open Than Go</h2>
+            <p style="color:#888; font-size:.9rem; margin-bottom:20px; max-width:300px;">Selecciona un plan oficial para activar el servicio de bienestar.</p>
+            
+            <button onclick="window.OTG_STRIPE_FLOW.pagar('unico')" style="width:260px; padding:12px; background:#111; border:1px solid #333; color:#fff; border-radius:6px; font-weight:bold; cursor:pointer; margin:6px; font-size:.9rem;">
+              Pase Único — $15.99
+            </button>
+            <button onclick="window.OTG_STRIPE_FLOW.pagar('mensual')" style="width:260px; padding:12px; background:#0d47a1; border:none; color:#fff; border-radius:6px; font-weight:bold; cursor:pointer; margin:6px; font-size:.9rem;">
+              Suscripción Mensual — $25.99
+            </button>
+            <button onclick="window.OTG_STRIPE_FLOW.pagar('anual')" style="width:260px; padding:12px; background:#2e7d32; border:none; color:#fff; border-radius:6px; font-weight:bold; cursor:pointer; margin:6px; font-size:.9rem;">
+              Membresía Anual — $250.00
+            </button>
+            
+            <button onclick="document.getElementById('otg-form-admin-fijo').style.display='flex'" style="background:transparent; border:none; color:#555; margin-top:25px; font-size:.75rem; cursor:pointer; text-decoration:underline;">
+              Mantenimiento desarrollador
+            </button>
+            
+            <div id="otg-form-admin-fijo" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:#000; flex-direction:column; justify-content:center; align-items:center; z-index:1000000;">
+              <h3 style="color:#00bcd4; margin-bottom:15px; font-size:1.1rem;">Acceso Desarrollador</h3>
+              <input type="text" id="otg-username-input" placeholder="Username" style="width:240px; padding:10px; margin:5px; background:#111; border:1px solid #333; color:#fff; border-radius:4px; outline:none;">
+              <input type="password" id="otg-password-input" placeholder="Password" style="width:240px; padding:10px; margin:5px; background:#111; border:1px solid #333; color:#fff; border-radius:4px; outline:none;">
+              
+              <button onclick="
+                const u = document.getElementById('otg-username-input').value;
+                const p = document.getElementById('otg-password-input').value;
+                if (!u || !p) return;
+                fetch('/login-admin', {
+                  method: 'POST',
+                  headers: {'Content-Type': 'application/json'},
+                  body: JSON.stringify({username: u, password: p})
+                })
+                .then(res => { if (!res.ok) throw new Error(); return res.json(); })
+                .then(data => {
+                  if (data.status === 'success' || data.role === 'admin') {
+                    localStorage.setItem('otg_user_role', 'admin');
+                    alert('Acceso Concedido.');
+                    location.reload();
+                  }
+                })
+                .catch(() => alert('Credenciales incorrectas de Render.'));
+              " style="width:240px; padding:10px; background:#00bcd4; border:none; color:#000; font-weight:bold; border-radius:4px; margin-top:10px; cursor:pointer;">
+                Entrar al Sistema
+              </button>
+              <button onclick="document.getElementById('otg-form-admin-fijo').style.display='none'" style="background:transparent; border:none; color:#888; margin-top:15px; cursor:pointer; font-size:.8rem;">
+                Volver
+              </button>
+            </div>
+          `;
+          document.body.appendChild(m);
+        }
+      });
+    })();
+  </script>
+
+  <!-- 3. DETONADOR BASE DE SESIÓN ORIGINAL -->
+  <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">
+    INICIAR SESIÓN / START
+  </button>
   </div>
 
   <!-- CONTENEDOR PRINCIPAL DE LA APLICACIÓN -->
