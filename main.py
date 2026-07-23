@@ -842,8 +842,6 @@ def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa
     return resultado[:cantidad]
 
 
-app = FastAPI() # Assuming 'app' needs to be initialized
-
 @app.get("/")
 async def index():
     """Serves the main HTML page."""
@@ -1072,7 +1070,7 @@ async def mando_integral(request: Request):
                     "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90}
                 }]
         else:
-            for m in misiones_completas_base:
+            for m in misiones_completas_base: # Corrected indentation for this loop
                 if isinstance(m, dict):
                     final_misiones_casa.append({
                         "id": m.get("id", 800),
@@ -1107,7 +1105,7 @@ async def mando_integral(request: Request):
     # ==========================================================================================
     # CASO 3: MODO SALIR (POR DEFECTO)
     # ==========================================================================================
-    else: # This is the main "SALIR" logic branch
+    else:
         opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
         historial_salir = payload.get("historial_salir", [])
         
@@ -1123,25 +1121,6 @@ async def mando_integral(request: Request):
         antidotos_digitales_default_sp = BIG_TECH_RESOURCES['spotify_base_search_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'spotify_default_genre_link_{lang}'])
 
         for info_seleccionada in misiones_seleccionadas_raw:
-            # ==========================================================================================
-            # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO AISLADOS PARA LA INTERFAZ ===
-            precio_real = ""
-            if budget == "0":
-                precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
-            elif budget == "1":
-                precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
-            elif budget == "2":
-                precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
-
-            quienes_van = ""
-            if perfil_tipo == "solo":
-                quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
-            elif perfil_tipo == "familia":
-                quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
-            elif perfil_tipo == "accesible":
-                quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
-            # ==========================================================================================
-            # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
             titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or ""
             donde_base_lang = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
@@ -1157,11 +1136,9 @@ async def mando_integral(request: Request):
             target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}"
             final_vector_necesidades = info_seleccionada.get("vector_necesidades", {})
 
-            # Usar los enlaces por defecto si no están definidos en la misión
             enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
             enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
-            # ==========================================================================================
-            # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
+
             final_misiones_para_frontend.append({
                 "destino_id": info_seleccionada.get("id"),
                 "destino_titulo": titulo_ganador_lang,
