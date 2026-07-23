@@ -962,65 +962,64 @@ ADVERTENCIA_LEGAL_EN = (
     "for the use of their attention."
 )
 # ==========================================================================================
-    # Inicialización de variables para evitar NameError en todas las ramas de ejecución
-    marca_detectada = None
-    instruccion_fisiologica_es = "Detente, respira libre."
-    instruccion_fisiologica_en = "Stop, breathe free."
-    diagnostico_sintoma_es = "Agotamiento rutinario."
-    diagnostico_sintoma_en = "Routine exhaustion."
-    enlace_yt = ""
-    enlace_sp = ""
-    
-    # ==========================================================================================
-    # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
-    # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
-    # ==========================================================================================
-    
-    force_recovery_mission = False
-    explicitly_seeking_job = any(
-        phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"]
-    )
+# Inicialización de variables para evitar NameError en todas las ramas de ejecución
+marca_detectada = None
+instruccion_fisiologica_es = "Detente, respira libre."
+instruccion_fisiologica_en = "Stop, breathe free."
+diagnostico_sintoma_es = "Agotamiento rutinario."
+diagnostico_sintoma_en = "Routine exhaustion."
+enlace_yt = ""
+enlace_sp = ""
+
 # ==========================================================================================
-    # DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
-    if desahogo and not explicitly_seeking_job:
-        desahogo_lower = desahogo.lower()
-        target_brands = [
-            "walmart", "amazon", "costco", "starbucks", "mcdonald",
-            "spotify", "youtube", "tiktok", "instagram"
-        ]
-        for keyword in target_brands:
-            if keyword in desahogo_lower:
-                marca_detectada = keyword.capitalize()
-                force_recovery_mission = True # Force recovery if a brand is detected
-                break
+# MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
+# === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
+# ==========================================================================================
 
-    if force_recovery_mission:
-        mente_str_es = mente.upper()
-        mente_str_en = mente.upper()
-        diagnostico_sintoma_es = f"Diagnóstico: El cliente experimenta [{mente_str_es}] en relación al estímulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
-        diagnostico_sintoma_en = f"Diagnostic: Client experiences [{mente_str_en}] linked to corporate stimulus [{marca_detectada}] in Zip Code {zip_code}."
+force_recovery_mission = False
+explicitly_seeking_job = any(
+    phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"]
+)
+# ==========================================================================================
+# DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
+if desahogo and not explicitly_seeking_job:
+    desahogo_lower = desahogo.lower()
+    target_brands = [
+        "walmart", "amazon", "costco", "starbucks", "mcdonald",
+        "spotify", "youtube", "tiktok", "instagram"
+    ]
+    for keyword in target_brands:
+        if keyword in desahogo_lower:
+            marca_detectada = keyword.capitalize()
+            force_recovery_mission = True # Force recovery if a brand is detected
+            break
 
-        if marca_detectada == "Walmart":
-            instruccion_fisiologica_es = "Estás en el templo del consumo. Hackea: detén tu marcha, inhala/exhala profundo. Repite: 'Yo soy el único producto que importa hoy'. Sal de la rutina."
-            instruccion_fisiologica_en = "You are in the consumption temple. Hack it: stop, inhale/exhale deeply. Repeat: 'I am the only product that matters today'. Exit routine."
-        elif marca_detectada == "Amazon":
-            instruccion_fisiologica_es = "Tu mente busca dopamina rápida. Bloquea la pantalla. Enfócate en tu espacio biológico: hidrátate o elimina toxinas. Invierte en tus células, no en el mercado digital."
-            instruccion_fisiologica_en = "Mind seeks quick dopamine. Block screen. Focus on biological space: hydrate or detox. Invest in cells, not digital market."
-        elif marca_detectada in ["Youtube", "Tiktok", "Instagram"]:
-            instruccion_fisiologica_es = "El algoritmo secuestra tu atención. Interrumpe el bucle mental. Suelta el teléfono, cierra ojos 60 segundos. Respira profundo, libera estrés."
-            instruccion_fisiologica_en = "Algorithm hijacks attention. Break mental loop. Drop phone, close eyes 60 secs. Breathe deep, release stress."
-        elif marca_detectada == "Spotify":
-            instruccion_fisiologica_es = "Usas sonidos para aislarte. Detén el audio. Ejecuta el Módulo Silencio Mental 1 minuto. Siente tu ritmo cardíaco en este Código Postal."
-            instruccion_fisiologica_en = "You use sounds to isolate. Stop audio. Execute 1-minute Mental Silence Module. Feel your heart rhythm in this Zip Code."
-        else:
-            # Default case for other brands not explicitly handled above
-            instruccion_fisiologica_es = f"Identificaste que [{marca_detectada}] satura tu mente. Rebélate: usa pasillos, aire libre o ventanas. Haz una pausa biológica profunda de 60 segundos. Recupera el control."
-            instruccion_fisiologica_en = f"You identified [{marca_detectada}] saturating your mind. Rebel: use halls, open air, or windows. Take a deep 60-sec biological pause. Regain control."
+if force_recovery_mission:
+    mente_str_es = mente.upper()
+    mente_str_en = mente.upper()
+    diagnostico_sintoma_es = f"Diagnóstico: El cliente experimenta [{mente_str_es}] en relación al estímulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
+    diagnostico_sintoma_en = f"Diagnostic: Client experiences [{mente_str_en}] linked to corporate stimulus [{marca_detectada}] in Zip Code {zip_code}."
 
-        search_term_antidoto = ANTIDOTOS_DIGITALES_SEARCH_TERMS.get(mente, BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
-        enlace_yt = f"{BIG_TECH_RESOURCES['youtube_base_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
-        enlace_sp = f"{BIG_TECH_RESOURCES['spotify_base_search_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
+    if marca_detectada == "Walmart":
+        instruccion_fisiologica_es = "Estás en el templo del consumo. Hackea: detén tu marcha, inhala/exhala profundo. Repite: 'Yo soy el único producto que importa hoy'. Sal de la rutina."
+        instruccion_fisiologica_en = "You are in the consumption temple. Hack it: stop, inhale/exhale deeply. Repeat: 'I am the only product that matters today'. Exit routine."
+    elif marca_detectada == "Amazon":
+        instruccion_fisiologica_es = "Tu mente busca dopamina rápida. Bloquea la pantalla. Enfócate en tu espacio biológico: hidrátate o elimina toxinas. Invierte en tus células, no en el mercado digital."
+        instruccion_fisiologica_en = "Mind seeks quick dopamine. Block screen. Focus on biological space: hydrate or detox. Invest in cells, not digital market."
+    elif marca_detectada in ["Youtube", "Tiktok", "Instagram"]:
+        instruccion_fisiologica_es = "El algoritmo secuestra tu atención. Interrumpe el bucle mental. Suelta el teléfono, cierra ojos 60 segundos. Respira profundo, libera estrés."
+        instruccion_fisiologica_en = "Algorithm hijacks attention. Break mental loop. Drop phone, close eyes 60 secs. Breathe deep, release stress."
+    elif marca_detectada == "Spotify":
+        instruccion_fisiologica_es = "Usas sonidos para aislarte. Detén el audio. Ejecuta el Módulo Silencio Mental 1 minuto. Siente tu ritmo cardíaco en este Código Postal."
+        instruccion_fisiologica_en = "You use sounds to isolate. Stop audio. Execute 1-minute Mental Silence Module. Feel your heart rhythm in this Zip Code."
+    else:
+        # Default case for other brands not explicitly handled above
+        instruccion_fisiologica_es = f"Identificaste que [{marca_detectada}] satura tu mente. Rebélate: usa pasillos, aire libre o ventanas. Haz una pausa biológica profunda de 60 segundos. Recupera el control."
+        instruccion_fisiologica_en = f"You identified [{marca_detectada}] saturating your mind. Rebel: use halls, open air, or windows. Take a deep 60-sec biological pause. Regain control."
 
+    search_term_antidoto = ANTIDOTOS_DIGITALES_SEARCH_TERMS.get(mente, BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
+    enlace_yt = f"{BIG_TECH_RESOURCES['youtube_base_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
+    enlace_sp = f"{BIG_TECH_RESOURCES['spotify_base_search_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
         # ==========================================================================================
         # CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL (GOOGLE MAPS UNIVERSAL)
         # ==========================================================================================
