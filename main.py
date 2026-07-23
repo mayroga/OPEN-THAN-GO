@@ -1029,44 +1029,43 @@ nucleos_ocio = {
         "0": "nature+preserves+botanical+gardens",
         "1": "cozy+tea+house+bookstore+cafe",
         "2": "luxury+spa+wellness+resort"
+    },
+    "estresado": {
+        "0": "public+beaches+hiking+trails",
+        "1": "jazz+club+lounge+bar+comedy",
+        "2": "fine+dining+restaurant+boutique+hotel"
+    },
+    "aburrido": {
+        "0": "skate+parks+street+art+squares",
+        "1": "bowling+alley+arcade+sports+bar",
+        "2": "theme+parks+live+concerts+cruises"
+    },
+    "agotado": {
+        "0": "scenic+lakes+quiet+public+parks",
+        "1": "local+coffee+shop+bakery",
+        "2": "glamping+resort+cabin+rental"
+    },
+    "cansado": { 
+        "0": "public+library+museums",
+        "1": "historic+sites+walking+tours",
+        "2": "calm+beach+resort+towns"
     }
 }
-            "estresado": {
-                "0": "public+beaches+hiking+trails",
-                "1": "jazz+club+lounge+bar+comedy",
-                "2": "fine+dining+restaurant+boutique+hotel"
-            },
-            "aburrido": {
-                "0": "skate+parks+street+art+squares",
-                "1": "bowling+alley+arcade+sports+bar",
-                "2": "theme+parks+live+concerts+cruises"
-            },
-            "agotado": {
-                "0": "scenic+lakes+quiet+public+parks",
-                "1": "local+coffee+shop+bakery",
-                "2": "glamping+resort+cabin+rental"
-            },
-            "cansado": { 
-                "0": "public+library+museums",
-                "1": "historic+sites+walking+tours",
-                "2": "calm+beach+resort+towns"
-            }
-        }
 
-        matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
-        gasto_key = budget if budget in ["0", "1", "2"] else "0"
-        actividad_base = matriz_ocio[gasto_key]
-        
-        modificador_compania = ""
-        if perfil_tipo == "familia":
-            modificador_compania = "+family+friendly"
-        elif perfil_tipo == "accesible":
-            modificador_compania = "+wheelchair+accessible"
-        elif perfil_tipo == "solo":
-            modificador_compania = "+hidden+gems"
+matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
+gasto_key = budget if budget in ["0", "1", "2"] else "0"
+actividad_base = matriz_ocio[gasto_key]
 
-        full_query = f"{actividad_base}{modificador_compania}+in+{zip_code}"
-        target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
+modificador_compania = ""
+if perfil_tipo == "familia":
+    modificador_compania = "+family+friendly"
+elif perfil_tipo == "accesible":
+    modificador_compania = "+wheelchair+accessible"
+elif perfil_tipo == "solo":
+    modificador_compania = "+hidden+gems"
+
+full_query = f"{actividad_base}{modificador_compania}+in+{zip_code}"
+target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
 # ==========================================================================================
 # Inyectamos la misión formateada de forma segura respetando tu esquema original
 final_misiones_para_frontend = [{
