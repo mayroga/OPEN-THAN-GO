@@ -883,7 +883,7 @@ hablar(texto) {
  let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
  const msg = new SpeechSynthesisUtterance(fx);
  msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
- msg.rate = 1.02; 
+ msg.rate = 1.10; 
  msg.pitch = 1.05; 
  msg.onerror = () => { window.speechSynthesis.cancel(); };
  window.speechSynthesis.speak(msg);
