@@ -834,22 +834,36 @@ textarea {
     border-color: #0078FF;
   }
 
-  #btn-messenger:hover {
-    background-color: #0056b3;
-  }
+     #btn-messenger:hover {
+      background-color: #0056b3;
+    }
 
-  @media (min-width: 480px) {
-    .salida-grid {
-      grid-template-columns: 1fr 1fr;
-    } /* Two columns for larger screens */
-  }
+    @media (min-width: 480px) {
+      .salida-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
 
-  @media (min-width: 768px) {
-    .salida-grid {
-      grid-template-columns: 1fr 1fr 1fr;
-    } /* Three columns on wider screens */
-  }
-</style>
+    @media (min-width: 768px) {
+      .salida-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+    }
+
+    /* === PEGA ESTO AQUÍ PARA FORZAR LA VISIBILIDAD === */
+    #wrapper-form {
+      display: block !important;
+    }
+    .container {
+      display: block !important;
+    }
+    .hidden {
+      display: block !important;
+    }
+
+  </style>
+</head>
+ 
 
 <!-- Placeholder images for retos in static/ directory -->
 <img src="/static/silence.svg" class="hidden" alt="Silence">
