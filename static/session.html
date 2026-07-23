@@ -1,5 +1,90 @@
-<!DOCTYPE html> <html lang="es"> <head> <script>(function(){const r=localStorage.getItem('otg_user_role'),p=localStorage.getItem('otg_pase_stripe');if(r&&r!=='admin'){if(!p||!(p.startsWith('cs_live_')||p.startsWith('cs_test_'))){localStorage.removeItem('otg_user_role');localStorage.removeItem('otg_pase_stripe');}}else if(!r&&p){localStorage.removeItem('otg_pase_stripe');}console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");document.addEventListener("DOMContentLoaded",()=>{const legalContainer=document.createElement('div');legalContainer.id='otg-legal-shield-pasivo';legalContainer.style='width:100%;max-width:420px;font-size:0.72rem;color:#ccc;text-align:justify;line-height:1.3;margin:25px auto 15px auto;padding:12px;border-top:1px solid #222;background:#0a0a0a;border-radius:6px;max-height:130px;overflow-y:auto;border:1px solid #1a1a1a;position:relative;z-index:9999;box-sizing:border-box;clear:both;';legalContainer.innerHTML=`<strong>Aviso Legal y Asunción de Riesgo / Legal Notice:</strong> OPEN THAN GO es una herramienta de bienestar y orientación pasiva. No ofrece atención médica, psicológica, ni de emergencia. <strong>PROHIBICIÓN ABSOLUTA:</strong> Ninguna sección o función de esta aplicación (incluyendo SALIR, CASA, MODO LIBRE u ORÁCULO) debe ser utilizada, mirada o manipulada mientras conduces o manejas un vehículo en movimiento. Al adquirir un pase o iniciar sesión, aceptas que eres el único responsable del uso seguro del software, asumes total responsabilidad por tus acciones y eximes formalmente a la aplicación OPEN THAN GO y a la empresa dueña MAY ROGA LLC de cualquier responsabilidad civil o penal por accidentes, daños, pérdidas, distracciones o imprudencias de tránsito. Si tienes una emergencia de salud, llama al 911 o busca ayuda profesional. Usa este motor bajo tu propio criterio. / <span style="color:#999;">OPEN THAN GO is a passive wellness and orientation tool. It does not offer medical, psychological, or emergency care. <strong>ABSOLUTE PROHIBITION:</strong> No section or feature of this application (including SALIR, CASA, MODO LIBRE, or ORÁCULO) must be used, viewed, or handled while driving or operating a moving vehicle. By purchasing a pass or logging in, you agree that you are solely responsible for the safe use of this software, assume full liability for your actions, and formally release the OPEN THAN GO application and its parent company MAY ROGA LLC from any civil or criminal liability for accidents, damages, losses, distractions, or traffic reckless behavior. If you have a health emergency, call 911 or seek professional help. Use this engine at your own discretion.</span>`;const target=document.querySelector('.container')||document.body;target.appendChild(legalContainer);});})();</script> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <title id="html-title">OPEN THAN GO</title> <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>"> <style> :root { --bg: #000; --panel: #111; --text: #fff; --accent: #d84315; --secondary: #0d47a1; --green-action: #2e7d32; --cyan-inhale: #00bcd4; --cierre-bg-gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); } * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; } body { background-color: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; } .container { width: 95%; max-width: 420px; padding: 15px; position: relative; z-index: 10; } .lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; } .btn-lang { background: #222; color: #666; border: none; padding: 6px 12px; font-weight: 900; border-radius: 4px; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; transition: all 0.2s ease; } .btn-lang.active { background: #fff; color: #000; } .header-wrapper { position: relative; text-align: center; margin-bottom: 20px; padding: 15px 0; overflow: hidden; } h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; margin: 0; z-index: 2; position: relative; animation: titleFloat 6s infinite ease-in-out, colorShift 12s infinite alternate; } @keyframes titleFloat { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } } @keyframes colorShift { 0% { color: var(--cyan-inhale); text-shadow: 0 0 10px rgba(0,188,212,0.3); } 100% { color: var(--green-action); text-shadow: 0 0 10px rgba(46,125,50,0.3); } } /* CONTENEDOR DEL CÍRCULO CON AISLAMIENTO DE MARGEN VERTICAL ANTI-ROCE */ .circle-container { display: flex; justify-content: center; align-items: center; margin: 30px 0 25px 0 !important; min-height: 250px; position: relative; clear: both; } /* EL CÍRCULO RESPIRATORIO IMPONENTE, REACTIVO Y MAGNÉTICO */ .breathing-circle { width: 220px !important; height: 220px !important; border-radius: 50%; background: transparent; border: 6px solid var(--cyan-inhale); box-shadow: 0 0 35px rgba(0,188,212,0.45), inset 0 0 20px rgba(0,188,212,0.25); display: flex; justify-content: center; align-items: center; position: relative; z-index: 5; transform: scale(1); transition: transform 4s ease-in-out, border-color 4s ease-in-out, box-shadow 4s ease-in-out; } /* PROTECCIÓN Y SEPARACIÓN DE LA TARJETA DE TEXTO DE MISIONES */ #mision-display-container { margin-top: 25px !important; padding: 12px 10px; background: transparent; z-index: 10; position: relative; clear: both; }
-            
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script>
+(function(){
+    const r = localStorage.getItem('otg_user_role'), 
+          p = localStorage.getItem('otg_pase_stripe');
+    if(r && r !== 'admin'){
+        if(!p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'))){
+            localStorage.removeItem('otg_user_role');
+            localStorage.removeItem('otg_pase_stripe');
+        }
+    } else if(!r && p){
+        localStorage.removeItem('otg_pase_stripe');
+    }
+    
+    console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        const legalContainer = document.createElement('div');
+        legalContainer.id = 'otg-legal-shield-pasivo';
+        legalContainer.style = 'width:100%;max-width:420px;font-size:0.72rem;color:#ccc;text-align:justify;line-height:1.3;margin:25px auto 15px auto;padding:12px;border-top:1px solid #222;background:#0a0a0a;border-radius:6px;max-height:130px;overflow-y:auto;border:1px solid #1a1a1a;position:relative;z-index:9999;box-sizing:border-box;clear:both;';
+        
+        legalContainer.innerHTML = `<strong>AVISO DE SEGURIDAD Y USO LEGAL EXCLUSIVO (May Roga LLC):</strong> Queda estrictamente prohibido utilizar la plataforma <strong>OPEN THAN GO</strong> mientras se conduce, maneja vehículos, maquinaria pesada o se realiza cualquier actividad que pueda causar daño o lesión al individuo o a terceros. Esta aplicación constituye una herramienta de orientación y sugerencia personal; el usuario asume la total y absoluta responsabilidad sobre el uso de su atención y exime formalmente a MAY ROGA LLC de cualquier responsabilidad civil o penal. Si tienes una emergencia de salud, llama al 911. / <span style="color:#999;"><strong>SAFETY NOTICE (May Roga LLC):</strong> It is strictly prohibited to use the OPEN THAN GO platform while driving, operating vehicles, heavy machinery, or performing any activity that may cause damage or injury. The user assumes total and absolute responsibility for their attention, releasing MAY ROGA LLC from all liability.</span>`;
+        
+        const target = document.querySelector('.container') || document.body;
+        target.appendChild(legalContainer);
+    });
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title id="html-title">OPEN THAN GO</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>">
+<style>
+:root { --bg: #000; --panel: #111; --text: #fff; --accent: #d84315; --secondary: #0d47a1; --green-action: #2e7d32; --cyan-inhale: #00bcd4; --cierre-bg-gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { background-color: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow-x: hidden; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.container { width: 95%; max-width: 420px; padding: 15px; position: relative; z-index: 10; }
+.lang-bar { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 15px; }
+.btn-lang { background: #222; color: #666; border: none; padding: 6px 12px; font-weight: 900; border-radius: 4px; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; transition: all 0.2s ease; }
+.btn-lang.active { background: #fff; color: #000; }
+.header-wrapper { position: relative; text-align: center; margin-bottom: 20px; padding: 15px 0; overflow: hidden; }
+h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; margin: 0; z-index: 2; position: relative; animation: titleFloat 6s infinite ease-in-out, colorShift 12s infinite alternate; }
+@keyframes titleFloat { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
+@keyframes colorShift { 0% { color: var(--cyan-inhale); text-shadow: 0 0 10px rgba(0,188,212,0.3); } 100% { color: var(--green-action); text-shadow: 0 0 10px rgba(46,125,50,0.3); } }
+.circle-container { display: flex; justify-content: center; align-items: center; margin: 30px 0 25px 0 !important; min-height: 250px; position: relative; clear: both; }
+.breathing-circle { width: 220px !important; height: 220px !important; border-radius: 50%; background: transparent; border: 6px solid var(--cyan-inhale); box-shadow: 0 0 35px rgba(0,188,212,0.45), inset 0 0 20px rgba(0,188,212,0.25); display: flex; justify-content: center; align-items: center; position: relative; z-index: 5; transform: scale(1); transition: transform 4s ease-in-out, border-color 4s ease-in-out, box-shadow 4s ease-in-out; }
+#mision-display-container { margin-top: 25px !important; padding: 12px 10px; background: transparent; z-index: 10; position: relative; clear: both; }
+</style>
+</head>
+  // ==========================================================================================          
+// ESCUDO DE SESIÓN: VALIDA PAGOS O ACCESO ADMINISTRATIVO ANTES DE CARGAR EL KERNEL
+// ==========================================================================================
+(function() {
+    // 1. Verificamos si tú ya activaste el bypass de desarrollador con las claves de Render
+    const rolUsuario = localStorage.getItem('otg_user_role');
+    if (rolUsuario === 'admin') {
+        console.log("Acceso ilimitado detectado. Saltando muro de pago.");
+        return; // Te deja pasar de largo y usar todo gratis sin interrupciones
+    }
+
+    // 2. Verificamos si el usuario normal tiene un pase de pago activo guardado localmente
+    const paseActivo = localStorage.getItem('otg_pase_stripe');
+    if (!paseActivo) {
+        console.log("Acceso denegado. Redirigiendo a pasarela de pagos...");
+       
+        // Bloqueamos la interfaz inyectando el Paywall visual de inmediato
+        document.addEventListener("DOMContentLoaded", () => {
+            // Llama a la función que dibuja tus 3 precios oficiales ($15.99, $25.99, $250.00)
+            if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.mostrarModalPaywall) {
+                OTG_SENSORIAL.mostrarModalPaywall();
+            } else {
+                // Respaldo de seguridad si el objeto no ha cargado: congela la pantalla en negro
+                document.body.innerHTML = `
+                    <div style="width:100vw;height:100vh;background:#111;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:sans-serif;">
+                        <h2 style="color:#00bcd4;">Open Than Go - Requiere Acceso</h2>
+                        <p style="color:#aaa;">Por favor, selecciona un plan para activar el oráculo de bienestar.</p>
+                        <button onclick="OTG_SENSORIAL.procesarPagoStripe('unico')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;">Pago Único $15.99</button>
+                        <button onclick="OTG_SENSORIAL.procesarPagoStripe('mensual')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;">Suscripción Mensual $25.99</button>
+                        <button onclick="OTG_SENSORIAL.procesarPagoStripe('anual')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;">Membresía Anual $250.00</button>
+                    </div>`;
+            }
+        });
+    }
+})();
+// ==========================================================================================          
         /* MOVING WHITE CLOUDS SCENERY */
         .sky-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.25; z-index: 1; }
         .cloud { position: absolute; background: #fff; border-radius: 100px; filter: blur(4px); animation: windMove 18s infinite linear; }
