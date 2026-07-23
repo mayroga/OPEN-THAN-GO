@@ -1905,7 +1905,7 @@ window.KERNEL = KERNEL;
        
      seleccionadas: [],
 
-  init() {
+   init() {
     this.inyectarMetasYEstilos();
     this.modificarBienvenida();
     this.crearEstructuresFlotantes();
@@ -1988,8 +1988,7 @@ window.KERNEL = KERNEL;
     document.head.appendChild(s);
   },
 
-
-     modificarBienvenida() {
+  modificarBienvenida() {
     let pb = document.getElementById("pantalla-bienvenida");
     if (!pb) return;
     
@@ -2034,7 +2033,6 @@ window.KERNEL = KERNEL;
       </div>
     `;
   },
-
 
       crearEstructurasFlotantes() {
     let b = document.createElement("button");
