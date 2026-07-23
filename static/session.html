@@ -1010,9 +1010,8 @@ textarea {
     </svg>
   </a>
 
-  <!-- 1. DETECTOR E INTERCEPTOR DE ERRORES 404 (SVG FALLBACK) -->
-  <script>
-    // Sistema de fallbacks para iconos SVG rotos usando emojis visuales
+   <script>
+    // 1. SISTEMA DE FALLBACKS COMPLETO PARA ICONOS SVG ROTOS
     document.addEventListener("error", (e) => {
       if (e.target.tagName.toLowerCase() === "img") {
         const src = e.target.src || "";
@@ -1042,24 +1041,24 @@ textarea {
         }
       }
     }, true);
-  </script>
 
-        for (const file in fallbacks) {
-          if (src.includes(file)) {
-            const textAnchor = document.createElement("span");
-            textAnchor.textContent = fallbacks[file];
-            textAnchor.style.fontSize = "1.5rem";
-            textAnchor.style.display = "inline-block";
-            textAnchor.style.lineHeight = "1";
-            textAnchor.className = e.target.className;
-            e.target.parentNode.replaceChild(textAnchor, e.target);
-            console.log(`Fallback activado con éxito para: ${file}`);
-            break;
-          }
+    // 2. PUENTE MECÁNICO DE INTERFAZ: Conecta las llamadas del HTML antiguo con tu nuevo motor
+    const KERNEL = {
+      despertarInicial: function() {
+        console.log("Despertando contenedor principal de la aplicación...");
+        const bienvenida = document.getElementById("pantalla-bienvenida");
+        const formulario = document.getElementById("wrapper-form");
+        
+        if (bienvenida) bienvenida.classList.add("hidden");
+        if (formulario) formulario.classList.remove("hidden");
+        
+        // Inicializa el bypass administrativo de OTG_SENSORIAL en paralelo
+        if (typeof OTG_SENSORIAL !== "undefined" && OTG_SENSORIAL.init) {
+          OTG_SENSORIAL.init();
         }
       }
-    }, true);
+    };
   </script>
 
-  <!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
-  <script src="/static/engine.js"></script>        
+  <!-- 3. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
+  <script src="/static/engine.js"></script>
