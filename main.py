@@ -10,23 +10,11 @@ import re
 import urllib.parse
 from datetime import datetime
 
-import os
 import stripe
-from fastapi import Request, HTTPException
-from fastapi.responses import JSONResponse
-
-# Inicialización segura con las variables de entorno de Render
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
-ADMIN_USER = os.environ.get("ADMIN_USERNAME")
-ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
-
-# Matriz oficial de Price IDs inmutables
-PLANES_STRIPE = {
-    "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
-    "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
-    "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
-}
+import uvicorn
+from fastapi import FastAPI, Request, HTTPException # HTTPException import fixed
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 # ==========================================================================================
 # MATRIZ INFINITA DE MANIFIESTOS EXISTENCIALES PARA EL ORÁCULO DE BIENESTAR (3 POR ESTADO)
@@ -368,7 +356,7 @@ BASE_MISIONES = {
   {"id": 82, "titulo": "Observa una sombra", "titulo_en": "Observe a shadow", "descripcion": "Busca una sombra proyectada en el piso o en la pared de tu habitación actual. Observa detalladamente sus bordes oscuros y sus formas en silencio por un minuto entero.", "vector_necesidades": {"contemplacion": 100, "silencio": 90, "creatividad": 50, "descanso": 75, "naturaleza": 20}},
   {"id": 83, "titulo": "Siente tus latidos", "titulo_en": "Feel your heartbeat", "descripcion": "Coloca dos de tus dedos suavemente sobre tu muñeca izquierda o en tu cuello en tu rincón cómodo. Quédate quieto sintiendo el latido constante y fuerte de tu pulso.", "vector_necesidades": {"contemplacion": 100, "silencio": 95, "descanso": 90, "salud": 90, "movimiento": 10}},
   {"id": 159, "titulo": "EL RETO DE LA RESPIRACIÓN", "titulo_en": "THE BREATHING CHALLENGE", "descripcion": "Quédate sentado en una postura muy cómoda en tu sala. Haz cinco respiraciones profundas y lentas por la nariz, sintiendo cómo entra el aire puro a tu cuerpo. Nada más.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
-  {"id": 160, "titulo": "EL RETO DEL DESCANSO VISUAL", "titulo_en": "THE VISUAL REST CHALLENGE", "descripcion": "Busca un punto u objeto que esté muy lejano a ti a través de la ventana de tu cuarto. Quédate mirando ese lugar fijamente durante dos minutos para descansar tus ojos de las pantallas.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}} 
+  {"id": 160, "titulo": "EL RETO DEL DESCANSO VISUAL", "titulo_en": "THE VISUAL REST CHALLENGE", "descripcion": "Busca un punto u objeto que esté muy lejano a ti a través de la ventana de tu cuarto. Quédate mirando ese lugar fijamente durante dos minutos para descansar tus ojos de las pantallas.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}}
    ],
     "CASA_EN": [
   {"id": 1, "titulo": "Break the autopilot", "titulo_en": "Break the autopilot", "descripcion": "Take a brief moment to scan your body completely. Locate the exact weight built up on your upper back and observe it with absolute calm. Feel your heartbeat and remember that you are alive in this peaceful second.", "descripcion_en": "Take a brief moment to scan your body completely. Locate the exact weight built up on your upper back and observe it with absolute calm. Feel your heartbeat and remember that you are alive in this peaceful second.", "vector_necesidades": {"contemplacion": 90, "descanso": 80, "silencio": 70, "organizacion": 50, "movimiento": 30}},
@@ -446,7 +434,7 @@ BASE_MISIONES = {
   {"id": 82, "titulo": "Observe a shadow", "titulo_en": "Observe a shadow", "descripcion": "Look for a shadow projected on the floor or wall of your current room. Closely observe its dark edges and shapes in absolute silence for one full minute.", "descripcion_en": "Look for a shadow projected on the floor or wall of your current room. Closely observe its dark edges and shapes in absolute silence for one full minute.", "vector_necesidades": {"contemplacion": 100, "silencio": 90, "creatividad": 50, "descanso": 75, "naturaleza": 20}},
   {"id": 83, "titulo": "Feel your heartbeat", "titulo_en": "Feel your heartbeat", "descripcion": "Place two of your fingers gently on your left wrist or on your neck in your cozy corner. Stay still feeling the steady and strong beat of your biological pulse.", "descripcion_en": "Place two of your fingers gently on your left wrist or on your neck in your cozy corner. Stay still feeling the steady and strong beat of your biological pulse.", "vector_necesidades": {"contemplacion": 100, "silencio": 95, "descanso": 90, "salud": 90, "movimiento": 10}},
   {"id": 159, "titulo": "THE BREATHING CHALLENGE", "titulo_en": "THE BREATHING CHALLENGE", "descripcion": "Stay seated in a very comfortable posture in your living room. Take five deep and slow breaths through your nose, feeling how the pure air enters your body. Nothing more.", "descripcion_en": "Stay seated in a very comfortable posture in your living room. Take five deep and slow breaths through your nose, feeling how the pure air enters your body. Nothing more.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
-  {"id": 160, "titulo": "THE VISUAL REST CHALLENGE", "titulo_en": "THE VISUAL REST CHALLENGE", "descripcion": "Look for a spot or an object that is very far away from you through your bedroom window. Keep your eyes on that place fixedly for two minutes to rest your eyes from screens completely.", "descripcion_en": "Look for a spot or an object that is very far away from you through your bedroom window. Keep your eyes on that place fixedly for two minutes to rest your eyes from screens completely.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}} 
+  {"id": 160, "titulo": "THE VISUAL REST CHALLENGE", "titulo_en": "THE VISUAL REST CHALLENGE", "descripcion": "Look for a spot or an object that is very far away from you through your bedroom window. Keep your eyes on that place fixedly for two minutes to rest your eyes from screens completely.", "descripcion_en": "Look for a spot or an object that is very far away from you through your bedroom window. Keep your eyes on that place fixedly for two minutes to rest your eyes from screens completely.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}}
     ],
 "SALIR": {
    "agotado": [
@@ -467,7 +455,7 @@ BASE_MISIONES = {
   {"id": 202, "titulo": "Módulo Auditivo", "titulo_en": "Auditory Reset", "porque": "Hoy vas a abrir tu aplicación de música favorita en cualquier rincón cómodo o dentro de tu auto. Si tu mente se encuentra muy agotada por culpa de escuchar tantos ruidos molestos de la calle y mirar el brillo de las pantallas, busca sonidos de la lluvia cayendo o una melodía muy suave. Colócate tus auriculares, cierra tus ojos por un minuto entero y permite que los sonidos tranquilos se lleven todo el cansancio de tu cabeza. Levántate ahora mismo, abraza esta tregua acústica y siente la paz recuperando tu centro.", "porque_en": "Today you will open your favorite music app in any comfortable spot or inside your car. If your mind feels very exhausted from hearing so much annoying street noise and staring at bright screens, search for gentle rain sounds or a very soft melody. Put on your headphones, close your eyes for a whole minute, and let the peaceful sounds take away all the tiredness from your head. Get up right now, embrace this acoustic truce, and feel the gentle peace recovering your inner core completely.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Cualquier rincón cómodo o dentro de tu auto.", "donde_en": "Any comfortable spot or inside your car.", "gps": "quiet library space", "vector_necesidades": {"musica": 100, "descanso": 95, "silencio": 60, "contemplacion": 90, "esperanza": 85, "creatividad": 40} },
 
          {"id": 203, "titulo": "Descompresión de Entorno", "titulo_en": "Environment Decompression", "porque": "Hoy vas a buscar un hotel que te quede cerca para caminar con total tranquilidad hacia su vestíbulo principal. Si sientes el aburrimiento de estar encerrado en el mismo lugar de siempre y tu cuerpo te pide cambiar a un espacio bonito y ordenado, toma asiento en un sillón cómodo de inmediato. Apoya tus pies firmes en el piso y descansa tu mirada contemplando un punto lejano por dos minutos enteros. Levántate ahora mismo, regálate este quiebre espacial y permite que tu respiración recupere su curso natural en paz. Tu mente se renueva en este entorno elegante.", "porque_en": "Today you will look for a hotel nearby to walk completely peacefully into its main lobby or lounge area. If you feel bored from being cooped up in the same old place and your body is asking to switch to a beautiful, orderly space, take a seat in a comfy chair immediately. Place your feet flat on the floor and rest your eyes by looking at a distant spot for two full minutes. Get up right now, grant yourself this spatial break, and allow your breathing to find its natural course in peace. Your mind completely renews in this elegant environment.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Lobby o zona de descanso de un hotel local.", "donde_en": "Lobby or lounge area of a local hotel.", "gps": "hotel lobby", "vector_necesidades": {"descanso": 100, "silencio": 85, "contemplacion": 95, "organizacion": 70, "esperanza": 80, "movimiento": 20} },
-  {"id": 204, "titulo": "Sabotaje de Espera", "titulo_en": "Waiting Sabotage", "porque": "Hoy te dirigirás hacia el patio exterior o la zona de libros de una escuela o universidad cercana. Si tu mente lleva mucho tiempo atrapada en el teléfono mirando cosas vacías y necesitas alimentar tu imaginación con ideas nuevas, camina despacio y en absoluto silencio por sus senderos verdes. Respira el aire fresco, observa los árboles con total tranquilidad y desconéctate por completo de las pantallas. Levántate ahora mismo, regálate este respiro intelectual y rompe el piloto automático diario para reconectar con tu creatividad. El recorrido de bienestar empieza ya.", "porque_en": "Today you will head toward the outdoor courtyard or the book section of a nearby school or university. If your mind has been trapped looking at empty things on your phone for too long and you need to feed your imagination with new ideas, walk slowly and silently along its green paths. Breathe the fresh air, observe the trees in total peace, and completely disconnect from screens. Get up right now, grant yourself this intellectual break, and break the daily automatic pilot to reconnect with your creativity. Your wellness journey begins right now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Campus universitario o biblioteca pública.", "donde_en": "University campus or public library.", "gps": "university library", "vector_necesidades": {"aprendizaje": 100, "silencio": 90, "contemplacion": 85, "descanso": 70, "aire_fresco": 75, "movimiento": 40} } 
+  {"id": 204, "titulo": "Sabotaje de Espera", "titulo_en": "Waiting Sabotage", "porque": "Hoy te dirigirás hacia el patio exterior o la zona de libros de una escuela o universidad cercana. Si tu mente lleva mucho tiempo atrapada en el teléfono mirando cosas vacías y necesitas alimentar tu imaginación con ideas nuevas, camina despacio y en absoluto silencio por sus senderos verdes. Respira el aire fresco, observa los árboles con total tranquilidad y desconéctate por completo de las pantallas. Levántate ahora mismo, regálate este respiro intelectual y rompe el piloto automático diario para reconectar con tu creatividad. El recorrido de bienestar empieza ya.", "porque_en": "Today you will head toward the outdoor courtyard or the book section of a nearby school or university. If your mind has been trapped looking at empty things on your phone for too long and you need to feed your imagination with new ideas, walk slowly and silently along its green paths. Breathe the fresh air, observe the trees in total peace, and completely disconnect from screens. Get up right now, grant yourself this intellectual break, and break the daily automatic pilot to reconnect with your creativity. Your wellness journey begins right now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Campus universitario o biblioteca pública.", "donde_en": "University campus or public library.", "gps": "university library", "vector_necesidades": {"aprendizaje": 100, "silencio": 90, "contemplacion": 85, "descanso": 70, "aire_fresco": 75, "movimiento": 40} }
    ],
     "estresado": [
   {"id": 102, "titulo": "Caminata en subida", "titulo_en": "Uphill Walk", "porque": "Hoy vas a buscar una rampa inclinada, una colina o unas escaleras públicas al aire libre en tu entorno. Si sientes la musculatura muy tensa por culpa de las preocupaciones diarias y necesitas mover las piernas para liberar esa energía pesada, sube los escalones a un paso firme y constante. Siente el impulso dinámico y la fuerza real de tu cuerpo en cada pisada. Levántate ahora mismo, regálate esta pausa activa y permite que tu respiración se acelere de forma saludable para romper el estrés cotidiano. Quema esa carga mental and reconecta con tu poder físico de inmediato.", "porque_en": "Today you will look for a sloped ramp, a hill, or public stairs outdoors in your area. If you feel your muscles are very tense from daily worries and you need to move your legs to release that heavy energy, walk up the steps with a steady and firm pace. Feel the dynamic push and the real strength of your body with every single stride. Get up right now, grant yourself this active break, and allow your breathing to increase healthily to break through daily stress. Burn away that mental load and reconnect with your physical power immediately.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Escalera pública.", "donde_en": "Public stairs.", "gps": "public stairs", "vector_necesidades": {"movimiento": 100, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 20, "aire_fresco": 85, "creatividad": 10, "comunidad": 30, "aprendizaje": 10, "juego": 20, "contemplacion": 60, "descanso": 10, "organizacion": 30, "alimentacion": 0, "musica": 20, "risa": 20, "esperanza": 75} },
@@ -489,7 +477,7 @@ BASE_MISIONES = {
   {"id": 211, "titulo": "Soberanía de Cabina", "titulo_en": "Cabin Sovereignty", "porque": "Hoy vas a buscar la ventana más grande que tengas cerca en esta terminal de transporte con una hermosa vista despejada hacia afuera. Si sientes la mente muy saturada por las presiones del día y los ruidos fuertes causados por los viajes continuos en el transporte masivo, detén tu prisa. Toma aire de forma profunda y lenta tres veces seguidas para relajar los hombros por completo. Recuerda que tu cuerpo merece un momento legítimo de descanso libre de todo apuro. Siente el aire fresco y recupera tu calma interna ahora.", "porque_en": "Today you will look for the largest window nearby in this transit terminal that has a beautiful, clear view outside. If you feel your mind heavily overloaded from the pressures of the day and loud noises caused by continuous travel on mass transit, stop your rush. Take a deep, slow breath three times in a row to completely relax your shoulders. Remember that your body deserves a legitimate moment of rest free from any hurry. Feel the fresh air and recover your inner calm right now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Terminal de aeropuerto o zona de observación abierta.", "donde_en": "Airport terminal or open observation zone.", "gps": "airport observation area", "vector_necesidades": {"aire_fresco": 100, "contemplacion": 95, "silencio": 60, "descanso": 50, "movimiento": 30, "esperanza": 80} },
 
           {"id": 212, "titulo": "Depuración de Tensión", "titulo_en": "Tension Cleansing", "porque": "Hoy vas a ir al centro deportivo, gimnasio o piscina pública que tengas más cerca en tu vecindario. Si sientes el cuerpo cargado de energía pesada debido al estrés del trabajo diario y necesitas sacudirte esa presión de encima, reacciona de inmediato. Haz un ejercicio de fuerza de forma constante por un momento, activa tus brazos y piernas, y permite que tu cuerpo suelte toda la rigidez acumulada. Levántate ahora mismo, regálate esta descarga física activa y deja que el agobio mental se disuelva mediante el esfuerzo muscular. Tu poder físico regresa ya.", "porque_en": "Today you will go to the nearest sports center, gym, or public pool in your neighborhood. If you feel your body loaded with heavy energy due to daily work stress and you need to shake that pressure off, react immediately. Do a strength exercise steadily for a moment, activate your arms and legs, and allow your body to release all the built-up stiffness. Get up right now, grant yourself this active physical discharge, and let the mental burden dissolve through muscular effort. Your physical power returns right now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Gimnasio público, cancha o alberca comunitaria.", "donde_en": "Public gym, court, or community pool.", "gps": "community fitness center", "vector_necesidades": {"movimiento": 100, "agua": 80, "salud": 90, "juego": 50, "descanso": 0, "silencio": 20, "risa": 40} },
-  {"id": 213, "titulo": "Estabilización Somática", "titulo_en": "Somatic Stabilization", "porque": "Hoy vas a visitar la farmacia o clínica local más cercana en tu vecindario. Si sientes los latidos del corazón un poco rápidos debido al agobio y tu cuerpo te pide una pausa suave en un lugar seguro para recuperar la tranquilidad, toma asiento cómodamente en su área de descanso de inmediato. Busca un vaso con agua fresca y bébelo muy despacio. Saborea con calma cada trago y nota cómo todo tu organismo se refresca y desacelera en completa paz. Regálate este respiro clínico protector y estabiliza tu ritmo biológico.", "porque_en": "Today you will visit the nearest local pharmacy or clinic in your neighborhood. If you feel your heartbeat a bit fast due to overwhelm and your body is asking for a gentle break in a safe place to recover your peace, take a comfortable seat in its lounge area immediately. Look for a cup of fresh water and drink it very slowly. Calmly taste every sip and notice how your entire organism refreshes and slows down in complete peace. Grant yourself this protective medical break and stabilize your biological rhythm.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Área de descanso de una farmacia o clínica local.", "donde_en": "Lounge area of a local pharmacy or clinic.", "gps": "pharmacy health lounge", "vector_necesidades": {"agua": 100, "salud": 95, "descanso": 80, "silencio": 70, "organizacion": 80, "esperanza": 85} } 
+  {"id": 213, "titulo": "Estabilización Somática", "titulo_en": "Somatic Stabilization", "porque": "Hoy vas a visitar la farmacia o clínica local más cercana en tu vecindario. Si sientes los latidos del corazón un poco rápidos debido al agobio y tu cuerpo te pide una pausa suave en un lugar seguro para recuperar la tranquilidad, toma asiento cómodamente en su área de descanso de inmediato. Busca un vaso con agua fresca y bébelo muy despacio. Saborea con calma cada trago y nota cómo todo tu organismo se refresca y desacelera en completa paz. Regálate este respiro clínico protector y estabiliza tu ritmo biológico.", "porque_en": "Today you will visit the nearest local pharmacy or clinic in your neighborhood. If you feel your heartbeat a bit fast due to overwhelm and your body is asking for a gentle break in a safe place to recover your peace, take a comfortable seat in its lounge area immediately. Look for a cup of fresh water and drink it very slowly. Calmly taste every sip and notice how your entire organism refreshes and slows down in complete peace. Grant yourself this protective medical break and stabilize your biological rhythm.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Área de descanso de una farmacia o clínica local.", "donde_en": "Lounge area of a local pharmacy or clinic.", "gps": "pharmacy health lounge", "vector_necesidades": {"agua": 100, "salud": 95, "descanso": 80, "silencio": 70, "organizacion": 80, "esperanza": 85} }
     ],
    "aburrido": [
   {"id": 103, "titulo": "Paseo de colores", "titulo_en": "Color Walk", "porque": "Hoy vas a iniciar un hermoso paseo de colores. Si sientes que tus días se están volviendo idénticos y repetitivos, es el momento justo para despertar tu imaginación buscando novedades en las calles. Levántate ahora mismo y camina de forma muy lenta y tranquila por tu zona. Dedica este tiempo a buscar paredes con pintura, dibujos o murales de arte urbano llenos de vida. Haz este trayecto a solas para reconectar contigo mismo; es una recarga sin costo que romperá tu rutina y te hará sentir presente en el mundo. El viaje empieza ya.", "porque_en": "Today you will start a beautiful color walk. If you feel your days are becoming identical and repetitive, it is the right moment to awaken your imagination by seeking novelty out on the streets. Get up right now and walk very slowly and peacefully through your area. Dedicate this time to looking for walls with colorful paintings, drawings, or street art murals full of life. Do this journey alone to reconnect with yourself; it is a free recharge that will break your routine and make you feel present. Your journey begins now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Calle con murales.", "donde_en": "Street with murals.", "gps": "street art", "vector_necesidades": {"movimiento": 80, "naturaleza": 20, "silencio": 40, "agua": 10, "sol": 80, "sombra": 50, "aire_fresco": 90, "creatividad": 100, "comunidad": 60, "aprendizaje": 70, "juego": 55, "contemplacion": 85, "descanso": 30, "organizacion": 20, "alimentacion": 20, "musica": 30, "risa": 60, "esperanza": 95} },
@@ -504,7 +492,7 @@ BASE_MISIONES = {
 
          {"id": 310, "titulo": "Exploración de Espacios", "titulo_en": "Space Exploration", "porque": "Hoy vas a abrir la aplicación de alquiler de casas en tu teléfono con total tranquilidad desde tu zona de descanso habitual. Si sientes que te falta imaginación y que tus días son aburridos, mirar fotos de lugares hermosos te ayudará a despertar tu creatividad de inmediato. Busca cabañas de madera o casitas de campo dentro de tu estado. Mira las fotos de las habitaciones y los landscapes como un juego interactivo para hacer volar tu mente, sin ninguna obligación de reservar nada. Regálate este viaje mental profundo y reconecta con tu inspiración ahora.", "porque_en": "Today you will open the home rental app on your phone with total peace of mind from your usual resting space. If you feel a lack of imagination and your days are boring, looking at pictures of beautiful places will help awaken your creativity immediately. Look for wooden cabins or country houses inside your state. Look at the photos of the rooms and landscapes as an interactive game to let your imagination fly, without any obligation to book anything. Grant yourself this deep mental journey and reconnect with your inspiration now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Interfaz móvil desde tu zona de descanso habitual.", "donde_en": "Mobile interface from your usual resting space.", "gps": "local post office", "vector_necesidades": {"creatividad": 100, "contemplacion": 95, "juego": 70, "organizacion": 80, "esperanza": 85, "descanso": 60, "aprendizaje": 60} },
   {"id": 311, "titulo": "Mapeo de Flujos", "titulo_en": "Flow Mapping", "porque": "Hoy te dirigirás a la tienda gigante o club de precios más conocer cercano en tu Código Postal. Si tu rutina se siente plana y aburrida y necesitas activar tu cuerpo, caminar por un lugar inmenso y lleno de movimiento despertará tus sentidos de inmediato. Camina a paso firme y tranquilo por los pasillos más largos del borde externo. Observa la gran cantidad de cajas y objetos a tu alrededor, y aprovecha este espacio techado y fresco para mover tus piernas de forma constante. Levántate ahora mismo, rompe el piloto automático y actívate.", "porque_en": "Today you will head to the nearest giant store or price club in your Zip Code. If your routine feels flat and boring and you need to activate your body, walking through a huge place full of movement will awaken your senses immediately. Walk steadily and peacefully through the long outer aisles. Observe the large amount of boxes and items around you, and use this indoor, cool space to move your legs constantly. Get up right now, break away from your daily automatic pilot, and activate your body.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Pasillos industriales de un gran almacén de USA.", "donde_en": "Industrial aisles of a large USA warehouse store.", "gps": "wholesale club or warehouse", "vector_necesidades": {"movimiento": 85, "organizacion": 75, "comunidad": 60, "contemplacion": 60, "juego": 40, "descanso": 10, "silencio": 5} },
-  {"id": 312, "titulo": "Sabotaje de Espera", "titulo_en": "Waiting Sabotage", "porque": "Hoy vas a buscar la escuela o universidad pública que te quede más cerca en tu vecindario. Si tu mente cayó en un bucle aburrido, plano y pesado, te vendrá excelente recibir una inyección de aire fresco en un ambiente de estudio para recuperar tu enfoque de inmediato. Camina despacio y en completo silencio por sus jardines y plazas abiertas, respira el aire limpio con total libertad y observa el entorno con absoluta tranquilidad. Levántate ahora mismo, regálate este respiro intelectual gratuito y rompa la rutina diaria por completo.", "porque_en": "Today you will look for the public school or university closest to you in your neighborhood. If your mind fell into a boring, flat, and heavy loop, it will do you excellent to get a fresh air boost in a learning environment to regain your focus immediately. Walk slowly and in complete silence through its lawns and open squares, breathe the clean air freely, and observe the surroundings with absolute peace. Get up right now, grant yourself this free intellectual break, and completely break your everyday routine.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Áreas comunes abiertas de un campus universitario.", "donde_en": "Open common areas of a university campus.", "gps": "university campus or public school", "vector_necesidades": {"aprendizaje": 100, "aire_fresco": 95, "silencio": 90, "contemplacion": 85, "descanso": 70, "movimiento": 40} } 
+  {"id": 312, "titulo": "Sabotaje de Espera", "titulo_en": "Waiting Sabotage", "porque": "Hoy vas a buscar la escuela o universidad pública que te quede más cerca en tu vecindario. Si tu mente cayó en un bucle aburrido, plano y pesado, te vendrá excelente recibir una inyección de aire fresco en un ambiente de estudio para recuperar tu enfoque de inmediato. Camina despacio y en completo silencio por sus jardines y plazas abiertas, respira el aire limpio con total libertad y observa el entorno con absoluta tranquilidad. Levántate ahora mismo, regálate este respiro intelectual gratuito y rompa la rutina diaria por completo.", "porque_en": "Today you will look for the public school or university closest to you in your neighborhood. If your mind fell into a boring, flat, and heavy loop, it will do you excellent to get a fresh air boost in a learning environment to regain your focus immediately. Walk slowly and in complete silence through its lawns and open squares, breathe the clean air freely, and observe the surroundings with absolute peace. Get up right now, grant yourself this free intellectual break, and completely break your everyday routine.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Áreas comunes abiertas de un campus universitario.", "donde_en": "Open common areas of a university campus.", "gps": "university campus or public school", "vector_necesidades": {"aprendizaje": 100, "aire_fresco": 95, "silencio": 90, "contemplacion": 85, "descanso": 70, "movimiento": 40} }
    ],
     "cansado": [
   {"id": 104, "titulo": "Lectura en biblioteca", "titulo_en": "Library Reading", "porque": "Hoy vas a visitar la biblioteca pública de tu vecindario e ingresarás despacio. Si tu cuerpo te pide un momento legítimo de calma para aprender cosas bonitas sin ruidos y recargar tu energía en un lugar apacible, camina sin prisa entre los estantes. Busca un libro de cuentos o imágenes interesantes y disfruta del silencio absoluto del entorno. Levántate ahora mismo, regálate este respiro intelectual protector y permite que tus ojos descansen por completo de las pantallas. Rompe el piloto automático diario y sana tus pensamientos en paz.", "porque_en": "Today you will visit the public library in your neighborhood and enter slowly. If your body asks for a legitimate quiet moment to learn beautiful things without distractions and recharge your energy in a peaceful place, walk without rush among the shelves. Look for a storybook or interesting pictures and enjoy the absolute silence of the environment. Get up right now, grant yourself this protective intellectual break, and let your eyes rest completely from screens. Break the daily automatic pilot and heal your thoughts in total peace.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Biblioteca pública.", "donde_en": "Public library.", "gps": "public library", "vector_necesidades": {"movimiento": 30, "naturaleza": 10, "silencio": 100, "agua": 0, "sol": 10, "sombra": 80, "aire_fresco": 50, "creatividad": 70, "comunidad": 50, "aprendizaje": 95, "juego": 10, "contemplacion": 90, "descanso": 85, "organizacion": 70, "alimentacion": 0, "musica": 0, "risa": 10, "esperanza": 70} },
@@ -523,7 +511,7 @@ BASE_MISIONES = {
   {"id": 129, "titulo": "Tour Histórico a Pie", "titulo_en": "Historical Walking Tour", "porque": "Hoy te unirás a una caminata guiada o harás un recorrido peatonal por las calles antiguas de tu ciudad. Si te encuentras cansado de ver siempre los mismos caminos predecibles y tu cuerpo te pide un paseo suave para aprender historias nuevas, descubre los relatos del pasado con absoluta calma. Estira tus piernas alegremente y mantén tu mente curiosa lejos de los dispositivos digitales. Levántate ahora mismo, regálate este quiebre intelectual activo y permite que tu cuerpo active su energía. Tu nueva aventura urbana empieza ya.", "porque_en": "Today you will join a guided walk or take a pedestrian tour through the old streets of your city. If you feel tired of always seeing the same predictable paths and your body is asking for a gentle stroll to learn new stories, discover the tales of the past with absolute calm. Stretch your legs joyfully and keep your curious mind away from digital devices. Get up right now, grant yourself this active intellectual break, and allow your body to activate its energy. Your new urban adventure begins right now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Centro histórico de la ciudad.", "donde_en": "City historical center.", "gps": "free walking tour", "vector_necesidades": {"movimiento": 80, "naturaleza": 30, "silencio": 50, "agua": 10, "sol": 70, "sombra": 60, "aire_fresco": 80, "creatividad": 70, "comunidad": 70, "aprendizaje": 100, "juego": 20, "contemplacion": 80, "descanso": 60, "organizacion": 50, "alimentacion": 20, "musica": 30, "risa": 40, "esperanza": 90} },
   {"id": 231, "titulo": "Paseo junto al Mar", "titulo_en": "Maritime Stroll", "porque": "Hoy te dirigirás hacia el muelle, puerto o zona costera abierta más cercana de tu región. Si sientes un cansancio monótono por pasar mucho tiempo encerrado y tu mente te pide mirar el mar inmenso para olvidar los ruidos del concreto de la calle, detén tu marcha de inmediato. Quédate observando las grandes embarcaciones en la línea del horizonte y permite que el reflejo de la luz sobre el agua limpie todos tus pensamientos. Levántate ahora mismo, regálate este descanso contemplativo pasivo y respira el aire marino.", "porque_en": "Today you will head to the nearest dock, pier, or open coastal zone in your region. If you feel a monotonous tiredness from spending too much time cooped up and your mind is asking to look at the vast sea to forget the street's concrete noises, stop your pace immediately. Spend some time watching the large vessels on the horizon line and let the light reflecting on the water clear away all your thoughts. Get up right now, grant yourself this passive contemplative rest, and breathe the fresh marine air.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Muelle, puerto o zona costera abierta.", "donde_en": "Dock, pier, or open coastal zone.", "gps": "cruise terminal or pier", "vector_necesidades": {"agua": 100, "contemplacion": 95, "descanso": 90, "aire_fresco": 90, "naturaleza": 80, "silencio": 60} },
 
-          {"id": 232, "titulo": "Ritmo en la Ciudad", "titulo_en": "City Rhythm", "porque": "Hoy vas a caminar por una zona alegre del centro de la ciudad donde haya música. Si sientes el aburrimiento de una rutina muy callada y tu cuerpo te pide escuchar canciones alegres para activarte, quédate un momento en la acera al aire libre. Escucha el ritmo de la música de fondo y siente la energía divertida de las luces de la calle que rompen tu monotonía por completo. Levántate ahora mismo, regálate este estímulo acústico dinámico y permite que tu cuerpo recupere su entusiasmo natural de inmediato. El viaje y la música empiezan ya.", "porque_en": "Today you will walk through a cheerful downtown area where there is music. If you feel the boredom of a very quiet routine and your body is asking to hear some cheerful music to activate yourself, stay for a moment on the open sidewalk. Listen to the rhythm of the songs playing in the background and feel the fun energy of the street lights breaking your monotony completely. Get up right now, grant yourself this dynamic acoustic boost, and allow your body to recover its natural enthusiasm immediately. Your journey starts now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Perímetro exterior o terraza de un club céntrico.", "donde_en": "Outer perimeter or terrace of a central club.", "gps": "dance club or nightclub", "vector_necesidades": {"musica": 100, "juego": 90, "comunidad": 80, "risa": 70, "movimiento": 60, "silencio": 10, "descanso": 40} } 
+          {"id": 232, "titulo": "Ritmo en la Ciudad", "titulo_en": "City Rhythm", "porque": "Hoy vas a caminar por una zona alegre del centro de la ciudad donde haya música. Si sientes el aburrimiento de una rutina muy callada y tu cuerpo te pide escuchar canciones alegres para activarte, quédate un momento en la acera al aire libre. Escucha el ritmo de la música de fondo y siente la energía divertida de las luces de la calle que rompen tu monotonía por completo. Levántate ahora mismo, regálate este estímulo acústico dinámico y permite que tu cuerpo recupere su entusiasmo natural de inmediato. El viaje y la música empiezan ya.", "porque_en": "Today you will walk through a cheerful downtown area where there is music. If you feel the boredom of a very quiet routine and your body is asking to hear some cheerful music to activate yourself, stay for a moment on the open sidewalk. Listen to the rhythm of the songs playing in the background and feel the fun energy of the street lights breaking your monotony completely. Get up right now, grant yourself this dynamic acoustic boost, and allow your body to recover its natural enthusiasm immediately. Your journey starts now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Perímetro exterior o terraza de un club céntrico.", "donde_en": "Outer perimeter or terrace of a central club.", "gps": "dance club or nightclub", "vector_necesidades": {"musica": 100, "juego": 90, "comunidad": 80, "risa": 70, "movimiento": 60, "silencio": 10, "descanso": 40} }
     ],
     "ansioso": [
   {"id": 105, "titulo": "Mirar el agua", "titulo_en": "Watch the Water", "porque": "Hoy vas a buscar una hermosa fuente, un lago tranquilo o un río cercano en tu zona. Si sientes que la prisa mental te agobia, recuerda que el agua en movimiento es ideal para darte calma de inmediato. Te ayuda a despejar la mente de preocupaciones y relajar por completo las tensiones acumuladas de tus hombros. Siéntate en la orilla a observar detalladamente el flujo constante de la corriente y relájate. Levántate ahora mismo, regálate este respiro visual pasivo y permite que tu respiración se equilibre con la naturaleza. Todo está bien en este instante.", "porque_en": "Today you will look for a beautiful fountain, a quiet lake, or a nearby river in your area. If you feel that mental rush overwhelms you, remember that moving water is ideal for bringing you calm immediately. It helps clear your mind of worries and completely relax the built-up tension in your shoulders. Sit by the edge to closely observe the steady flow of the stream and relax. Get up right now, grant yourself this passive visual break, and allow your breathing to find its balance with nature. Everything is fine at this moment.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Fuente de agua o lago.", "donde_en": "Water fountain or lake.", "gps": "public fountain or lake", "vector_necesidades": {"movimiento": 40, "naturaleza": 80, "silencio": 70, "agua": 100, "sol": 60, "sombra": 50, "aire_fresco": 90, "creatividad": 20, "comunidad": 30, "aprendizaje": 10, "juego": 20, "contemplacion": 90, "descanso": 80, "organizacion": 10, "alimentacion": 0, "musica": 50, "risa": 10, "esperanza": 80} },
@@ -543,8 +531,8 @@ BASE_MISIONES = {
   {"id": 242, "titulo": "Estrategia de Alivio", "titulo_en": "Relief Strategy", "porque": "Hoy caminarás hacia la sala principal de la central de autobuses o aeropuerto más cercano. Si sientes una sensación de encierro debido a la rutina de trabajar todos los días en el mismo lugar y necesitas estirar la mirada, guarda tu teléfono en el bolsillo de inmediato. Observa con calma a las personas viajar y recuerda que el mundo es inmenso y este momento de inquietud pasará pronto. Levántate ahora mismo, abraza este estímulo visual profundo y rompe el piloto automático diario expandiendo tus pensamientos. Tu viaje interior comienza ya.", "porque_en": "Today you will walk to the main hall of the nearest transit station or airport. If you feel a sense of confinement from the routine of working every day in the same place and you need to stretch your gaze, put your phone away in your pocket immediately. Calmly watch the people traveling and remember that the world is huge and this moment of restlessness will pass soon. Get up right now, embrace this deep visual stimulus, and break the daily automatic pilot by expanding your thoughts. Your inner journey begins right now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Vestíbulo público de aeropuerto o central de transportes.", "donde_en": "Public airport lobby or transit center.", "gps": "transit center or airport terminal", "vector_necesidades": {"contemplacion": 100, "aire_fresco": 90, "esperanza": 95, "descanso": 70, "silencio": 50, "movimiento": 30} },
   {"id": 243, "titulo": "Un Momento de Quietud", "titulo_en": "A Moment of Stillness", "porque": "Hoy vas a visitar el jardín o el patio interior de un hotel cercano. Si sientes un poco de timidez o cansancio por estar con muchas personas y tu cabeza está pesada debido a tantas responsabilidades, toma asiento tranquilamente en uno de los sillones públicos de inmediato. Cierra tus ojos por un minuto entero y respira de forma muy lenta para descansar tu cuerpo por completo. Levántate ahora mismo, regálate este quiebre de entorno protector y permite que el silencio repare tu balance interno en paz. Tu mente descansa en total comodidad.", "porque_en": "Today you will visit the garden or inner courtyard of a nearby hotel. If you feel a bit of shyness or tiredness from being around too many people and your head is heavy due to so many responsibilities, take a seat peacefully in one of the public armchairs immediately. Close your eyes for one whole minute and breathe very slowly to rest your body completely. Get up right now, grant yourself this protective change of scenery, and allow the stillness to repair your inner balance in peace. Your mind rests in total comfort.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Zona de descanso o jardín de un hotel de USA.", "donde_en": "Lobby, interior garden, or lounge area of a USA hotel.", "gps": "boutique hotel lobby", "vector_necesidades": {"descanso": 100, "silencio": 90, "contemplacion": 95, "organizacion": 80, "salud": 85, "esperanza": 85} },
   {"id": 244, "titulo": "Soberanía de Cabina", "titulo_en": "Cabin Sovereignty", "porque": "Hoy vas a buscar la ventana más grande que tengas cerca en esta terminal de transporte con una vista despejada hacia afuera. Si sientes la mente muy saturada por las presiones del día y los ruidos fuertes causados por los viajes continuos en el transporte masivo, detén tu prisa de inmediato. Toma aire de forma profunda y lenta tres veces seguidas para relajar los hombros por completo. Recuerda que tu cuerpo merece un momento legítimo de descanso libre de todo apuro. Siente el aire fresco y recupera tu calma interna ahora.", "porque_en": "Today you will look for the largest window nearby in this transit terminal that has a beautiful, clear view outside. If you feel your mind heavily overloaded from the pressures of the day and loud noises caused by continuous travel on mass transit, stop your rush immediately. Take a deep, slow breath three times in a row to completely relax your shoulders. Remember that your body deserves a legitimate moment of rest free from any hurry. Feel the fresh air and recover your inner calm right now.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Terminal de aeropuerto, central de tránsito o zona de observación abierta.", "donde_en": "Airport terminal, transit hub, or open observation zone.", "gps": "airport terminal or transit hub", "vector_necesidades": {"aire_fresco": 95, "contemplacion": 100, "esperanza": 90, "descanso": 70, "silencio": 60, "movimiento": 30} }
-] 
-} 
+]
+}
 }
 
 BIG_TECH_RESOURCES = {
@@ -754,7 +742,7 @@ def seleccionar_n_misiones_inteligentes(n, misiones, perfil_local, historial_act
             if mision_id not in ids_seleccionados and mision_id not in historial_actual:
                 seleccionadas.append(cand["mision"])
                 ids_seleccionados.add(mision_id)
-# ==========================================================================================
+
     # Si todavía no tenemos suficientes, y el historial se ha agotado, reinicia y toma al azar
     # o desde las que ya están en historial pero con menos penalización.
     if len(seleccionadas) < n:
@@ -764,13 +752,13 @@ def seleccionar_n_misiones_inteligentes(n, misiones, perfil_local, historial_act
                 temp_misiones_a_añadir.append(cand["mision"])
                 if len(temp_misiones_a_añadir) >= (n - len(seleccionadas)):
                     break
-        
+       
         # Si todavía faltan, toma aleatorias de todo el catálogo si es necesario
         if len(temp_misiones_a_añadir) < (n - len(seleccionadas)):
             random_misions_pool = [m for m in misiones if m["id"] not in ids_seleccionados and m not in temp_misiones_a_añadir]
             random.shuffle(random_misions_pool)
             temp_misiones_a_añadir.extend(random_misions_pool[:(n - len(seleccionadas) - len(temp_misiones_a_añadir))])
-        
+       
         seleccionadas.extend(temp_misiones_a_añadir)
         for m in temp_misiones_a_añadir:
             ids_seleccionados.add(m["id"])
@@ -792,7 +780,7 @@ def filtrar_historial(misiones, historial):
 def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa=None, cantidad=3):
     historial_casa = historial_casa or []
     disponibles = filtrar_historial(misiones, historial_casa)
-    
+   
     if len(disponibles) < cantidad * 2 and len(misiones) > 0:
         # Si quedan muy pocas sin repetir, considera todo el catálogo de nuevo
         disponibles = misiones
@@ -814,12 +802,12 @@ def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa
     candidatos.sort(key=lambda x: x["score"], reverse=True)
     resultado = []
     ids_en_resultado = set()
-# ==========================================================================================
+
     # Intenta seleccionar misiones diversas y de alto score
     for candidato in candidatos:
         mision_actual = candidato["mision"]
         mision_id = mision_actual["id"]
-        
+       
         if mision_id in ids_en_resultado:
             continue
 
@@ -839,18 +827,18 @@ def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa
 
         if len(resultado) >= cantidad:
             break
-# ==========================================================================================
+
     # Bucle de respaldo seguro si la diversidad fue muy estricta o no se alcanzó la cantidad
     if len(resultado) < cantidad:
         # Usar la lista 'candidatos' ya ordenada por score
-        for candidato in candidatos: 
+        for candidato in candidatos:
             mision_actual = candidato["mision"]
             if mision_actual["id"] not in ids_en_resultado:
                 resultado.append(mision_actual)
                 ids_en_resultado.add(mision_actual["id"])
             if len(resultado) >= cantidad:
                 break
-    # ==========================================================================================
+   
     # Fallback final: si aún no hay suficientes, toma las primeras 'cantidad' del catálogo completo
     # Asegúrate de no tomar duplicados si el catálogo es pequeño.
     while len(resultado) < cantidad and len(misiones) > len(ids_en_resultado):
@@ -871,46 +859,59 @@ async def index():
 # INYECCIÓN OPERATIVA: CONTROLADORES DE COMPRA Y ACCESO ADMINISTRATIVO CON REQUEST SEGURO
 # ==========================================================================================
 @app.post("/crear-checkout")
-async def crear_checkout(data: dict):
-    tipo_plan = data.get("tipo_plan")
-    user_id = data.get("user_id", "cliente_otg")
-    if tipo_plan not in PLANES_STRIPE:
-        raise HTTPException(status_code=400, detail="Plan inválido")
+async def crear_checkout(request: Request):
     try:
+        data = await request.json()
+        tipo_plan = data.get("tipo_plan")
+        user_id = data.get("user_id", "cliente_otg")
+
+        if tipo_plan not in PLANES_STRIPE:
+            raise HTTPException(status_code=400, detail="Plan inválido")
+
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             line_items=[{"price": PLANES_STRIPE[tipo_plan], "quantity": 1}],
             mode="subscription" if tipo_plan != "unico" else "payment",
-            success_url="https://onrender.com",
-            cancel_url="https://onrender.com",
+            success_url="https://open-than-go.onrender.com",
+            cancel_url="https://open-than-go.onrender.com",
             client_reference_id=user_id
         )
+
         return {"url": session.url}
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})
 
 @app.post("/login-admin")
-async def login_admin(data: dict):
-    username = data.get("username")
-    password = data.get("password")
-    if username == ADMIN_USER and password == ADMIN_PASS:
-        return {"status": "success", "role": "admin", "user_id": "admin_master"}
-    raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+async def login_admin(request: Request):
+    try:
+        data = await request.json()
+        username = data.get("username")
+        password = data.get("password")
+
+        if username == ADMIN_USER and password == ADMIN_PASS:
+            return {"status": "success", "role": "admin", "user_id": "admin_master"}
+
+        return JSONResponse(status_code=401, content={"error": "Credenciales incorrectas"})
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": "Payload malformado"})
 
 @app.post("/webhook-stripe")
 async def webhook_stripe(request: Request):
     payload = await request.body()
     sig_header = request.headers.get("stripe-signature")
+
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
     except Exception as e:
         return JSONResponse(status_code=400, content={"error": str(e)})
+
     if event["type"] == "checkout.session.completed":
         session = event["data"]["object"]
-        # Aquí puedes manejar la activación estática si decides guardar pases locales
         print(f"Pago exitoso para usuario: {session.get('client_reference_id')}")
+
     return {"status": "success"}
-# ==========================================================================================
+   
+
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
     """
@@ -945,23 +946,17 @@ async def mando_integral(request: Request):
 
     if "indicador_ansiedad" not in perfil_local:
         perfil_local["indicador_ansiedad"] = 0
-# ==========================================================================================
-# === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ACTUALIZADO ===
-ADVERTENCIA_LEGAL_ES = (
-    "AVISO DE SEGURIDAD Y USO LEGAL EXCLUSIVO (May Roga LLC): Queda estrictamente prohibido utilizar "
-    "la plataforma OPEN THAN GO mientras se conduce, maneja vehículos, maquinaria pesada o se realiza "
-    "cualquier actividad que pueda causar daño o lesión al individuo o a terceros. Esta aplicación "
-    "constituye una herramienta de orientación y sugerencia personal; el usuario asume la total y "
-    "absoluta responsabilidad sobre el uso de su atención."
-)
-ADVERTENCIA_LEGAL_EN = (
-    "SAFETY NOTICE AND LEGAL USE EXCLUSIVE (May Roga LLC): It is strictly prohibited to use the "
-    "OPEN THAN GO platform while driving, operating vehicles, heavy machinery, or performing any activity "
-    "that may cause damage or injury to the individual or third parties. This application constitutes "
-    "a tool for personal guidance and suggestion; the user assumes total and absolute responsibility "
-    "for the use of their attention."
-)
-# ==========================================================================================
+
+    # === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ===
+    ADVERTENCIA_LEGAL_ES = (
+        "AVISO DE SEGURIDAD: Está prohibido usar Open Than Go mientras manejas. Tu seguridad es lo primero. "
+        "El uso es bajo tu propio riesgo y exime de toda responsabilidad a May Roga LLC."
+    )
+    ADVERTENCIA_LEGAL_EN = (
+        "SAFETY NOTICE: Using Open Than Go while driving is strictly prohibited. Your safety comes first. "
+        "Use is at your own risk and exempts May Roga LLC from all liability."
+    )
+
     # Inicialización de variables para evitar NameError en todas las ramas de ejecución
     marca_detectada = None
     instruccion_fisiologica_es = "Detente, respira libre."
@@ -970,17 +965,17 @@ ADVERTENCIA_LEGAL_EN = (
     diagnostico_sintoma_en = "Routine exhaustion."
     enlace_yt = ""
     enlace_sp = ""
-    
+   
     # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
     # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
     # ==========================================================================================
-    
+   
     force_recovery_mission = False
     explicitly_seeking_job = any(
         phrase in desahogo for phrase in ["quiero buscar trabajo", "necesito un empleo", "busco trabajo", "find a job", "looking for work"]
     )
-# ==========================================================================================
+
     # DETECCIÓN DE SÍNTOMAS CORPORATIVOS O AMBIENTALES DEL ENTORNO DE USA
     if desahogo and not explicitly_seeking_job:
         desahogo_lower = desahogo.lower()
@@ -1045,7 +1040,7 @@ ADVERTENCIA_LEGAL_EN = (
                 "1": "local+coffee+shop+bakery",
                 "2": "glamping+resort+cabin+rental"
             },
-            "cansado": { 
+            "cansado": {
                 "0": "public+library+museums",
                 "1": "historic+sites+walking+tours",
                 "2": "calm+beach+resort+towns"
@@ -1055,7 +1050,7 @@ ADVERTENCIA_LEGAL_EN = (
         matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
         gasto_key = budget if budget in ["0", "1", "2"] else "0"
         actividad_base = matriz_ocio[gasto_key]
-        
+       
         modificador_compania = ""
         if perfil_tipo == "familia":
             modificador_compania = "+family+friendly"
@@ -1066,7 +1061,7 @@ ADVERTENCIA_LEGAL_EN = (
 
         full_query = f"{actividad_base}{modificador_compania}+in+{zip_code}"
         target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
-# ==========================================================================================
+
         # Inyectamos la misión formateada de forma segura respetando tu esquema original
         final_misiones_para_frontend = [{
             "destino_id": 999,
@@ -1100,9 +1095,9 @@ ADVERTENCIA_LEGAL_EN = (
         manif_humano_casa = random.choice(textos_oraculo_casa)
         idioma = "EN" if lang == "en" else "ES"
         target_key = f"CASA_{idioma}"
-        
+       
         misiones_completas_base = BASE_MISIONES.get(target_key, [])
-            
+           
         final_misiones_casa = []
         if not misiones_completas_base: # Fallback if specific language mission not found
             if idioma == "ES":
@@ -1134,7 +1129,7 @@ ADVERTENCIA_LEGAL_EN = (
                         "descripcion_en": m.get("descripcion_en", m.get("que_hacer_en", m.get("porque_en", "Somatic wellness pause."))),
                         "vector_necesidades": m.get("vector_necesidades", {})
                     })
-# ==========================================================================================
+
         # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
         misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
             misiones=final_misiones_casa, # Use the prepared list
@@ -1142,7 +1137,7 @@ ADVERTENCIA_LEGAL_EN = (
             historial_casa=payload.get("historial_casa", []),
             cantidad=3
         )
-        
+       
         historial_casa_actualizado = payload.get("historial_casa", [])
         for m in misiones_domesticas_finales:
             historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
@@ -1161,7 +1156,7 @@ ADVERTENCIA_LEGAL_EN = (
         # 2. INTERVENCIÓN EXTERNA (MODO SALIR) - ENTRADA POR DEFECTO
         opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
         historial_salir = payload.get("historial_salir", [])
-        
+       
         misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
             n=3,
             misiones=opciones_salir_candidatas,
@@ -1175,7 +1170,6 @@ ADVERTENCIA_LEGAL_EN = (
 
 
         for info_seleccionada in misiones_seleccionadas_raw:
-            # ==========================================================================================
             # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO AISLADOS PARA LA INTERFAZ ===
             precio_real = ""
             if budget == "0":
@@ -1192,7 +1186,7 @@ ADVERTENCIA_LEGAL_EN = (
                 quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
             elif perfil_tipo == "accesible":
                 quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
-# ==========================================================================================
+
             # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
             titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
             que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or ""
@@ -1204,7 +1198,7 @@ ADVERTENCIA_LEGAL_EN = (
                 search_query_parts.append("wheelchair accessible")
             elif perfil_tipo == "familia":
                 search_query_parts.append("family friendly")
-                
+               
             search_query_parts.append(info_seleccionada.get("gps", "park"))
             target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}"
             final_vector_necesidades = info_seleccionada.get("vector_necesidades", {})
@@ -1212,7 +1206,7 @@ ADVERTENCIA_LEGAL_EN = (
             # Usar los enlaces por defecto si no están definidos en la misión
             enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
             enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
-# ==========================================================================================
+
             # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
             final_misiones_para_frontend.append({
                 "destino_id": info_seleccionada.get("id"),
@@ -1238,7 +1232,7 @@ ADVERTENCIA_LEGAL_EN = (
             "legal_notice_es": ADVERTENCIA_LEGAL_ES,
             "legal_notice_en": ADVERTENCIA_LEGAL_EN,
             "drive_prohibited": True
-        }) 
+        })
 # ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==========================================================================================
