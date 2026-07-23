@@ -946,21 +946,21 @@ async def mando_integral(request: Request):
     if "indicador_ansiedad" not in perfil_local:
         perfil_local["indicador_ansiedad"] = 0
 # ==========================================================================================
-     # === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ACTUALIZADO ===
- ADVERTENCIA_LEGAL_ES = (
-  "AVISO DE SEGURIDAD Y USO LEGAL EXCLUSIVO (May Roga LLC): Queda estrictamente prohibido utilizar "
-  "la plataforma OPEN THAN GO mientras se conduce, maneja vehículos, maquinaria pesada o se realiza "
-  "cualquier actividad que pueda causar daño o lesión al individuo o a terceros. Esta aplicación "
-  "constituye una herramienta de orientación y sugerencia personal; el usuario asume la total y "
-  "absoluta responsabilidad sobre el uso de su atención."
- )
- ADVERTENCIA_LEGAL_EN = (
-  "SAFETY NOTICE AND LEGAL USE EXCLUSIVE (May Roga LLC): It is strictly prohibited to use the "
-  "OPEN THAN GO platform while driving, operating vehicles, heavy machinery, or performing any activity "
-  "that may cause damage or injury to the individual or third parties. This application constitutes "
-  "a tool for personal guidance and suggestion; the user assumes total and absolute responsibility "
-  "for the use of their attention."
- )
+# === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ACTUALIZADO ===
+ADVERTENCIA_LEGAL_ES = (
+    "AVISO DE SEGURIDAD Y USO LEGAL EXCLUSIVO (May Roga LLC): Queda estrictamente prohibido utilizar "
+    "la plataforma OPEN THAN GO mientras se conduce, maneja vehículos, maquinaria pesada o se realiza "
+    "cualquier actividad que pueda causar daño o lesión al individuo o a terceros. Esta aplicación "
+    "constituye una herramienta de orientación y sugerencia personal; el usuario asume la total y "
+    "absoluta responsabilidad sobre el uso de su atención."
+)
+ADVERTENCIA_LEGAL_EN = (
+    "SAFETY NOTICE AND LEGAL USE EXCLUSIVE (May Roga LLC): It is strictly prohibited to use the "
+    "OPEN THAN GO platform while driving, operating vehicles, heavy machinery, or performing any activity "
+    "that may cause damage or injury to the individual or third parties. This application constitutes "
+    "a tool for personal guidance and suggestion; the user assumes total and absolute responsibility "
+    "for the use of their attention."
+)
 # ==========================================================================================
     # Inicialización de variables para evitar NameError en todas las ramas de ejecución
     marca_detectada = None
