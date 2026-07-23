@@ -1116,26 +1116,27 @@ if opcion_usuario == "CASA":
                  })
 # ==========================================================================================
 # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
-misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
-    misiones=final_misiones_casa, # Use the prepared list
-    perfil_local=perfil_local,
-    historial_casa=payload.get("historial_casa", []),
-    cantidad=3
-)
+if opcion_usuario == "CASA":
+    misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
+        misiones=final_misiones_casa, # Use the prepared list
+        perfil_local=perfil_local,
+        historial_casa=payload.get("historial_casa", []),
+        cantidad=3
+    )
 
-historial_casa_actualizado = payload.get("historial_casa", [])
-for m in misiones_domesticas_finales:
-    historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
+    historial_casa_actualizado = payload.get("historial_casa", [])
+    for m in misiones_domesticas_finales:
+        historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
 
-return JSONResponse({
-    "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
-    "misiones": misiones_domesticas_finales,
-    "oraculo_manifiesto": manif_humano_casa,
-    "historial_casa_actualizado": historial_casa_actualizado,
-    "forced_recovery": False,
-    "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-    "drive_prohibited": False
-})
+    return JSONResponse({
+        "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
+        "misiones": misiones_domesticas_finales,
+        "oraculo_manifiesto": manif_humano_casa,
+        "historial_casa_actualizado": historial_casa_actualizado,
+        "forced_recovery": False,
+        "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+        "drive_prohibited": False
+    })
 
 else:
     # 2. INTERVENCIÓN EXTERNA (MODO SALIR) - ENTRADA POR DEFECTO
@@ -1192,7 +1193,7 @@ else:
         enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
         enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
         # ==========================================================================================
-            # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
+# === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
             final_misiones_para_frontend.append({
                 "destino_id": info_seleccionada.get("id"),
                 "destino_titulo": titulo_ganador_lang,
@@ -1218,9 +1219,11 @@ else:
             "legal_notice_en": ADVERTENCIA_LEGAL_EN,
             "drive_prohibited": True
         }) 
+
 # ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==========================================================================================
 if __name__ == "__main__":
     port_env = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
+           
