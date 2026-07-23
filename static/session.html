@@ -715,39 +715,37 @@
     </a>
 
     <!-- 1. DETECTOR E INTERCEPTOR DE ERRORES 404 (SVG FALLBACK) -->
-    <script>
-        document.addEventListener("error", function (e) {
-            if (e.target.tagName.toLowerCase() === "img") {
-                const src = e.target.src || "";
-                const fallbacks = {
-                    "square_breath.svg": "🔲",
-                    "silence.svg": "🤫",
-                    "gratitude.svg": "🙏",
-                    "laugh.svg": "😂",
-                    "observe.svg": "👁️",
-                    "stretch.svg": "🧘",
-                    "words.svg": "✍️",
-                    "nature_sound.svg": "🎵"
-                };
-
-                for (const file in fallbacks) {
-                    if (src.includes(file)) {
-                        const textAnchor = document.createElement("span");
-                        textAnchor.textContent = fallbacks[file];
-                        textAnchor.style.fontSize = "1.5rem";
-                        textAnchor.style.display = "inline-block";
-                        textAnchor.style.lineHeight = "1";
-                        textAnchor.className = e.target.className;
-                       
-                        e.target.parentNode.replaceChild(textAnchor, e.target);
-                        console.log(`Fallback activado con éxito para: ${file}`);
-                        break;
-                    }
-                }
-            }
-        }, true);
-    </script>
-    <!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
-    <script src="/static/engine.js"></script>
-</body>
-</html>
+      <script>
+    // Sistema de fallbacks para iconos SVG rotos usando emojis visuales
+    document.addEventListener("error", (e) => {
+      if (e.target.tagName.toLowerCase() === "img") {
+        const src = e.target.src || "";
+        const fallbacks = {
+          "square_breath.svg": "🔳",
+          "silence.svg": "🤫",
+          "gratitude.svg": "🙏",
+          "laugh.svg": "😂",
+          "observe.svg": "👁️",
+          "stretch.svg": "🧘",
+          "words.svg": "✍️",
+          "nature_sound.svg": "🎵"
+        };
+        
+        for (const file in fallbacks) {
+          if (src.includes(file)) {
+            const textAnchor = document.createElement("span");
+            textAnchor.textContent = fallbacks[file];
+            textAnchor.style.fontSize = "1.5rem";
+            textAnchor.style.display = "inline-block";
+            textAnchor.style.lineHeight = "1";
+            textAnchor.className = e.target.className;
+            e.target.parentNode.replaceChild(textAnchor, e.target);
+            console.log(`Fallback activado con éxito para: ${file}`);
+            break;
+          }
+        }
+      }
+    }, true);
+  </script>
+  <!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
+  <script src="/static/engine.js"></script>
