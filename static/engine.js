@@ -2317,21 +2317,23 @@ const OTG_SENSORIAL = {
 
 /**
  * ==========================================================================================
- * DISPARADOR INDEPENDIENTE EN PARALELO
- * Lanza tu triple toque sin sobreescribir tu init() original de fábrica
+ * DEFENSA DE CIERRE TOTAL DEL MÓDULO SENSORIAL
+ * Asegura la compilación limpia del hilo sin dejar llaves colgando en el kernel
  * ==========================================================================================
  */
 document.addEventListener("DOMContentLoaded", () => {
-  // Verificación de seguridad del espacio de nombres
   if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.inicializarBypassDesarrollador) {
     OTG_SENSORIAL.inicializarBypassDesarrollador();
     console.log("Escudo administrativo activado de forma externa y segura.");
   }
   
-  // Ejecución del núcleo del sistema
   if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.init) {
     OTG_SENSORIAL.init();
   }
 });
+
+// SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
+// ESTAS DOS LÍNEAS DE ABAJO DEBEN SER LAS ÚNICAS QUE CIERREN TODO TU ARCHIVO ENGINE.JS:
+})();
 
          
