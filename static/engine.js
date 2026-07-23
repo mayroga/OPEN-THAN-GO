@@ -2240,15 +2240,28 @@ const OTG_SENSORIAL = {
   // 1. INICIALIZADOR DE FÁBRICA
   init: function() {
     console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");
+    
+    // VERIFICACIÓN AUTOMÁTICA DE DESBLOQUEO: Si ya estás logueado, destruye el muro visual
+    const r = localStorage.getItem('otg_user_role');
+    const p = localStorage.getItem('otg_pase_stripe');
+    if (r === 'admin' || p) {
+      const paywall = document.getElementById('otg-muro-comercial');
+      if (paywall) paywall.style.display = 'none';
+      
+      const mainWrapper = document.getElementById('wrapper-form');
+      if (mainWrapper) mainWrapper.classList.remove('hidden');
+    }
   },
 
-  // 2. INYECCIÓN DE LLAMADAS DE PAGO A STRIPE
+  // 2. INYECCIÓN DE LLAMADAS DE PAGO A STRIPE (CORREGIDO CON ENRUTAMIENTO ABSOLUTO)
   procesarPagoStripe: function(planSeleccionado) {
     let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo';
+    console.log("Iniciando pasarela de pago para el plan:", planSeleccionado);
     
     fetch('/crear-checkout', {
       method: 'POST',
       headers: {
+        'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -2256,21 +2269,28 @@ const OTG_SENSORIAL = {
         user_id: userId
       })
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error("Error en la respuesta del servidor");
+      return res.json();
+    })
     .then(data => {
       if (data.url) {
         window.location.href = data.url;
+      } else if (data.error) {
+        alert("Error de Stripe: " + data.error);
       }
     })
-    .catch(err => console.error('Error de pasarela:', err));
+    .catch(err => {
+      console.error('Error crítico de pasarela:', err);
+      alert("No se pudo conectar con el servidor de pagos. Revisa tu conexión.");
+    });
   },
 
-  // 3. SISTEMA DE LOGIN Y TRIPLE TOQUE PARA EL DESARROLLADOR
+  // 3. SISTEMA DE LOGIN Y TRIPLE TOQUE PARA EL DESARROLLADOR (ENCAPSULADO SEGURO)
   inicializarBypassDesarrollador: function() {
     let clics = 0;
     let t;
     
-    // Apuntar al elemento 'cierre-logo' o a la cabecera principal de Open Than Go
     const trigger = document.getElementById('cierre-logo') || document.body;
     
     trigger.addEventListener('click', () => {
@@ -2279,7 +2299,7 @@ const OTG_SENSORIAL = {
       
       t = setTimeout(() => {
         clics = 0;
-      }, 1500); // Ventana de tiempo límite de 1.5 segundos
+      }, 1500);
       
       if (clics === 3) {
         clics = 0;
@@ -2288,9 +2308,11 @@ const OTG_SENSORIAL = {
         
         if (!user || !pass) return;
         
+        // Ejecuta la llamada forzando los encabezados requeridos por tu main.py de FastAPI
         fetch('/login-admin', {
           method: 'POST',
           headers: {
+            'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -2299,17 +2321,20 @@ const OTG_SENSORIAL = {
           })
         })
         .then(res => {
-          if (!res.ok) throw new Error();
+          if (!res.ok) throw new Error("Credenciales inválidas de servidor");
           return res.json();
         })
         .then(data => {
-          if (data.status === "success") {
+          if (data.status === "success" || data.role === "admin") {
             localStorage.setItem('otg_user_role', 'admin');
             alert("Acceso Desarrollador Concedido. Servicio Infinito Activo.");
-            location.reload(); // Recarga para aplicar el bypass de seguridad sin paywalls
+            location.reload();
           }
         })
-        .catch(() => alert("Credenciales inválidas de Render. Acceso denegado."));
+        .catch(err => {
+          console.error("Fallo de autenticación:", err);
+          alert("Credenciales inválidas de Render. Acceso denegado.");
+        });
       }
     });
   }
