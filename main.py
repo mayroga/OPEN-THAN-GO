@@ -1,29 +1,29 @@
 import os
-    import random
-    import re
-    import urllib.parse
-    from datetime import datetime
+import random
+import re
+import urllib.parse
+from datetime import datetime
 
-    # --- Imports combinados y faltantes ---
-    import stripe
-    import uvicorn
-    from fastapi import FastAPI, Request, HTTPException
-    from fastapi.responses import JSONResponse
-    from fastapi.staticfiles import StaticFiles
-    from starlette.responses import FileResponse # Para servir archivos estáticos como HTML
+# --- Imports combinados y faltantes ---
+import stripe
+import uvicorn
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse # Para servir archivos estáticos como HTML
 
-    # Inicialización segura con las variables de entorno de Render
-    stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-    STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
-    ADMIN_USER = os.environ.get("ADMIN_USERNAME")
-    ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
+# Inicialización segura con las variables de entorno de Render
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
+ADMIN_USER = os.environ.get("ADMIN_USERNAME")
+ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
 
-    # Matriz oficial de Price IDs inmutables
-    PLANES_STRIPE = {
-        "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
-        "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
-        "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
-    }
+# Matriz oficial de Price IDs inmutables
+PLANES_STRIPE = {
+    "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
+    "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
+    "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
+}
 
 # ==========================================================================================
 # MATRIZ INFINITA DE MANIFIESTOS EXISTENCIALES PARA EL ORÁCULO DE BIENESTAR (3 POR ESTADO)
