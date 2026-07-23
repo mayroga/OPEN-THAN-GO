@@ -1010,8 +1010,8 @@ textarea {
     </svg>
   </a>
 
-   <script>
-    // 1. SISTEMA DE FALLBACKS COMPLETO PARA ICONOS SVG ROTOS
+    <!-- 1. DETECTOR E INTERCEPTOR DE ERRORES 404 (SVG FALLBACK) -->
+  <script>
     document.addEventListener("error", (e) => {
       if (e.target.tagName.toLowerCase() === "img") {
         const src = e.target.src || "";
@@ -1041,24 +1041,8 @@ textarea {
         }
       }
     }, true);
-
-    // 2. PUENTE MECÁNICO DE INTERFAZ: Conecta las llamadas del HTML antiguo con tu nuevo motor
-    const KERNEL = {
-      despertarInicial: function() {
-        console.log("Despertando contenedor principal de la aplicación...");
-        const bienvenida = document.getElementById("pantalla-bienvenida");
-        const formulario = document.getElementById("wrapper-form");
-        
-        if (bienvenida) bienvenida.classList.add("hidden");
-        if (formulario) formulario.classList.remove("hidden");
-        
-        // Inicializa el bypass administrativo de OTG_SENSORIAL en paralelo
-        if (typeof OTG_SENSORIAL !== "undefined" && OTG_SENSORIAL.init) {
-          OTG_SENSORIAL.init();
-        }
-      }
-    };
   </script>
 
-  <!-- 3. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
+  <!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR ORIGINAL -->
   <script src="/static/engine.js"></script>
+ 
