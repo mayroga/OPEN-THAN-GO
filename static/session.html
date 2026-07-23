@@ -256,80 +256,176 @@
             100% { transform: translateX(520px); } /* Cloud should move across the full width + some */
         }
        
-        /* THE ORACLE: CASCADE UP EFFECT */
-        .oraculo-scroll-box { position: relative; min-height: 280px; overflow: hidden; margin-bottom: 20px; }
-        .oraculo-grid { display: flex; flex-direction: column; gap: 12px; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
-        .btn-pregunta-crisis {
-            width: 100%;
-            background: var(--panel);
-            color: #eee;
-            border: 1px solid #222;
-            padding: 16px;
-            font-size: 1.05rem;
-            font-weight: bold;
-            text-align: left;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s;
-            line-height: 1.4;
-            transform-origin: top center;
-        }
-        .btn-pregunta-crisis:hover { border-color: var(--accent); }
-        .btn-pregunta-crisis.fade-out { opacity: 0; transform: scale(0.8) translateY(-30px); margin-bottom: -64px; pointer-events: none; }
-       
-        .field { margin-bottom: 12px; transition: all 0.5s ease; }
-        label { display: block; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15rem; color: #666; margin-bottom: 4px; font-weight: bold; }
-        input, select, textarea {
-            width: 100%;
-            background: var(--panel);
-            border: 1px solid #222;
-            color: var(--text);
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 0.95rem;
-            outline: none;
-            -webkit-appearance: none; /* For consistent select styling on iOS */
-            -moz-appearance: none;
-            appearance: none;
-            transition: border-color 0.3s ease; /* Added transition for border color */
-        }
-        /* Corrected: Visual feedback for textarea on focus */
-        textarea:focus {
-            border-color: var(--green-action); /* CORRECCIÓN MECÁNICA: Añadido color de borde al hacer focus en textarea */
-        }
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 30px; /* Make space for the arrow */
-        }
-        input:focus, select:focus { border-color: var(--green-action); }
-        textarea { height: 65px; resize: vertical; border-color: #333; max-height: 150px; } /* Allow vertical resize */
-       
-        .hidden { display: none !important; }
-       
-        #pantalla-bienvenida { position: fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; }
-        .btn-bienvenida {
-            background:#fff;
-            color:#000;
-            padding:22px 45px;
-            font-weight:900;
-            cursor:pointer;
-            text-transform:uppercase;
-            border-radius:4px;
-            font-size: 0.95rem;
-            border: none;
-            letter-spacing: 1px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .btn-bienvenida:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
+       /* THE ORACLE: CASCADE UP EFFECT */
+.oraculo-scroll-box {
+  position: relative;
+  min-height: 280px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
 
-        /* INTERACTIVE CONTENT STYLING */
-        .mision-card { border: 1px solid #222; padding: 26px; text-align: left; background: #0a0a0a; border-radius: 12px; width: 100%; }
-        .mision-card small { color: #666; font-weight: bold; display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
-        .mision-card h2, .mision-card h3 { color: var(--green-action); font-size: 1.45rem; font-weight: 900; text-transform: uppercase; margin-top: 0; margin-bottom: 15px; }
-        .mision-card p, .mision-card .instruccion-text { font-size: 1.25rem; line-height: 1.6; color: #eee; margin: 18px 0; border-left: 4px solid var(--green-action); padding-left: 14px; text-align: left; font-weight: bold; }
-       
+.oraculo-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.btn-pregunta-crisis {
+  width: 100%;
+  background: var(--panel);
+  color: #eee;
+  border: 1px solid #222;
+  padding: 16px;
+  font-size: 1.05rem;
+  font-weight: bold;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.2s;
+  line-height: 1.4;
+  transform-origin: top center;
+}
+
+.btn-pregunta-crisis:hover {
+  border-color: var(--accent);
+}
+
+.btn-pregunta-crisis.fade-out {
+  opacity: 0;
+  transform: scale(0.8) translateY(-30px);
+  margin-bottom: -64px;
+  pointer-events: none;
+}
+
+.field {
+  margin-bottom: 12px;
+  transition: all 0.5s ease;
+}
+
+label {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15rem;
+  color: #666;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+input, select, textarea {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid #222;
+  color: var(--text);
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: border-color 0.3s ease;
+}
+
+textarea:focus {
+  border-color: var(--green-action);
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23666' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 30px;
+}
+
+input:focus, select:focus {
+  border-color: var(--green-action);
+}
+
+textarea {
+  height: 65px;
+  resize: vertical;
+  border-color: #333;
+  max-height: 150px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#pantalla-bienvenida {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.btn-bienvenida {
+  background: #fff;
+  color: #000;
+  padding: 22px 45px;
+  font-weight: 900;
+  cursor: pointer;
+  text-transform: uppercase;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  border: none;
+  letter-spacing: 1px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-bienvenida:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* INTERACTIVE CONTENT STYLING */
+.mision-card {
+  border: 1px solid #222;
+  padding: 26px;
+  text-align: left;
+  background: #0a0a0a;
+  border-radius: 12px;
+  width: 100%;
+}
+
+.mision-card small {
+  color: #666;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.75rem;
+}
+
+.mision-card h2, .mision-card h3 {
+  color: var(--green-action);
+  font-size: 1.45rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.mision-card p, .mision-card .instruccion-text {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #eee;
+  margin: 18px 0;
+  border-left: 4px solid var(--green-action);
+  padding-left: 14px;
+  text-align: left;
+  font-weight: bold;
+}
+
         #breath-circle {
   /* === REDISEÑO VISUAL DE SEGURIDAD Y ATENCIÓN === */
   /* Incrementamos el diámetro base a 165px para mejorar la inmersión del usuario */
