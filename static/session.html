@@ -1,103 +1,106 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title id="html-title">OPEN THAN GO</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>">
-
-    <script>
-    (function(){
-        // 1. Validaciones iniciales de almacenamiento local
-        const r = localStorage.getItem('otg_user_role');
-        const p = localStorage.getItem('otg_pase_stripe');
+<!DOCTYPE html> 
+<html lang="es"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
+    <title id="html-title">OPEN THAN GO</title> 
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>"> 
+    
+    <script> 
+    (function(){ 
+        // 1. Validaciones iniciales de almacenamiento local (Tus reglas originales)
+        const r = localStorage.getItem('otg_user_role'); 
+        const p = localStorage.getItem('otg_pase_stripe'); 
         
-        if (r && r !== 'admin') {
-            if (!p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'))) {
-                localStorage.removeItem('otg_user_role');
-                localStorage.removeItem('otg_pase_stripe');
-            }
-        } else if (!r && p) {
-            localStorage.removeItem('otg_pase_stripe');
-        }
-
-        // 2. CONTROL ACCESO ADMISTRADOR: Si eres admin pasas directo sin alterar el HTML
-        if (r === 'admin') {
-            console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");
-            inyectarAvisoLegal();
-            return;
-        }
-
+        if (r && r !== 'admin') { 
+            if (!p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'))) { 
+                localStorage.removeItem('otg_user_role'); 
+                localStorage.removeItem('otg_pase_stripe'); 
+            } 
+        } else if (!r && p) { 
+            localStorage.removeItem('otg_pase_stripe'); 
+        } 
+        
+        // 2. CONTROL ACCESO ADMINISTRADOR: Si eres admin pasas directo sin alterar el HTML
+        if (r === 'admin') { 
+            console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural."); 
+            inyectarAvisoLegal(); 
+            return; 
+        } 
+        
         // 3. CONTROL ACCESO CLIENTE: Si no tiene pase, INTERCEPTAR EL DOM DE INMEDIATO
-        if (!p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'))) {
-            console.log("Acceso denegado. Activando Muro de Pago y Login.");
+        if (!p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'))) { 
+            console.log("Acceso denegado. Activando Muro de Pago y Login."); 
             
-            // Inyección inmediata antes de que se dibuje el resto del archivo
-            const estiloBloqueo = document.createElement('style');
-            estiloBloqueo.innerHTML = 'body { display: none !important; }'; // Oculta la app real por CSS temporalmente
+            // Inyección inmediata antes de que se dibuje el resto del archivo para que nadie entre gratis
+            const estiloBloqueo = document.createElement('style'); 
+            estiloBloqueo.innerHTML = 'body { display: none !important; }'; 
             document.head.appendChild(estiloBloqueo);
-
-            document.addEventListener("DOMContentLoaded", () => {
-                // Borra la app real y dibuja la interfaz de cobro + login maestro
-                document.body.innerHTML = `
-                <div style="width:100vw;height:100vh;background:#000;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:sans-serif;padding:20px;box-sizing:border-box;position:fixed;top:0;left:0;z-index:999999;">
-                    <div style="width:100%;max-width:400px;text-align:center;background:#111;padding:30px;border-radius:12px;border:1px solid #222;box-shadow:0 0 35px rgba(0,188,212,0.3);">
-                        <h2 style="color:#00bcd4;margin:0 0 10px 0;font-size:1.6rem;letter-spacing:3px;font-weight:900;">OPEN THAN GO</h2>
-                        <p style="color:#aaa;font-size:0.95rem;margin:0 0 25px 0;line-height:1.4;">Por favor, selecciona un plan de acceso para activar el oráculo de bienestar.</p>
+            document.addEventListener("DOMContentLoaded", () => { 
+                // Borra la app real y dibuja la interfaz de cobro + login maestro 
+                document.body.innerHTML = ` 
+                <div style="width:100vw;height:100vh;background:#000;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:sans-serif;padding:20px;box-sizing:border-box;position:fixed;top:0;left:0;z-index:999999;"> 
+                    <div style="width:100%;max-width:400px;text-align:center;background:#111;padding:30px;border-radius:12px;border:1px solid #222;box-shadow:0 0 35px rgba(0,188,212,0.3);"> 
+                        <h2 style="color:#00bcd4;margin:0 0 10px 0;font-size:1.6rem;letter-spacing:3px;font-weight:900;">OPEN THAN GO</h2> 
+                        <p style="color:#aaa;font-size:0.95rem;margin:0 0 25px 0;line-height:1.4;">Por favor, selecciona un plan de acceso para activar el oráculo de bienestar.</p> 
                         
-                        <!-- BOTONES OPERATIVOS DE COBRO STRIPE -->
-                        <button onclick="enviarAPagoStripe('unico')" style="width:100%;padding:14px;background:#00bcd4;border:none;color:#000;font-weight:bold;font-size:1rem;border-radius:6px;cursor:pointer;margin-bottom:10px;font-family:sans-serif;">Pago Único $15.99</button>
-                        <button onclick="enviarAPagoStripe('mensual')" style="width:100%;padding:14px;background:#2e7d32;border:none;color:#fff;font-weight:bold;font-size:1rem;border-radius:6px;cursor:pointer;margin-bottom:10px;font-family:sans-serif;">Suscripción Mensual $25.99</button>
-                        <button onclick="enviarAPagoStripe('anual')" style="width:100%;padding:14px;background:#d84315;border:none;color:#fff;font-weight:bold;font-size:1rem;border-radius:6px;cursor:pointer;margin-bottom:25px;font-family:sans-serif;">Membresía Anual $250.00</button>
+                        <!-- BOTONES OPERATIVOS DE COBRO STRIPE --> 
+                        <button onclick="enviarAPagoStripe('unico')" style="width:100%;padding:14px;background:#00bcd4;border:none;color:#000;font-weight:bold;font-size:1rem;border-radius:6px;cursor:pointer;margin-bottom:10px;font-family:sans-serif;">Pago Único $15.99</button> 
+                        <button onclick="enviarAPagoStripe('mensual')" style="width:100%;padding:14px;background:#2e7d32;border:none;color:#fff;font-weight:bold;font-size:1rem;border-radius:6px;cursor:pointer;margin-bottom:10px;font-family:sans-serif;">Suscripción Mensual $25.99</button> 
+                        <button onclick="enviarAPagoStripe('anual')" style="width:100%;padding:14px;background:#d84315;border:none;color:#fff;font-weight:bold;font-size:1rem;border-radius:6px;cursor:pointer;margin-bottom:25px;font-family:sans-serif;">Membresía Anual $250.00</button> 
                         
-                        <hr style="border:0;border-top:1px solid #222;margin:0 0 20px 0;">
+                        <hr style="border:0;border-top:1px solid #222;margin:0 0 20px 0;"> 
                         
-                        <!-- ACCESO PRIVADO PARA TI (DESARROLLADOR) -->
-                        <div style="text-align:left;">
-                            <label style="display:block;font-size:0.65rem;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;font-weight:bold;">Acceso Desarrollador</label>
-                            <input type="text" id="dev_user" placeholder="Usuario Administrador" style="width:100%;padding:11px;background:#222;border:1px solid #333;color:#fff;margin-bottom:8px;border-radius:4px;box-sizing:border-box;outline:none;">
-                            <input type="password" id="dev_pass" placeholder="Contraseña Maestra" style="width:100%;padding:11px;background:#222;border:1px solid #333;color:#fff;margin-bottom:12px;border-radius:4px;box-sizing:border-box;outline:none;">
-                            <button onclick="autenticarDesarrollador()" style="width:100%;padding:11px;background:#333;border:1px solid #444;color:#fff;font-weight:bold;border-radius:4px;cursor:pointer;font-family:sans-serif;">Iniciar bypass técnico</button>
-                            <p id="dev_error" style="color:#d84315;font-size:0.85rem;margin:10px 0 0 0;font-weight:bold;display:none;text-align:center;"></p>
-                        </div>
-                    </div>
-                </div>`;
-                estiloBloqueo.remove(); // Remueve el bloqueo de visualización
-            });
-        }
-
-        // Inyección nativa automatizada de tu aviso legal original
-        function inyectarAvisoLegal() {
-            document.addEventListener("DOMContentLoaded",()=>{
-                const legalContainer=document.createElement('div');
-                legalContainer.id='otg-legal-shield-pasivo';
-                legalContainer.style='width:100%;max-width:420px;font-size:0.72rem;color:#ccc;text-align:justify;line-height:1.3;margin:25px auto 15px auto;padding:12px;border-top:1px solid #222;background:#0a0a0a;border-radius:6px;max-height:130px;overflow-y:auto;border:1px solid #1a1a1a;position:relative;z-index:9999;box-sizing:border-box;clear:both;';
-                legalContainer.innerHTML=`<strong>Aviso Legal y Asunción de Riesgo / Legal Notice:</strong> OPEN THAN GO es una herramienta de bienestar y orientación pasiva. No ofrece atención médica, psicológica, ni de emergencia. <strong>PROHIBICIÓN ABSOLUTA:</strong> Ninguna sección o función de esta aplicación (incluyendo SALIR, CASA, MODO LIBRE u ORÁCULO) debe ser utilizada, mirada o manipulada mientras conduces o manejas un vehículo en movimiento. Al adquirir un pase o iniciar sesión, aceptas que eres el único responsable del uso seguro del software, asumes total responsabilidad por tus acciones y eximes formalmente a la aplicación OPEN THAN GO y a la empresa dueña MAY ROGA LLC de cualquier responsabilidad civil o penal por accidentes, daños, pérdidas, distracciones o imprudencias de tránsito. Si tienes una emergencia de salud, llama al 911 o busca ayuda profesional. Usa este motor bajo tu propio criterio. / <span style="color:#999;">OPEN THAN GO is a passive wellness and orientation tool. It does not offer medical, psychological, or emergency care. <strong>ABSOLUTE PROHIBITION:</strong> No section or feature of this application (including SALIR, CASA, MODO LIBRE, or ORÁCULO) must be used, viewed, or handled while driving or operating a moving vehicle. By purchasing a pass or logging in, you agree that you are solely responsible for the safe use of this software, assume full liability for your actions, and formally release the OPEN THAN GO application and its parent company MAY ROGA LLC from any civil or criminal liability for accidents, damages, losses, distractions, or traffic reckless behavior. If you have a health emergency, call 911 or seek professional help. Use this engine at your own discretion.</span>`;
-                const target=document.querySelector('.container')||document.body;
-                target.appendChild(legalContainer);
-            });
-        }
+                        <!-- ACCESO PRIVADO PARA TI (DESARROLLADOR) --> 
+                        <div style="text-align:left;"> 
+                            <label style="display:block;font-size:0.65rem;color:#666;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;font-weight:bold;">Acceso Desarrollador</label> 
+                            <input type="text" id="dev_user" placeholder="Usuario Administrador" style="width:100%;padding:11px;background:#222;border:1px solid #333;color:#fff;margin-bottom:8px;border-radius:4px;box-sizing:border-box;outline:none;"> 
+                            <input type="password" id="dev_pass" placeholder="Contraseña Maestra" style="width:100%;padding:11px;background:#222;border:1px solid #333;color:#fff;margin-bottom:12px;border-radius:4px;box-sizing:border-box;outline:none;"> 
+                            <button onclick="autenticarDesarrollador()" style="width:100%;padding:11px;background:#333;border:1px solid #444;color:#fff;font-weight:bold;border-radius:4px;cursor:pointer;font-family:sans-serif;">Iniciar bypass técnico</button> 
+                            <p id="dev_error" style="color:#d84315;font-size:0.85rem;margin:10px 0 0 0;font-weight:bold;display:none;text-align:center;"></p> 
+                        </div> 
+                    </div> 
+                </div>`; 
+                estiloBloqueo.remove(); // Remueve el bloqueo de visualización temporal
+            }); 
+        } 
     })();
 
-    // Llama a tu endpoint de FastApi para procesar los cobros reales de Stripe
-    async function enviarAPagoStripe(plan) {
-        try {
-            const respuesta = await fetch('/crear-checkout', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ tipo_plan: plan, user_id: "usr_" + Math.random().toString(36).substring(5) })
-            });
-            const data = await respuesta.json();
-            if (data.url) {
-                window.location.href = data.url; // Redirección oficial a Stripe Checkout
-            } else {
-                alert("Error de enlace: " + (data.error || "Falta clave API de Stripe en Render"));
-            }
-        } catch (err) {
-            alert("No se pudo conectar con el servidor de pagos.");
-        }
+    // Inyección nativa automatizada de tu aviso legal original 
+    function inyectarAvisoLegal() { 
+        document.addEventListener("DOMContentLoaded",()=>{ 
+            const legalContainer=document.createElement('div'); 
+            legalContainer.id='otg-legal-shield-pasivo'; 
+            legalContainer.style='width:100%;max-width:420px;font-size:0.72rem;color:#ccc;text-align:justify;line-height:1.3;margin:25px auto 15px auto;padding:12px;border-top:1px solid #222;background:#0a0a0a;border-radius:6px;max-height:130px;overflow-y:auto;border:1px solid #1a1a1a;position:relative;z-index:9999;box-sizing:border-box;clear:both;'; 
+            legalContainer.innerHTML=`<strong>Aviso Legal y Asunción de Riesgo / Legal Notice:</strong> OPEN THAN GO es una herramienta de bienestar y orientación pasiva. No ofrece atención médica, psicológica, ni de emergencia. <strong>PROHIBICIÓN ABSOLUTA:</strong> Ninguna sección o función de esta aplicación (incluyendo SALIR, CASA, MODO LIBRE u ORÁCULO) debe ser utilizada, mirada o manipulada mientras conduces o manejas un vehículo en movimiento. Al adquirir un pase o iniciar sesión, aceptas que eres el único responsable del uso seguro del software, asumes total responsabilidad por tus acciones y eximes formalmente a la aplicación OPEN THAN GO y a la empresa dueña MAY ROGA LLC de cualquier responsabilidad civil o penal por accidentes, daños, pérdidas, distracciones o imprudencias de tránsito. Si tienes una emergencia de salud, llama al 911 o busca ayuda profesional. Usa este motor bajo tu propio criterio. / <span style="color:#999;">OPEN THAN GO is a passive wellness and orientation tool. It does not offer medical, psychological, or emergency care. <strong>ABSOLUTE PROHIBITION:</strong> No section or feature of this application (including SALIR, CASA, MODO LIBRE, or ORÁCULO) must be used, viewed, or handled while driving or operating a moving vehicle. By purchasing a pass or logging in, you agree that you are solely responsible for the safe use of this software, assume full liability for your actions, and formally release the OPEN THAN GO application and its parent company MAY ROGA LLC from any civil or criminal liability for accidents, damages, losses, distractions, or traffic reckless behavior. If you have a health emergency, call 911 or seek professional help. Use this engine at your own discretion.</span>`; 
+            const target=document.querySelector('.container')||document.body; 
+            target.appendChild(legalContainer); 
+        }); 
     }
-       // Valida credenciales contra la ruta /login-admin de tu main.py 
+// Llama a tu endpoint de FastApi para procesar los cobros reales de Stripe 
+async function enviarAPagoStripe(plan) { 
+    try { 
+        const respuesta = await fetch('/crear-checkout', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify({ 
+                tipo_plan: plan, 
+                user_id: "usr_" + Math.random().toString(36).substring(5) 
+            }) 
+        }); 
+        const data = await respuesta.json(); 
+        
+        if (data.url) { 
+            window.location.href = data.url; // Redirección oficial a Stripe Checkout 
+        } else { 
+            alert("Error de enlace: " + (data.error || "Falta clave API de Stripe en Render")); 
+        } 
+    } catch (err) { 
+        alert("No se pudo conectar con el servidor de pagos."); 
+    } 
+} 
+
+// Valida credenciales contra la ruta /login-admin de tu main.py 
 async function autenticarDesarrollador() { 
     const u = document.getElementById('dev_user').value; 
     const p = document.getElementById('dev_pass').value; 
@@ -123,8 +126,7 @@ async function autenticarDesarrollador() {
         err.style.display = "block"; 
     } 
 } 
-</script> 
-
+</script>
 <style> 
 :root { 
     --bg: #000; 
@@ -136,42 +138,47 @@ async function autenticarDesarrollador() {
     --cyan-inhale: #00bcd4; 
     --cierre-bg-gradient: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); 
 }
+/* Tus estilos CSS de clases adicionales continúan aquí idénticos... */
+</style>
 
-// ==========================================================================================
-// ESCUDO DE SESIÓN: VALIDA PAGOS O ACCESO ADMINISTRATIVO ANTES DE CARGAR EL KERNEL
-// ==========================================================================================
-(function() {
-    // 1. Verificamos si tú ya activaste el bypass de desarrollador con las claves de Render
-    const rolUsuario = localStorage.getItem('otg_user_role');
-    if (rolUsuario === 'admin') {
-        console.log("Acceso ilimitado detectado. Saltando muro de pago.");
-        return; // Te deja pasar de largo y usar todo gratis sin interrupciones
-    }
+<!-- ========================================================================================== -->
+<!-- ESCUDO DE SESIÓN: VALIDA PAGOS O ACCESO ADMINISTRATIVO ANTES DE CARGAR EL KERNEL           -->
+<!-- ========================================================================================== -->
+<script>
+(function() { 
+    // 1. Verificamos si tú ya activaste el bypass de desarrollador con las claves de Render 
+    const rolUsuario = localStorage.getItem('otg_user_role'); 
+    if (rolUsuario === 'admin') { 
+        console.log("Acceso ilimitado detectado. Saltando muro de pago."); 
+        return; // Te deja pasar de largo y usar todo gratis sin interrupciones 
+    } 
 
-    // 2. Verificamos si el usuario normal tiene un pase de pago activo guardado localmente
-    const paseActivo = localStorage.getItem('otg_pase_stripe');
-    if (!paseActivo) {
-        console.log("Acceso denegado. Redirigiendo a pasarela de pagos...");
-       
-        // Bloqueamos la interfaz inyectando el Paywall visual de inmediato
-        document.addEventListener("DOMContentLoaded", () => {
-            // Llama a la función que dibuja tus 3 precios oficiales ($15.99, $25.99, $250.00)
-            if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.mostrarModalPaywall) {
-                OTG_SENSORIAL.mostrarModalPaywall();
-            } else {
-                // Respaldo de seguridad si el objeto no ha cargado: congela la pantalla en negro
-                document.body.innerHTML = `
-                    <div style="width:100vw;height:100vh;background:#111;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:sans-serif;">
-                        <h2 style="color:#00bcd4;">Open Than Go - Requiere Acceso</h2>
-                        <p style="color:#aaa;">Por favor, selecciona un plan para activar el oráculo de bienestar.</p>
-                        <button onclick="OTG_SENSORIAL.procesarPagoStripe('unico')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;">Pago Único $15.99</button>
-                        <button onclick="OTG_SENSORIAL.procesarPagoStripe('mensual')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;">Suscripción Mensual $25.99</button>
-                        <button onclick="OTG_SENSORIAL.procesarPagoStripe('anual')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;">Membresía Anual $250.00</button>
-                    </div>`;
-            }
-        });
-    }
+    // 2. Verificamos si el usuario normal tiene un pase de pago activo guardado localmente 
+    const paseActivo = localStorage.getItem('otg_pase_stripe'); 
+    if (!paseActivo) { 
+        console.log("Acceso denegado. Redirigiendo a pasarela de pagos..."); 
+        
+        // Bloqueamos la interfaz inyectando el Paywall visual de inmediato 
+        document.addEventListener("DOMContentLoaded", () => { 
+            // Llama a la función que dibuja tus 3 precios oficiales ($15.99, $25.99, $250.00) 
+            if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.mostrarModalPaywall) { 
+                OTG_SENSORIAL.mostrarModalPaywall(); 
+            } else { 
+                // Respaldo de seguridad si el objeto no ha cargado: congela la pantalla en negro 
+                document.body.innerHTML = ` 
+                <div style="width:100vw;height:100vh;background:#111;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:sans-serif;"> 
+                    <h2 style="color:#00bcd4;">Open Than Go - Requiere Acceso</h2> 
+                    <p style="color:#aaa;">Por favor, selecciona un plan para activar el oráculo de bienestar.</p> 
+                    <button onclick="enviarAPagoStripe('unico')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;border-radius:4px;">Pago Único $15.99</button> 
+                    <button onclick="enviarAPagoStripe('mensual')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;border-radius:4px;">Suscripción Mensual $25.99</button> 
+                    <button onclick="enviarAPagoStripe('anual')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;border-radius:4px;">Membresía Anual $250.00</button> 
+                </div>`; 
+            } 
+        }); 
+    } 
 })();
+</script>
+
 // ==========================================================================================        
         /* MOVING WHITE CLOUDS SCENERY */
         .sky-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.25; z-index: 1; }
