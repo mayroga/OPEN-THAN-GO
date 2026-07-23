@@ -17,6 +17,55 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 # ==========================================================================================
+# INYECCIÓN CRÍTICA DE CONTROL: PASARELA STRIPE & BYPASS MAESTRO
+# ==========================================================================================
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
+
+ADMIN_USER = os.environ.get("ADMIN_USERNAME")
+ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
+
+# Matriz oficial de Price IDs inmutables de Stripe
+PLANES_STRIPE = {
+    "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
+    "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
+    "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
+}
+
+# ==========================================================================================
+link_base = "https://www.google.com/maps/search/?api=1&query="
+
+app = FastAPI()
+
+# Ensure the 'static' directory exists before mounting
+if not os.path.exists("static"):
+    os.makedirs("static")
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+DEFAULT_NECESSITY_VECTOR = {
+    "movimiento": 50,
+    "naturaleza": 50,
+    "silencio": 50,
+    "agua": 50,
+    "sol": 50,
+    "sombra": 50,
+    "aire_fresco": 50,
+    "creatividad": 50,
+    "comunidad": 50,
+    "aprendizaje": 50,
+    "juego": 50,
+    "contemplacion": 50,
+    "descanso": 50,
+    "organizacion": 50,
+    "alimentacion": 50,
+    "musica": 50,
+    "risa": 50,
+    "esperanza": 50,
+    "indicador_ansiedad": 0
+}
+
+# ==========================================================================================
 # MATRIZ INFINITA DE MANIFIESTOS EXISTENCIALES PARA EL ORÁCULO DE BIENESTAR (3 POR ESTADO)
 # ==========================================================================================
 MANIFIESTOS_ORACULO = {
@@ -144,55 +193,6 @@ MANIFIESTOS_ORACULO = {
     ]
 }
 
-
-# ==========================================================================================
-# INYECCIÓN CRÍTICA DE CONTROL: PASARELA STRIPE & BYPASS MAESTRO
-# ==========================================================================================
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
-
-ADMIN_USER = os.environ.get("ADMIN_USERNAME")
-ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
-
-# Matriz oficial de Price IDs inmutables de Stripe
-PLANES_STRIPE = {
-    "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
-    "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
-    "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
-}
-
-# ==========================================================================================
-link_base = "https://www.google.com/maps/search/?api=1&query="
-
-app = FastAPI()
-
-# Ensure the 'static' directory exists before mounting
-if not os.path.exists("static"):
-    os.makedirs("static")
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-DEFAULT_NECESSITY_VECTOR = {
-    "movimiento": 50,
-    "naturaleza": 50,
-    "silencio": 50,
-    "agua": 50,
-    "sol": 50,
-    "sombra": 50,
-    "aire_fresco": 50,
-    "creatividad": 50,
-    "comunidad": 50,
-    "aprendizaje": 50,
-    "juego": 50,
-    "contemplacion": 50,
-    "descanso": 50,
-    "organizacion": 50,
-    "alimentacion": 50,
-    "musica": 50,
-    "risa": 50,
-    "esperanza": 50,
-    "indicador_ansiedad": 0
-}
 # ==========================================================================================
 # MOTOR DE HISTORIAL INTELIGENTE CWRE V2
 # Anti-Repetición + Exploración Controlada
