@@ -8,8 +8,50 @@ const KERNEL = {
     temporizadorCascada: null,
     temporizadorCierre: null,
     salidaSugeridaTimeoutId: null,
-    salidaTimerId: null, // New timer for SALIR mode 45s phrases
+    salidaTimerId: null
+}; 
+// <--- AQUÍ SE CIERRA CORRECTAMENTE EL OBJETO KERNEL
+
+// ==========================================================================
+// MÓDULO DE MÚSICA Y RETOS DE CIERRE / ANSIEDAD (4 MINUTOS - OPEN THAN GO)
+// ==========================================================================
+const audioRelajacionCierre = new Audio('/static/audio/antistress_music.mp3');
+audioRelajacionCierre.loop = true;
+
+const frasesBienestarVariantes = [
+    ["Respira hondo, un momento a la vez.", "Suelta toda la tensión acumulada en tus hombros."],
+    ["Un paso pequeño sigue siendo avanzar.", "Permítete un instante de pausa y quietud consciente."],
+    ["Todo se acomoda a su debido tiempo.", "Inhala calma profunda, exhala toda prisa innecesaria."],
+    ["Estás haciendo lo mejor que puedes hoy.", "Escucha con atención el ritmo natural de tu respiración."],
+    ["No hay prisa, concéntrate en tu centro.", "Siente el apoyo firme del espacio bajo tus pies."]
+];
+
+function iniciarCierreAntiestress4Minutos() {
+    // 1. Reproducir música relajante
+    audioRelajacionCierre.play().catch(e => console.log("Audio bloqueado por políticas del navegador, esperando interacción:", e));
+
+    let contadorVariante = 0;
+    // 2. Alternar retos de silencio y frases cortas cada 8-10 segundos (9 segundos)
+    if (window.intervaloRetosCierre) clearInterval(window.intervaloRetosCierre);
     
+    window.intervaloRetosCierre = setInterval(() => {
+        let parActual = frasesBienestarVariantes[contadorVariante % frasesBienestarVariantes.length];
+        mostrarFrasePantallaDinamica(parActual[0], parActual[1]);
+        contadorVariante++;
+    }, 9000); // Cada 9 segundos exactos
+}
+
+function mostrarFrasePantallaDinamica(frase1, frase2) {
+    const contenedorMision = document.getElementById('mision-display-container');
+    if(contenedorMision) {
+        contenedorMision.innerHTML = `
+            <div style="text-align: center; animation: fadeInOut 2s ease; padding: 10px;">
+                <p style="font-size: 1rem; color: #00bcd4; margin: 0 0 5px 0;">${frase1}</p>
+                <p style="font-size: 0.85rem; color: #aaa; margin: 0;">${frase2}</p>
+            </div>
+        `;
+    }
+}
     // --- NUEVO ENGRANAJE INDESTRUCTIBLE (TIPO TIKTOK) ---
     horaInicioSesionAbsoluta: null, // Almacena la estampa de tiempo Unix de la CPU real
     timeLeft: 600,
@@ -307,7 +349,7 @@ const KERNEL = {
   {"id": 209, "titulo_en": "THE BREATHING CHALLENGE", "descripcion_en": "Stay seated in a very comfortable posture at this instant. Take five deep and slow breaths through your nose, feeling how the pure air enters your body. Release all tension from your shoulders, empty your mind of worries, and allow this biological truce to completely calm you now.", "img": "square_breath.svg"},
   {"id": 210, "titulo_en": "THE VISUAL REST CHALLENGE", "descripcion_en": "Look for a spot or an object that is very far away from you through the window. Keep your eyes on that place fixedly for two minutes to rest your eyes from screens completely. Expand your visual horizon, relax your eyelids, and allow your thoughts to flow in total stillness.", "img": "nature_sound.svg"}
 ],
-
+// ==============================================================================
        /**
      * Retrieves or initializes the user's dynamic profile from localStorage.
      * Ensures all 19 needs are present with default values if missing.
@@ -359,7 +401,7 @@ const KERNEL = {
         localStorage.setItem("otg_session_seed", this.sessionSeed);
         return perfil;
     },
-
+// ==============================================================================
     /**
      * Renders the authentication gate, developer access, and secure payment options.
      */
@@ -387,7 +429,7 @@ const KERNEL = {
                 </div>
             </div>
         `;
-
+// ==============================================================================
         // 1. Clic del botón de ingreso tradicional
         document.getElementById('btn-submit-auth').onclick = () => {
             const user = document.getElementById('auth-username').value.trim();
@@ -399,7 +441,7 @@ const KERNEL = {
                 this.hablar(this.idiomaActual === 'es' ? "Introduce credenciales válidas." : "Please enter valid credentials.");
             }
         };
-
+// ==============================================================================
         // 2. Clic del botón seguro de Stripe
         document.getElementById('btn-stripe-checkout').onclick = async () => {
             this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela Stripe." : "Connecting to Stripe gateway.");
@@ -418,7 +460,7 @@ const KERNEL = {
             this.despertarInicial();
         };
     },
-
+// ==============================================================================
         /**
      * Initializes the KERNEL on DOMContentLoaded.
      */
@@ -461,7 +503,7 @@ const KERNEL = {
         if (btnVolverApp) {
             btnVolverApp.addEventListener('click', () => this.reiniciarExperiencia());
         }
-
+// ==============================================================================
         // ==============================================================================
         // ENLACE DIRECTO A LOS 3 PASES DE STRIPE DE TU HTML NATIVO (FASTAPI)
         // ==============================================================================
@@ -488,7 +530,7 @@ const KERNEL = {
                 };
             }
         });
-
+// ==============================================================================
         // ==============================================================================
         // ENLACE DIRECTO AL LOGIN DE USUARIO Y CONTRASEÑA REAL (FASTAPI)
         // ==============================================================================
@@ -528,7 +570,7 @@ const KERNEL = {
                 }
             };
         }
-
+// ==============================================================================
         // ==============================================================================
         // ENLACE DIRECTO AL BOTÓN DE BYPASS DEL DESARROLLADOR NATIVO
         // ==============================================================================
@@ -543,7 +585,7 @@ const KERNEL = {
             };
         }
     },
-
+// ==============================================================================
     /**
      * Starts the initial welcome sequence after user interaction.
      */
@@ -575,7 +617,7 @@ const KERNEL = {
         this.iniciarMonitoreoInaccion(); 
         this.activarBotonMandoLibreInicial(); 
     },
-
+// ==============================================================================
     /**
      * Injects a block of 3 questions into the UI, ensuring they are distinct and not recent.
      */
@@ -602,7 +644,7 @@ const KERNEL = {
             }
         }
 
-        
+// ============================================================================== 
         // Shuffle the available indices to get a random, distinct selection (Fisher-Yates shuffle)
         for (let i = unseenIndices.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -627,7 +669,7 @@ const KERNEL = {
                     break;
                 }
             }
-            
+// ==============================================================================        
             // If no unused block question found, just pick the next available shuffled unseen
             if (candidateIndex === -1) {
                 candidateIndex = 0;
@@ -658,7 +700,7 @@ const KERNEL = {
         
         this.iniciarEfectoCascada();
     },
-
+// ==============================================================================
     /**
      * Initiates the fading cascade effect for questions.
      */
@@ -671,7 +713,7 @@ const KERNEL = {
             this.liberarCajonEscrituraLibre();
             return;
         }
-        
+// ==============================================================================        
         // Respetamos estrictamente los 8 segundos por pregunta asignados en tu flujo temporal original
         this.temporizadorCascada = setInterval(() => {
             let botonParaEliminar = document.getElementById(`btn-pregunta-${this.indicePreguntaCascada}`);
@@ -691,7 +733,7 @@ const KERNEL = {
             }
         }, 8000); // 8 seconds per question exactly
     },
-
+// ==============================================================================
     /**
     * Activates the free writing input field and button from start.
     */
@@ -743,7 +785,7 @@ const KERNEL = {
                 }
             };
         }
-
+// ==============================================================================
         if (textarea) {
             textarea.removeEventListener('input', this.textareaInputHandler);
             this.textareaInputHandler = () => {
@@ -771,7 +813,7 @@ const KERNEL = {
 
         this.validarZip();
     },
-
+// ==============================================================================
     /**
     * Validates ZIP input and controls button state.
     */
@@ -806,7 +848,7 @@ const KERNEL = {
             }
         }
     },
-
+// ==============================================================================
     /**
      * Activates the free writing input field and visually indicates readiness.
      */
@@ -825,7 +867,7 @@ const KERNEL = {
 
         this.validarZip();
     },
-
+// ==============================================================================
     /**
     * Monitors user inaction and advances question blocks or pauses.
     */
@@ -854,7 +896,7 @@ const KERNEL = {
             }
         }, 8000);
     },
-
+// ==============================================================================
     /**
      * Handles user selecting a question or entering free text.
      */
@@ -871,7 +913,7 @@ const KERNEL = {
         document.getElementById('inp-text-libre').value = textoPregunta;
         this.ejecutar();
     },
-
+// ==============================================================================
  /**
  * Converts text to speech using browser's SpeechSynthesis API.
  */
@@ -889,7 +931,7 @@ hablar(texto) {
  window.speechSynthesis.speak(msg);
  }, 150);
 },
-
+// ==============================================================================
     /**
     * Changes the application's language and updates UI elements.
     * @param {string} lang - The target language ('es' or 'en').
@@ -959,7 +1001,7 @@ hablar(texto) {
         this.inyectarBloquePreguntas();
         this.activarBotonMandoLibreInicial();
     },
-
+// ==============================================================================
     /**
      * Executes the main logic to fetch recommendations from the backend.
      */
@@ -1048,7 +1090,7 @@ hablar(texto) {
         
         // Guardamos la calidez humana en la instancia
         this.mensajeCalidezHumanaActual = textoElegido;
-        
+// ==============================================================================        
      // MADO: ACCIÓN DE CAMPO (SALIR)
  if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
  this.historialSalir = data.historial_salir_actualizado || [];
@@ -1079,7 +1121,7 @@ hablar(texto) {
         this.validarZip();
     }
 },
-
+// ==============================================================================
     /**
      * Displays the 3 options for SALIR mode and waits for user selection.
      */
@@ -1124,89 +1166,117 @@ hablar(texto) {
         const textoOraculo = this.mensajeCalidezHumanaActual || t.chooseOne;
         this.hablar(textoOraculo);
     },
-
-    /**
-     * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
-     * @param {Object} selectedMission - The mission object chosen by the client.
-     */
-    iniciarSalidaConcreta(selectedMission) {
-        this.datosLugarGlobal = selectedMission; // Store the selected mission
-        clearInterval(this.timerEnfocado);
-        clearInterval(this.salidaTimerId);
-        window.speechSynthesis.cancel();
-        
-        const t = {
-            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
-            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
-        }[this.idiomaActual];
-        
-        const container = document.getElementById('wrapper-interactive');
-        let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
-        
-        container.innerHTML = `
-            <div class="mision-card">
-                <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
-                <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
-                <div class="instruccion-text">${textoFormateado}</div>
-                <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
-                <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
-                <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
-            </div>
-        `;
-        
-        let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
-        this.hablar(speechText);
-        
-        let retencion = 35;
-        const btnCount = document.getElementById('btn-countdown-salida');
-        const btnGps = document.getElementById('btn-gps-action');
-        const phrasesDiv = document.getElementById('salida-countdown-phrases');
-        const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
-        let phraseIndex = 0;
-        
-        this.salidaTimerId = setInterval(() => {
-            if (retencion > 0) {
-                retencion--;
-                if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
-                if (retencion === 0) {
-                    // Transition to 45s phrase injection
-                    retencion = -45; // Use negative to denote this phase
-                    if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                    phraseIndex++;
-                }
-            } else if (retencion < 0) {
-                retencion++; // Count up towards 0
+// ==============================================================================
+/**
+ * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
+ * @param {Object} selectedMission - The mission object chosen by the client.
+ */
+iniciarSalidaConcreta(selectedMission) {
+    this.datosLugarGlobal = selectedMission; // Store the selected mission
+    clearInterval(this.timerEnfocado);
+    clearInterval(this.salidaTimerId);
+    window.speechSynthesis.cancel();
+    
+    const t = {
+        es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
+        en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
+    }[this.idiomaActual];
+    
+    const container = document.getElementById('wrapper-interactive');
+    let textoFormateado = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion).replace(/\n/g, '<br>');
+    
+    container.innerHTML = `
+        <div class="mision-card">
+            <small>${this.idiomaActual === 'es' ? 'Acción de Campo' : 'Field Action'}</small>
+            <h2>${this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo}</h2>
+            <div class="instruccion-text">${textoFormateado}</div>
+            <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
+            <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
+            <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+        </div>
+    `;
+    
+    let speechText = (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_titulo : this.datosLugarGlobal.destino_titulo_en || this.datosLugarGlobal.destino_titulo) + ". " + (this.idiomaActual === 'es' ? this.datosLugarGlobal.destino_instruccion : this.datosLugarGlobal.destino_instruccion_en || this.datosLugarGlobal.destino_instruccion);
+    this.hablar(speechText);
+    
+    let retencion = 35;
+    const btnCount = document.getElementById('btn-countdown-salida');
+    const btnGps = document.getElementById('btn-gps-action');
+    const phrasesDiv = document.getElementById('salida-countdown-phrases');
+    const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? (this.AUDIOS_SECUENCIALES_SALIR_ES || [
+        "Analizando opciones de entorno y rutas cercanas.",
+        "Preparando alternativas de flujo y pausa activa.",
+        "Conectando con espacios de bienestar y confort."
+    ]) : (this.AUDIOS_SECUENCIALES_SALIR_EN || [
+        "Analyzing environment options and nearby routes.",
+        "Preparing flow alternatives and active pause.",
+        "Connecting with wellness and comfort spaces."
+    ]);
+    let phraseIndex = 0;
+    
+    this.salidaTimerId = setInterval(() => {
+        if (retencion > 0) {
+            retencion--;
+            if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
+            if (retencion === 0) {
+                retencion = -45; // Transition to 45s phrase injection phase
                 if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
-                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                if (phrasesDiv && AUDIOS_SECUENCIALES_SALIR[phraseIndex]) {
+                    phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
                     this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                    phraseIndex++;
                 }
-                if (retencion === 0) {
-                    // 45 seconds are over
-                    clearInterval(this.salidaTimerId);
-                    window.speechSynthesis.cancel();
-                    if (btnCount) btnCount.style.display = 'none';
-                    if (phrasesDiv) phrasesDiv.innerText = "";
-                    if (btnGps) {
-                        btnGps.classList.remove('hidden');
-                        btnGps.onclick = () => {
-                            try {
-                                let perfil = KERNEL.obtenerPerfilLocal();
-                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+                phraseIndex++;
+            }
+        } else if (retencion < 0) {
+            retencion++; // Count up towards 0
+            if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
+            if ((Math.abs(retencion) % 15 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
+                if (phrasesDiv && AUDIOS_SECUENCIALES_SALIR[phraseIndex]) {
+                    phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
+                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
+                }
+                phraseIndex++;
+            }
+            if (retencion === 0) {
+                // 45 seconds are over
+                clearInterval(this.salidaTimerId);
+                window.speechSynthesis.cancel();
+                if (btnCount) btnCount.style.display = 'none';
+                if (phrasesDiv) phrasesDiv.innerText = "Opciones y sugerencias listas para visualizar.";
+                if (btnGps) {
+                    btnGps.classList.remove('hidden');
+                    btnGps.onclick = () => {
+                        try {
+                            let perfil = KERNEL.obtenerPerfilLocal ? KERNEL.obtenerPerfilLocal() : {};
+                            const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+                            if (selectedVector) {
                                 for (const need in selectedVector) {
                                     if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
                                         perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
                                     }
                                 }
-                                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
-                                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                            } catch (e) {
-                                console.error("Error updating local profile after action:", e);
                             }
-                            
+                            if (perfil["indicador_ansiedad"] !== undefined) {
+                                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
+                            }
+                            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                        } catch (e) {
+                            console.error("Error updating local profile after action:", e);
+                        }
+                        
+                        // Invocar salida externa con confort y recordatorio
+                        if (typeof manejarSalidaExternaConfort === 'function') {
+                            manejarSalidaExternaConfort('mapas');
+                        } else {
+                            window.open('https://maps.google.com', '_blank');
+                        }
+                    };
+                }
+            }
+        }
+    }, 1000);
+}
+  // ==============================================================================                          
                             // SECCIÓN DE TIEMPOS DE REDIRECCIÓN SECUENCIAL INCORPORADA:
                             // 1. Detona Google Maps con el filtrado maestro de economía real
                             window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
@@ -1220,7 +1290,7 @@ hablar(texto) {
                                     window.open(this.datosLugarGlobal.enlace_spotify, '_blank');
                                 }
                             }, 500);
-
+// ==============================================================================
                             // ==============================================================================
                             // ORDEN SOBERANA: EL TIEMPO COMIENZA A CORRER DESDE CERO AUTOMÁTICAMENTE
                             // ==============================================================================
@@ -1253,7 +1323,7 @@ inyectarPasarelaYAutenticacion(container) {
             <button id="btn-submit-auth" style="width:100%; background:var(--green-action); color:#fff; padding:14px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">INGRESAR AL SISTEMA</button>
         </div>
     `;
-
+// ==============================================================================
     // Lógica de validación nativa que tenías para el inicio de sesión
     document.getElementById('btn-submit-auth').onclick = () => {
         const user = document.getElementById('auth-username').value.trim();
@@ -1278,6 +1348,7 @@ inyectarPasarelaYAutenticacion(container) {
         }
     };
 },
+// ==============================================================================
     /**
      * Processes the sequential flow based on the recommendation type (only for CASA mode now).
      */
@@ -1301,7 +1372,7 @@ inyectarPasarelaYAutenticacion(container) {
         this.iniciarRelojEnfocadoCasa(container, t);
         return;
     }
-
+// ==============================================================================
     const paso = this.pasosMisiones[this.indiceMision];
     // CORREGIDO: Se restauró el padding a 16px para evitar el desborde y el congelamiento del renderizado
     container.innerHTML = `
@@ -1328,7 +1399,7 @@ inyectarPasarelaYAutenticacion(container) {
         } catch (e) {
             console.error("Error updating local profile after CASA mission:", e);
         }
-
+// ==============================================================================
         // ==============================================================================
         // ORDEN SOBERANA INDEPENDIENTE: EL RECOMIENZA DESDE CERO
         // ==============================================================================
@@ -1339,7 +1410,7 @@ inyectarPasarelaYAutenticacion(container) {
         this.avanzarPaso();
     };
 },
-    
+// ==============================================================================    
     /**
  * Starts the 10-minute clinical breathing timer for CASA mode.
  */
@@ -1352,7 +1423,7 @@ iniciarRelojEnfocadoCasa(container, t) {
         clearInterval(this.temporizadorCascada);
         this.temporizadorCascada = null;
     }
-    
+// ==============================================================================    
     // 2. Limpia los temporizadores de inacción y el reloj viejo
     clearInterval(this.timerInaccion);
     clearInterval(this.timerEnfocado);
@@ -1362,7 +1433,7 @@ iniciarRelojEnfocadoCasa(container, t) {
         clearInterval(this.intervaloVozCasa);
         this.intervaloVozCasa = null;
     }
-    
+// ==============================================================================    
     // 4. RETORNO DE MOTOR RECOBRADO: Despierta y limpia el hardware de sonido
     // sin alterar el flujo de las pantallas iniciales ni congelar la app.
     if ('speechSynthesis' in window) {
@@ -1393,7 +1464,7 @@ iniciarRelojEnfocadoCasa(container, t) {
     const salidaSugeridaDiv = document.getElementById('salida-sugerida');
     const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
     const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
-
+// ==============================================================================
     // ======================================================================
     // DISPARADOR DE SUGERENCIA TRAS 3 MINUTOS EXACTOS
     // ======================================================================
@@ -1457,7 +1528,7 @@ iniciarRelojEnfocadoCasa(container, t) {
             }
         };
     }
-
+// ==============================================================================
     // ======================================================================
     // CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL (CADA 20 SEGUNDOS)
     // ======================================================================
@@ -1496,7 +1567,7 @@ iniciarRelojEnfocadoCasa(container, t) {
             }
         }
 
-        
+// ==============================================================================        
         if (this.timeLeft <= 0) {
             clearInterval(this.timerEnfocado);
             clearTimeout(this.salidaSugeridaTimeoutId);
@@ -1511,7 +1582,7 @@ iniciarRelojEnfocadoCasa(container, t) {
         }
     }, 1000);
 },
-
+// ==============================================================================
     /** 
      * Advances to the next internal mission step. 
      */
@@ -1520,7 +1591,7 @@ iniciarRelojEnfocadoCasa(container, t) {
         const container = document.getElementById('wrapper-interactive');
         this.procesarFlujoSecuencial(container);
     },
-
+// ==============================================================================
     /**
      * Initiates the 60-second closing challenge phase.
      */
@@ -1570,7 +1641,7 @@ iniciarRelojEnfocadoCasa(container, t) {
         let candidateSequenceIds; 
         let sequenceString; 
         let maxAttempts = 10; 
-        
+// ==============================================================================        
         // Algoritmo de descarte para evitar repeticiones de secuencias de retos previos
         while (maxAttempts > 0) { 
             secuenciaRetos = []; 
@@ -1600,7 +1671,7 @@ iniciarRelojEnfocadoCasa(container, t) {
                 sequenceString = candidateSequenceIds; 
             } 
         } 
-        
+// ==============================================================================        
         // Actualización del registro histórico en memoria local para no duplicar flujos de cierre
         if (sequenceString) { 
             this.historialRetosSecuencias.push(sequenceString); 
@@ -1629,7 +1700,7 @@ iniciarRelojEnfocadoCasa(container, t) {
                 currentRetoIndex++; 
             } 
         }; 
-        
+// ==============================================================================        
         // Ocultamos elementos previos para garantizar una transición visual fluida
         if (retoTitulo) retoTitulo.classList.add('hidden'); 
         if (retoDescripcion) retoDescripcion.classList.add('hidden'); 
@@ -1654,7 +1725,7 @@ iniciarRelojEnfocadoCasa(container, t) {
                     if (retoImg) retoImg.classList.add('hidden'); 
                     displayNextReto(); 
                 } 
-                
+// ==============================================================================                
                 // Cierre definitivo del ciclo clínico de 60 segundos
                 if (this.timeLeftCierre <= 0) { 
                     clearInterval(this.temporizadorCierre); 
@@ -1682,7 +1753,7 @@ iniciarRelojEnfocadoCasa(container, t) {
             }; 
         }
     },
-
+// ==============================================================================
     /**
      * Resets the UI to the initial form state without clearing persistent data.
      */
@@ -1730,7 +1801,7 @@ iniciarRelojEnfocadoCasa(container, t) {
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en; 
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
     }, 
-
+// ==============================================================================
     /**
      * Clears ALL session data and reloads the application.
      */
@@ -1768,7 +1839,7 @@ document.addEventListener('DOMContentLoaded', () => {
         KERNEL.init();
     }
 });
-
+// ==============================================================================
 // Exposición global del KERNEL en el objeto window para depuración y control externo
 window.KERNEL = KERNEL;
 
@@ -1998,7 +2069,7 @@ window.KERNEL = KERNEL;
         ];
         
         sintomas.sort(() => Math.random() - .5);
-
+// ==============================================================================
         // CORREGIDO: Template literal unificado para `pb.innerHTML`
         pb.innerHTML = `
             <div style="max-width:390px;width:95%;padding:15px;text-align:center;font-family:sans-serif;color:#fff;overflow-y:auto;max-height:100vh;">
@@ -2064,7 +2135,7 @@ window.KERNEL = KERNEL;
         
         let zip = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
         let txtUsa = zip ? `Opciones disponibles para el Código Postal ${zip}` : "Personaliza tu experiencia";
-        
+// ==============================================================================        
         // CORREGIDO: Template literal unificado para `m.innerHTML`
         m.innerHTML = `
             <div style="max-width:460px;margin:0 auto;padding-top:5px;">
@@ -2154,7 +2225,7 @@ window.KERNEL = KERNEL;
             : tipo === "opcion2" 
                 ? `Hemos preparado una experiencia basada en tu selección.` 
                 : `Explora nuevas opciones y encuentra actividades que se adapten a ti.`;
-        
+// ==============================================================================        
         // CORREGIDO: Template literal unificado para `f3.innerHTML`
         f3.innerHTML = `
             <div style="background: rgba(0, 188, 212, .05); border: 1px solid #00bcd4; padding: 15px; border-radius: 8px; text-align: left; font-size: .82rem; line-height: 1.5; margin-bottom: 15px; color: #eee;">
@@ -2282,7 +2353,7 @@ window.KERNEL = KERNEL;
         });
     }
 }; 
-
+// ==============================================================================
 // DISPARADOR INDEPENDIENTE EN PARALELO: Lanza tu triple toque sin sobreescribir tu init() original de fábrica
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.inicializarBypassDesarrollador) {
