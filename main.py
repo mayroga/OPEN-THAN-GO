@@ -1115,63 +1115,63 @@ if opcion_usuario == "CASA":
                      "vector_necesidades": m.get("vector_necesidades", {})
                  })
 # ==========================================================================================
-# SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
-if opcion_usuario == "CASA":
-    misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
-        misiones=final_misiones_casa, # Use the prepared list
-        perfil_local=perfil_local,
-        historial_casa=payload.get("historial_casa", []),
-        cantidad=3
-    )
+    # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
+    if opcion_usuario == "CASA":
+        misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
+            misiones=final_misiones_casa,  # Use the prepared list
+            perfil_local=perfil_local,
+            historial_casa=payload.get("historial_casa", []),
+            cantidad=3
+        )
 
-    historial_casa_actualizado = payload.get("historial_casa", [])
-    for m in misiones_domesticas_finales:
-        historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
+        historial_casa_actualizado = payload.get("historial_casa", [])
+        for m in misiones_domesticas_finales:
+            historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
 
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
-        "misiones": misiones_domesticas_finales,
-        "oraculo_manifiesto": manif_humano_casa,
-        "historial_casa_actualizado": historial_casa_actualizado,
-        "forced_recovery": False,
-        "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-        "drive_prohibited": False
-    })
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
+            "misiones": misiones_domesticas_finales,
+            "oraculo_manifiesto": manif_humano_casa,
+            "historial_casa_actualizado": historial_casa_actualizado,
+            "forced_recovery": False,
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+            "drive_prohibited": False
+        })
 
-else:
-    # 2. INTERVENCIÓN EXTERNA (MODO SALIR) - ENTRADA POR DEFECTO
-    opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-    historial_salir = payload.get("historial_salir", [])
-    
-    misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
-        n=3,
-        misiones=opciones_salir_candidatas,
-        perfil_local=perfil_local,
-        historial_actual=historial_salir
-    )
+    else:
+        # 2. INTERVENCIÓN EXTERNA (MODO SALIR) - ENTRADA POR DEFECTO
+        opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
+        historial_salir = payload.get("historial_salir", [])
+        
+        misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
+            n=3,
+            misiones=opciones_salir_candidatas,
+            perfil_local=perfil_local,
+            historial_actual=historial_salir
+        )
 
-    final_misiones_para_frontend = []
-    antidotos_digitales_default_yt = BIG_TECH_RESOURCES['youtube_base_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
-    antidotos_digitales_default_sp = BIG_TECH_RESOURCES['spotify_base_search_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'spotify_default_genre_link_{lang}'])
+        final_misiones_para_frontend = []
+        antidotos_digitales_default_yt = BIG_TECH_RESOURCES['youtube_base_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
+        antidotos_digitales_default_sp = BIG_TECH_RESOURCES['spotify_base_search_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'spotify_default_genre_link_{lang}'])
 
-    for info_seleccionada in misiones_seleccionadas_raw:
-        # ==========================================================================================
-        # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO AISLADOS PARA LA INTERFAZ ===
-        precio_real = ""
-        if budget == "0":
-            precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
-        elif budget == "1":
-            precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
-        elif budget == "2":
-            precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
+        for info_seleccionada in misiones_seleccionadas_raw:
+            # ==========================================================================================
+            # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO AISLADOS PARA LA INTERFAZ ===
+            precio_real = ""
+            if budget == "0":
+                precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
+            elif budget == "1":
+                precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
+            elif budget == "2":
+                precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
 
-        quienes_van = ""
-        if perfil_tipo == "solo":
-            quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
-        elif perfil_tipo == "familia":
-            quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
-        elif perfil_tipo == "accesible":
-            quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
+            quienes_van = ""
+            if perfil_tipo == "solo":
+                quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
+            elif perfil_tipo == "familia":
+                quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
+            elif perfil_tipo == "accesible":
+                quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
         # ==========================================================================================
         # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
         titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
