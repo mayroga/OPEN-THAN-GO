@@ -883,17 +883,11 @@ hablar(texto) {
  let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
  const msg = new SpeechSynthesisUtterance(fx);
  msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
- 
- // === OPTIMIZACIÓN DE VOZ HUMANA Abajo la prisa y la robotización ===
- msg.rate = 0.95; // Velocidad reducida a 0.95 para máxima calidez y entendimiento
- msg.pitch = 1.0; // Tono orgánico estable
- 
- // Manejo básico de errores para mantener estable el hardware
- msg.onerror = () => {
- window.speechSynthesis.cancel();
- };
+ msg.rate = 1.02; 
+ msg.pitch = 1.05; 
+ msg.onerror = () => { window.speechSynthesis.cancel(); };
  window.speechSynthesis.speak(msg);
- }, 150); // Escudo original estable de 150ms
+ }, 150);
 },
 
     /**
@@ -1046,7 +1040,7 @@ hablar(texto) {
         this.indiceMision = 0;
         
         // --- Captura el 1% de Calidez Humana dinámica enviada por el Servidor ---
-        let textoElegido = data.calidez_humana || (this.idiomaActual === 'es' ? "Respira profundo. Estás aquí. Estás vivo." : "Breathe deeply. You are here. You are alive.");
+        let textoElegido = data.calidez_humana || (this.idiomaActual === 'es' ? "Respira profundo. Siente. Estás vivo. Respira." : "Breathe deeply. You are here. You are alive.");
         
         // --- Ejecuta el dictado por voz nativo usando la calidez del Oráculo ---
         // CORRECCIÓN: Usar el método hablar de KERNEL consistentemente
@@ -1440,7 +1434,10 @@ iniciarRelojEnfocadoCasa(container, t) {
     }, 180000);
 
     if (circleElement) {
-        circleElement.onclick = () => {
+ circleElement.onclick = () => {
+     // Encendemos la música relajante propia mediante la interacción segura del usuario
+     iniciarMusicaRelajantePropia();
+
             if (this.contadorToques < this.secuenciaAdelantos.length) {
                 let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
                 this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
