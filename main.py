@@ -1119,17 +1119,22 @@ async def mando_integral(request: Request):
                     "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
                     "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90}
                 }]
-        else: # Use missions from BASE_MISIONES if available
-             for m in misiones_completas_base:
+               else: # Use missions from BASE_MISIONES if available
+            for m in misiones_completas_base:
                 if isinstance(m, dict):
+                    desc_texto = m.get("descripcion", m.get("que_hacer", "Pausa de bienestar somática."))
+                    desc_texto_en = m.get("descripcion_en", m.get("que_hacer_en", "Somatic wellness pause."))
                     final_misiones_casa.append({
                         "id": m.get("id", 800),
                         "titulo": m.get("titulo", "Misión Interna"),
                         "titulo_en": m.get("titulo_en", "Internal Mission"),
-                        "descripcion": m.get("descripcion", m.get("que_hacer", m.get("porque", "Pausa de bienestar somática."))),
-                        "descripcion_en": m.get("descripcion_en", m.get("que_hacer_en", m.get("porque_en", "Somatic wellness pause."))),
+                        "descripcion": desc_texto,
+                        "que_hacer": desc_texto,  # <--- CORRECCIÓN CRÍTICA PARA ENGINE.JS
+                        "descripcion_en": desc_texto_en,
+                        "que_hacer_en": desc_texto_en,  # <--- DUPLICACIÓN DE SEGURIDAD SIMÉTRICA
                         "vector_necesidades": m.get("vector_necesidades", {})
                     })
+
 
         # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
         misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
