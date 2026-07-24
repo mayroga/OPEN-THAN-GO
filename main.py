@@ -1153,17 +1153,23 @@ async def mando_integral(request: Request):
                         "vector_necesidades": m.get("vector_necesidades", {})
                     })
                
-        # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
-        misiones_domesticas_finales = seleccionar_misiones_casa (
-            misiones=final_misiones_casa, # Use the prepared list
-            perfil_local=perfil_local,
-            historial_casa=payload.get("historial_casa", []),
-            cantidad=3
-        )
-       
-        historial_casa_actualizado = payload.get("historial_casa", [])
-        for m in misiones_domesticas_finales:
-            historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
+            # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
+    misiones_domesticas_finales = seleccionar_misiones_casa(
+        misiones=final_misiones_casa, # Use the prepared list
+        perfil_local=perfil_local,
+        historial_casa=payload.get("historial_casa", []),
+        cantidad=3
+    )
+
+    # ACTUALIZACIÓN DIRECTA Y SEGURA SIN LLAMAR A FUNCIONES EXTERNAS
+    historial_casa_actualizado = list(payload.get("historial_casa", []))
+    for m in misiones_domesticas_finales:
+        if isinstance(m, dict) and "id" in m:
+            historial_casa_actualizado.append(m["id"])
+
+    # Mantiene el límite estricto de historial usando constantes nativas
+    if len(historial_casa_actualizado) > 10:
+        historial_casa_actualizado = historial_casa_actualizado[-10:]
 
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
