@@ -911,6 +911,110 @@ async def webhook_stripe(request: Request):
 
     return {"status": "success"}
    
+import random
+
+# Diccionario en memoria para almacenar el historial por usuario y evitar repeticiones consecutivas
+HISTORIAL_ORACULO = {}
+
+# Matriz oficial de 12 flujos bilingües (3 modos x 4 variantes) estructurada en Python
+ORACULO_DATA = {
+    "0": [
+        [
+            {"es": "Detectando pulso... Suelta tu mandíbula ahora.", "en": "Detecting pulse... Release your jaw now."},
+            {"es": "Lo que te desgasta no es la falta de destinos, sino tu rutina.", "en": "What wears you out is not lack of destinations, but your routine."},
+            {"es": "El entorno cambia radicalmente si tú inyectas una intención.", "en": "The environment changes radically if you inject an intention."},
+            {"es": "Desbloqueaste un manifiesto maestro. Respira la victoria.", "en": "You unlocked a master manifesto. Breathe the victory."}
+        ],
+        [
+            {"es": "Siente tu peso en la silla. Deja el pasado atrás.", "en": "Feel your weight on the chair. Leave the past behind."},
+            {"es": "Correr sin rumbo te cansa el doble. Detén el piloto automático.", "en": "Running aimlessly tires you twice as much. Stop autopilot."},
+            {"es": "Eres el arquitecto de tu calma. Domina tu perímetro.", "en": "You are the architect of your calm. Master your perimeter."},
+            {"es": "Oráculo superado. Tu nivel de enfoque se duplicó hoy.", "en": "Oracle cleared. Your focus level doubled today."}
+        ],
+        [
+            {"es": "Enfoca tus ojos en un punto fijo del círculo.", "en": "Focus your eyes on a fixed point of the circle."},
+            {"es": "Las urgencias del mundo exterior pueden esperar 4 minutos.", "en": "The urgencies of the outside world can wait 4 minutes."},
+            {"es": "Recupera el control de tus hilos de voz interiores.", "en": "Regain control of your internal voice threads."},
+            {"es": "La paz que buscabas afuera siempre estuvo aquí.", "en": "The peace you sought outside was always here."}
+        ],
+        [
+            {"es": "Respira hondo y siente la expansión de tus costillas.", "en": "Breathe deeply and feel your ribs expanding."},
+            {"es": "No busques llenar el vacío con ruido digital interminable.", "en": "Do not seek to fill the void with endless digital noise."},
+            {"es": "Reclama este instante como un escudo contra el caos exterior.", "en": "Claim this moment as a shield against external chaos."},
+            {"es": "Un minuto de presencia rompe horas de fatiga.", "en": "One minute of presence breaks hours of fatigue."}
+        ]
+    ],
+    "1": [
+        [
+            {"es": "Reto Visual: Busca 3 objetos rojos a tu alrededor ya.", "en": "Visual Challenge: Spot 3 red objects around you now."},
+            {"es": "Reto Somático: Frota tus manos rápido y colócalas en tus ojos.", "en": "Somatic Challenge: Rub your hands fast and place them on your eyes."},
+            {"es": "Reto Acústico: Sigue con tu mente el sonido más lejano.", "en": "Acoustic Challenge: Follow the most distant sound with your mind."},
+            {"es": "¡Logrado! Rompiste la inercia del sedentarismo mental.", "en": "Achieved! You broke the inertia of mental sedentarism."}
+        ],
+        [
+            {"es": "Reto Postural: Estira tu cuello hacia arriba 15 segundos.", "en": "Postural Challenge: Stretch your neck upwards for 15 seconds."},
+            {"es": "Reto Conciencia: Cuenta cuántas veces se expande tu pecho.", "en": "Awareness Challenge: Count how many times your chest expands."},
+            {"es": "Reto Térmico: Siente el aire frío entrar y caliente salir.", "en": "Thermal Challenge: Feel cold air coming in and warm air going out."},
+            {"es": "Cuerpo alineado con tu mente. Misión completada.", "en": "Body aligned with your mind. Mission completed."}
+        ],
+        [
+            {"es": "Reto Visual: Encuentra 5 cosas cuadradas en tu perímetro.", "en": "Visual Challenge: Find 5 square things in your perimeter."},
+            {"es": "Reto Somático: Presiona tus rodillas con las palmas fuertemente.", "en": "Somatic Challenge: Press your knees firmly with your palms."},
+            {"es: "Reto Acústico: Escucha el silencio entre tus pensamientos.", "en": "Acoustic Challenge: Listen to the silence between your thoughts."},
+            {"es": "Conexión sensorial restablecida con tu entorno.", "en": "Sensorial connection re-established with your environment."}
+        ],
+        [
+            {"es": "Reto Postural: Rota tus hombros hacia atrás suavemente 5 veces.", "en": "Postural Challenge: Roll your shoulders back gently 5 times."},
+            {"es": "Reto Somático: Abre y cierra las manos estirando bien los dedos.", "en": "Somatic Challenge: Open and close your hands stretching fingers well."},
+            {"es": "Reto Visual: Clava la mirada en el objeto más pequeño de la sala.", "en": "Visual Challenge: Fix your eyes on the smallest object in the room."},
+            {"es": "Sistema nervioso reseteado. Flexibilidad activada.", "en": "Nervous system reset. Flexibility activated."}
+        ]
+    ],
+    "2": [
+        [
+            {"es": "Frecuencia Binaural Celular (432Hz): Limpiando estrés cortical.", "en": "Cellular Binaural Frequency (432Hz): Clearing cortical stress."},
+            {"es": "Paisaje Acústico: Lluvia suave cayendo contra el suelo húmedo.", "en": "Acoustic Landscape: Soft rain falling against damp ground."},
+            {"es": "Paisaje Natural: Cantos de aves salvajes en un bosque despejado.", "en": "Natural Landscape: Wild birds singing in a clear forest."},
+            {"es": "Silencio Absoluto: Siente tus propios latidos cardíacos finales.", "en": "Absolute Silence: Feel your own final heartbeats."}
+        ],
+        [
+            {"es": "Frecuencia Gamma (40Hz): Estimulando el foco neuronal.", "en": "Gamma Frequency (40Hz): Stimulating neuronal focus."},
+            {"es": "Paisaje Acústico: Olas del océano chocando contra las rocas.", "en": "Acoustic Landscape: Ocean waves crashing against rocks."},
+            {"es": "Paisaje Zen: Campanas tibetanas resonando en la distancia.", "en": "Zen Landscape: Tibetan bells echoing in the distance."},
+            {"es": "Silencio Absoluto: Fluye sin gravedad en tu espacio libre.", "en": "Absolute Silence: Flow without gravity in your free space."}
+        ],
+        [
+            {"es": "Frecuencia Delta (3.5Hz): Reparación profunda de tejidos.", "en": "Delta Frequency (3.5Hz): Deep tissue repair."},
+            {"es": "Paisaje Acústico: Viento suave peinando las copas de los árboles.", "en": "Acoustic Landscape: Soft wind combing the treetops."},
+            {"es": "Paisaje Zen: Flauta de bambú tradicional relajando tu pulso.", "en": "Zen Landscape: Traditional bamboo flute relaxing your pulse."},
+            {"es": "Silencio Absoluto: Mente en blanco. Estado alfa desbloqueado.", "en": "Absolute Silence: Blank mind. Alpha state unlocked."}
+        ],
+        [
+            {"es": "Frecuencia Solfeggio (528Hz): Reparación y bioenergía celular.", "en": "Solfeggio Frequency (528Hz): Cellular repair and bioenergy."},
+            {"es": "Paisaje Acústico: Una cascada de agua clara resonando cerca.", "en": "Acoustic Landscape: A clear waterfall echoing nearby."},
+            {"es": "Paisaje Zen: Cuencos de cuarzo vibrando en tu mente.", "en": "Zen Landscape: Quartz bowls vibrating in your mind."},
+            {"es": "Silencio Absoluto: Calma total. El ruido del mundo se apagó.", "en": "Absolute Silence: Total calm. The world's noise shut down."}
+        ]
+    ]
+}
+
+@app.get("/api/obtener-oraculo")
+async def obtener_oraculo(user_id: str = "default_user"):
+    # Algoritmo matemático anti-repetición puro en el Servidor (Rango 0-11 para 12 opciones)
+    last_combo = HISTORIAL_ORACULO.get(user_id)
+    new_combo = random.randint(0, 11)
+    
+    while str(new_combo) == str(last_combo):
+        new_combo = random.randint(0, 11)
+        
+    HISTORIAL_ORACULO[user_id] = new_combo
+    
+    # Descompone matemáticamente la selección en Modo e Índice interno
+    mode_idx = str(new_combo // 4)
+    selection_idx = new_combo % 4
+    
+    flujo_seleccionado = ORACULO_DATA[mode_idx][selection_idx]
+    return {"status": "success", "flujo": flujo_seleccionado}
 
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
