@@ -1484,18 +1484,40 @@ iniciarRelojEnfocadoCasa(container, t) {
             }
         }
        
-                          // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
-            // CLONACIÓN Y BLINDAJE DE SEGURIDAD KERNEL:
-            // Aseguramos que la respiración extra de 4 minutos corra simétricamente en ambos idiomas
+                                     // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
+            // CLONACIÓN DIRECTA INTERNA DE SEGURIDAD KERNEL (SOPORTE MULTILINGÜE REAL)
             if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
                 let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
                 
-                // Forzamos la lectura directa del array nativo para evitar desbordamientos de memoria
-                if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
-                    let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
-                    
+                // Definición local explícita para evitar caídas por variables no declaradas
+                const frasesCasa = this.idiomaActual === 'en' ? [
+                    "Break the autopilot. Feel your rhythm at home.",
+                    "The oracle manifests: Your mind is seeking a space of calm.",
+                    "Inhale deep peace. Release the load from your shoulders.",
+                    "The oracle manifests: The true problem is not the destination, it is your attention.",
+                    "Feel your feet firm on the floor of your room.",
+                    "The oracle manifests: Put away the phone. Truly inhabit the day.",
+                    "Breathe slowly. Dissolve the stress built up during the week.",
+                    "The oracle manifests: Do not demand speed from the day. Stop the rush.",
+                    "Internal silence expands your biological well-being.",
+                    "Prepare your mind and body for the final revelation."
+                ] : [
+                    "Corta el piloto automático. Siente tu ritmo en casa.",
+                    "El oráculo manifiesta: Tu mente busca un espacio de calma.",
+                    "Inhala paz profunda. Libera la carga de tus hombros.",
+                    "El oráculo manifiesta: El verdadero problema no es el destino, es tu atención.",
+                    "Siente tus pies firmes sobre el suelo de tu habitación.",
+                    "El oráculo manifiesta: Guarda el teléfono. Habita el día de verdad.",
+                    "Respira despacio. Disuelve el estrés acumulado en la semana.",
+                    "El oráculo manifiesta: No le exijas velocidad al día. Detén la marcha.",
+                    "El silencio interno expande tu bienestar biológico.",
+                    "Prepárate. El oráculo está listo para manifestar la revelación final."
+                ];
+
+                if (pasoAudioIdx >= 0 && pasoAudioIdx < frasesCasa.length) {
+                    let recordatorioTexto = frasesCasa[pasoAudioIdx];
                     if (recordatorioTexto) {
-                        // El Kernel procesa la frase y la reproduce sin importar si está en ENG o ESP
+                        // El Kernel procesa y reproduce la voz de forma local en el idioma activo
                         this.hablar(recordatorioTexto);
                     }
                 }
