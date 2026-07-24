@@ -686,57 +686,259 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
     <!-- AQUÍ PEGAS EL NUEVO ORÁCULO ULTRA-SIMPLIFICADO DE CALMA                    -->
     <!-- ========================================================================== -->
     <script>
-    const _CONSEJOS_SIMPLES = [
-      "Apoyo para el Agobio: Detén el piloto automático. Nota el peso de tu ropa sobre la piel ahora mismo.",
-      "Reto de Silencio: Escucha el espacio vacío que hay entre tus propios pensamientos durante 30 segundos.",
-      "Consejo para el Stress: Las urgencias del mundo exterior pueden esperar. Regálate este perímetro de calma.",
-      "Reto de Palabras: Piensa en 3 palabras que te traigan paz absoluta y repítelas mentalmente al exhalar.",
-      "Apoyo para la Tristeza: Tu valor no depende de tu productividad de hoy. Abraza este minuto de tregua.",
-      "Reto de Matemática: Cuenta mentalmente de 100 hacia atrás de 3 en 3 (100, 97, 94...) para enfriar tu mente.",
-      "Consejo para la Ansiedad: Suelta los hombros y afloja la mandíbula. El futuro no se resuelve en este segundo.",
-      "Reto de Silencio: Identifica el sonido más lejano que ocurra fuera de tu habitación y síguelo con la mente.",
-      "Consejo para el Cansancio: Estás experimentando sobrecarga de estímulos. Cierra los ojos y respira el vacío.",
-      "Reto de Palabras: Nombra mentalmente 5 objetos que veas a tu alrededor que sean completamente estables.",
-      "Apoyo para el Agotamiento: Has protegido tu espacio. Tu batería somática se está recargando en este instante.",
-      "Reto de Matemática: Cuenta cuántas veces se expande tu pecho de forma natural en el próximo minuto."
-    ];
+    // ==========================================================================================
+// PARTE 1: BASE DE DATOS BILINGÜE DE ESTÍMULOS SENSORIALES (CADA 15 SEGUNDOS)
+// ==========================================================================================
+const _CATALOGO_ORACULO = [
+  {
+    tipo: "antistress",
+    silencio: false,
+    es: "Suelta los hombros ahora. Las urgencias del mundo exterior pueden esperar este microinstante.",
+    en: "Drop your shoulders now. The urgencies of the outside world can wait for this micro-moment."
+  },
+  {
+    tipo: "antidolor",
+    silencio: false,
+    es: "Envía tu exhalación directo a la zona tensa. Imagina el músculo abriéndose como una flor.",
+    en: "Send your exhalation directly to the tense area. Imagine the muscle opening like a flower."
+  },
+  {
+    tipo: "antidepresivo",
+    silencio: false,
+    es: "Tu valor no depende de tu productividad de hoy. Reclama esta tregua como un regalo para tu alma.",
+    en: "Your value does not depend on today's productivity. Claim this truce as a gift for your soul."
+  },
+  {
+    tipo: "antiagobio",
+    silencio: false,
+    es: "Detén el piloto automático. Nota el peso exacto de tus pies contra el suelo en este instante.",
+    en: "Stop autopilot. Notice the exact weight of your feet against the ground right now."
+  },
+  {
+    tipo: "antiaburrimiento",
+    silencio: false,
+    es: "Desafío de enfoque: Siente la temperatura exacta del aire entrando por tu nariz al inhalar.",
+    en: "Focus challenge: Feel the exact temperature of the air entering your nose as you inhale."
+  },
+  {
+    tipo: "ansiedad",
+    silencio: true, // RETO DE SILENCIO (La voz se apagará automáticamente)
+    es: "Reto de Silencio: Escucha el espacio vacío que hay entre tus propios pensamientos durante 15 segundos.",
+    en: "Silence Challenge: Listen to the empty space between your own thoughts for 15 seconds."
+  }
+];
+// ==========================================================================================
+// PARTE 2: SEGUNDO BLOQUE DE ESTÍMULOS Y FRASES FINALES MEMORABLES (ALTO IMPACTO EMOCIONAL)
+// ==========================================================================================
+const _CATALOGO_ORACULO_P2 = [
+  {
+    tipo: "antistress",
+    silencio: false,
+    es: "Ablanda tu frente por completo. Todo lo que te presiona se diluye en este ciclo de respiración.",
+    en: "Softener your forehead completely. Everything pressing you dissolves in this breath cycle."
+  },
+  {
+    tipo: "antiagobio",
+    silencio: false,
+    es: "Estás aquí, a salvo de las demandas externas. Tu único deber ahora es habitar tu propio cuerpo.",
+    en: "You are here, safe from external demands. Your only duty now is to inhabit your own body."
+  },
+  {
+    tipo: "antidolor",
+    silencio: false,
+    es: "Relaja las manos y desaprieta los puños. Permite que la energía fluya libre hacia las extremidades.",
+    en: "Relax your hands and unclench your fists. Allow energy to flow freely to your extremities."
+  },
+  {
+    tipo: "antiaburrimiento",
+    silencio: false,
+    es: "Desafío de enfoque: Nombra mentalmente 3 colores sutiles en tu habitación que sueles ignorar.",
+    en: "Focus challenge: Mentally name 3 subtle colors in your room that you usually ignore."
+  },
+  {
+    tipo: "antidepresivo",
+    silencio: false,
+    es: "El descanso también es una acción valiente. Estás reconstruyendo tu fuerza desde la raíz somática.",
+    en: "Rest is also a brave action. You are rebuilding your strength from the somatic root."
+  },
+  {
+    tipo: "ansiedad",
+    silencio: true, // RETO DE SILENCIO (La voz se apagará automáticamente)
+    es: "Reto de Silencio: Sigue el rastro acústico del sonido más lejano en tu entorno y quédate ahí.",
+    en: "Silence Challenge: Follow the acoustic trail of the most distant sound in your perimeter and stay there."
+  }
+];
 
-    const _COLORES_PULMON = ["#00bcd4", "#2e7d32", "#d84315", "#0d47a1"];
+// MATRIZ DE FRASES FINALES IMPACTANTES (Se escoge la más bella al azar para el último segundo)
+const _FRASES_FINALES_MEMORABLES = [
+  {
+    es: "ORÁCULO COMPLETADO: La paz que tanto buscabas afuera, siempre ha vivido resguardada en tu interior.",
+    en: "ORACLE COMPLETED: The peace you sought so much outside, has always lived sheltered inside you."
+  },
+  {
+    es: "ORÁCULO COMPLETADO: Has dominado tu calma en un mundo lleno de ruido. Hoy tu mente es invencible.",
+    en: "ORACLE COMPLETED: You mastered your calm in a world full of noise. Today your mind is invincible."
+  },
+  {
+    es: "ORÁCULO COMPLETADO: Tu batería somática está al máximo. Regresa al mundo con una intención inquebrantable.",
+    en: "ORACLE COMPLETED: Your somatic battery is at maximum. Return to the world with an unwavering intention."
+  }
+];
+// ==========================================================================================
+// PARTE 3: MOTOR TEMPORIZADOR, LÓGICA DE VOZ BILINGÜE Y ALGORITMO DE MEMORIA ANTI-REPETICIÓN
+// ==========================================================================================
+const _ORACULO_OTG = {
+  cl: ["#00bcd4", "#2e7d32", "#d84315", "#0d47a1"],
+  ultimoBloque15s: -1,
+  historialSesion: [],
 
-    setInterval(() => {
-      const divReloj = document.getElementById('timer-mision') || document.querySelector('.timer') || document.getElementById('wrapper-interactive');
-      if (!divReloj) return;
+  // Une los dos bloques de datos en un solo catálogo maestro comprimido de 12 elementos
+  obtenerCatalogoMaestro: function() {
+    return _CATALOGO_ORACULO.concat(_CATALOGO_ORACULO_P2);
+  },
 
-      const textoReloj = divReloj.innerText.trim();
-      if (!textoReloj.includes(':')) return;
+  // Algoritmo matemático: Baraja la lista completa garantizando que NUNCA se repita el orden
+  // aunque entres 5 veces al día desde el mismo dispositivo. Almacena el historial en disco local.
+  obtenerIndiceUnico: function(tiempoRestante) {
+    const maestro = this.obtenerCatalogoMaestro();
+    const claveHistorial = "otg_historial_oraculo";
+    
+    // Recuperamos el historial global acumulado en el almacenamiento local del dispositivo
+    let deDisco = localStorage.getItem(claveHistorial);
+    let historicoGlobal = deDisco ? JSON.parse(deDisco) : [];
 
-      const partes = textoReloj.split(':');
-      const minutos = parseInt(partes[0], 10);
-      const segundos = parseInt(partes[1], 10);
-      const tiempoEnSegundos = (minutos * 60) + segundos;
+    // Generamos un identificador único basado en el bloque de 15 segundos actual
+    const bloqueId = Math.floor((240 - tiempoRestante) / 15);
 
-      if (tiempoEnSegundos <= 240 && tiempoEnSegundos > 0) {
-        const txt = document.getElementById('txt-pulmon') || document.getElementById('mision-display-container');
-        const cir = document.getElementById('breath-circle') || document.querySelector('.breathing-circle');
+    // Si ya calculamos el estímulo para este bloque de 15 segundos en esta sesión, lo mantenemos
+    if (this.historialSesion[bloqueId] !== undefined) {
+      return this.historialSesion[bloqueId];
+    }
 
-        if (txt && cir) {
-          if (tiempoEnSegundos % 60 === 0 || txt.innerText === "" || txt.innerText.includes("INSPIRA") || txt.innerText.includes("EXPIRA")) {
-            const fraseAlAzar = _CONSEJOS_SIMPLES[Math.floor(Math.random() * _CONSEJOS_SIMPLES.length)];
-            txt.innerText = fraseAlAzar;
+    let indicesDisponibles = [];
+    for (let i = 0; i < maestro.length; i++) {
+      if (!historicoGlobal.includes(i)) {
+        indicesDisponibles.push(i);
+      }
+    }
+
+    // Si el usuario ya vio todas las opciones posibles del sistema, reseteamos el historial en disco
+    if (indicesDisponibles.length === 0) {
+      historicoGlobal = [];
+      for (let i = 0; i < maestro.length; i++) indicesDisponibles.push(i);
+    }
+
+    // Selección aleatoria pura dentro del grupo de frases que el usuario JAMÁS ha visto
+    const eleccion = indicesDisponibles[Math.floor(Math.random() * indicesDisponibles.length)];
+    
+    // Guardamos la memoria tanto en la sesión actual como en el disco duro local
+    this.historialSesion[bloqueId] = eleccion;
+    historicoGlobal.push(eleccion);
+    localStorage.setItem(claveHistorial, JSON.stringify(historicoGlobal));
+
+    return eleccion;
+  },
+
+  // Sintetizador de voz bilingüe nativo que lee los consejos sin interrumpir el temporizador
+  reproducirVozNativa: function(texto) {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    
+    window.speechSynthesis.cancel(); // Corta cualquier audio previo para evitar solapamiento
+    const locucion = new SpeechSynthesisUtterance(texto);
+    
+    // Detecta el idioma activo del sistema de forma automática
+    const langBtn = document.querySelector('.btn-lang.active');
+    const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en-US' : 'es-ES';
+    
+    locucion.lang = idioma;
+    locucion.rate = 0.95; // Velocidad ligeramente pausada para inducir calma biológica
+    locucion.pitch = 1.0;
+    
+    window.speechSynthesis.speak(locucion);
+  },
+
+  // Función núcleo que evalúa la pantalla y ejecuta los cambios cada 15 segundos exactos
+  revisarRelojPasivo: function() {
+    const timerDiv = document.getElementById('timer-mision') || document.querySelector('.timer') || document.getElementById('wrapper-interactive');
+    if (!timerDiv) return;
+
+    const textoTiempo = timerDiv.innerText.trim();
+    if (!textoTiempo.includes(':')) return;
+
+    const partes = textoTiempo.split(':');
+    const minutos = parseInt(partes[0], 10);
+    const segundos = parseInt(partes[1], 10);
+    const segundosTotales = (minutos * 60) + segundos;
+
+    // Ventana operativa: Se activa estrictamente en el bloque final de 4 minutos (240 segundos)
+    if (segundosTotales <= 240 && segundosTotales > 0) {
+      // Calculamos en qué bloque de 15 segundos nos encontramos (Fase de 0 a 15)
+      let bloque15sActual = Math.floor((240 - segundosTotales) / 15);
+      
+      const txt = document.getElementById('txt-pulmon') || document.getElementById('mision-display-container');
+      const cir = document.getElementById('breath-circle') || document.querySelector('.breathing-circle');
+
+      if (txt && cir) {
+        // DETECTOR AUTOMÁTICO DE IDIOMA
+        const langBtn = document.querySelector('.btn-lang.active');
+        const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en' : 'es';
+
+        // CONDICIÓN ESPECIAL: En el último segundo de la misión, inyecta la frase más bella y memorable
+        if (segundosTotales === 1) {
+          if (this.ultimoBloque15s !== 999) {
+            this.ultimoBloque15s = 999;
+            // Elige de forma aleatoria una de las 3 frases de alto impacto de la Parte 2
+            const fraseFinal = _FRASES_FINALES_MEMORABLES[Math.floor(Math.random() * _FRASES_FINALES_MEMORABLES.length)];
+            txt.innerText = fraseFinal[idioma];
+            this.reproducirVozNativa(fraseFinal[idioma]);
+            cir.style.borderColor = "#fff";
+            cir.style.boxShadow = "0 0 50px #fff, inset 0 0 25px rgba(255,255,255,0.4)";
           }
+          return;
+        }
 
-          const minutoActual = Math.floor((240 - tiempoEnSegundos) / 60);
-          const colorMinuto = _COLORES_PULMON[minutoActual] || "#00bcd4";
-          
-          cir.style.borderColor = colorMinuto;
-          cir.style.boxShadow = "0 0 35px " + colorMinuto + ", inset 0 0 20px " + colorMinuto + "33";
+        // Ejecuta la rotación visual y auditiva cada vez que entramos a un nuevo cuadrante de 15 segundos
+        if (segundosTotales % 15 === 0 || txt.innerText === "" || txt.innerText.includes("INSPIRA") || txt.innerText.includes("EXPIRA")) {
+          if (bloque15sActual !== this.ultimoBloque15s || segundosTotales % 15 === 0) {
+            this.ultimoBloque15s = bloque15sActual;
+
+            const maestro = this.obtenerCatalogoMaestro();
+            const idxHoy = this.obtenerIndiceUnico(segundosTotales);
+            const estimulo = maestro[idxHoy];
+
+            // Inyección de texto en el contenedor del círculo
+            txt.innerText = estimulo[idioma];
+
+            // GESTIÓN DE AUDIO DEFENSIVA: Si es un reto de silencio, apaga la voz por completo
+            if (estimulo.silencio === true) {
+              window.speechSynthesis.cancel(); // Silencio acústico absoluto obligado
+            } else {
+              this.reproducirVozNativa(estimulo[idioma]); // La voz lee el consejo de soporte
+            }
+
+            // CONTROL CROMÁTICO DINÁMICO: Modifica el color del círculo por cada minuto que transcurre
+            let minActual = Math.floor((240 - segundosTotales) / 60);
+            if (minActual > 3) minActual = 3;
+            const colorHoy = this.cl[minActual];
+
+            cir.style.borderColor = colorHoy;
+            cir.style.boxShadow = `0 0 35px ${colorHoy}, inset 0 0 20px ${colorHoy}33`;
+          }
         }
       }
-    }, 1000);
+    }
+  }
+};
+
+// Inicialización del hilo de vigilancia en segundo plano desacoplado
+setInterval(() => {
+  if (typeof _ORACULO_OTG !== 'undefined' && _ORACULO_OTG.revisarRelojPasivo) {
+    _ORACULO_OTG.revisarRelojPasivo();
+  }
+}, 1000);
+
     </script>
     <!-- ========================================================================== -->
-
-    <!-- ESTO YA LO TIENES: Es la carga del motor principal original de tu aplicación -->
     <!-- Le dejamos puesto el (?v=limpio) para obligar a Render a ignorar cualquier caché vieja rota -->
     <script src="/static/engine.js?v=limpio"></script>
 </body>
