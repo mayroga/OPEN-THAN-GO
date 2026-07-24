@@ -1039,34 +1039,34 @@ hablar(texto) {
         this.indiceMision = 0;
 
         // ==========================================================================================
-        // DETECCIÓN INTERNA: DESVÍO EXCLUSIVO AL MOTOR DEL MODO CASA
+        // DETECCIÓN INTERNA: DESVÍO EXCLUSIVO AL MÓDULO CASA DEL OBJETO NATIVO
         // ==========================================================================================
         if (data.DIRECCIONAMIENTO_MASTER === "MODO_CASA") {
-            // Pasamos el objeto de datos, el idioma actual de tu instancia y la referencia de 'this' si es necesaria
-            this.renderizarFlujoModoCasa(data, this.idiomaActual);
-            return; // Cortamos el flujo aquí para que no ejecute la lógica de los otros modos
-        }
-        // ==========================================================================================
+            this.renderizarFlujoModoCasa(data, this.idiomaActual); 
+            return; 
+        }                      
+// ==========================================================================================
 
         // --- Captura el 1% de Calidez Humana dinámica enviada por el Servidor ---
         let textoElegido = data.calidez_humana || (this.idiomaActual === 'es' ? "Respira profundo. Siente. Estás vivo. Respira." : "Breathe deeply. You are here. You are alive.");
         // ... continúa el resto de tu código original (Modo SALIR, etc.) ...
 // ==========================================================================================
-// CORE INTEGRADO MODO CASA V6.0.2: CORRECCIÓN DE SINTAXIS PARA NÚCLEO NATIVO
 // ==========================================================================================
-function renderizarFlujoModoCasa(data, idiomaActual) {
+// CORE INTEGRADO MODO CASA V6.0.3: MÉTODOS ANIDADOS DE OBJETO NATIVO (VISUAL + VOZ)
+// ==========================================================================================
+renderizarFlujoModoCasa: function(data, idiomaActual) {
     if (!data.misiones || data.misiones.length === 0) return;
 
-    // 1. SILENCIO INICIAL: Limpieza total de colas de voz en el navegador
+    // 1. SILENCIO INICIAL: Cancelar cualquier proceso de voz residual en cola del navegador
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
     }
 
-    // Extraemos la misión activa enviada por FastAPI
+    // Extraemos la misión activa enviada por FastAPI (Manejo seguro si viene en lista o diccionario)
     const misionActiva = Array.isArray(data.misiones) ? data.misiones[0] : data.misiones;
     const oraculoManifiesto = data.oraculo_manifiesto || "Respira profundamente.";
 
-    // 2. CORRECCIÓN DE REFLEJO EN PANTALLA: Mapeo exacto de claves unificadas
+    // 2. CORRECCIÓN DE REFLEJO EN PANTALLA: Mapeo exacto según el idioma de la sesión
     let tituloMision = "";
     let instruccionMision = "";
 
@@ -1078,7 +1078,7 @@ function renderizarFlujoModoCasa(data, idiomaActual) {
         instruccionMision = misionActiva.que_hacer || misionActiva.descripcion || "Toma una pausa.";
     }
 
-    // Inyección forzada en el DOM de session.html
+    // Inyección explícita e inmediata en la interfaz visual de session.html
     const nodoTitulo = document.getElementById("reto-titulo");
     const nodoDescripcion = document.getElementById("reto-descripcion");
     const nodoContador = document.getElementById("cierre-timer");
@@ -1086,57 +1086,60 @@ function renderizarFlujoModoCasa(data, idiomaActual) {
     const btnRecomenzar = document.getElementById("btn-recomenzar-experiencia");
 
     if (nodoTitulo) nodoTitulo.innerText = tituloMision.toUpperCase();
-    if (nodoDescripcion) nodoDescripcion.innerText = instruccionMision; // La frase se refleja al instante
+    if (nodoDescripcion) nodoDescripcion.innerText = instruccionMision; // Reflejo visual inmediato de la frase de la casa
     if (nodoContador) {
         nodoContador.innerText = "240";
         nodoContador.classList.remove("hidden");
     }
     if (nodoMensajeFinal) nodoMensajeFinal.style.opacity = "0";
-    if (btnRecomenzar) btnRecomenzar.disabled = true; // Bloqueo preventivo anti-interrupciones
+    if (btnRecomenzar) btnRecomenzar.disabled = true; // Bloqueo total de botones durante la experiencia
 
-    // Swapping visual de contenedores principales
+    // Activar transiciones de pantalla nativas de la aplicación
     document.getElementById("wrapper-form").classList.add("hidden");
-    
     const pantallaCierre = document.getElementById("pantalla-cierre");
     if (pantallaCierre) pantallaCierre.classList.remove("hidden");
 
-    // 3. ACTIVACIÓN DEL ESCUDO DE PROTECCIÓN ACÚSTICA (240 SEGUNDOS = 4 MINUTOS EXTRAS)
-    ejecutarTemporizadorBienestarCasa(240, oraculoManifiesto, idiomaActual);
-}
+    // 3. INICIO DEL ESCUDO DE 4 MINUTOS (240 SEGUNDOS EXTRAS DE REPOSO)
+    // Usamos 'this.' para llamar de forma interna al siguiente método del objeto
+    this.ejecutarTemporizadorBienestarCasa(240, oraculoManifiesto, idiomaActual);
+},
 
-function ejecutarTemporizadorBienestarCasa(segundosTotales, manifiestoOraculo, idiomaActual) {
+ejecutarTemporizadorBienestarCasa: function(segundosTotales, manifiestoOraculo, idiomaActual) {
     let tiempoRestante = segundosTotales;
     const nodoContador = document.getElementById("cierre-timer");
     const nodoTitulo = document.getElementById("reto-titulo");
     const nodoDescripcion = document.getElementById("reto-descripcion");
     const btnRecomenzar = document.getElementById("btn-recomenzar-experiencia");
 
+    // Preservamos el contexto del objeto para el hilo asíncrono del setInterval
+    const self = this;
+
     const buclePulmon = setInterval(() => {
         tiempoRestante--;
         if (nodoContador) nodoContador.innerText = tiempoRestante;
 
-        // ESCUDO DE AUDIO ACTIVO: Silencia inmediatamente si el sistema de voz intenta colarse
+        // PROTECCIÓN DE INTERRUPCIÓN: Forzar silencio total de hilos externos segundo a segundo
         if (window.speechSynthesis && window.speechSynthesis.speaking) {
             window.speechSynthesis.cancel();
         }
 
-        // CONTROL DE DESEMBOCADURA: Llegada al segundo cero exacto
+        // CONTROL DE FLUJO: Al llegar al segundo cero exacto, el Oráculo toma el control
         if (tiempoRestante <= 0) {
             clearInterval(buclePulmon);
 
-            // Reconfiguración visual del Oráculo
+            // Transición del DOM limpia
             if (nodoContador) nodoContador.classList.add("hidden");
             if (nodoTitulo) {
                 nodoTitulo.innerText = idiomaActual === "en" ? "THE ORACLE MANIFESTS:" : "EL ORÁCULO SE MANIFIESTA:";
             }
             if (nodoDescripcion) {
-                nodoDescripcion.innerText = manifiestoOraculo; // El manifiesto inunda la pantalla sin cortes
+                nodoDescripcion.innerText = manifiestoOraculo; // El manifiesto largo inunda la pantalla visualmente
                 nodoDescripcion.style.fontSize = "1.15rem";
                 nodoDescripcion.style.lineHeight = "1.6";
             }
 
-            // MANIFESTACIÓN DE VOZ SECUENCIAL SIN APUROS
-            reproducirManifiestoVozSecuencial(manifiestoOraculo, idiomaActual, () => {
+            // DISPARO DE MANIFESTACIÓN POR VOZ SIN PRISAS NI APUROS RECURRIENDO AL CONTEXTO PRESERVADO
+            self.reproducirManifiestoVozSecuencial(manifiestoOraculo, idiomaActual, () => {
                 if (btnRecomenzar) btnRecomenzar.disabled = false;
                 const nodoMensajeFinal = document.getElementById("cierre-mensaje-final");
                 if (nodoMensajeFinal) {
@@ -1146,16 +1149,17 @@ function ejecutarTemporizadorBienestarCasa(segundosTotales, manifiestoOraculo, i
             });
         }
     }, 1000);
-}
+},
 
-function reproducirManifiestoVozSecuencial(textoCompleto, idiomaActual, callbackTerminar) {
+reproducirManifiestoVozSecuencial: function(textoCompleto, idiomaActual, callbackTerminar) {
     if (!window.speechSynthesis) {
         if (callbackTerminar) callbackTerminar();
         return;
     }
 
-    window.speechSynthesis.cancel(); // Limpieza de seguridad
+    window.speechSynthesis.cancel(); // Limpieza preventiva final
 
+    // Fragmentación algorítmica por signos de puntuación para evitar congelamiento de búfer
     const bloquesOraciones = textoCompleto.match(/[^.!?]+[.!?]+/g) || [textoCompleto];
     let indiceActual = 0;
 
@@ -1174,16 +1178,17 @@ function reproducirManifiestoVozSecuencial(textoCompleto, idiomaActual, callback
 
         const enunciadoVoz = new SpeechSynthesisUtterance(textoLimpio);
         enunciadoVoz.lang = idiomaActual === "en" ? "en-US" : "es-ES";
-        enunciadoVoz.rate = 0.95; 
+        
+        enunciadoVoz.rate = 0.95; // Velocidad de voz humana pausada y solemne
         enunciadoVoz.pitch = 1.0;
 
         enunciadoVoz.onend = () => {
             indiceActual++;
-            emitirSiguienteFragmento();
+            emitirSiguienteFragmento(); // Encadenamiento recursivo limpio libre de bloqueos
         };
 
         enunciadoVoz.onerror = (err) => {
-            console.error("Error en síntesis de voz:", err);
+            console.error("Error crítico en el hilo de síntesis de voz:", err);
             indiceActual++;
             emitirSiguienteFragmento();
         };
@@ -1191,9 +1196,9 @@ function reproducirManifiestoVozSecuencial(textoCompleto, idiomaActual, callback
         window.speechSynthesis.speak(enunciadoVoz);
     }
 
+    // Arranca el flujo de audio ordenado
     emitirSiguienteFragmento();
 }
-
        
         // --- Ejecuta el dictado por voz nativo usando la calidez del Oráculo ---
         // CORRECCIÓN: Usar el método hablar de KERNEL consistentemente
