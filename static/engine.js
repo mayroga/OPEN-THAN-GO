@@ -1484,13 +1484,10 @@ iniciarRelojEnfocadoCasa(container, t) {
             }
         }
        
-                                     // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
-            // CLONACIÓN DIRECTA INTERNA DE SEGURIDAD KERNEL (SOPORTE MULTILINGÜE REAL)
+            // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
             if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
-                let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
-                
-                // Definición local explícita para evitar caídas por variables no declaradas
-                const frasesCasa = this.idiomaActual === 'en' ? [
+                var pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
+                var listaEn = [
                     "Break the autopilot. Feel your rhythm at home.",
                     "The oracle manifests: Your mind is seeking a space of calm.",
                     "Inhale deep peace. Release the load from your shoulders.",
@@ -1501,7 +1498,8 @@ iniciarRelojEnfocadoCasa(container, t) {
                     "The oracle manifests: Do not demand speed from the day. Stop the rush.",
                     "Internal silence expands your biological well-being.",
                     "Prepare your mind and body for the final revelation."
-                ] : [
+                ];
+                var listaEs = [
                     "Corta el piloto automático. Siente tu ritmo en casa.",
                     "El oráculo manifiesta: Tu mente busca un espacio de calma.",
                     "Inhala paz profunda. Libera la carga de tus hombros.",
@@ -1513,16 +1511,15 @@ iniciarRelojEnfocadoCasa(container, t) {
                     "El silencio interno expande tu bienestar biológico.",
                     "Prepárate. El oráculo está listo para manifestar la revelación final."
                 ];
-
+                var frasesCasa = (this.idiomaActual === 'en') ? listaEn : listaEs;
                 if (pasoAudioIdx >= 0 && pasoAudioIdx < frasesCasa.length) {
-                    let recordatorioTexto = frasesCasa[pasoAudioIdx];
+                    var recordatorioTexto = frasesCasa[pasoAudioIdx];
                     if (recordatorioTexto) {
-                        // El Kernel procesa y reproduce la voz de forma local en el idioma activo
                         this.hablar(recordatorioTexto);
                     }
                 }
             }
-
+                                     
 
     /**
      * Advances to the next internal mission step.
