@@ -1018,37 +1018,29 @@ hablar(texto) {
         container.innerHTML = `<div style='text-align:center; padding:40px 0;'><h2 style='color:#fff; font-size:1.1rem;'>${this.idiomaActual === 'es' ? 'CONECTANDO CON EL MANDO...' : 'CONNECTING TO CONTROL...'}</h2></div>`;
         container.classList.remove('hidden');
 
-                  try { 
-    const r = await fetch("/api/mando-integral", { 
-        method: "POST", 
-        headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify(payload) 
-    }); 
-    const data = await r.json(); 
-    
-    if (data.error) { 
-        alert(data.error); 
-        document.getElementById('wrapper-form').classList.remove('hidden'); 
-        container.classList.add('hidden'); 
-        this.isLocked = false; 
-        this.validarZip(); 
-        return; 
-    } 
-    
-    this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER; 
-    this.indiceMision = 0; 
-    
-    // ========================================================================================== 
-    // DETECCIÓN INTERNA: DESVÍO EXCLUSIVO AL MÓDULO CASA AUTOMÁTICO (CORREGIDO)
-    // ========================================================================================== 
-    if (data.DIRECCIONAMIENTO_MASTER === "MODO_CASA") { 
-        renderizarFlujoModoCasa(data, this.idiomaActual, this); 
-        return; 
-    } 
-    // ========================================================================================== 
-    
-    // --- Captura el 1% de Calidez Humana dinámica enviada por el Servidor --- 
-    let textoElegido = data.calidez_humana || (this.idiomaActual === 'es' ? "Respira profundo. Siente. Estás vivo. Respira." : "Breathe deeply. You are here. You are alive."); 
+                try {
+        const r = await fetch("/api/mando-integral", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+       
+        const data = await r.json();
+       
+        if (data.error) {
+            alert(data.error);
+            document.getElementById('wrapper-form').classList.remove('hidden');
+            container.classList.add('hidden');
+            this.isLocked = false;
+            this.validarZip();
+            return;
+        }
+       
+        this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
+        this.indiceMision = 0;
+       
+        // --- Captura el 1% de Calidez Humana dinámica enviada por el Servidor ---
+        let textoElegido = data.calidez_humana || (this.idiomaActual === 'es' ? "Respira profundo. Siente. Estás vivo. Respira." : "Breathe deeply. You are here. You are alive.");
        
         // --- Ejecuta el dictado por voz nativo usando la calidez del Oráculo ---
         // CORRECCIÓN: Usar el método hablar de KERNEL consistentemente
@@ -1057,7 +1049,7 @@ hablar(texto) {
         // Guardamos la calidez humana en la instancia
         this.mensajeCalidezHumanaActual = textoElegido;
        
-     // MODO: ACCIÓN DE CAMPO (SALIR)
+     // MADO: ACCIÓN DE CAMPO (SALIR)
  if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
  this.historialSalir = data.historial_salir_actualizado || [];
  localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
@@ -1466,61 +1458,59 @@ iniciarRelojEnfocadoCasa(container, t) {
         };
     }
 
-            // ======================================================================
-        // CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL (CADA 20 SEGUNDOS)
-        // ======================================================================
-        this.timerEnfocado = setInterval(() => {
-            if (this.timeLeft > 0) {
-                this.timeLeft--;
+    // ======================================================================
+    // CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL (CADA 20 SEGUNDOS)
+    // ======================================================================
+    this.timerEnfocado = setInterval(() => {
+        if (this.timeLeft > 0) {
+            this.timeLeft--;
+        }
+       
+        let m = Math.floor(this.timeLeft / 60);
+        let s = this.timeLeft % 60;
+       
+        if (timerDiv) {
+            timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+        }
+       
+        if (pulmonDiv) {
+            let ciclo = this.timeLeft % 8;
+            if (ciclo >= 4) {
+                pulmonDiv.innerText = t.inspira.toUpperCase();
+                pulmonDiv.style.color = "var(--cyan-inhale)";
+            } else {
+                pulmonDiv.innerText = t.expira.toUpperCase();
+                pulmonDiv.style.color = "var(--accent)";
             }
-            
-            let m = Math.floor(this.timeLeft / 60);
-            let s = this.timeLeft % 60;
-            
-            if (timerDiv) {
-                timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-            }
-            
-            if (pulmonDiv) {
-                let ciclo = this.timeLeft % 8;
-                if (ciclo >= 4) {
-                    pulmonDiv.innerText = t.inspira.toUpperCase();
-                    pulmonDiv.style.color = "var(--cyan-inhale)";
-                } else {
-                    pulmonDiv.innerText = t.expira.toUpperCase();
-                    pulmonDiv.style.color = "var(--accent)";
+        }
+       
+              // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
+        // Reemplazamos los 600 segundos originales por 840 para dar 4 minutos más de calma humana
+        if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
+            let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
+            if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
+                let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
+                if (recordatorioTexto) {
+                    this.hablar(recordatorioTexto);
                 }
             }
+        }
 
-            // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
-            // ESCUDO DE MODO CASA: Si estamos en MODO_CASA, bloqueamos los audios secuenciales para evitar cortes
-            if (this.tipoEscapeGlobal !== "MODO_CASA") {
-                if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
-                    let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
-                    if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
-                        let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
-                        if (recordatorioTexto) {
-                            this.hablar(recordatorioTexto);
-                        }
-                    }
-                }
+       
+        if (this.timeLeft <= 0) {
+            clearInterval(this.timerEnfocado);
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+            window.speechSynthesis.cancel();
+           
+            if (circleElement) {
+                circleElement.style.animation = "none";
+                circleElement.style.transform = "scale(1)";
             }
-
-            if (this.timeLeft <= 0) {
-                clearInterval(this.timerEnfocado);
-                clearTimeout(this.salidaSugeridaTimeoutId);
-                this.salidaSugeridaTimeoutId = null;
-                window.speechSynthesis.cancel();
-                
-                if (circleElement) {
-                    circleElement.style.animation = "none";
-                    circleElement.style.transform = "scale(1)";
-                }
-                this.iniciarRetoCierre60Segundos();
-            }
-        }, 1000);
-    },
-
+            this.iniciarRetoCierre60Segundos();
+        }
+    }, 1000);
+},
 
     /**
      * Advances to the next internal mission step.
@@ -2366,142 +2356,6 @@ document.addEventListener("DOMContentLoaded", () => {
     OTG_SENSORIAL.init();
   }
 });
-// ==========================================================================================
-// CORE INTEGRADO MODO CASA V6.0.5: NÚCLEO INDEPENDIENTE (VISUAL + VOZ SIN INTERRUPCIONES)
-// ==========================================================================================
-function renderizarFlujoModoCasa(data, idiomaActual, contextoKernel) {
-    if (!data.misiones || data.misiones.length === 0) return;
-
-    if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-    }
-
-    const misionesLista = data.misiones;
-    const misionActiva = Array.isArray(misionesLista) ? misionesLista[0] : misionesLista;
-    const oraculoManifiesto = data.oraculo_manifiesto || "Respira profundamente.";
-
-    let tituloMision = "";
-    let instruccionMision = "";
-
-    if (idiomaActual === "en") {
-        tituloMision = misionActiva.titulo_en || misionActiva.titulo || "HOME RECOVERY PAUSE";
-        instruccionMision = misionActiva.que_hacer_en || misionActiva.descripcion_en || "Take a break.";
-    } else {
-        tituloMision = misionActiva.titulo || "PAUSA DE RECUPERACIÓN DOMÉSTICA";
-        instruccionMision = misionActiva.que_hacer || misionActiva.descripcion || "Toma una pausa.";
-    }
-
-    const nodoTitulo = document.getElementById("reto-titulo");
-    const nodoDescripcion = document.getElementById("reto-descripcion");
-    const nodoContador = document.getElementById("cierre-timer");
-    const nodoMensajeFinal = document.getElementById("cierre-mensaje-final");
-    const btnRecomenzar = document.getElementById("btn-recomenzar-experiencia");
-
-    if (nodoTitulo) nodoTitulo.innerText = tituloMision.toUpperCase();
-    if (nodoDescripcion) nodoDescripcion.innerText = instruccionMision; 
-    if (nodoContador) {
-        nodoContador.innerText = "240";
-        nodoContador.classList.remove("hidden");
-    }
-    if (nodoMensajeFinal) nodoMensajeFinal.style.opacity = "0";
-    if (btnRecomenzar) btnRecomenzar.disabled = true; 
-
-    const contenedorFormulario = document.getElementById("wrapper-form");
-    if (contenedorFormulario) contenedorFormulario.classList.add("hidden");
-    
-    const pantallaCierre = document.getElementById("pantalla-cierre");
-    if (pantallaCierre) pantallaCierre.classList.remove("hidden");
-
-    ejecutarTemporizadorBienestarCasa(240, oraculoManifiesto, idiomaActual, contextoKernel);
-}
-
-function ejecutarTemporizadorBienestarCasa(segundosTotales, manifiestoOraculo, idiomaActual, contextoKernel) {
-    let tiempoRestante = segundosTotales;
-    const nodoContador = document.getElementById("cierre-timer");
-    const nodoTitulo = document.getElementById("reto-titulo");
-    const nodoDescripcion = document.getElementById("reto-descripcion");
-    const btnRecomenzar = document.getElementById("btn-recomenzar-experiencia");
-
-    const buclePulmon = setInterval(() => {
-        tiempoRestante--;
-        if (nodoContador) nodoContador.innerText = tiempoRestante;
-
-        if (window.speechSynthesis && window.speechSynthesis.speaking) {
-            window.speechSynthesis.cancel();
-        }
-
-        if (tiempoRestante <= 0) {
-            clearInterval(buclePulmon);
-
-            if (nodoContador) nodoContador.classList.add("hidden");
-            if (nodoTitulo) {
-                nodoTitulo.innerText = idiomaActual === "en" ? "THE ORACLE MANIFESTS:" : "EL ORÁCULO SE MANIFIESTA:";
-            }
-            if (nodoDescripcion) {
-                nodoDescripcion.innerText = manifiestoOraculo; 
-                nodoDescripcion.style.fontSize = "1.15rem";
-                nodoDescripcion.style.lineHeight = "1.6";
-            }
-
-            reproducirManifiestoVozSecuencial(manifiestoOraculo, idiomaActual, () => {
-                if (btnRecomenzar) btnRecomenzar.disabled = false;
-                if (contextoKernel) contextoKernel.isLocked = false; 
-                
-                const nodoMensajeFinal = document.getElementById("cierre-mensaje-final");
-                if (nodoMensajeFinal) {
-                    nodoMensajeFinal.innerText = idiomaActual === "en" ? "Experience Completed." : "Experiencia Completada.";
-                    nodoMensajeFinal.style.opacity = "1";
-                }
-            });
-        }
-    }, 1000);
-}
-
-function reproducirManifiestoVozSecuencial(textoCompleto, idiomaActual, callbackTerminar) {
-    if (!window.speechSynthesis) {
-        if (callbackTerminar) callbackTerminar();
-        return;
-    }
-
-    window.speechSynthesis.cancel(); 
-
-    const bloquesOraciones = textoCompleto.match(/[^.!?]+[.!?]+/g) || [textoCompleto];
-    let indiceActual = 0;
-
-    function emitirSiguienteFragmento() {
-        if (indiceActual >= bloquesOraciones.length) {
-            if (callbackTerminar) callbackTerminar();
-            return;
-        }
-
-        const textoLimpio = bloquesOraciones[indiceActual].trim();
-        if (textoLimpio.length === 0) {
-            indiceActual++;
-            emitirSiguienteFragmento();
-            return;
-        }
-
-        const enunciadoVoz = new SpeechSynthesisUtterance(textoLimpio);
-        enunciadoVoz.lang = idiomaActual === "en" ? "en-US" : "es-ES";
-        enunciadoVoz.rate = 0.95; 
-        enunciadoVoz.pitch = 1.0;
-
-        enunciadoVoz.onend = () => {
-            indiceActual++;
-            emitirSiguienteFragmento(); 
-        };
-
-        enunciadoVoz.onerror = (err) => {
-            console.error("Error crítico en el hilo de síntesis de voz:", err);
-            indiceActual++;
-            emitirSiguienteFragmento();
-        };
-
-        window.speechSynthesis.speak(enunciadoVoz);
-    }
-
-    emitirSiguienteFragmento();
-}
 
 // SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
 // ESTAS DOS LÍNEAS DE ABAJO DEBEN SER LAS ÚNICAS QUE CIERREN TODO TU ARCHIVO ENGINE.JS:
