@@ -1496,6 +1496,7 @@ this.timerEnfocado = setInterval(() => {
             } 
         } 
     } 
+                      
             if (this.timeLeft <= 0) { 
                 clearInterval(this.timerEnfocado); 
                 clearTimeout(this.salidaSugeridaTimeoutId); 
@@ -1508,7 +1509,7 @@ this.timerEnfocado = setInterval(() => {
                 this.iniciarRetoCierre60Segundos(); 
             } 
         }, 1000); 
-    } // Cierre único y real de tu constructor base que cura el SyntaxError
+    } // <-- ESTA LLAVE ES CRÍTICA: Cierra el constructor base de forma limpia para que compile el KERNEL
 
     /** 
      * Advances to the next internal mission step. 
