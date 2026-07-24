@@ -682,111 +682,62 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
             }
         }, true);
     </script>
-    // ==========================================================================
-// BLOCK: CAPTURA ACTIVA DEL ORÁCULO DESDE EL BACKEND (MÁXIMA LIGEREZA)
-// ==========================================================================
-const _ORACULO_OTG = {
-  cl: ["#00bcd4", "#2e7d32", "#d84315", "#0d47a1"],
-  ultimoMinutoRegistrado: -1,
-  flujoActual: null,
+        <!-- ========================================================================== -->
+    <!-- AQUÍ PEGAS EL NUEVO ORÁCULO ULTRA-SIMPLIFICADO DE CALMA                    -->
+    <!-- ========================================================================== -->
+    <script>
+    const _CONSEJOS_SIMPLES = [
+      "Apoyo para el Agobio: Detén el piloto automático. Nota el peso de tu ropa sobre la piel ahora mismo.",
+      "Reto de Silencio: Escucha el espacio vacío que hay entre tus propios pensamientos durante 30 segundos.",
+      "Consejo para el Stress: Las urgencias del mundo exterior pueden esperar. Regálate este perímetro de calma.",
+      "Reto de Palabras: Piensa en 3 palabras que te traigan paz absoluta y repítelas mentalmente al exhalar.",
+      "Apoyo para la Tristeza: Tu valor no depende de tu productividad de hoy. Abraza este minuto de tregua.",
+      "Reto de Matemática: Cuenta mentalmente de 100 hacia atrás de 3 en 3 (100, 97, 94...) para enfriar tu mente.",
+      "Consejo para la Ansiedad: Suelta los hombros y afloja la mandíbula. El futuro no se resuelve en este segundo.",
+      "Reto de Silencio: Identifica el sonido más lejano que ocurra fuera de tu habitación y síguelo con la mente.",
+      "Consejo para el Cansancio: Estás experimentando sobrecarga de estímulos. Cierra los ojos y respira el vacío.",
+      "Reto de Palabras: Nombra mentalmente 5 objetos que veas a tu alrededor que sean completamente estables.",
+      "Apoyo para el Agotamiento: Has protegido tu espacio. Tu batería somática se está recargando en este instante.",
+      "Reto de Matemática: Cuenta cuántas veces se expande tu pecho de forma natural en el próximo minuto."
+    ];
 
-  // Llamada rápida al backend cuando inicia la sesión para precargar los 4 minutos
-  cargarFlujoServidor: async function() {
-    try {
-      const res = await fetch('/api/obtener-oraculo?user_id=cliente_otg');
-      const data = await res.json();
-      if (data.status === "success") {
-        this.flujoActual = data.flujo;
-        console.log("Oráculo bilingüe sincronizado desde el backend de FastAPI.");
-      }
-    } catch (e) {
-      console.error("Error al sincronizar el oráculo desde main.py:", e);
-    }
-  },
+    const _COLORES_PULMON = ["#00bcd4", "#2e7d32", "#d84315", "#0d47a1"];
 
-  revisarRelojPasivo: function() {
-    const timerDiv = document.getElementById('timer-mision') || document.querySelector('.timer') || document.getElementById('wrapper-interactive');
-    if (!timerDiv) return;
+    setInterval(() => {
+      const divReloj = document.getElementById('timer-mision') || document.querySelector('.timer') || document.getElementById('wrapper-interactive');
+      if (!divReloj) return;
 
-    const textoTiempo = timerDiv.innerText.trim();
-    if (!textoTiempo.includes(':')) return;
+      const textoReloj = divReloj.innerText.trim();
+      if (!textoReloj.includes(':')) return;
 
-    const partes = textoTiempo.split(':');
-    const minutos = parseInt(partes[0], 10);
-    const segundos = parseInt(partes[1], 10);
-    const segundosTotales = (minutos * 60) + segundos;
+      const partes = textoReloj.split(':');
+      const minutos = parseInt(partes[0], 10);
+      const segundos = parseInt(partes[1], 10);
+      const tiempoEnSegundos = (minutos * 60) + segundos;
 
-    // Si detecta que inicia la ventana de calma (240 segundos) y no se ha cargado, pide los datos al backend
-    if (segundosTotales === 240 && !this.flujoActual) {
-      this.cargarFlujoServidor();
-    }
-
-    if (segundosTotales <= 240 && segundosTotales > 0 && this.flujoActual) {
-      let minActual = Math.floor((240 - segundosTotales) / 60);
-      if (minActual > 3) minActual = 3;
-
-      if (minActual !== this.ultimoMinutoRegistrado) {
-        this.ultimoMinutoRegistrado = minActual;
+      if (tiempoEnSegundos <= 240 && tiempoEnSegundos > 0) {
         const txt = document.getElementById('txt-pulmon') || document.getElementById('mision-display-container');
         const cir = document.getElementById('breath-circle') || document.querySelector('.breathing-circle');
-        
-        if (txt && cir) {
-          const langBtn = document.querySelector('.btn-lang.active');
-          const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en' : 'es';
-          
-          const estimulo = this.flujoActual[minActual];
-          const color = this.cl[minActual];
 
-          txt.innerText = estimulo[idioma];
-          cir.style.borderColor = color;
-          cir.style.boxShadow = `0 0 35px ${color}, inset 0 0 20px ${color}33`;
+        if (txt && cir) {
+          if (tiempoEnSegundos % 60 === 0 || txt.innerText === "" || txt.innerText.includes("INSPIRA") || txt.innerText.includes("EXPIRA")) {
+            const fraseAlAzar = _CONSEJOS_SIMPLES[Math.floor(Math.random() * _CONSEJOS_SIMPLES.length)];
+            txt.innerText = fraseAlAzar;
+          }
+
+          const minutoActual = Math.floor((240 - tiempoEnSegundos) / 60);
+          const colorMinuto = _COLORES_PULMON[minutoActual] || "#00bcd4";
+          
+          cir.style.borderColor = colorMinuto;
+          cir.style.boxShadow = "0 0 35px " + colorMinuto + ", inset 0 0 20px " + colorMinuto + "33";
         }
       }
-    }
-  }
-};
-
-// Monitoreo pasivo desacoplado en segundo plano
-setInterval(() => {
-  if (typeof _ORACULO_OTG !== 'undefined' && _ORACULO_OTG.revisarRelojPasivo) {
-    _ORACULO_OTG.revisarRelojPasivo();
-  }
-}, 1000);
-
-    <!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
+    }, 1000);
+    </script>
     <!-- ========================================================================== -->
-<!-- INYECTOR SEGURO DE REMEDIACIÓN (CURA EL SYNTAXERROR SIN TOCAR ENGINE.JS)   -->
-<!-- ========================================================================== -->
-<script>
-// Creamos un entorno seguro en el navegador para interceptar la inicialización
-window.addEventListener("DOMContentLoaded", () => {
-    // Si el KERNEL falló al crearse por el error de sintaxis del archivo, lo reparamos dinámicamente
-    if (typeof KERNEL === 'undefined') {
-        console.log("Remediación activada: Reconstruyendo método KERNEL dañado.");
 
-        // Forzamos al botón de Start a que busque una función de respaldo limpia
-        const botonInicio = document.querySelector('button[onclick*="KERNEL"]');
-        if (botonInicio) {
-            botonInicio.onclick = function() {
-                console.log("Iniciando motores alternos de forma fluida...");
-                // Si tienes un objeto App o temporizador global latente, lo disparamos aquí:
-                if (window.App && window.App.iniciarMision) {
-                    window.App.iniciarMision();
-                } else {
-                    // Respaldo manual directo: refresca el reloj en pantalla si el sistema está congelado
-                    const timerDiv = document.getElementById('timer-mision') || document.querySelector('.timer');
-                    if (timerDiv) { timerDiv.innerText = "14:00"; }
-                    location.reload(); // Recarga limpia de emergencia
-                }
-            };
-        }
-    }
-});
-</script>
-
-<!-- CONTROLADOR SECUNDARIO (MANTENIDO PARA LA PASARELA DE STRIPE) -->
-<script src="/static/engine.js?v=bypass_maestro"></script>
-
+    <!-- ESTO YA LO TIENES: Es la carga del motor principal original de tu aplicación -->
+    <!-- Le dejamos puesto el (?v=limpio) para obligar a Render a ignorar cualquier caché vieja rota -->
+    <script src="/static/engine.js?v=limpio"></script>
 </body>
 </html>
-                    
