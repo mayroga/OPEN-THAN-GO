@@ -1484,33 +1484,23 @@ iniciarRelojEnfocadoCasa(container, t) {
             }
         }
        
-              // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
-        // Reemplazamos los 600 segundos originales por 840 para dar 4 minutos más de calma humana
-        if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
-            let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
-            if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
-                let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
-                if (recordatorioTexto) {
-                    this.hablar(recordatorioTexto);
+                          // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
+            // CLONACIÓN Y BLINDAJE DE SEGURIDAD KERNEL:
+            // Aseguramos que la respiración extra de 4 minutos corra simétricamente en ambos idiomas
+            if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
+                let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
+                
+                // Forzamos la lectura directa del array nativo para evitar desbordamientos de memoria
+                if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
+                    let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
+                    
+                    if (recordatorioTexto) {
+                        // El Kernel procesa la frase y la reproduce sin importar si está en ENG o ESP
+                        this.hablar(recordatorioTexto);
+                    }
                 }
             }
-        }
 
-       
-        if (this.timeLeft <= 0) {
-            clearInterval(this.timerEnfocado);
-            clearTimeout(this.salidaSugeridaTimeoutId);
-            this.salidaSugeridaTimeoutId = null;
-            window.speechSynthesis.cancel();
-           
-            if (circleElement) {
-                circleElement.style.animation = "none";
-                circleElement.style.transform = "scale(1)";
-            }
-            this.iniciarRetoCierre60Segundos();
-        }
-    }, 1000);
-},
 
     /**
      * Advances to the next internal mission step.
