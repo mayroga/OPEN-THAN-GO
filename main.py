@@ -778,7 +778,7 @@ def filtrar_historial(misiones, historial):
 # CASA V2
 # Selección inteligente de misiones domésticas
 # ==========================================================================================
-def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa=None, cantidad=3):
+def seleccionar_misiones_casa (misiones, perfil_local, historial_casa=None, cantidad=3):
     historial_casa = historial_casa or []
     disponibles = filtrar_historial(misiones, historial_casa)
    
