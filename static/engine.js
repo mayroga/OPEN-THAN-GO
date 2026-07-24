@@ -1515,7 +1515,8 @@ iniciarRelojEnfocadoCasa(container, t) {
                 } 
                 this.iniciarRetoCierre60Segundos(); 
             } 
-        }, 1000); 
+        }, 1000);
+    
     } // Cierre correcto del bloque de inicialización del constructor base
 
     /** 
