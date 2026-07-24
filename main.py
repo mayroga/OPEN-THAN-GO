@@ -1154,7 +1154,7 @@ async def mando_integral(request: Request):
                     })
                
         # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
-        misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
+        misiones_domesticas_finales = seleccionar_misiones_casa (
             misiones=final_misiones_casa, # Use the prepared list
             perfil_local=perfil_local,
             historial_casa=payload.get("historial_casa", []),
