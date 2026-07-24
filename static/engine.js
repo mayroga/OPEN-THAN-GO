@@ -1509,7 +1509,7 @@ this.timerEnfocado = setInterval(() => {
                 this.iniciarRetoCierre60Segundos(); 
             } 
         }, 1000); 
-    } // <-- ESTA LLAVE ES CRÍTICA: Cierra el constructor base de forma limpia para que compile el KERNEL
+    } // <-- ESTA LLAVE ES LA QUE CURA EL SYNTAXERROR Y REPARA TU ARCHIVO
 
     /** 
      * Advances to the next internal mission step. 
@@ -1520,7 +1520,6 @@ this.timerEnfocado = setInterval(() => {
         this.procesarFlujoSecuencial(container); 
     }
     
-                
     /** 
      * Advances to the next internal mission step. 
      */ 
