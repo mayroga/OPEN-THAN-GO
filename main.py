@@ -433,13 +433,13 @@ BASE_MISIONES = {
   {"id": 81, "titulo": "Lateral neck stretch", "titulo_en": "Lateral neck stretch", "descripcion": "Tilt your head slowly bringing your right ear toward your right shoulder without lifting your shoulders. Hold the posture for three seconds and switch sides gently on your couch.", "descripcion_en": "Tilt your head slowly bringing your right ear toward your right shoulder without lifting your shoulders. Hold the posture for three seconds and switch sides gently on your couch.", "vector_necesidades": {"movimiento": 85, "salud": 90, "descanso": 80, "silencio": 70, "organizacion": 20}},
   {"id": 82, "titulo": "Observe a shadow", "titulo_en": "Observe a shadow", "descripcion": "Look for a shadow projected on the floor or wall of your current room. Closely observe its dark edges and shapes in absolute silence for one full minute.", "descripcion_en": "Look for a shadow projected on the floor or wall of your current room. Closely observe its dark edges and shapes in absolute silence for one full minute.", "vector_necesidades": {"contemplacion": 100, "silencio": 90, "creatividad": 50, "descanso": 75, "naturaleza": 20}},
   {"id": 83, "titulo": "Feel your heartbeat", "titulo_en": "Feel your heartbeat", "descripcion": "Place two of your fingers gently on your left wrist or on your neck in your cozy corner. Stay still feeling the steady and strong beat of your biological pulse.", "descripcion_en": "Place two of your fingers gently on your left wrist or on your neck in your cozy corner. Stay still feeling the steady and strong beat of your biological pulse.", "vector_necesidades": {"contemplacion": 100, "silencio": 95, "descanso": 90, "salud": 90, "movimiento": 10}},
-          {"id": 159, "titulo": "THE BREATHING CHALLENGE", "titulo_en": "THE BREATHING CHALLENGE", "descripcion": "Stay seated in a very comfortable posture in your living room. Take five deep and slow breaths through your nose, feeling how the pure air enters your body. Nothing more.", "descripcion_en": "Stay seated in a very comfortable posture in your living room. Take five deep and slow breaths through your nose, feeling how the pure air enters your body. Nothing more.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}}, 
+          {"id": 159, "titulo": "THE BREATHING CHALLENGE", "titulo_en": "THE BREATHING CHALLENGE", "descripcion": "Stay seated in a very comfortable posture in your living room. Take five deep and slow breaths through your nose, feeling how the pure air enters your body. Nothing more.", "descripcion_en": "Stay seated in a very comfortable posture in your living room. Take five deep and slow breaths through your nose, feeling how the pure air enters your body. Nothing more.", "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90, "contemplacion": 90, "aire_fresco": 80}},
         {"id": 160, "titulo": "THE VISUAL REST CHALLENGE", "titulo_en": "THE VISUAL REST CHALLENGE", "descripcion": "2 min: look at a distant point. Rest your eyes from the screen.", "descripcion_en": "2 min: look at a distant point. Rest your eyes from the screen.", "vector_necesidades": {"contemplacion": 95, "silencio": 85, "descanso": 90, "naturaleza": 70, "salud": 80}}
-    ], 
-"SALIR": { 
-    "agotado": [ 
-        {"id": 101, "titulo": "Sombra de árbol", "titulo_en": "Tree Shade", "porque": "Mente cansada de pantallas. Necesitas desconectar.", "porque_en": "Screen-tired. Need to disconnect.", "que_hacer": "Busca un gran árbol. Toca su corteza. Siente la sombra fresca.", "que_hacer_en": "Find a large tree. Touch its bark. Feel the cool shade.", "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, "donde": "Un parque verde.", "donde_en": "A green park.", "gps": "parks with shade", "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 80, "agua": 20, "sol": 40, "sombra": 100, "aire_fresco": 100, "creatividad": 30, "comunidad": 20, "aprendizaje": 40, "juego": 30, "contemplacion": 95, "descanso": 90, "organizacion": 20, "alimentacion": 0, "musica": 10, "risa": 30, "esperanza": 85}}, 
-        {"id": 106, "titulo": "Café en silencio", "titulo_en": "Quiet Cafe", "porque": "Exiges un respiro mental. Evita ruidos. Busca calma.", "porque_en": "Demanding a mental break. Avoid noise. Seek calm.", "que_hacer": "Visita una cafetería tranquila. Pide tu bebida. Observa sin distracciones.", "que_hacer_en": "Visit a quiet cafe. Order your drink. Observe without distractions.", "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, "donde": "Establecimiento local pacífico.", "donde_en": "Peaceful local establishment.", "gps": "quiet cafe", "vector_necesidades": {"movimiento": 20, "naturaleza": 10, "silencio": 90, "agua": 30, "sol": 30, "sombra": 80, "aire_fresco": 40, "creatividad": 60, "comunidad": 50, "aprendizaje": 70, "juego": 10, "contemplacion": 95, "descanso": 85, "organizacion": 70, "alimentacion": 60, "musica": 40, "risa": 20, "esperanza": 70}}, 
+    ],
+"SALIR": {
+    "agotado": [
+        {"id": 101, "titulo": "Sombra de árbol", "titulo_en": "Tree Shade", "porque": "Mente cansada de pantallas. Necesitas desconectar.", "porque_en": "Screen-tired. Need to disconnect.", "que_hacer": "Busca un gran árbol. Toca su corteza. Siente la sombra fresca.", "que_hacer_en": "Find a large tree. Touch its bark. Feel the cool shade.", "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, "donde": "Un parque verde.", "donde_en": "A green park.", "gps": "parks with shade", "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 80, "agua": 20, "sol": 40, "sombra": 100, "aire_fresco": 100, "creatividad": 30, "comunidad": 20, "aprendizaje": 40, "juego": 30, "contemplacion": 95, "descanso": 90, "organizacion": 20, "alimentacion": 0, "musica": 10, "risa": 30, "esperanza": 85}},
+        {"id": 106, "titulo": "Café en silencio", "titulo_en": "Quiet Cafe", "porque": "Exiges un respiro mental. Evita ruidos. Busca calma.", "porque_en": "Demanding a mental break. Avoid noise. Seek calm.", "que_hacer": "Visita una cafetería tranquila. Pide tu bebida. Observa sin distracciones.", "que_hacer_en": "Visit a quiet cafe. Order your drink. Observe without distractions.", "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, "donde": "Establecimiento local pacífico.", "donde_en": "Peaceful local establishment.", "gps": "quiet cafe", "vector_necesidades": {"movimiento": 20, "naturaleza": 10, "silencio": 90, "agua": 30, "sol": 30, "sombra": 80, "aire_fresco": 40, "creatividad": 60, "comunidad": 50, "aprendizaje": 70, "juego": 10, "contemplacion": 95, "descanso": 85, "organizacion": 70, "alimentacion": 60, "musica": 40, "risa": 20, "esperanza": 70}},
         {"id": 107, "titulo": "Jardín Botánico", "titulo_en": "Botanical Garden", "porque": "Cerebro agotado. Reconéctate con lo natural. Aire puro.", "porque_en": "Exhausted brain. Reconnect with nature. Pure air.", "que_hacer": "Pasea sin prisa por senderos. Contempla plantas verdes. Respira hondo.", "que_hacer_en": "Stroll leisurely through paths. Contemplate green plants. Breathe deeply.", "cuando": WHEN_ES, "cuando_en": WHEN_EN, "para_que": FOR_WHAT_ES, "para_que_en": FOR_WHAT_EN, "donde": "Paraje botánico público.", "donde_en": "Public botanical site.", "gps": "botanical garden", "vector_necesidades": {"movimiento": 70, "naturaleza": 100, "silencio": 75, "agua": 50, "sol": 70, "sombra": 90, "aire_fresco": 100, "creatividad": 80, "comunidad": 40, "aprendizaje": 80, "juego": 30, "contemplacion": 90, "descanso": 80, "organizacion": 30, "alimentacion": 10, "musica": 50, "risa": 30, "esperanza": 90}},
 
              {"id": 108, "titulo": "Mirador Panorámico", "titulo_en": "Scenic Overlook", "porque": "Busca un lugar alto o despejado en la ciudad. Eleva tu mirada hacia el frente para ganar perspectiva y observa la línea del horizonte con tranquilidad. Contempla el paisaje en calma, siente el viento fresco en tu rostro y recupera tu centro.", "porque_en": "Find a high spot or a clear point in the city. Elevate your gaze to gain perspective and observe the horizon calmly. Contemplate the scenery in peace, feel the fresh air on your face, and recover your center.", "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "", "donde": "Mirador público.", "donde_en": "Public overlook.", "gps": "scenic overlook", "vector_necesidades": {"movimiento": 40, "naturaleza": 90, "silencio": 85, "agua": 60, "sol": 80, "sombra": 50, "aire_fresco": 95, "creatividad": 70, "comunidad": 30, "aprendizaje": 50, "juego": 10, "contemplacion": 100, "descanso": 70, "organizacion": 10, "alimentacion": 0, "musica": 20, "risa": 15, "esperanza": 95}},
@@ -778,7 +778,7 @@ def filtrar_historial(misiones, historial):
 # CASA V2
 # Selección inteligente de misiones domésticas
 # ==========================================================================================
-def seleccionar_misiones_casa (misiones, perfil_local, historial_casa=None, cantidad=3):
+def seleccionar_misiones_casa_inteligente(misiones, perfil_local, historial_casa=None, cantidad=3):
     historial_casa = historial_casa or []
     disponibles = filtrar_historial(misiones, historial_casa)
    
@@ -1119,55 +1119,29 @@ async def mando_integral(request: Request):
                     "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
                     "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90}
                 }]
-    elif opcion_usuario == "CASA":
-        # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
-        textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
-        manif_humano_casa = random.choice(textos_oraculo_casa)
-        idioma = "EN" if lang == "en" else "ES"
-        target_key = f"CASA_{idioma}"
-        misiones_completas_base = BASE_MISIONES.get(target_key, [])
-        final_misiones_casa = []
-        
-        if not misiones_completas_base:
-            final_misiones_casa = [{
-                "id": 801,
-                "titulo": "Pausa de Respiración Somática",
-                "titulo_en": "Somatic Breathing Pause",
-                "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos.",
-                "que_hacer": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos.",
-                "vector_necesidades": {"silencio": 100, "descanso": 95}
-            }]
-        else: # <--- ESTA ES LA LÍNEA 1122 QUE ESTABA DANDO EL ERROR DE INDENTACIÓN
-            for m in misiones_completas_base:
+        else: # Use missions from BASE_MISIONES if available
+             for m in misiones_completas_base:
                 if isinstance(m, dict):
-                    desc_texto = m.get("descripcion", m.get("que_hacer", "Pausa de bienestar somática."))
-                    desc_texto_en = m.get("descripcion_en", m.get("que_hacer_en", "Somatic wellness pause."))
                     final_misiones_casa.append({
                         "id": m.get("id", 800),
                         "titulo": m.get("titulo", "Misión Interna"),
                         "titulo_en": m.get("titulo_en", "Internal Mission"),
-                        "descripcion": desc_texto,
-                        "que_hacer": desc_texto, # Mapeo simétrico para engine.js
-                        "descripcion_en": desc_texto_en,
-                        "que_hacer_en": desc_texto_en,
+                        "descripcion": m.get("descripcion", m.get("que_hacer", m.get("porque", "Pausa de bienestar somática."))),
+                        "descripcion_en": m.get("descripcion_en", m.get("que_hacer_en", m.get("porque_en", "Somatic wellness pause."))),
                         "vector_necesidades": m.get("vector_necesidades", {})
                     })
-               
-                   # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
-        misiones_domesticas_finales = seleccionar_misiones_casa(
-            misiones=final_misiones_casa,  # Use the prepared list
+
+        # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
+        misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
+            misiones=final_misiones_casa, # Use the prepared list
             perfil_local=perfil_local,
             historial_casa=payload.get("historial_casa", []),
             cantidad=3
         )
-
-        # ACTUALIZACIÓN DIRECTA NATIVA (EVITA EL ERROR DE ACTUALIZAR_HISTORIAL)
-        historial_casa_actualizado = list(payload.get("historial_casa", []))
+       
+        historial_casa_actualizado = payload.get("historial_casa", [])
         for m in misiones_domesticas_finales:
-            if isinstance(m, dict) and "id" in m:
-                historial_casa_actualizado.append(m["id"])
-        if len(historial_casa_actualizado) > 10:
-            historial_casa_actualizado = historial_casa_actualizado[-10:]
+            historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
 
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
@@ -1183,30 +1157,13 @@ async def mando_integral(request: Request):
         # 2. INTERVENCIÓN EXTERNA (MODO SALIR) - ENTRADA POR DEFECTO
         opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
         historial_salir = payload.get("historial_salir", [])
-        
+       
         misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
             n=3,
             misiones=opciones_salir_candidatas,
             perfil_local=perfil_local,
             historial_actual=historial_salir
         )
-
-        # CONEXIÓN DEL RETORNO CRÍTICO DE SALIR (CIERRA LA PETICIÓN CON ÉXITO)
-        historial_salir_actualizado = list(historial_salir)
-        for m in misiones_seleccionadas_raw:
-            if isinstance(m, dict) and "id" in m:
-                historial_salir_actualizado.append(m["id"])
-        if len(historial_salir_actualizado) > 10:
-            historial_salir_actualizado = historial_salir_actualizado[-10:]
-
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "MODO_SALIR",
-            "misiones": misiones_seleccionadas_raw,
-            "oraculo_manifiesto": random.choice(MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])),
-            "historial_salir_actualizado": historial_salir_actualizado,
-            "forced_recovery": False,
-            "drive_prohibited": False
-        })
 
         final_misiones_para_frontend = []
         antidotos_digitales_default_yt = BIG_TECH_RESOURCES[f'youtube_base_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
