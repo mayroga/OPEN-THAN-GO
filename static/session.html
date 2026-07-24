@@ -775,7 +775,7 @@ const _CATALOGO_ORACULO_P2 = [
   { es: "La paz que tanto buscabas afuera, siempre ha vivido resguardada en tu interior.", en: "The peace you sought so much outside, has always lived sheltered inside you." },
   { es: "Has dominado tu calma en un mundo lleno de ruido. Hoy tu mente es invencible.", en: "You mastered your calm in a world full of noise. Today your mind is invincible." },
   { es: "Tu batería somática está al máximo. Regresa al mundo con una intención inquebrantable.", en: "Your somatic battery is at maximum. Return to the world with an unwavering intention." },
-  
+ 
   // Las primeras 6 adiciones espectaculares
   { es: "ORÁCULO COMPLETADO: Tu mente es como el cielo azul; las tormentas y las nubes siempre terminan pasando.", en: "ORACLE COMPLETED: Your mind is like the blue sky; storms and clouds always end up passing." },
   { es: "ORÁCULO COMPLETADO: Un árbol fuerte no crece corriendo, crece echando raíces en silencio. Hoy eres más fuerte.", en: "ORACLE COMPLETED: A strong tree doesn't grow by rushing, it grows by taking roots in silence. Today you are stronger." },
@@ -793,136 +793,136 @@ const _CATALOGO_ORACULO_P2 = [
   { es: "ORÁCULO COMPLETADO: Mira el cielo y sonríe. Has aprendido a crear tu propio refugio de calma en medio de cualquier tormenta.", en: "ORACLE COMPLETED: Look at the sky and smile. You have learned to create your own shelter of calm in the middle of any storm." }
 ]; // <-- Cierre formal inmaculado de la matriz
 
-// ========================================================================================== 
+// ==========================================================================================
 // PARTE 3: MOTOR TEMPORIZADOR CON ACCESIBILIDAD FIJA (6s / 10s PANTALLA FIJA Y VOZ SINCRO)
-// ========================================================================================== 
-const _ORACULO_OTG = { 
-  cl: ["#26c6da", "#558b2f", "#d84315", "#1a237e"], 
-  ultimoBloque15s: -1, 
-  historialSesion: [], 
+// ==========================================================================================
+const _ORACULO_OTG = {
+  cl: ["#26c6da", "#558b2f", "#d84315", "#1a237e"],
+  ultimoBloque15s: -1,
+  historialSesion: [],
 
-  obtenerCatalogoMaestro: function() { 
-    return _CATALOGO_ORACULO.concat(_CATALOGO_ORACULO_P2); 
-  }, 
+  obtenerCatalogoMaestro: function() {
+    return _CATALOGO_ORACULO.concat(_CATALOGO_ORACULO_P2);
+  },
 
-  obtenerIndiceUnico: function(tiempoRestante) { 
-    const maestro = this.obtenerCatalogoMaestro(); 
-    const claveHistorial = "otg_historial_oraculo"; 
-    let deDisco = localStorage.getItem(claveHistorial); 
-    let historicoGlobal = deDisco ? JSON.parse(deDisco) : []; 
-    const bloqueId = Math.floor((240 - tiempoRestante) / 15); 
+  obtenerIndiceUnico: function(tiempoRestante) {
+    const maestro = this.obtenerCatalogoMaestro();
+    const claveHistorial = "otg_historial_oraculo";
+    let deDisco = localStorage.getItem(claveHistorial);
+    let historicoGlobal = deDisco ? JSON.parse(deDisco) : [];
+    const bloqueId = Math.floor((240 - tiempoRestante) / 15);
 
-    if (this.historialSesion[bloqueId] !== undefined) return this.historialSesion[bloqueId]; 
+    if (this.historialSesion[bloqueId] !== undefined) return this.historialSesion[bloqueId];
 
-    let indicesDisponibles = []; 
-    for (let i = 0; i < maestro.length; i++) { 
-      if (!historicoGlobal.includes(i)) indicesDisponibles.push(i); 
-    } 
-    if (indicesDisponibles.length === 0) { 
-      historicoGlobal = []; 
-      for (let i = 0; i < maestro.length; i++) indicesDisponibles.push(i); 
-    } 
+    let indicesDisponibles = [];
+    for (let i = 0; i < maestro.length; i++) {
+      if (!historicoGlobal.includes(i)) indicesDisponibles.push(i);
+    }
+    if (indicesDisponibles.length === 0) {
+      historicoGlobal = [];
+      for (let i = 0; i < maestro.length; i++) indicesDisponibles.push(i);
+    }
 
-    const eleccion = indicesDisponibles[Math.floor(Math.random() * indicesDisponibles.length)]; 
-    this.historialSesion[bloqueId] = eleccion; 
-    historicoGlobal.push(eleccion); 
-    localStorage.setItem(claveHistorial, JSON.stringify(historicoGlobal)); 
-    return eleccion; 
-  }, 
+    const eleccion = indicesDisponibles[Math.floor(Math.random() * indicesDisponibles.length)];
+    this.historialSesion[bloqueId] = eleccion;
+    historicoGlobal.push(eleccion);
+    localStorage.setItem(claveHistorial, JSON.stringify(historicoGlobal));
+    return eleccion;
+  },
 
   // Emite la voz de forma paralela sin controlar el borrado del contenedor físico
-  reproducirVozNativa: function(texto, esSilencio) { 
-    if (typeof window === 'undefined' || !window.speechSynthesis) return; 
-    window.speechSynthesis.cancel(); 
-    
-    const langBtn = document.querySelector('.btn-lang.active'); 
-    const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en-US' : 'es-ES'; 
-    
-    let textoALeer = esSilencio ? (idioma === 'en-US' ? "Silence Challenge" : "Reto de silencio") : texto; 
-    const locucion = new SpeechSynthesisUtterance(textoALeer); 
-    
-    locucion.lang = idioma; 
-    locucion.rate = 0.90; 
-    locucion.pitch = 1.0; 
-    window.speechSynthesis.speak(locucion); 
-  }, 
+  reproducirVozNativa: function(texto, esSilencio) {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+   
+    const langBtn = document.querySelector('.btn-lang.active');
+    const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en-US' : 'es-ES';
+   
+    let textoALeer = esSilencio ? (idioma === 'en-US' ? "Silence Challenge" : "Reto de silencio") : texto;
+    const locucion = new SpeechSynthesisUtterance(textoALeer);
+   
+    locucion.lang = idioma;
+    locucion.rate = 0.90;
+    locucion.pitch = 1.0;
+    window.speechSynthesis.speak(locucion);
+  },
 
-  revisarRelojPasivo: function() { 
-    const timerDiv = document.getElementById('timer-mision') || document.querySelector('.timer') || document.getElementById('wrapper-interactive'); 
-    if (!timerDiv) return; 
+  revisarRelojPasivo: function() {
+    const timerDiv = document.getElementById('timer-mision') || document.querySelector('.timer') || document.getElementById('wrapper-interactive');
+    if (!timerDiv) return;
 
-    const textoTiempo = timerDiv.innerText.trim(); 
-    if (!textoTiempo.includes(':')) return; 
+    const textoTiempo = timerDiv.innerText.trim();
+    if (!textoTiempo.includes(':')) return;
 
-    const partes = textoTiempo.split(':'); 
-    const minutos = parseInt(partes[0], 10); 
-    const segundos = parseInt(partes[1], 10); 
-    const segundosTotales = (minutos * 60) + segundos; 
+    const partes = textoTiempo.split(':');
+    const minutos = parseInt(partes[0], 10);
+    const segundos = parseInt(partes[1], 10);
+    const segundosTotales = (minutos * 60) + segundos;
 
-    if (segundosTotales <= 240 && segundosTotales > 0) { 
-      let bloque15sActual = Math.floor((240 - segundosTotales) / 15); 
-      let txt = document.getElementById('txt-pulmon') || document.getElementById('mision-display-container'); 
-      const cir = document.getElementById('breath-circle') || document.querySelector('.breathing-circle'); 
-      const tituloApp = document.getElementById('html-title') || document.querySelector('.dynamic-title'); 
+    if (segundosTotales <= 240 && segundosTotales > 0) {
+      let bloque15sActual = Math.floor((240 - segundosTotales) / 15);
+      let txt = document.getElementById('txt-pulmon') || document.getElementById('mision-display-container');
+      const cir = document.getElementById('breath-circle') || document.querySelector('.breathing-circle');
+      const tituloApp = document.getElementById('html-title') || document.querySelector('.dynamic-title');
 
-      if (txt && cir) { 
-        const langBtn = document.querySelector('.btn-lang.active'); 
-        const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en' : 'es'; 
+      if (txt && cir) {
+        const langBtn = document.querySelector('.btn-lang.active');
+        const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en' : 'es';
 
         // ACCESIBILIDAD APARTADO ORÁCULO DE CIERRE: Se dispara a los 12 segundos exactos antes del final
-        if (segundosTotales === 12) { 
-          if (this.ultimoBloque15s !== 999) { 
-            this.ultimoBloque15s = 999; 
-            if (tituloApp) tituloApp.innerText = "OPEN THAN GO"; 
-            
-            const fraseFinal = _FRASES_FINALES_MEMORABLES[Math.floor(Math.random() * _FRASES_FINALES_MEMORABLES.length)]; 
-            
+        if (segundosTotales === 12) {
+          if (this.ultimoBloque15s !== 999) {
+            this.ultimoBloque15s = 999;
+            if (tituloApp) tituloApp.innerText = "OPEN THAN GO";
+           
+            const fraseFinal = _FRASES_FINALES_MEMORABLES[Math.floor(Math.random() * _FRASES_FINALES_MEMORABLES.length)];
+           
             // Inyectamos de forma obligatoria en la pantalla
-            txt.innerText = fraseFinal[idioma]; 
-            txt.style.fontSize = "1.15rem"; 
-            txt.style.fontWeight = "bold"; 
-            
-            this.reproducirVozNativa(fraseFinal[idioma], false); 
-            
-            cir.style.borderColor = "#ffffff"; 
-            cir.style.boxShadow = "0 0 45px #ffffff, inset 0 0 20px rgba(255,255,255,0.2)"; 
-            
+            txt.innerText = fraseFinal[idioma];
+            txt.style.fontSize = "1.15rem";
+            txt.style.fontWeight = "bold";
+           
+            this.reproducirVozNativa(fraseFinal[idioma], false);
+           
+            cir.style.borderColor = "#ffffff";
+            cir.style.boxShadow = "0 0 45px #ffffff, inset 0 0 20px rgba(255,255,255,0.2)";
+           
             // TEMPORIZADOR RIGIDO: Queda fijo en pantalla 10 segundos completos y luego se borra solo
-            setTimeout(() => { txt.innerText = ""; }, 10500); 
-          } 
-          return; 
-        } 
+            setTimeout(() => { txt.innerText = ""; }, 10500);
+          }
+          return;
+        }
 
         // Protegemos la ventana de los últimos 11 segundos para que el oráculo final no sufra solapamientos
-        if (segundosTotales < 12) return; 
+        if (segundosTotales < 12) return;
 
         // Disparador cíclico cada 15 segundos exactos
-        if (segundosTotales % 15 === 0 || txt.innerText === "" || txt.innerText.includes("INSPIRA") || txt.innerText.includes("EXPIRA") || txt.innerText.includes("INHALE") || txt.innerText.includes("EXHALE")) { 
-          if (bloque15sActual !== this.ultimoBloque15s || segundosTotales % 15 === 0) { 
-            this.ultimoBloque15s = bloque15sActual; 
+        if (segundosTotales % 15 === 0 || txt.innerText === "" || txt.innerText.includes("INSPIRA") || txt.innerText.includes("EXPIRA") || txt.innerText.includes("INHALE") || txt.innerText.includes("EXHALE")) {
+          if (bloque15sActual !== this.ultimoBloque15s || segundosTotales % 15 === 0) {
+            this.ultimoBloque15s = bloque15sActual;
 
-            const maestro = this.obtenerCatalogoMaestro(); 
-            const idxHoy = this.obtenerIndiceUnico(segundosTotales); 
-            const estimulo = maestro[idxHoy]; 
+            const maestro = this.obtenerCatalogoMaestro();
+            const idxHoy = this.obtenerIndiceUnico(segundosTotales);
+            const estimulo = maestro[idxHoy];
 
             let elementoObjetivo = txt;
 
             // CONTROL DE EVITACIÓN DE ROCO VISUAL
-            if (estimulo[idioma].length > 75 && tituloApp) { 
-              tituloApp.innerText = estimulo[idioma]; 
-              tituloApp.style.fontSize = "1.05rem"; 
-              txt.innerText = ""; 
+            if (estimulo[idioma].length > 75 && tituloApp) {
+              tituloApp.innerText = estimulo[idioma];
+              tituloApp.style.fontSize = "1.05rem";
+              txt.innerText = "";
               elementoObjetivo = tituloApp;
-            } else { 
-              if (tituloApp && tituloApp.innerText.length > 20) tituloApp.innerText = "OPEN THAN GO"; 
-              txt.innerText = estimulo[idioma]; 
-              txt.style.fontSize = estimulo.silencio ? "1.6rem" : "1.0rem"; 
-              txt.style.fontWeight = estimulo.silencio ? "900" : "normal"; 
+            } else {
+              if (tituloApp && tituloApp.innerText.length > 20) tituloApp.innerText = "OPEN THAN GO";
+              txt.innerText = estimulo[idioma];
+              txt.style.fontSize = estimulo.silencio ? "1.6rem" : "1.0rem";
+              txt.style.fontWeight = estimulo.silencio ? "900" : "normal";
               elementoObjetivo = txt;
-            } 
+            }
 
             // Disparamos la locución de voz coordinada
-            this.reproducirVozNativa(estimulo[idioma], estimulo.silencio); 
+            this.reproducirVozNativa(estimulo[idioma], estimulo.silencio);
 
             // TEMPORIZADORES DE PERMANENCIA INDEPENDIENTES PARA LECTURA ACCESIBLE
             if (estimulo.silencio === true) {
@@ -934,24 +934,24 @@ const _ORACULO_OTG = {
             }
 
             // CONTROL CROMÁTICO CONFORTABLE POR MINUTO
-            let minActual = Math.floor((240 - segundosTotales) / 60); 
-            if (minActual > 3) minActual = 3; 
-            const colorHoy = this.cl[minActual]; 
+            let minActual = Math.floor((240 - segundosTotales) / 60);
+            if (minActual > 3) minActual = 3;
+            const colorHoy = this.cl[minActual];
 
-            cir.style.borderColor = colorHoy; 
-            cir.style.boxShadow = `0 0 35px ${colorHoy}, inset 0 0 20px ${colorHoy}22`; 
-          } 
-        } 
-      } 
-    } 
-  } 
-}; 
+            cir.style.borderColor = colorHoy;
+            cir.style.boxShadow = `0 0 35px ${colorHoy}, inset 0 0 20px ${colorHoy}22`;
+          }
+        }
+      }
+    }
+  }
+};
 
 // Ejecución del bucle de revisión pasiva cada segundo
-setInterval(() => { 
-  if (typeof _ORACULO_OTG !== 'undefined' && _ORACULO_OTG.revisarRelojPasivo) { 
-    _ORACULO_OTG.revisarRelojPasivo(); 
-  } 
+setInterval(() => {
+  if (typeof _ORACULO_OTG !== 'undefined' && _ORACULO_OTG.revisarRelojPasivo) {
+    _ORACULO_OTG.revisarRelojPasivo();
+  }
 }, 1000);
 
     </script>
