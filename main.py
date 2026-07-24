@@ -960,7 +960,7 @@ ORACULO_DATA = {
         [
             {"es": "Reto Visual: Encuentra 5 cosas cuadradas en tu perímetro.", "en": "Visual Challenge: Find 5 square things in your perimeter."},
             {"es": "Reto Somático: Presiona tus rodillas con las palmas fuertemente.", "en": "Somatic Challenge: Press your knees firmly with your palms."},
-            {"es: "Reto Acústico: Escucha el silencio entre tus pensamientos.", "en": "Acoustic Challenge: Listen to the silence between your thoughts."},
+            {"es": "Reto Acústico: Escucha el silencio entre tus pensamientos.", "en": "Acoustic Challenge: Listen to the silence between your thoughts."},
             {"es": "Conexión sensorial restablecida con tu entorno.", "en": "Sensorial connection re-established with your environment."}
         ],
         [
