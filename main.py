@@ -1153,23 +1153,21 @@ async def mando_integral(request: Request):
                         "vector_necesidades": m.get("vector_necesidades", {})
                     })
                
-            # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
-    misiones_domesticas_finales = seleccionar_misiones_casa(
-        misiones=final_misiones_casa, # Use the prepared list
-        perfil_local=perfil_local,
-        historial_casa=payload.get("historial_casa", []),
-        cantidad=3
-    )
+                   # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
+        misiones_domesticas_finales = seleccionar_misiones_casa(
+            misiones=final_misiones_casa,  # Use the prepared list
+            perfil_local=perfil_local,
+            historial_casa=payload.get("historial_casa", []),
+            cantidad=3
+        )
 
-    # ACTUALIZACIÓN DIRECTA Y SEGURA SIN LLAMAR A FUNCIONES EXTERNAS
-    historial_casa_actualizado = list(payload.get("historial_casa", []))
-    for m in misiones_domesticas_finales:
-        if isinstance(m, dict) and "id" in m:
-            historial_casa_actualizado.append(m["id"])
-
-    # Mantiene el límite estricto de historial usando constantes nativas
-    if len(historial_casa_actualizado) > 10:
-        historial_casa_actualizado = historial_casa_actualizado[-10:]
+        # ACTUALIZACIÓN DIRECTA NATIVA (EVITA EL ERROR DE ACTUALIZAR_HISTORIAL)
+        historial_casa_actualizado = list(payload.get("historial_casa", []))
+        for m in misiones_domesticas_finales:
+            if isinstance(m, dict) and "id" in m:
+                historial_casa_actualizado.append(m["id"])
+        if len(historial_casa_actualizado) > 10:
+            historial_casa_actualizado = historial_casa_actualizado[-10:]
 
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
@@ -1185,13 +1183,30 @@ async def mando_integral(request: Request):
         # 2. INTERVENCIÓN EXTERNA (MODO SALIR) - ENTRADA POR DEFECTO
         opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
         historial_salir = payload.get("historial_salir", [])
-       
+        
         misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
             n=3,
             misiones=opciones_salir_candidatas,
             perfil_local=perfil_local,
             historial_actual=historial_salir
         )
+
+        # CONEXIÓN DEL RETORNO CRÍTICO DE SALIR (CIERRA LA PETICIÓN CON ÉXITO)
+        historial_salir_actualizado = list(historial_salir)
+        for m in misiones_seleccionadas_raw:
+            if isinstance(m, dict) and "id" in m:
+                historial_salir_actualizado.append(m["id"])
+        if len(historial_salir_actualizado) > 10:
+            historial_salir_actualizado = historial_salir_actualizado[-10:]
+
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "MODO_SALIR",
+            "misiones": misiones_seleccionadas_raw,
+            "oraculo_manifiesto": random.choice(MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])),
+            "historial_salir_actualizado": historial_salir_actualizado,
+            "forced_recovery": False,
+            "drive_prohibited": False
+        })
 
         final_misiones_para_frontend = []
         antidotos_digitales_default_yt = BIG_TECH_RESOURCES[f'youtube_base_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
