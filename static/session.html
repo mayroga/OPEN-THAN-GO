@@ -798,16 +798,14 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
           const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en' : 'es';
           const estimulo = this[this.md][this.selIdx][minActual];
           const color = this.cl[minActual];
-
           txt.innerText = estimulo[idioma];
           cir.style.borderColor = color;
-          // CORREGIDO: Se cambiaron las comillas simples por comillas invertidas (Template Literals)
           cir.style.boxShadow = `0 0 35px ${color}, inset 0 0 20px ${color}33`;
         }
       }
     }
-  }
-};
+  } // <-- Llave 4: Cierra de forma correcta el bloque 'if (segundosTotales <= 240...)'
+}; // <-- Llave 5 + Punto y coma: Cierra oficialmente todo tu objeto '_ORACULO_OTG'
 
 // Ejecución segura del ciclo vigilante secundario
 setInterval(() => {
@@ -821,3 +819,4 @@ setInterval(() => {
 <script src="/static/engine.js"></script>
 </body>
 </html>
+                    
