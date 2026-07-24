@@ -1496,21 +1496,30 @@ this.timerEnfocado = setInterval(() => {
             } 
         } 
     } 
-    
-    if (this.timeLeft <= 0) { 
-        clearInterval(this.timerEnfocado); 
-        clearTimeout(this.salidaSugeridaTimeoutId); 
-        this.salidaSugeridaTimeoutId = null; 
-        window.speechSynthesis.cancel(); 
-        if (circleElement) { 
-            circleElement.style.animation = "none"; 
-            circleElement.style.transform = "scale(1)"; 
-        } 
-        this.iniciarRetoCierre60Segundos(); 
-    } 
-}, 1000);    
-    } // Cierre correcto del bloque de inicialización del constructor base
+            if (this.timeLeft <= 0) { 
+                clearInterval(this.timerEnfocado); 
+                clearTimeout(this.salidaSugeridaTimeoutId); 
+                this.salidaSugeridaTimeoutId = null; 
+                window.speechSynthesis.cancel(); 
+                if (circleElement) { 
+                    circleElement.style.animation = "none"; 
+                    circleElement.style.transform = "scale(1)"; 
+                } 
+                this.iniciarRetoCierre60Segundos(); 
+            } 
+        }, 1000); 
+    } // Cierre único y real de tu constructor base que cura el SyntaxError
 
+    /** 
+     * Advances to the next internal mission step. 
+     */ 
+    avanzarPaso() { 
+        this.indiceMision++; 
+        const container = document.getElementById('wrapper-interactive'); 
+        this.procesarFlujoSecuencial(container); 
+    }
+    
+                
     /** 
      * Advances to the next internal mission step. 
      */ 
