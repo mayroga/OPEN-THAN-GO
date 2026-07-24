@@ -1119,7 +1119,25 @@ async def mando_integral(request: Request):
                     "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
                     "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90}
                 }]
-               else: # Use missions from BASE_MISIONES if available
+    elif opcion_usuario == "CASA":
+        # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
+        textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
+        manif_humano_casa = random.choice(textos_oraculo_casa)
+        idioma = "EN" if lang == "en" else "ES"
+        target_key = f"CASA_{idioma}"
+        misiones_completas_base = BASE_MISIONES.get(target_key, [])
+        final_misiones_casa = []
+        
+        if not misiones_completas_base:
+            final_misiones_casa = [{
+                "id": 801,
+                "titulo": "Pausa de Respiración Somática",
+                "titulo_en": "Somatic Breathing Pause",
+                "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos.",
+                "que_hacer": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos.",
+                "vector_necesidades": {"silencio": 100, "descanso": 95}
+            }]
+        else: # <--- ESTA ES LA LÍNEA 1122 QUE ESTABA DANDO EL ERROR DE INDENTACIÓN
             for m in misiones_completas_base:
                 if isinstance(m, dict):
                     desc_texto = m.get("descripcion", m.get("que_hacer", "Pausa de bienestar somática."))
@@ -1129,13 +1147,12 @@ async def mando_integral(request: Request):
                         "titulo": m.get("titulo", "Misión Interna"),
                         "titulo_en": m.get("titulo_en", "Internal Mission"),
                         "descripcion": desc_texto,
-                        "que_hacer": desc_texto,  # <--- CORRECCIÓN CRÍTICA PARA ENGINE.JS
+                        "que_hacer": desc_texto, # Mapeo simétrico para engine.js
                         "descripcion_en": desc_texto_en,
-                        "que_hacer_en": desc_texto_en,  # <--- DUPLICACIÓN DE SEGURIDAD SIMÉTRICA
+                        "que_hacer_en": desc_texto_en,
                         "vector_necesidades": m.get("vector_necesidades", {})
                     })
-
-
+               
         # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
         misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
             misiones=final_misiones_casa, # Use the prepared list
