@@ -1460,63 +1460,55 @@ iniciarRelojEnfocadoCasa(container, t) {
             }; 
         } 
 
-        // ====================================================================== 
-        // CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL (CADA 20 SEGUNDOS) 
-        // ====================================================================== 
-        this.timerEnfocado = setInterval(() => { 
-            if (this.timeLeft > 0) { 
-                this.timeLeft--; 
-            } 
-            
-            let m = Math.floor(this.timeLeft / 60); 
-            let s = this.timeLeft % 60; 
-            
-            if (timerDiv) { 
-                timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`; 
-            } 
-            
-            if (pulmonDiv) { 
-                let ciclo = this.timeLeft % 8; 
-                if (ciclo >= 4) { 
-                    pulmonDiv.innerText = t.inspira.toUpperCase(); 
-                    pulmonDiv.style.color = "var(--cyan-inhale)"; 
-                } else { 
-                    pulmonDiv.innerText = t.expira.toUpperCase(); 
-                    pulmonDiv.style.color = "var(--accent)"; 
-                } 
-            } 
-
-            // === ACTIVACIÓN DEL ORÁCULO DE 4 MINUTOS === 
-            if (this.timeLeft <= 240 && this.timeLeft > 0) { 
-                if (typeof _E4M !== 'undefined' && _E4M.ejecutar) { 
-                    _E4M.ejecutar(this.timeLeft); 
-                } 
-            } 
-
-            // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) === 
-            if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) { 
-                let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1; 
-                if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) { 
-                    let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx]; 
-                    if (recordatorioTexto) { 
-                        this.hablar(recordatorioTexto); 
-                    } 
-                } 
-            } 
-            
-            if (this.timeLeft <= 0) { 
-                clearInterval(this.timerEnfocado); 
-                clearTimeout(this.salidaSugeridaTimeoutId); 
-                this.salidaSugeridaTimeoutId = null; 
-                window.speechSynthesis.cancel(); 
-                if (circleElement) { 
-                    circleElement.style.animation = "none"; 
-                    circleElement.style.transform = "scale(1)"; 
-                } 
-                this.iniciarRetoCierre60Segundos(); 
-            } 
-        }, 1000);
+       // ====================================================================== 
+// CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL (CADA 20 SEGUNDOS) 
+// ====================================================================== 
+this.timerEnfocado = setInterval(() => { 
+    if (this.timeLeft > 0) { 
+        this.timeLeft--; 
+    } 
     
+    let m = Math.floor(this.timeLeft / 60); 
+    let s = this.timeLeft % 60; 
+    
+    if (timerDiv) { 
+        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`; 
+    } 
+    
+    if (pulmonDiv) { 
+        let ciclo = this.timeLeft % 8; 
+        if (ciclo >= 4) { 
+            pulmonDiv.innerText = t.inspira.toUpperCase(); 
+            pulmonDiv.style.color = "var(--cyan-inhale)"; 
+        } else { 
+            pulmonDiv.innerText = t.expira.toUpperCase(); 
+            pulmonDiv.style.color = "var(--accent)"; 
+        } 
+    } 
+
+    // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) === 
+    if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) { 
+        let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1; 
+        if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) { 
+            let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx]; 
+            if (recordatorioTexto) { 
+                this.hablar(recordatorioTexto); 
+            } 
+        } 
+    } 
+    
+    if (this.timeLeft <= 0) { 
+        clearInterval(this.timerEnfocado); 
+        clearTimeout(this.salidaSugeridaTimeoutId); 
+        this.salidaSugeridaTimeoutId = null; 
+        window.speechSynthesis.cancel(); 
+        if (circleElement) { 
+            circleElement.style.animation = "none"; 
+            circleElement.style.transform = "scale(1)"; 
+        } 
+        this.iniciarRetoCierre60Segundos(); 
+    } 
+}, 1000);    
     } // Cierre correcto del bloque de inicialización del constructor base
 
     /** 
