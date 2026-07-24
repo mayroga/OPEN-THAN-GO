@@ -560,14 +560,14 @@ const KERNEL = {
         this.horaInicioSesionAbsoluta = Date.now();
 
         const saludos_es = [
-            "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
-            "ópen dán go está activo. Concéntrate un momento. Mira las opciones en tu pantalla ya.",
-            "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca lo que sientes hoy."
+            "Bienvenido a ópen dán go. Tu escape inteligente. Escuha y lee.",
+            "ópen dán go está activo. Concéntrate. Mira estas opciones.",
+            "Entraste a ópen dán go. Toca lo que sientes hoy."
         ];
         const saludos_en = [
-            "Welcome to open than go. Your smart escape. Listen to my questions on screen.",
-            "open than go is active. Focus for a moment. Look at the options on your screen now.",
-            "You entered open than go. Let's break your autopilot right now. Tap what you feel today."
+            "Welcome to open than go. Your smart escape. Listen and read.",
+            "open than go is active. Focus. Look at this options.",
+            "You entered open than go. Tap what you feel today."
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
