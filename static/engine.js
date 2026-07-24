@@ -1484,20 +1484,14 @@ this.timerEnfocado = setInterval(() => {
         } 
     } 
 
-    // ==========================================================================================
-    // INYECCIÓN CRÍTICA: ACTIVACIÓN DEL ORÁCULO DE 4 MINUTOS DURANTE LA PAUSA EXTENDIDA
-    // ==========================================================================================
-    // Evaluamos si el tiempo restante se encuentra dentro de la ventana de los últimos 240 segundos
+    // === ACTIVACIÓN DEL ORÁCULO DE 4 MINUTOS ===
     if (this.timeLeft <= 240 && this.timeLeft > 0) {
         if (typeof _E4M !== 'undefined' && _E4M.ejecutar) {
-            // Le pasamos los segundos restantes para que el motor matemático haga la magia visual
             _E4M.ejecutar(this.timeLeft);
         }
     }
-    // ==========================================================================================
 
     // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) === 
-    // Reemplazamos los 600 segundos originales por 840 para dar 4 minutos más de calma humana 
     if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) { 
         let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1; 
         if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) { 
@@ -1519,7 +1513,7 @@ this.timerEnfocado = setInterval(() => {
         } 
         this.iniciarRetoCierre60Segundos(); 
     } 
-}, 1000);
+}, 1000); // <-- Asegúrate de que termine exactamente así, con una sola coma al final si está dentro de un constructor
 
     /**
      * Advances to the next internal mission step.
