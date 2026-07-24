@@ -560,14 +560,14 @@ const KERNEL = {
         this.horaInicioSesionAbsoluta = Date.now();
 
         const saludos_es = [
-            "Bienvenido a ópen dán go. Tu escape inteligente. Escuha y lee.",
-            "ópen dán go está activo. Concéntrate. Mira estas opciones.",
-            "Entraste a ópen dán go. Toca lo que sientes hoy."
+            "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
+            "ópen dán go está activo. Concéntrate un momento. Mira las opciones en tu pantalla ya.",
+            "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca lo que sientes hoy."
         ];
         const saludos_en = [
-            "Welcome to open than go. Your smart escape. Listen and read.",
-            "open than go is active. Focus. Look at this options.",
-            "You entered open than go. Tap what you feel today."
+            "Welcome to open than go. Your smart escape. Listen to my questions on screen.",
+            "open than go is active. Focus for a moment. Look at the options on your screen now.",
+            "You entered open than go. Let's break your autopilot right now. Tap what you feel today."
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
@@ -1484,42 +1484,33 @@ iniciarRelojEnfocadoCasa(container, t) {
             }
         }
        
-            // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
-            if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
-                var pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
-                var listaEn = [
-                    "Break the autopilot. Feel your rhythm at home.",
-                    "The oracle manifests: Your mind is seeking a space of calm.",
-                    "Inhale deep peace. Release the load from your shoulders.",
-                    "The oracle manifests: The true problem is not the destination, it is your attention.",
-                    "Feel your feet firm on the floor of your room.",
-                    "The oracle manifests: Put away the phone. Truly inhabit the day.",
-                    "Breathe slowly. Dissolve the stress built up during the week.",
-                    "The oracle manifests: Do not demand speed from the day. Stop the rush.",
-                    "Internal silence expands your biological well-being.",
-                    "Prepare your mind and body for the final revelation."
-                ];
-                var listaEs = [
-                    "Corta el piloto automático. Siente tu ritmo en casa.",
-                    "El oráculo manifiesta: Tu mente busca un espacio de calma.",
-                    "Inhala paz profunda. Libera la carga de tus hombros.",
-                    "El oráculo manifiesta: El verdadero problema no es el destino, es tu atención.",
-                    "Siente tus pies firmes sobre el suelo de tu habitación.",
-                    "El oráculo manifiesta: Guarda el teléfono. Habita el día de verdad.",
-                    "Respira despacio. Disuelve el estrés acumulado en la semana.",
-                    "El oráculo manifiesta: No le exijas velocidad al día. Detén la marcha.",
-                    "El silencio interno expande tu bienestar biológico.",
-                    "Prepárate. El oráculo está listo para manifestar la revelación final."
-                ];
-                var frasesCasa = (this.idiomaActual === 'en') ? listaEn : listaEs;
-                if (pasoAudioIdx >= 0 && pasoAudioIdx < frasesCasa.length) {
-                    var recordatorioTexto = frasesCasa[pasoAudioIdx];
-                    if (recordatorioTexto) {
-                        this.hablar(recordatorioTexto);
-                    }
+              // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
+        // Reemplazamos los 600 segundos originales por 840 para dar 4 minutos más de calma humana
+        if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
+            let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
+            if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
+                let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
+                if (recordatorioTexto) {
+                    this.hablar(recordatorioTexto);
                 }
             }
-                                     
+        }
+
+       
+        if (this.timeLeft <= 0) {
+            clearInterval(this.timerEnfocado);
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+            window.speechSynthesis.cancel();
+           
+            if (circleElement) {
+                circleElement.style.animation = "none";
+                circleElement.style.transform = "scale(1)";
+            }
+            this.iniciarRetoCierre60Segundos();
+        }
+    }, 1000);
+},
 
     /**
      * Advances to the next internal mission step.
