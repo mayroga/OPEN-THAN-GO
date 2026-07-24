@@ -1433,101 +1433,93 @@ iniciarRelojEnfocadoCasa(container, t) {
         }
     }, 180000);
 
-            if (circleElement) { 
-            circleElement.onclick = () => { 
-                // Encendemos la música relajante propia mediante la interacción segura del usuario 
-                iniciarMusicaRelajantePropia(); 
-                
-                if (this.contadorToques < this.secuenciaAdelantos.length) { 
-                    let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques]; 
-                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0); 
-                    this.contadorToques++; 
-                    
-                    try { 
-                        let perfil = this.obtenerPerfilLocal(); 
-                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100); 
-                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil)); 
-                    } catch (e) { 
-                        console.error("Error updating anxiety indicator:", e); 
-                    } 
-                    
-                    let m = Math.floor(this.timeLeft / 60); 
-                    let s = this.timeLeft % 60; 
-                    if (timerDiv) { 
-                        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`; 
-                    } 
-                } 
-            }; 
-        } 
+    if (circleElement) {
+ circleElement.onclick = () => {
+     // Encendemos la música relajante propia mediante la interacción segura del usuario
+     iniciarMusicaRelajantePropia();
 
-       // ====================================================================== 
-// CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL (CADA 20 SEGUNDOS) 
-// ====================================================================== 
-this.timerEnfocado = setInterval(() => { 
-    if (this.timeLeft > 0) { 
-        this.timeLeft--; 
-    } 
-    
-    let m = Math.floor(this.timeLeft / 60); 
-    let s = this.timeLeft % 60; 
-    
-    if (timerDiv) { 
-        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`; 
-    } 
-    
-    if (pulmonDiv) { 
-        let ciclo = this.timeLeft % 8; 
-        if (ciclo >= 4) { 
-            pulmonDiv.innerText = t.inspira.toUpperCase(); 
-            pulmonDiv.style.color = "var(--cyan-inhale)"; 
-        } else { 
-            pulmonDiv.innerText = t.expira.toUpperCase(); 
-            pulmonDiv.style.color = "var(--accent)"; 
-        } 
-    } 
-
-    // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) === 
-    if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) { 
-        let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1; 
-        if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) { 
-            let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx]; 
-            if (recordatorioTexto) { 
-                this.hablar(recordatorioTexto); 
-            } 
-        } 
-    } 
-                      
-            if (this.timeLeft <= 0) { 
-                clearInterval(this.timerEnfocado); 
-                clearTimeout(this.salidaSugeridaTimeoutId); 
-                this.salidaSugeridaTimeoutId = null; 
-                window.speechSynthesis.cancel(); 
-                if (circleElement) { 
-                    circleElement.style.animation = "none"; 
-                    circleElement.style.transform = "scale(1)"; 
-                } 
-                this.iniciarRetoCierre60Segundos(); 
-            } 
-        }, 1000); 
-    } // <-- ESTA LLAVE ES LA QUE CURA EL SYNTAXERROR Y REPARA TU ARCHIVO
-
-    /** 
-     * Advances to the next internal mission step. 
-     */ 
-    avanzarPaso() { 
-        this.indiceMision++; 
-        const container = document.getElementById('wrapper-interactive'); 
-        this.procesarFlujoSecuencial(container); 
+            if (this.contadorToques < this.secuenciaAdelantos.length) {
+                let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
+                this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
+                this.contadorToques++;
+                try {
+                    let perfil = this.obtenerPerfilLocal();
+                    perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
+                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                } catch (e) {
+                    console.error("Error updating anxiety indicator:", e);
+                }
+                let m = Math.floor(this.timeLeft / 60);
+                let s = this.timeLeft % 60;
+                if (timerDiv) {
+                    timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                }
+            }
+        };
     }
-    
-    /** 
-     * Advances to the next internal mission step. 
-     */ 
-    avanzarPaso() { 
-        this.indiceMision++; 
-        const container = document.getElementById('wrapper-interactive'); 
-        this.procesarFlujoSecuencial(container); 
-    }
+
+    // ======================================================================
+    // CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL (CADA 20 SEGUNDOS)
+    // ======================================================================
+    this.timerEnfocado = setInterval(() => {
+        if (this.timeLeft > 0) {
+            this.timeLeft--;
+        }
+       
+        let m = Math.floor(this.timeLeft / 60);
+        let s = this.timeLeft % 60;
+       
+        if (timerDiv) {
+            timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+        }
+       
+        if (pulmonDiv) {
+            let ciclo = this.timeLeft % 8;
+            if (ciclo >= 4) {
+                pulmonDiv.innerText = t.inspira.toUpperCase();
+                pulmonDiv.style.color = "var(--cyan-inhale)";
+            } else {
+                pulmonDiv.innerText = t.expira.toUpperCase();
+                pulmonDiv.style.color = "var(--accent)";
+            }
+        }
+       
+              // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
+        // Reemplazamos los 600 segundos originales por 840 para dar 4 minutos más de calma humana
+        if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
+            let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
+            if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
+                let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
+                if (recordatorioTexto) {
+                    this.hablar(recordatorioTexto);
+                }
+            }
+        }
+
+       
+        if (this.timeLeft <= 0) {
+            clearInterval(this.timerEnfocado);
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+            window.speechSynthesis.cancel();
+           
+            if (circleElement) {
+                circleElement.style.animation = "none";
+                circleElement.style.transform = "scale(1)";
+            }
+            this.iniciarRetoCierre60Segundos();
+        }
+    }, 1000);
+},
+
+    /**
+     * Advances to the next internal mission step.
+     */
+    avanzarPaso() {
+        this.indiceMision++;
+        const container = document.getElementById('wrapper-interactive');
+        this.procesarFlujoSecuencial(container);
+    },
 
     /**
      * Initiates the 60-second closing challenge phase.
@@ -1928,7 +1920,7 @@ window.KERNEL = KERNEL;
         document.head.appendChild(m);
       }
     });
-    
+   
     let s = document.createElement("style");
     s.textContent = `
       .otg-power-btn {
@@ -1945,14 +1937,14 @@ window.KERNEL = KERNEL;
         font-weight: bold;
         box-shadow: 0 0 10px rgba(0, 0, 0, .5);
       }
-      
+     
       .otg-grid-logos {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
         gap: 6px;
         margin: 15px 0;
       }
-      
+     
       .otg-card-logo {
         background: #111;
         border: 1px solid #333;
@@ -1967,14 +1959,14 @@ window.KERNEL = KERNEL;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-      
+     
       .otg-card-logo.active {
         border-color: #00bcd4 !important;
         color: #00bcd4 !important;
         background: rgba(0, 188, 212, .1) !important;
         box-shadow: 0 0 8px rgba(0, 188, 212, .3);
       }
-      
+     
       .otg-btn-opt {
         width: 100%;
         background: none;
@@ -1987,7 +1979,7 @@ window.KERNEL = KERNEL;
         cursor: pointer;
         font-size: .8rem;
       }
-      
+     
       .otg-btn-opt:hover {
         border-color: #2e7d32;
         color: #fff;
@@ -1999,7 +1991,7 @@ window.KERNEL = KERNEL;
   modificarBienvenida() {
     let pb = document.getElementById("pantalla-bienvenida");
     if (!pb) return;
-    
+   
     let sintomas = [
       "No sabes qué hacer",
       "Te encuentras en la monotonía",
@@ -2009,9 +2001,9 @@ window.KERNEL = KERNEL;
       "Necesitas un descanso",
       "Buscas un momento para ti"
     ];
-    
+   
     sintomas.sort(() => Math.random() - .5);
-    
+   
     pb.innerHTML = `
       <div style="max-width:390px;width:95%;padding:15px;text-align:center;font-family:sans-serif;color:#fff;overflow-y:auto;max-height:100vh;">
         <h2 style="color:#00bcd4;font-weight:900;letter-spacing:2px;font-size:1.3rem;margin-bottom:12px;">
@@ -2050,7 +2042,7 @@ window.KERNEL = KERNEL;
     b.title = "Cerrar";
     b.onclick = () => this.apagarSistemaTotal();
     document.body.appendChild(b);
-    
+   
     let m = document.createElement("div");
     m.id = "otg-oasis-entretenimiento";
     m.className = "hidden";
@@ -2066,15 +2058,15 @@ window.KERNEL = KERNEL;
   abrirOasisOcio() {
     let m = document.getElementById("otg-oasis-entretenimiento");
     if (!m) return;
-    
+   
     m.classList.remove("hidden");
     document.body.style.overflow = "hidden";
-    
+   
     this.marcas.sort(() => Math.random() - .5);
-    
+   
     let zip = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
     let txtUsa = zip ? `Opciones disponibles para el Código Postal ${zip}` : "Personaliza tu experiencia";
-    
+   
     m.innerHTML = `
       <div style="max-width:460px;margin:0 auto;padding-top:5px;">
         <div style="text-align:center;margin-bottom:15px;">
@@ -2108,7 +2100,7 @@ window.KERNEL = KERNEL;
 
       seleccionarMarca(el, marca) {
     el.classList.toggle("active");
-    
+   
     if (el.classList.contains("active")) {
       this.seleccionadas.push(marca);
     } else {
@@ -2121,15 +2113,15 @@ window.KERNEL = KERNEL;
       alert("Selecciona al menos una opción.");
       return;
     }
-    
+   
     document.getElementById("otg-fase-1").classList.add("hidden");
-    
+   
     let f2 = document.getElementById("otg-fase-2");
     f2.classList.remove("hidden");
-    
+   
     let p = this.preguntas[Math.floor(Math.random() * this.preguntas.length)];
     let m = this.seleccionadas[0];
-    
+   
     f2.innerHTML = `
       <div style="background: #111; border: 1px solid #222; padding: 15px; border-radius: 8px; margin-top: 10px;">
         <span style="color: #00bcd4; font-size: .65rem; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">
@@ -2157,20 +2149,20 @@ window.KERNEL = KERNEL;
       s.value = perfil;
       s.dispatchEvent(new Event("change"));
     }
-    
+   
     document.getElementById("otg-fase-2").classList.add("hidden");
-    
+   
     let f3 = document.getElementById("otg-fase-3");
     f3.classList.remove("hidden");
-    
+   
     let marca = this.seleccionadas[0];
     let url = this.urls[marca] || "https://google.com";
-    let mensaje = tipo === "opcion1" 
-      ? `Tu experiencia ha sido personalizada usando "${marca}".` 
-      : tipo === "opcion2" 
-        ? `Hemos preparado una experiencia basada en tu selección.` 
+    let mensaje = tipo === "opcion1"
+      ? `Tu experiencia ha sido personalizada usando "${marca}".`
+      : tipo === "opcion2"
+        ? `Hemos preparado una experiencia basada en tu selección.`
         : `Explora nuevas opciones y encuentra actividades que se adapten a ti.`;
-    
+   
     f3.innerHTML = `
       <div style="background: rgba(0, 188, 212, .05); border: 1px solid #00bcd4; padding: 15px; border-radius: 8px; text-align: left; font-size: .82rem; line-height: 1.5; margin-bottom: 15px; color: #eee;">
         <b style="color: #00bcd4; display: block; margin-bottom: 6px;"> Experiencia lista </b>
@@ -2190,16 +2182,16 @@ window.KERNEL = KERNEL;
   cerrarOasisYDarPasoAAppBase() {
     let m = document.getElementById("otg-oasis-entretenimiento");
     if (m) m.classList.add("hidden");
-    
+   
     document.body.style.overflow = "auto";
-    
+   
     if (typeof KERNEL !== "undefined" && typeof KERNEL.despertarInicial === "function") {
       KERNEL.despertarInicial();
     }
-    
+   
     let b = document.getElementById("otg-btn-power");
     if (b) b.classList.remove("hidden");
-    
+   
     this.seleccionadas = [];
     console.log("OPEN THAN GO iniciado.");
   },
@@ -2207,22 +2199,22 @@ window.KERNEL = KERNEL;
   apagarSistemaTotal() {
     let m = document.getElementById("otg-oasis-entretenimiento");
     if (m) m.classList.add("hidden");
-    
+   
     let pc = document.getElementById("pantalla-cierre");
     if (pc) pc.classList.add("hidden");
-    
+   
     let wf = document.getElementById("wrapper-form");
     if (wf) wf.classList.remove("hidden");
-    
+   
     let pb = document.getElementById("pantalla-bienvenida");
     if (pb) pb.classList.remove("hidden");
-    
+   
     let b = document.getElementById("otg-btn-power");
     if (b) b.classList.add("hidden");
-    
+   
     let t = document.getElementById("inp-text-libre");
     if (t) t.value = "";
-    
+   
     this.seleccionadas = [];
     console.log("Sistema reiniciado.");
   },
@@ -2230,7 +2222,7 @@ window.KERNEL = KERNEL;
   forzarCierre15Minutos() {
     let m = document.getElementById("otg-oasis-entretenimiento");
     if (m) m.classList.add("hidden");
-    
+   
     document.body.innerHTML = `
       <div style="width: 100vw; height: 100vh; background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 25px;">
         <h1 style="color: #00bcd4; font-size: 1.4rem; margin-bottom: 12px;"> Sesión finalizada </h1>
@@ -2244,18 +2236,18 @@ window.KERNEL = KERNEL;
 /* COMPLEMENTO NATIVO DE BIENESTAR: MOTOR SENSORIAL DE OPEN THAN GO                          */
 /* ========================================================================================== */
 const OTG_SENSORIAL = {
-  
+ 
   // 1. INICIALIZADOR DE FÁBRICA
   init: function() {
     console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");
-    
+   
     // VERIFICACIÓN AUTOMÁTICA DE DESBLOQUEO: Si ya estás logueado, destruye el muro visual
     const r = localStorage.getItem('otg_user_role');
     const p = localStorage.getItem('otg_pase_stripe');
     if (r === 'admin' || p) {
       const paywall = document.getElementById('otg-muro-comercial');
       if (paywall) paywall.style.display = 'none';
-      
+     
       const mainWrapper = document.getElementById('wrapper-form');
       if (mainWrapper) mainWrapper.classList.remove('hidden');
     }
@@ -2265,7 +2257,7 @@ const OTG_SENSORIAL = {
   procesarPagoStripe: function(planSeleccionado) {
     let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo';
     console.log("Iniciando pasarela de pago para el plan:", planSeleccionado);
-    
+   
     fetch('/crear-checkout', {
       method: 'POST',
       headers: {
@@ -2298,24 +2290,24 @@ const OTG_SENSORIAL = {
   inicializarBypassDesarrollador: function() {
     let clics = 0;
     let t;
-    
+   
     const trigger = document.getElementById('cierre-logo') || document.body;
-    
+   
     trigger.addEventListener('click', () => {
       clics++;
       clearTimeout(t);
-      
+     
       t = setTimeout(() => {
         clics = 0;
       }, 1500);
-      
+     
       if (clics === 3) {
         clics = 0;
         let user = prompt("Mantenimiento OTG - Usuario:");
         let pass = prompt("Mantenimiento OTG - Contraseña:");
-        
+       
         if (!user || !pass) return;
-        
+       
         // Ejecuta la llamada forzando los encabezados requeridos por tu main.py de FastAPI
         fetch('/login-admin', {
           method: 'POST',
@@ -2359,7 +2351,7 @@ document.addEventListener("DOMContentLoaded", () => {
     OTG_SENSORIAL.inicializarBypassDesarrollador();
     console.log("Escudo administrativo activado de forma externa y segura.");
   }
-  
+ 
   if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.init) {
     OTG_SENSORIAL.init();
   }
@@ -2368,5 +2360,3 @@ document.addEventListener("DOMContentLoaded", () => {
 // SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
 // ESTAS DOS LÍNEAS DE ABAJO DEBEN SER LAS ÚNICAS QUE CIERREN TODO TU ARCHIVO ENGINE.JS:
 })();
-
-         
