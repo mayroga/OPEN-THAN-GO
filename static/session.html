@@ -794,93 +794,59 @@ const _CATALOGO_ORACULO_P2 = [
 ]; // <-- Cierre formal inmaculado de la matriz
 
 // ========================================================================================== 
-// PARTE 3: MOTOR TEMPORIZADOR, LÓGICA DE VOZ BILINGÜE Y ALGORITMO DE MEMORIA ANTI-REPETICIÓN
+// PARTE 3: MOTOR TEMPORIZADOR CON ACCESIBILIDAD FIJA (6s / 10s PANTALLA FIJA Y VOZ SINCRO)
 // ========================================================================================== 
 const _ORACULO_OTG = { 
-  // Colores Zen confortables que no dañan ni perjudican la visión
   cl: ["#26c6da", "#558b2f", "#d84315", "#1a237e"], 
   ultimoBloque15s: -1, 
   historialSesion: [], 
 
-  // Une los dos bloques de datos en un solo catálogo maestro comprimido de 12 elementos 
   obtenerCatalogoMaestro: function() { 
     return _CATALOGO_ORACULO.concat(_CATALOGO_ORACULO_P2); 
   }, 
 
-  // Algoritmo matemático: Baraja la lista completa garantizando que NUNCA se repita el orden 
-  // aunque entres 5 veces al día desde el mismo dispositivo. Almacena el historial en disco local. 
   obtenerIndiceUnico: function(tiempoRestante) { 
     const maestro = this.obtenerCatalogoMaestro(); 
     const claveHistorial = "otg_historial_oraculo"; 
-    
-    // Recuperamos el historial global acumulado en el almacenamiento local del dispositivo 
     let deDisco = localStorage.getItem(claveHistorial); 
     let historicoGlobal = deDisco ? JSON.parse(deDisco) : []; 
-
-    // Generamos un identificador único basado en el bloque de 15 segundos actual 
     const bloqueId = Math.floor((240 - tiempoRestante) / 15); 
 
-    // Si ya calculamos el estímulo para este bloque de 15 segundos en esta sesión, lo mantenemos 
-    if (this.historialSesion[bloqueId] !== undefined) { 
-      return this.historialSesion[bloqueId]; 
-    } 
+    if (this.historialSesion[bloqueId] !== undefined) return this.historialSesion[bloqueId]; 
 
     let indicesDisponibles = []; 
     for (let i = 0; i < maestro.length; i++) { 
-      if (!historicoGlobal.includes(i)) { 
-        indicesDisponibles.push(i); 
-      } 
+      if (!historicoGlobal.includes(i)) indicesDisponibles.push(i); 
     } 
-
-    // Si el usuario ya vio todas las opciones posibles del sistema, reseteamos el historial en disco 
     if (indicesDisponibles.length === 0) { 
       historicoGlobal = []; 
       for (let i = 0; i < maestro.length; i++) indicesDisponibles.push(i); 
     } 
 
-    // Selección aleatoria pura dentro del grupo de frases que el usuario JAMÁS ha visto 
     const eleccion = indicesDisponibles[Math.floor(Math.random() * indicesDisponibles.length)]; 
-    
-    // Guardamos la memoria tanto en la sesión actual como en el disco duro local 
     this.historialSesion[bloqueId] = eleccion; 
     historicoGlobal.push(eleccion); 
     localStorage.setItem(claveHistorial, JSON.stringify(historicoGlobal)); 
-
     return eleccion; 
   }, 
 
-  // Sintetizador de voz bilingüe con borrado automático de pantalla al terminar la locución
-  reproducirVozNativa: function(texto, contenedorTexto, esSilencio) { 
+  // Emite la voz de forma paralela sin controlar el borrado del contenedor físico
+  reproducirVozNativa: function(texto, esSilencio) { 
     if (typeof window === 'undefined' || !window.speechSynthesis) return; 
-    window.speechSynthesis.cancel(); // Corta cualquier audio previo para evitar solapamiento 
+    window.speechSynthesis.cancel(); 
     
     const langBtn = document.querySelector('.btn-lang.active'); 
     const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en-US' : 'es-ES'; 
     
-    // Si es reto de silencio, la voz anuncia rigurosamente el título en el idioma activo
-    let textoALeer = esSilencio ? (idioma === 'en-US' ? "Silence Challenge" : "Reto de silencio") : texto;
+    let textoALeer = esSilencio ? (idioma === 'en-US' ? "Silence Challenge" : "Reto de silencio") : texto; 
     const locucion = new SpeechSynthesisUtterance(textoALeer); 
     
     locucion.lang = idioma; 
-    locucion.rate = 0.90; // Velocidad pausada orgánica para inducir calma
+    locucion.rate = 0.90; 
     locucion.pitch = 1.0; 
-
-    // AL TERMINAR DE HABLAR: El texto se quita automáticamente de la pantalla
-    locucion.onend = function() {
-      if (contenedorTexto && !esSilencio) {
-        contenedorTexto.innerText = "";
-      }
-    };
-    
     window.speechSynthesis.speak(locucion); 
-
-    // Para retos de silencio: Damos tiempo a leer (4 segundos) y limpiamos la pantalla solo
-    if (esSilencio && contenedorTexto) {
-      setTimeout(() => { contenedorTexto.innerText = ""; }, 4000);
-    }
   }, 
 
-  // Función núcleo que evalúa la pantalla y ejecuta los cambios cada 15 segundos exactos 
   revisarRelojPasivo: function() { 
     const timerDiv = document.getElementById('timer-mision') || document.querySelector('.timer') || document.getElementById('wrapper-interactive'); 
     if (!timerDiv) return; 
@@ -893,41 +859,44 @@ const _ORACULO_OTG = {
     const segundos = parseInt(partes[1], 10); 
     const segundosTotales = (minutos * 60) + segundos; 
 
-    // Ventana operativa: Se activa estrictamente en el bloque final de 4 minutos (240 segundos) 
     if (segundosTotales <= 240 && segundosTotales > 0) { 
       let bloque15sActual = Math.floor((240 - segundosTotales) / 15); 
       let txt = document.getElementById('txt-pulmon') || document.getElementById('mision-display-container'); 
       const cir = document.getElementById('breath-circle') || document.querySelector('.breathing-circle'); 
-      const tituloApp = document.getElementById('html-title') || document.querySelector('.dynamic-title');
+      const tituloApp = document.getElementById('html-title') || document.querySelector('.dynamic-title'); 
 
       if (txt && cir) { 
         const langBtn = document.querySelector('.btn-lang.active'); 
         const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en' : 'es'; 
 
-        // ANTICIPACIÓN CRÍTICA DEL ORÁCULO DE CIERRE: Sale a los 6 segundos exactos antes de acabar los 4 min
-        if (segundosTotales === 6) { 
+        // ACCESIBILIDAD APARTADO ORÁCULO DE CIERRE: Se dispara a los 12 segundos exactos antes del final
+        if (segundosTotales === 12) { 
           if (this.ultimoBloque15s !== 999) { 
             this.ultimoBloque15s = 999; 
-            // Si había texto largo arriba, restauramos el título original de la app
-            if (tituloApp) tituloApp.innerText = "OPEN THAN GO";
+            if (tituloApp) tituloApp.innerText = "OPEN THAN GO"; 
             
             const fraseFinal = _FRASES_FINALES_MEMORABLES[Math.floor(Math.random() * _FRASES_FINALES_MEMORABLES.length)]; 
-            txt.innerText = fraseFinal[idioma]; 
-            txt.style.fontSize = "1.1rem";
-            txt.style.fontWeight = "bold";
             
-            this.reproducirVozNativa(fraseFinal[idioma], txt, false); 
+            // Inyectamos de forma obligatoria en la pantalla
+            txt.innerText = fraseFinal[idioma]; 
+            txt.style.fontSize = "1.15rem"; 
+            txt.style.fontWeight = "bold"; 
+            
+            this.reproducirVozNativa(fraseFinal[idioma], false); 
             
             cir.style.borderColor = "#ffffff"; 
             cir.style.boxShadow = "0 0 45px #ffffff, inset 0 0 20px rgba(255,255,255,0.2)"; 
+            
+            // TEMPORIZADOR RIGIDO: Queda fijo en pantalla 10 segundos completos y luego se borra solo
+            setTimeout(() => { txt.innerText = ""; }, 10500); 
           } 
           return; 
         } 
 
-        // Protegemos los últimos 5 segundos para que la frase bella final se lea completa sin cortes
-        if (segundosTotales < 6) return;
+        // Protegemos la ventana de los últimos 11 segundos para que el oráculo final no sufra solapamientos
+        if (segundosTotales < 12) return; 
 
-        // Ejecuta la rotación visual y auditiva cada 15 segundos exactos
+        // Disparador cíclico cada 15 segundos exactos
         if (segundosTotales % 15 === 0 || txt.innerText === "" || txt.innerText.includes("INSPIRA") || txt.innerText.includes("EXPIRA") || txt.innerText.includes("INHALE") || txt.innerText.includes("EXHALE")) { 
           if (bloque15sActual !== this.ultimoBloque15s || segundosTotales % 15 === 0) { 
             this.ultimoBloque15s = bloque15sActual; 
@@ -936,26 +905,35 @@ const _ORACULO_OTG = {
             const idxHoy = this.obtenerIndiceUnico(segundosTotales); 
             const estimulo = maestro[idxHoy]; 
 
-            // CONTROL DE EVITACIÓN DE OBSTRUCCIÓN: Si la frase es muy larga, sube arriba del círculo respiratorio
-            if (estimulo[idioma].length > 75 && tituloApp) {
-              tituloApp.innerText = estimulo[idioma];
-              tituloApp.style.fontSize = "1.05rem";
-              txt.innerText = ""; // Dejamos el espacio inferior limpio
-              this.reproducirVozNativa(estimulo[idioma], tituloApp, estimulo.silencio);
-            } else {
-              // Si el texto es corto, va abajo en su contenedor habitual. Restauramos el título si cambió.
-              if (tituloApp && tituloApp.innerText.length > 20) tituloApp.innerText = "OPEN THAN GO";
-              
+            let elementoObjetivo = txt;
+
+            // CONTROL DE EVITACIÓN DE ROCO VISUAL
+            if (estimulo[idioma].length > 75 && tituloApp) { 
+              tituloApp.innerText = estimulo[idioma]; 
+              tituloApp.style.fontSize = "1.05rem"; 
+              txt.innerText = ""; 
+              elementoObjetivo = tituloApp;
+            } else { 
+              if (tituloApp && tituloApp.innerText.length > 20) tituloApp.innerText = "OPEN THAN GO"; 
               txt.innerText = estimulo[idioma]; 
-              
-              // Ajustes de tamaño visual gigante si es Reto de Silencio
-              txt.style.fontSize = estimulo.silencio ? "1.6rem" : "1.0rem";
-              txt.style.fontWeight = estimulo.silencio ? "900" : "normal";
-              
-              this.reproducirVozNativa(estimulo[idioma], txt, estimulo.silencio); 
+              txt.style.fontSize = estimulo.silencio ? "1.6rem" : "1.0rem"; 
+              txt.style.fontWeight = estimulo.silencio ? "900" : "normal"; 
+              elementoObjetivo = txt;
+            } 
+
+            // Disparamos la locución de voz coordinada
+            this.reproducirVozNativa(estimulo[idioma], estimulo.silencio); 
+
+            // TEMPORIZADORES DE PERMANENCIA INDEPENDIENTES PARA LECTURA ACCESIBLE
+            if (estimulo.silencio === true) {
+              // Si es reto de silencio, queda fijo en pantalla 10 segundos completos
+              setTimeout(() => { if (elementoObjetivo) elementoObjetivo.innerText = (elementoObjetivo === tituloApp) ? "OPEN THAN GO" : ""; }, 10000);
+            } else {
+              // Si es un consejo común, queda fijo en pantalla 6 segundos completos
+              setTimeout(() => { if (elementoObjetivo) elementoObjetivo.innerText = (elementoObjetivo === tituloApp) ? "OPEN THAN GO" : ""; }, 6000);
             }
 
-            // CONTROL CROMÁTICO CON COLORES ZEN DIFERENTES QUE NO MOLESTAN LA VISIÓN
+            // CONTROL CROMÁTICO CONFORTABLE POR MINUTO
             let minActual = Math.floor((240 - segundosTotales) / 60); 
             if (minActual > 3) minActual = 3; 
             const colorHoy = this.cl[minActual]; 
@@ -967,13 +945,13 @@ const _ORACULO_OTG = {
       } 
     } 
   } 
-};
+}; 
 
-// Inicialización del hilo de vigilancia en segundo plano desacoplado
-setInterval(() => {
-  if (typeof _ORACULO_OTG !== 'undefined' && _ORACULO_OTG.revisarRelojPasivo) {
-    _ORACULO_OTG.revisarRelojPasivo();
-  }
+// Ejecución del bucle de revisión pasiva cada segundo
+setInterval(() => { 
+  if (typeof _ORACULO_OTG !== 'undefined' && _ORACULO_OTG.revisarRelojPasivo) { 
+    _ORACULO_OTG.revisarRelojPasivo(); 
+  } 
 }, 1000);
 
     </script>
