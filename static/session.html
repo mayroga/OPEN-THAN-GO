@@ -768,55 +768,56 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
     this.selIdx = newCombo % 6; 
   },
 
-  revisarRelojPasivo: function() { 
-    const timerDiv = document.getElementById('timer-mision') || document.querySelector('.timer') || document.getElementById('wrapper-interactive'); 
-    if (!timerDiv) return; 
-    
-    const textoTiempo = timerDiv.innerText.trim(); 
-    if (!textoTiempo.includes(':')) return; 
-    
-    const partes = textoTiempo.split(':'); 
-    const minutos = parseInt(partes[0], 10); 
-    const segundos = parseInt(partes[1], 10); 
-    const segundosTotales = (minutos * 60) + segundos; 
-    
-    if (segundosTotales === 240 && this.ultimoMinutoRegistrado === -1) { 
-        this.inicializarComboUnico(); 
-    } 
-    
-    if (segundosTotales <= 240 && segundosTotales > 0) { 
-        let minActual = Math.floor((240 - segundosTotales) / 60); 
-        if (minActual > 3) minActual = 3; 
+   revisarRelojPasivo: function() {
+    const timerDiv = document.getElementById('timer-mision') || document.querySelector('.timer') || document.getElementById('wrapper-interactive');
+    if (!timerDiv) return;
+
+    const textoTiempo = timerDiv.innerText.trim();
+    if (!textoTiempo.includes(':')) return;
+
+    const partes = textoTiempo.split(':');
+    const minutos = parseInt(partes[0], 10);
+    const segundos = parseInt(partes[1], 10);
+    const segundosTotales = (minutos * 60) + segundos;
+
+    if (segundosTotales === 240 && this.ultimoMinutoRegistrado === -1) {
+      this.inicializarComboUnico();
+    }
+
+    if (segundosTotales <= 240 && segundosTotales > 0) {
+      let minActual = Math.floor((240 - segundosTotales) / 60);
+      if (minActual > 3) minActual = 3;
+
+      if (minActual !== this.ultimoMinutoRegistrado) {
+        this.ultimoMinutoRegistrado = minActual;
+        const txt = document.getElementById('txt-pulmon') || document.getElementById('mision-display-container');
+        const cir = document.getElementById('breath-circle') || document.querySelector('.breathing-circle');
         
-        if (minActual !== this.ultimoMinutoRegistrado) { 
-            this.ultimoMinutoRegistrado = minActual; 
-            const txt = document.getElementById('txt-pulmon') || document.getElementById('mision-display-container'); 
-            const cir = document.getElementById('breath-circle') || document.querySelector('.breathing-circle'); 
-            
-            if (txt && cir) { 
-                const langBtn = document.querySelector('.btn-lang.active'); 
-                const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en' : 'es'; 
-                const estimulo = this[this.md][this.selIdx][minActual]; 
-                const color = this.cl[minActual]; 
-                
-                txt.innerText = estimulo[idioma]; 
-                cir.style.borderColor = color; 
-                cir.style.boxShadow = `0 0 35px ${color}, inset 0 0 20px ${color}33`; 
-            } 
-        } 
-    } 
-  } 
-}; 
+        if (txt && cir) {
+          const langBtn = document.querySelector('.btn-lang.active');
+          const idioma = (langBtn && langBtn.innerText.toLowerCase().includes('en')) ? 'en' : 'es';
+          const estimulo = this[this.md][this.selIdx][minActual];
+          const color = this.cl[minActual];
 
-// Ejecución segura del ciclo vigilante secundario 
-setInterval(() => { 
-    if (typeof _ORACULO_OTG !== 'undefined' && _ORACULO_OTG.revisarRelojPasivo) { 
-        _ORACULO_OTG.revisarRelojPasivo(); 
-    } 
-}, 1000); 
-</script> 
+          txt.innerText = estimulo[idioma];
+          cir.style.borderColor = color;
+          // CORREGIDO: Se cambiaron las comillas simples por comillas invertidas (Template Literals)
+          cir.style.boxShadow = `0 0 35px ${color}, inset 0 0 20px ${color}33`;
+        }
+      }
+    }
+  }
+};
 
-<!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR --> 
-<script src="/static/engine.js"></script> 
-</body> 
+// Ejecución segura del ciclo vigilante secundario
+setInterval(() => {
+  if (typeof _ORACULO_OTG !== 'undefined' && _ORACULO_OTG.revisarRelojPasivo) {
+    _ORACULO_OTG.revisarRelojPasivo();
+  }
+}, 1000);
+</script>
+
+<!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
+<script src="/static/engine.js"></script>
+</body>
 </html>
