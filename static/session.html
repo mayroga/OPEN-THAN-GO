@@ -8,7 +8,7 @@
 
     <script>
     (function(){
-        // 1. Validaciones y limpieza de almacenamiento de sesiones de usuario común
+        // Validaciones y limpieza de almacenamiento de sesiones de usuario común
         const r = localStorage.getItem('otg_user_role');
         const p = localStorage.getItem('otg_pase_stripe');
        
@@ -30,50 +30,6 @@
             const target = document.querySelector('.container') || document.body;
             target.appendChild(legalContainer);
         });
-
-        // 2. ACCESO TÉCNICO GRATUITO: Si ya eres el admin, saltar bloqueo y usar la app libremente
-        if (r === 'admin') {
-            console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");
-            return; // Te deja pasar de largo y usar todo gratis sin interrupciones
-        }
-
-        // 3. SEGURO DE COBRO REAL: Bloquea visualmente la interfaz de inmediato
-        const paywallActive = !p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'));
-        if (paywallActive) {
-            console.log("Acceso denegado. Activando Muro de Pago.");
-           
-            const estiloBloqueo = document.createElement('style');
-            estiloBloqueo.innerHTML = 'body { display: none !important; }';
-            document.head.appendChild(estiloBloqueo);
-
-            document.addEventListener("DOMContentLoaded", () => {
-                // Borra la interfaz libre y monta el sistema de cobro limpio con tu login maestro
-                document.body.innerHTML = `
-                <div style="width:100vw;height:100vh;background:#111;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:sans-serif;padding:20px;box-sizing:border-box;position:fixed;top:0;left:0;z-index:999999;">
-                    <div style="width:100%;max-width:380px;text-align:center;background:#000;padding:30px;border-radius:12px;border:1px solid #222;box-shadow:0 0 35px rgba(0,188,212,0.25);">
-                        <h2 style="color:#00bcd4;margin:0 0 10px 0;font-size:1.5rem;letter-spacing:2px;font-weight:900;">OPEN THAN GO</h2>
-                        <p style="color:#aaa;font-size:0.9rem;margin:0 0 25px 0;line-height:1.4;">Por favor, selecciona un plan de acceso para activar el oráculo de bienestar.</p>
-                       
-                        <!-- Botones de cobro directo integrados al API de FastAPI -->
-                        <button onclick="enviarAPagoStripe('unico')" style="width:100%;padding:13px;background:#00bcd4;border:none;color:#000;font-weight:bold;font-size:0.95rem;border-radius:6px;cursor:pointer;margin-bottom:10px;font-family:sans-serif;">Pago Único $15.99</button>
-                        <button onclick="enviarAPagoStripe('mensual')" style="width:100%;padding:13px;background:#2e7d32;border:none;color:#fff;font-weight:bold;font-size:0.95rem;border-radius:6px;cursor:pointer;margin-bottom:10px;font-family:sans-serif;">Suscripción Mensual $25.99</button>
-                        <button onclick="enviarAPagoStripe('anual')" style="width:100%;padding:13px;background:#d84315;border:none;color:#fff;font-weight:bold;font-size:0.95rem;border-radius:6px;cursor:pointer;margin-bottom:25px;font-family:sans-serif;">Membresía Anual $250.00</button>
-                       
-                        <hr style="border:0;border-top:1px solid #222;margin:0 0 20px 0;">
-                       
-                        <!-- Formulario para que entres tú Gratis como Desarrollador -->
-                        <div style="text-align:left;">
-                            <label style="display:block;font-size:0.65rem;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;font-weight:bold;">Acceso Desarrollador</label>
-                            <input type="text" id="dev_user" placeholder="Usuario" style="width:100%;padding:10px;background:#111;border:1px solid #333;color:#fff;margin-bottom:8px;border-radius:4px;box-sizing:border-box;outline:none;">
-                            <input type="password" id="dev_pass" placeholder="Contraseña" style="width:100%;padding:10px;background:#111;border:1px solid #333;color:#fff;margin-bottom:12px;border-radius:4px;box-sizing:border-box;outline:none;">
-                            <button onclick="autenticarDesarrollador()" style="width:100%;padding:10px;background:#222;border:1px solid #444;color:#fff;font-weight:bold;border-radius:4px;cursor:pointer;font-family:sans-serif;">Ingresar Gratis</button>
-                            <p id="dev_error" style="color:#d84315;font-size:0.85rem;margin:10px 0 0 0;font-weight:bold;display:none;text-align:center;"></p>
-                        </div>
-                    </div>
-                </div>`;
-                estiloBloqueo.remove();
-            });
-        }
     })();
 
     // Llama a tu endpoint de FastAPI para mandar al usuario a Stripe Checkout
@@ -95,6 +51,9 @@
         const u = document.getElementById('dev_user').value;
         const p = document.getElementById('dev_pass').value;
         const err = document.getElementById('dev_error');
+        // Clear previous error messages
+        if (err) err.style.display = "none";
+        
         try {
             const respuesta = await fetch('/login-admin', {
                 method: 'POST',
@@ -104,14 +63,18 @@
             const data = await respuesta.json();
             if (respuesta.status === 200 && data.status === "success") {
                 localStorage.setItem('otg_user_role', 'admin');
-                window.location.reload();
+                window.location.reload(); // Reload to activate admin role logic
             } else {
-                err.innerText = data.error || "Datos incorrectos.";
-                err.style.display = "block";
+                if (err) {
+                    err.innerText = data.error || "Datos incorrectos.";
+                    err.style.display = "block";
+                }
             }
         } catch (e) {
-            err.innerText = "Error de conexión con el backend de FastAPI.";
-            err.style.display = "block";
+            if (err) {
+                err.innerText = "Error de conexión con el backend de FastAPI.";
+                err.style.display = "block";
+            }
         }
     }
     </script>
@@ -574,9 +537,35 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
 </head>
 <body>
     <div id="pantalla-bienvenida">
-        <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button>
+        <!-- Content for this div is dynamically set by OTG_SENSORIAL.modificarBienvenida() -->
+        <!-- The button inside will call KERNEL.iniciarOpcionPrincipal() -->
+        <button class="btn-bienvenida" onclick="KERNEL.iniciarOpcionPrincipal();">INICIAR SESIÓN / START</button>
     </div>
    
+    <!-- NEW: Paywall Screen Container, initially hidden -->
+    <div id="auth-gate-wrapper" class="hidden" style="width:100vw;height:100vh;background:#111;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:sans-serif;padding:20px;box-sizing:border-box;position:fixed;top:0;left:0;z-index:999999;">
+        <div style="width:100%;max-width:380px;text-align:center;background:#000;padding:30px;border-radius:12px;border:1px solid #222;box-shadow:0 0 35px rgba(0,188,212,0.25);">
+            <h2 id="auth-title" style="color:#00bcd4;margin:0 0 10px 0;font-size:1.5rem;letter-spacing:2px;font-weight:900;">ACCESO AUTORIZADO / SECURE LOGIN</h2>
+            <p style="color:#aaa;font-size:0.9rem;margin:0 0 25px 0;line-height:1.4;">Por favor, selecciona un plan de acceso para activar el oráculo de bienestar.</p>
+           
+            <!-- Botones de cobro directo integrados al API de FastAPI -->
+            <button id="btn-stripe-pase1" onclick="enviarAPagoStripe('unico')" style="width:100%;padding:13px;background:#00bcd4;border:none;color:#000;font-weight:bold;font-size:0.95rem;border-radius:6px;cursor:pointer;margin-bottom:10px;font-family:sans-serif;">Pago Único $15.99</button>
+            <button id="btn-stripe-pase2" onclick="enviarAPagoStripe('mensual')" style="width:100%;padding:13px;background:#2e7d32;border:none;color:#fff;font-weight:bold;font-size:0.95rem;border-radius:6px;cursor:pointer;margin-bottom:10px;font-family:sans-serif;">Suscripción Mensual $25.99</button>
+            <button id="btn-stripe-pase3" onclick="enviarAPagoStripe('anual')" style="width:100%;padding:13px;background:#d84315;border:none;color:#fff;font-weight:bold;font-size:0.95rem;border-radius:6px;cursor:pointer;margin-bottom:25px;font-family:sans-serif;">Membresía Anual $250.00</button>
+           
+            <hr style="border:0;border-top:1px solid #222;margin:0 0 20px 0;">
+           
+            <!-- Formulario para que entres tú Gratis como Desarrollador -->
+            <div style="text-align:left;">
+                <label style="display:block;font-size:0.65rem;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;font-weight:bold;">Acceso Desarrollador</label>
+                <input type="text" id="dev_user" placeholder="Usuario" style="width:100%;padding:10px;background:#111;border:1px solid #333;color:#fff;margin-bottom:8px;border-radius:4px;box-sizing:border-box;outline:none;">
+                <input type="password" id="dev_pass" placeholder="Contraseña" style="width:100%;padding:10px;background:#111;border:1px solid #333;color:#fff;margin-bottom:12px;border-radius:4px;box-sizing:border-box;outline:none;">
+                <button id="btn-login-dev" onclick="autenticarDesarrollador()" style="width:100%;padding:10px;background:#222;border:1px solid #444;color:#fff;font-weight:bold;border-radius:4px;cursor:pointer;font-family:sans-serif;">Ingresar Gratis</button>
+                <p id="dev_error" style="color:#d84315;font-size:0.85rem;margin:10px 0 0 0;font-weight:bold;display:none;text-align:center;"></p>
+            </div>
+        </div>
+    </div>
+
     <div class="container hidden" id="wrapper-form">
         <div class="lang-bar">
             <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button>
@@ -601,8 +590,8 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
             <div style="flex: 1;">
                 <label>Modo</label>
                 <select id="modo-selector">
-                    <option value="SALIR" selected>SALIR</option>
-                    <option value="CASA">CASA</option>
+                    <option value="SALIR" id="opt-modo-salir" selected>SALIR</option>
+                    <option value="CASA" id="opt-modo-casa">CASA</option>
                 </select>
             </div>
         </div>
@@ -679,7 +668,7 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
         </div>
     </div>
 
-    <!-- Floating Buttons for Golpe Maestro and Communication -->
+   <!-- Floating Buttons for Golpe Maestro and Communication -->
     <button id="btn-volver-app" class="floating-btn hidden" title="Volver a la App">
         &#x2190;
     </button>
@@ -729,4 +718,4 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
     <!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
     <script src="/static/engine.js"></script>
 </body>
-</html>
+</html> 
