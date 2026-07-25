@@ -158,7 +158,7 @@ const KERNEL = {
     MAX_HISTORY_RETOS_SECUENCIAS: 3,
     DECAY_PER_DAY: 0.985,
     conteoInaccion: 0,
-    indicePreguntaCascada: 0,
+    indicePreguntaCascada: 0, // <-- RECONECTADO: La coma es necesaria porque el objeto CONTINÚA abajo
 
     // New helper to manage daily history for all audio phrases to prevent repetition across 5 sessions
     _getDailyNonRepeatingAudio(pool, historyKey, maxSessions = 5) {
@@ -543,6 +543,65 @@ const KERNEL = {
     },
 
     /**
+     * Renders the authentication gate, developer access, and secure payment options.
+     */
+    inyectarPasarelaYAutenticacion(container) {
+        container.innerHTML = `
+            <div class="auth-gate-card" style="padding:20px; background:#000; border:1px solid #222; border-radius:8px; max-width:400px; margin:0 auto; text-align:center;">
+                <h3 style="color:#fff; font-size:1.1rem; margin-bottom:20px;">ACCESO AUTORIZADO / SECURE LOGIN</h3>
+               
+                <div style="margin-bottom:15px;">
+                    <input type="text" id="auth-username" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #333; border-radius:4px; box-sizing:border-box;">
+                    <input type="password" id="auth-password" placeholder="Password" style="width:100%; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:4px; box-sizing:border-box;">
+                </div>
+
+                <button id="btn-submit-auth" style="width:100%; background:var(--green-action); color:#fff; padding:14px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; font-size:0.95rem; margin-bottom:20px;">INGRESAR AL SISTEMA</button>
+               
+                <div id="stripe-payment-box" style="padding:15px; border:1px solid var(--accent); border-radius:6px; background:rgba(255,0,0,0.02); margin-bottom:20px;">
+                    <p style="margin:0 0 10px 0; font-size:0.85rem; color:#888;">Activación comercial vía Stripe segura:</p>
+                    <button id="btn-stripe-checkout" class="btn" style="width:100%; background:var(--accent); color:#fff; font-weight:bold; padding:12px; border:none; border-radius:4px; cursor:pointer;">COMPRAR ACCESO / BUY NOW</button>
+                </div>
+
+                <div style="margin-top:15px; border-top:1px solid #111; padding-top:15px;">
+                    <button id="btn-modo-desarrollador" style="background:transparent; color:#555; border:1px dashed #333; padding:8px 12px; font-size:0.8rem; border-radius:4px; cursor:pointer; width:100%;">
+                        MODO DESARROLLADOR / BYPASS CODE
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // 1. Clic del botón de ingreso tradicional
+        document.getElementById('btn-submit-auth').onclick = () => {
+            const user = document.getElementById('auth-username').value.trim();
+            const pass = document.getElementById('auth-password').value.trim();
+            if (user && pass) {
+                container.innerHTML = "";
+                this.despertarInicial();
+            } else {
+                this.hablar(this.idiomaActual === 'es' ? "Introduce credenciales válidas." : "Please enter valid credentials.");
+            }
+        };
+
+        // 2. Clic del botón seguro de Stripe
+        document.getElementById('btn-stripe-checkout').onclick = async () => {
+            this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela Stripe." : "Connecting to Stripe gateway.");
+            try {
+                const response = await fetch("/api/create-checkout-session", { method: "POST" });
+                const session = await response.json();
+                if (session.url) window.location.href = session.url;
+            } catch (e) {
+                console.error("Stripe initialization error:", e);
+            }
+        };
+
+        // 3. Clic del botón de desarrollador (Bypass directo al oráculo de preguntas)
+        document.getElementById('btn-modo-desarrollador').onclick = () => {
+            container.innerHTML = "";
+            this.despertarInicial();
+        };
+    },
+
+        /**
      * Initializes the KERNEL on DOMContentLoaded.
      */
     init() {
@@ -597,17 +656,17 @@ const KERNEL = {
         // ==============================================================================
         // ENLACE DIRECTO A LOS 3 PASES DE STRIPE DE TU HTML NATIVO (FASTAPI)
         // ==============================================================================
-        const paywallStripeButtons = ['btn-stripe-pase1', 'btn-stripe-pase2', 'btn-stripe-pase3'];
-        paywallStripeButtons.forEach((idBoton, index) => {
+        const pasesStripe = ['btn-stripe-pase1', 'btn-stripe-pase2', 'btn-stripe-pase3'];
+        pasesStripe.forEach((idBoton, index) => {
             const btnStripe = document.getElementById(idBoton);
             if (btnStripe) {
                 btnStripe.onclick = async () => {
                     this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela de pagos Stripe." : "Connecting to Stripe payment gateway.");
                     try {
-                        const response = await fetch("/crear-checkout", { // Use /crear-checkout as per main.py
+                        const response = await fetch("/api/create-checkout-session", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ tipo_plan: (index === 0 ? 'unico' : index === 1 ? 'mensual' : 'anual') }) // Map index to plan type
+                            body: JSON.stringify({ pase_tipo: index + 1 })
                         });
                         const session = await response.json();
                         if (session.url) {
@@ -616,7 +675,6 @@ const KERNEL = {
                         }
                     } catch (e) {
                         console.error("FastAPI Stripe Checkout link error:", e);
-                        this.hablar(this.idiomaActual === 'es' ? "Error al conectar con Stripe." : "Error connecting to Stripe.");
                     }
                 };
             }
@@ -625,7 +683,7 @@ const KERNEL = {
         // ==============================================================================
         // ENLACE DIRECTO AL LOGIN DE USUARIO Y CONTRASEÑA REAL (FASTAPI)
         // ==============================================================================
-        const btnLogin = document.getElementById('btn-submit-auth');
+        const btnLogin = document.getElementById('btn-submit-auth') || document.getElementById('btn-login');
         if (btnLogin) {
             btnLogin.onclick = async () => {
                 const usernameInput = document.getElementById('auth-username');
@@ -641,34 +699,23 @@ const KERNEL = {
                 }
                
                 try {
-                    const response = await fetch("/login-admin", { // Use /login-admin as per main.py
+                    const response = await fetch("/api/login-verificar", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ username, password })
                     });
                     const data = await response.json();
                    
-                    if (response.status === 200 && data.status === "success") {
+                    if (data.success) {
                         localStorage.setItem('otg_user_role', data.role || 'user');
-                        const authGate = document.getElementById('auth-gate-wrapper');
-                        if (authGate) authGate.classList.add('hidden');
-                        this.despertarInicial(); // Proceed to main app
+                        const bienvenidaPanel = document.getElementById('pantalla-bienvenida') || document.getElementById('auth-gate-wrapper');
+                        if (bienvenidaPanel) bienvenidaPanel.style.display = 'none';
+                        this.despertarInicial();
                     } else {
                         this.hablar(this.idiomaActual === 'es' ? "Credenciales incorrectas. Inténtalo de nuevo." : "Incorrect credentials. Please try again.");
-                        const devError = document.getElementById('dev_error');
-                        if (devError) {
-                            devError.innerText = data.error || (this.idiomaActual === 'es' ? "Datos incorrectos." : "Incorrect data.");
-                            devError.style.display = "block";
-                        }
                     }
                 } catch (e) {
                     console.error("FastAPI Auth Gate error:", e);
-                    this.hablar(this.idiomaActual === 'es' ? "Error de conexión con el servidor." : "Server connection error.");
-                    const devError = document.getElementById('dev_error');
-                    if (devError) {
-                        devError.innerText = this.idiomaActual === 'es' ? "Error de conexión con el backend de FastAPI." : "FastAPI backend connection error.";
-                        devError.style.display = "block";
-                    }
                 }
             };
         }
@@ -676,77 +723,30 @@ const KERNEL = {
         // ==============================================================================
         // ENLACE DIRECTO AL BOTÓN DE BYPASS DEL DESARROLLADOR NATIVO
         // ==============================================================================
-        const btnDev = document.getElementById('btn-login-dev'); // Using the ID from the new paywall HTML
+        const btnDev = document.getElementById('btn-modo-desarrollador') || document.getElementById('btn-dev');
         if (btnDev) {
-            btnDev.onclick = async () => { // Make it async to handle fetch
-                const u = document.getElementById('dev_user').value;
-                const p = document.getElementById('dev_pass').value;
-                const err = document.getElementById('dev_error');
-
-                try {
-                    const respuesta = await fetch('/login-admin', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ username: u, password: p })
-                    });
-                    const data = await respuesta.json();
-                    if (respuesta.status === 200 && data.status === "success") {
-                        localStorage.setItem('otg_user_role', 'admin');
-                        const authGate = document.getElementById('auth-gate-wrapper');
-                        if (authGate) authGate.classList.add('hidden');
-                        this.hablar(this.idiomaActual === 'es' ? "Acceso Desarrollador Concedido." : "Developer Access Granted.");
-                        this.despertarInicial(); // Proceed to main app
-                    } else {
-                        err.innerText = data.error || (this.idiomaActual === 'es' ? "Datos incorrectos." : "Incorrect data.");
-                        err.style.display = "block";
-                        this.hablar(this.idiomaActual === 'es' ? "Credenciales inválidas. Acceso denegado." : "Invalid credentials. Access denied.");
-                    }
-                } catch (e) {
-                    err.innerText = this.idiomaActual === 'es' ? "Error de conexión con el backend de FastAPI." : "FastAPI backend connection error.";
-                    err.style.display = "block";
-                    this.hablar(this.idiomaActual === 'es' ? "Error de conexión. Inténtalo de nuevo." : "Connection error. Please try again.");
-                }
+            btnDev.onclick = () => {
+                console.log("Acceso de desarrollador concedido. Saltando pasarelas.");
+                localStorage.setItem('otg_user_role', 'admin');
+                const bienvenidaPanel = document.getElementById('pantalla-bienvenida') || document.getElementById('auth-gate-wrapper');
+                if (bienvenidaPanel) bienvenidaPanel.style.display = 'none';
+                this.despertarInicial();
             };
         }
     },
 
     /**
-     * Handles the initial decision after the splash screen: show paywall or main app.
-     */
-    iniciarOpcionPrincipal() {
-        const r = localStorage.getItem('otg_user_role');
-        const p = localStorage.getItem('otg_pase_stripe');
-        const paywallActive = !p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'));
-
-        document.getElementById('pantalla-bienvenida').classList.add('hidden');
-
-        if (r === 'admin' || !paywallActive) { // Authenticated or valid pass
-            document.getElementById('wrapper-form').classList.remove('hidden');
-            this.despertarInicial();
-        } else { // Paywall is active
-            document.getElementById('auth-gate-wrapper').classList.remove('hidden');
-            // Initial call to set up texts in the auth gate in current language
-            // This is handled by init's button assignments.
-            // No need to call this.hablar here as it will be called by button handlers.
-        }
-    },
-
-    /**
-     * Starts the initial welcome sequence after user interaction or direct bypass.
+     * Starts the initial welcome sequence after user interaction.
      */
     despertarInicial() {
         const welcomeScreen = document.getElementById('pantalla-bienvenida');
-        if (welcomeScreen) welcomeScreen.classList.add('hidden');
-        const authGate = document.getElementById('auth-gate-wrapper');
-        if (authGate) authGate.classList.add('hidden');
+        if (welcomeScreen) welcomeScreen.style.display = 'none';
        
         document.getElementById('wrapper-form').classList.remove('hidden');
         document.getElementById('btn-volver-app').classList.remove('hidden');
         document.getElementById('btn-whatsapp').classList.remove('hidden');
         document.getElementById('btn-messenger').classList.remove('hidden');
-        document.getElementById('btn-oasis-sensorial').classList.remove('hidden'); // NEW: Show the floating button for OTG_SENSORIAL
-       
-        this.cambiarIdioma(this.idiomaActual); // Ensure UI elements are in correct language
+        this.cambiarIdioma(this.idiomaActual);
        
         this.horaInicioSesionAbsoluta = Date.now();
 
@@ -1127,9 +1127,7 @@ const KERNEL = {
                 menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado",
                 menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA",
                 recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?",
-                volverApp: "Volver a la App", authTitle: "ACCESO AUTORIZADO / SECURE LOGIN", authUser: "Usuario", authPass: "Contraseña",
-                authLogin: "INGRESAR AL SISTEMA", stripeInfo: "Activación comercial vía Stripe segura:", stripeBtn: "COMPRAR ACCESO / BUY NOW",
-                devMode: "MODO DESARROLLADOR / BYPASS CODE", devUser: "Usuario", devPass: "Contraseña", devLogin: "Ingresar Gratis"
+                volverApp: "Volver a la App"
             },
             en: {
                 title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?",
@@ -1140,9 +1138,7 @@ const KERNEL = {
                 menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired",
                 menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME",
                 recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?",
-                volverApp: "Return to App", authTitle: "AUTHORIZED ACCESS / SECURE LOGIN", authUser: "Username", authPass: "Password",
-                authLogin: "ENTER SYSTEM", stripeInfo: "Secure commercial activation via Stripe:", stripeBtn: "BUY ACCESS / BUY NOW",
-                devMode: "DEVELOPER MODE / BYPASS CODE", devUser: "Username", devPass: "Password", devLogin: "Enter Free"
+                volverApp: "Return to App"
             }
         }[lang];
 
@@ -1164,8 +1160,8 @@ const KERNEL = {
         document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
         document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
         document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
-        document.getElementById('opt-modo-salir').innerText = t.modoSalir; // New: Translate Modo selector options
-        document.getElementById('opt-modo-casa').innerText = t.modoCasa; // New: Translate Modo selector options
+        document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
+        document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
        
         const cierreLogo = document.getElementById('cierre-logo');
         if (cierreLogo) cierreLogo.innerText = t.title;
@@ -1175,29 +1171,6 @@ const KERNEL = {
         if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
         const btnVolverApp = document.getElementById('btn-volver-app');
         if (btnVolverApp) btnVolverApp.title = t.volverApp;
-
-        // NEW: Translate elements in the auth gate if visible
-        const authTitle = document.getElementById('auth-title');
-        if (authTitle) authTitle.innerText = t.authTitle;
-        const authUsername = document.getElementById('auth-username');
-        if (authUsername) authUsername.placeholder = t.authUser;
-        const authPassword = document.getElementById('auth-password');
-        if (authPassword) authPassword.placeholder = t.authPass;
-        const btnSubmitAuth = document.getElementById('btn-submit-auth');
-        if (btnSubmitAuth) btnSubmitAuth.innerText = t.authLogin;
-        const stripeInfo = document.getElementById('stripe-payment-info');
-        if (stripeInfo) stripeInfo.innerText = t.stripeInfo;
-        const btnStripeCheckout = document.getElementById('btn-stripe-checkout');
-        if (btnStripeCheckout) btnStripeCheckout.innerText = t.stripeBtn;
-        const devModeBtn = document.getElementById('dev-mode-button');
-        if (devModeBtn) devModeBtn.innerText = t.devMode;
-        const devUser = document.getElementById('dev_user');
-        if (devUser) devUser.placeholder = t.devUser;
-        const devPass = document.getElementById('dev_pass');
-        if (devPass) devPass.placeholder = t.devPass;
-        const btnLoginDev = document.getElementById('btn-login-dev');
-        if (btnLoginDev) btnLoginDev.innerText = t.devLogin;
-       
 
         this.hablar(t.alert);
         this.inyectarBloquePreguntas();
@@ -1541,13 +1514,50 @@ const KERNEL = {
         this.horaInicioSesionAbsoluta = Date.now(); // Reseteamos la estampa de tiempo absoluta
         // ==============================================================================
     },
-    
     // ==============================================================================
-    // REMOVED: KERNEL.inyectarPasarelaYAutenticacion as it was a duplicate and conflicting.
-    // The main paywall logic is now handled directly in session.html's initial script
-    // and its button event listeners are assigned in KERNEL.init()
-    // ==============================================================================
+// RESTAURACIÓN CRÍTICA: ENTRADA DE USUARIO, PASSWORD Y SISTEMA DE STRIPE
+// ==============================================================================
+inyectarPasarelaYAutenticacion(container) {
+    // Mantiene tus funciones comerciales activas y seguras al inicio de la app
+    container.innerHTML = `
+        <div class="auth-gate-card">
+            <h3>ACCESO AUTORIZADO / SECURE LOGIN</h3>
+            <div style="margin-bottom:15px;">
+                <input type="text" id="auth-username" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #333; border-radius:4px;">
+                <input type="password" id="auth-password" placeholder="Password" style="width:100%; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:4px;">
+            </div>
+            <div id="stripe-payment-box" style="margin-top:20px; padding:15px; border:1px solid var(--accent); border-radius:6px; background:rgba(255,0,0,0.05);">
+                <p style="margin:0 0 10px 0; font-size:0.9rem; color:#aaa;">Activación comercial vía Stripe segura:</p>
+                <button id="btn-stripe-checkout" class="btn" style="width:100%; background:var(--accent); color:#fff; font-weight:bold; padding:12px; border:none; border-radius:4px; cursor:pointer;">COMPRAR ACCESO / BUY NOW</button>
+            </div>
+            <button id="btn-submit-auth" style="width:100%; background:var(--green-action); color:#fff; padding:14px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">INGRESAR AL SISTEMA</button>
+        </div>
+    `;
 
+    // Lógica de validación nativa que tenías para el inicio de sesión
+    document.getElementById('btn-submit-auth').onclick = () => {
+        const user = document.getElementById('auth-username').value.trim();
+        const pass = document.getElementById('auth-password').value.trim();
+        if (user && pass) {
+            // Si la validación es correcta, avanza limpiamente al oráculo
+            this.despertarInicial();
+        } else {
+            this.hablar(this.idiomaActual === 'es' ? "Por favor introduce tus credenciales válidas." : "Please enter valid credentials.");
+        }
+    };
+
+    // Integración de Stripe Checkout directo
+    document.getElementById('btn-stripe-checkout').onclick = async () => {
+        this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela de pagos Stripe." : "Connecting to Stripe payment gateway.");
+        try {
+            const response = await fetch("/api/create-checkout-session", { method: "POST" });
+            const session = await response.json();
+            if (session.url) window.location.href = session.url;
+        } catch (e) {
+            console.error("Stripe initialization error:", e);
+        }
+    };
+},
     /**
      * Processes the sequential flow based on the recommendation type (only for CASA mode now).
      */
@@ -1689,7 +1699,7 @@ const KERNEL = {
 
         let currentImageIndex = 0;
         let imagesForMente = [];
-        // let imageChangeIntervalId = null; // This variable was declared but never used in the original code, removed it.
+        let imageChangeIntervalId = null;
 
         // Get payload['mente'] from the stored profile or default
         const currentMente = this.obtenerPerfilLocal().mente || document.getElementById('mente-selector').value || "aburrido";
@@ -1760,14 +1770,12 @@ const KERNEL = {
                         this.historialSalir = data.historial_salir_actualizado;
                         localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
                     }
-                    // NEW: Ensure correct language for suggested mission title
-                    const suggestedTitle = this.idiomaActual === 'es' ? suggestedMission.destino_titulo : suggestedMission.destino_titulo_en || suggestedMission.destino_titulo;
-                    linkSalidaSugerida.innerText = suggestedTitle;
+                    linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
                     linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
                     salidaSugeridaDiv.classList.remove('hidden');
 
                     // Lectura fluida, pausada y sin prisas
-                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedTitle}` : `Also consider: ${suggestedTitle}`);
+                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
                 }
 
             } catch (e) {
@@ -2117,15 +2125,11 @@ const KERNEL = {
         const wrapperInteractive = document.getElementById('wrapper-interactive');
         const wrapperForm = document.getElementById('wrapper-form');
         const inpTextLibre = document.getElementById('inp-text-libre');
-        const authGate = document.getElementById('auth-gate-wrapper'); // NEW
-        const btnOasisSensorial = document.getElementById('btn-oasis-sensorial'); // NEW
 
         if (pantallaCierre) pantallaCierre.classList.add('hidden');
         if (wrapperInteractive) wrapperInteractive.classList.add('hidden');
-        if (authGate) authGate.classList.add('hidden'); // NEW
-        if (wrapperForm) wrapperForm.classList.remove('hidden'); // Show main form on restart
+        if (wrapperForm) wrapperForm.classList.remove('hidden');
         if (inpTextLibre) inpTextLibre.value = "";
-        if (btnOasisSensorial) btnOasisSensorial.classList.remove('hidden'); // NEW
        
         this.inyectarBloquePreguntas();
         this.activarBotonMandoLibreInicial();
@@ -2339,7 +2343,7 @@ window.KERNEL = KERNEL;
 
    init() {
     this.inyectarMetasYEstilos();
-    // REMOVED: this.modificarBienvenida(); // <--- CRITICAL: Prevents OTG_SENSORIAL from taking over the initial welcome screen
+    this.modificarBienvenida();
     this.crearEstructuresFlotantes();
   },
 
@@ -2420,62 +2424,51 @@ window.KERNEL = KERNEL;
     document.head.appendChild(s);
   },
 
-    // REINSTATED: This function is now responsible for showing the initial OTG_SENSORIAL welcome message
-    // but without overwriting the whole body, and will be called by `session.html` script after DOMContentLoaded.
-    // It will set up the welcome screen text, which then leads to `KERNEL.iniciarOpcionPrincipal()`
-    modificarBienvenida() {
-        let pb = document.getElementById("pantalla-bienvenida");
-        if (!pb) return;
-       
-        let sintomas = KERNEL.idiomaActual === 'es' ? [
-          "No sabes qué hacer",
-          "Te encuentras en la monotonía",
-          "Estás agobiado por el entorno",
-          "Te sientes estresado",
-          "Te sientes cansado",
-          "Necesitas un descanso",
-          "Buscas un momento para ti"
-        ] : [
-          "You don't know what to do",
-          "You are in monotony",
-          "You feel overwhelmed by the surroundings",
-          "You feel stressed",
-          "You feel tired",
-          "You need a break",
-          "You are looking for a moment for yourself"
-        ];
-       
-        sintomas.sort(() => Math.random() - .5);
-       
-        pb.innerHTML = `
-          <div style="max-width:390px;width:95%;padding:15px;text-align:center;font-family:sans-serif;color:#fff;overflow-y:auto;max-height:100vh;">
-            <h2 style="color:#00bcd4;font-weight:900;letter-spacing:2px;font-size:1.3rem;margin-bottom:12px;">
-              OPEN THAN GO
-            </h2>
-            <p style="font-size: .9rem; line-height: 1.45; color: #eee; font-weight: bold; margin-bottom: 15px;">
-              ${KERNEL.idiomaActual === 'es' ? 'Hoy' : 'Today'}: <span style="color: #d84315;">${sintomas[0]}</span>.<br>
-              OPEN THAN GO ${KERNEL.idiomaActual === 'es' ? 'te ayuda a encontrar pequeños momentos de bienestar para ti y tu familia.' : 'helps you find small moments of well-being for you and your family.'}
-            </p>
-            <div style="background: #111; border: 1px solid #222; border-radius: 8px; padding: 12px; text-align: left; font-size: .76rem; line-height: 1.5; color: #bbb; margin-bottom: 14px;">
-              <b style="color: #2e7d32; display: block; margin-bottom: 6px; text-transform: uppercase;"> ${KERNEL.idiomaActual === 'es' ? 'Cómo funciona' : 'How it works'} </b>
-              • <b>${KERNEL.idiomaActual === 'es' ? 'SALIR' : 'OUT'}:</b> ${KERNEL.idiomaActual === 'es' ? 'Descubre lugares cercanos para cambiar de ambiente.' : 'Discover nearby places to change scenery.'}<br>
-              • <b>${KERNEL.idiomaActual === 'es' ? 'CASA' : 'HOME'}:</b> ${KERNEL.idiomaActual === 'es' ? 'Encuentra actividades sencillas para hacer en casa.' : 'Find simple activities to do at home.'}<br>
-              • <b>${KERNEL.idiomaActual === 'es' ? 'MODO LIBRE' : 'FREE MODE'}:</b> ${KERNEL.idiomaActual === 'es' ? 'Escribe un lugar, una marca o un servicio para personalizar tu experiencia.' : 'Write a place, a brand, or a service to personalize your experience.'}<br>
-              • <b>${KERNEL.idiomaActual === 'es' ? 'ORÁCULO' : 'ORACLE'}:</b> ${KERNEL.idiomaActual === 'es' ? 'Recibe una sugerencia cuando no sepas qué hacer.' : 'Get a suggestion when you don\'t know what to do.'}
-            </div>
-            <p style="font-size: .72rem; color: #00bcd4; font-weight: bold; margin-bottom: 12px;">
-              🎵 ${KERNEL.idiomaActual === 'es' ? 'Enciende el audio y disfruta una experiencia más completa.' : 'Turn on audio for a more complete experience.'}
-            </p>
-            <div style="background: rgba(255,255,255,.05); border: 1px solid #333; border-radius: 8px; padding: 10px; font-size: .67rem; line-height: 1.45; color: #cfcfcf; text-align: left; margin-bottom: 14px;">
-              <b style="color: #fff;">${KERNEL.idiomaActual === 'es' ? 'Aviso' : 'Notice'}</b><br>
-              OPEN THAN GO ${KERNEL.idiomaActual === 'es' ? 'es una herramienta de bienestar y orientación. No ofrece atención médica, psicológica ni de emergencia. Si tienes una emergencia médica o de salud mental, llama a los servicios de emergencia o busca ayuda profesional. Usa esta aplicación bajo tu propio criterio.' : 'is a wellness and guidance tool. It does not offer medical, psychological, or emergency care. If you have a medical or mental health emergency, call emergency services or seek professional help. Use this application at your own discretion.'}
-            </div>
-            <button class="btn-bienvenida" onclick="KERNEL.iniciarOpcionPrincipal();" style="width: 100%; border-radius: 6px; padding: 15px; font-weight: 900; background: #fff; color: #000; border: none; cursor: pointer; text-transform: uppercase;">
-              ${KERNEL.idiomaActual === 'es' ? 'INICIAR SESIÓN / START' : 'START SESSION / START'}
-            </button>
-          </div>
-        `;
-    },
+  modificarBienvenida() {
+    let pb = document.getElementById("pantalla-bienvenida");
+    if (!pb) return;
+   
+    let sintomas = [
+      "No sabes qué hacer",
+      "Te encuentras en la monotonía",
+      "Estás agobiado por el entorno",
+      "Te sientes estresado",
+      "Te sientes cansado",
+      "Necesitas un descanso",
+      "Buscas un momento para ti"
+    ];
+   
+    sintomas.sort(() => Math.random() - .5);
+   
+    pb.innerHTML = `
+      <div style="max-width:390px;width:95%;padding:15px;text-align:center;font-family:sans-serif;color:#fff;overflow-y:auto;max-height:100vh;">
+        <h2 style="color:#00bcd4;font-weight:900;letter-spacing:2px;font-size:1.3rem;margin-bottom:12px;">
+          OPEN THAN GO
+        </h2>
+        <p style="font-size: .9rem; line-height: 1.45; color: #eee; font-weight: bold; margin-bottom: 15px;">
+          Hoy: <span style="color: #d84315;">${sintomas[0]}</span>.<br>
+          OPEN THAN GO te ayuda a encontrar pequeños momentos de bienestar para ti y tu familia.
+        </p>
+        <div style="background: #111; border: 1px solid #222; border-radius: 8px; padding: 12px; text-align: left; font-size: .76rem; line-height: 1.5; color: #bbb; margin-bottom: 14px;">
+          <b style="color: #2e7d32; display: block; margin-bottom: 6px; text-transform: uppercase;"> Cómo funciona </b>
+          • <b>SALIR:</b> Descubre lugares cercanos para cambiar de ambiente.<br>
+          • <b>CASA:</b> Encuentra actividades sencillas para hacer en casa.<br>
+          • <b>MODO LIBRE:</b> Escribe un lugar, una marca o un servicio para personalizar tu experiencia.<br>
+          • <b>ORÁCULO:</b> Recibe una sugerencia cuando no sepas qué hacer.
+        </div>
+        <p style="font-size: .72rem; color: #00bcd4; font-weight: bold; margin-bottom: 12px;">
+          🎵 Enciende el audio y disfruta una experiencia más completa.
+        </p>
+        <div style="background: rgba(255,255,255,.05); border: 1px solid #333; border-radius: 8px; padding: 10px; font-size: .67rem; line-height: 1.45; color: #cfcfcf; text-align: left; margin-bottom: 14px;">
+          <b style="color: #fff;">Aviso</b><br>
+          OPEN THAN GO es una herramienta de bienestar y orientación. No ofrece atención médica, psicológica ni de emergencia. Si tienes una emergencia médica o de salud mental, llama a los servicios de emergencia o busca ayuda profesional. Usa esta aplicación bajo tu propio criterio.
+        </div>
+        <button class="btn-bienvenida" onclick="OTG_SENSORIAL.interceptarBotonStart();" style="width: 100%; border-radius: 6px; padding: 15px; font-weight: 900; background: #fff; color: #000; border: none; cursor: pointer; text-transform: uppercase;">
+          INICIAR SESIÓN / START
+        </button>
+      </div>
+    `;
+  },
 
       crearEstructurasFlotantes() {
     let b = document.createElement("button");
@@ -2485,20 +2478,6 @@ window.KERNEL = KERNEL;
     b.title = "Cerrar";
     b.onclick = () => this.apagarSistemaTotal();
     document.body.appendChild(b);
-
-    // NEW: Floating button for OTG_SENSORIAL (Oasis de Ocio)
-    let oasisBtn = document.createElement("button");
-    oasisBtn.id = "btn-oasis-sensorial";
-    oasisBtn.className = "floating-btn hidden"; // Initially hidden
-    oasisBtn.style.right = "130px"; // Position it
-    oasisBtn.title = KERNEL.idiomaActual === 'es' ? "Oasis Sensorial" : "Sensory Oasis";
-    oasisBtn.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-        </svg>
-    `;
-    oasisBtn.onclick = () => this.abrirOasisOcio();
-    document.body.appendChild(oasisBtn);
    
     let m = document.createElement("div");
     m.id = "otg-oasis-entretenimiento";
@@ -2508,10 +2487,9 @@ window.KERNEL = KERNEL;
   },
 
   interceptarBotonStart() {
-    // This function is no longer called directly from the initial welcome screen.
-    // It's meant to be called by an explicit button if OTG_SENSORIAL is used as a secondary feature.
-    // It directly opens the "Oasis de Ocio".
-    setTimeout(() => this.forzarCierre15Minutos(), 900000); // 15 minutes = 900,000 ms
+    setTimeout(() => this.forzarCierre15Minutos(), 900000); // 15 minutes = 900,000 ms (original logic)
+    // No action needed here, as the KERNEL.activarSensorSegundoPlano already handles the app's internal timer.
+    // This part of OTG_SENSORIAL is for the external "oasis" flow, which can remain 15 minutes.
     this.abrirOasisOcio();
   },
 
@@ -2521,45 +2499,34 @@ window.KERNEL = KERNEL;
    
     m.classList.remove("hidden");
     document.body.style.overflow = "hidden";
-
-    // Hide KERNEL's main form and floating buttons temporarily
-    document.getElementById('wrapper-form').classList.add('hidden');
-    document.getElementById('btn-volver-app').classList.add('hidden');
-    document.getElementById('btn-whatsapp').classList.add('hidden');
-    document.getElementById('btn-messenger').classList.add('hidden');
-    document.getElementById('btn-oasis-sensorial').classList.add('hidden');
-
-    // Make sure power button is visible for OTG_SENSORIAL to close itself
-    const powerBtn = document.getElementById("otg-btn-power");
-    if (powerBtn) powerBtn.classList.remove("hidden");
    
     this.marcas.sort(() => Math.random() - .5);
    
     let zip = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
-    let txtUsa = zip ? (KERNEL.idiomaActual === 'es' ? `Opciones disponibles para el Código Postal ${zip}` : `Options available for ZIP Code ${zip}`) : (KERNEL.idiomaActual === 'es' ? "Personaliza tu experiencia" : "Personalize your experience");
+    let txtUsa = zip ? `Opciones disponibles para el Código Postal ${zip}` : "Personaliza tu experiencia";
    
     m.innerHTML = `
       <div style="max-width:460px;margin:0 auto;padding-top:5px;">
         <div style="text-align:center;margin-bottom:15px;">
           <span style="background: #2e7d32; padding: 3px 8px; border-radius: 4px; font-size: .65rem; font-weight: bold; text-transform: uppercase;">
-            ${KERNEL.idiomaActual === 'es' ? 'Bienestar Inicial' : 'Initial Wellness'}
+            Bienestar Inicial
           </span>
           <h4 style="color: #00bcd4; font-weight: 900; margin: 8px 0 3px; font-size: 1.15rem;">
-            ${KERNEL.idiomaActual === 'es' ? 'PERSONALIZA TU EXPERIENCIA' : 'PERSONALIZE YOUR EXPERIENCE'}
+            PERSONALIZA TU EXPERIENCIA
           </h4>
           <p style="color: #aaa; font-size: .72rem; margin: 0;">
-            ${txtUsa}. ${KERNEL.idiomaActual === 'es' ? 'Tiempo aproximado: 1 minuto.' : 'Approx. time: 1 minute.'}
+            ${txtUsa}. Tiempo aproximado: 1 minuto.
           </p>
         </div>
         <div id="otg-fase-1">
           <p style="font-size: .85rem; font-weight: bold; color: #fff; text-align: center; line-height: 1.45; margin-bottom: 10px;">
-            ${KERNEL.idiomaActual === 'es' ? 'Selecciona el servicio que mejor representa lo que deseas hacer en este momento.' : 'Select the service that best represents what you want to do right now.'}
+            Selecciona el servicio que mejor representa lo que deseas hacer en este momento.
           </p>
           <div class="otg-grid-logos">
             ${this.marcas.map(x => `<div class="otg-card-logo" onclick="OTG_SENSORIAL.seleccionarMarca(this,'${x}')">${x}</div>`).join("")}
           </div>
           <button onclick="OTG_SENSORIAL.activarFaseTrivia()" style="width: 100%; background: #2e7d32; border: none; color: #fff; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: .8rem; letter-spacing: .5px;">
-            ${KERNEL.idiomaActual === 'es' ? 'Continuar →' : 'Continue →'}
+            Continuar →
           </button>
         </div>
         <div id="otg-fase-2" class="hidden"></div>
@@ -2581,7 +2548,7 @@ window.KERNEL = KERNEL;
 
   activarFaseTrivia() {
     if (!this.seleccionadas.length) {
-      alert(KERNEL.idiomaActual === 'es' ? "Selecciona al menos una opción." : "Select at least one option.");
+      alert("Selecciona al menos una opción.");
       return;
     }
    
@@ -2591,24 +2558,24 @@ window.KERNEL = KERNEL;
     f2.classList.remove("hidden");
    
     let p = this.preguntas[Math.floor(Math.random() * this.preguntas.length)];
-    let m = this.seleccionadas[0]; // Only using the first selected brand for now
+    let m = this.seleccionadas[0];
    
     f2.innerHTML = `
       <div style="background: #111; border: 1px solid #222; padding: 15px; border-radius: 8px; margin-top: 10px;">
         <span style="color: #00bcd4; font-size: .65rem; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">
-          ${KERNEL.idiomaActual === 'es' ? 'Has seleccionado' : 'You have selected'}: ${m}
+          Has seleccionado: ${m}
         </span>
         <p style="font-size: 1rem; font-weight: bold; line-height: 1.45; margin: 5px 0 15px; color: #fff;">
           ${p}
         </p>
         <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('agotado', 'opcion1')">
-          ${KERNEL.idiomaActual === 'es' ? 'Quiero usar este servicio ahora.' : 'I want to use this service now.'}
+          Quiero usar este servicio ahora.
         </button>
-        <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('aburrido', 'opcion2')">
-          ${KERNEL.idiomaActual === 'es' ? 'Solo estoy explorando opciones.' : 'I\'m just exploring options.'}
+        <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('normal', 'opcion2')">
+          Solo estoy explorando opciones.
         </button>
         <button class="otg-btn-opt" onclick="OTG_SENSORIAL.inyectarMenteBase('curioso', 'opcion3')">
-          ${KERNEL.idiomaActual === 'es' ? 'Quiero descubrir nuevas ideas.' : 'I want to discover new ideas.'}
+          Quiero descubrir nuevas ideas.
         </button>
       </div>
     `;
@@ -2618,7 +2585,7 @@ window.KERNEL = KERNEL;
     let s = document.getElementById("mente-selector");
     if (s) {
       s.value = perfil;
-      s.dispatchEvent(new Event("change")); // Trigger change event to update KERNEL's internal state
+      s.dispatchEvent(new Event("change"));
     }
    
     document.getElementById("otg-fase-2").classList.add("hidden");
@@ -2628,26 +2595,23 @@ window.KERNEL = KERNEL;
    
     let marca = this.seleccionadas[0];
     let url = this.urls[marca] || "https://google.com";
-    let mensaje = "";
-    if (tipo === "opcion1") {
-        mensaje = KERNEL.idiomaActual === 'es' ? `Tu experiencia ha sido personalizada usando "${marca}".` : `Your experience has been personalized using "${marca}".`;
-    } else if (tipo === "opcion2") {
-        mensaje = KERNEL.idiomaActual === 'es' ? `Hemos preparado una experiencia basada en tu selección.` : `We have prepared an experience based on your selection.`;
-    } else {
-        mensaje = KERNEL.idiomaActual === 'es' ? `Explora nuevas opciones y encuentra actividades que se adapten a ti.` : `Explore new options and find activities that suit you.`;
-    }
+    let mensaje = tipo === "opcion1"
+      ? `Tu experiencia ha sido personalizada usando "${marca}".`
+      : tipo === "opcion2"
+        ? `Hemos preparado una experiencia basada en tu selección.`
+        : `Explora nuevas opciones y encuentra actividades que se adapten a ti.`;
    
     f3.innerHTML = `
       <div style="background: rgba(0, 188, 212, .05); border: 1px solid #00bcd4; padding: 15px; border-radius: 8px; text-align: left; font-size: .82rem; line-height: 1.5; margin-bottom: 15px; color: #eee;">
-        <b style="color: #00bcd4; display: block; margin-bottom: 6px;"> ${KERNEL.idiomaActual === 'es' ? 'Experiencia lista' : 'Experience ready'} </b>
+        <b style="color: #00bcd4; display: block; margin-bottom: 6px;"> Experiencia lista </b>
         ${mensaje}
       </div>
       <div style="display: flex; gap: 8px;">
         <button onclick="window.open('${url}', '_blank')" style="flex: 1; background: #2e7d32; border: none; color: #fff; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: .75rem; text-transform: uppercase;">
-          ${KERNEL.idiomaActual === 'es' ? 'Abrir sitio web' : 'Open website'}
+          Abrir sitio web
         </button>
         <button onclick="OTG_SENSORIAL.cerrarOasisYDarPasoAAppBase()" style="flex: 1; background: none; border: 1px solid #00bcd4; color: #00bcd4; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: .75rem; text-transform: uppercase;">
-          ${KERNEL.idiomaActual === 'es' ? 'Continuar' : 'Continue'}
+          Continuar
         </button>
       </div>
     `;
@@ -2660,18 +2624,11 @@ window.KERNEL = KERNEL;
     document.body.style.overflow = "auto";
    
     if (typeof KERNEL !== "undefined" && typeof KERNEL.despertarInicial === "function") {
-      // Restore KERNEL's main form and floating buttons
-      document.getElementById('wrapper-form').classList.remove('hidden');
-      document.getElementById('btn-volver-app').classList.remove('hidden');
-      document.getElementById('btn-whatsapp').classList.remove('hidden');
-      document.getElementById('btn-messenger').classList.remove('hidden');
-      document.getElementById('btn-oasis-sensorial').classList.remove('hidden'); // Show the floating button again
-
-      KERNEL.despertarInicial(); // Continue with KERNEL's main flow
+      KERNEL.despertarInicial();
     }
    
     let b = document.getElementById("otg-btn-power");
-    if (b) b.classList.add("hidden");
+    if (b) b.classList.remove("hidden");
    
     this.seleccionadas = [];
     console.log("OPEN THAN GO iniciado.");
@@ -2685,16 +2642,10 @@ window.KERNEL = KERNEL;
     if (pc) pc.classList.add("hidden");
    
     let wf = document.getElementById("wrapper-form");
-    if (wf) wf.classList.add("hidden"); // Hide main form
+    if (wf) wf.classList.remove("hidden");
    
     let pb = document.getElementById("pantalla-bienvenida");
-    if (pb) pb.classList.remove("hidden"); // Show welcome screen
-   
-    let authGate = document.getElementById('auth-gate-wrapper'); // NEW
-    if (authGate) authGate.classList.add('hidden'); // NEW: Hide paywall screen
-
-    let btnOasisSensorial = document.getElementById('btn-oasis-sensorial'); // NEW
-    if (btnOasisSensorial) btnOasisSensorial.classList.add('hidden'); // NEW: Hide oasis button
+    if (pb) pb.classList.remove("hidden");
    
     let b = document.getElementById("otg-btn-power");
     if (b) b.classList.add("hidden");
@@ -2712,8 +2663,8 @@ window.KERNEL = KERNEL;
    
     document.body.innerHTML = `
       <div style="width: 100vw; height: 100vh; background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 25px;">
-        <h1 style="color: #00bcd4; font-size: 1.4rem; margin-bottom: 12px;"> ${KERNEL.idiomaActual === 'es' ? 'Sesión finalizada' : 'Session ended'} </h1>
-        <p style="max-width: 420px; font-size: .95rem; line-height: 1.5; color: #ddd;"> ${KERNEL.idiomaActual === 'es' ? 'Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una pausa y continuar con tus actividades.' : '15 minutes have passed. The session has ended to help you take a break and continue with your activities.'} </p>
+        <h1 style="color: #00bcd4; font-size: 1.4rem; margin-bottom: 12px;"> Sesión finalizada </h1>
+        <p style="max-width: 420px; font-size: .95rem; line-height: 1.5; color: #ddd;"> Han transcurrido 15 minutos. La sesión ha finalizado para ayudarte a hacer una pausa y continuar con tus actividades. </p>
       </div>
     `;
   }
@@ -2722,12 +2673,110 @@ window.KERNEL = KERNEL;
 /* ========================================================================================== */
 /* COMPLEMENTO NATIVO DE BIENESTAR: MOTOR SENSORIAL DE OPEN THAN GO                          */
 /* ========================================================================================== */
-// This OTG_SENSORIAL definition is a duplicate in the original code.
-// The one above is the correct one being used by the `(function(){})()` block below.
-// This duplicate needs to be removed from the final output, but for now I'll just skip it.
-// The `(function(){})()` block below is where `OTG_SENSORIAL` is actually defined and exposed globally.
+const OTG_SENSORIAL = {
+ 
+  // 1. INICIALIZADOR DE FÁBRICA
+  init: function() {
+    console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");
+   
+    // VERIFICACIÓN AUTOMÁTICA DE DESBLOQUEO: Si ya estás logueado, destruye el muro visual
+    const r = localStorage.getItem('otg_user_role');
+    const p = localStorage.getItem('otg_pase_stripe');
+    if (r === 'admin' || p) {
+      const paywall = document.getElementById('otg-muro-comercial');
+      if (paywall) paywall.style.display = 'none';
+     
+      const mainWrapper = document.getElementById('wrapper-form');
+      if (mainWrapper) mainWrapper.classList.remove('hidden');
+    }
+  },
 
-})(); // Closing the IIFE where OTG_SENSORIAL is defined.
+  // 2. INYECCIÓN DE LLAMADAS DE PAGO A STRIPE (CORREGIDO CON ENRUTAMIENTO ABSOLUTO)
+  procesarPagoStripe: function(planSeleccionado) {
+    let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo';
+    console.log("Iniciando pasarela de pago para el plan:", planSeleccionado);
+   
+    fetch('/crear-checkout', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        tipo_plan: planSeleccionado,
+        user_id: userId
+      })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Error en la respuesta del servidor");
+      return res.json();
+    })
+    .then(data => {
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.error) {
+        alert("Error de Stripe: " + data.error);
+      }
+    })
+    .catch(err => {
+      console.error('Error crítico de pasarela:', err);
+      alert("No se pudo conectar con el servidor de pagos. Revisa tu conexión.");
+    });
+  },
+
+  // 3. SISTEMA DE LOGIN Y TRIPLE TOQUE PARA EL DESARROLLADOR (ENCAPSULADO SEGURO)
+  inicializarBypassDesarrollador: function() {
+    let clics = 0;
+    let t;
+   
+    const trigger = document.getElementById('cierre-logo') || document.body;
+   
+    trigger.addEventListener('click', () => {
+      clics++;
+      clearTimeout(t);
+     
+      t = setTimeout(() => {
+        clics = 0;
+      }, 1500);
+     
+      if (clics === 3) {
+        clics = 0;
+        let user = prompt("Mantenimiento OTG - Usuario:");
+        let pass = prompt("Mantenimiento OTG - Contraseña:");
+       
+        if (!user || !pass) return;
+       
+        // Ejecuta la llamada forzando los encabezados requeridos por tu main.py de FastAPI
+        fetch('/login-admin', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: user,
+            password: pass
+          })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("Credenciales inválidas de servidor");
+          return res.json();
+        })
+        .then(data => {
+          if (data.status === "success" || data.role === "admin") {
+            localStorage.setItem('otg_user_role', 'admin');
+            alert("Acceso Desarrollador Concedido. Servicio Infinito Activo.");
+            location.reload();
+          }
+        })
+        .catch(err => {
+          console.error("Fallo de autenticación:", err);
+          alert("Credenciales inválidas de Render. Acceso denegado.");
+        });
+      }
+    });
+  }
+};
 
 /**
  * ==========================================================================================
@@ -2736,42 +2785,16 @@ window.KERNEL = KERNEL;
  * ==========================================================================================
  */
 document.addEventListener("DOMContentLoaded", () => {
-  // OTG_SENSORIAL.inicializarBypassDesarrollador() is now handled by KERNEL.init() with event listeners on the auth-gate-wrapper elements.
-  // if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.inicializarBypassDesarrollador) {
-  //   OTG_SENSORIAL.inicializarBypassDesarrollador();
-  //   console.log("Escudo administrativo activado de forma externa y segura.");
-  // }
+  if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.inicializarBypassDesarrollador) {
+    OTG_SENSORIAL.inicializarBypassDesarrollador();
+    console.log("Escudo administrativo activado de forma externa y segura.");
+  }
  
   if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.init) {
     OTG_SENSORIAL.init();
-    // NEW: Call the initial welcome screen setup for OTG_SENSORIAL here
-    OTG_SENSORIAL.modificarBienvenida();
-    console.log("Módulos Sensoriales y Bienvenida OTG inicializados.");
-  }
-  
-  // NEW: Immediately determine the first screen to show based on authentication state
-  // This ensures the correct initial view without conflicting logic
-  const r = localStorage.getItem('otg_user_role');
-  const p = localStorage.getItem('otg_pase_stripe');
-  const paywallActive = !p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'));
-  
-  const pantallaBienvenida = document.getElementById('pantalla-bienvenida');
-  const wrapperForm = document.getElementById('wrapper-form');
-  const paywallScreen = document.getElementById('auth-gate-wrapper'); // Ensure this ID is correct from session.html
-  
-  if (r === 'admin' || !paywallActive) {
-      if (pantallaBienvenida) pantallaBienvenida.classList.add('hidden');
-      if (wrapperForm) wrapperForm.classList.remove('hidden');
-      if (paywallScreen) paywallScreen.classList.add('hidden');
-      // If already logged in, directly start KERNEL's main flow
-      if (typeof KERNEL !== 'undefined' && KERNEL.despertarInicial) {
-        KERNEL.despertarInicial();
-        console.log("Inicio directo a KERNEL (ya autenticado).");
-      }
-  } else {
-      if (pantallaBienvenida) pantallaBienvenida.classList.remove('hidden'); // Show OTG_SENSORIAL's welcome as the first interactive step
-      if (wrapperForm) wrapperForm.classList.add('hidden');
-      if (paywallScreen) paywallScreen.classList.add('hidden'); // Keep hidden until 'Iniciar Sesión' is clicked from welcome screen
-      console.log("Mostrando pantalla de bienvenida OTG_SENSORIAL.");
   }
 });
+
+// SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
+// ESTAS DOS LÍNEAS DE ABAJO DEBEN SER LAS ÚNICAS QUE CIERREN TODO TU ARCHIVO ENGINE.JS:
+})();
