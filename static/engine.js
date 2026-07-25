@@ -1242,28 +1242,25 @@ mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
     const cierreBoton = document.getElementById('btn-recomenzar-experience'); 
     if (cierreBoton) cierreBoton.innerText = t.recomenzar; 
 
-        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
-    if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta; 
-
     const btnVolverApp = document.getElementById('btn-volver-app'); 
     if (btnVolverApp) btnVolverApp.title = t.volverApp; 
 
     this.hablar(t.alert); 
     this.inyectarBloquePreguntas(); 
     this.activarBotonMandoLibreInicial(); 
-}
 
-inyectarBloquePreguntas() {
-    // Aquí va el código original que tenías en tu función
-}
+    // CONTROL DE IDIOMA EN CALIENTE PARA LAS EMPRESAS RECUPERADAS
+    if (document.getElementById('wrapper-empresas-oraculo') && document.getElementById('wrapper-empresas-oraculo').style.display !== 'none') { 
+        this.inicializarFlujoEmpresasClicables(); 
+    }
+}, /**
 
-/**
- * Executes the main logic to fetch recommendations from the backend.
- */ 
-async ejecutar() { 
-    if (this.isLocked) return; 
-    this.isLocked = true;
-
+    /**
+     * Executes the main logic to fetch recommendations from the backend.
+     */
+    async ejecutar() {
+        if (this.isLocked) return;
+        this.isLocked = true;
 
         // ==============================================================================
         // SANEAMIENTO ABSOLUTO DE INTERVALOS (Limpieza Radical de Relojes de Fondo)
