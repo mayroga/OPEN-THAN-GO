@@ -1215,7 +1215,7 @@ mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
             }
         }[lang];
 
-            document.getElementById('html-title').innerText = t.title; 
+           document.getElementById('html-title').innerText = t.title; 
     document.getElementById('txt-app-title').innerText = t.title; 
     document.getElementById('lbl-zip').innerText = t.zip; 
     document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion; 
@@ -1251,24 +1251,19 @@ mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
     this.hablar(t.alert); 
     this.inyectarBloquePreguntas(); 
     this.activarBotonMandoLibreInicial(); 
-
-    // CONTROL DE IDIOMA EN CALIENTE PARA LAS EMPRESAS RECUPERADAS 
-    if (document.getElementById('wrapper-empresas-oraculo') && document.getElementById('wrapper-empresas-oraculo').style.display !== 'none') { 
-        this.inicializarFlujoEmpresasClicables(); 
-    } 
 }, 
 
 inyectarBloquePreguntas() {
-    // Código interno de inyectarBloquePreguntas si lo tiene.
-    // De lo contrario, se cierra limpio para dar paso a ejecutar.
+    // Aquí va la lógica interna que tenías originalmente en tu PDF antiguo para pintar las preguntas.
 },
 
-/** * Executes the main logic to fetch recommendations from the backend. */ 
+/**
+ * Executes the main logic to fetch recommendations from the backend.
+ */ 
 async ejecutar() { 
     if (this.isLocked) return; 
     this.isLocked = true;
 
-       
         // ==============================================================================
         // SANEAMIENTO ABSOLUTO DE INTERVALOS (Limpieza Radical de Relojes de Fondo)
         // ==============================================================================
