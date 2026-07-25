@@ -1256,7 +1256,7 @@ mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
     if (document.getElementById('wrapper-empresas-oraculo') && document.getElementById('wrapper-empresas-oraculo').style.display !== 'none') { 
         this.inicializarFlujoEmpresasClicables(); 
     }
-}, /**
+},
 
     /**
      * Executes the main logic to fetch recommendations from the backend.
