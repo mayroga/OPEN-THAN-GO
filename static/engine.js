@@ -736,43 +736,41 @@ const KERNEL = {
     },
 
     /** * Starts the initial welcome sequence after user interaction. */ 
-despertarInicial() { 
-    const welcomeScreen = document.getElementById('pantalla-bienvenida'); 
-    if (welcomeScreen) welcomeScreen.style.display = 'none'; 
-    
-    // Dejamos oculto el formulario base temporalmente para ver las empresas
-    document.getElementById('wrapper-form').classList.add('hidden'); 
-    
-    document.getElementById('btn-volver-app').classList.remove('hidden'); 
-    document.getElementById('btn-whatsapp').classList.remove('hidden'); 
-    document.getElementById('btn-messenger').classList.remove('hidden'); 
-    
-    this.cambiarIdioma(this.idiomaActual); 
-    this.horaInicioSesionAbsoluta = Date.now(); 
-    
-    const saludos_es = [ 
-        "Bienvenido a ópen dán go. Tu escape inteligente. Selecciona la empresa en pantalla.", 
-        "ópen dán go está activo. Concéntrate un momento. Mira las empresas en tu pantalla ya.", 
-        "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca la marca que te agobia hoy." 
-    ]; 
-    const saludos_en = [ 
-        "Welcome to open than go. Your smart escape. Select the company on screen.", 
-        "open than go is active. Focus for a moment. Look at the companies on your screen now.", 
-        "You entered open than go. Let's break your autopilot right now. Tap the brand that burdens you today." 
-    ]; 
-    const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en; 
-    this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
-    
-    // ACTIVACIÓN DEL FLUJO DE EMPRESAS RECUPERADO
-    this.inicializarFlujoEmpresasClicables(); 
-},
+    despertarInicial() { 
+        const welcomeScreen = document.getElementById('pantalla-bienvenida'); 
+        if (welcomeScreen) welcomeScreen.style.display = 'none'; 
+        
+        // Dejamos oculto el formulario base temporalmente para ver las empresas 
+        document.getElementById('wrapper-form').classList.add('hidden'); 
+        document.getElementById('btn-volver-app').classList.remove('hidden'); 
+        document.getElementById('btn-whatsapp').classList.remove('hidden'); 
+        document.getElementById('btn-messenger').classList.remove('hidden'); 
+        
+        this.cambiarIdioma(this.idiomaActual); 
+        this.horaInicioSesionAbsoluta = Date.now(); 
+        
+        const saludos_es = [ 
+            "Bienvenido a ópen dán go. Tu escape inteligente. Selecciona la empresa en pantalla.", 
+            "ópen dán go está activo. Concéntrate un momento. Mira las empresas en tu pantalla ya.", 
+            "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca la marca que te agobia hoy." 
+        ]; 
+        const saludos_en = [ 
+            "Welcome to open than go. Your smart escape. Select the company on screen.", 
+            "open than go is active. Focus for a moment. Look at the companies on your screen now.", 
+            "You entered open than go. Let's break your autopilot right now. Tap the brand that burdens you today." 
+        ]; 
+        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en; 
+        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
+        
+        // ACTIVACIÓN DEL FLUJO DE EMPRESAS RECUPERADO 
+        this.inicializarFlujoEmpresasClicables(); 
+    }, // <-- ESTA COMA ES VITAL PARA QUE NO SE CONGELE EL MOTOR
 
-async inicializarFlujoEmpresasClicables() {
-    const wrapperEmpresas = document.getElementById('wrapper-empresas-oraculo');
-    if (!wrapperEmpresas) return;
-    
-    wrapperEmpresas.style.display = 'block';
-    const lang = this.idiomaActual || 'es';
+    async inicializarFlujoEmpresasClicables() { 
+        const wrapperEmpresas = document.getElementById('wrapper-empresas-oraculo'); 
+        if (!wrapperEmpresas) return; 
+        wrapperEmpresas.style.display = 'block'; 
+        const lang = this.idiomaActual || 'es';
 
     // Traducción e inyección bilingüe de textos en el contenedor
     document.getElementById('lbl-titulo-empresas').innerText = lang === 'es' ? "SELECCIONA LA EMPRESA A MARCAR" : "SELECT THE COMPANY TO MARK";
