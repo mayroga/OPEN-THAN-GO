@@ -572,37 +572,25 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
     <img src="/static/images/anxious_1_ocean_horizon.jpg" class="hidden" alt="Ocean Horizon">
     <!-- ... and other 23 images for each category, but only showing 5 examples for brevity ... -->
 </head>
-<body> 
-  <div id="pantalla-bienvenida"> 
-    <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button> 
-  </div> 
-
-  <!-- CONTENEDOR INICIAL RECOBRADO: EMPRESAS CLICABLES Y SUS 3 PREGUNTAS -->
-  <div id="wrapper-empresas-oraculo" style="display: none; margin: 20px auto; padding: 15px; background: #111; border-radius: 8px; border: 1px solid #222; max-width: 420px; box-sizing: border-box; z-index: 10; position: relative;">
-      <h3 id="lbl-titulo-empresas" style="color: #00bcd4; text-align: center; font-size: 1.1rem; font-weight: 900; letter-spacing: 1px; margin-top: 0; font-family: sans-serif;"></h3>
-      <div id="grid-botones-empresas" style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px;"></div>
-      
-      <!-- Bloque dinámico interno para las 3 preguntas -->
-      <div id="bloque-tres-preguntas" style="display: none; margin-top: 20px; border-top: 1px solid #222; padding-top: 15px;">
-          <p id="lbl-subtitulo-preguntas" style="color: #fff; font-size: 0.9rem; font-weight: bold; margin-bottom: 12px; font-family: sans-serif;"></p>
-          <div id="lista-checks-preguntas" style="display: flex; flex-direction: column; gap: 12px;"></div>
-          <button id="btn-enviar-hackeo" style="width: 100%; margin-top: 15px; padding: 14px; background: #2e7d32; border: none; color: #fff; font-weight: bold; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; font-family: sans-serif;"></button>
-      </div>
-  </div>
-
-  <div class="container hidden" id="wrapper-form"> 
-    <div class="lang-bar"> 
-      <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button> 
-      <button class="btn-lang" id="lang-en" onclick="KERNEL.cambiarIdioma('en')">ENG</button> 
-    </div> 
-    <!-- HEADER WITH REAL MOVING CLOUDS --> 
-    <div class="header-wrapper"> 
-      <div class="sky-container"> 
-        <div class="cloud c1"></div> 
-        <div class="cloud c2"></div> 
-      </div> 
-      <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1> 
+<body>
+    <div id="pantalla-bienvenida">
+        <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button>
     </div>
+   
+    <div class="container hidden" id="wrapper-form">
+        <div class="lang-bar">
+            <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button>
+            <button class="btn-lang" id="lang-en" onclick="KERNEL.cambiarIdioma('en')">ENG</button>
+        </div>
+       
+        <!-- HEADER WITH REAL MOVING CLOUDS -->
+        <div class="header-wrapper">
+            <div class="sky-container">
+                <div class="cloud c1"></div>
+                <div class="cloud c2"></div>
+            </div>
+            <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1>
+        </div>
        
         <!-- GEOLOCATION INPUTS CORRECTED -->
         <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
