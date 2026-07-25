@@ -64,68 +64,6 @@ DEFAULT_NECESSITY_VECTOR = {
     "esperanza": 50,
     "indicador_ansiedad": 0
 }
-# ==========================================================================================
-# RECUERDO DE INICIO: MATRIZ BILINGÜE DE EMPRESAS Y 3 PREGUNTAS CRÍTICAS
-# ==========================================================================================
-MATRIZ_EMPRESAS_INICIALES = {
-    "es": {
-        "Walmart": {
-            "mente": "estresado",
-            "preguntas": [
-                "¿Te sientes abrumado por el exceso de luces y pasillos de consumo?",
-                "¿Sientes urgencia por comprar cosas que realmente no necesitas hoy?",
-                "¿Deseas escapar del ruido ensordecedor de las cajas registradoras?"
-            ]
-        },
-        "Amazon": {
-            "mente": "ansioso",
-            "preguntas": [
-                "¿Sientes dependencia de la dopamina rápida por compras digitales?",
-                "¿Llevas horas atrapado revisando ofertas y rastreando paquetes?",
-                "¿Tu mente se siente saturada por la velocidad del mercado virtual?"
-            ]
-        },
-        "Youtube": {
-            "mente": "agotado",
-            "preguntas": [
-                "¿El algoritmo ha secuestrado por completo tu atención visual hoy?",
-                "¿Sientes fatiga mental tras consumir videos en bucle sin parar?",
-                "¿Buscas un momento de silencio real lejos de las notificaciones?"
-            ]
-        }
-    },
-    "en": {
-        "Walmart": {
-            "mente": "estresado",
-            "preguntas": [
-                "Are you overwhelmed by the excess of lights and consumer aisles?",
-                "Do you feel an urgent need to buy things you don't really need today?",
-                "Do you want to escape the deafening noise of cash registers?"
-            ]
-        },
-        "Amazon": {
-            "mente": "ansioso",
-            "preguntas": [
-                "Do you feel dependent on quick dopamine from digital shopping?",
-                "Have you been trapped for hours checking deals and tracking packages?",
-                "Does your mind feel saturated by the speed of the virtual market?"
-            ]
-        },
-        "Youtube": {
-            "mente": "agotado",
-            "preguntas": [
-                "Has the algorithm completely hijacked your visual attention today?",
-                "Do you feel mental fatigue after watching non-stop loop videos?",
-                "Are you looking for a moment of real silence away from notifications?"
-            ]
-        }
-    }
-}
-
-@app.get("/api/empresas-inicio")
-async def obtener_empresas_inicio(lang: str = "es"):
-    idioma = lang.lower() if lang.lower() in ["es", "en"] else "es"
-    return JSONResponse(MATRIZ_EMPRESAS_INICIALES.get(idioma, MATRIZ_EMPRESAS_INICIALES["es"]))
 
 # ==========================================================================================
 # MATRIZ INFINITA DE MANIFIESTOS EXISTENCIALES PARA EL ORÁCULO DE BIENESTAR (3 POR ESTADO)
