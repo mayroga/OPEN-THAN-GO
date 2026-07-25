@@ -735,37 +735,110 @@ const KERNEL = {
         }
     },
 
-    /**
-     * Starts the initial welcome sequence after user interaction.
-     */
-    despertarInicial() {
-        const welcomeScreen = document.getElementById('pantalla-bienvenida');
-        if (welcomeScreen) welcomeScreen.style.display = 'none';
-       
-        document.getElementById('wrapper-form').classList.remove('hidden');
-        document.getElementById('btn-volver-app').classList.remove('hidden');
-        document.getElementById('btn-whatsapp').classList.remove('hidden');
-        document.getElementById('btn-messenger').classList.remove('hidden');
-        this.cambiarIdioma(this.idiomaActual);
-       
-        this.horaInicioSesionAbsoluta = Date.now();
+    /** * Starts the initial welcome sequence after user interaction. */ 
+despertarInicial() { 
+    const welcomeScreen = document.getElementById('pantalla-bienvenida'); 
+    if (welcomeScreen) welcomeScreen.style.display = 'none'; 
+    
+    // Dejamos oculto el formulario base temporalmente para ver las empresas
+    document.getElementById('wrapper-form').classList.add('hidden'); 
+    
+    document.getElementById('btn-volver-app').classList.remove('hidden'); 
+    document.getElementById('btn-whatsapp').classList.remove('hidden'); 
+    document.getElementById('btn-messenger').classList.remove('hidden'); 
+    
+    this.cambiarIdioma(this.idiomaActual); 
+    this.horaInicioSesionAbsoluta = Date.now(); 
+    
+    const saludos_es = [ 
+        "Bienvenido a ópen dán go. Tu escape inteligente. Selecciona la empresa en pantalla.", 
+        "ópen dán go está activo. Concéntrate un momento. Mira las empresas en tu pantalla ya.", 
+        "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca la marca que te agobia hoy." 
+    ]; 
+    const saludos_en = [ 
+        "Welcome to open than go. Your smart escape. Select the company on screen.", 
+        "open than go is active. Focus for a moment. Look at the companies on your screen now.", 
+        "You entered open than go. Let's break your autopilot right now. Tap the brand that burdens you today." 
+    ]; 
+    const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en; 
+    this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
+    
+    // ACTIVACIÓN DEL FLUJO DE EMPRESAS RECUPERADO
+    this.inicializarFlujoEmpresasClicables(); 
+},
 
-        const saludos_es = [
-            "Bienvenido a ópen dán go. Tu escape inteligente. Escucha mis preguntas en pantalla.",
-            "ópen dán go está activo. Concéntrate un momento. Mira las opciones en tu pantalla ya.",
-            "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca lo que sientes hoy."
-        ];
-        const saludos_en = [
-            "Welcome to open than go. Your smart escape. Listen to my questions on screen.",
-            "open than go is active. Focus for a moment. Look at the options on your screen now.",
-            "You entered open than go. Let's break your autopilot right now. Tap what you feel today."
-        ];
-        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
-        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-        this.inyectarBloquePreguntas();
+async inicializarFlujoEmpresasClicables() {
+    const wrapperEmpresas = document.getElementById('wrapper-empresas-oraculo');
+    if (!wrapperEmpresas) return;
+    
+    wrapperEmpresas.style.display = 'block';
+    const lang = this.idiomaActual || 'es';
+
+    // Traducción e inyección bilingüe de textos en el contenedor
+    document.getElementById('lbl-titulo-empresas').innerText = lang === 'es' ? "SELECCIONA LA EMPRESA A MARCAR" : "SELECT THE COMPANY TO MARK";
+    document.getElementById('lbl-subtitulo-preguntas').innerText = lang === 'es' ? "RESPONDE LAS 3 PREGUNTAS DE BIENESTAR:" : "ANSWER THE 3 WELLBEING QUESTIONS:";
+    document.getElementById('btn-enviar-hackeo').innerText = lang === 'es' ? "ACTIVAR HACKEO SOMÁTICO" : "ACTIVATE SOMATIC HACK";
+
+    // Petición al endpoint bilingüe de main.py
+    const res = await fetch(`/api/empresas-inicio?lang=${lang}`);
+    const empresas = await res.json();
+    
+    const gridBotones = document.getElementById('grid-botones-empresas');
+    gridBotones.innerHTML = '';
+    
+    Object.keys(empresas).forEach(marca => {
+        const btn = document.createElement('button');
+        btn.innerText = marca.toUpperCase();
+        btn.style = "width:100%; padding:13px; background:#000; border:1px solid #00bcd4; color:#fff; font-weight:bold; border-radius:6px; cursor:pointer; font-family:sans-serif; text-align:center; transition: all 0.2s;";
+        
+        btn.onclick = () => {
+            Array.from(gridBotones.children).forEach(b => {
+                b.style.background = '#000';
+                b.style.borderColor = '#00bcd4';
+            });
+            btn.style.background = '#111';
+            btn.style.borderColor = '#2e7d32'; // Verde de selección activa
+            
+            this.mostrarPreguntasDeMarcaSeleccionada(marca, empresas[marca]);
+        };
+        gridBotones.appendChild(btn);
+    });
+},
+
+mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
+    const contenedorChecks = document.getElementById('lista-checks-preguntas');
+    contenedorChecks.innerHTML = '';
+    
+    datos.preguntas.forEach((pregunta, index) => {
+        const div = document.createElement('div');
+        div.style = "display:flex; align-items:center; gap:10px; color:#ccc; font-size:0.88rem; background:#000; padding:12px; border-radius:6px; border:1px solid #222; margin-bottom:4px;";
+        div.innerHTML = `
+            <input type="checkbox" id="chk_m_${index}" style="transform: scale(1.2); cursor:pointer;">
+            <label for="chk_m_${index}" style="cursor:pointer; width:100%; line-height:1.3; font-family:sans-serif;">${pregunta}</label>
+        `;
+        contenedorChecks.appendChild(div);
+    });
+    
+    document.getElementById('bloque-tres-preguntas').style.display = 'block';
+    
+    // Al presionar el botón final, se setean las variables y corre el motor nativo al 100%
+    document.getElementById('btn-enviar-hackeo').onclick = () => {
+        const textareaLibre = document.getElementById('inp-text-libre');
+        if (textareaLibre) textareaLibre.value = nombreMarca; // Registra la marca para la línea 151 del backend
+        
+        const menteSelector = document.getElementById('mente-selector');
+        if (menteSelector) menteSelector.value = datos.mente; // Asigna el estado mental correcto de la matriz
+
+        // Apagamos este layout inicial y liberamos el motor nativo intacto de tu aplicación
+        document.getElementById('wrapper-empresas-oraculo').style.display = 'none';
+        document.getElementById('wrapper-form').classList.remove('hidden');
+        
+        // Ejecutamos tus procesos de fondo estándar sin ninguna alteración destructiva
         this.iniciarMonitoreoInaccion();
         this.activarBotonMandoLibreInicial();
-    },
+        this.ejecutar(); 
+    };
+}
 
     /**
      * Injects a block of 3 questions into the UI, ensuring they are distinct and not recent.
@@ -1162,20 +1235,28 @@ const KERNEL = {
         document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
         document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
         document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
-       
-        const cierreLogo = document.getElementById('cierre-logo');
-        if (cierreLogo) cierreLogo.innerText = t.title;
-        const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
-        if (cierreBoton) cierreBoton.innerText = t.recomenzar;
-        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
-        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
-        const btnVolverApp = document.getElementById('btn-volver-app');
-        if (btnVolverApp) btnVolverApp.title = t.volverApp;
+           
+    const cierreLogo = document.getElementById('cierre-logo'); 
+    if (cierreLogo) cierreLogo.innerText = t.title; 
 
-        this.hablar(t.alert);
-        this.inyectarBloquePreguntas();
-        this.activarBotonMandoLibreInicial();
-    },
+    const cierreBoton = document.getElementById('btn-recomenzar-experiencia'); 
+    if (cierreBoton) cierreBoton.innerText = t.recomenzar; 
+
+    const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
+    if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta; 
+
+    const btnVolverApp = document.getElementById('btn-volver-app'); 
+    if (btnVolverApp) btnVolverApp.title = t.volverApp; 
+
+    this.hablar(t.alert); 
+    this.inyectarBloquePreguntas(); 
+    this.activarBotonMandoLibreInicial(); 
+
+    // CONTROL DE IDIOMA EN CALIENTE PARA LAS EMPRESAS RECUPERADAS
+    if (document.getElementById('wrapper-empresas-oraculo') && document.getElementById('wrapper-empresas-oraculo').style.display !== 'none') { 
+        this.inicializarFlujoEmpresasClicables(); 
+    }
+}, /**
 
     /**
      * Executes the main logic to fetch recommendations from the backend.
