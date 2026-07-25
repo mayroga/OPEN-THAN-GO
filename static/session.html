@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title id="html-title">OPEN THAN GO</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://w3.org' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>">
 
     <script>
     (function(){
@@ -34,11 +34,12 @@
         // 2. ACCESO TÉCNICO GRATUITO: Si ya eres el admin, saltar bloqueo y usar la app libremente
         if (r === 'admin') {
             console.log("Motores de tiempo y hilos de voz inicializados de fábrica en orden natural.");
-            return;
+            return; // Te deja pasar de largo y usar todo gratis sin interrupciones
         }
 
         // 3. SEGURO DE COBRO REAL: Bloquea visualmente la interfaz de inmediato
-        if (!p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'))) {
+        const paywallActive = !p || !(p.startsWith('cs_live_') || p.startsWith('cs_test_'));
+        if (paywallActive) {
             console.log("Acceso denegado. Activando Muro de Pago.");
            
             const estiloBloqueo = document.createElement('style');
@@ -140,42 +141,75 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
 #mision-display-container { margin-top: 25px !important; padding: 12px 10px; background: transparent; z-index: 10; position: relative; clear: both; }
 
 
-// ==========================================================================================
-// ESCUDO DE SESIÓN: VALIDA PAGOS O ACCESO ADMINISTRATIVO ANTES DE CARGAR EL KERNEL
-// ==========================================================================================
-(function() {
-    // 1. Verificamos si tú ya activaste el bypass de desarrollador con las claves de Render
-    const rolUsuario = localStorage.getItem('otg_user_role');
-    if (rolUsuario === 'admin') {
-        console.log("Acceso ilimitado detectado. Saltando muro de pago.");
-        return; // Te deja pasar de largo y usar todo gratis sin interrupciones
-    }
+/* NEW CAROUSEL CONTAINER STYLING */
+        .carousel-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1.5s ease-in-out; /* Smooth transition for image change */
+            z-index: 0; /* Keep it as background, behind the circle and text */
+            filter: brightness(0.7) blur(2px); /* Subtle effect for background */
+        }
+        .carousel-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
 
-    // 2. Verificamos si el usuario normal tiene un pase de pago activo guardado localmente
-    const paseActivo = localStorage.getItem('otg_pase_stripe');
-    if (!paseActivo) {
-        console.log("Acceso denegado. Redirigiendo a pasarela de pagos...");
-       
-        // Bloqueamos la interfaz inyectando el Paywall visual de inmediato
-        document.addEventListener("DOMContentLoaded", () => {
-            // Llama a la función que dibuja tus 3 precios oficiales ($15.99, $25.99, $250.00)
-            if (typeof OTG_SENSORIAL !== 'undefined' && OTG_SENSORIAL.mostrarModalPaywall) {
-                OTG_SENSORIAL.mostrarModalPaywall();
-            } else {
-                // Respaldo de seguridad si el objeto no ha cargado: congela la pantalla en negro
-                document.body.innerHTML = `
-                    <div style="width:100vw;height:100vh;background:#111;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:sans-serif;">
-                        <h2 style="color:#00bcd4;">Open Than Go - Requiere Acceso</h2>
-                        <p style="color:#aaa;">Por favor, selecciona un plan para activar el oráculo de bienestar.</p>
-                        <button onclick="OTG_SENSORIAL.procesarPagoStripe('unico')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;">Pago Único $15.99</button>
-                        <button onclick="OTG_SENSORIAL.procesarPagoStripe('mensual')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;">Suscripción Mensual $25.99</button>
-                        <button onclick="OTG_SENSORIAL.procesarPagoStripe('anual')" style="padding:10px 20px;background:#00bcd4;border:none;color:#000;font-weight:bold;cursor:pointer;margin:5px;">Membresía Anual $250.00</button>
-                    </div>`;
+        /* NEW EXTERNAL LINKS GRID FOR SALIR MODE */
+        .external-links-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Default to single column */
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #222;
+        }
+
+        .btn-external {
+            width: 100%;
+            background: var(--secondary);
+            color: #fff;
+            padding: 17px;
+            font-weight: bold;
+            border: none;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            transition: background-color 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-external:hover {
+            background-color: #0b3a8a;
+            transform: translateY(-2px);
+        }
+        .btn-external:disabled {
+            background: #333;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Custom colors for specific buttons (Google Maps, YouTube, Spotify) */
+        #btn-maps-action { background-color: #4285f4; } /* Google Maps blue */
+        #btn-maps-action:hover { background-color: #2a6edc; }
+        #btn-youtube-action { background-color: #ff0000; } /* YouTube red */
+        #btn-youtube-action:hover { background-color: #cc0000; }
+        #btn-spotify-action { background-color: #1ed760; } /* Spotify green */
+        #btn-spotify-action:hover { background-color: #169e46; }
+
+        @media (min-width: 480px) {
+            .external-links-grid {
+                grid-template-columns: repeat(3, 1fr); /* Three columns on larger screens */
             }
-        });
-    }
-})();
-// ==========================================================================================        
+        }
         /* MOVING WHITE CLOUDS SCENERY */
         .sky-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.25; z-index: 1; }
         .cloud { position: absolute; background: #fff; border-radius: 100px; filter: blur(4px); animation: windMove 18s infinite linear; }
@@ -530,6 +564,13 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
     <img src="/static/nature_sound.svg" class="hidden" alt="Nature Sound">
     <img src="/static/gratitude.svg" class="hidden" alt="Gratitude">
     <img src="/static/square_breath.svg" class="hidden" alt="Square Breath">
+    <!-- Placeholder images for carousel to ensure preloading/reference if desired -->
+    <img src="/static/images/bored_1_forest_path.jpg" class="hidden" alt="Forest Path">
+    <img src="/static/images/exhausted_1_calm_forest.jpg" class="hidden" alt="Calm Forest">
+    <img src="/static/images/stressed_1_green_valley.jpg" class="hidden" alt="Green Valley">
+    <img src="/static/images/tired_1_serene_forest.jpg" class="hidden" alt="Serene Forest">
+    <img src="/static/images/anxious_1_ocean_horizon.jpg" class="hidden" alt="Ocean Horizon">
+    <!-- ... and other 23 images for each category, but only showing 5 examples for brevity ... -->
 </head>
 <body>
     <div id="pantalla-bienvenida">
@@ -614,7 +655,10 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
     </div>
 
     <!-- INTERACTIVE OUTPUT CONTAINER FOR PARKS, VIDEOS, AND LUNG -->
-    <div class="container hidden" id="wrapper-interactive"></div>
+    <div class="container hidden" id="wrapper-interactive">
+        <!-- New Carousel Container (will be filled dynamically by engine.js) -->
+        <div id="carousel-background" class="carousel-container hidden"></div>
+    </div>
 
     <!-- PANTALLA DE CIERRE CONSCIENTE / REINICIO INTELIGENTE -->
     <div id="pantalla-cierre" class="hidden">
