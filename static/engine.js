@@ -1215,27 +1215,27 @@ mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
             }
         }[lang];
 
-        document.getElementById('html-title').innerText = t.title;
-        document.getElementById('txt-app-title').innerText = t.title;
-        document.getElementById('lbl-zip').innerText = t.zip;
-        document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
-        document.getElementById('lbl-desahogo').innerText = t.desahogo;
-        document.getElementById('inp-text-libre').placeholder = t.placeholder;
-        document.getElementById('btn-activar-libre').innerText = t.btn;
-        document.getElementById('opt-budget-0').innerText = t.budget0;
-        document.getElementById('opt-budget-1').innerText = t.budget1;
-        document.getElementById('opt-budget-2').innerText = t.budget2;
-        document.getElementById('opt-perfil-solo').innerText = t.solo;
-        document.getElementById('opt-perfil-familia').innerText = t.familia;
-        document.getElementById('opt-perfil-accesible').innerText = t.accesible;
-        document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido;
-        document.getElementById('opt-mente-agotado').innerText = t.menteAgotado;
-        document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
-        document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
-        document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
-        document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
-        document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
-           
+            document.getElementById('html-title').innerText = t.title; 
+    document.getElementById('txt-app-title').innerText = t.title; 
+    document.getElementById('lbl-zip').innerText = t.zip; 
+    document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion; 
+    document.getElementById('lbl-desahogo').innerText = t.desahogo; 
+    document.getElementById('inp-text-libre').placeholder = t.placeholder; 
+    document.getElementById('btn-activar-libre').innerText = t.btn; 
+    document.getElementById('opt-budget-0').innerText = t.budget0; 
+    document.getElementById('opt-budget-1').innerText = t.budget1; 
+    document.getElementById('opt-budget-2').innerText = t.budget2; 
+    document.getElementById('opt-perfil-solo').innerText = t.solo; 
+    document.getElementById('opt-perfil-familia').innerText = t.familia; 
+    document.getElementById('opt-perfil-accesible').innerText = t.accesible; 
+    document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido; 
+    document.getElementById('opt-mente-agotado').innerText = t.menteAgotado; 
+    document.getElementById('opt-mente-estresado').innerText = t.menteEstresado; 
+    document.getElementById('opt-mente-cansado').innerText = t.menteCansado; 
+    document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso; 
+    document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir; 
+    document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa; 
+
     const cierreLogo = document.getElementById('cierre-logo'); 
     if (cierreLogo) cierreLogo.innerText = t.title; 
 
@@ -1252,20 +1252,22 @@ mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
     this.inyectarBloquePreguntas(); 
     this.activarBotonMandoLibreInicial(); 
 
-    // CONTROL DE IDIOMA EN CALIENTE PARA LAS EMPRESAS RECUPERADAS
+    // CONTROL DE IDIOMA EN CALIENTE PARA LAS EMPRESAS RECUPERADAS 
     if (document.getElementById('wrapper-empresas-oraculo') && document.getElementById('wrapper-empresas-oraculo').style.display !== 'none') { 
         this.inicializarFlujoEmpresasClicables(); 
-    }
-},
+    } 
+}, 
 
 inyectarBloquePreguntas() {
+    // Código interno de inyectarBloquePreguntas si lo tiene.
+    // De lo contrario, se cierra limpio para dar paso a ejecutar.
+},
 
-    /**
-     * Executes the main logic to fetch recommendations from the backend.
-     */
-    async ejecutar() {
-        if (this.isLocked) return;
-        this.isLocked = true;
+/** * Executes the main logic to fetch recommendations from the backend. */ 
+async ejecutar() { 
+    if (this.isLocked) return; 
+    this.isLocked = true;
+
        
         // ==============================================================================
         // SANEAMIENTO ABSOLUTO DE INTERVALOS (Limpieza Radical de Relojes de Fondo)
