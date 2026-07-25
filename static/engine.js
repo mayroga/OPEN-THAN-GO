@@ -736,41 +736,43 @@ const KERNEL = {
     },
 
     /** * Starts the initial welcome sequence after user interaction. */ 
-    despertarInicial() { 
-        const welcomeScreen = document.getElementById('pantalla-bienvenida'); 
-        if (welcomeScreen) welcomeScreen.style.display = 'none'; 
-        
-        // Dejamos oculto el formulario base temporalmente para ver las empresas 
-        document.getElementById('wrapper-form').classList.add('hidden'); 
-        document.getElementById('btn-volver-app').classList.remove('hidden'); 
-        document.getElementById('btn-whatsapp').classList.remove('hidden'); 
-        document.getElementById('btn-messenger').classList.remove('hidden'); 
-        
-        this.cambiarIdioma(this.idiomaActual); 
-        this.horaInicioSesionAbsoluta = Date.now(); 
-        
-        const saludos_es = [ 
-            "Bienvenido a ópen dán go. Tu escape inteligente. Selecciona la empresa en pantalla.", 
-            "ópen dán go está activo. Concéntrate un momento. Mira las empresas en tu pantalla ya.", 
-            "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca la marca que te agobia hoy." 
-        ]; 
-        const saludos_en = [ 
-            "Welcome to open than go. Your smart escape. Select the company on screen.", 
-            "open than go is active. Focus for a moment. Look at the companies on your screen now.", 
-            "You entered open than go. Let's break your autopilot right now. Tap the brand that burdens you today." 
-        ]; 
-        const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en; 
-        this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
-        
-        // ACTIVACIÓN DEL FLUJO DE EMPRESAS RECUPERADO 
-        this.inicializarFlujoEmpresasClicables(); 
-    }, // <-- ESTA COMA ES VITAL PARA QUE NO SE CONGELE EL MOTOR
+despertarInicial() { 
+    const welcomeScreen = document.getElementById('pantalla-bienvenida'); 
+    if (welcomeScreen) welcomeScreen.style.display = 'none'; 
+    
+    // Dejamos oculto el formulario base temporalmente para ver las empresas
+    document.getElementById('wrapper-form').classList.add('hidden'); 
+    
+    document.getElementById('btn-volver-app').classList.remove('hidden'); 
+    document.getElementById('btn-whatsapp').classList.remove('hidden'); 
+    document.getElementById('btn-messenger').classList.remove('hidden'); 
+    
+    this.cambiarIdioma(this.idiomaActual); 
+    this.horaInicioSesionAbsoluta = Date.now(); 
+    
+    const saludos_es = [ 
+        "Bienvenido a ópen dán go. Tu escape inteligente. Selecciona la empresa en pantalla.", 
+        "ópen dán go está activo. Concéntrate un momento. Mira las empresas en tu pantalla ya.", 
+        "Entraste a ópen dán go. Rompamos tu piloto automático ahora mismo. Toca la marca que te agobia hoy." 
+    ]; 
+    const saludos_en = [ 
+        "Welcome to open than go. Your smart escape. Select the company on screen.", 
+        "open than go is active. Focus for a moment. Look at the companies on your screen now.", 
+        "You entered open than go. Let's break your autopilot right now. Tap the brand that burdens you today." 
+    ]; 
+    const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en; 
+    this.hablar(saludos[Math.floor(Math.random() * saludos.length)]); 
+    
+    // ACTIVACIÓN DEL FLUJO DE EMPRESAS RECUPERADO
+    this.inicializarFlujoEmpresasClicables(); 
+},
 
-    async inicializarFlujoEmpresasClicables() { 
-        const wrapperEmpresas = document.getElementById('wrapper-empresas-oraculo'); 
-        if (!wrapperEmpresas) return; 
-        wrapperEmpresas.style.display = 'block'; 
-        const lang = this.idiomaActual || 'es';
+async inicializarFlujoEmpresasClicables() {
+    const wrapperEmpresas = document.getElementById('wrapper-empresas-oraculo');
+    if (!wrapperEmpresas) return;
+    
+    wrapperEmpresas.style.display = 'block';
+    const lang = this.idiomaActual || 'es';
 
     // Traducción e inyección bilingüe de textos en el contenedor
     document.getElementById('lbl-titulo-empresas').innerText = lang === 'es' ? "SELECCIONA LA EMPRESA A MARCAR" : "SELECT THE COMPANY TO MARK";
@@ -1213,32 +1215,35 @@ mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
             }
         }[lang];
 
-           document.getElementById('html-title').innerText = t.title; 
-    document.getElementById('txt-app-title').innerText = t.title; 
-    document.getElementById('lbl-zip').innerText = t.zip; 
-    document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion; 
-    document.getElementById('lbl-desahogo').innerText = t.desahogo; 
-    document.getElementById('inp-text-libre').placeholder = t.placeholder; 
-    document.getElementById('btn-activar-libre').innerText = t.btn; 
-    document.getElementById('opt-budget-0').innerText = t.budget0; 
-    document.getElementById('opt-budget-1').innerText = t.budget1; 
-    document.getElementById('opt-budget-2').innerText = t.budget2; 
-    document.getElementById('opt-perfil-solo').innerText = t.solo; 
-    document.getElementById('opt-perfil-familia').innerText = t.familia; 
-    document.getElementById('opt-perfil-accesible').innerText = t.accesible; 
-    document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido; 
-    document.getElementById('opt-mente-agotado').innerText = t.menteAgotado; 
-    document.getElementById('opt-mente-estresado').innerText = t.menteEstresado; 
-    document.getElementById('opt-mente-cansado').innerText = t.menteCansado; 
-    document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso; 
-    document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir; 
-    document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa; 
-
+        document.getElementById('html-title').innerText = t.title;
+        document.getElementById('txt-app-title').innerText = t.title;
+        document.getElementById('lbl-zip').innerText = t.zip;
+        document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
+        document.getElementById('lbl-desahogo').innerText = t.desahogo;
+        document.getElementById('inp-text-libre').placeholder = t.placeholder;
+        document.getElementById('btn-activar-libre').innerText = t.btn;
+        document.getElementById('opt-budget-0').innerText = t.budget0;
+        document.getElementById('opt-budget-1').innerText = t.budget1;
+        document.getElementById('opt-budget-2').innerText = t.budget2;
+        document.getElementById('opt-perfil-solo').innerText = t.solo;
+        document.getElementById('opt-perfil-familia').innerText = t.familia;
+        document.getElementById('opt-perfil-accesible').innerText = t.accesible;
+        document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido;
+        document.getElementById('opt-mente-agotado').innerText = t.menteAgotado;
+        document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
+        document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
+        document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
+        document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
+        document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
+           
     const cierreLogo = document.getElementById('cierre-logo'); 
     if (cierreLogo) cierreLogo.innerText = t.title; 
 
-    const cierreBoton = document.getElementById('btn-recomenzar-experience'); 
+    const cierreBoton = document.getElementById('btn-recomenzar-experiencia'); 
     if (cierreBoton) cierreBoton.innerText = t.recomenzar; 
+
+    const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
+    if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta; 
 
     const btnVolverApp = document.getElementById('btn-volver-app'); 
     if (btnVolverApp) btnVolverApp.title = t.volverApp; 
@@ -1259,7 +1264,7 @@ mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
     async ejecutar() {
         if (this.isLocked) return;
         this.isLocked = true;
-
+       
         // ==============================================================================
         // SANEAMIENTO ABSOLUTO DE INTERVALOS (Limpieza Radical de Relojes de Fondo)
         // ==============================================================================
