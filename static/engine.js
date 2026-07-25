@@ -9,7 +9,131 @@ const KERNEL = {
     temporizadorCierre: null,
     salidaSugeridaTimeoutId: null,
     salidaTimerId: null, // New timer for SALIR mode 45s phrases
+    speechQueue: [], // New property for speech queue management
+    isSpeaking: false, // New property to track if speech is active
+    carouselInterval: null, // New interval ID for image carousel
    
+    historialFaseCasaSublime: {}, // New history for the 4-min phase audio (daily object)
+    historialAudiosCasaSecuenciales: {}, // History for AUDIOS_SECUENCIALES_CASA (daily object)
+    historialAudiosSalirSecuenciales: {}, // History for AUDIOS_SECUENCIALES_SALIR (daily object)
+    MAX_HISTORY_FASE_CASA_SUBLIME: 28, // Max unique phrases in pool. If pool smaller, will reset history after it's exhausted.
+    MAX_HISTORY_AUDIOS_CASA_SECUENCIALES: 29, // Max unique phrases in pool. If pool smaller, will reset history after it's exhausted.
+    MAX_HISTORY_AUDIOS_SALIR_SECUENCIALES: 10, // Max unique phrases in pool. If pool smaller, will reset history after it's exhausted.
+   
+    "AUDIOS_FASE_CASA_SUBLIMES_ES": [ // Renamed from SUBIMES to SUBLIMES for correct spelling
+        "Siente la quietud. Este es tu santuario. Permítete descansar. Eres valioso.",
+        "Cada respiro te conecta con una paz profunda. Estás a salvo. Confía ahora.",
+        "Suelta las tensiones. Deja ir todo lo que no te sirve en este instante. Libera.",
+        "Tu mente es un océano vasto. La calma es tu verdadera naturaleza. Siente tu calma.",
+        "Imagina un paisaje sereno. Tu hogar interno está en perfecto equilibrio. Estabiliza.",
+        "La vida te sostiene. Confía en el flujo. Todo está bien ahora. Concéntrate en el ahora.",
+        "En este silencio, redescubre tu fuerza. Eres resiliente. Siente tu fuerza interior.",
+        "La sabiduría reside en tu interior. Escúchala con atención. Tu sabiduría te guía.",
+        "Permite que la luz te envuelva. Eres un ser radiante. Deja que te inunde.",
+        "Este es tu momento de regeneración. Absórbelo plenamente. Permítete recargar.",
+        "Observa tu respiración. Es el ancla de tu presencia. Siente tu ancla en la calma.",
+        "El presente es un regalo. Vive cada segundo con gratitud. Agradece lo que tienes.",
+        "Libera tu mente. El peso de lo externo se desvanece. Deja ir el ruido.",
+        "Recibe esta energía renovadora. Estás floreciendo. Florece en el presente.",
+        "La belleza está en la simpleza. Encuentra la paz aquí. Reconoce la belleza.",
+        "Eres un universo de posibilidades. Despierta tu potencial. Despierta tu luz.",
+        "Deja que la quietud te hable. Su mensaje es puro amor. Escucha su mensaje.",
+        "Cada inhalación te nutre. Cada exhalación te libera. Libera el pasado.",
+        "Tu espíritu se eleva. Siente la ligereza del ser. Vuela con tu espíritu.",
+        "Este espacio es sagrado. Tu bienestar es la prioridad. Prioriza tu bienestar.",
+        "La armonía te rodea. Permite que te llene por completo. Llénate de armonía.",
+        "Eres digno de esta paz. Acéptala sin reservas. Acepta esta calma.",
+        "El tiempo se detiene para ti. Disfruta este oasis. Vive tu propio tiempo.",
+        "La calma es tu poder. Manifiéstate desde la serenidad. Usa tu poder.",
+        "Con cada pulso, la vida te susurra esperanza. Escucha. La esperanza te envuelve.",
+        "Tu esencia es divina. Reconoce tu magnificencia. Reconoce tu brillo.",
+        "Entrégate al momento. Es todo lo que realmente existe. Vive el momento.",
+        "Aquí y ahora, eres completo. Eres luz. Eres amor. Eres eterno.",
+    ],
+    "AUDIOS_FASE_CASA_SUBLIMES_EN": [ // Renamed from SUBIMES to SUBLIMES for correct spelling
+        "Feel the stillness. This is your sanctuary. Allow yourself to rest. You are worthy.",
+        "Every breath connects you to deep peace. You are safe. Trust now.",
+        "Release tensions. Let go of all that no longer serves you in this moment. Release.",
+        "Your mind is a vast ocean. Calm is your true nature. Feel your calm.",
+        "Imagine a serene landscape. Your inner home is in perfect balance. Stabilize.",
+        "Life sustains you. Trust the flow. All is well now. Focus on the now.",
+        "In this silence, rediscover your strength. You are resilient. Feel your inner strength.",
+        "Wisdom resides within you. Listen attentively. Your wisdom guides you.",
+        "Allow the light to envelop you. You are a radiant being. Let it flood you.",
+        "This is your moment of regeneration. Absorb it fully. Allow yourself to recharge.",
+        "Observe your breath. It is the anchor of your presence. Feel your anchor in calm.",
+        "The present is a gift. Live each second with gratitude. Appreciate what you have.",
+        "Free your mind. The weight of the external fades away. Let go of the noise.",
+        "Receive this renewing energy. You are flourishing. Flourish in the present.",
+        "Beauty lies in simplicity. Find peace right here. Recognize the beauty.",
+        "You are a universe of possibilities. Awaken your potential. Awaken your light.",
+        "Let the stillness speak to you. Its message is pure love. Listen to its message.",
+        "Each inhale nourishes you. Each exhale liberates you. Release the past.",
+        "Your spirit soars. Feel the lightness of being. Fly with your spirit.",
+        "This space is sacred. Your well-being is the priority. Prioritize your well-being.",
+        "Harmony surrounds you. Allow it to fill you completely. Fill with harmony.",
+        "You are worthy of this peace. Accept it without reservation. Accept this calm.",
+        "Time stops for you. Enjoy this oasis. Live your own time.",
+        "Calm is your power. Manifest from serenity. Use your power.",
+        "With every pulse, life whispers hope. Listen. Hope envelops you.",
+        "Your essence is divine. Recognize your magnificence. Recognize your glow.",
+        "Surrender to the moment. It is all that truly exists. Live the moment.",
+        "Here and now, you are complete. You are light. You are love. You are eternal.",
+    ],
+
+    // New image categories for the carousel, categorized by emotional state for mitigation
+    "IMAGENES_CARRUSEL": {
+        "aburrido": [ // Images to inspire curiosity, wonder, subtle energy
+            "static/images/bored_1_forest_path.jpg", "static/images/bored_2_calm_lake.jpg", "static/images/bored_3_mountain_view.jpg",
+            "static/images/bored_4_sun_beach.jpg", "static/images/bored_5_cozy_cottage.jpg", "static/images/bored_6_misty_forest.jpg",
+            "static/images/bored_7_river_bend.jpg", "static/images/bored_8_golden_hour_field.jpg", "static/images/bored_9_peaceful_stream.jpg",
+            "static/images/bored_10_serene_garden.jpg", "static/images/bored_11_autumn_woods.jpg", "static/images/bored_12_sunlit_meadow.jpg",
+            "static/images/bored_13_winter_forest.jpg", "static/images/bored_14_country_road.jpg", "static/images/bored_15_spring_flowers.jpg",
+            "static/images/bored_16_ocean_sunset.jpg", "static/images/bored_17_desert_oasis.jpg", "static/images/bored_18_tropical_paradise.jpg",
+            "static/images/bored_19_snowy_mountains.jpg", "static/images/bored_20_ancient_trees.jpg", "static/images/bored_21_wild_flowers.jpg",
+            "static/images/bored_22_forest_cabin.jpg", "static/images/bored_23_stone_bridge.jpg", "static/images/bored_24_moonlit_lake.jpg"
+        ],
+        "agotado": [ // Images to promote deep rest, quiet contemplation, gentle beauty
+            "static/images/exhausted_1_calm_forest.jpg", "static/images/exhausted_2_still_water.jpg", "static/images/exhausted_3_quiet_meadow.jpg",
+            "static/images/exhausted_4_sunrise_mountains.jpg", "static/images/exhausted_5_peaceful_seaside.jpg", "static/images/exhausted_6_deep_woods.jpg",
+            "static/images/exhausted_7_misty_river.jpg", "static/images/exhausted_8_sunset_hills.jpg", "static/images/exhausted_9_forest_brook.jpg",
+            "static/images/exhausted_10_zen_garden.jpg", "static/images/exhausted_11_path_through_trees.jpg", "static/images/exhausted_12_flower_field.jpg",
+            "static/images/exhausted_13_snowy_woods.jpg", "static/images/exhausted_14_winding_road.jpg", "static/images/exhausted_15_spring_forest.jpg",
+            "static/images/exhausted_16_calm_ocean.jpg", "static/images/exhausted_17_desert_canyon.jpg", "static/images/exhausted_18_tropical_beach.jpg",
+            "static/images/exhausted_19_mountain_lake.jpg", "static/images/exhausted_20_old_growth_forest.jpg", "static/images/exhausted_21_green_valley.jpg",
+            "static/images/exhausted_22_log_cabin.jpg", "static/images/exhausted_23_stone_path.jpg", "static/images/exhausted_24_starry_night.jpg"
+        ],
+        "estresado": [ // Images to soothe, provide expansive views, clear skies, natural order
+            "static/images/stressed_1_green_valley.jpg", "static/images/stressed_2_open_sky.jpg", "static/images/stressed_3_clear_river.jpg",
+            "static/images/stressed_4_calm_fields.jpg", "static/images/stressed_5_tranquil_coast.jpg", "static/images/stressed_6_sunlit_forest.jpg",
+            "static/images/stressed_7_peaceful_stream.jpg", "static/images/stressed_8_golden_meadow.jpg", "static/images/stressed_9_waterfall.jpg",
+            "static/images/stressed_10_open_countryside.jpg", "static/images/stressed_11_bright_woods.jpg", "static/images/stressed_12_lakeside_view.jpg",
+            "static/images/stressed_13_forest_clearing.jpg", "static/images/stressed_14_path_in_nature.jpg", "static/images/stressed_15_spring_hills.jpg",
+            "static/images/stressed_16_blue_ocean.jpg", "static/images/stressed_17_desert_sunset.jpg", "static/images/stressed_18_island_paradise.jpg",
+            "static/images/stressed_19_snowy_peaks.jpg", "static/images/stressed_20_ancient_forest.jpg", "static/images/stressed_21_rolling_hills.jpg",
+            "static/images/stressed_22_farm_house.jpg", "static/images/stressed_23_rocky_shore.jpg", "static/images/stressed_24_day_clouds.jpg"
+        ],
+        "cansado": [ // Images for gentle rest, soft light, comforting scenes
+            "static/images/tired_1_serene_forest.jpg", "static/images/tired_2_calm_river.jpg", "static/images/tired_3_quiet_lake.jpg",
+            "static/images/tired_4_sunset_beach.jpg", "static/images/tired_5_peaceful_cottage.jpg", "static/images/tired_6_deep_green_woods.jpg",
+            "static/images/tired_7_flowing_stream.jpg", "static/images/tired_8_field_at_dusk.jpg", "static/images/tired_9_forest_clearing.jpg",
+            "static/images/tired_10_zen_garden_path.jpg", "static/images/tired_11_autumn_path.jpg", "static/images/tired_12_sunlit_forest_floor.jpg",
+            "static/images/tired_13_winter_lake.jpg", "static/images/tired_14_country_lane.jpg", "static/images/tired_15_spring_field.jpg",
+            "static/images/tired_16_ocean_waves.jpg", "static/images/tired_17_desert_stars.jpg", "static/images/tired_18_tropical_lagoon.jpg",
+            "static/images/tired_19_mountain_river.jpg", "static/images/tired_20_ancient_trees_mist.jpg", "static/images/tired_21_lush_valley.jpg",
+            "static/images/tired_22_forest_house.jpg", "static/images/tired_23_stone_wall.jpg", "static/images/tired_24_moonlit_forest.jpg"
+        ],
+        "ansioso": [ // Images for openness, fluidity (water), grounding, clear horizons
+            "static/images/anxious_1_ocean_horizon.jpg", "static/images/anxious_2_vast_sky.jpg", "static/images/anxious_3_calm_water.jpg",
+            "static/images/anxious_4_open_field.jpg", "static/images/anxious_5_forest_clearing.jpg", "static/images/anxious_6_mountain_vista.jpg",
+            "static/images/anxious_7_river_flow.jpg", "static/images/anxious_8_peaceful_sunset.jpg", "static/images/anxious_9_still_pond.jpg",
+            "static/images/anxious_10_expansive_beach.jpg", "static/images/anxious_11_wide_valley.jpg", "static/images/anxious_12_desert_landscape.jpg",
+            "static/images/anxious_13_clear_lake.jpg", "static/images/anxious_14_open_forest.jpg", "static/images/anxious_15_grassy_hills.jpg",
+            "static/images/anxious_16_blue_sea.jpg", "static/images/anxious_17_canyon_view.jpg", "static/images/anxious_18_tropical_islands.jpg",
+            "static/images/anxious_19_snowy_peaks.jpg", "static/images/anxious_20_cloudy_sky.jpg", "static/images/anxious_21_rolling_plains.jpg",
+            "static/images/anxious_22_countryside_home.jpg", "static/images/anxious_23_forest_path_wide.jpg", "static/images/anxious_24_bright_sky.jpg"
+        ]
+    },
     // --- NUEVO ENGRANAJE INDESTRUCTIBLE (TIPO TIKTOK) ---
     horaInicioSesionAbsoluta: null, // Almacena la estampa de tiempo Unix de la CPU real
     timeLeft: 600,
@@ -36,6 +160,64 @@ const KERNEL = {
     conteoInaccion: 0,
     indicePreguntaCascada: 0, // <-- RECONECTADO: La coma es necesaria porque el objeto CONTINÚA abajo
 
+    // New helper to manage daily history for all audio phrases to prevent repetition across 5 sessions
+    _getDailyNonRepeatingAudio(pool, historyKey, maxSessions = 5) {
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        let historyData = JSON.parse(localStorage.getItem(historyKey) || "{}");
+
+        // If it's a new day or data structure changed, reset daily history
+        if (!historyData.date || historyData.date !== today || !Array.isArray(historyData.sessions)) {
+            historyData = { date: today, sessions: [] };
+        }
+
+        // Get the current session's phrases, or create a new session if needed
+        let currentSessionPhrases;
+        if (historyData.sessions.length === 0 || historyData.sessions[historyData.sessions.length - 1].length > 0 && KERNEL.sessionSeed !== historyData.sessions[historyData.sessions.length - 1].seed) {
+            // Start a new session if no sessions yet, or if the last session already has phrases and current session is different
+            historyData.sessions.push({ seed: KERNEL.sessionSeed, phrases: [] });
+        }
+        // Ensure we operate on the *latest* session in the array, using the sessionSeed for uniqueness
+        let latestSession = historyData.sessions[historyData.sessions.length - 1];
+        if (latestSession.seed !== KERNEL.sessionSeed) { // If for some reason the last session doesn't match current seed
+            historyData.sessions.push({ seed: KERNEL.sessionSeed, phrases: [] });
+            latestSession = historyData.sessions[historyData.sessions.length - 1];
+        }
+        currentSessionPhrases = latestSession.phrases;
+
+        let availableIndices = [];
+        let allUsedIndicesToday = new Set();
+        historyData.sessions.forEach(session => session.phrases.forEach(idx => allUsedIndicesToday.add(idx)));
+
+        // Filter out phrases used in current day across all sessions
+        for (let i = 0; i < pool.length; i++) {
+            if (!allUsedIndicesToday.has(i)) {
+                availableIndices.push(i);
+            }
+        }
+
+        if (availableIndices.length === 0) {
+            // All phrases used for today across all sessions, or pool is too small.
+            // Reset daily history for this pool, effectively allowing repetition from oldest sessions first.
+            historyData.sessions = [];
+            historyData.sessions.push({ seed: KERNEL.sessionSeed, phrases: [] }); // Start a fresh session for the next cycle
+            latestSession = historyData.sessions[0];
+            currentSessionPhrases = latestSession.phrases;
+            availableIndices = Array.from({ length: pool.length }, (_, i) => i);
+            console.warn(`Daily phrase pool for ${historyKey} exhausted. Resetting daily history.`);
+        }
+
+        const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+        currentSessionPhrases.push(randomIndex);
+
+        // Limit the number of sessions stored
+        if (historyData.sessions.length > maxSessions) {
+            historyData.sessions.shift(); // Remove the oldest session
+        }
+
+        localStorage.setItem(historyKey, JSON.stringify(historyData));
+        return pool[randomIndex];
+    },
+
     // ==============================================================================
     // SENSOR DE FONDO ABSOLUTO (Indestructible si hay llamadas o chat en segundo plano)
     // ==============================================================================
@@ -48,8 +230,8 @@ const KERNEL = {
                     let tiempoTranscurridoMs = Date.now() - KERNEL.horaInicioSesionAbsoluta;
                     let tiempoTranscurridoSegundos = Math.floor(tiempoTranscurridoMs / 1000);
                    
-                    // Si el tiempo transcurrido total ya superó el ciclo de vida de la sesión, cerramos limpio
-                    if (tiempoTranscurridoSegundos >= 660) {
+                    // Si el tiempo transcurrido total ya superó el ciclo de vida de la sesión (15 minutos = 900 segundos), cerramos limpio
+                    if (tiempoTranscurridoSegundos >= 900) { // MODIFIED: from 660 to 900 seconds (15 minutes)
                         if (typeof KERNEL.forzarCierre11MinutosEfectivo === 'function') {
                             KERNEL.forzarCierre11MinutosEfectivo();
                         }
@@ -59,10 +241,10 @@ const KERNEL = {
         });
     },
 
-    forzarCierre11MinutosEfectivo() {
-        // Este método se activa cuando el tiempo de sesión absoluta supera los 11 minutos
+    forzarCierre11MinutosEfectivo() { // Keep original name, but it now acts as "15-minute effective closure"
+        // Este método se activa cuando el tiempo de sesión absoluta supera los 15 minutos
         // mientras el usuario está en segundo plano. Forzamos un reinicio completo.
-        console.warn("Sesión forzada a cerrar después de 11 minutos de inactividad o segundo plano.");
+        console.warn("Sesión forzada a cerrar después de 15 minutos de inactividad o segundo plano.");
         this.destruirYReiniciar(); // Llama al método de reinicio completo
     },
 
@@ -435,16 +617,25 @@ const KERNEL = {
             this.historialCasa = JSON.parse(localStorage.getItem("otg_historial_casa") || "[]");
             this.historialPreguntas = JSON.parse(localStorage.getItem("otg_historial_oraculo") || "[]");
             this.historialRetosSecuencias = JSON.parse(localStorage.getItem("otg_historial_retos_secuencias") || "[]");
+            this.historialFaseCasaSublime = JSON.parse(localStorage.getItem("otg_historial_fase_casa_sublime_daily") || "{}"); // Daily history
+            this.historialAudiosCasaSecuenciales = JSON.parse(localStorage.getItem("otg_historial_audios_casa_secuenciales_daily") || "{}"); // Daily history
+            this.historialAudiosSalirSecuenciales = JSON.parse(localStorage.getItem("otg_historial_audios_salir_secuenciales_daily") || "{}"); // Daily history
         } catch (e) {
             console.error("Error parsing history from localStorage, resetting specific histories.", e);
             this.historialSalir = [];
             this.historialCasa = [];
             this.historialPreguntas = [];
             this.historialRetosSecuencias = [];
+            this.historialFaseCasaSublime = {}; // Reset to empty object for daily history
+            this.historialAudiosCasaSecuenciales = {}; // Reset to empty object for daily history
+            this.historialAudiosSalirSecuenciales = {}; // Reset to empty object for daily history
             localStorage.removeItem("otg_historial_salir");
             localStorage.removeItem("otg_historial_casa");
             localStorage.removeItem("otg_historial_oraculo");
             localStorage.removeItem("otg_historial_retos_secuencias");
+            localStorage.removeItem("otg_historial_fase_casa_sublime_daily");
+            localStorage.removeItem("otg_historial_audios_casa_secuenciales_daily");
+            localStorage.removeItem("otg_historial_audios_salir_secuenciales_daily");
         }
 
         this.obtenerPerfilLocal();
@@ -872,23 +1063,49 @@ const KERNEL = {
         this.ejecutar();
     },
 
- /**
- * Converts text to speech using browser's SpeechSynthesis API.
- */
-hablar(texto) {
- if (!('speechSynthesis' in window)) return;
- if (!texto) return;
- window.speechSynthesis.cancel();
- setTimeout(() => {
- let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
- const msg = new SpeechSynthesisUtterance(fx);
- msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
- msg.rate = 1.10;
- msg.pitch = 1.05;
- msg.onerror = () => { window.speechSynthesis.cancel(); };
- window.speechSynthesis.speak(msg);
- }, 150);
-},
+    /**
+     * Converts text to speech using browser's SpeechSynthesis API.
+     */
+    hablar(texto) {
+        if (!('speechSynthesis' in window)) return;
+        if (!texto) return;
+
+        let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
+        const msg = new SpeechSynthesisUtterance(fx);
+        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+        msg.rate = 1.10;
+        msg.pitch = 1.05;
+
+        // Add an 'onend' event listener to process the next item in the queue
+        msg.onend = () => {
+            this.isSpeaking = false;
+            this.speechQueue.shift(); // Remove the finished utterance from the queue
+            if (this.speechQueue.length > 0) {
+                this._speakNextInQueue();
+            }
+        };
+
+        msg.onerror = (event) => {
+            console.error("Speech synthesis error:", event.error);
+            this.isSpeaking = false;
+            // If an error occurs, cancel current speech and clear the rest of the queue
+            window.speechSynthesis.cancel();
+            this.speechQueue = [];
+        };
+
+        this.speechQueue.push(msg); // Add the new message to the queue
+        if (!this.isSpeaking) {
+            this._speakNextInQueue(); // If not speaking, start immediately
+        }
+    },
+
+    // Helper to speak the next item in the queue
+    _speakNextInQueue() {
+        if (this.speechQueue.length > 0 && !this.isSpeaking) {
+            this.isSpeaking = true;
+            window.speechSynthesis.speak(this.speechQueue[0]);
+        }
+    },
 
     /**
     * Changes the application's language and updates UI elements.
@@ -976,7 +1193,14 @@ hablar(texto) {
         clearInterval(this.temporizadorCascada);
         clearInterval(this.timerEnfocado);
         clearInterval(this.salidaTimerId);
-        window.speechSynthesis.cancel();
+        if (this.carouselInterval) { // NEW
+            clearInterval(this.carouselInterval);
+            this.carouselInterval = null;
+        }
+        // Do NOT cancel() here; let the queue manage it
+        this.speechQueue = [];
+        this.isSpeaking = false;
+        window.speechSynthesis.cancel(); // Force cancel any *external* speech not managed by queue
 
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
@@ -1086,7 +1310,10 @@ hablar(texto) {
     mostrarOpcionesSalir(container) {
         clearInterval(this.timerEnfocado);
         clearInterval(this.salidaTimerId);
-        window.speechSynthesis.cancel();
+        // Do NOT cancel here, let the queue manage it
+        this.speechQueue = [];
+        this.isSpeaking = false;
+        window.speechSynthesis.cancel(); // Force cancel any *external* speech not managed by queue
        
         const t = {
             es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:" },
@@ -1127,17 +1354,21 @@ hablar(texto) {
 
     /**
      * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
+     * MODIFIED: Includes redirection announcements and split-screen external links.
      * @param {Object} selectedMission - The mission object chosen by the client.
      */
     iniciarSalidaConcreta(selectedMission) {
         this.datosLugarGlobal = selectedMission; // Store the selected mission
         clearInterval(this.timerEnfocado);
         clearInterval(this.salidaTimerId);
-        window.speechSynthesis.cancel();
+        // Do NOT cancel here, let the queue manage it
+        this.speechQueue = [];
+        this.isSpeaking = false;
+        window.speechSynthesis.cancel(); // Force cancel any *external* speech not managed by queue
        
         const t = {
-            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA" },
-            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW" }
+            es: { listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", maps: "Google Maps", youtube: "YouTube", spotify: "Spotify" },
+            en: { listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", maps: "Google Maps", youtube: "YouTube", spotify: "Spotify" }
         }[this.idiomaActual];
        
         const container = document.getElementById('wrapper-interactive');
@@ -1150,7 +1381,22 @@ hablar(texto) {
                 <div class="instruccion-text">${textoFormateado}</div>
                 <div id="salida-countdown-phrases" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--cyan-inhale); font-weight:bold; letter-spacing:0.5px;"></div>
                 <button id="btn-countdown-salida" style="width:100%; background:#222; color:#aaa; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; font-size:0.9rem;" disabled>35s ${t.listen}</button>
-                <button id="btn-gps-action" class="hidden" style="width:100%; background:var(--secondary); color:#fff; padding:17px; font-weight:bold; margin-top:15px; border:none; text-transform:uppercase; border-radius:4px; cursor:pointer; font-size:0.95rem; letter-spacing:0.5px;">${t.launch}</button>
+                
+                <!-- NEW: Split-screen buttons for external links -->
+                <div id="external-links-container" class="external-links-grid hidden">
+                    <button id="btn-maps-action" class="btn-external" title="${t.maps}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        <span>${t.maps}</span>
+                    </button>
+                    <button id="btn-youtube-action" class="btn-external" title="${t.youtube}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M10 15l5.5-3.5L10 8V15zm11.23-7.39c-.78-.78-2.05-.78-2.83 0L12 11.02l-6.4-6.4c-.78-.78-2.05-.78-2.83 0-.78.78-.78 2.05 0 2.83L9.17 12l-6.4 6.4c-.78.78-.78 2.05 0 2.83.78.78 2.05.78 2.83 0L12 12.98l6.4 6.4c.78.78 2.05.78 2.83 0 .78-.78.78-2.05 0-2.83L14.83 12l6.4-6.4c.78-.78.78-2.05 0-2.83z"/></svg>
+                        <span>${t.youtube}</span>
+                    </button>
+                    <button id="btn-spotify-action" class="btn-external" title="${t.spotify}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 14.5c-.27 0-.53-.11-.72-.32-.97-1.04-2.45-1.72-4.28-1.72-1.83 0-3.31.68-4.28 1.72-.19.21-.45.32-.72.32-.27 0-.53-.11-.72-.32-.19-.21-.29-.48-.29-.78 0-.3.1-.57.29-.78.97-1.04 2.45-1.72 4.28-1.72 1.83 0 3.31.68 4.28 1.72.19.21.29.48.29.78 0 .3-.1.57-.29.78zM12 4c-3.72 0-6.76 2.97-7 6.64-.17 1.83.33 3.5 1.34 4.8-.45.54-1.04.99-1.77 1.25-.73.27-1.57.4-2.43.34-.1-.1-.2-.1-.28-.18-.08-.08-.13-.18-.13-.28 0-.05-.01-.1-.01-.14 0-.04 0-.08.01-.12.44-2.26 1.95-4.14 3.93-5.22.61-.34 1.25-.56 1.9-.66.65-.11 1.3-.13 1.93-.06.72-.05 1.44-.01 2.16.1 2.03.4 3.65 1.88 4.6 3.6.95 1.7.99 3.56.12 5.21-.55.8-1.25 1.37-2.01 1.63-.76.26-1.55.28-2.31.1-.09-.03-.18-.05-.27-.05-.09 0-.17.02-.25.06l-.28.1-.02-.1.01-.1-.01-.11v-.15c-.01-.06-.01-.12-.01-.17 0-.05 0-.1.01-.15z"/></svg>
+                        <span>${t.spotify}</span>
+                    </button>
+                </div>
             </div>
         `;
        
@@ -1159,10 +1405,15 @@ hablar(texto) {
        
         let retencion = 35;
         const btnCount = document.getElementById('btn-countdown-salida');
-        const btnGps = document.getElementById('btn-gps-action');
+        const externalLinksContainer = document.getElementById('external-links-container'); // NEW
+        const btnMaps = document.getElementById('btn-maps-action'); // NEW
+        const btnYoutube = document.getElementById('btn-youtube-action'); // NEW
+        const btnSpotify = document.getElementById('btn-spotify-action'); // NEW
         const phrasesDiv = document.getElementById('salida-countdown-phrases');
         const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
-        let phraseIndex = 0;
+        
+        // NEW: History for SALIR sequential audios
+        let lastSalirAudioTime = -1; // To ensure audio plays only every ~10-15 seconds
        
         this.salidaTimerId = setInterval(() => {
             if (retencion > 0) {
@@ -1170,69 +1421,98 @@ hablar(texto) {
                 if (btnCount) btnCount.innerText = `${retencion}s ${t.listen}`;
                 if (retencion === 0) {
                     // Transition to 45s phrase injection
-                    retencion = -45; // Use negative to denote this phase
+                    retencion = -45; // Use negative to denote this phase, total 45 seconds for phrases
                     if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                    phraseIndex++;
+                    
+                    // Start first phrase for 45s phase
+                    let currentPhrase = this._getDailyNonRepeatingAudio(
+                        AUDIOS_SECUENCIALES_SALIR,
+                        "otg_historial_audios_salir_secuenciales_daily",
+                        5 // Max 5 sessions per day
+                    );
+                    if (phrasesDiv) phrasesDiv.innerText = currentPhrase;
+                    this.hablar(currentPhrase);
+                    lastSalirAudioTime = retencion; // Initialize last audio time
                 }
             } else if (retencion < 0) {
-                retencion++; // Count up towards 0
+                retencion++; // Count up towards 0 (from -45 to -1)
                 if (btnCount) btnCount.innerText = `${Math.abs(retencion)}s...`;
-                if ((Math.abs(retencion) % 10 === 0) && phraseIndex < AUDIOS_SECUENCIALES_SALIR.length && retencion !== 0) {
-                    if (phrasesDiv) phrasesDiv.innerText = AUDIOS_SECUENCIALES_SALIR[phraseIndex];
-                    this.hablar(AUDIOS_SECUENCIALES_SALIR[phraseIndex]);
-                    phraseIndex++;
+                // Play new phrase every 10-15 seconds during this 45-second phase
+                if (Math.abs(retencion) % 15 === 0 && retencion !== lastSalirAudioTime && Math.abs(retencion) > 0) {
+                    lastSalirAudioTime = retencion;
+                    let currentPhrase = this._getDailyNonRepeatingAudio(
+                        AUDIOS_SECUENCIALES_SALIR,
+                        "otg_historial_audios_salir_secuenciales_daily",
+                        5 // Max 5 sessions per day
+                    );
+                    if (phrasesDiv) phrasesDiv.innerText = currentPhrase;
+                    this.hablar(currentPhrase);
                 }
                 if (retencion === 0) {
                     // 45 seconds are over
                     clearInterval(this.salidaTimerId);
-                    window.speechSynthesis.cancel();
+                    // Do NOT cancel() here, let the queue finish
                     if (btnCount) btnCount.style.display = 'none';
                     if (phrasesDiv) phrasesDiv.innerText = "";
-                    if (btnGps) {
-                        btnGps.classList.remove('hidden');
-                        btnGps.onclick = () => {
-                            try {
-                                let perfil = KERNEL.obtenerPerfilLocal();
-                                const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
-                                for (const need in selectedVector) {
-                                    if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
-                                        perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
-                                    }
-                                }
-                                perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
-                                localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                            } catch (e) {
-                                console.error("Error updating local profile after action:", e);
-                            }
-                           
-                            // SECCIÓN DE TIEMPOS DE REDIRECCIÓN SECUENCIAL INCORPORADA:
-                            // 1. Detona Google Maps con el filtrado maestro de economía real
-                            window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
-                           
-                            // 2. Agrega el desfase de tiempo de tiempo de 500ms para abrir los escapes de YouTube y Spotify de forma parásita
-                            setTimeout(() => {
-                                if (this.datosLugarGlobal.enlace_youtube) {
-                                    window.open(this.datosLugarGlobal.enlace_youtube, '_blank');
-                                }
-                                if (this.datosLugarGlobal.enlace_spotify) {
-                                    window.open(this.datosLugarGlobal.enlace_spotify, '_blank');
-                                }
-                            }, 500);
+                    
+                    if (externalLinksContainer) { // NEW: Show external links
+                        externalLinksContainer.classList.remove('hidden');
 
-                            // ==============================================================================
-                            // ORDEN SOBERANA: EL TIEMPO COMIENZA A CORRER DESDE CERO AUTOMÁTICAMENTE
-                            // ==============================================================================
-                            // Una vez acarreada toda la acción, reactivamos el temporizador maestro desde cero limpios.
-                            this.iniciarMonitoreoInaccion();
-                            this.horaInicioSesionAbsoluta = Date.now(); // Reseteamos la estampa de tiempo absoluta
-                            // ==============================================================================
-                        };
+                        // Configure Maps button
+                        if (btnMaps && this.datosLugarGlobal.destino_coordenadas_gps) {
+                            btnMaps.onclick = () => {
+                                this.hablar(this.idiomaActual === 'es' ? `Abriendo ${t.maps}.` : `Opening ${t.maps}.`);
+                                window.open(this.datosLugarGlobal.destino_coordenadas_gps, '_blank');
+                                this._updateProfileAndRestartMonitor(); // Unified update and restart
+                            };
+                        } else if (btnMaps) { btnMaps.disabled = true; btnMaps.style.opacity = 0.5; }
+
+                        // Configure YouTube button
+                        if (btnYoutube && this.datosLugarGlobal.enlace_youtube) {
+                            btnYoutube.onclick = () => {
+                                this.hablar(this.idiomaActual === 'es' ? `Abriendo ${t.youtube}.` : `Opening ${t.youtube}.`);
+                                window.open(this.datosLugarGlobal.enlace_youtube, '_blank');
+                                this._updateProfileAndRestartMonitor();
+                            };
+                        } else if (btnYoutube) { btnYoutube.disabled = true; btnYoutube.style.opacity = 0.5; }
+
+                        // Configure Spotify button
+                        if (btnSpotify && this.datosLugarGlobal.enlace_spotify) {
+                            btnSpotify.onclick = () => {
+                                this.hablar(this.idiomaActual === 'es' ? `Abriendo ${t.spotify}.` : `Opening ${t.spotify}.`);
+                                window.open(this.datosLugarGlobal.enlace_spotify, '_blank');
+                                this._updateProfileAndRestartMonitor();
+                            };
+                        } else if (btnSpotify) { btnSpotify.disabled = true; btnSpotify.style.opacity = 0.5; }
                     }
                 }
             }
         }, 1000);
+    },
+
+    // NEW: Helper function to update profile and restart monitoring, extracted from btnGps.onclick
+    _updateProfileAndRestartMonitor() {
+        try {
+            let perfil = KERNEL.obtenerPerfilLocal();
+            const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+            for (const need in selectedVector) {
+                if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                    perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
+                }
+            }
+            perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
+            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+        } catch (e) {
+            console.error("Error updating local profile after action:", e);
+        }
+
+        // ==============================================================================
+        // ORDEN SOBERANA: EL TIEMPO COMIENZA A CORRER DESDE CERO AUTOMÁTICAMENTE
+        // ==============================================================================
+        // Una vez acarreada toda la acción, reactivamos el temporizador maestro desde cero limpios.
+        this.iniciarMonitoreoInaccion();
+        this.horaInicioSesionAbsoluta = Date.now(); // Reseteamos la estampa de tiempo absoluta
+        // ==============================================================================
     },
     // ==============================================================================
 // RESTAURACIÓN CRÍTICA: ENTRADA DE USUARIO, PASSWORD Y SISTEMA DE STRIPE
@@ -1283,7 +1563,11 @@ inyectarPasarelaYAutenticacion(container) {
      */
         procesarFlujoSecuencial(container) {
     clearInterval(this.timerEnfocado);
-    window.speechSynthesis.cancel();
+    // Do NOT cancel here, let the queue manage it
+    this.speechQueue = [];
+    this.isSpeaking = false;
+    window.speechSynthesis.cancel(); // Force cancel any *external* speech not managed by queue
+
     const t = {
         es: {
             inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.",
@@ -1341,176 +1625,298 @@ inyectarPasarelaYAutenticacion(container) {
 },
    
     /**
- * Starts the 10-minute clinical breathing timer for CASA mode.
- */
-iniciarRelojEnfocadoCasa(container, t) {
-    // ======================================================================
-    // RECTIFICACIÓN MAESTRA DE EQUILIBRIO: APAGÓN DE ORÁCULO RECOBRANDO EL FLUJO
-    // ======================================================================
-    // 1. Destruye el intervalo de las preguntas en cascada usando su nombre exacto
-    if (this.temporizadorCascada) {
-        clearInterval(this.temporizadorCascada);
-        this.temporizadorCascada = null;
-    }
-   
-    // 2. Limpia los temporizadores de inacción y el reloj viejo
-    clearInterval(this.timerInaccion);
-    clearInterval(this.timerEnfocado);
-   
-    // 3. Limpia cualquier bucle de voz previo de CASA para evitar duplicaciones
-    if (this.intervaloVozCasa) {
-        clearInterval(this.intervaloVozCasa);
-        this.intervaloVozCasa = null;
-    }
-   
-    // 4. RETORNO DE MOTOR RECOBRADO: Despierta y limpia el hardware de sonido
-    // sin alterar el flujo de las pantallas iniciales ni congelar la app.
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.getVoices();
-        window.speechSynthesis.cancel();
-    }
-
-    let msg = this.idiomaActual === 'es' ? "Iniciamos diez minutos de limpieza mental profunda. Respira." : "Starting ten minutes of deep mental clearing. Breathe.";
-    this.hablar(msg);
-
-    container.innerHTML = `
-        <div style="text-align:center; width:100%;">
-            <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
-            <div id="timer">10:00</div>
-            <p id="txt-pulmon">INHALA / INHALE</p>
-            <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
-                <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
-            </div>
-        </div>
-    `;
-
-    this.timeLeft = 600;
-    this.contadorToques = 0;
-
-    const circleElement = document.getElementById('breath-circle');
-    const timerDiv = document.getElementById('timer');
-    const pulmonDiv = document.getElementById('txt-pulmon');
-    const salidaSugeridaDiv = document.getElementById('salida-sugerida');
-    const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
-    const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
-
-    // ======================================================================
-    // DISPARADOR DE SUGERENCIA TRAS 3 MINUTOS EXACTOS
-    // ======================================================================
-    if (this.salidaSugeridaTimeoutId) {
-        clearTimeout(this.salidaSugeridaTimeoutId);
-        this.salidaSugeridaTimeoutId = null;
-    }
-
-   this.salidaSugeridaTimeoutId = setTimeout(async () => {
- try {
- const r = await fetch("/api/mando-integral", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ modo: "SALIR", lang: this.idiomaActual, mente: "agotado", budget: "0", perfil: "solo", desahogo: "", zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "", perfil_local: this.obtenerPerfilLocal(), historial_salir: this.historialSalir }) });
- const data = await r.json();
- 
- // === PROTOCOLO LEGAL DE SEGURIDAD (MAY ROGA LLC) ===
- if (data.drive_prohibited && data.legal_notice_es) {
-     console.warn("ALERT:", this.idiomaActual === 'es' ? data.legal_notice_es : data.legal_notice_en);
- }
-
- if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
- const suggestedMission = data.misiones[0];
- if (data.historial_salir_actualizado) {
- this.historialSalir = data.historial_salir_actualizado;
- localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
- }
- linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
- linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
- salidaSugeridaDiv.classList.remove('hidden');
- 
- // Lectura fluida, pausada y sin prisas
- this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
- }
- 
-        } catch (e) {
-            console.error("Error fetching SALIR suggestion in CASA mode:", e);
-        } finally {
-            this.salidaSugeridaTimeoutId = null;
+     * Starts the 10-minute clinical breathing timer for CASA mode.
+     * MODIFIED: Integrates new 4-minute phase and refined audio/visual sequencing.
+     */
+    iniciarRelojEnfocadoCasa(container, t) {
+        // ======================================================================
+        // RECTIFICACIÓN MAESTRA DE EQUILIBRIO: APAGÓN DE ORÁCULO RECOBRANDO EL FLUJO
+        // ======================================================================
+        // 1. Destruye el intervalo de las preguntas en cascada usando su nombre exacto
+        if (this.temporizadorCascada) {
+            clearInterval(this.temporizadorCascada);
+            this.temporizadorCascada = null;
         }
-    }, 180000);
 
-    if (circleElement) {
- circleElement.onclick = () => {
-     // Encendemos la música relajante propia mediante la interacción segura del usuario
-     iniciarMusicaRelajantePropia();
+        // 2. Limpia los temporizadores de inacción y el reloj viejo
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
 
-            if (this.contadorToques < this.secuenciaAdelantos.length) {
-                let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
-                this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
-                this.contadorToques++;
-                try {
-                    let perfil = this.obtenerPerfilLocal();
-                    perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
-                    localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
-                } catch (e) {
-                    console.error("Error updating anxiety indicator:", e);
-                }
-                let m = Math.floor(this.timeLeft / 60);
-                let s = this.timeLeft % 60;
-                if (timerDiv) {
-                    timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-                }
+        // 3. Limpia cualquier bucle de voz previo de CASA para evitar duplicaciones
+        if (this.intervaloVozCasa) {
+            clearInterval(this.intervaloVozCasa);
+            this.intervaloVozCasa = null;
+        }
+
+        // 4. Limpia el carrusel visual si está activo
+        if (this.carouselInterval) {
+            clearInterval(this.carouselInterval);
+            this.carouselInterval = null;
+        }
+
+        // 5. RETORNO DE MOTOR RECOBRADO: Despierta y limpia el hardware de sonido
+        // sin alterar el flujo de las pantallas iniciales ni congelar la app.
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            // Do NOT cancel here, let the queue manage it
+        }
+
+        // Ensure speech queue is empty before starting
+        this.speechQueue = [];
+        this.isSpeaking = false;
+        window.speechSynthesis.cancel(); // Force cancel any *external* speech not managed by queue
+
+        let msg = this.idiomaActual === 'es' ? "Iniciamos quince minutos de limpieza mental profunda. Respira." : "Starting fifteen minutes of deep mental clearing. Breathe.";
+        this.hablar(msg);
+
+        // --- NEW: Add carousel container for images ---
+        container.innerHTML = `
+            <div id="carousel-background" class="carousel-container"></div>
+            <div style="text-align:center; width:100%; position:relative; z-index:10;">
+                <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
+                <div id="timer">15:00</div>
+                <p id="txt-pulmon">INHALA / INHALE</p>
+                <div id="fase-sublime-text" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--green-action); font-weight:bold; letter-spacing:0.5px;"></div>
+                <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
+                    <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
+                </div>
+            </div>
+        `;
+
+        this.timeLeft = 900; // 15 minutes (10 min breathing + 4 min new phase + 1 min silence challenge)
+        this.contadorToques = 0;
+
+        const carouselBackground = document.getElementById('carousel-background');
+        const circleElement = document.getElementById('breath-circle');
+        const timerDiv = document.getElementById('timer');
+        const pulmonDiv = document.getElementById('txt-pulmon');
+        const faseSublimeTextDiv = document.getElementById('fase-sublime-text');
+        const salidaSugeridaDiv = document.getElementById('salida-sugerida');
+        const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
+
+        const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
+        const AUDIOS_FASE_SUBLIMES = this.idiomaActual === 'es' ? this.AUDIOS_FASE_CASA_SUBLIMES_ES : this.AUDIOS_FASE_CASA_SUBLIMES_EN;
+
+        let currentImageIndex = 0;
+        let imagesForMente = [];
+        let imageChangeIntervalId = null;
+
+        // Get payload['mente'] from the stored profile or default
+        const currentMente = this.obtenerPerfilLocal().mente || document.getElementById('mente-selector').value || "aburrido";
+        imagesForMente = this.IMAGENES_CARRUSEL[currentMente] || this.IMAGENES_CARRUSEL["aburrido"];
+        
+        // Shuffle images to ensure randomness for carousel
+        for (let i = imagesForMente.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [imagesForMente[i], imagesForMente[j]] = [imagesForMente[j], imagesForMente[i]];
+        }
+
+        const startCarousel = () => {
+            if (carouselBackground && imagesForMente.length > 0) {
+                carouselBackground.style.backgroundImage = `url('${imagesForMente[currentImageIndex % imagesForMente.length]}')`;
+                carouselBackground.classList.remove('hidden');
+                this.carouselInterval = setInterval(() => {
+                    currentImageIndex++;
+                    carouselBackground.style.backgroundImage = `url('${imagesForMente[currentImageIndex % imagesForMente.length]}')`;
+                }, 10000); // Change image every 10 seconds
             }
         };
-    }
 
-    // ======================================================================
-    // CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL (CADA 20 SEGUNDOS)
-    // ======================================================================
-    this.timerEnfocado = setInterval(() => {
-        if (this.timeLeft > 0) {
-            this.timeLeft--;
-        }
-       
-        let m = Math.floor(this.timeLeft / 60);
-        let s = this.timeLeft % 60;
-       
-        if (timerDiv) {
-            timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
-        }
-       
-        if (pulmonDiv) {
-            let ciclo = this.timeLeft % 8;
-            if (ciclo >= 4) {
-                pulmonDiv.innerText = t.inspira.toUpperCase();
-                pulmonDiv.style.color = "var(--cyan-inhale)";
-            } else {
-                pulmonDiv.innerText = t.expira.toUpperCase();
-                pulmonDiv.style.color = "var(--accent)";
+        const stopCarousel = () => {
+            if (this.carouselInterval) {
+                clearInterval(this.carouselInterval);
+                this.carouselInterval = null;
             }
-        }
-       
-              // === PAUSA EXTENDIDA DE 14 MINUTOS (840 SEGUNDOS) ===
-        // Reemplazamos los 600 segundos originales por 840 para dar 4 minutos más de calma humana
-        if (this.timeLeft < 840 && (840 - this.timeLeft) % 20 === 0 && (840 - this.timeLeft) !== 0) {
-            let pasoAudioIdx = Math.floor((840 - this.timeLeft) / 20) - 1;
-            if (pasoAudioIdx >= 0 && pasoAudioIdx < AUDIOS_SECUENCIALES_CASA.length) {
-                let recordatorioTexto = AUDIOS_SECUENCIALES_CASA[pasoAudioIdx];
-                if (recordatorioTexto) {
-                    this.hablar(recordatorioTexto);
-                }
+            if (carouselBackground) {
+                carouselBackground.classList.add('hidden');
+                carouselBackground.style.backgroundImage = 'none';
             }
-        }
+        };
 
-       
-        if (this.timeLeft <= 0) {
-            clearInterval(this.timerEnfocado);
+        // ======================================================================
+        // DISPARADOR DE SUGERENCIA TRAS 3 MINUTOS EXACTOS (time 12:00)
+        // ======================================================================
+        if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
             this.salidaSugeridaTimeoutId = null;
-            window.speechSynthesis.cancel();
-           
-            if (circleElement) {
-                circleElement.style.animation = "none";
-                circleElement.style.transform = "scale(1)";
-            }
-            this.iniciarRetoCierre60Segundos();
         }
-    }, 1000);
-},
+
+        this.salidaSugeridaTimeoutId = setTimeout(async () => {
+            try {
+                // Ensure payload is up-to-date and matches original call logic
+                const payloadForSuggestion = {
+                    modo: "SALIR",
+                    lang: this.idiomaActual,
+                    mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido",
+                    budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0",
+                    perfil: document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo",
+                    desahogo: document.getElementById('inp-text-libre') ? document.getElementById('inp-text-libre').value.trim() : "",
+                    zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
+                    perfil_local: this.obtenerPerfilLocal(),
+                    historial_salir: this.historialSalir
+                };
+
+                const r = await fetch("/api/mando-integral", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payloadForSuggestion) });
+                const data = await r.json();
+
+                // === PROTOCOLO LEGAL DE SEGURIDAD (MAY ROGA LLC) ===
+                if (data.drive_prohibited && data.legal_notice_es) {
+                    console.warn("ALERT:", this.idiomaActual === 'es' ? data.legal_notice_es : data.legal_notice_en);
+                }
+
+                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
+                    const suggestedMission = data.misiones[0];
+                    if (data.historial_salir_actualizado) {
+                        this.historialSalir = data.historial_salir_actualizado;
+                        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+                    }
+                    linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
+                    linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
+                    salidaSugeridaDiv.classList.remove('hidden');
+
+                    // Lectura fluida, pausada y sin prisas
+                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
+                }
+
+            } catch (e) {
+                console.error("Error fetching SALIR suggestion in CASA mode:", e);
+            } finally {
+                this.salidaSugeridaTimeoutId = null;
+            }
+        }, 180000); // After 3 minutes (900 - 180 = 720 seconds remaining on timer)
+
+        if (circleElement) {
+            circleElement.onclick = () => {
+                // Encendemos la música relajante propia mediante la interacción segura del usuario
+                if (typeof iniciarMusicaRelajantePropia === 'function') {
+                    iniciarMusicaRelajantePropia();
+                } else {
+                    console.warn("iniciarMusicaRelajantePropia() no está definida.");
+                }
+
+                if (this.contadorToques < this.secuenciaAdelantos.length) {
+                    let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
+                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
+                    this.contadorToques++;
+                    try {
+                        let perfil = this.obtenerPerfilLocal();
+                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
+                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                    } catch (e) {
+                        console.error("Error updating anxiety indicator:", e);
+                    }
+                    let m = Math.floor(this.timeLeft / 60);
+                    let s = this.timeLeft % 60;
+                    if (timerDiv) {
+                        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                    }
+                }
+            };
+        }
+
+        // ======================================================================
+        // CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL
+        // MODIFIED: Integrates new 4-minute phase and refined audio sequencing
+        // ======================================================================
+        let lastFaseSublimeAudioTime = -1; // To ensure audio plays only every ~20 seconds
+        let lastCasaSecuencialAudioTime = -1; // To ensure audio plays only every ~20 seconds
+
+        this.timerEnfocado = setInterval(() => {
+            if (this.timeLeft > 0) {
+                this.timeLeft--;
+            }
+
+            let m = Math.floor(this.timeLeft / 60);
+            let s = this.timeLeft % 60;
+
+            if (timerDiv) {
+                timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+            }
+
+            // Breathing circle animation (first 10 minutes: 900s down to 300s)
+            if (this.timeLeft >= 300) { // First 10 minutes (15:00 down to 05:00)
+                if (pulmonDiv) {
+                    pulmonDiv.classList.remove('hidden'); // Ensure it's visible
+                    let ciclo = (this.timeLeft - 300) % 8; // Cycle over remaining 600s for 8s breathing
+                    if (ciclo >= 4) {
+                        pulmonDiv.innerText = t.inspira.toUpperCase();
+                        pulmonDiv.style.color = "var(--cyan-inhale)";
+                    } else {
+                        pulmonDiv.innerText = t.expira.toUpperCase();
+                        pulmonDiv.style.color = "var(--accent)";
+                    }
+                }
+                if (faseSublimeTextDiv) faseSublimeTextDiv.innerText = ""; // Clear text for new phase
+                stopCarousel(); // Ensure carousel is stopped if somehow active
+
+                // --- EXISTING AUDIOS_SECUENCIALES_CASA ---
+                // Trigger an audio every ~20 seconds during the first 10 minutes (900s down to 300s)
+                if (this.timeLeft < 900 && (900 - this.timeLeft) % 20 === 0 && (900 - this.timeLeft) !== lastCasaSecuencialAudioTime) {
+                    lastCasaSecuencialAudioTime = (900 - this.timeLeft);
+                    let recordatorioTexto = this._getDailyNonRepeatingAudio(
+                        AUDIOS_SECUENCIALES_CASA,
+                        "otg_historial_audios_casa_secuenciales_daily",
+                        5 // Max 5 sessions per day
+                    );
+                    if (recordatorioTexto) {
+                        this.hablar(recordatorioTexto);
+                    }
+                }
+            }
+            // NEW 4-MINUTE PHASE (from 5:00 to 1:00 remaining: 300s down to 60s)
+            else if (this.timeLeft < 300 && this.timeLeft >= 60) {
+                // Ensure breathing text is cleared/updated for new phase
+                if (pulmonDiv) {
+                    pulmonDiv.innerText = "";
+                    pulmonDiv.classList.add('hidden');
+                }
+                if (faseSublimeTextDiv) {
+                    faseSublimeTextDiv.classList.remove('hidden');
+                }
+
+                // Start carousel if not already started
+                if (!this.carouselInterval) {
+                    startCarousel();
+                }
+
+                // Play new sublime audio phrases every ~20 seconds
+                if (this.timeLeft % 20 === 0 && this.timeLeft !== lastFaseSublimeAudioTime) {
+                    lastFaseSublimeAudioTime = this.timeLeft;
+                    let sublimeAudioText = this._getDailyNonRepeatingAudio(
+                        AUDIOS_FASE_SUBLIMES,
+                        "otg_historial_fase_casa_sublime_daily",
+                        5 // Max 5 sessions per day
+                    );
+                    if (sublimeAudioText) {
+                        faseSublimeTextDiv.innerText = sublimeAudioText;
+                        this.hablar(sublimeAudioText);
+                    }
+                }
+            }
+            // Transition to final 1-minute challenge (60s down to 0s)
+            else if (this.timeLeft < 60) {
+                // Clear any remaining elements for the 4-minute phase
+                if (pulmonDiv) pulmonDiv.innerText = "";
+                if (faseSublimeTextDiv) faseSublimeTextDiv.innerText = "";
+                stopCarousel(); // Stop carousel and hide it
+            }
+
+
+            if (this.timeLeft <= 0) {
+                clearInterval(this.timerEnfocado);
+                clearTimeout(this.salidaSugeridaTimeoutId);
+                this.salidaSugeridaTimeoutId = null;
+                // Do NOT cancel() here; let the queue finish
+                stopCarousel(); // Ensure carousel is stopped
+
+                if (circleElement) {
+                    circleElement.style.animation = "none";
+                    circleElement.style.transform = "scale(1)";
+                }
+                this.iniciarRetoCierre60Segundos();
+            }
+        }, 1000);
+    },
 
     /**
      * Advances to the next internal mission step.
@@ -1527,7 +1933,10 @@ iniciarRelojEnfocadoCasa(container, t) {
     iniciarRetoCierre60Segundos() {
         clearInterval(this.timerEnfocado);
         clearInterval(this.temporizadorCierre);
-        window.speechSynthesis.cancel();
+        // Do NOT cancel here, let the queue manage it
+        this.speechQueue = [];
+        this.isSpeaking = false;
+        window.speechSynthesis.cancel(); // Force cancel any *external* speech not managed by queue
        
         const t = {
             es: {
@@ -1614,18 +2023,18 @@ iniciarRelojEnfocadoCasa(container, t) {
             if (currentRetoIndex < secuenciaRetos.length) {
                 const reto = secuenciaRetos[currentRetoIndex];
                 if (retoTitulo) {
-                    retoTitulo.innerText = reto.titulo;
+                    retoTitulo.innerText = this.idiomaActual === 'es' ? reto.titulo : reto.titulo_en || reto.titulo;
                     retoTitulo.classList.remove('hidden');
                 }
                 if (retoDescripcion) {
-                    retoDescripcion.innerText = reto.descripcion;
+                    retoDescripcion.innerText = this.idiomaActual === 'es' ? reto.descripcion : reto.descripcion_en || reto.descripcion;
                     retoDescripcion.classList.remove('hidden');
                 }
                 if (retoImg) {
                     retoImg.src = `/static/${reto.img}`;
                     retoImg.classList.remove('hidden');
                 }
-                this.hablar(reto.descripcion);
+                this.hablar(this.idiomaActual === 'es' ? reto.descripcion : reto.descripcion_en || reto.descripcion);
                 currentRetoIndex++;
             }
         };
@@ -1658,7 +2067,7 @@ iniciarRelojEnfocadoCasa(container, t) {
                 // Cierre definitivo del ciclo clínico de 60 segundos
                 if (this.timeLeftCierre <= 0) {
                     clearInterval(this.temporizadorCierre);
-                    window.speechSynthesis.cancel();
+                    // Do NOT cancel() here; let the queue finish
                    
                     if (retoTitulo) retoTitulo.innerText = "";
                     if (retoDescripcion) retoDescripcion.innerText = "";
@@ -1691,8 +2100,15 @@ iniciarRelojEnfocadoCasa(container, t) {
         clearInterval(this.timerEnfocado);
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
-        clearInterval(this.salidaTimerId); // Clear SALIR specific timer
-        window.speechSynthesis.cancel();
+        clearInterval(this.salidaTimerId);
+        if (this.carouselInterval) { // NEW
+            clearInterval(this.carouselInterval);
+            this.carouselInterval = null;
+        }
+        // Do NOT cancel() here; let the queue manage it
+        this.speechQueue = [];
+        this.isSpeaking = false;
+        window.speechSynthesis.cancel(); // Force cancel any *external* speech not managed by queue
        
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
@@ -1740,7 +2156,14 @@ iniciarRelojEnfocadoCasa(container, t) {
         clearInterval(this.temporizadorCascada);
         clearInterval(this.temporizadorCierre);
         clearInterval(this.salidaTimerId);
-        window.speechSynthesis.cancel();
+        if (this.carouselInterval) { // NEW
+            clearInterval(this.carouselInterval);
+            this.carouselInterval = null;
+        }
+        // Do NOT cancel() here; let the queue manage it
+        this.speechQueue = [];
+        this.isSpeaking = false;
+        window.speechSynthesis.cancel(); // Force cancel any *external* speech not managed by queue
        
         if (this.salidaSugeridaTimeoutId) {
             clearTimeout(this.salidaSugeridaTimeoutId);
@@ -1752,6 +2175,10 @@ iniciarRelojEnfocadoCasa(container, t) {
         this.historialCasa = [];
         this.historialPreguntas = [];
         this.historialRetosSecuencias = [];
+        this.historialFaseCasaSublime = {}; // NEW: Reset daily history object
+        this.historialAudiosCasaSecuenciales = {}; // NEW: Reset daily history object
+        this.historialAudiosSalirSecuenciales = {}; // NEW: Reset daily history object
+        
         this.pasosMisiones = [];
         this.indiceMision = 0;
         this.isLocked = false;
@@ -1761,6 +2188,15 @@ iniciarRelojEnfocadoCasa(container, t) {
         location.reload();
     }
 }; // Cierre absoluto del objeto KERNEL
+
+// Optional: Placeholder for external music function if not already defined
+if (typeof iniciarMusicaRelajantePropia === 'undefined') {
+    window.iniciarMusicaRelajantePropia = function() {
+        console.log("Música relajante propia iniciada (función de placeholder).");
+        // Implement your music playback logic here
+        // e.g., playing an audio file, connecting to a music service
+    };
+}
 
 // Inicialización del ecosistema clínico una vez que el DOM está listo
 document.addEventListener('DOMContentLoaded', () => {
@@ -2051,7 +2487,9 @@ window.KERNEL = KERNEL;
   },
 
   interceptarBotonStart() {
-    setTimeout(() => this.forzarCierre15Minutos(), 900000);
+    setTimeout(() => this.forzarCierre15Minutos(), 900000); // 15 minutes = 900,000 ms (original logic)
+    // No action needed here, as the KERNEL.activarSensorSegundoPlano already handles the app's internal timer.
+    // This part of OTG_SENSORIAL is for the external "oasis" flow, which can remain 15 minutes.
     this.abrirOasisOcio();
   },
 
