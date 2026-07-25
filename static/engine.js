@@ -1239,7 +1239,7 @@ mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
     const cierreLogo = document.getElementById('cierre-logo'); 
     if (cierreLogo) cierreLogo.innerText = t.title; 
 
-    const cierreBoton = document.getElementById('btn-recomenzar-experiencia'); 
+    const cierreBoton = document.getElementById('btn-recomenzar-experience'); 
     if (cierreBoton) cierreBoton.innerText = t.recomenzar; 
 
     const cierreMensajeFinal = document.getElementById('cierre-mensaje-final'); 
@@ -1257,6 +1257,8 @@ mostrarPreguntasDeMarcaSeleccionada(nombreMarca, datos) {
         this.inicializarFlujoEmpresasClicables(); 
     }
 },
+
+inyectarBloquePreguntas() {
 
     /**
      * Executes the main logic to fetch recommendations from the backend.
