@@ -989,6 +989,19 @@ async def mando_integral(request: Request):
         diagnostico_sintoma_es = f"Diagnóstico: El cliente experimenta [{mente_str_es}] en relación al estímulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
         diagnostico_sintoma_en = f"Diagnostic: Client experiences [{mente_str_en}] linked to corporate stimulus [{marca_detectada}] in Zip Code {zip_code}."
         
+        # ==========================================================================================
+        # RECTIFICACIÓN CRÍTICA: Inicialización universal de target_link para evitar NameError
+        # ==========================================================================================
+        search_query_parts = []
+        if perfil_tipo == "accesible":
+            search_query_parts.append("wheelchair accessible")
+        elif perfil_tipo == "familia":
+            search_query_parts.append("family friendly")
+        
+        # Inyectamos dinámicamente la marca en la búsqueda de mapas para soportar cualquier empresa
+        search_query_parts.append(str(marca_detectada).lower())
+        target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}"
+        
         # Inyección de instrucciones específicas basadas en la empresa a marcar
         if marca_detectada == "Walmart":
             instruccion_fisiologica_es = "Estás en el templo del consumo. Hackea: detén tu marcha, inhala/exhala profundo. Repite: 'Yo soy el único producto que importa hoy'. Sal de la rutina."
