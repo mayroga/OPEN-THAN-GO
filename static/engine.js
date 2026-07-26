@@ -163,7 +163,7 @@ const KERNEL = {
     MAX_HISTORY_RETOS_SECUENCIAS: 3,
     DECAY_PER_DAY: 0.985,
     conteoInaccion: 0,
-    indicePreguntaCascada: 0, // <-- RECONECTADO: La coma es necesaria porque el objeto CONTINÚA abajo
+    indicePreguntaCascada: 0,
 
     sensorial_marcas: [
         "TikTok", "Instagram", "YouTube", "Spotify", "Netflix", "Uber", "Lyft",
@@ -722,7 +722,8 @@ const KERNEL = {
         document.getElementById('btn-stripe-checkout').onclick = async () => {
             this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela Stripe." : "Connecting to Stripe gateway.");
             try {
-                const response = await fetch("/api/create-checkout-session", { method: "POST" });
+                // CORRECCIÓN MECÁNICA: Unificar el endpoint de Stripe al definido en main.py
+                const response = await fetch("/crear-checkout", { method: "POST" });
                 const session = await response.json();
                 if (session.url) window.location.href = session.url;
             } catch (e) {
@@ -806,7 +807,8 @@ const KERNEL = {
                 btnStripe.onclick = async () => {
                     this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela de pagos Stripe." : "Connecting to Stripe payment gateway.");
                     try {
-                        const response = await fetch("/api/create-checkout-session", {
+                        // CORRECCIÓN MECÁNICA: Unificar el endpoint de Stripe al definido en main.py
+                        const response = await fetch("/crear-checkout", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ pase_tipo: index + 1 })
@@ -842,7 +844,8 @@ const KERNEL = {
                 }
                
                 try {
-                    const response = await fetch("/api/login-verificar", {
+                    // CORRECCIÓN MECÁNICA: Unificar el endpoint de login al definido en main.py
+                    const response = await fetch("/login-admin", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ username, password })
@@ -952,7 +955,7 @@ const KERNEL = {
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-        
+       
         // NEW: Call sensorial flow first
         this.mostrarSelectorEmpresas();
         // The rest of the form (cascading questions, free writing) will be enabled after sensorial flow completion or skip.
@@ -1255,257 +1258,234 @@ const KERNEL = {
     },
 
     /**
-* Converts text to speech using browser's SpeechSynthesis API.
-*/
- hablar(texto) {
- if (!('speechSynthesis' in window)) return;
- if (!texto) return;
- // Filtro radical: Elimina códigos de emojis, comillas, guiones y convierte puntuación en pausas limpias
- let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO")
-               .replace(/<[^>]*>/g, '')
-               .replace(/%EF%B8%8F/g, '')
-               .replace(/["'«»“”‘’_`~\-–—]/g, ' ')
-               .replace(/[,.;.:¡!¿?]/g, ' ');
+     * Converts text to speech using browser's SpeechSynthesis API.
+     */
+    hablar(texto) {
+        if (!('speechSynthesis' in window)) return;
+        if (!texto) return;
 
- const msg = new SpeechSynthesisUtterance(fx);
- msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
- msg.rate = 1.10;
- msg.pitch = 1.05;
- // Add an 'onend' event listener to process the next item in the queue
- msg.onend = () => {
- this.isSpeaking = false;
- this.speechQueue.shift(); // Remove the finished utterance from the queue
- if (this.speechQueue.length > 0) {
- this._speakNextInQueue();
- }
- };
- msg.onerror = (event) => {
- console.error("Speech synthesis error:", event.error);
- this.isSpeaking = false;
- // If an error occurs, cancel current speech and clear the rest of the queue
- window.speechSynthesis.cancel();
- this.speechQueue = [];
- };
- this.speechQueue.push(msg); // Add the new message to the queue
- if (!this.isSpeaking) {
- this._speakNextInQueue(); // If not speaking, start immediately
- }
- },
- // Helper to speak the next item in the queue
- _speakNextInQueue() {
- if (this.speechQueue.length > 0 && !this.isSpeaking) {
- this.isSpeaking = true;
- window.speechSynthesis.speak(this.speechQueue[0]);
- }
- },
+        let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
+        const msg = new SpeechSynthesisUtterance(fx);
+        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+        msg.rate = 1.10;
+        msg.pitch = 1.05;
+
+        // Add an 'onend' event listener to process the next item in the queue
+        msg.onend = () => {
+            this.isSpeaking = false;
+            this.speechQueue.shift(); // Remove the finished utterance from the queue
+            if (this.speechQueue.length > 0) {
+                this._speakNextInQueue();
+            }
+        };
+
+        msg.onerror = (event) => {
+            console.error("Speech synthesis error:", event.error);
+            this.isSpeaking = false;
+            // If an error occurs, cancel current speech and clear the rest of the queue
+            window.speechSynthesis.cancel();
+            this.speechQueue = [];
+        };
+
+        this.speechQueue.push(msg); // Add the new message to the queue
+        if (!this.isSpeaking) {
+            this._speakNextInQueue(); // If not speaking, start immediately
+        }
+    },
+
+    // Helper to speak the next item in the queue
+    _speakNextInQueue() {
+        if (this.speechQueue.length > 0 && !this.isSpeaking) {
+            this.isSpeaking = true;
+            window.speechSynthesis.speak(this.speechQueue[0]);
+        }
+    },
 
     /**
     * Changes the application's language and updates UI elements.
     * @param {string} lang - The target language ('es' or 'en').
     */
-     cambiarIdioma(lang) {
- this.idiomaActual = lang;
- localStorage.setItem("otg_language", lang);
- document.getElementById('lang-es').classList.toggle('active', lang === 'es');
- document.getElementById('lang-en').classList.toggle('active', lang === 'en');
- const t = {
-  es: {
-  title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?",
-  desahogo: "O escribe aquí tu propio agobio si no aparece arriba:",
-  placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre",
-  alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto",
-  solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido",
-  menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado",
-  menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA",
-  recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?",
-  volverApp: "Volver a la App",
-  // Sincronización del flujo sensorial inicial recobrado
-  sensorialTitle: "PERSONALIZA TU EXPERIENCIA",
-  sensorialTime: "Tiempo aproximado: 1 minuto.",
-  sensorialSub: "Selecciona el servicio que mejor representa lo que deseas hacer en este momento.",
-  sensorialZipSub: `Opciones disponibles para el Código Postal ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
-  sensorialPhase2: "¿Qué actividad quieres realizar en este momento?"
-  },
-  en: {
-  title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?",
-  desahogo: "Or write your own burden here if it does not appear above:",
-  placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control",
-  alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open",
-  solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored",
-  menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired",
-  menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME",
-  recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?",
-  volverApp: "Return to App",
-  // Sincronización del flujo sensorial inicial recobrado
-  sensorialTitle: "PERSONALIZE YOUR EXPERIENCE",
-  sensorialTime: "Estimated time: 1 minute.",
-  sensorialSub: "Select the service that best represents what you wish to do right now.",
-  sensorialZipSub: `Options available for ZIP Code ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
-  sensorialPhase2: "What activity do you want to do right now?"
-  }
- }[lang];
- document.getElementById('html-title').innerText = t.title;
- document.getElementById('txt-app-title').innerText = t.title;
- document.getElementById('lbl-zip').innerText = t.zip;
- 
- const currentSensorialContainerState = document.getElementById('otg-sensorial-container') && !document.getElementById('otg-sensorial-container').classList.contains('hidden');
- if (!currentSensorialContainerState) { 
-  document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
-  document.getElementById('lbl-desahogo').innerText = t.desahogo;
-  document.getElementById('inp-text-libre').placeholder = t.placeholder;
-  document.getElementById('btn-activar-libre').innerText = t.btn;
-  this.inyectarBloquePreguntas(); 
-  this.activarBotonMandoLibreInicial();
- } else {
-  // TRADUCCIÓN QUIRÚRGICA EN CALIENTE: Actualiza etiquetas sin alterar las marcas seleccionadas
-  const sensorialContainer = document.getElementById('otg-sensorial-container');
-  if (sensorialContainer) {
-   const badgeElement = sensorialContainer.querySelector('span');
-   const titleElement = sensorialContainer.querySelector('h4');
-   const subtitleElement = sensorialContainer.querySelector('p');
-   const fase1Para = document.querySelector('#otg-sensorial-fase-1 > p');
-   const btnContinue = document.getElementById('btn-sensorial-continue');
-   const btnSkip = document.getElementById('btn-sensorial-skip');
-   const fase2Title = document.querySelector('#otg-sensorial-fase-2 p');
+    cambiarIdioma(lang) {
+        this.idiomaActual = lang;
+        localStorage.setItem("otg_language", lang);
+        document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+        document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+       
+        const t = {
+            es: {
+                title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?",
+                desahogo: "O escribe aquí tu propio agobio si no aparece arriba:",
+                placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre",
+                alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto",
+                solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido",
+                menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado",
+                menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA",
+                recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?",
+                volverApp: "Volver a la App"
+            },
+            en: {
+                title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?",
+                desahogo: "Or write your own burden here if it does not appear above:",
+                placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control",
+                alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open",
+                solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored",
+                menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired",
+                menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME",
+                recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?",
+                volverApp: "Return to App"
+            }
+        }[lang];
 
-   if (badgeElement) badgeElement.innerText = lang === 'es' ? "Bienestar Inicial" : "Initial Wellbeing";
-   if (titleElement) titleElement.innerText = t.sensorialTitle;
-   if (subtitleElement) {
-    let zipValue = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
-    subtitleElement.innerText = `${zipValue ? t.sensorialZipSub : t.sensorialSub} ${t.sensorialTime}`;
-   }
-   if (fase1Para) fase1Para.innerText = t.sensorialSub;
-   if (btnContinue) btnContinue.innerText = lang === 'es' ? "Continuar →" : "Continue →";
-   if (btnSkip) btnSkip.innerText = lang === 'es' ? "Saltar y usar mando libre" : "Skip and use free control";
-   if (fase2Title) fase2Title.innerText = t.sensorialPhase2;
-  }
- }
- document.getElementById('opt-budget-0').innerText = t.budget0;
- document.getElementById('opt-budget-1').innerText = t.budget1;
- document.getElementById('opt-budget-2').innerText = t.budget2;
- document.getElementById('opt-perfil-solo').innerText = t.solo;
- document.getElementById('opt-perfil-familia').innerText = t.familia;
- document.getElementById('opt-perfil-accesible').innerText = t.accesible;
- document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido;
- document.getElementById('opt-mente-agotado').innerText = t.menteAgotado;
- document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
- document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
- document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
- document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
- document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
- const cierreLogo = document.getElementById('cierre-logo');
- if (cierreLogo) cierreLogo.innerText = t.title;
- const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
- if (cierreBoton) cierreBoton.innerText = t.recomenzar;
- const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
- if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
- const btnVolverApp = document.getElementById('btn-volver-app');
- if (btnVolverApp) btnVolverApp.title = t.volverApp;
- this.hablar(t.alert);
- },
+        document.getElementById('html-title').innerText = t.title;
+        document.getElementById('txt-app-title').innerText = t.title;
+        document.getElementById('lbl-zip').innerText = t.zip;
+        // The instruction and desahogo labels are initially set by sensorial flow, or updated here if main form visible
+        const currentSensorialContainerState = document.getElementById('otg-sensorial-container') && !document.getElementById('otg-sensorial-container').classList.contains('hidden');
+        if (!currentSensorialContainerState) { // Only update if main form is visible
+            document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
+            document.getElementById('lbl-desahogo').innerText = t.desahogo;
+            document.getElementById('inp-text-libre').placeholder = t.placeholder;
+            document.getElementById('btn-activar-libre').innerText = t.btn;
+            this.inyectarBloquePreguntas(); // Re-inject questions in new language
+            this.activarBotonMandoLibreInicial();
+        } else {
+            // If sensorial flow is active, re-render its content for language
+            this.mostrarSelectorEmpresas();
+        }
 
- mostrarSelectorEmpresas() {
- const wrapperForm = document.getElementById('wrapper-form');
- const mainFormContent = document.getElementById('main-form-content');
- let sensorialContainer = document.getElementById('otg-sensorial-container');
- if (!sensorialContainer) { // Create if it doesn't exist
- sensorialContainer = document.createElement('div');
- sensorialContainer.id = 'otg-sensorial-container';
- wrapperForm.insertBefore(sensorialContainer, mainFormContent); // Insert before main form content
- }
- sensorialContainer.classList.remove('hidden');
- if (mainFormContent) mainFormContent.classList.add('hidden'); // Hide main form content
- const t = {
- es: {
- title: "PERSONALIZA TU EXPERIENCIA",
- subtitle_main: "Selecciona el servicio que mejor representa lo que deseas hacer en este momento.",
- subtitle_zip: `Opciones disponibles para el Código Postal ${document.getElementById("inp-zip") ?
-document.getElementById("inp-zip").value.trim() : ""}.`,
- continue_btn: "Continuar →",
- skip_btn: "Saltar y usar mando libre",
- select_option: "Selecciona al menos una opción.",
- badge: "Bienestar Inicial",
- time: "Tiempo aproximado: 1 minuto."
- },
- en: {
- title: "PERSONALIZE YOUR EXPERIENCE",
- subtitle_main: "Select the service that best represents what you wish to do right now.",
- subtitle_zip: `Options available for ZIP Code ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
- continue_btn: "Continue →",
- skip_btn: "Skip and use free control",
- select_option: "Select at least one option.",
- badge: "Initial Wellbeing",
- time: "Estimated time: 1 minute."
- }
- }[this.idiomaActual];
- let zip = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
- let txtSubtitle = zip ? t.subtitle_zip : t.subtitle_main;
- // Shuffle marcas to ensure variety
- let shuffledMarcas = [...this.sensorial_marcas];
- for (let i = shuffledMarcas.length - 1; i > 0; i--) {
- const j = Math.floor(Math.random() * (i + 1));
- [shuffledMarcas[i], shuffledMarcas[j]] = [shuffledMarcas[j], shuffledMarcas[i]];
- }
- let selectedMarcasForDisplay = [];
- let usedMarcasForDisplay = new Set(this.historialSensorialMarcas);
- // Filter out brands recently used for display
- let availableMarcas = shuffledMarcas.filter(marca => !usedMarcasForDisplay.has(marca));
- if (availableMarcas.length < 12) { // If not enough unseen, reset history
- this.historialSensorialMarcas = [];
- localStorage.removeItem("otg_historial_sensorial_marcas");
- availableMarcas = shuffledMarcas; // Use all again
- }
- selectedMarcasForDisplay = availableMarcas.slice(0, 12); // Take first 12 unique after potential reset
- // Update history
- selectedMarcasForDisplay.forEach(marca => {
- this.historialSensorialMarcas.push(marca);
- });
- this.historialSensorialMarcas = this.historialSensorialMarcas.slice(-this.MAX_HISTORY_SENSORIAL_MARCAS);
- localStorage.setItem("otg_historial_sensorial_marcas", JSON.stringify(this.historialSensorialMarcas));
- let currentSelection = []; // To track user's selected brands temporarily
- sensorialContainer.innerHTML = `
- <div style="max-width:460px;margin:0 auto;padding-top:5px;">
- <div style="text-align:center;margin-bottom:15px;">
- <span style="background: #2e7d32; padding: 3px 8px; border-radius: 4px; font-size: .65rem; font-weight: bold; text-transform: uppercase;">
- ${t.badge}
- </span>
- <h4 style="color: #00bcd4; font-weight: 900; margin: 8px 0 3px; font-size: 1.15rem;">
- ${t.title}
- </h4>
- <p style="color: #aaa; font-size: .72rem; margin: 0;">
- ${txtSubtitle} ${t.time}
- </p>
- </div>
- <div id="otg-sensorial-fase-1">
- <p style="font-size: .85rem; font-weight: bold; color: #fff; text-align: center; line-height: 1.45; margin-bottom: 10px;">
- ${t.subtitle_main}
- </p>
- <div class="otg-grid-logos">
- ${selectedMarcasForDisplay.map(marca => `<div class="otg-card-logo" data-marca="${marca}">${marca}</div>`).join("")}
- </div>
- <button id="btn-sensorial-continue" style="width: 100%; background: #2e7d32; border: none; color: #fff; padding: 14px;
-border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: .8rem; letter-spacing: .5px;">
- ${t.continue_btn}
- </button>
- <button id="btn-sensorial-skip" style="width: 100%; background: none; border: 1px solid #444; color: #ccc; padding: 10px;
-border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .8rem;">
- ${t.skip_btn}
- </button>
- </div>
- <div id="otg-sensorial-fase-2" class="hidden"></div>
- </div>`;
- sensorialContainer.querySelectorAll('.otg-card-logo').forEach(card => {
- card.addEventListener('click', () => {
- const marca = card.dataset.marca;
- card.classList.toggle("active");
- if (card.classList.contains("active")) {
- currentSelection.push(marca);
- } else {
- currentSelection = currentSelection.filter(x => x !== marca);
- }
- });
- });
 
+        document.getElementById('opt-budget-0').innerText = t.budget0;
+        document.getElementById('opt-budget-1').innerText = t.budget1;
+        document.getElementById('opt-budget-2').innerText = t.budget2;
+        document.getElementById('opt-perfil-solo').innerText = t.solo;
+        document.getElementById('opt-perfil-familia').innerText = t.familia;
+        document.getElementById('opt-perfil-accesible').innerText = t.accesible;
+        document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido;
+        document.getElementById('opt-mente-agotado').innerText = t.menteAgotado;
+        document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
+        document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
+        document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
+        document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
+        document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
+       
+        const cierreLogo = document.getElementById('cierre-logo');
+        if (cierreLogo) cierreLogo.innerText = t.title;
+        const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
+        if (cierreBoton) cierreBoton.innerText = t.recomenzar;
+        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
+        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
+        const btnVolverApp = document.getElementById('btn-volver-app');
+        if (btnVolverApp) btnVolverApp.title = t.volverApp;
+
+        this.hablar(t.alert);
+    },
+
+    // ... inside KERNEL ...
+    mostrarSelectorEmpresas() {
+        const wrapperForm = document.getElementById('wrapper-form');
+        const mainFormContent = document.getElementById('main-form-content');
+        let sensorialContainer = document.getElementById('otg-sensorial-container');
+
+        if (!sensorialContainer) { // Create if it doesn't exist
+            sensorialContainer = document.createElement('div');
+            sensorialContainer.id = 'otg-sensorial-container';
+            wrapperForm.insertBefore(sensorialContainer, mainFormContent); // Insert before main form content
+        }
+        sensorialContainer.classList.remove('hidden');
+        if (mainFormContent) mainFormContent.classList.add('hidden'); // Hide main form content
+
+        const t = {
+            es: {
+                title: "PERSONALIZA TU EXPERIENCIA",
+                subtitle_main: "Selecciona el servicio que mejor representa lo que deseas hacer en este momento.",
+                subtitle_zip: `Opciones disponibles para el Código Postal ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
+                continue_btn: "Continuar →",
+                skip_btn: "Saltar y usar mando libre",
+                select_option: "Selecciona al menos una opción."
+            },
+            en: {
+                title: "PERSONALIZE YOUR EXPERIENCE",
+                subtitle_main: "Select the service that best represents what you wish to do right now.",
+                subtitle_zip: `Options available for ZIP Code ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
+                continue_btn: "Continue →",
+                skip_btn: "Skip and use free control",
+                select_option: "Select at least one option."
+            }
+        }[this.idiomaActual];
+
+        let zip = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
+        let txtSubtitle = zip ? t.subtitle_zip : t.subtitle_main;
+
+        // Shuffle marcas to ensure variety
+        let shuffledMarcas = [...this.sensorial_marcas];
+        for (let i = shuffledMarcas.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledMarcas[i], shuffledMarcas[j]] = [shuffledMarcas[j], shuffledMarcas[i]];
+        }
+       
+        let selectedMarcasForDisplay = [];
+        let usedMarcasForDisplay = new Set(this.historialSensorialMarcas);
+
+        // Filter out brands recently used for display
+        let availableMarcas = shuffledMarcas.filter(marca => !usedMarcasForDisplay.has(marca));
+       
+        if (availableMarcas.length < 12) { // If not enough unseen, reset history
+            this.historialSensorialMarcas = [];
+            localStorage.removeItem("otg_historial_sensorial_marcas");
+            availableMarcas = shuffledMarcas; // Use all again
+        }
+        selectedMarcasForDisplay = availableMarcas.slice(0, 12); // Take first 12 unique after potential reset
+
+        // Update history
+        selectedMarcasForDisplay.forEach(marca => {
+            this.historialSensorialMarcas.push(marca);
+        });
+        this.historialSensorialMarcas = this.historialSensorialMarcas.slice(-this.MAX_HISTORY_SENSORIAL_MARCAS);
+        localStorage.setItem("otg_historial_sensorial_marcas", JSON.stringify(this.historialSensorialMarcas));
+
+        let currentSelection = []; // To track user's selected brands temporarily
+
+        sensorialContainer.innerHTML = `
+            <div style="max-width:460px;margin:0 auto;padding-top:5px;">
+                <div style="text-align:center;margin-bottom:15px;">
+                    <span style="background: #2e7d32; padding: 3px 8px; border-radius: 4px; font-size: .65rem; font-weight: bold; text-transform: uppercase;">
+                        ${this.idiomaActual === 'es' ? 'Bienestar Inicial' : 'Initial Wellbeing'}
+                    </span>
+                    <h4 style="color: #00bcd4; font-weight: 900; margin: 8px 0 3px; font-size: 1.15rem;">
+                        ${t.title}
+                    </h4>
+                    <p style="color: #aaa; font-size: .72rem; margin: 0;">
+                        ${txtSubtitle}. Tiempo aproximado: 1 minuto.
+                    </p>
+                </div>
+                <div id="otg-sensorial-fase-1">
+                    <p style="font-size: .85rem; font-weight: bold; color: #fff; text-align: center; line-height: 1.45; margin-bottom: 10px;">
+                        ${t.subtitle_main}
+                    </p>
+                    <div class="otg-grid-logos">
+                        ${selectedMarcasForDisplay.map(marca => `<div class="otg-card-logo" data-marca="${marca}">${marca}</div>`).join("")}
+                    </div>
+                    <button id="btn-sensorial-continue" style="width: 100%; background: #2e7d32; border: none; color: #fff; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: .8rem; letter-spacing: .5px;">
+                        ${t.continue_btn}
+                    </button>
+                    <button id="btn-sensorial-skip" style="width: 100%; background: none; border: 1px solid #444; color: #ccc; padding: 10px; border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .8rem;">
+                        ${t.skip_btn}
+                    </button>
+                </div>
+                <div id="otg-sensorial-fase-2" class="hidden"></div>
+            </div>`;
+
+        sensorialContainer.querySelectorAll('.otg-card-logo').forEach(card => {
+            card.addEventListener('click', () => {
+                const marca = card.dataset.marca;
+                card.classList.toggle("active");
+                if (card.classList.contains("active")) {
+                    currentSelection.push(marca);
+                } else {
+                    currentSelection = currentSelection.filter(x => x !== marca);
+                }
+            });
+        });
 
         document.getElementById('btn-sensorial-continue').addEventListener('click', () => {
             if (currentSelection.length === 0) {
@@ -1568,26 +1548,25 @@ border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .8rem;">
         this.historialSensorialPreguntas = this.historialSensorialPreguntas.slice(-this.MAX_HISTORY_SENSORIAL_PREGUNTAS);
         localStorage.setItem("otg_historial_sensorial_preguntas", JSON.stringify(this.historialSensorialPreguntas));
 
-         fase2.innerHTML = `
- <div style="background: #111; border: 1px solid #222; padding: 15px; border-radius: 8px; margin-top: 10px;">
- <span style="color: #00bcd4; font-size: .65rem; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">
- ${t.selected}
- </span>
- <p style="font-size: 1rem; font-weight: bold; line-height: 1.45; margin: 5px 0 15px; color: #fff;">
- ${this.idiomaActual === 'es' ? '¿Qué actividad quieres realizar en este momento?' : 'What activity do you want to do right now?'}
- </p>
- <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[0]}', 'ansioso')">
- ${selectedQuestionsForDisplay[0]}
- </button>
- <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[1]}', 'estresado')">
- ${selectedQuestionsForDisplay[1]}
- </button>
- <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[2]}', 'curioso')">
- ${selectedQuestionsForDisplay[2]}
- </button>
- </div>
- `;
-
+        fase2.innerHTML = `
+            <div style="background: #111; border: 1px solid #222; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                <span style="color: #00bcd4; font-size: .65rem; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">
+                    ${t.selected}
+                </span>
+                <p style="font-size: 1rem; font-weight: bold; line-height: 1.45; margin: 5px 0 15px; color: #fff;">
+                    ${this.idiomaActual === 'es' ? '¿Qué actividad quieres realizar en este momento?' : 'What activity do you want to do right now?'}
+                </p>
+                <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[0]}', 'agotado')">
+                    ${selectedQuestionsForDisplay[0]}
+                </button>
+                <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[1]}', 'normal')">
+                    ${selectedQuestionsForDisplay[1]}
+                </button>
+                <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[2]}', 'curioso')">
+                    ${selectedQuestionsForDisplay[2]}
+                </button>
+            </div>
+        `;
         // Speak the selected brand name and a random question
         this.hablar(t.selected.replace(`: ${marca}`, '') + ". " + (this.idiomaActual === 'es' ? "¿Qué actividad quieres realizar en este momento?" : "What activity do you want to do right now?"));
     },
@@ -1604,20 +1583,20 @@ border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .8rem;">
 
         // Populate desahogo and mente based on selections
         inpTextLibre.value = `${selectedBrand}: ${selectedQuestion}`;
-        
-         // Map old 'type' to new 'mente' coincidiendo exactamente con lo que pide main.py
- let mappedMente = "aburrido"; // Default
- if (type === 'agotado') { 
-  mappedMente = "estresado"; 
- } else if (type === 'ansioso') { 
-  mappedMente = "ansioso"; // Integración directa para capturar el estado ansioso nativo
- } else if (type === 'agotado_pasivo') { 
-  mappedMente = "agotado"; 
- } else if (type === 'normal') { 
-  mappedMente = "cansado"; 
- } else if (type === 'curioso') { 
-  mappedMente = "aburrido"; 
- }
+       
+        // Map old 'type' to new 'mente'
+        let mappedMente = "aburrido"; // Default
+        if (type === 'agotado') { // "Quiero usar este servicio ahora." (implies wanting immediate relief/action)
+            mappedMente = "estresado"; // Could be stressed/agotado, picking stressed as more "active" need
+        } else if (type === 'normal') { // "Solo estoy explorando opciones." (implies less urgency, maybe bored)
+            mappedMente = "aburrido";
+        } else if (type === 'curioso') { // "Quiero descubrir nuevas ideas." (implies bored or seeking learning)
+            mappedMente = "aburrido"; // Use bored as a base, then the algorithm can refine
+        }
+        if (menteSelector) {
+            menteSelector.value = mappedMente;
+            menteSelector.dispatchEvent(new Event('change')); // Trigger change event
+        }
        
         // After sensorial flow, enable main form logic
         this.inyectarBloquePreguntas();
@@ -1682,15 +1661,16 @@ border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .8rem;">
             return;
         }
 
-    const payload = {
-        zip: zipInput ? zipInput.value.trim() : "",
-        modo: modoActual,
-        desahogo: desahogoInput ? desahogoInput.value.trim() : "",
-        lang: this.idiomaActual,
-        mente: document.getElementById('mente-selector').value,
-        budget: document.getElementById('budget-selector').value,
-        perfil_tipo: document.getElementById('perfil-selector').value
-    };
+        const payload = {
+            zip: zipInput ? zipInput.value.trim() : "",
+            modo: modoActual,
+            desahogo: desahogoInput ? desahogoInput.value.trim() : "",
+            lang: this.idiomaActual,
+            mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido",
+            budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0",
+            perfil: document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo",
+            perfil_local: this.obtenerPerfilLocal(),
+        };
 
         if (modoActual === "CASA") {
             payload.historial_casa = this.historialCasa;
@@ -1737,31 +1717,34 @@ border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .8rem;">
         this.mensajeCalidezHumanaActual = textoElegido;
        
      // MADO: ACCIÓN DE CAMPO (SALIR)
-if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
-this.historialSalir = data.historial_salir_actualizado || [];
-localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-this.pasosMisiones = data.misiones || [];
-this.mostrarOpcionesSalir(container);
-}
-// === CORRECCIÓN MAESTRA: SINOPSIS DE ENRUTAMIENTO PARA EL MODO CASA ===
-// Agregamos la validación exacta de "CASA" para enganchar perfectamente con las respuestas del backend
-else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA" || this.tipoEscapeGlobal === "CASA") {
-this.historialCasa = data.historial_casa_actualizado || [];
-localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+ if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
+ this.historialSalir = data.historial_salir_actualizado || [];
+ localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
  this.pasosMisiones = data.misiones || [];
- this.procesarFlujoSecuencial(container);
+ this.mostrarOpcionesSalir(container);
  }
- } catch (error) {
- console.error("Fetch error:", error);
- alert(this.idiomaActual === 'es'
- ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo."
- : "Connection error with the server. Please try again."
- );
- document.getElementById('wrapper-form').classList.remove('hidden');
- container.classList.add('hidden');
- this.isLocked = false;
- this.validarZip();
- }
+ // === CORRECCIÓN MAESTRA: SINOPSIS DE ENRUTAMIENTO PARA EL MODO CASA ===
+ // Cambiamos "INTERVENCION_DOMESTICA" por "MODO_CASA" para que enganche perfectamente con el Backend
+ else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
+ this.historialCasa = data.historial_casa_actualizado || [];
+ localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+
+           
+            this.pasosMisiones = data.misiones || [];
+            this.procesarFlujoSecuencial(container);
+        }
+       
+    } catch (error) {
+        console.error("Fetch error:", error);
+        alert(this.idiomaActual === 'es'
+            ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo."
+            : "Connection error with the server. Please try again."
+        );
+        document.getElementById('wrapper-form').classList.remove('hidden');
+        container.classList.add('hidden');
+        this.isLocked = false;
+        this.validarZip();
+    }
 },
 
     /**
@@ -2218,6 +2201,107 @@ localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
         this.datosLugarGlobal = null;
        
         location.reload();
+    },
+
+    // ==========================================================================================
+    // INYECCIÓN OPERATIVA: CONTROLADORES DE COMPRA Y ACCESO ADMINISTRATIVO CON REQUEST SEGURO
+    // (Integrado desde el COMPLEMENTO NATIVO DE BIENESTAR: MOTOR SENSORIAL)
+    // ==========================================================================================
+    procesarPagoStripe: function(planSeleccionado) {
+        let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo';
+        console.log("Iniciando pasarela de pago para el plan:", planSeleccionado);
+       
+        fetch('/crear-checkout', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                tipo_plan: planSeleccionado,
+                user_id: userId
+            })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error("Error en la respuesta del servidor");
+            return res.json();
+        })
+        .then(data => {
+            if (data.url) {
+                window.location.href = data.url;
+            } else if (data.error) {
+                alert("Error de Stripe: " + data.error);
+            }
+        })
+        .catch(err => {
+            console.error('Error crítico de pasarela:', err);
+            alert("No se pudo conectar con el servidor de pagos. Revisa tu conexión.");
+        });
+    },
+
+    inicializarBypassDesarrolladorExterno: function() {
+        let clics = 0;
+        let t;
+       
+        // Usamos document.body como fallback para el trigger si 'cierre-logo' no existe o no es adecuado
+        const trigger = document.getElementById('cierre-logo') || document.body;
+       
+        trigger.addEventListener('click', () => {
+            clics++;
+            clearTimeout(t);
+           
+            t = setTimeout(() => {
+                clics = 0;
+            }, 1500);
+           
+            if (clics === 3) {
+                clics = 0;
+                let user = prompt("Mantenimiento OTG - Usuario:");
+                let pass = prompt("Mantenimiento OTG - Contraseña:");
+               
+                if (!user || !pass) return;
+               
+                // Ejecuta la llamada forzando los encabezados requeridos por tu main.py de FastAPI
+                fetch('/login-admin', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: user,
+                        password: pass
+                    })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error("Credenciales inválidas de servidor");
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.status === "success" || data.role === "admin") {
+                        localStorage.setItem('otg_user_role', 'admin');
+                        alert("Acceso Desarrollador Concedido. Servicio Infinito Activo.");
+                        location.reload();
+                    }
+                })
+                .catch(err => {
+                    console.error("Fallo de autenticación:", err);
+                    alert("Credenciales inválidas de Render. Acceso denegado.");
+                });
+            }
+        });
+    },
+
+    verificarAccesoInicialYOcultarPaywall: function() {
+        const r = localStorage.getItem('otg_user_role');
+        const p = localStorage.getItem('otg_pase_stripe');
+        if (r === 'admin' || p) {
+            const paywall = document.getElementById('otg-muro-comercial'); // Asumiendo un ID para el muro de pago
+            if (paywall) paywall.style.display = 'none';
+           
+            const mainWrapper = document.getElementById('wrapper-form');
+            if (mainWrapper) mainWrapper.classList.remove('hidden');
+        }
     }
 }; // Cierre absoluto del objeto KERNEL
 
