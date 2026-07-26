@@ -893,6 +893,9 @@ async def webhook_stripe(request: Request):
     return {"status": "success"}
    
 
+# OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
+# Company: May Roga LLC
+# File: main.py - SECCIÓN 2 DE 2 (CWRE Logic)
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
     """
@@ -902,51 +905,28 @@ async def mando_integral(request: Request):
     payload = await request.json()
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
-    # estado = str(payload.get("estado", "FL")).strip() # Not used in current logic, but kept
-    # region = str(payload.get("region", "")).strip() # Not used in current logic, but kept
+    estado = str(payload.get("estado", "FL")).strip()
+    region = str(payload.get("region", "")).strip()
     mente = str(payload.get("mente", "aburrido")).lower()
     budget = str(payload.get("budget", "0"))
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
-
+   
     if zip_code and not re.fullmatch(r"^\d{5}$", zip_code):
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}
-        )
-
+        return JSONResponse({"error": "Código Postal inválido. Debe ser 5 dígitos numéricos."}, status_code=400)
+       
     perfil_local = payload.get("perfil_local", {})
     if not isinstance(perfil_local, dict):
         perfil_local = {}
-
+       
     perfil_local = {
         **DEFAULT_NECESSITY_VECTOR,
         **{k: v for k, v in perfil_local.items() if k in DEFAULT_NECESSITY_VECTOR or k == "indicador_ansiedad"}
     }
-
     if "indicador_ansiedad" not in perfil_local:
         perfil_local["indicador_ansiedad"] = 0
-
-    # === INTERCEPCIÓN DE SEGURIDAD Y AVISO LEGAL OBLIGATORIO ===
-    ADVERTENCIA_LEGAL_ES = (
-        "AVISO DE SEGURIDAD: Está prohibido usar Open Than Go mientras manejas. Tu seguridad es lo primero. "
-        "El uso es bajo tu propio riesgo y exime de toda responsabilidad a May Roga LLC."
-    )
-    ADVERTENCIA_LEGAL_EN = (
-        "SAFETY NOTICE: Using Open Than Go while driving is strictly prohibited. Your safety comes first. "
-        "Use is at your own risk and exempts May Roga LLC from all liability."
-    )
-
-    # Inicialización de variables para evitar NameError en todas las ramas de ejecución
-    marca_detectada = None
-    instruccion_fisiologica_es = "Detente, respira libre."
-    instruccion_fisiologica_en = "Stop, breathe free."
-    diagnostico_sintoma_es = "Agotamiento rutinario."
-    diagnostico_sintoma_en = "Routine exhaustion."
-    enlace_yt = ""
-    enlace_sp = ""
-   
+       
     # ==========================================================================================
     # MANIFIESTO MATRICIAL ABSOLUTO: TRADUCTOR PARÁSITO E INTERCEPTOR RECONFIGURADO V2
     # === MODIFICACIÓN: LÓGICA DE DETECCIÓN Y GENERACIÓN DE MENSAJES CONCISOS ===
@@ -1131,9 +1111,11 @@ async def mando_integral(request: Request):
         "misiones": final_misiones_para_frontend,
         "historial_salir_actualizado": historial_salir
     })
-# ==========================================================================================
+
+# ==============================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
-# ==========================================================================================
+# ==============================================================================
 if __name__ == "__main__":
-    port_env = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
+    import os
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
