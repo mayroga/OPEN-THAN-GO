@@ -989,21 +989,7 @@ async def mando_integral(request: Request):
         diagnostico_sintoma_es = f"Diagnóstico: El cliente experimenta [{mente_str_es}] en relación al estímulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
         diagnostico_sintoma_en = f"Diagnostic: Client experiences [{mente_str_en}] linked to corporate stimulus [{marca_detectada}] in Zip Code {zip_code}."
         
-        # ==========================================================================================
-        # RESTAURACIÓN ABSOLUTA: Cálculo nativo de target_link sin alterar variables globales
-        # ==========================================================================================
-        search_query_parts = []
-        if perfil_tipo == "accesible":
-            search_query_parts.append("wheelchair accessible")
-        elif perfil_tipo == "familia":
-            search_query_parts.append("family friendly")
-        
-        search_query_parts.append(str(marca_detectada).lower())
-        target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}"
-        
-        # ==========================================================================================
-        # SISTEMA NATIVO PRESERVADO: Instrucciones biológicas originales de ejercicios de 15 min
-        # ==========================================================================================
+        # Inyección de instrucciones específicas basadas en la empresa a marcar
         if marca_detectada == "Walmart":
             instruccion_fisiologica_es = "Estás en el templo del consumo. Hackea: detén tu marcha, inhala/exhala profundo. Repite: 'Yo soy el único producto que importa hoy'. Sal de la rutina."
             instruccion_fisiologica_en = "You are in the consumption temple. Hack it: stop, inhale/exhale deeply. Repeat: 'I am the only product that matters today'. Exit routine."
@@ -1017,15 +1003,14 @@ async def mando_integral(request: Request):
             instruccion_fisiologica_es = "Usas sonidos para aislarte. Detén el audio. Ejecuta el Módulo Silencio Mental 1 minuto. Siente tu ritmo cardíaco en este Código Postal."
             instruccion_fisiologica_en = "You use sounds to isolate. Stop audio. Execute 1-minute Mental Silence Module. Feel your heart rhythm in this Zip Code."
         else:
-            # RESTAURACIÓN MISIONES DE EJERCICIO ORIGINALES (FUERA DE CASA - 15 MINUTOS)
-            instruccion_fisiologica_es = f"Inicia un ejercicio de campo de 15 minutos fuera de casa. Rompe el control de [{marca_detectada}]. Camina rápido, activa tu circulación y oxigena tus células en el exterior."
-            instruccion_fisiologica_en = f"Start a 15-minute field exercise outside your home. Break the control of [{marca_detectada}]. Walk fast, activate circulation, and oxygenate your cells outdoors."
+            instruccion_fisiologica_es = f"Identificaste que [{marca_detectada}] satura tu mente. Rebélate: usa pasillos, aire libre o ventanas. Haz una pausa biológica profunda de 60 segundos. Recupera el control."
+            instruccion_fisiologica_en = f"You identified [{marca_detectada}] saturating your mind. Rebel: use halls, open air, or windows. Take a deep 60-sec biological pause. Regain control."
             
         search_term_antidoto = ANTIDOTOS_DIGITALES_SEARCH_TERMS.get(mente, BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
         enlace_yt = f"{BIG_TECH_RESOURCES['youtube_base_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
         enlace_sp = f"{BIG_TECH_RESOURCES['spotify_base_search_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
         
-        # Configuración adaptativa de las 3 preguntas fundamentales para el FrontEnd
+        # Tus preguntas originales del guion que resuelven la queja
         preguntas_es = [
             "¿Qué actividad quieres realizar en este momento?",
             "¿Cuál de estos servicios forma parte de tu rutina hoy?",
@@ -1049,7 +1034,7 @@ async def mando_integral(request: Request):
             "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
             "destino_instruccion": instruccion_fisiologica_es,
             "destino_instruccion_en": instruccion_fisiologica_en,
-            "destino_coordenadas_gps": target_link,
+            "destino_coordenadas_gps": target_link, # Mantiene tu redirección original intacta
             "enlace_youtube": enlace_yt,
             "enlace_spotify": enlace_sp,
             "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
@@ -1068,87 +1053,6 @@ async def mando_integral(request: Request):
             "drive_prohibited": True
         })
 
-    else:
-        # 2. INTERVENCIÓN EXTERNA (MODO SALIR) - ENTRADA POR DEFECTO
-        opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-        historial_salir = payload.get("historial_salir", [])
-       
-        misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
-            n=3,
-            misiones=opciones_salir_candidatas,
-            perfil_local=perfil_local,
-            historial_actual=historial_salir
-        )
-
-        final_misiones_para_frontend = []
-        antidotos_digitales_default_yt = BIG_TECH_RESOURCES[f'youtube_base_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
-        antidotos_digitales_default_sp = BIG_TECH_RESOURCES[f'spotify_base_search_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'spotify_default_genre_link_{lang}'])
-
-
-        for info_seleccionada in misiones_seleccionadas_raw:
-            # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO AISLADOS PARA LA INTERFAZ ===
-            precio_real = ""
-            if budget == "0":
-                precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
-            elif budget == "1":
-                precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
-            elif budget == "2":
-                precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
-
-            quienes_van = ""
-            if perfil_tipo == "solo":
-                quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
-            elif perfil_tipo == "familia":
-                quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
-            elif perfil_tipo == "accesible":
-                quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
-
-            # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
-            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
-            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or ""
-            donde_base_lang = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-            guia_masticada_lang = info_seleccionada.get('porque_en', info_seleccionada.get('porque', '')) if lang == "en" else info_seleccionada.get('porque', '')
-
-            search_query_parts = []
-            if perfil_tipo == "accesible":
-                search_query_parts.append("wheelchair accessible")
-            elif perfil_tipo == "familia":
-                search_query_parts.append("family friendly")
-               
-            search_query_parts.append(info_seleccionada.get("gps", "park"))
-            target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}"
-            final_vector_necesidades = info_seleccionada.get("vector_necesidades", {})
-
-            # Usar los enlaces por defecto si no están definidos en la misión
-            enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
-            enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
-
-            # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
-            final_misiones_para_frontend.append({
-                "destino_id": info_seleccionada.get("id"),
-                "destino_titulo": titulo_ganador_lang,
-                "destino_titulo_en": (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper(),
-                "que_hacer": que_hacer_lang,
-                "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
-                "destino_entorno": donde_base_lang,
-                "destino_instruccion": guia_masticada_lang.strip(),
-                "destino_instruccion_en": info_seleccionada.get("porque_en", info_seleccionada.get("porque", "")).strip(),
-                "destino_coordenadas_gps": target_link,
-                "vector_entorno_seleccionado": final_vector_necesidades,
-                "enlace_youtube": enlace_yt,
-                "enlace_spotify": enlace_sp
-            })
-            historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
-
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "misiones": final_misiones_para_frontend,
-            "historial_salir_actualizado": historial_salir,
-            "forced_recovery": False,
-            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
-            "drive_prohibited": True
-        })
 # ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==========================================================================================
