@@ -16,14 +16,9 @@ const KERNEL = {
     historialFaseCasaSublime: {}, // New history for the 4-min phase audio (daily object)
     historialAudiosCasaSecuenciales: {}, // History for AUDIOS_SECUENCIALES_CASA (daily object)
     historialAudiosSalirSecuenciales: {}, // History for AUDIOS_SECUENCIALES_SALIR (daily object)
-    historialSensorialMarcas: [], // Tracks recently selected brands for sensorial flow
-    historialSensorialPreguntas: [], // Tracks recently selected questions from sensorial_preguntas for sensorial flow
-
     MAX_HISTORY_FASE_CASA_SUBLIME: 28, // Max unique phrases in pool. If pool smaller, will reset history after it's exhausted.
     MAX_HISTORY_AUDIOS_CASA_SECUENCIALES: 29, // Max unique phrases in pool. If pool smaller, will reset history after it's exhausted.
     MAX_HISTORY_AUDIOS_SALIR_SECUENCIALES: 10, // Max unique phrases in pool. If pool smaller, will reset history after it's exhausted.
-    MAX_HISTORY_SENSORIAL_MARCAS: 12, // Max unique brands for display
-    MAX_HISTORY_SENSORIAL_PREGUNTAS: 3, // Max unique questions from sensorial_preguntas
    
     "AUDIOS_FASE_CASA_SUBLIMES_ES": [ // Renamed from SUBIMES to SUBLIMES for correct spelling
         "Siente la quietud. Este es tu santuario. Permítete descansar. Eres valioso.",
@@ -77,7 +72,7 @@ const KERNEL = {
         "Your spirit soars. Feel the lightness of being. Fly with your spirit.",
         "This space is sacred. Your well-being is the priority. Prioritize your well-being.",
         "Harmony surrounds you. Allow it to fill you completely. Fill with harmony.",
-        "You are worthy of this peace. Acce pt it without reservation. Accept this calm.",
+        "You are worthy of this peace. Accept it without reservation. Accept this calm.",
         "Time stops for you. Enjoy this oasis. Live your own time.",
         "Calm is your power. Manifest from serenity. Use your power.",
         "With every pulse, life whispers hope. Listen. Hope envelops you.",
@@ -163,137 +158,7 @@ const KERNEL = {
     MAX_HISTORY_RETOS_SECUENCIAS: 3,
     DECAY_PER_DAY: 0.985,
     conteoInaccion: 0,
-    indicePreguntaCascada: 0,
-
-    sensorial_marcas: [
-        "TikTok", "Instagram", "YouTube", "Spotify", "Netflix", "Uber", "Lyft",
-        "American", "Delta", "JetBlue", "Southwest", "Avianca", "LATAM", "Aeromexico",
-        "Copa", "Volaris", "WesternUnion", "Zelle", "Amazon", "Temu", "Walmart",
-        "Costco", "Target", "DollarTree", "McDonald's", "Starbucks", "Burger King",
-        "Airbnb", "Booking.com", "Expedia", "Hotels.com", "Trivago", "Priceline",
-        "Motel 6", "Super 8", "Days Inn", "Holiday Inn", "Marriott", "Hilton",
-        "Tinder", "ChatGPT", "GetMyBoat", "Boatsetter", "Click&Boat", "Sailo",
-        "Carnival", "Celebrity Cruises", "MSC Cruises", "Viajes El Corte Inglés",
-        "Despegar", "Pizza Hut", "Papa Johns", "Little Caesars", "Domino's",
-        "Wendy's", "Chick fil A", "Nike", "Adidas", "Ross Dress for Less",
-        "Burlington", "DD'S Discounts", "Crowley Carbon", "Transcargo", "CubaMax",
-        "Va Cuba", "Cargolux", "Aeroméxico Cargo", "Dachser", "Seaboard Marine",
-        "Popeyes", "KFC", "PolloTropical", "Church's Texas Chicken", "Miami Dade Transit",
-        "Brightline", "SunPass", "FLHSMV", "Fair Health Consumer", "GoRenew",
-        "Clear Health Costs", "Florida Health Finder", "DentalPlans", "NeedyMeds Clinic Finder",
-        "Florida Blue", "Aetna", "UnitedHealthcare", "Cigna", "Oscar Health",
-        "Molina Healthcare", "Sunshine Health", "Indeed", "LinkedIn", "USAJOBS",
-        "CareerOneStop", "Upwork", "Fiverr", "FlexJobs"
-    ],
-    sensorial_urls: {
-        "TikTok": "https://tiktok.com",
-        "Instagram": "https://instagram.com",
-        "YouTube": "https://youtube.com",
-        "Spotify": "https://spotify.com",
-        "Netflix": "https://netflix.com",
-        "Uber": "https://uber.com",
-        "Lyft": "https://lyft.com",
-        "GetMyBoat": "https://getmyboat.com",
-        "Boatsetter": "https://boatsetter.com",
-        "Click&Boat": "https://clickandboat.com",
-        "Sailo": "https://sailo.com",
-        "Carnival": "https://carnival.com",
-        "Celebrity Cruises": "https://celebritycruises.com",
-        "MSC Cruises": "https://msccruises.com",
-        "Viajes El Corte Inglés": "https://viajeselcorteingles.com",
-        "Despegar": "https://despegar.com",
-        "American": "https://aa.com",
-        "Delta": "https://delta.com",
-        "Pizza Hut": "https://pizzahut.com",
-        "Papa Johns": "https://papajohns.com",
-        "Little Caesars": "https://littlecaesars.com",
-        "Domino's": "https://dominos.com",  
-        "Wendy's": "https://wendys.com",
-        "Chick fil A": "https://chick-fil-a.com",  
-        "JetBlue": "https://jetblue.com",
-        "Southwest": "https://southwest.com",
-        "Avianca": "https://avianca.com",
-        "LATAM": "https://latamairlines.com",
-        "Aeromexico": "https://aeromexico.com",
-        "Copa": "https://copaairlines.com",
-        "Volaris": "https://volaris.com",
-        "WesternUnion": "https://westernunion.com",
-        "Zelle": "https://zellepay.com",
-        "Amazon": "https://amazon.com",
-        "Temu": "https://temu.com",
-        "Nike": "https://nike.com",
-        "Adidas": "https://adidas.com",
-        "Ross Dress for Less": "https://rossstores.com",
-        "Burlington": "https://burlington.com",
-        "DD'S Discounts": "https://ddsdiscounts.com",
-        "Crowley Carbon": "https://crowley.com",
-        "Transcargo": "https://transcargo.com",
-        "CubaMax": "https://cubamax.com",
-        "Va Cuba": "https://vacuba.com",
-        "Cargolux": "https://cargolux.com",
-        "Aeroméxico Cargo": "https://aeromexicocargo.com.mx",
-        "Dachser": "https://dachser.com",
-        "Seaboard Marine": "https://seaboardmarine.com",
-        "Walmart": "https://walmart.com",
-        "Costco": "https://costco.com",
-        "Target": "https://target.com",
-        "DollarTree": "https://dollartree.com",
-        "Popeyes": "https://popeyes.com",
-        "KFC": "https://kfc.com",
-        "PolloTropical": "https://pollotropical.com",
-        "Church's Texas Chicken": "https://churchs.com",
-        "McDonald's": "https://mcdonalds.com",
-        "Starbucks": "https://starbucks.com",
-        "Burger King": "https://bk.com",
-        "Airbnb": "https://airbnb.com",
-        "Booking.com": "https://booking.com",
-        "Expedia": "https://expedia.com",
-        "Hotels.com": "https://hotels.com",
-        "Trivago": "https://trivago.com",
-        "Priceline": "https://priceline.com",
-        "Motel 6": "https://motel6.com",
-        "Super 8": "https://wyndhamhotels.com",
-        "Days Inn": "https://wyndhamhotels.com",
-        "Holiday Inn": "https://ihg.com",
-        "Miami Dade Transit": "https://miamidade.gov",
-        "Brightline": "https://gobrightline.com",
-        "SunPass": "https://sunpass.com",
-        "FLHSMV": "https://flhsmv.gov",
-        "Fair Health Consumer": "https://fairhealthconsumer.org",
-        "GoRenew": "https://services.flhsmv.gov/virtualoffice/",
-        "Clear Health Costs": "https://clearhealthcosts.com",
-        "Florida Health Finder": "https://healthfinder.fl.gov",
-        "DentalPlans": "https://dentalplans.com",
-        "NeedyMeds Clinic Finder": "https://needymeds.org",
-        "Florida Blue": "https://floridablue.com",
-        "Aetna": "https://aetna.com",
-        "UnitedHealthcare": "https://uhc.com",
-        "Cigna": "https://cigna.com",
-        "Oscar Health": "https://hioscar.com",
-        "Molina Healthcare": "https://molinahealthcare.com",
-        "Sunshine Health": "https://sunshinehealth.com",
-        "Indeed": "https://indeed.com",
-        "LinkedIn": "https://linkedin.com",
-        "USAJOBS": "https://usajobs.gov",
-        "CareerOneStop": "https://careeronestop.org",
-        "Upwork": "https://upwork.com",
-        "Fiverr": "https://fiverr.com",
-        "FlexJobs": "https://flexjobs.com",
-        "Marriott": "https://marriott.com",
-        "Hilton": "https://hilton.com",
-        "Tinder": "https://tinder.com",
-        "ChatGPT": "https://chatgpt.com"
-    },
-    sensorial_preguntas_es: [
-        "Quiero usar este servicio ahora.",
-        "Solo estoy explorando opciones.",
-        "Quiero descubrir nuevas ideas."
-    ],
-    sensorial_preguntas_en: [
-        "I want to use this service now.",
-        "I'm just exploring options.",
-        "I want to discover new ideas."
-    ],
+    indicePreguntaCascada: 0, // <-- RECONECTADO: La coma es necesaria porque el objeto CONTINÚA abajo
 
     // New helper to manage daily history for all audio phrases to prevent repetition across 5 sessions
     _getDailyNonRepeatingAudio(pool, historyKey, maxSessions = 5) {
@@ -307,7 +172,7 @@ const KERNEL = {
 
         // Get the current session's phrases, or create a new session if needed
         let currentSessionPhrases;
-        if (historyData.sessions.length === 0 || historyData.sessions[historyData.sessions.length - 1].phrases.length > 0 && KERNEL.sessionSeed !== historyData.sessions[historyData.sessions.length - 1].seed) {
+        if (historyData.sessions.length === 0 || historyData.sessions[historyData.sessions.length - 1].length > 0 && KERNEL.sessionSeed !== historyData.sessions[historyData.sessions.length - 1].seed) {
             // Start a new session if no sessions yet, or if the last session already has phrases and current session is different
             historyData.sessions.push({ seed: KERNEL.sessionSeed, phrases: [] });
         }
@@ -573,8 +438,7 @@ const KERNEL = {
   "Only a few seconds left for the definitive reset. Feel the hope rising inside.",
   "You are completely safe here. Remain in absolute peace, feeling your gentle, deep breath."
 ],
-
-    "AUDIOS_SECUENCIALES_SALIR_ES": [
+        "AUDIOS_SECUENCIALES_SALIR_ES": [
         "Es momento de levantarse. Deja el teléfono en la mesa ahora mismo.",
         "Camina despacio hacia otra habitación. Respira hondo.",
         "Estás retomando el control de tu tiempo. Sigue adelante.",
@@ -611,7 +475,7 @@ const KERNEL = {
   {"id": 207, "titulo": "EL RETO DE LA VENTANA", "descripcion": "Abre la ventana más cercana de tu casa durante dos minutos exactos en este momento. Guarda tu teléfono en el bolsillo, relaja tus brazos y quédate observando la inmensidad del cielo en absoluto silencio. Deja que el aire fresco te limpie el rostro y te dé paz.", "img": "nature_sound.svg"},
   {"id": 208, "titulo": "EL RETO DEL ORDEN", "descripcion": "Mira a tu alrededor con deatimiento dentro de tu habitación actual. Busca cinco objetos que estén desordenados y colócalos pausadamente en su lugar correcto. Con solo esos cinco bastará por el día de hoy para recuperar la armonía en tu entorno seguro. Todo está en calma.", "img": "observe.svg"},
   {"id": 209, "titulo": "EL RETO DE LA RESPIRACIÓN profunda", "descripcion": "Quédate sentado en una postura muy cómoda en este instante. Haz cinco respiraciones profundas y lentas por la nariz, sintiendo cómo entra el aire puro a tu cuerpo. Libera toda la tensión de tus hombros, vacía tu mente de preocupaciones y permite que esta tregua biológica te calme.", "img": "square_breath.svg"},
-  {"id": 210, "titulo": "EL RETO DEL DESCANSO VISUAL", "descripcion": "Busca un punto u objeto que esté muy lejano a ti a través de la ventana de tu cuarto. Quédate mirando ese lugar fijamente durante dos minutos para descansar tus ojos de las pantallas por completo. Expande tu horizonte visual, relaja los párpados y permite que tus pensamientos fluyan en total quietud.", "img": "nature_sound.svg"}
+  {"id": 210, "titulo": "EL RETO DEL DESCANSO VISUAL", "descripcion": "Busca un punto u objeto que esté muy lejano a ti a través de la ventana. Quédate mirando ese lugar fijamente durante dos minutos para descansar tus ojos de las pantallas por completo. Expande tu horizonte visual, relaja los párpados y permite que tus pensamientos fluyan en total quietud.", "img": "nature_sound.svg"}
 ],
 "CATALOGO_RETOS_EN": [
   {"id": 201, "titulo_en": "THE SOUND OF WATER CHALLENGE", "descripcion_en": "Walk calmly to your kitchen and turn on the tap very slowly. Spend one full minute listening to the fluid sound of water drops hitting the sink. Allow this clean melody of nature to fully dissolve all the accumulated rush from your mind today. Enjoy this quiet moment.", "img": "nature_sound.svg"},
@@ -722,8 +586,7 @@ const KERNEL = {
         document.getElementById('btn-stripe-checkout').onclick = async () => {
             this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela Stripe." : "Connecting to Stripe gateway.");
             try {
-                // CORRECCIÓN MECÁNICA: Unificar el endpoint de Stripe al definido en main.py
-                const response = await fetch("/crear-checkout", { method: "POST" });
+                const response = await fetch("/api/create-checkout-session", { method: "POST" });
                 const session = await response.json();
                 if (session.url) window.location.href = session.url;
             } catch (e) {
@@ -757,9 +620,6 @@ const KERNEL = {
             this.historialFaseCasaSublime = JSON.parse(localStorage.getItem("otg_historial_fase_casa_sublime_daily") || "{}"); // Daily history
             this.historialAudiosCasaSecuenciales = JSON.parse(localStorage.getItem("otg_historial_audios_casa_secuenciales_daily") || "{}"); // Daily history
             this.historialAudiosSalirSecuenciales = JSON.parse(localStorage.getItem("otg_historial_audios_salir_secuenciales_daily") || "{}"); // Daily history
-            this.historialSensorialMarcas = JSON.parse(localStorage.getItem("otg_historial_sensorial_marcas") || "[]"); // Sensorial history
-            this.historialSensorialPreguntas = JSON.parse(localStorage.getItem("otg_historial_sensorial_preguntas") || "[]"); // Sensorial history
-
         } catch (e) {
             console.error("Error parsing history from localStorage, resetting specific histories.", e);
             this.historialSalir = [];
@@ -769,8 +629,6 @@ const KERNEL = {
             this.historialFaseCasaSublime = {}; // Reset to empty object for daily history
             this.historialAudiosCasaSecuenciales = {}; // Reset to empty object for daily history
             this.historialAudiosSalirSecuenciales = {}; // Reset to empty object for daily history
-            this.historialSensorialMarcas = []; // Reset sensorial history
-            this.historialSensorialPreguntas = []; // Reset sensorial history
             localStorage.removeItem("otg_historial_salir");
             localStorage.removeItem("otg_historial_casa");
             localStorage.removeItem("otg_historial_oraculo");
@@ -778,8 +636,6 @@ const KERNEL = {
             localStorage.removeItem("otg_historial_fase_casa_sublime_daily");
             localStorage.removeItem("otg_historial_audios_casa_secuenciales_daily");
             localStorage.removeItem("otg_historial_audios_salir_secuenciales_daily");
-            localStorage.removeItem("otg_historial_sensorial_marcas");
-            localStorage.removeItem("otg_historial_sensorial_preguntas");
         }
 
         this.obtenerPerfilLocal();
@@ -807,8 +663,7 @@ const KERNEL = {
                 btnStripe.onclick = async () => {
                     this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela de pagos Stripe." : "Connecting to Stripe payment gateway.");
                     try {
-                        // CORRECCIÓN MECÁNICA: Unificar el endpoint de Stripe al definido en main.py
-                        const response = await fetch("/crear-checkout", {
+                        const response = await fetch("/api/create-checkout-session", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ pase_tipo: index + 1 })
@@ -844,8 +699,7 @@ const KERNEL = {
                 }
                
                 try {
-                    // CORRECCIÓN MECÁNICA: Unificar el endpoint de login al definido en main.py
-                    const response = await fetch("/login-admin", {
+                    const response = await fetch("/api/login-verificar", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ username, password })
@@ -879,53 +733,6 @@ const KERNEL = {
                 this.despertarInicial();
             };
         }
-
-        // ==============================================================================
-        // INICIALIZADOR DE BYPASS DE DESARROLLADOR POR TRIPLE TOQUE EN TÍTULO
-        // ==============================================================================
-        let clicsDesarrollador = 0;
-        let timeoutDesarrollador;
-        const appTitleElement = document.getElementById('txt-app-title');
-        if (appTitleElement) {
-            appTitleElement.addEventListener('click', () => {
-                clicsDesarrollador++;
-                clearTimeout(timeoutDesarrollador);
-                timeoutDesarrollador = setTimeout(() => {
-                    clicsDesarrollador = 0;
-                }, 1500); // Reset clicks after 1.5 seconds
-
-                if (clicsDesarrollador === 3) {
-                    clicsDesarrollador = 0;
-                    const user = prompt("Mantenimiento OTG - Usuario:");
-                    const pass = prompt("Mantenimiento OTG - Contraseña:");
-
-                    if (!user || !pass) return;
-
-                    fetch('/login-admin', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username: user, password: pass })
-                    })
-                    .then(res => {
-                        if (!res.ok) throw new Error("Credenciales inválidas de servidor");
-                        return res.json();
-                    })
-                    .then(data => {
-                        if (data.status === "success" || data.role === "admin") {
-                            localStorage.setItem('otg_user_role', 'admin');
-                            alert("Acceso Desarrollador Concedido. Servicio Infinito Activo.");
-                            location.reload();
-                        } else {
-                            alert("Credenciales inválidas. Acceso denegado.");
-                        }
-                    })
-                    .catch(err => {
-                        console.error("Fallo de autenticación:", err);
-                        alert("Error de conexión con el backend o credenciales inválidas.");
-                    });
-                }
-            });
-        }
     },
 
     /**
@@ -955,10 +762,9 @@ const KERNEL = {
         ];
         const saludos = this.idiomaActual === 'es' ? saludos_es : saludos_en;
         this.hablar(saludos[Math.floor(Math.random() * saludos.length)]);
-       
-        // NEW: Call sensorial flow first
-        this.mostrarSelectorEmpresas();
-        // The rest of the form (cascading questions, free writing) will be enabled after sensorial flow completion or skip.
+        this.inyectarBloquePreguntas();
+        this.iniciarMonitoreoInaccion();
+        this.activarBotonMandoLibreInicial();
     },
 
     /**
@@ -1339,21 +1145,10 @@ const KERNEL = {
         document.getElementById('html-title').innerText = t.title;
         document.getElementById('txt-app-title').innerText = t.title;
         document.getElementById('lbl-zip').innerText = t.zip;
-        // The instruction and desahogo labels are initially set by sensorial flow, or updated here if main form visible
-        const currentSensorialContainerState = document.getElementById('otg-sensorial-container') && !document.getElementById('otg-sensorial-container').classList.contains('hidden');
-        if (!currentSensorialContainerState) { // Only update if main form is visible
-            document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
-            document.getElementById('lbl-desahogo').innerText = t.desahogo;
-            document.getElementById('inp-text-libre').placeholder = t.placeholder;
-            document.getElementById('btn-activar-libre').innerText = t.btn;
-            this.inyectarBloquePreguntas(); // Re-inject questions in new language
-            this.activarBotonMandoLibreInicial();
-        } else {
-            // If sensorial flow is active, re-render its content for language
-            this.mostrarSelectorEmpresas();
-        }
-
-
+        document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
+        document.getElementById('lbl-desahogo').innerText = t.desahogo;
+        document.getElementById('inp-text-libre').placeholder = t.placeholder;
+        document.getElementById('btn-activar-libre').innerText = t.btn;
         document.getElementById('opt-budget-0').innerText = t.budget0;
         document.getElementById('opt-budget-1').innerText = t.budget1;
         document.getElementById('opt-budget-2').innerText = t.budget2;
@@ -1378,246 +1173,8 @@ const KERNEL = {
         if (btnVolverApp) btnVolverApp.title = t.volverApp;
 
         this.hablar(t.alert);
-    },
-
-    // ... inside KERNEL ...
-    mostrarSelectorEmpresas() {
-        const wrapperForm = document.getElementById('wrapper-form');
-        const mainFormContent = document.getElementById('main-form-content');
-        let sensorialContainer = document.getElementById('otg-sensorial-container');
-
-        if (!sensorialContainer) { // Create if it doesn't exist
-            sensorialContainer = document.createElement('div');
-            sensorialContainer.id = 'otg-sensorial-container';
-            wrapperForm.insertBefore(sensorialContainer, mainFormContent); // Insert before main form content
-        }
-        sensorialContainer.classList.remove('hidden');
-        if (mainFormContent) mainFormContent.classList.add('hidden'); // Hide main form content
-
-        const t = {
-            es: {
-                title: "PERSONALIZA TU EXPERIENCIA",
-                subtitle_main: "Selecciona el servicio que mejor representa lo que deseas hacer en este momento.",
-                subtitle_zip: `Opciones disponibles para el Código Postal ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
-                continue_btn: "Continuar →",
-                skip_btn: "Saltar y usar mando libre",
-                select_option: "Selecciona al menos una opción."
-            },
-            en: {
-                title: "PERSONALIZE YOUR EXPERIENCE",
-                subtitle_main: "Select the service that best represents what you wish to do right now.",
-                subtitle_zip: `Options available for ZIP Code ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
-                continue_btn: "Continue →",
-                skip_btn: "Skip and use free control",
-                select_option: "Select at least one option."
-            }
-        }[this.idiomaActual];
-
-        let zip = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
-        let txtSubtitle = zip ? t.subtitle_zip : t.subtitle_main;
-
-        // Shuffle marcas to ensure variety
-        let shuffledMarcas = [...this.sensorial_marcas];
-        for (let i = shuffledMarcas.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffledMarcas[i], shuffledMarcas[j]] = [shuffledMarcas[j], shuffledMarcas[i]];
-        }
-       
-        let selectedMarcasForDisplay = [];
-        let usedMarcasForDisplay = new Set(this.historialSensorialMarcas);
-
-        // Filter out brands recently used for display
-        let availableMarcas = shuffledMarcas.filter(marca => !usedMarcasForDisplay.has(marca));
-       
-        if (availableMarcas.length < 12) { // If not enough unseen, reset history
-            this.historialSensorialMarcas = [];
-            localStorage.removeItem("otg_historial_sensorial_marcas");
-            availableMarcas = shuffledMarcas; // Use all again
-        }
-        selectedMarcasForDisplay = availableMarcas.slice(0, 12); // Take first 12 unique after potential reset
-
-        // Update history
-        selectedMarcasForDisplay.forEach(marca => {
-            this.historialSensorialMarcas.push(marca);
-        });
-        this.historialSensorialMarcas = this.historialSensorialMarcas.slice(-this.MAX_HISTORY_SENSORIAL_MARCAS);
-        localStorage.setItem("otg_historial_sensorial_marcas", JSON.stringify(this.historialSensorialMarcas));
-
-        let currentSelection = []; // To track user's selected brands temporarily
-
-        sensorialContainer.innerHTML = `
-            <div style="max-width:460px;margin:0 auto;padding-top:5px;">
-                <div style="text-align:center;margin-bottom:15px;">
-                    <span style="background: #2e7d32; padding: 3px 8px; border-radius: 4px; font-size: .65rem; font-weight: bold; text-transform: uppercase;">
-                        ${this.idiomaActual === 'es' ? 'Bienestar Inicial' : 'Initial Wellbeing'}
-                    </span>
-                    <h4 style="color: #00bcd4; font-weight: 900; margin: 8px 0 3px; font-size: 1.15rem;">
-                        ${t.title}
-                    </h4>
-                    <p style="color: #aaa; font-size: .72rem; margin: 0;">
-                        ${txtSubtitle}. Tiempo aproximado: 1 minuto.
-                    </p>
-                </div>
-                <div id="otg-sensorial-fase-1">
-                    <p style="font-size: .85rem; font-weight: bold; color: #fff; text-align: center; line-height: 1.45; margin-bottom: 10px;">
-                        ${t.subtitle_main}
-                    </p>
-                    <div class="otg-grid-logos">
-                        ${selectedMarcasForDisplay.map(marca => `<div class="otg-card-logo" data-marca="${marca}">${marca}</div>`).join("")}
-                    </div>
-                    <button id="btn-sensorial-continue" style="width: 100%; background: #2e7d32; border: none; color: #fff; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: .8rem; letter-spacing: .5px;">
-                        ${t.continue_btn}
-                    </button>
-                    <button id="btn-sensorial-skip" style="width: 100%; background: none; border: 1px solid #444; color: #ccc; padding: 10px; border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .8rem;">
-                        ${t.skip_btn}
-                    </button>
-                </div>
-                <div id="otg-sensorial-fase-2" class="hidden"></div>
-            </div>`;
-
-        sensorialContainer.querySelectorAll('.otg-card-logo').forEach(card => {
-            card.addEventListener('click', () => {
-                const marca = card.dataset.marca;
-                card.classList.toggle("active");
-                if (card.classList.contains("active")) {
-                    currentSelection.push(marca);
-                } else {
-                    currentSelection = currentSelection.filter(x => x !== marca);
-                }
-            });
-        });
-
-        document.getElementById('btn-sensorial-continue').addEventListener('click', () => {
-            if (currentSelection.length === 0) {
-                this.hablar(t.select_option);
-                return;
-            }
-            this.seleccionarEmpresaParaPreguntas(currentSelection[0]); // Only take the first selected for now as per old logic
-        });
-
-        document.getElementById('btn-sensorial-skip').addEventListener('click', () => {
-            this.cerrarSensorialFlowYContinuarAppBase();
-        });
-
-        this.hablar(txtSubtitle);
-    },
-
-    // ... inside KERNEL ...
-    seleccionarEmpresaParaPreguntas(marca) {
-        const sensorialContainer = document.getElementById('otg-sensorial-container');
-        const fase1 = document.getElementById('otg-sensorial-fase-1');
-        const fase2 = document.getElementById('otg-sensorial-fase-2');
-       
-        if (fase1) fase1.classList.add("hidden");
-        if (fase2) fase2.classList.remove("hidden");
-
-        const t = {
-            es: {
-                selected: `Has seleccionado: ${marca}`,
-                random_question: this.sensorial_preguntas_es[Math.floor(Math.random() * this.sensorial_preguntas_es.length)]
-            },
-            en: {
-                selected: `You have selected: ${marca}`,
-                random_question: this.sensorial_preguntas_en[Math.floor(Math.random() * this.sensorial_preguntas_en.length)]
-            }
-        }[this.idiomaActual];
-       
-        // Shuffle questions to ensure variety
-        let shuffledPreguntas = [...(this.idiomaActual === 'es' ? this.sensorial_preguntas_es : this.sensorial_preguntas_en)];
-        for (let i = shuffledPreguntas.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffledPreguntas[i], shuffledPreguntas[j]] = [shuffledPreguntas[j], shuffledPreguntas[i]];
-        }
-
-        let selectedQuestionsForDisplay = [];
-        let usedQuestionsForDisplay = new Set(this.historialSensorialPreguntas);
-
-        // Filter out questions recently used for display
-        let availableQuestions = shuffledPreguntas.filter(q => !usedQuestionsForDisplay.has(q));
-        if (availableQuestions.length < 3) { // If not enough unseen, reset history
-            this.historialSensorialPreguntas = [];
-            localStorage.removeItem("otg_historial_sensorial_preguntas");
-            availableQuestions = shuffledPreguntas; // Use all again
-        }
-        selectedQuestionsForDisplay = availableQuestions.slice(0, 3); // Take first 3 unique after potential reset
-
-        // Update history
-        selectedQuestionsForDisplay.forEach(q => {
-            this.historialSensorialPreguntas.push(q);
-        });
-        this.historialSensorialPreguntas = this.historialSensorialPreguntas.slice(-this.MAX_HISTORY_SENSORIAL_PREGUNTAS);
-        localStorage.setItem("otg_historial_sensorial_preguntas", JSON.stringify(this.historialSensorialPreguntas));
-
-        fase2.innerHTML = `
-            <div style="background: #111; border: 1px solid #222; padding: 15px; border-radius: 8px; margin-top: 10px;">
-                <span style="color: #00bcd4; font-size: .65rem; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">
-                    ${t.selected}
-                </span>
-                <p style="font-size: 1rem; font-weight: bold; line-height: 1.45; margin: 5px 0 15px; color: #fff;">
-                    ${this.idiomaActual === 'es' ? '¿Qué actividad quieres realizar en este momento?' : 'What activity do you want to do right now?'}
-                </p>
-                <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[0]}', 'agotado')">
-                    ${selectedQuestionsForDisplay[0]}
-                </button>
-                <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[1]}', 'normal')">
-                    ${selectedQuestionsForDisplay[1]}
-                </button>
-                <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[2]}', 'curioso')">
-                    ${selectedQuestionsForDisplay[2]}
-                </button>
-            </div>
-        `;
-        // Speak the selected brand name and a random question
-        this.hablar(t.selected.replace(`: ${marca}`, '') + ". " + (this.idiomaActual === 'es' ? "¿Qué actividad quieres realizar en este momento?" : "What activity do you want to do right now?"));
-    },
-
-    // ... inside KERNEL ...
-    finalizarSensorialFlow(selectedBrand, selectedQuestion, type) {
-        const sensorialContainer = document.getElementById('otg-sensorial-container');
-        const mainFormContent = document.getElementById('main-form-content');
-        const inpTextLibre = document.getElementById('inp-text-libre');
-        const menteSelector = document.getElementById('mente-selector');
-       
-        if (sensorialContainer) sensorialContainer.classList.add('hidden');
-        if (mainFormContent) mainFormContent.classList.remove('hidden');
-
-        // Populate desahogo and mente based on selections
-        inpTextLibre.value = `${selectedBrand}: ${selectedQuestion}`;
-       
-        // Map old 'type' to new 'mente'
-        let mappedMente = "aburrido"; // Default
-        if (type === 'agotado') { // "Quiero usar este servicio ahora." (implies wanting immediate relief/action)
-            mappedMente = "estresado"; // Could be stressed/agotado, picking stressed as more "active" need
-        } else if (type === 'normal') { // "Solo estoy explorando opciones." (implies less urgency, maybe bored)
-            mappedMente = "aburrido";
-        } else if (type === 'curioso') { // "Quiero descubrir nuevas ideas." (implies bored or seeking learning)
-            mappedMente = "aburrido"; // Use bored as a base, then the algorithm can refine
-        }
-        if (menteSelector) {
-            menteSelector.value = mappedMente;
-            menteSelector.dispatchEvent(new Event('change')); // Trigger change event
-        }
-       
-        // After sensorial flow, enable main form logic
         this.inyectarBloquePreguntas();
-        this.iniciarMonitoreoInaccion();
         this.activarBotonMandoLibreInicial();
-
-        this.ejecutar(); // Proceed with the main KERNEL logic
-    },
-
-    // ... inside KERNEL ...
-    cerrarSensorialFlowYContinuarAppBase() {
-        const sensorialContainer = document.getElementById('otg-sensorial-container');
-        const mainFormContent = document.getElementById('main-form-content');
-       
-        if (sensorialContainer) sensorialContainer.classList.add('hidden');
-        if (mainFormContent) mainFormContent.classList.remove('hidden');
-       
-        this.inyectarBloquePreguntas(); // Go back to original question flow
-        this.iniciarMonitoreoInaccion();
-        this.activarBotonMandoLibreInicial();
-        this.hablar(this.idiomaActual === 'es' ? "Continuamos con las preguntas principales." : "Continuing with main questions.");
     },
 
     /**
@@ -1933,7 +1490,435 @@ const KERNEL = {
         }, 1000);
     },
 
-     /**
+    // NEW: Helper function to update profile and restart monitoring, extracted from btnGps.onclick
+    _updateProfileAndRestartMonitor() {
+        try {
+            let perfil = KERNEL.obtenerPerfilLocal();
+            const selectedVector = KERNEL.datosLugarGlobal.vector_entorno_seleccionado;
+            for (const need in selectedVector) {
+                if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                    perfil[need] = Math.min(perfil[need] + (selectedVector[need] * 0.1), 100);
+                }
+            }
+            perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 10);
+            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+        } catch (e) {
+            console.error("Error updating local profile after action:", e);
+        }
+
+        // ==============================================================================
+        // ORDEN SOBERANA: EL TIEMPO COMIENZA A CORRER DESDE CERO AUTOMÁTICAMENTE
+        // ==============================================================================
+        // Una vez acarreada toda la acción, reactivamos el temporizador maestro desde cero limpios.
+        this.iniciarMonitoreoInaccion();
+        this.horaInicioSesionAbsoluta = Date.now(); // Reseteamos la estampa de tiempo absoluta
+        // ==============================================================================
+    },
+    // ==============================================================================
+// RESTAURACIÓN CRÍTICA: ENTRADA DE USUARIO, PASSWORD Y SISTEMA DE STRIPE
+// ==============================================================================
+inyectarPasarelaYAutenticacion(container) {
+    // Mantiene tus funciones comerciales activas y seguras al inicio de la app
+    container.innerHTML = `
+        <div class="auth-gate-card">
+            <h3>ACCESO AUTORIZADO / SECURE LOGIN</h3>
+            <div style="margin-bottom:15px;">
+                <input type="text" id="auth-username" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px; background:#111; color:#fff; border:1px solid #333; border-radius:4px;">
+                <input type="password" id="auth-password" placeholder="Password" style="width:100%; padding:12px; background:#111; color:#fff; border:1px solid #333; border-radius:4px;">
+            </div>
+            <div id="stripe-payment-box" style="margin-top:20px; padding:15px; border:1px solid var(--accent); border-radius:6px; background:rgba(255,0,0,0.05);">
+                <p style="margin:0 0 10px 0; font-size:0.9rem; color:#aaa;">Activación comercial vía Stripe segura:</p>
+                <button id="btn-stripe-checkout" class="btn" style="width:100%; background:var(--accent); color:#fff; font-weight:bold; padding:12px; border:none; border-radius:4px; cursor:pointer;">COMPRAR ACCESO / BUY NOW</button>
+            </div>
+            <button id="btn-submit-auth" style="width:100%; background:var(--green-action); color:#fff; padding:14px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">INGRESAR AL SISTEMA</button>
+        </div>
+    `;
+
+    // Lógica de validación nativa que tenías para el inicio de sesión
+    document.getElementById('btn-submit-auth').onclick = () => {
+        const user = document.getElementById('auth-username').value.trim();
+        const pass = document.getElementById('auth-password').value.trim();
+        if (user && pass) {
+            // Si la validación es correcta, avanza limpiamente al oráculo
+            this.despertarInicial();
+        } else {
+            this.hablar(this.idiomaActual === 'es' ? "Por favor introduce tus credenciales válidas." : "Please enter valid credentials.");
+        }
+    };
+
+    // Integración de Stripe Checkout directo
+    document.getElementById('btn-stripe-checkout').onclick = async () => {
+        this.hablar(this.idiomaActual === 'es' ? "Conectando con la pasarela de pagos Stripe." : "Connecting to Stripe payment gateway.");
+        try {
+            const response = await fetch("/api/create-checkout-session", { method: "POST" });
+            const session = await response.json();
+            if (session.url) window.location.href = session.url;
+        } catch (e) {
+            console.error("Stripe initialization error:", e);
+        }
+    };
+},
+    /**
+     * Processes the sequential flow based on the recommendation type (only for CASA mode now).
+     */
+        procesarFlujoSecuencial(container) {
+    clearInterval(this.timerEnfocado);
+    // Do NOT cancel here, let the queue manage it
+    this.speechQueue = [];
+    this.isSpeaking = false;
+    window.speechSynthesis.cancel(); // Force cancel any *external* speech not managed by queue
+
+    const t = {
+        es: {
+            inspira: "Inhala ahora", expira: "Exhala ahora", fin: "Protocolo completado. Borrando rastro.",
+            listen: "ESCUCHA MI GUÍA", launch: "ABRIR CANAL EXTERNO YA", fieldAction: "Acción de Campo",
+            internalMission: "Misión Interna", doItNow: "HAZLO AHORA", suggestedEscape: "Escape sugerido"
+        },
+        en: {
+            inspira: "Inhale now", expira: "Exhale now", fin: "Protocol completed. Clearing tracks.",
+            listen: "LISTEN TO THE GUIDE", launch: "OPEN EXTERNAL CHANNEL NOW", fieldAction: "Field Action",
+            internalMission: "Internal Mission", doItNow: "DO IT NOW", suggestedEscape: "Suggested escape"
+        }
+    }[this.idiomaActual];
+
+    if (this.indiceMision >= this.pasosMisiones.length) {
+        this.iniciarRelojEnfocadoCasa(container, t);
+        return;
+    }
+
+    const paso = this.pasosMisiones[this.indiceMision];
+    // CORREGIDO: Se restauró el padding a 16px para evitar el desborde y el congelamiento del renderizado
+    container.innerHTML = `
+        <div class="mision-card">
+            <small>${t.internalMission}</small>
+            <h3>${paso.titulo}</h3>
+            <p>${paso.descripcion}</p>
+            <button id="btn-next" style="width:100%; background:var(--green-action); color:#fff; padding:16px; font-weight:bold; text-transform:uppercase; border-radius:6px; cursor:pointer; border:none; margin-top:15px; font-size:0.95rem;">${t.doItNow}</button>
+        </div>`;
+
+    this.hablar(paso.titulo + " . " + paso.descripcion);
+   
+    document.getElementById('btn-next').onclick = () => {
+        try {
+            let perfil = this.obtenerPerfilLocal();
+            const missionVector = paso.vector_necesidades || this.DEFAULT_NECESSITY_PROFILE;
+            for (const need in missionVector) {
+                if (need !== "indicador_ansiedad" && perfil[need] !== undefined) {
+                    perfil[need] = Math.min(perfil[need] + (missionVector[need] * 0.05), 100);
+                }
+            }
+            perfil["indicador_ansiedad"] = Math.max(0, perfil["indicador_ansiedad"] - 5);
+            localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+        } catch (e) {
+            console.error("Error updating local profile after CASA mission:", e);
+        }
+
+        // ==============================================================================
+        // ORDEN SOBERANA INDEPENDIENTE: EL RECOMIENZA DESDE CERO
+        // ==============================================================================
+        this.iniciarMonitoreoInaccion();
+        this.horaInicioSesionAbsoluta = Date.now();
+        // ==============================================================================
+       
+        this.avanzarPaso();
+    };
+},
+   
+    /**
+     * Starts the 10-minute clinical breathing timer for CASA mode.
+     * MODIFIED: Integrates new 4-minute phase and refined audio/visual sequencing.
+     */
+    iniciarRelojEnfocadoCasa(container, t) {
+        // ======================================================================
+        // RECTIFICACIÓN MAESTRA DE EQUILIBRIO: APAGÓN DE ORÁCULO RECOBRANDO EL FLUJO
+        // ======================================================================
+        // 1. Destruye el intervalo de las preguntas en cascada usando su nombre exacto
+        if (this.temporizadorCascada) {
+            clearInterval(this.temporizadorCascada);
+            this.temporizadorCascada = null;
+        }
+
+        // 2. Limpia los temporizadores de inacción y el reloj viejo
+        clearInterval(this.timerInaccion);
+        clearInterval(this.timerEnfocado);
+
+        // 3. Limpia cualquier bucle de voz previo de CASA para evitar duplicaciones
+        if (this.intervaloVozCasa) {
+            clearInterval(this.intervaloVozCasa);
+            this.intervaloVozCasa = null;
+        }
+
+        // 4. Limpia el carrusel visual si está activo
+        if (this.carouselInterval) {
+            clearInterval(this.carouselInterval);
+            this.carouselInterval = null;
+        }
+
+        // 5. RETORNO DE MOTOR RECOBRADO: Despierta y limpia el hardware de sonido
+        // sin alterar el flujo de las pantallas iniciales ni congelar la app.
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            // Do NOT cancel here, let the queue manage it
+        }
+
+        // Ensure speech queue is empty before starting
+        this.speechQueue = [];
+        this.isSpeaking = false;
+        window.speechSynthesis.cancel(); // Force cancel any *external* speech not managed by queue
+
+        let msg = this.idiomaActual === 'es' ? "Iniciamos quince minutos de limpieza mental profunda. Respira." : "Starting fifteen minutes of deep mental clearing. Breathe.";
+        this.hablar(msg);
+
+        // --- NEW: Add carousel container for images ---
+        container.innerHTML = `
+            <div id="carousel-background" class="carousel-container"></div>
+            <div style="text-align:center; width:100%; position:relative; z-index:10;">
+                <div id="breath-circle" style="cursor:pointer;" title="${this.idiomaActual === 'es' ? 'Toca para enfocar tu mente' : 'Tap to focus your mind'}"></div>
+                <div id="timer">15:00</div>
+                <p id="txt-pulmon">INHALA / INHALE</p>
+                <div id="fase-sublime-text" style="margin-top:20px; text-align:center; font-size:1.1rem; min-height:40px; color:var(--green-action); font-weight:bold; letter-spacing:0.5px;"></div>
+                <div id="salida-sugerida" class="hidden" style="margin-top: 30px; padding: 15px; border: 1px dashed #444; border-radius: 8px; font-size: 0.9rem; color: #888;">
+                    <p style="margin:0;">${t.suggestedEscape}: <a href="#" id="link-salida-sugerida" style="color: var(--accent); text-decoration: none; font-weight: bold;">Cargando...</a></p>
+                </div>
+            </div>
+        `;
+
+        this.timeLeft = 900; // 15 minutes (10 min breathing + 4 min new phase + 1 min silence challenge)
+        this.contadorToques = 0;
+
+        const carouselBackground = document.getElementById('carousel-background');
+        const circleElement = document.getElementById('breath-circle');
+        const timerDiv = document.getElementById('timer');
+        const pulmonDiv = document.getElementById('txt-pulmon');
+        const faseSublimeTextDiv = document.getElementById('fase-sublime-text');
+        const salidaSugeridaDiv = document.getElementById('salida-sugerida');
+        const linkSalidaSugerida = document.getElementById('link-salida-sugerida');
+
+        const AUDIOS_SECUENCIALES_CASA = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_CASA_ES : this.AUDIOS_SECUENCIALES_CASA_EN;
+        const AUDIOS_FASE_SUBLIMES = this.idiomaActual === 'es' ? this.AUDIOS_FASE_CASA_SUBLIMES_ES : this.AUDIOS_FASE_CASA_SUBLIMES_EN;
+
+        let currentImageIndex = 0;
+        let imagesForMente = [];
+        let imageChangeIntervalId = null;
+
+        // Get payload['mente'] from the stored profile or default
+        const currentMente = this.obtenerPerfilLocal().mente || document.getElementById('mente-selector').value || "aburrido";
+        imagesForMente = this.IMAGENES_CARRUSEL[currentMente] || this.IMAGENES_CARRUSEL["aburrido"];
+       
+        // Shuffle images to ensure randomness for carousel
+        for (let i = imagesForMente.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [imagesForMente[i], imagesForMente[j]] = [imagesForMente[j], imagesForMente[i]];
+        }
+
+        const startCarousel = () => {
+            if (carouselBackground && imagesForMente.length > 0) {
+                carouselBackground.style.backgroundImage = `url('${imagesForMente[currentImageIndex % imagesForMente.length]}')`;
+                carouselBackground.classList.remove('hidden');
+                this.carouselInterval = setInterval(() => {
+                    currentImageIndex++;
+                    carouselBackground.style.backgroundImage = `url('${imagesForMente[currentImageIndex % imagesForMente.length]}')`;
+                }, 10000); // Change image every 10 seconds
+            }
+        };
+
+        const stopCarousel = () => {
+            if (this.carouselInterval) {
+                clearInterval(this.carouselInterval);
+                this.carouselInterval = null;
+            }
+            if (carouselBackground) {
+                carouselBackground.classList.add('hidden');
+                carouselBackground.style.backgroundImage = 'none';
+            }
+        };
+
+        // ======================================================================
+        // DISPARADOR DE SUGERENCIA TRAS 3 MINUTOS EXACTOS (time 12:00)
+        // ======================================================================
+        if (this.salidaSugeridaTimeoutId) {
+            clearTimeout(this.salidaSugeridaTimeoutId);
+            this.salidaSugeridaTimeoutId = null;
+        }
+
+        this.salidaSugeridaTimeoutId = setTimeout(async () => {
+            try {
+                // Ensure payload is up-to-date and matches original call logic
+                const payloadForSuggestion = {
+                    modo: "SALIR",
+                    lang: this.idiomaActual,
+                    mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido",
+                    budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0",
+                    perfil: document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo",
+                    desahogo: document.getElementById('inp-text-libre') ? document.getElementById('inp-text-libre').value.trim() : "",
+                    zip: document.getElementById('inp-zip') ? document.getElementById('inp-zip').value.trim() : "",
+                    perfil_local: this.obtenerPerfilLocal(),
+                    historial_salir: this.historialSalir
+                };
+
+                const r = await fetch("/api/mando-integral", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payloadForSuggestion) });
+                const data = await r.json();
+
+                // === PROTOCOLO LEGAL DE SEGURIDAD (MAY ROGA LLC) ===
+                if (data.drive_prohibited && data.legal_notice_es) {
+                    console.warn("ALERT:", this.idiomaActual === 'es' ? data.legal_notice_es : data.legal_notice_en);
+                }
+
+                if (data.DIRECCIONAMIENTO_MASTER === "ACCION_CAMPO" && data.misiones && data.misiones.length > 0 && linkSalidaSugerida && salidaSugeridaDiv) {
+                    const suggestedMission = data.misiones[0];
+                    if (data.historial_salir_actualizado) {
+                        this.historialSalir = data.historial_salir_actualizado;
+                        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+                    }
+                    linkSalidaSugerida.innerText = suggestedMission.destino_titulo;
+                    linkSalidaSugerida.href = suggestedMission.destino_coordenadas_gps;
+                    salidaSugeridaDiv.classList.remove('hidden');
+
+                    // Lectura fluida, pausada y sin prisas
+                    this.hablar(this.idiomaActual === 'es' ? `Considera también: ${suggestedMission.destino_titulo}` : `Also consider: ${suggestedMission.destino_titulo_en || suggestedMission.destino_titulo}`);
+                }
+
+            } catch (e) {
+                console.error("Error fetching SALIR suggestion in CASA mode:", e);
+            } finally {
+                this.salidaSugeridaTimeoutId = null;
+            }
+        }, 180000); // After 3 minutes (900 - 180 = 720 seconds remaining on timer)
+
+        if (circleElement) {
+            circleElement.onclick = () => {
+                // Encendemos la música relajante propia mediante la interacción segura del usuario
+                if (typeof iniciarMusicaRelajantePropia === 'function') {
+                    iniciarMusicaRelajantePropia();
+                } else {
+                    console.warn("iniciarMusicaRelajantePropia() no está definida.");
+                }
+
+                if (this.contadorToques < this.secuenciaAdelantos.length) {
+                    let adelantoSegundos = this.secuenciaAdelantos[this.contadorToques];
+                    this.timeLeft = Math.max(this.timeLeft - adelantoSegundos, 0);
+                    this.contadorToques++;
+                    try {
+                        let perfil = this.obtenerPerfilLocal();
+                        perfil["indicador_ansiedad"] = Math.min((perfil["indicador_ansiedad"] || 0) + 5, 100);
+                        localStorage.setItem("otg_perfil_dinamico", JSON.stringify(perfil));
+                    } catch (e) {
+                        console.error("Error updating anxiety indicator:", e);
+                    }
+                    let m = Math.floor(this.timeLeft / 60);
+                    let s = this.timeLeft % 60;
+                    if (timerDiv) {
+                        timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+                    }
+                }
+            };
+        }
+
+        // ======================================================================
+        // CICLO PRINCIPAL DEL TEMPORIZADOR Y VOZ SECUENCIAL
+        // MODIFIED: Integrates new 4-minute phase and refined audio sequencing
+        // ======================================================================
+        let lastFaseSublimeAudioTime = -1; // To ensure audio plays only every ~20 seconds
+        let lastCasaSecuencialAudioTime = -1; // To ensure audio plays only every ~20 seconds
+
+        this.timerEnfocado = setInterval(() => {
+            if (this.timeLeft > 0) {
+                this.timeLeft--;
+            }
+
+            let m = Math.floor(this.timeLeft / 60);
+            let s = this.timeLeft % 60;
+
+            if (timerDiv) {
+                timerDiv.innerText = `${m}:${s.toString().padStart(2, '0')}`;
+            }
+
+            // Breathing circle animation (first 10 minutes: 900s down to 300s)
+            if (this.timeLeft >= 300) { // First 10 minutes (15:00 down to 05:00)
+                if (pulmonDiv) {
+                    pulmonDiv.classList.remove('hidden'); // Ensure it's visible
+                    let ciclo = (this.timeLeft - 300) % 8; // Cycle over remaining 600s for 8s breathing
+                    if (ciclo >= 4) {
+                        pulmonDiv.innerText = t.inspira.toUpperCase();
+                        pulmonDiv.style.color = "var(--cyan-inhale)";
+                    } else {
+                        pulmonDiv.innerText = t.expira.toUpperCase();
+                        pulmonDiv.style.color = "var(--accent)";
+                    }
+                }
+                if (faseSublimeTextDiv) faseSublimeTextDiv.innerText = ""; // Clear text for new phase
+                stopCarousel(); // Ensure carousel is stopped if somehow active
+
+                // --- EXISTING AUDIOS_SECUENCIALES_CASA ---
+                // Trigger an audio every ~20 seconds during the first 10 minutes (900s down to 300s)
+                if (this.timeLeft < 900 && (900 - this.timeLeft) % 20 === 0 && (900 - this.timeLeft) !== lastCasaSecuencialAudioTime) {
+                    lastCasaSecuencialAudioTime = (900 - this.timeLeft);
+                    let recordatorioTexto = this._getDailyNonRepeatingAudio(
+                        AUDIOS_SECUENCIALES_CASA,
+                        "otg_historial_audios_casa_secuenciales_daily",
+                        5 // Max 5 sessions per day
+                    );
+                    if (recordatorioTexto) {
+                        this.hablar(recordatorioTexto);
+                    }
+                }
+            }
+            // NEW 4-MINUTE PHASE (from 5:00 to 1:00 remaining: 300s down to 60s)
+            else if (this.timeLeft < 300 && this.timeLeft >= 60) {
+                // Ensure breathing text is cleared/updated for new phase
+                if (pulmonDiv) {
+                    pulmonDiv.innerText = "";
+                    pulmonDiv.classList.add('hidden');
+                }
+                if (faseSublimeTextDiv) {
+                    faseSublimeTextDiv.classList.remove('hidden');
+                }
+
+                // Start carousel if not already started
+                if (!this.carouselInterval) {
+                    startCarousel();
+                }
+
+                // Play new sublime audio phrases every ~20 seconds
+                if (this.timeLeft % 20 === 0 && this.timeLeft !== lastFaseSublimeAudioTime) {
+                    lastFaseSublimeAudioTime = this.timeLeft;
+                    let sublimeAudioText = this._getDailyNonRepeatingAudio(
+                        AUDIOS_FASE_SUBLIMES,
+                        "otg_historial_fase_casa_sublime_daily",
+                        5 // Max 5 sessions per day
+                    );
+                    if (sublimeAudioText) {
+                        faseSublimeTextDiv.innerText = sublimeAudioText;
+                        this.hablar(sublimeAudioText);
+                    }
+                }
+            }
+            // Transition to final 1-minute challenge (60s down to 0s)
+            else if (this.timeLeft < 60) {
+                // Clear any remaining elements for the 4-minute phase
+                if (pulmonDiv) pulmonDiv.innerText = "";
+                if (faseSublimeTextDiv) faseSublimeTextDiv.innerText = "";
+                stopCarousel(); // Stop carousel and hide it
+            }
+
+
+            if (this.timeLeft <= 0) {
+                clearInterval(this.timerEnfocado);
+                clearTimeout(this.salidaSugeridaTimeoutId);
+                this.salidaSugeridaTimeoutId = null;
+                // Do NOT cancel() here; let the queue finish
+                stopCarousel(); // Ensure carousel is stopped
+
+                if (circleElement) {
+                    circleElement.style.animation = "none";
+                    circleElement.style.transform = "scale(1)";
+                }
+                this.iniciarRetoCierre60Segundos();
+            }
+        }, 1000);
+    },
+
+    /**
      * Advances to the next internal mission step.
      */
     avanzarPaso() {
@@ -2201,107 +2186,6 @@ const KERNEL = {
         this.datosLugarGlobal = null;
        
         location.reload();
-    },
-
-    // ==========================================================================================
-    // INYECCIÓN OPERATIVA: CONTROLADORES DE COMPRA Y ACCESO ADMINISTRATIVO CON REQUEST SEGURO
-    // (Integrado desde el COMPLEMENTO NATIVO DE BIENESTAR: MOTOR SENSORIAL)
-    // ==========================================================================================
-    procesarPagoStripe: function(planSeleccionado) {
-        let userId = localStorage.getItem('otg_user_id') || 'cliente_nuevo';
-        console.log("Iniciando pasarela de pago para el plan:", planSeleccionado);
-       
-        fetch('/crear-checkout', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                tipo_plan: planSeleccionado,
-                user_id: userId
-            })
-        })
-        .then(res => {
-            if (!res.ok) throw new Error("Error en la respuesta del servidor");
-            return res.json();
-        })
-        .then(data => {
-            if (data.url) {
-                window.location.href = data.url;
-            } else if (data.error) {
-                alert("Error de Stripe: " + data.error);
-            }
-        })
-        .catch(err => {
-            console.error('Error crítico de pasarela:', err);
-            alert("No se pudo conectar con el servidor de pagos. Revisa tu conexión.");
-        });
-    },
-
-    inicializarBypassDesarrolladorExterno: function() {
-        let clics = 0;
-        let t;
-       
-        // Usamos document.body como fallback para el trigger si 'cierre-logo' no existe o no es adecuado
-        const trigger = document.getElementById('cierre-logo') || document.body;
-       
-        trigger.addEventListener('click', () => {
-            clics++;
-            clearTimeout(t);
-           
-            t = setTimeout(() => {
-                clics = 0;
-            }, 1500);
-           
-            if (clics === 3) {
-                clics = 0;
-                let user = prompt("Mantenimiento OTG - Usuario:");
-                let pass = prompt("Mantenimiento OTG - Contraseña:");
-               
-                if (!user || !pass) return;
-               
-                // Ejecuta la llamada forzando los encabezados requeridos por tu main.py de FastAPI
-                fetch('/login-admin', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username: user,
-                        password: pass
-                    })
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error("Credenciales inválidas de servidor");
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.status === "success" || data.role === "admin") {
-                        localStorage.setItem('otg_user_role', 'admin');
-                        alert("Acceso Desarrollador Concedido. Servicio Infinito Activo.");
-                        location.reload();
-                    }
-                })
-                .catch(err => {
-                    console.error("Fallo de autenticación:", err);
-                    alert("Credenciales inválidas de Render. Acceso denegado.");
-                });
-            }
-        });
-    },
-
-    verificarAccesoInicialYOcultarPaywall: function() {
-        const r = localStorage.getItem('otg_user_role');
-        const p = localStorage.getItem('otg_pase_stripe');
-        if (r === 'admin' || p) {
-            const paywall = document.getElementById('otg-muro-comercial'); // Asumiendo un ID para el muro de pago
-            if (paywall) paywall.style.display = 'none';
-           
-            const mainWrapper = document.getElementById('wrapper-form');
-            if (mainWrapper) mainWrapper.classList.remove('hidden');
-        }
     }
 }; // Cierre absoluto del objeto KERNEL
 
@@ -2340,7 +2224,7 @@ window.KERNEL = KERNEL;
             "Carnival", "Celebrity Cruises", "MSC Cruises", "Viajes El Corte Inglés",
             "Despegar", "Pizza Hut", "Papa Johns", "Little Caesars", "Domino's",
             "Wendy's", "Chick fil A", "Nike", "Adidas", "Ross Dress for Less",
-            "Burlington", "Crowley Carbon", "Transcargo", "CubaMax",
+            "Burlington", "DD'S Discounts", "Crowley Carbon", "Transcargo", "CubaMax",
             "Va Cuba", "Cargolux", "Aeroméxico Cargo", "Dachser", "Seaboard Marine",
             "Popeyes", "KFC", "PolloTropical", "Church's Texas Chicken", "Miami Dade Transit",
             "Brightline", "SunPass", "FLHSMV", "Fair Health Consumer", "GoRenew",
@@ -2389,6 +2273,7 @@ window.KERNEL = KERNEL;
             "Adidas": "https://adidas.com",
             "Ross Dress for Less": "https://rossstores.com",
             "Burlington": "https://burlington.com",
+            "DD'S Discounts": "https://ddsdiscounts.com",
             "Crowley Carbon": "https://crowley.com",
             "Transcargo": "https://transcargo.com",
             "CubaMax": "https://cubamax.com",
