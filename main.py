@@ -27,9 +27,9 @@ ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
 
 # Matriz oficial de Price IDs inmutables de Stripe
 PLANES_STRIPE = {
-    "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
-    "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
-    "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
+    "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
+    "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
+    "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
 }
 
 # ==========================================================================================
