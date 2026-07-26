@@ -895,18 +895,25 @@ async def webhook_stripe(request: Request):
 
 @app.post("/api/mando-integral")
 async def mando_integral(request: Request):
-    """
-    Main API endpoint for OPEN THAN GO.
-    Receives user input and local preference profile to return a personalized recommendation.
+        """
+    Main API endpoint for OPEN THAN GO. Receives user input and local preference profile
+    to return a personalized recommendation.
     """
     payload = await request.json()
+    
     opcion_usuario = str(payload.get("modo", "")).strip().upper()
     zip_code = str(payload.get("zip", "")).strip()
     # estado = str(payload.get("estado", "FL")).strip() # Not used in current logic, but kept
     # region = str(payload.get("region", "")).strip() # Not used in current logic, but kept
     mente = str(payload.get("mente", "aburrido")).lower()
-    budget = str(payload.get("budget", "0"))
-    perfil_tipo = str(payload.get("perfil", "solo")).lower()
+    
+    # --- CONCORDANCIA TOTAL DE VARIABLES (BACKEND DE SEGURIDAD) ---
+    # Si el frontend envía 'budget', 'presupuesto' o 'gasto', el backend lo captura sin error
+    budget = str(payload.get("budget", payload.get("presupuesto", payload.get("gasto", "0"))))
+    
+    # Si el frontend envía 'perfil', 'grupo' o 'compania', el backend lo unifica
+    perfil_tipo = str(payload.get("perfil", payload.get("grupo", payload.get("compania", "solo")))).lower()
+    
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
 
