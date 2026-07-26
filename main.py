@@ -979,12 +979,17 @@ async def mando_integral(request: Request):
                 force_recovery_mission = True # Force recovery if a brand is detected
                 break
 
+    # ==========================================================================================
+    # MANIFIESTO MATRICIAL: INTERCEPTOR DE MARCAS Y CONFIGURACIÓN DE 3 PREGUNTAS (RECTIFICADO)
+    # ==========================================================================================
     if force_recovery_mission:
         mente_str_es = mente.upper()
         mente_str_en = mente.upper()
+        
         diagnostico_sintoma_es = f"Diagnóstico: El cliente experimenta [{mente_str_es}] en relación al estímulo corporativo [{marca_detectada}] en Zip Code {zip_code}."
         diagnostico_sintoma_en = f"Diagnostic: Client experiences [{mente_str_en}] linked to corporate stimulus [{marca_detectada}] in Zip Code {zip_code}."
-
+        
+        # Inyección de instrucciones específicas basadas en la empresa a marcar
         if marca_detectada == "Walmart":
             instruccion_fisiologica_es = "Estás en el templo del consumo. Hackea: detén tu marcha, inhala/exhala profundo. Repite: 'Yo soy el único producto que importa hoy'. Sal de la rutina."
             instruccion_fisiologica_en = "You are in the consumption temple. Hack it: stop, inhale/exhale deeply. Repeat: 'I am the only product that matters today'. Exit routine."
@@ -998,61 +1003,26 @@ async def mando_integral(request: Request):
             instruccion_fisiologica_es = "Usas sonidos para aislarte. Detén el audio. Ejecuta el Módulo Silencio Mental 1 minuto. Siente tu ritmo cardíaco en este Código Postal."
             instruccion_fisiologica_en = "You use sounds to isolate. Stop audio. Execute 1-minute Mental Silence Module. Feel your heart rhythm in this Zip Code."
         else:
-            # Default case for other brands not explicitly handled above
             instruccion_fisiologica_es = f"Identificaste que [{marca_detectada}] satura tu mente. Rebélate: usa pasillos, aire libre o ventanas. Haz una pausa biológica profunda de 60 segundos. Recupera el control."
             instruccion_fisiologica_en = f"You identified [{marca_detectada}] saturating your mind. Rebel: use halls, open air, or windows. Take a deep 60-sec biological pause. Regain control."
-
+            
         search_term_antidoto = ANTIDOTOS_DIGITALES_SEARCH_TERMS.get(mente, BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
         enlace_yt = f"{BIG_TECH_RESOURCES['youtube_base_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
         enlace_sp = f"{BIG_TECH_RESOURCES['spotify_base_search_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
-
-        # ==========================================================================================
-        # CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL (GOOGLE MAPS UNIVERSAL)
-        # ==========================================================================================
-        nucleos_ocio = {
-            "ansioso": {
-                "0": "nature+preserves+botanical+gardens",
-                "1": "cozy+tea+house+bookstore+cafe",
-                "2": "luxury+spa+wellness+resort"
-            },
-            "estresado": {
-                "0": "public+beaches+hiking+trails",
-                "1": "jazz+club+lounge+bar+comedy",
-                "2": "fine+dining+restaurant+boutique+hotel"
-            },
-            "aburrido": {
-                "0": "skate+parks+street+art+squares",
-                "1": "bowling+alley+arcade+sports+bar",
-                "2": "theme+parks+live+concerts+cruises"
-            },
-            "agotado": {
-                "0": "scenic+lakes+quiet+public+parks",
-                "1": "local+coffee+shop+bakery",
-                "2": "glamping+resort+cabin+rental"
-            },
-            "cansado": {
-                "0": "public+library+museums",
-                "1": "historic+sites+walking+tours",
-                "2": "calm+beach+resort+towns"
-            }
-        }
-
-        matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
-        gasto_key = budget if budget in ["0", "1", "2"] else "0"
-        actividad_base = matriz_ocio[gasto_key]
-       
-        modificador_compania = ""
-        if perfil_tipo == "familia":
-            modificador_compania = "+family+friendly"
-        elif perfil_tipo == "accesible":
-            modificador_compania = "+wheelchair+accessible"
-        elif perfil_tipo == "solo":
-            modificador_compania = "+hidden+gems"
-
-        full_query = f"{actividad_base}{modificador_compania}+in+{zip_code}"
-        target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
-
-        # Inyectamos la misión formateada de forma segura respetando tu esquema original
+        
+        # Configuración adaptativa de las 3 preguntas fundamentales para el FrontEnd
+        preguntas_es = [
+            "¿Qué estímulo de esta empresa está controlando tu atención ahora mismo?",
+            "¿Sientes tensión en tus ojos, cuello o manos debido a esta pantalla?",
+            "¿Estás dispuesto a regalarte 4 minutos de tregua biológica fuera de su ecosistema?"
+        ]
+        preguntas_en = [
+            "What stimulus from this company is controlling your attention right now?",
+            "Do you feel tension in your eyes, neck, or hands due to this screen?",
+            "Are you willing to grant yourself a 4-minute biological truce outside its ecosystem?"
+        ]
+        
+        # Mapeo estructurado para renderizar los cuadros clicables correspondientes
         final_misiones_para_frontend = [{
             "destino_id": 999,
             "destino_titulo": f"HACKEO A {marca_detectada.upper()}",
@@ -1068,8 +1038,10 @@ async def mando_integral(request: Request):
             "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
             "diagnostico_sintoma_es": diagnostico_sintoma_es,
             "diagnostico_sintoma_en": diagnostico_sintoma_en,
+            "empresa_marcada": marca_detectada,
+            "tres_preguntas": preguntas_en if lang == "en" else preguntas_es
         }]
-
+        
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
             "misiones": final_misiones_para_frontend,
@@ -1077,69 +1049,6 @@ async def mando_integral(request: Request):
             "legal_notice_es": ADVERTENCIA_LEGAL_ES,
             "legal_notice_en": ADVERTENCIA_LEGAL_EN,
             "drive_prohibited": True
-        })
-
-    elif opcion_usuario == "CASA":
-        # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
-        textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
-        manif_humano_casa = random.choice(textos_oraculo_casa)
-        idioma = "EN" if lang == "en" else "ES"
-        target_key = f"CASA_{idioma}"
-       
-        misiones_completas_base = BASE_MISIONES.get(target_key, [])
-           
-        final_misiones_casa = []
-        if not misiones_completas_base: # Fallback if specific language mission not found
-            if idioma == "ES":
-                final_misiones_casa = [{
-                    "id": 801,
-                    "titulo": "Pausa de Respiración Somática",
-                    "titulo_en": "Somatic Breathing Pause",
-                    "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos.",
-                    "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
-                    "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90}
-                }]
-            else:
-                final_misiones_casa = [{
-                    "id": 801,
-                    "titulo": "Somatic Breathing Pause",
-                    "titulo_en": "Somatic Breathing Pause",
-                    "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
-                    "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
-                    "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90}
-                }]
-        else: # Use missions from BASE_MISIONES if available
-             for m in misiones_completas_base:
-                if isinstance(m, dict):
-                    final_misiones_casa.append({
-                        "id": m.get("id", 800),
-                        "titulo": m.get("titulo", "Misión Interna"),
-                        "titulo_en": m.get("titulo_en", "Internal Mission"),
-                        "descripcion": m.get("descripcion", m.get("que_hacer", m.get("porque", "Pausa de bienestar somática."))),
-                        "descripcion_en": m.get("descripcion_en", m.get("que_hacer_en", m.get("porque_en", "Somatic wellness pause."))),
-                        "vector_necesidades": m.get("vector_necesidades", {})
-                    })
-
-        # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
-        misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
-            misiones=final_misiones_casa, # Use the prepared list
-            perfil_local=perfil_local,
-            historial_casa=payload.get("historial_casa", []),
-            cantidad=3
-        )
-       
-        historial_casa_actualizado = payload.get("historial_casa", [])
-        for m in misiones_domesticas_finales:
-            historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
-
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
-            "misiones": misiones_domesticas_finales,
-            "oraculo_manifiesto": manif_humano_casa,
-            "historial_casa_actualizado": historial_casa_actualizado,
-            "forced_recovery": False,
-            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-            "drive_prohibited": False
         })
 
     else:
