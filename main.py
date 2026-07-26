@@ -1051,24 +1051,25 @@ async def mando_integral(request: Request):
         target_key = f"CASA_{idioma}"
         misiones_completas_base = BASE_MISIONES.get(target_key, [])
         final_misiones_casa = []
+        
         if not misiones_completas_base:
             if idioma == "ES":
-                final_misiones_casa = [{
-                    "id": 801,
-                    "titulo": "Pausa de Respiración Somática",
-                    "titulo_en": "Somatic Breathing Pause",
-                    "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos.",
-                    "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
-                    "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90}
+                final_misiones_casa = [{ 
+                    "id": 801, 
+                    "titulo": "Pausa de Respiración Somática", 
+                    "titulo_en": "Somatic Breathing Pause", 
+                    "descripcion": "Rompe el bucle del estrés digital. Inhala profundamente durante 4 segundos, mantén el aire por 4 segundos y exhala en 4 segundos.", 
+                    "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.", 
+                    "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90} 
                 }]
             else:
-                final_misiones_casa = [{
-                    "id": 801,
-                    "titulo": "Somatic Breathing Pause",
-                    "titulo_en": "Somatic Breathing Pause",
-                    "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
-                    "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.",
-                    "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90}
+                final_misiones_casa = [{ 
+                    "id": 801, 
+                    "titulo": "Somatic Breathing Pause", 
+                    "titulo_en": "Somatic Breathing Pause", 
+                    "descripcion": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.", 
+                    "descripcion_en": "Break the digital stress loop. Inhale deeply for 4 seconds, hold for 4 seconds, and exhale for 4 seconds.", 
+                    "vector_necesidades": {"silencio": 100, "descanso": 95, "salud": 90} 
                 }]
         else:
             for m in misiones_completas_base:
@@ -1081,23 +1082,26 @@ async def mando_integral(request: Request):
                         "descripcion_en": m.get("descripcion_en", m.get("que_hacer_en", m.get("porque_en", "Somatic wellness pause."))),
                         "vector_necesidades": m.get("vector_necesidades", {})
                     })
+                    
         misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
-            misiones=final_misiones_casa,
-            perfil_local=perfil_local,
-            historial_casa=payload.get("historial_casa", []),
-            cantidad=3
+            misiones=final_misiones_casa, 
+            perfil_local=perfil_local, 
+            historial_casa=payload.get("historial_casa", []), 
+            cantidad=3 
         )
-                historial_casa_actualizado = payload.get("historial_casa", [])
+        
+        historial_casa_actualizado = payload.get("historial_casa", [])
         for m in misiones_domesticas_finales:
             historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
+            
         return JSONResponse({ 
             "DIRECCIONAMIENTO_MASTER": "MODO_CASA", 
             "misiones": misiones_domesticas_finales, 
             "oraculo_manifiesto": manif_humano_casa, 
-            "historial_casa_actualizado": historial_casa_actualizado,
-            "forced_recovery": False,
-            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-            "drive_prohibited": False
+            "historial_casa_actualizado": historial_casa_actualizado, 
+            "forced_recovery": False, 
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES, 
+            "drive_prohibited": False 
         })
 
 # ==============================================================================
