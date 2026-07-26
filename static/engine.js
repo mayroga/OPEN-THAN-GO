@@ -1302,80 +1302,106 @@ const KERNEL = {
     * Changes the application's language and updates UI elements.
     * @param {string} lang - The target language ('es' or 'en').
     */
-    cambiarIdioma(lang) {
-        this.idiomaActual = lang;
-        localStorage.setItem("otg_language", lang);
-        document.getElementById('lang-es').classList.toggle('active', lang === 'es');
-        document.getElementById('lang-en').classList.toggle('active', lang === 'en');
-       
-        const t = {
-            es: {
-                title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?",
-                desahogo: "O escribe aquí tu propio agobio si no aparece arriba:",
-                placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre",
-                alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto",
-                solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido",
-                menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado",
-                menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA",
-                recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?",
-                volverApp: "Volver a la App"
-            },
-            en: {
-                title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?",
-                desahogo: "Or write your own burden here if it does not appear above:",
-                placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control",
-                alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open",
-                solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored",
-                menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired",
-                menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME",
-                recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?",
-                volverApp: "Return to App"
-            }
-        }[lang];
+     cambiarIdioma(lang) {
+ this.idiomaActual = lang;
+ localStorage.setItem("otg_language", lang);
+ document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+ document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+ const t = {
+  es: {
+  title: "OPEN THAN GO", zip: "Código Postal", instruccion: "¿Qué te tiene atrapado hoy?",
+  desahogo: "O escribe aquí tu propio agobio si no aparece arriba:",
+  placeholder: "Cuéntale al mando libremente qué te pasa hoy...", btn: "Activar Mando Libre",
+  alert: "Idioma cambiado a español.", budget0: "Gratis", budget1: "Bajo", budget2: "Abierto",
+  solo: "Solo", familia: "Familia", accesible: "Accesible", menteAburrido: "Aburrido",
+  menteAgotado: "Agotado", menteEstresado: "Estresado", menteCansado: "Cansado",
+  menteAnsioso: "Ansioso", modoSalir: "SALIR", modoCasa: "CASA",
+  recomenzar: "RECOMENZAR EXPERIENCIA", puertaAbierta: "La puerta está abierta. ¿Continuamos?",
+  volverApp: "Volver a la App",
+  // Sincronización del flujo sensorial inicial recobrado
+  sensorialTitle: "PERSONALIZA TU EXPERIENCIA",
+  sensorialTime: "Tiempo aproximado: 1 minuto.",
+  sensorialSub: "Selecciona el servicio que mejor representa lo que deseas hacer en este momento.",
+  sensorialZipSub: `Opciones disponibles para el Código Postal ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
+  sensorialPhase2: "¿Qué actividad quieres realizar en este momento?"
+  },
+  en: {
+  title: "OPEN THAN GO", zip: "ZIP Code", instruccion: "What has you trapped today?",
+  desahogo: "Or write your own burden here if it does not appear above:",
+  placeholder: "Tell the control freely what is happening to you today...", btn: "Activate Free Control",
+  alert: "Language switched to English.", budget0: "Free", budget1: "Low", budget2: "Open",
+  solo: "Alone", familia: "Family", accesible: "Accessible", menteAburrido: "Bored",
+  menteAgotado: "Exhausted", menteEstresado: "Stressed", menteCansado: "Tired",
+  menteAnsioso: "Anxious", modoSalir: "OUT", modoCasa: "HOME",
+  recomenzar: "RESTART EXPERIENCE", puertaAbierta: "The door is open. Shall we continue?",
+  volverApp: "Return to App",
+  // Sincronización del flujo sensorial inicial recobrado
+  sensorialTitle: "PERSONALIZE YOUR EXPERIENCE",
+  sensorialTime: "Estimated time: 1 minute.",
+  sensorialSub: "Select the service that best represents what you wish to do right now.",
+  sensorialZipSub: `Options available for ZIP Code ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
+  sensorialPhase2: "What activity do you want to do right now?"
+  }
+ }[lang];
+ document.getElementById('html-title').innerText = t.title;
+ document.getElementById('txt-app-title').innerText = t.title;
+ document.getElementById('lbl-zip').innerText = t.zip;
+ 
+ const currentSensorialContainerState = document.getElementById('otg-sensorial-container') && !document.getElementById('otg-sensorial-container').classList.contains('hidden');
+ if (!currentSensorialContainerState) { 
+  document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
+  document.getElementById('lbl-desahogo').innerText = t.desahogo;
+  document.getElementById('inp-text-libre').placeholder = t.placeholder;
+  document.getElementById('btn-activar-libre').innerText = t.btn;
+  this.inyectarBloquePreguntas(); 
+  this.activarBotonMandoLibreInicial();
+ } else {
+  // TRADUCCIÓN QUIRÚRGICA EN CALIENTE: Actualiza etiquetas sin alterar las marcas seleccionadas
+  const sensorialContainer = document.getElementById('otg-sensorial-container');
+  if (sensorialContainer) {
+   const badgeElement = sensorialContainer.querySelector('span');
+   const titleElement = sensorialContainer.querySelector('h4');
+   const subtitleElement = sensorialContainer.querySelector('p');
+   const fase1Para = document.querySelector('#otg-sensorial-fase-1 > p');
+   const btnContinue = document.getElementById('btn-sensorial-continue');
+   const btnSkip = document.getElementById('btn-sensorial-skip');
+   const fase2Title = document.querySelector('#otg-sensorial-fase-2 p');
 
-        document.getElementById('html-title').innerText = t.title;
-        document.getElementById('txt-app-title').innerText = t.title;
-        document.getElementById('lbl-zip').innerText = t.zip;
-        // The instruction and desahogo labels are initially set by sensorial flow, or updated here if main form visible
-        const currentSensorialContainerState = document.getElementById('otg-sensorial-container') && !document.getElementById('otg-sensorial-container').classList.contains('hidden');
-        if (!currentSensorialContainerState) { // Only update if main form is visible
-            document.getElementById('lbl-oraculo-instruccion').innerText = t.instruccion;
-            document.getElementById('lbl-desahogo').innerText = t.desahogo;
-            document.getElementById('inp-text-libre').placeholder = t.placeholder;
-            document.getElementById('btn-activar-libre').innerText = t.btn;
-            this.inyectarBloquePreguntas(); // Re-inject questions in new language
-            this.activarBotonMandoLibreInicial();
-        } else {
-            // If sensorial flow is active, re-render its content for language
-            this.mostrarSelectorEmpresas();
-        }
-
-
-        document.getElementById('opt-budget-0').innerText = t.budget0;
-        document.getElementById('opt-budget-1').innerText = t.budget1;
-        document.getElementById('opt-budget-2').innerText = t.budget2;
-        document.getElementById('opt-perfil-solo').innerText = t.solo;
-        document.getElementById('opt-perfil-familia').innerText = t.familia;
-        document.getElementById('opt-perfil-accesible').innerText = t.accesible;
-        document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido;
-        document.getElementById('opt-mente-agotado').innerText = t.menteAgotado;
-        document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
-        document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
-        document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
-        document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
-        document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
-       
-        const cierreLogo = document.getElementById('cierre-logo');
-        if (cierreLogo) cierreLogo.innerText = t.title;
-        const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
-        if (cierreBoton) cierreBoton.innerText = t.recomenzar;
-        const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
-        if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
-        const btnVolverApp = document.getElementById('btn-volver-app');
-        if (btnVolverApp) btnVolverApp.title = t.volverApp;
-
-        this.hablar(t.alert);
-    },
+   if (badgeElement) badgeElement.innerText = lang === 'es' ? "Bienestar Inicial" : "Initial Wellbeing";
+   if (titleElement) titleElement.innerText = t.sensorialTitle;
+   if (subtitleElement) {
+    let zipValue = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
+    subtitleElement.innerText = `${zipValue ? t.sensorialZipSub : t.sensorialSub} ${t.sensorialTime}`;
+   }
+   if (fase1Para) fase1Para.innerText = t.sensorialSub;
+   if (btnContinue) btnContinue.innerText = lang === 'es' ? "Continuar →" : "Continue →";
+   if (btnSkip) btnSkip.innerText = lang === 'es' ? "Saltar y usar mando libre" : "Skip and use free control";
+   if (fase2Title) fase2Title.innerText = t.sensorialPhase2;
+  }
+ }
+ document.getElementById('opt-budget-0').innerText = t.budget0;
+ document.getElementById('opt-budget-1').innerText = t.budget1;
+ document.getElementById('opt-budget-2').innerText = t.budget2;
+ document.getElementById('opt-perfil-solo').innerText = t.solo;
+ document.getElementById('opt-perfil-familia').innerText = t.familia;
+ document.getElementById('opt-perfil-accesible').innerText = t.accesible;
+ document.getElementById('opt-mente-aburrido').innerText = t.menteAburrido;
+ document.getElementById('opt-mente-agotado').innerText = t.menteAgotado;
+ document.getElementById('opt-mente-estresado').innerText = t.menteEstresado;
+ document.getElementById('opt-mente-cansado').innerText = t.menteCansado;
+ document.getElementById('opt-mente-ansioso').innerText = t.menteAnsioso;
+ document.querySelector('#modo-selector option[value="SALIR"]').innerText = t.modoSalir;
+ document.querySelector('#modo-selector option[value="CASA"]').innerText = t.modoCasa;
+ const cierreLogo = document.getElementById('cierre-logo');
+ if (cierreLogo) cierreLogo.innerText = t.title;
+ const cierreBoton = document.getElementById('btn-recomenzar-experiencia');
+ if (cierreBoton) cierreBoton.innerText = t.recomenzar;
+ const cierreMensajeFinal = document.getElementById('cierre-mensaje-final');
+ if (cierreMensajeFinal) cierreMensajeFinal.innerText = t.puertaAbierta;
+ const btnVolverApp = document.getElementById('btn-volver-app');
+ if (btnVolverApp) btnVolverApp.title = t.volverApp;
+ this.hablar(t.alert);
+ },
 
     // ... inside KERNEL ...
     mostrarSelectorEmpresas() {
@@ -1545,25 +1571,26 @@ const KERNEL = {
         this.historialSensorialPreguntas = this.historialSensorialPreguntas.slice(-this.MAX_HISTORY_SENSORIAL_PREGUNTAS);
         localStorage.setItem("otg_historial_sensorial_preguntas", JSON.stringify(this.historialSensorialPreguntas));
 
-        fase2.innerHTML = `
-            <div style="background: #111; border: 1px solid #222; padding: 15px; border-radius: 8px; margin-top: 10px;">
-                <span style="color: #00bcd4; font-size: .65rem; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">
-                    ${t.selected}
-                </span>
-                <p style="font-size: 1rem; font-weight: bold; line-height: 1.45; margin: 5px 0 15px; color: #fff;">
-                    ${this.idiomaActual === 'es' ? '¿Qué actividad quieres realizar en este momento?' : 'What activity do you want to do right now?'}
-                </p>
-                <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[0]}', 'agotado')">
-                    ${selectedQuestionsForDisplay[0]}
-                </button>
-                <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[1]}', 'normal')">
-                    ${selectedQuestionsForDisplay[1]}
-                </button>
-                <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[2]}', 'curioso')">
-                    ${selectedQuestionsForDisplay[2]}
-                </button>
-            </div>
-        `;
+         fase2.innerHTML = `
+ <div style="background: #111; border: 1px solid #222; padding: 15px; border-radius: 8px; margin-top: 10px;">
+ <span style="color: #00bcd4; font-size: .65rem; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">
+ ${t.selected}
+ </span>
+ <p style="font-size: 1rem; font-weight: bold; line-height: 1.45; margin: 5px 0 15px; color: #fff;">
+ ${this.idiomaActual === 'es' ? '¿Qué actividad quieres realizar en este momento?' : 'What activity do you want to do right now?'}
+ </p>
+ <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[0]}', 'ansioso')">
+ ${selectedQuestionsForDisplay[0]}
+ </button>
+ <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[1]}', 'estresado')">
+ ${selectedQuestionsForDisplay[1]}
+ </button>
+ <button class="otg-btn-opt" onclick="KERNEL.finalizarSensorialFlow('${marca}', '${selectedQuestionsForDisplay[2]}', 'curioso')">
+ ${selectedQuestionsForDisplay[2]}
+ </button>
+ </div>
+ `;
+
         // Speak the selected brand name and a random question
         this.hablar(t.selected.replace(`: ${marca}`, '') + ". " + (this.idiomaActual === 'es' ? "¿Qué actividad quieres realizar en este momento?" : "What activity do you want to do right now?"));
     },
@@ -1581,20 +1608,20 @@ const KERNEL = {
         // Populate desahogo and mente based on selections
         inpTextLibre.value = `${selectedBrand}: ${selectedQuestion}`;
         
-        // Map old 'type' to new 'mente'
-        let mappedMente = "aburrido"; // Default
-        if (type === 'agotado') { // "Quiero usar este servicio ahora." (implies wanting immediate relief/action)
-            mappedMente = "estresado"; // Could be stressed/agotado, picking stressed as more "active" need
-        } else if (type === 'normal') { // "Solo estoy explorando opciones." (implies less urgency, maybe bored)
-            mappedMente = "aburrido";
-        } else if (type === 'curioso') { // "Quiero descubrir nuevas ideas." (implies bored or seeking learning)
-            mappedMente = "aburrido"; // Use bored as a base, then the algorithm can refine
-        }
-        if (menteSelector) {
-            menteSelector.value = mappedMente;
-            menteSelector.dispatchEvent(new Event('change')); // Trigger change event
-        }
-        
+         // Map old 'type' to new 'mente' coincidiendo exactamente con lo que pide main.py
+ let mappedMente = "aburrido"; // Default
+ if (type === 'agotado') { 
+  mappedMente = "estresado"; 
+ } else if (type === 'ansioso') { 
+  mappedMente = "ansioso"; // Integración directa para capturar el estado ansioso nativo
+ } else if (type === 'agotado_pasivo') { 
+  mappedMente = "agotado"; 
+ } else if (type === 'normal') { 
+  mappedMente = "cansado"; 
+ } else if (type === 'curioso') { 
+  mappedMente = "aburrido"; 
+ }
+       
         // After sensorial flow, enable main form logic
         this.inyectarBloquePreguntas();
         this.iniciarMonitoreoInaccion();
