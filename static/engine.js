@@ -1682,16 +1682,15 @@ border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .8rem;">
             return;
         }
 
-        const payload = {
-            zip: zipInput ? zipInput.value.trim() : "",
-            modo: modoActual,
-            desahogo: desahogoInput ? desahogoInput.value.trim() : "",
-            lang: this.idiomaActual,
-            mente: document.getElementById('mente-selector') ? document.getElementById('mente-selector').value : "aburrido",
-            budget: document.getElementById('budget-selector') ? document.getElementById('budget-selector').value : "0",
-            perfil: document.getElementById('perfil-selector') ? document.getElementById('perfil-selector').value : "solo",
-            perfil_local: this.obtenerPerfilLocal(),
-        };
+    const payload = {
+        zip: zipInput ? zipInput.value.trim() : "",
+        modo: modoActual,
+        desahogo: desahogoInput ? desahogoInput.value.trim() : "",
+        lang: this.idiomaActual,
+        mente: document.getElementById('mente-selector').value,
+        budget: document.getElementById('budget-selector').value,
+        perfil_tipo: document.getElementById('perfil-selector').value
+    };
 
         if (modoActual === "CASA") {
             payload.historial_casa = this.historialCasa;
