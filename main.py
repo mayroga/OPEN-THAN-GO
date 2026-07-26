@@ -990,7 +990,7 @@ async def mando_integral(request: Request):
         diagnostico_sintoma_en = f"Diagnostic: Client experiences [{mente_str_en}] linked to corporate stimulus [{marca_detectada}] in Zip Code {zip_code}."
         
         # ==========================================================================================
-        # RECTIFICACIÓN CRÍTICA: Inicialización universal de target_link para evitar NameError
+        # RESTAURACIÓN ABSOLUTA: Cálculo nativo de target_link sin alterar variables globales
         # ==========================================================================================
         search_query_parts = []
         if perfil_tipo == "accesible":
@@ -998,11 +998,12 @@ async def mando_integral(request: Request):
         elif perfil_tipo == "familia":
             search_query_parts.append("family friendly")
         
-        # Inyectamos dinámicamente la marca en la búsqueda de mapas para soportar cualquier empresa
         search_query_parts.append(str(marca_detectada).lower())
         target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}"
         
-        # Inyección de instrucciones específicas basadas en la empresa a marcar
+        # ==========================================================================================
+        # SISTEMA NATIVO PRESERVADO: Instrucciones biológicas originales de ejercicios de 15 min
+        # ==========================================================================================
         if marca_detectada == "Walmart":
             instruccion_fisiologica_es = "Estás en el templo del consumo. Hackea: detén tu marcha, inhala/exhala profundo. Repite: 'Yo soy el único producto que importa hoy'. Sal de la rutina."
             instruccion_fisiologica_en = "You are in the consumption temple. Hack it: stop, inhale/exhale deeply. Repeat: 'I am the only product that matters today'. Exit routine."
@@ -1016,8 +1017,9 @@ async def mando_integral(request: Request):
             instruccion_fisiologica_es = "Usas sonidos para aislarte. Detén el audio. Ejecuta el Módulo Silencio Mental 1 minuto. Siente tu ritmo cardíaco en este Código Postal."
             instruccion_fisiologica_en = "You use sounds to isolate. Stop audio. Execute 1-minute Mental Silence Module. Feel your heart rhythm in this Zip Code."
         else:
-            instruccion_fisiologica_es = f"Identificaste que [{marca_detectada}] satura tu mente. Rebélate: usa pasillos, aire libre o ventanas. Haz una pausa biológica profunda de 60 segundos. Recupera el control."
-            instruccion_fisiologica_en = f"You identified [{marca_detectada}] saturating your mind. Rebel: use halls, open air, or windows. Take a deep 60-sec biological pause. Regain control."
+            # RESTAURACIÓN MISIONES DE EJERCICIO ORIGINALES (FUERA DE CASA - 15 MINUTOS)
+            instruccion_fisiologica_es = f"Inicia un ejercicio de campo de 15 minutos fuera de casa. Rompe el control de [{marca_detectada}]. Camina rápido, activa tu circulación y oxigena tus células en el exterior."
+            instruccion_fisiologica_en = f"Start a 15-minute field exercise outside your home. Break the control of [{marca_detectada}]. Walk fast, activate circulation, and oxygenate your cells outdoors."
             
         search_term_antidoto = ANTIDOTOS_DIGITALES_SEARCH_TERMS.get(mente, BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
         enlace_yt = f"{BIG_TECH_RESOURCES['youtube_base_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
@@ -1025,14 +1027,16 @@ async def mando_integral(request: Request):
         
         # Configuración adaptativa de las 3 preguntas fundamentales para el FrontEnd
         preguntas_es = [
-            "¿Qué estímulo de esta empresa está controlando tu atención ahora mismo?",
-            "¿Sientes tensión en tus ojos, cuello o manos debido a esta pantalla?",
-            "¿Estás dispuesto a regalarte 4 minutos de tregua biológica fuera de su ecosistema?"
+            "¿Qué actividad quieres realizar en este momento?",
+            "¿Cuál de estos servicios forma parte de tu rutina hoy?",
+            "¿Qué opción representa mejor lo que buscas ahora?",
+            "¿Qué servicio te gustaría utilizar en este momento?"
         ]
         preguntas_en = [
-            "What stimulus from this company is controlling your attention right now?",
-            "Do you feel tension in your eyes, neck, or hands due to this screen?",
-            "Are you willing to grant yourself a 4-minute biological truce outside its ecosystem?"
+            "What activity do you want to perform right now?",
+            "Which of these services is part of your routine today?",
+            "Which option best represents what you are looking for now?",
+            "What service would you like to use at this moment?"
         ]
         
         # Mapeo estructurado para renderizar los cuadros clicables correspondientes
