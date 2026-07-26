@@ -1255,48 +1255,49 @@ const KERNEL = {
     },
 
     /**
-     * Converts text to speech using browser's SpeechSynthesis API.
-     */
-    hablar(texto) {
-        if (!('speechSynthesis' in window)) return;
-        if (!texto) return;
+* Converts text to speech using browser's SpeechSynthesis API.
+*/
+ hablar(texto) {
+ if (!('speechSynthesis' in window)) return;
+ if (!texto) return;
+ // Filtro radical: Elimina códigos de emojis, comillas, guiones y convierte puntuación en pausas limpias
+ let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO")
+               .replace(/<[^>]*>/g, '')
+               .replace(/%EF%B8%8F/g, '')
+               .replace(/["'«»“”‘’_`~\-–—]/g, ' ')
+               .replace(/[,.;.:¡!¿?]/g, ' ');
 
-        let fx = texto.replace(/OPEN THAN GO/gi, "OPEN DAN GO").replace(/<[^>]*>/g, '');
-        const msg = new SpeechSynthesisUtterance(fx);
-        msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
-        msg.rate = 1.10;
-        msg.pitch = 1.05;
-
-        // Add an 'onend' event listener to process the next item in the queue
-        msg.onend = () => {
-            this.isSpeaking = false;
-            this.speechQueue.shift(); // Remove the finished utterance from the queue
-            if (this.speechQueue.length > 0) {
-                this._speakNextInQueue();
-            }
-        };
-
-        msg.onerror = (event) => {
-            console.error("Speech synthesis error:", event.error);
-            this.isSpeaking = false;
-            // If an error occurs, cancel current speech and clear the rest of the queue
-            window.speechSynthesis.cancel();
-            this.speechQueue = [];
-        };
-
-        this.speechQueue.push(msg); // Add the new message to the queue
-        if (!this.isSpeaking) {
-            this._speakNextInQueue(); // If not speaking, start immediately
-        }
-    },
-
-    // Helper to speak the next item in the queue
-    _speakNextInQueue() {
-        if (this.speechQueue.length > 0 && !this.isSpeaking) {
-            this.isSpeaking = true;
-            window.speechSynthesis.speak(this.speechQueue[0]);
-        }
-    },
+ const msg = new SpeechSynthesisUtterance(fx);
+ msg.lang = this.idiomaActual === 'es' ? 'es-US' : 'en-US';
+ msg.rate = 1.10;
+ msg.pitch = 1.05;
+ // Add an 'onend' event listener to process the next item in the queue
+ msg.onend = () => {
+ this.isSpeaking = false;
+ this.speechQueue.shift(); // Remove the finished utterance from the queue
+ if (this.speechQueue.length > 0) {
+ this._speakNextInQueue();
+ }
+ };
+ msg.onerror = (event) => {
+ console.error("Speech synthesis error:", event.error);
+ this.isSpeaking = false;
+ // If an error occurs, cancel current speech and clear the rest of the queue
+ window.speechSynthesis.cancel();
+ this.speechQueue = [];
+ };
+ this.speechQueue.push(msg); // Add the new message to the queue
+ if (!this.isSpeaking) {
+ this._speakNextInQueue(); // If not speaking, start immediately
+ }
+ },
+ // Helper to speak the next item in the queue
+ _speakNextInQueue() {
+ if (this.speechQueue.length > 0 && !this.isSpeaking) {
+ this.isSpeaking = true;
+ window.speechSynthesis.speak(this.speechQueue[0]);
+ }
+ },
 
     /**
     * Changes the application's language and updates UI elements.
@@ -1403,112 +1404,108 @@ const KERNEL = {
  this.hablar(t.alert);
  },
 
-    // ... inside KERNEL ...
-    mostrarSelectorEmpresas() {
-        const wrapperForm = document.getElementById('wrapper-form');
-        const mainFormContent = document.getElementById('main-form-content');
-        let sensorialContainer = document.getElementById('otg-sensorial-container');
+ mostrarSelectorEmpresas() {
+ const wrapperForm = document.getElementById('wrapper-form');
+ const mainFormContent = document.getElementById('main-form-content');
+ let sensorialContainer = document.getElementById('otg-sensorial-container');
+ if (!sensorialContainer) { // Create if it doesn't exist
+ sensorialContainer = document.createElement('div');
+ sensorialContainer.id = 'otg-sensorial-container';
+ wrapperForm.insertBefore(sensorialContainer, mainFormContent); // Insert before main form content
+ }
+ sensorialContainer.classList.remove('hidden');
+ if (mainFormContent) mainFormContent.classList.add('hidden'); // Hide main form content
+ const t = {
+ es: {
+ title: "PERSONALIZA TU EXPERIENCIA",
+ subtitle_main: "Selecciona el servicio que mejor representa lo que deseas hacer en este momento.",
+ subtitle_zip: `Opciones disponibles para el Código Postal ${document.getElementById("inp-zip") ?
+document.getElementById("inp-zip").value.trim() : ""}.`,
+ continue_btn: "Continuar →",
+ skip_btn: "Saltar y usar mando libre",
+ select_option: "Selecciona al menos una opción.",
+ badge: "Bienestar Inicial",
+ time: "Tiempo aproximado: 1 minuto."
+ },
+ en: {
+ title: "PERSONALIZE YOUR EXPERIENCE",
+ subtitle_main: "Select the service that best represents what you wish to do right now.",
+ subtitle_zip: `Options available for ZIP Code ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
+ continue_btn: "Continue →",
+ skip_btn: "Skip and use free control",
+ select_option: "Select at least one option.",
+ badge: "Initial Wellbeing",
+ time: "Estimated time: 1 minute."
+ }
+ }[this.idiomaActual];
+ let zip = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
+ let txtSubtitle = zip ? t.subtitle_zip : t.subtitle_main;
+ // Shuffle marcas to ensure variety
+ let shuffledMarcas = [...this.sensorial_marcas];
+ for (let i = shuffledMarcas.length - 1; i > 0; i--) {
+ const j = Math.floor(Math.random() * (i + 1));
+ [shuffledMarcas[i], shuffledMarcas[j]] = [shuffledMarcas[j], shuffledMarcas[i]];
+ }
+ let selectedMarcasForDisplay = [];
+ let usedMarcasForDisplay = new Set(this.historialSensorialMarcas);
+ // Filter out brands recently used for display
+ let availableMarcas = shuffledMarcas.filter(marca => !usedMarcasForDisplay.has(marca));
+ if (availableMarcas.length < 12) { // If not enough unseen, reset history
+ this.historialSensorialMarcas = [];
+ localStorage.removeItem("otg_historial_sensorial_marcas");
+ availableMarcas = shuffledMarcas; // Use all again
+ }
+ selectedMarcasForDisplay = availableMarcas.slice(0, 12); // Take first 12 unique after potential reset
+ // Update history
+ selectedMarcasForDisplay.forEach(marca => {
+ this.historialSensorialMarcas.push(marca);
+ });
+ this.historialSensorialMarcas = this.historialSensorialMarcas.slice(-this.MAX_HISTORY_SENSORIAL_MARCAS);
+ localStorage.setItem("otg_historial_sensorial_marcas", JSON.stringify(this.historialSensorialMarcas));
+ let currentSelection = []; // To track user's selected brands temporarily
+ sensorialContainer.innerHTML = `
+ <div style="max-width:460px;margin:0 auto;padding-top:5px;">
+ <div style="text-align:center;margin-bottom:15px;">
+ <span style="background: #2e7d32; padding: 3px 8px; border-radius: 4px; font-size: .65rem; font-weight: bold; text-transform: uppercase;">
+ ${t.badge}
+ </span>
+ <h4 style="color: #00bcd4; font-weight: 900; margin: 8px 0 3px; font-size: 1.15rem;">
+ ${t.title}
+ </h4>
+ <p style="color: #aaa; font-size: .72rem; margin: 0;">
+ ${txtSubtitle} ${t.time}
+ </p>
+ </div>
+ <div id="otg-sensorial-fase-1">
+ <p style="font-size: .85rem; font-weight: bold; color: #fff; text-align: center; line-height: 1.45; margin-bottom: 10px;">
+ ${t.subtitle_main}
+ </p>
+ <div class="otg-grid-logos">
+ ${selectedMarcasForDisplay.map(marca => `<div class="otg-card-logo" data-marca="${marca}">${marca}</div>`).join("")}
+ </div>
+ <button id="btn-sensorial-continue" style="width: 100%; background: #2e7d32; border: none; color: #fff; padding: 14px;
+border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: .8rem; letter-spacing: .5px;">
+ ${t.continue_btn}
+ </button>
+ <button id="btn-sensorial-skip" style="width: 100%; background: none; border: 1px solid #444; color: #ccc; padding: 10px;
+border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .8rem;">
+ ${t.skip_btn}
+ </button>
+ </div>
+ <div id="otg-sensorial-fase-2" class="hidden"></div>
+ </div>`;
+ sensorialContainer.querySelectorAll('.otg-card-logo').forEach(card => {
+ card.addEventListener('click', () => {
+ const marca = card.dataset.marca;
+ card.classList.toggle("active");
+ if (card.classList.contains("active")) {
+ currentSelection.push(marca);
+ } else {
+ currentSelection = currentSelection.filter(x => x !== marca);
+ }
+ });
+ });
 
-        if (!sensorialContainer) { // Create if it doesn't exist
-            sensorialContainer = document.createElement('div');
-            sensorialContainer.id = 'otg-sensorial-container';
-            wrapperForm.insertBefore(sensorialContainer, mainFormContent); // Insert before main form content
-        }
-        sensorialContainer.classList.remove('hidden');
-        if (mainFormContent) mainFormContent.classList.add('hidden'); // Hide main form content
-
-        const t = {
-            es: {
-                title: "PERSONALIZA TU EXPERIENCIA",
-                subtitle_main: "Selecciona el servicio que mejor representa lo que deseas hacer en este momento.",
-                subtitle_zip: `Opciones disponibles para el Código Postal ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
-                continue_btn: "Continuar →",
-                skip_btn: "Saltar y usar mando libre",
-                select_option: "Selecciona al menos una opción."
-            },
-            en: {
-                title: "PERSONALIZE YOUR EXPERIENCE",
-                subtitle_main: "Select the service that best represents what you wish to do right now.",
-                subtitle_zip: `Options available for ZIP Code ${document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : ""}.`,
-                continue_btn: "Continue →",
-                skip_btn: "Skip and use free control",
-                select_option: "Select at least one option."
-            }
-        }[this.idiomaActual];
-
-        let zip = document.getElementById("inp-zip") ? document.getElementById("inp-zip").value.trim() : "";
-        let txtSubtitle = zip ? t.subtitle_zip : t.subtitle_main;
-
-        // Shuffle marcas to ensure variety
-        let shuffledMarcas = [...this.sensorial_marcas];
-        for (let i = shuffledMarcas.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffledMarcas[i], shuffledMarcas[j]] = [shuffledMarcas[j], shuffledMarcas[i]];
-        }
-        
-        let selectedMarcasForDisplay = [];
-        let usedMarcasForDisplay = new Set(this.historialSensorialMarcas);
-
-        // Filter out brands recently used for display
-        let availableMarcas = shuffledMarcas.filter(marca => !usedMarcasForDisplay.has(marca));
-        
-        if (availableMarcas.length < 12) { // If not enough unseen, reset history
-            this.historialSensorialMarcas = [];
-            localStorage.removeItem("otg_historial_sensorial_marcas");
-            availableMarcas = shuffledMarcas; // Use all again
-        }
-        selectedMarcasForDisplay = availableMarcas.slice(0, 12); // Take first 12 unique after potential reset
-
-        // Update history
-        selectedMarcasForDisplay.forEach(marca => {
-            this.historialSensorialMarcas.push(marca);
-        });
-        this.historialSensorialMarcas = this.historialSensorialMarcas.slice(-this.MAX_HISTORY_SENSORIAL_MARCAS);
-        localStorage.setItem("otg_historial_sensorial_marcas", JSON.stringify(this.historialSensorialMarcas));
-
-        let currentSelection = []; // To track user's selected brands temporarily
-
-        sensorialContainer.innerHTML = `
-            <div style="max-width:460px;margin:0 auto;padding-top:5px;">
-                <div style="text-align:center;margin-bottom:15px;">
-                    <span style="background: #2e7d32; padding: 3px 8px; border-radius: 4px; font-size: .65rem; font-weight: bold; text-transform: uppercase;">
-                        ${this.idiomaActual === 'es' ? 'Bienestar Inicial' : 'Initial Wellbeing'}
-                    </span>
-                    <h4 style="color: #00bcd4; font-weight: 900; margin: 8px 0 3px; font-size: 1.15rem;">
-                        ${t.title}
-                    </h4>
-                    <p style="color: #aaa; font-size: .72rem; margin: 0;">
-                        ${txtSubtitle}. Tiempo aproximado: 1 minuto.
-                    </p>
-                </div>
-                <div id="otg-sensorial-fase-1">
-                    <p style="font-size: .85rem; font-weight: bold; color: #fff; text-align: center; line-height: 1.45; margin-bottom: 10px;">
-                        ${t.subtitle_main}
-                    </p>
-                    <div class="otg-grid-logos">
-                        ${selectedMarcasForDisplay.map(marca => `<div class="otg-card-logo" data-marca="${marca}">${marca}</div>`).join("")}
-                    </div>
-                    <button id="btn-sensorial-continue" style="width: 100%; background: #2e7d32; border: none; color: #fff; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: .8rem; letter-spacing: .5px;">
-                        ${t.continue_btn}
-                    </button>
-                    <button id="btn-sensorial-skip" style="width: 100%; background: none; border: 1px solid #444; color: #ccc; padding: 10px; border-radius: 6px; margin-top: 10px; cursor: pointer; font-size: .8rem;">
-                        ${t.skip_btn}
-                    </button>
-                </div>
-                <div id="otg-sensorial-fase-2" class="hidden"></div>
-            </div>`;
-
-        sensorialContainer.querySelectorAll('.otg-card-logo').forEach(card => {
-            card.addEventListener('click', () => {
-                const marca = card.dataset.marca;
-                card.classList.toggle("active");
-                if (card.classList.contains("active")) {
-                    currentSelection.push(marca);
-                } else {
-                    currentSelection = currentSelection.filter(x => x !== marca);
-                }
-            });
-        });
 
         document.getElementById('btn-sensorial-continue').addEventListener('click', () => {
             if (currentSelection.length === 0) {
@@ -1741,34 +1738,31 @@ const KERNEL = {
         this.mensajeCalidezHumanaActual = textoElegido;
        
      // MADO: ACCIÓN DE CAMPO (SALIR)
- if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
- this.historialSalir = data.historial_salir_actualizado || [];
- localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
+this.historialSalir = data.historial_salir_actualizado || [];
+localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+this.pasosMisiones = data.misiones || [];
+this.mostrarOpcionesSalir(container);
+}
+// === CORRECCIÓN MAESTRA: SINOPSIS DE ENRUTAMIENTO PARA EL MODO CASA ===
+// Agregamos la validación exacta de "CASA" para enganchar perfectamente con las respuestas del backend
+else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA" || this.tipoEscapeGlobal === "CASA") {
+this.historialCasa = data.historial_casa_actualizado || [];
+localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
  this.pasosMisiones = data.misiones || [];
- this.mostrarOpcionesSalir(container);
+ this.procesarFlujoSecuencial(container);
  }
- // === CORRECCIÓN MAESTRA: SINOPSIS DE ENRUTAMIENTO PARA EL MODO CASA ===
- // Cambiamos "INTERVENCION_DOMESTICA" por "MODO_CASA" para que enganche perfectamente con el Backend
- else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
- this.historialCasa = data.historial_casa_actualizado || [];
- localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
-
-           
-            this.pasosMisiones = data.misiones || [];
-            this.procesarFlujoSecuencial(container);
-        }
-       
-    } catch (error) {
-        console.error("Fetch error:", error);
-        alert(this.idiomaActual === 'es'
-            ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo."
-            : "Connection error with the server. Please try again."
-        );
-        document.getElementById('wrapper-form').classList.remove('hidden');
-        container.classList.add('hidden');
-        this.isLocked = false;
-        this.validarZip();
-    }
+ } catch (error) {
+ console.error("Fetch error:", error);
+ alert(this.idiomaActual === 'es'
+ ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo."
+ : "Connection error with the server. Please try again."
+ );
+ document.getElementById('wrapper-form').classList.remove('hidden');
+ container.classList.add('hidden');
+ this.isLocked = false;
+ this.validarZip();
+ }
 },
 
     /**
