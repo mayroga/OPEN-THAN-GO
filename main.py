@@ -1052,38 +1052,97 @@ async def mando_integral(request: Request):
         # ==========================================================================================
         # CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL (GOOGLE MAPS UNIVERSAL)
         # ==========================================================================================
+        # Decidir estrategia dinámicamente para variar la experiencia del cliente (Sintonizar vs Contrarrestar)
+        estrategia = random.choice(["sintonizar", "contrarrestar"])
+
         nucleos_ocio = {
             "ansioso": {
-                "0": "nature+preserves+botanical+gardens",
-                "1": "cozy+tea+house+bookstore+cafe",
-                "2": "luxury+spa+wellness+resort"
+                "sintonizar": {
+                    "0": "fountains+quiet+lakes+water+architecture",
+                    "1": "independent+vintage+bookstore+cozy+cafe",
+                    "2": "luxury+spa+hydrotherapy+wellness+resort",
+                    "yt": "solfeggio+frequencies+432hz+anxiety+relief+visual+geometry",
+                    "sp": "calm+inner+peace+frequencies"
+                },
+                "contrarrestar": {
+                    "0": "botanical+gardens+scenic+walking+trails",
+                    "1": "record+shops+vintage+retro+cafe",
+                    "2": "live+theater+local+art+galleries",
+                    "yt": "upbeat+retro+funk+soul+feel+good+live+session",
+                    "sp": "vintage+funk+disco+grooves"
+                }
             },
             "estresado": {
-                "0": "public+beaches+hiking+trails",
-                "1": "jazz+club+lounge+bar+comedy",
-                "2": "fine+dining+restaurant+boutique+hotel"
+                "sintonizar": {
+                    "0": "isolated+nature+reserves+walking+trails",
+                    "1": "silent+monastery+gardens+historic+libraries",
+                    "2": "meditation+retreat+center+spa",
+                    "yt": "heavy+rain+cinematic+piano+stress+relief+lyrics",
+                    "sp": "weightless+drone+ambient+meditation"
+                },
+                "contrarrestar": {
+                    "1": "jazz+club+lounge+bar+comedy",
+                    "0": "vibrant+street+art+walks+flea+markets",
+                    "2": "fine+dining+restaurant+boutique+hotel",
+                    "yt": "chillhop+lofi+beats+study+focus",
+                    "sp": "bossa+nova+jazz+escape"
+                }
             },
             "aburrido": {
-                "0": "skate+parks+street+art+squares",
-                "1": "bowling+alley+arcade+sports+bar",
-                "2": "theme+parks+live+concerts+cruises"
+                "sintonizar": {
+                    "0": "minimalist+structural+architectural+spaces+modern+plazas",
+                    "1": "retro+arcade+indie+board+game+cafe",
+                    "2": "contemporary+art+museums+exhibitions",
+                    "yt": "absurdist+surreal+art+films+background+lo-fi",
+                    "sp": "experimental+glitch+jazz+intelligent+dnb"
+                },
+                "contrarrestar": {
+                    "0": "skate+parks+street+art+squares",
+                    "1": "bowling+alley+arcade+sports+bar",
+                    "2": "theme+parks+live+concerts+cruises",
+                    "yt": "high+energy+cyberpunk+dynamic+visual+music",
+                    "sp": "indie+dance+post-punk+high+energy"
+                }
             },
             "agotado": {
-                "0": "scenic+lakes+quiet+public+parks",
-                "1": "local+coffee+shop+bakery",
-                "2": "glamping+resort+cabin+rental"
+                "sintonizar": {
+                    "0": "scenic+lakes+quiet+public+parks",
+                    "1": "hidden+tea+house+botanical+greenhouse",
+                    "2": "float+tank+therapy+sensory+deprivation",
+                    "yt": "deep+exhaustion+dark+ambient+aesthetic+music",
+                    "sp": "ambient+sleep+melancholic+piano"
+                },
+                "contrarrestar": {
+                    "0": "panoramic+city+lookouts+vibrant+gardens",
+                    "1": "local+coffee+shop+bakery+specialty+espresso",
+                    "2": "glamping+resort+cabin+rental",
+                    "yt": "lofi+upbeat+groove+smooth+neo+soul",
+                    "sp": "morning+energy+organic+house"
+                }
             },
             "cansado": {
-                "0": "public+library+museums",
-                "1": "historic+sites+walking+tours",
-                "2": "calm+beach+resort+towns"
+                "sintonizar": {
+                    "0": "public+library+museums",
+                    "1": "ancient+cloisters+silent+historic+sanctuaries",
+                    "2": "thermal+baths+spa",
+                    "yt": "slow+cinematic+background+soundtrack+sad+beautiful+lyrics",
+                    "sp": "melancholy+acoustic+guitar+strings"
+                },
+                "contrarrestar": {
+                    "0": "scenic+panoramic+lookouts+over+city+nature",
+                    "1": "historic+sites+walking+tours",
+                    "2": "calm+beach+resort+towns",
+                    "yt": "synthwave+retrowave+driving+motivational",
+                    "sp": "indie+pop+sun-drenched+road+trip"
+                }
             }
         }
 
-        matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])
+        # Extraemos la sub-matriz según el estado mental y la estrategia aleatoria elegida
+        matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])[estrategia]
         gasto_key = budget if budget in ["0", "1", "2"] else "0"
         actividad_base = matriz_ocio[gasto_key]
-       
+
         modificador_compania = ""
         if perfil_tipo == "familia":
             modificador_compania = "+family+friendly"
@@ -1092,14 +1151,19 @@ async def mando_integral(request: Request):
         elif perfil_tipo == "solo":
             modificador_compania = "+hidden+gems"
 
-        full_query = f"{actividad_base}{modificador_compania}+in+{zip_code}"
+        # Construcción enriquecida para que Google Maps extraiga fotos, videos y opiniones locales reales
+        full_query = f"{actividad_base}{modificador_compania}+near+me+in+{zip_code}"
         target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
+
+        # Asignación de enlaces musicales dinámicos e identitarios de YouTube y Spotify basados en la estrategia actual
+        enlace_yt = f"https://youtube.com{matriz_ocio['yt']}"
+        enlace_sp = f"https://spotify.com{matriz_ocio['sp']}"
 
         # Inyectamos la misión formateada de forma segura respetando tu esquema original
         final_misiones_para_frontend = [{
             "destino_id": 999,
-            "destino_titulo": f"HACKEO A {marca_detectada.upper()}",
-            "destino_titulo_en": f"HACKING {marca_detectada.upper()}",
+            "destino_titulo": f"HACKEO A {marca_detectada.upper()} ({estrategia.upper()})",
+            "destino_titulo_en": f"HACKING {marca_detectada.upper()} ({estrategia.upper()})",
             "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
             "que_hacer_en": "Mental Control Interruption & Return to Body.",
             "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
