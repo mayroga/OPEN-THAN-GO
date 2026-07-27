@@ -221,32 +221,27 @@ const KERNEL = {
     // ==============================================================================
     // SENSOR DE FONDO ABSOLUTO (Indestructible si hay llamadas o chat en segundo plano)
     // ==============================================================================
-    activarSensorSegundoPlano() {
-        document.addEventListener("visibilitychange", () => {
-            if (document.visibilityState === "visible") {
-                // El usuario regresa de una llamada o chat de WhatsApp.
-                // Comparamos el tiempo real transcurrido contra la hora absoluta de la CPU
-                if (KERNEL.horaInicioSesionAbsoluta) {
-                    let tiempoTranscurridoMs = Date.now() - KERNEL.horaInicioSesionAbsoluta;
-                    let tiempoTranscurridoSegundos = Math.floor(tiempoTranscurridoMs / 1000);
-                   
-                    // Si el tiempo transcurrido total ya superó el ciclo de vida de la sesión (15 minutos = 900 segundos), cerramos limpio
-                    if (tiempoTranscurridoSegundos >= 900) { // MODIFIED: from 660 to 900 seconds (15 minutes)
-                        if (typeof KERNEL.forzarCierre11MinutosEfectivo === 'function') {
-                            KERNEL.forzarCierre11MinutosEfectivo();
-                        }
+activarSensorSegundoPlano() {
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            if (KERNEL.horaInicioSesionAbsoluta) {
+                let tiempoTranscurridoMs = Date.now() - KERNEL.horaInicioSesionAbsoluta;
+                let tiempoTranscurridoSegundos = Math.floor(tiempoTranscurridoMs / 1000);
+                
+                if (tiempoTranscurridoSegundos >= 900) {
+                    if (typeof KERNEL.forzarCierre15MinutosEfectivo === 'function') {
+                        KERNEL.forzarCierre15MinutosEfectivo();
                     }
                 }
             }
-        });
-    },
+        }
+    });
+},
 
-    forzarCierre11MinutosEfectivo() { // Keep original name, but it now acts as "15-minute effective closure"
-        // Este método se activa cuando el tiempo de sesión absoluta supera los 15 minutos
-        // mientras el usuario está en segundo plano. Forzamos un reinicio completo.
-        console.warn("Sesión forzada a cerrar después de 15 minutos de inactividad o segundo plano.");
-        this.destruirYReiniciar(); // Llama al método de reinicio completo
-    },
+forzarCierre15MinutosEfectivo() {
+    console.warn("Sesión forzada a cerrar después de 15 minutos de inactividad o segundo plano.");
+    this.destruirYReiniciar();
+},
 
     DEFAULT_NECESSITY_PROFILE: {
         "movimiento": 50, "naturaleza": 50, "silencio": 50, "agua": 50, "sol": 50,
