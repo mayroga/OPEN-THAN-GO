@@ -254,6 +254,20 @@ def actualizar_historial(historial, nuevo_id, limite):
 
 # === CONFIGURACIÓN DE PAUSA EXTENDIDA Y PROPÓSITO HUMANO CON CALIDEZ ===
 # Se corrigen y estandarizan los 15 minutos exactos del ciclo de vida de sesión somática en frontend.
+def diversidad_vector(vec1, vec2):
+    # Calcula la suma de las diferencias absolutas entre los valores de dos vectores.
+    # Un valor más alto indica mayor diversidad. Los valores no presentes en ambos
+    # vectores se tratan como 0 para el cálculo de la diferencia.
+    score = 0
+    all_keys = set(vec1.keys()).union(vec2.keys())
+    for key in all_keys:
+        val1 = vec1.get(key, 0)
+        val2 = vec2.get(key, 0)
+        score += abs(val1 - val2)
+    return score
+
+# === CONFIGURACIÓN DE PAUSA EXTENDIDA Y PROPÓSITO HUMANO CON CALIDEZ ===
+# Se corrigen y estandarizan los 15 minutos exactos del ciclo de vida de sesión somática en frontend.
 TIEMPO_EXTRA_REPOSO_SEGUNDOS = 240
 VELOCIDAD_VOZ_HUMANA = 0.95
 WHEN_ES = "Tómate tu tiempo. Respira. Levántate sin prisa."
@@ -261,15 +275,8 @@ WHEN_EN = "Take your time. Breathe. Move without rushing."
 FOR_WHAT_ES = "Romper el piloto automático. Sentirte libre y recordar que estás vivo."
 FOR_WHAT_EN = "Break the autopilot. Feel completely free and remember you are alive."
 
-# ============================================================
-# CATÁLOGO DE MISIONES CWRE V2.1
-# Adaptado para Microacciones de Recuperación Mental y sin elementos de estrés laboral/financiero.
-# CORRECCIÓN MECÁNICA: Unificadas las definiciones de claves duplicadas ("estresado", "aburrido", "ansioso")
-# dentro del diccionario "SALIR" para evitar la sobrescritura silenciosa de datos.
-# Completadas las descripciones truncadas y aseguradas las comas y cierres de diccionarios/listas.
-# ============================================================
-
 BASE_MISIONES = {
+
    "CASA_ES": [
   {"id": 1, "titulo": "Corta el piloto automático", "titulo_en": "Break the autopilot", "descripcion": "Toma un instante para escanear tu cuerpo por completo. Ubica el peso exacto acumulado en tu espalda alta y míralo con absoluta calma. Siente tus latidos y recuérdate vivo en este segundo de paz.", "vector_necesidades": {"contemplacion": 90, "descanso": 80, "silencio": 70, "organizacion": 50, "movimiento": 30}},
   {"id": 2, "titulo": "Desconexión total", "titulo_en": "Total disconnection", "descripcion": "Siente la forma de la silla debajo de tu cuerpo ahora mismo. El suelo firme sostiene todo tu peso de manera completamente gratuita y segura. No luches, déjate caer en una total calma en este instante.", "vector_necesidades": {"descanso": 90, "contemplacion": 80, "silencio": 70, "organizacion": 40, "esperanza": 60}},
