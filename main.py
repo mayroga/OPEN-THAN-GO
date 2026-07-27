@@ -1050,99 +1050,79 @@ async def mando_integral(request: Request):
         enlace_sp = f"{BIG_TECH_RESOURCES['spotify_base_search_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
 
         # ==========================================================================================
-        # CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL (GOOGLE MAPS UNIVERSAL)
+        # CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL (GOOGLE MAPS UNIVERSAL & SOMATIC AUDIO)
         # ==========================================================================================
-        # Decidir estrategia dinámicamente para variar la experiencia del cliente (Sintonizar vs Contrarrestar)
-        estrategia = random.choice(["sintonizar", "contrarrestar"])
+        # Selector aleatorio de fase biológica profunda (Sintonía Emocional vs Antídoto de Homeostasis)
+        fase_somatica = random.choice(["sintonizar_identidad", "antidoto_homeostasis"])
 
-        nucleos_ocio = {
+        # Diccionario de Inteligencia Emocional Avanzada para Google Maps, YouTube y Spotify
+        matriz_intencional = {
             "ansioso": {
-                "sintonizar": {
-                    "0": "fountains+quiet+lakes+water+architecture",
-                    "1": "independent+vintage+bookstore+cozy+cafe",
-                    "2": "luxury+spa+hydrotherapy+wellness+resort",
-                    "yt": "solfeggio+frequencies+432hz+anxiety+relief+visual+geometry",
-                    "sp": "calm+inner+peace+frequencies"
+                "sintonizar_identidad": {
+                    "maps": "fountains+and+quiet+lakes+gardens+scenic+viewpoints",
+                    "yt": "432hz+solfeggio+frequencies+anxiety+relief+sacred+geometry+meditation",
+                    "sp": "calm+inner+peace+healing+frequencies"
                 },
-                "contrarrestar": {
-                    "0": "botanical+gardens+scenic+walking+trails",
-                    "1": "record+shops+vintage+retro+cafe",
-                    "2": "live+theater+local+art+galleries",
-                    "yt": "upbeat+retro+funk+soul+feel+good+live+session",
-                    "sp": "vintage+funk+disco+grooves"
+                "antidoto_homeostasis": {
+                    "maps": "independent+vintage+bookstores+record+shops+cozy+coffee",
+                    "yt": "upbeat+retro+funk+soul+grooves+live+session+feel+good",
+                    "sp": "vintage+funk+disco+high+vibes"
                 }
             },
             "estresado": {
-                "sintonizar": {
-                    "0": "isolated+nature+reserves+walking+trails",
-                    "1": "silent+monastery+gardens+historic+libraries",
-                    "2": "meditation+retreat+center+spa",
-                    "yt": "heavy+rain+cinematic+piano+stress+relief+lyrics",
-                    "sp": "weightless+drone+ambient+meditation"
+                "sintonizar_identidad": {
+                    "maps": "isolated+nature+reserves+hiking+trails+silent+forests",
+                    "yt": "heavy+rain+on+window+cinematic+piano+melancholy+stress+relief",
+                    "sp": "weightless+drone+ambient+deep+relaxation"
                 },
-                "contrarrestar": {
-                    "1": "jazz+club+lounge+bar+comedy",
-                    "0": "vibrant+street+art+walks+flea+markets",
-                    "2": "fine+dining+restaurant+boutique+hotel",
-                    "yt": "chillhop+lofi+beats+study+focus",
-                    "sp": "bossa+nova+jazz+escape"
+                "antidoto_homeostasis": {
+                    "maps": "local+sensory+art+galleries+hidden+gardens+museums",
+                    "yt": "chillhop+lofi+beats+focus+smooth+jazz+lounge",
+                    "sp": "bossa+nova+jazz+sunset+escape"
                 }
             },
             "aburrido": {
-                "sintonizar": {
-                    "0": "minimalist+structural+architectural+spaces+modern+plazas",
-                    "1": "retro+arcade+indie+board+game+cafe",
-                    "2": "contemporary+art+museums+exhibitions",
-                    "yt": "absurdist+surreal+art+films+background+lo-fi",
-                    "sp": "experimental+glitch+jazz+intelligent+dnb"
+                "sintonizar_identidad": {
+                    "maps": "minimalist+structural+architectural+spaces+brutalist+plazas",
+                    "yt": "absurdist+surreal+art+films+background+ambient+glitch",
+                    "sp": "experimental+glitch+jazz+intelligent+idm"
                 },
-                "contrarrestar": {
-                    "0": "skate+parks+street+art+squares",
-                    "1": "bowling+alley+arcade+sports+bar",
-                    "2": "theme+parks+live+concerts+cruises",
-                    "yt": "high+energy+cyberpunk+dynamic+visual+music",
-                    "sp": "indie+dance+post-punk+high+energy"
+                "antidoto_homeostasis": {
+                    "maps": "amusement+parks+go+karts+live+music+venues+street+art+hubs",
+                    "yt": "high+energy+cyberpunk+synthwave+dynamic+visual+mix",
+                    "sp": "indie+dance+post+punk+high+energy"
                 }
             },
             "agotado": {
-                "sintonizar": {
-                    "0": "scenic+lakes+quiet+public+parks",
-                    "1": "hidden+tea+house+botanical+greenhouse",
-                    "2": "float+tank+therapy+sensory+deprivation",
-                    "yt": "deep+exhaustion+dark+ambient+aesthetic+music",
-                    "sp": "ambient+sleep+melancholic+piano"
+                "sintonizar_identidad": {
+                    "maps": "scenic+lakes+quiet+public+parks+botanical+greenhouse",
+                    "yt": "deep+exhaustion+dark+ambient+aesthetic+melancholic+chords",
+                    "sp": "ambient+sleep+melancholic+isolated+piano"
                 },
-                "contrarrestar": {
-                    "0": "panoramic+city+lookouts+vibrant+gardens",
-                    "1": "local+coffee+shop+bakery+specialty+espresso",
-                    "2": "glamping+resort+cabin+rental",
-                    "yt": "lofi+upbeat+groove+smooth+neo+soul",
-                    "sp": "morning+energy+organic+house"
+                "antidoto_homeostasis": {
+                    "maps": "gourmet+specialty+coffee+shops+vibrant+botanic+walks",
+                    "yt": "lofi+upbeat+groove+smooth+neo+soul+vibe",
+                    "sp": "morning+energy+organic+house+revival"
                 }
             },
             "cansado": {
-                "sintonizar": {
-                    "0": "public+library+museums",
-                    "1": "ancient+cloisters+silent+historic+sanctuaries",
-                    "2": "thermal+baths+spa",
+                "sintonizar_identidad": {
+                    "maps": "public+libraries+ancient+cloisters+silent+sanctuaries",
                     "yt": "slow+cinematic+background+soundtrack+sad+beautiful+lyrics",
-                    "sp": "melancholy+acoustic+guitar+strings"
+                    "sp": "melancholy+acoustic+guitar+strings+folk"
                 },
-                "contrarrestar": {
-                    "0": "scenic+panoramic+lookouts+over+city+nature",
-                    "1": "historic+sites+walking+tours",
-                    "2": "calm+beach+resort+towns",
-                    "yt": "synthwave+retrowave+driving+motivational",
-                    "sp": "indie+pop+sun-drenched+road+trip"
+                "antidoto_homeostasis": {
+                    "maps": "panoramic+city+lookouts+sunset+points+beach+resorts",
+                    "yt": "synthwave+retrowave+driving+motivational+neon+mix",
+                    "sp": "indie+pop+sun+drenched+road+trip"
                 }
             }
         }
 
-        # Extraemos la sub-matriz según el estado mental y la estrategia aleatoria elegida
-        matriz_ocio = nucleos_ocio.get(mente, nucleos_ocio["aburrido"])[estrategia]
+        # Extracción automática del núcleo operativo basado en el diagnóstico en tiempo real
+        config_actual = matriz_intencional.get(mente, matriz_intencional["aburrido"])[fase_somatica]
+        
         gasto_key = budget if budget in ["0", "1", "2"] else "0"
-        actividad_base = matriz_ocio[gasto_key]
-
         modificador_compania = ""
         if perfil_tipo == "familia":
             modificador_compania = "+family+friendly"
@@ -1151,19 +1131,20 @@ async def mando_integral(request: Request):
         elif perfil_tipo == "solo":
             modificador_compania = "+hidden+gems"
 
-        # Construcción enriquecida para que Google Maps extraiga fotos, videos y opiniones locales reales
-        full_query = f"{actividad_base}{modificador_compania}+near+me+in+{zip_code}"
-        target_link = f"{link_base}{urllib.parse.quote_plus(full_query)}"
+        # OPTIMIZACIÓN GOOGLE MAPS: Inyección de operadores de descubrimiento ("explore", "near+me") 
+        # Esto arranca a Google Maps en su modo visual completo, desplegando múltiples negocios, fotos, reviews e inercia real del mapa.
+        query_explore_maps = f"explore+{config_actual['maps']}{modificador_compania}+near+me+or+in+{zip_code}"
+        target_link = f"{link_base}{urllib.parse.quote_plus(query_explore_maps)}"
 
-        # Asignación de enlaces musicales dinámicos e identitarios de YouTube y Spotify basados en la estrategia actual
-        enlace_yt = f"https://youtube.com{matriz_ocio['yt']}"
-        enlace_sp = f"https://spotify.com{matriz_ocio['sp']}"
+        # AUTOMATIZACIÓN DE AUDIO INTERACTIVO: Enlaces directos que pre-cargan el estado somático exacto
+        enlace_yt = f"https://youtube.com{config_actual['yt']}"
+        enlace_sp = f"https://spotify.com{config_actual['sp']}"
 
-        # Inyectamos la misión formateada de forma segura respetando tu esquema original
+        # Inyección segura en tu diccionario nativo de misiones
         final_misiones_para_frontend = [{
             "destino_id": 999,
-            "destino_titulo": f"HACKEO A {marca_detectada.upper()} ({estrategia.upper()})",
-            "destino_titulo_en": f"HACKING {marca_detectada.upper()} ({estrategia.upper()})",
+            "destino_titulo": f"HACKEO A {marca_detectada.upper()} ({fase_somatica.upper()})",
+            "destino_titulo_en": f"HACKING {marca_detectada.upper()} ({fase_somatica.upper()})",
             "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
             "que_hacer_en": "Mental Control Interruption & Return to Body.",
             "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
@@ -1187,6 +1168,7 @@ async def mando_integral(request: Request):
         })
 
     elif opcion_usuario == "CASA":
+
         # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
         textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
         manif_humano_casa = random.choice(textos_oraculo_casa)
