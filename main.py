@@ -231,7 +231,6 @@ def penalizacion_historial(mision_id, historial):
 def bonus_exploracion(mision_id, historial):
     if not historial or mision_id not in historial:
         return 20  # Bonificación significativa si nunca se ha visto
-
     # Reducir bonificación si ya se ha visto pero no está en el historial reciente
     limite_reciente = int(MAX_HISTORY_SALIR / 2)
     if mision_id not in limitar_historial(historial, limite_reciente):
@@ -249,11 +248,6 @@ def actualizar_historial(historial, nuevo_id, limite):
 # UTILIDAD MECÁNICA: Cálculo de Diversidad de Vectores
 # (Añadido para resolver NameError debido a la invocación en la lógica existente)
 # ==========================================================================================
-        score += abs(val1 - val2)
-    return score
-
-# === CONFIGURACIÓN DE PAUSA EXTENDIDA Y PROPÓSITO HUMANO CON CALIDEZ ===
-# Se corrigen y estandarizan los 15 minutos exactos del ciclo de vida de sesión somática en frontend.
 def diversidad_vector(vec1, vec2):
     score = 0
     all_keys = set(vec1.keys()).union(vec2.keys())
