@@ -1309,31 +1309,37 @@ mostrarOpcionesSalir(container) {
     this.isSpeaking = false;
     window.speechSynthesis.cancel();
 
+    const isSintonizar = this.pasosMisiones[0]?.destino_titulo.includes("SINTONIZAR") || false;
+
     const t = {
         es: {
-            choosePath: "ELIGE TU CAMINO DE LIBERTAD",
-            chooseOne: "Toca una opción para continuar:",
-            mapsBtn: "🗺️ Entorno Real (Fotos, Videos y Reseñas)",
-            ytBtn: "📺 Ver Transfondo en YouTube (Música y Video)",
-            spBtn: "🎵 Escuchar en Spotify (Música de Estado)",
-            selBtn: "Confirmar Ruta Somática"
+            choosePath: "ENRUTAMIENTO SOMÁTICO EN TIEMPO REAL",
+            chooseOne: isSintonizar 
+                ? "El sistema ha detectado tu estado actual. Ejecutando canalización de identidad (Sintonía Emocional):" 
+                : "El sistema ha calculado tu antídoto de homeostasis. Iniciando estimulación de contraste:",
+            mapsBtn: "🗺️ Abrir Mapa de Descubrimiento Geográfico (Fotos y Lugares Reales)",
+            ytBtn: "📺 Activar Canal Audiovisual (Música, Letra y Significado Psicológico)",
+            spBtn: "🎵 Inyectar Frecuencia Musical en Spotify",
+            selBtn: "Marcar Misión como Iniciada"
         },
         en: {
-            choosePath: "CHOOSE YOUR PATH TO FREEDOM",
-            chooseOne: "Tap an option to continue:",
-            mapsBtn: "🗺️ Real Environment (Photos, Videos & Reviews)",
-            ytBtn: "📺 Watch Background on YouTube (Music & Video)",
-            spBtn: "🎵 Tune Audio on Spotify (State Music)",
-            selBtn: "Confirm Somatic Route"
+            choosePath: "REAL-TIME SOMATIC ROUTING ENGINE",
+            chooseOne: isSintonizar 
+                ? "System detected your active state. Executing identity channeling (Emotional Tune-In):" 
+                : "System calculated your homeostasis antidote. Initiating contrast stimulation:",
+            mapsBtn: "🗺️ Open Geographic Discovery Map (Real Photos & Venues)",
+            ytBtn: "📺 Activate Audiovisual Channel (Music, Lyrics & Psychological Meaning)",
+            spBtn: "🎵 Inject Somatic Audio Frequencies on Spotify",
+            selBtn: "Mark Mission as Started"
         }
     }[this.idiomaActual];
 
     container.innerHTML = `
-        <div class="mision-choices-container">
-            <h2 class="salida-main-title">${t.choosePath}</h2>
-            <p class="salida-choose-instruction">${t.chooseOne}</p>
+        <div class="mision-choices-container" style="padding: 1.5rem; max-width: 600px; margin: 0 auto;">
+            <h2 class="salida-main-title" style="text-align: center; letter-spacing: 1px; font-weight: 800;">${t.choosePath}</h2>
+            <p class="salida-choose-instruction" style="text-align: center; color: #a0aec0; margin-bottom: 1.5rem; font-style: italic;">${t.chooseOne}</p>
             <div id="salida-options-grid" class="salida-grid">
-                <!-- Las tarjetas multimedia enriquecidas se inyectarán aquí -->
+                <!-- Tarjetas de automatización directa -->
             </div>
         </div>
     `;
@@ -1344,35 +1350,36 @@ mostrarOpcionesSalir(container) {
         const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
         const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
         
-        // Extraemos de forma segura los enlaces identitarios calculados dinámicamente por tu backend
         const linkMaps = mission.destino_coordenadas_gps || "#";
         const linkYT = mission.enlace_youtube || "#";
         const linkSpotify = mission.enlace_spotify || "#";
 
         const card = document.createElement('div');
-        card.className = 'salida-option-card-multicanal';
-        
-        // Estructura visual con los tres botones que pediste: Google Maps (con fotos/videos), YouTube y Spotify
+        card.className = 'salida-option-card-multicanal-real';
+        card.style.background = '#1e293b';
+        card.style.padding = '1.5rem';
+        card.style.borderRadius = '8px';
+        card.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.3)';
+
         card.innerHTML = `
-            <h3 class="salida-option-title">${missionTitle}</h3>
-            <p class="salida-option-desc">${missionWhatToDo}</p>
+            <h3 class="salida-option-title" style="margin-top:0; color: #10b981; font-size: 1.25rem;">${missionTitle}</h3>
+            <p class="salida-option-desc" style="color: #cbd5e1; line-height: 1.5; font-size: 0.95rem;">${missionWhatToDo}</p>
             
-            <div class="somatic-multicanal-actions" style="display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0;">
-                <a href="${linkMaps}" target="_blank" class="btn-somatic btn-maps" style="text-decoration: none; text-align: center; padding: 0.6rem; background: #4285F4; color: white; border-radius: 4px; font-weight: bold; font-size: 0.9rem;">
+            <div class="somatic-multicanal-actions" style="display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem 0;">
+                <a href="${linkMaps}" target="_blank" class="btn-somatic btn-maps" style="text-decoration: none; text-align: center; padding: 0.8rem; background: #2d3748; color: #f7fafc; border-radius: 6px; font-weight: 600; font-size: 0.9rem; border: 1px solid #4a5568; transition: background 0.2s;">
                     ${t.mapsBtn}
                 </a>
-                <a href="${linkYT}" target="_blank" class="btn-somatic btn-yt" style="text-decoration: none; text-align: center; padding: 0.6rem; background: #FF0000; color: white; border-radius: 4px; font-weight: bold; font-size: 0.9rem;">
+                <a href="${linkYT}" target="_blank" class="btn-somatic btn-yt" style="text-decoration: none; text-align: center; padding: 0.8rem; background: #2d3748; color: #f7fafc; border-radius: 6px; font-weight: 600; font-size: 0.9rem; border: 1px solid #4a5568; transition: background 0.2s;">
                     ${t.ytBtn}
                 </a>
-                <a href="${linkSpotify}" target="_blank" class="btn-somatic btn-spotify" style="text-decoration: none; text-align: center; padding: 0.6rem; background: #1DB954; color: white; border-radius: 4px; font-weight: bold; font-size: 0.9rem;">
+                <a href="${linkSpotify}" target="_blank" class="btn-somatic btn-spotify" style="text-decoration: none; text-align: center; padding: 0.8rem; background: #2d3748; color: #f7fafc; border-radius: 6px; font-weight: 600; font-size: 0.9rem; border: 1px solid #4a5568; transition: background 0.2s;">
                     ${t.spBtn}
                 </a>
             </div>
 
-            <button class="btn-select-salida" style="width: 100%; margin-top: 0.5rem;">${t.selBtn}</button>
+            <button class="btn-select-salida" style="width: 100%; padding: 0.75rem; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">${t.selBtn}</button>
         `;
 
-        // El botón de confirmación sigue ejecutando la inercia e inicio de ruta original de tu app
         card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
         optionsGrid.appendChild(card);
     });
