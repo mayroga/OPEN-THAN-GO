@@ -249,7 +249,17 @@ def actualizar_historial(historial, nuevo_id, limite):
 # UTILIDAD MECÁNICA: Cálculo de Diversidad de Vectores
 # (Añadido para resolver NameError debido a la invocación en la lógica existente)
 # ==========================================================================================
-def diversidad_vector(vec1, vec2): # Calcula la suma de las diferencias absolutas entre los valores de dos vectores. # Un valor más alto indica mayor diversidad. Los valores no presentes en ambos # vectores se tratan como 0 para el cálculo de la diferencia. score = 0 all_keys = set(vec1.keys()).union(vec2.keys()) for key in all_keys: val1 = vec1.get(key, 0) val2 = vec2.get(key, 0) score += abs(val1 - val2) return score # === CONFIGURACIÓN DE PAUSA EXTENDIDA Y PROPÓSITO HUMANO CON CALIDEZ === # Se corrigen y estandarizan los 15 minutos exactos del ciclo de vida de sesión somática en frontend. TIEMPO_EXTRA_REPOSO_SEGUNDOS = 240 VELOCIDAD_VOZ_HUMANA = 0.95 WHEN_ES = "Tómate tu tiempo. Respira. Levántate sin prisa." WHEN_EN = "Take your time. Breathe. Move without rushing." FOR_WHAT_ES = "Romper el piloto automático. Sentirte libre y recordar que estás vivo." FOR_WHAT_EN = "Break the autopilot. Feel completely free and remember you are alive."
+        score += abs(val1 - val2)
+    return score
+
+# === CONFIGURACIÓN DE PAUSA EXTENDIDA Y PROPÓSITO HUMANO CON CALIDEZ ===
+# Se corrigen y estandarizan los 15 minutos exactos del ciclo de vida de sesión somática en frontend.
+TIEMPO_EXTRA_REPOSO_SEGUNDOS = 240
+VELOCIDAD_VOZ_HUMANA = 0.95
+WHEN_ES = "Tómate tu tiempo. Respira. Levántate sin prisa."
+WHEN_EN = "Take your time. Breathe. Move without rushing."
+FOR_WHAT_ES = "Romper el piloto automático. Sentirte libre y recordar que estás vivo."
+FOR_WHAT_EN = "Break the autopilot. Feel completely free and remember you are alive."
 
 # ============================================================
 # CATÁLOGO DE MISIONES CWRE V2.1
