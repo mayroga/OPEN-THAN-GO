@@ -255,9 +255,6 @@ def actualizar_historial(historial, nuevo_id, limite):
 # === CONFIGURACIÓN DE PAUSA EXTENDIDA Y PROPÓSITO HUMANO CON CALIDEZ ===
 # Se corrigen y estandarizan los 15 minutos exactos del ciclo de vida de sesión somática en frontend.
 def diversidad_vector(vec1, vec2):
-    # Calcula la suma de las diferencias absolutas entre los valores de dos vectores.
-    # Un valor más alto indica mayor diversidad. Los valores no presentes en ambos
-    # vectores se tratan como 0 para el cálculo de la diferencia.
     score = 0
     all_keys = set(vec1.keys()).union(vec2.keys())
     for key in all_keys:
