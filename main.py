@@ -237,9 +237,6 @@ MANIFIESTOS_ORACULO = {
             {"id": "g_c4", "titulo": "Soltura Cervical", "descripcion": "Deja caer la cabeza al hombro derecho 3 respiraciones sintiendo el estiramiento. Cambia de lado.", "diagnostico_sintoma": "Liberación de contracturas reflejas por estrés.", "instruccion_fisiologica": "Se afloja el músculo. La carga diaria se disuelve."}
         ]
     }
-}
-
-
 # ==========================================================================================
 # MOTOR DE HISTORIAL INTELIGENTE CWRE V2
 # Anti-Repetición + Exploración Controlada
