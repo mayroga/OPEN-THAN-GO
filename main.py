@@ -958,42 +958,6 @@ async def mando_integral(request: Request):
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
-    # ==========================================================================================
-    # ENGRANAJE INTEGRAL DE AFLUENTES ESPECIALES (VETERANO, MAYOR, GOBIERNO)
-    # ==========================================================================================
-    if perfil_tipo in ["veterano", "mayor", "gobierno"]:
-        import random
-        modo_actual = str(payload.get("modo", "SALIR")).upper()
-        if modo_actual not in ["SALIR", "CASA"]:
-            modo_actual = "SALIR"
-            
-        lista_pool = MISIONES_CATEGORIAS_ESPECIALES[perfil_tipo][modo_actual]
-        mision_data = random.choice(lista_pool)
-        
-        final_misiones_para_frontend = [{
-            "destino_id": mision_data["id"],
-            "destino_titulo": mision_data["titulo"].upper() if lang == "es" else mision_data["titulo_en"].upper(),
-            "que_hacer": mision_data["descripcion"] if lang == "es" else mision_data["descripcion_en"],
-            "que_hacer_en": mision_data["descripcion_en"],
-            "destino_entorno": "EJE DE REDIRECCIÓN SOMÁTICA" if lang == "es" else "SOMATIC REDIRECTION AXIS",
-            "destino_instruccion": mision_data["instruccion_fisiologica"],
-            "destino_instruccion_en": mision_data["instruccion_fisiologica_en"],
-            "destino_coordenadas_gps": "https://google.com",
-            "enlace_youtube": "https://youtube.com",
-            "enlace_spotify": "https://spotify.com",
-            "vector_entorno_seleccionado": {"homeostasis_urgente": True},
-            "diagnostico_sintoma_es": mision_data["diagnostico_sintoma"],
-            "diagnostico_sintoma_en": "Somatic decompression and biological stabilization."
-        }]
-        
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO" if modo_actual == "SALIR" else "MODO_CASA",
-            "misiones": final_misiones_para_frontend,
-            "forced_recovery": True,
-            "legal_notice_es": "AVISO: Evaluación automatizada para optimización del estilo de vida.",
-            "legal_notice_en": "NOTICE: Automated lifestyle optimization assessment.",
-            "drive_prohibited": True if modo_actual == "SALIR" else False
-        })
    
     # NEW: calidez_humana_pregunta is passed from frontend company flow
     calidez_humana_pregunta = payload.get("calidez_humana_pregunta", "")
@@ -1347,33 +1311,6 @@ async def mando_integral(request: Request):
 # ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==========================================================================================
-MISIONES_CATEGORIAS_ESPECIALES = {
-    "veterano": {
-        "SALIR": [
-            {"id": "v_s1", "titulo": "Filtro de Frecuencias", "titulo_en": "Frequency Filtering", "descripcion": "Mira un punto estático lejano 3 minutos al aire libre. Registra la seguridad del espacio.", "descripcion_en": "Gaze at a distant static point for 3 minutes outdoors. Register the safety of the environment.", "diagnostico_sintoma": "Descarga de hipervigilancia periférica.", "instruccion_fisiologica": "Suelo firme. Entorno despejado. Estás seguro aquí.", "instruccion_fisiologica_en": "Firm ground. Clear skies. You are safe here."}
-        ],
-        "CASA": [
-            {"id": "v_c1", "titulo": "Anclaje Físico Axial", "titulo_en": "Axial Physical Anchoring", "descripcion": "Siéntate derecho con plantas de los pies planas en el piso. Siente el peso en el asiento.", "descripcion_en": "Sit straight with the soles of your feet flat on the floor. Feel your weight on the seat.", "diagnostico_sintoma": "Centrado de la atención corporal.", "instruccion_fisiologica": "Deja caer los hombros. El suelo te sostiene.", "instruccion_fisiologica_en": "Drop your shoulders. The ground supports you."}
-        ]
-    },
-    "mayor": {
-        "SALIR": [
-            {"id": "m_s1", "titulo": "Baño de Sol Directo", "titulo_en": "Direct Sun Bath", "descripcion": "Busca una banca cómoda sin escalones difíciles. Siéntate y deja que la luz ilumine tu rostro.", "descripcion_en": "Find a comfortable bench without difficult steps. Sit and let the natural light illuminate your face.", "diagnostico_sintoma": "Estimulación sensorial biológica.", "instruccion_fisiologica": "Siente la brisa en tu piel. El tiempo es tuyo.", "instruccion_fisiologica_en": "Feel the breeze on your skin. Time is yours."}
-        ],
-        "CASA": [
-            {"id": "m_c1", "titulo": "Despertar de Manos", "titulo_en": "Hand Awakening", "descripcion": "Frota tus palmas suavemente hasta que se pongan tibias. Acaricia tus brazos con ellas.", "descripcion_en": "Rub your palms gently until they become warm. Gently stroke your arms with them.", "diagnostico_sintoma": "Mejora circulatoria periférica.", "instruccion_fisiologica": "Siente el calor de tu piel. Tu cuerpo es seguro.", "instruccion_fisiologica_en": "Feel the warmth of your skin. Your body is safe."}
-        ]
-    },
-    "gobierno": {
-        "SALIR": [
-            {"id": "g_s1", "titulo": "Ruptura Burocrática", "titulo_en": "Bureaucratic Breakout", "descripcion": "Sal del edificio. Camina rápido balanceando brazos y mira las copas de los árboles 3 minutos.", "descripcion_en": "Exit the building. Walk fast swinging your arms and look at the treetops for 3 minutes.", "diagnostico_sintoma": "Interrupción de confinamiento rutinario.", "instruccion_fisiologica": "Aire libre en movement. Ojos lejos de documentos.", "instruccion_fisiologica_en": "Open air in motion. Eyes away from documents."}
-        ],
-        "CASA": [
-            {"id": "g_c1", "titulo": "Reset Óptico", "titulo_en": "Optical Reset", "descripcion": "Bloquea el monitor. Cierra los ojos y cúbrelos suavemente con tus palmas 2 minutos.", "descripcion_en": "Lock your monitor. Close your eyes and cover them gently with your palms for 2 minutes.", "diagnostico_sintoma": "Alivio de fatiga visual.", "instruccion_fisiologica": "Mundo digital apagado. Descanso visual en paz.", "instruccion_fisiologica_en": "Digital world off. Visual rest in absolute peace."}
-        ]
-    }
-}
-
 if __name__ == "__main__":
     port_env = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
+    uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False
