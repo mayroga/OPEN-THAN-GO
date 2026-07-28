@@ -1496,7 +1496,7 @@ guia_masticada_lang = (
 
         return JSONResponse({"DIRECCIONAMIENTO_MASTER": "MODO_CASA", "misiones": misiones_domesticas_finales, "oraculo_manifiesto": manif_humano_casa, "historial_casa_actualizado": historial_casa_actualizado, "forced_recovery": False, "legal_notice_es": ADVERTENCIA_LEGAL_ES, "drive_prohibited": False})
 
-        # ACCIÓN DE CAMPO SECTORIAL INMUNE A INDENTACIÓN - EL ORÁCULO AUTOMÁTICO DE ESTADOS UNIDOS
+        # ACCIÓN DE CAMPO SECTORIAL CRÍTICA PARA ESTADOS UNIDOS - LÍNEA COMPACTA INMUNE A INDENTACIÓN
         return procesar_mando_libre_sectorial(perfil_tipo, marca_detectada, diagnostico_sintoma_es, mente, lang, zip_code, budget, link_base, TIEMPO_EXTRA_REPOSO_SEGUNDOS, DEFAULT_NECESSITY_VECTOR, ADVERTENCIA_LEGAL_ES, ADVERTENCIA_LEGAL_EN)
 
 # ==========================================================================================
