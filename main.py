@@ -190,10 +190,9 @@ MANIFIESTOS_ORACULO = {
         "a un estado primario de ligereza. Un parque con niños jugando, una mascota corriendo, te recuerdan "
         "que la vida es también espontaneidad y asombro. Suelta la necesidad de planificar y permite que el "
         "momento te sorprenda. Tu misión es recordar la alegría de lo impredecible."
-    ]
-},
-# Y PEGAS DIRECTAMENTE LAS TRES CATEGORÍAS EN ESTE FORMATO DE CONTINUACIÓN:
-"veterano": {
+        ]
+    },
+    "veterano": {        
     "SALIR": [
         {"id": "v_s1", "titulo": "Filtro de Frecuencias", "descripcion": "Mira un punto estático lejano 3 minutos al aire libre. Registra la seguridad del espacio.", "diagnostico_sintoma": "Descarga de hipervigilancia periférica.", "instruccion_fisiologica": "Suelo firme. Entorno despejado. Estás seguro aquí."},
         {"id": "v_s2", "titulo": "Reconocimiento Acústico", "descripcion": "Cierra los ojos en zona verde. Identifica tres sonidos suaves de la naturaleza.", "diagnostico_sintoma": "Descompresión del sistema auditivo de alerta.", "instruccion_fisiologica": "Suelta el cuello. Escucha el aire en absoluta paz."},
