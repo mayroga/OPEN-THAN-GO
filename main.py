@@ -1277,7 +1277,7 @@ async def mando_integral(request: Request):
             "forced_recovery": False,
             "legal_notice_es": ADVERTENCIA_LEGAL_ES,
             "drive_prohibited": False
-        })
+})
 
         # ==========================================================================================
         # CEREBRO CENTRAL UNIFICADO - INYECCIÓN SECTORIAL ADAPTATIVA (BILINGÜE Y COMPACTO)
