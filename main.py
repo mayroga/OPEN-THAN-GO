@@ -938,6 +938,49 @@ async def get_company_questions(company: str, lang: str = "es"):
     questions = COMPANY_QUESTIONS[company_lower][lang]
     logo_path = COMPANY_QUESTIONS[company_lower]["logo_path"]
     return JSONResponse({"questions": questions, "logo_path": logo_path})
+# ==========================================================================================
+# MOTOR DE EXPORTACIÓN: COMPILADOR DE TEXTOS PARA EL REPORTE ESCRITO (3 FASES)
+# ==========================================================================================
+@app.post("/api/generar-reporte-bienestar")
+async def generar_reporte_bienestar(request: Request):
+    try:
+        data = await request.json()
+        categoria = str(data.get("categoria", "especial")).lower()
+        lang = str(data.get("lang", "es")).lower()
+        
+        titulos_categoria = {
+            "veterano": {"es": "BALANCE DE ENTORNO SEGURO Y DESCARGA SOMÁTICA", "en": "SECURE ENVIRONMENT & SOMATIC DISCHARGE BALANCE"},
+            "mayor": {"es": "MAPA DE ACTIVACIÓN SENSORIAL Y BIENESTAR INTEGRAL", "en": "GENTLE SENSORY ACTIVATION & INTEGRAL WELLBEING MAP"},
+            "gobierno": {"es": "REPORTE DE DESCOMPRESIÓN DE RUTINA INSTITUCIONAL", "en": "INSTITUTIONAL ROUTINE DECOMPRESSION REPORT"}
+        }
+        
+        cat_upper = categoria.upper()
+        titulo_documento = titulos_categoria.get(categoria, {"es": "MAPA DE EVOLUCIÓN", "en": "EVOLUTION MAP"})[lang]
+        
+        if lang == "es":
+            texto_antes = f"Fase de Apertura: Registro de saturación inicial bajo modalidad {cat_upper}. El usuario ingresa buscando mitigar la sobrecarga diaria, la rigidez del entorno y el desgaste de la rutina predecible."
+            texto_durante = "Fase de Sintonía: Monitoreo de respuesta somática activa. Se registra la interacción con las herramientas de Open Than Go, ejecutando pausas de respiración y desconexión visual para romper el piloto automático."
+            texto_despues = "Fase de Cierre: Consolidación de presencia y retorno al equilibrio biopsicosocial. Se verifica una reducción en el indicador de agobio y se entrega una pauta de hábitos conscientes para mantener el espacio interior libre."
+            clausula_legal = "Este balance es una guía automatizada de optimización del estilo de vida y desarrollo humano biopsicosocial; no constituye, sustituye ni representa un diagnóstico clínico, terapia ni tratamiento de salud médica o psicológica."
+        else:
+            texto_antes = f"Opening Phase: Baseline saturation record under {cat_upper} modality. User enters seeking to mitigate daily overload, environmental stiffness, and the wear of a predictable routine."
+            texto_durante = "Tuning Phase: Active somatic response monitoring. Interaction with Open Than Go tools is logged, executing breathing pauses and visual disconnection to break the mental autopilot."
+            texto_despues = "Closing Phase: Presence consolidation and return to biopsychosocial balance. A reduction in the overwhelm indicator is verified, delivering a conscious habit guide to keep the inner space free."
+            clausula_legal = "This balance is an automated lifestyle optimization and biopsychosocial human development guide; it does not constitute, replace, or represent a clinical diagnosis, therapy, or medical/psychological health treatment."
+
+        return JSONResponse({
+            "status": "success",
+            "documento_metadata": {
+                "identificador_sistema": "OPEN_THAN_GO_CWRE_V6",
+                "titulo": f"{titulo_documento} - {cat_upper}",
+                "fase_1_antes": texto_antes,
+                "fase_2_durante": texto_durante,
+                "fase_3_despues": texto_despues,
+                "pie_pagina_legal": clausula_legal
+            }
+        })
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)})
 
 # ==========================================================================================
 # OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
@@ -959,6 +1002,29 @@ async def mando_integral(request: Request):
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
+    # ==========================================================================================
+    # ENGRANAJE DE BIENESTAR: TRES AFLUENTES ESPECIALES (VALOR COMERCIAL PROTEGIDO)
+    # ==========================================================================================
+    if perfil_tipo in ["veterano", "mayor", "gobierno"]:
+        if perfil_tipo == "veterano":
+            perfil_local.update({"silencio": 98, "descanso": 95, "naturaleza": 90, "contemplacion": 85, "indicador_ansiedad": 70})
+            diagnostico_sintoma_es = "Estabilización de entorno seguro y descarga de tensión somática de alta prioridad."
+            diagnostico_sintoma_en = "Secure environment stabilization and high priority somatic tension discharge."
+            instruccion_fisiologica_es = "Siente el peso real de tus hombros caer en este segundo. Estás a salvo aquí. El suelo firme sostiene tu presencia."
+            instruccion_fisiologica_en = "Feel the real weight drop from your shoulders this second. You are safe here. The firm ground supports your presence."
+        elif perfil_tipo == "mayor":
+            perfil_local.update({"contemplacion": 100, "sol": 95, "aire_fresco": 90, "comunidad": 80, "descanso": 85})
+            payload["perfil"] = "accesible"  # Fuerza el enrutamiento sin barreras arquitectónicas en mapas
+            diagnostico_sintoma_es = "Activación sensorial gentil y optimización del entorno vital."
+            diagnostico_sintoma_en = "Gentle sensory activation and vital environment optimization."
+            instruccion_fisiologica_es = "Frota tus manos suavemente hasta sentir calor. Respira el aire nuevo de la ventana, tómate tu tiempo."
+            instruccion_fisiologica_en = "Gently rub your hands until you feel warmth. Breathe the fresh air from the window, take your time."
+        elif perfil_tipo == "gobierno":
+            perfil_local.update({"aire_fresco": 100, "movimiento": 95, "creatividad": 90, "juego": 85, "silencio": 60})
+            diagnostico_sintoma_es = "Quiebre de piloto automático de entorno cerrado y descompresión de rutina diaria."
+            diagnostico_sintoma_en = "Breakout of closed-environment autopilot and daily routine decompression."
+            instruccion_fisiologica_es = "Apaga la pantalla ahora. Rompe la postura de escritorio. Camina libremente por el pasillo más largo."
+            instruccion_fisiologica_en = "Turn off the screen now. Break the desk posture. Walk freely along the longest hallway."
    
     # NEW: calidez_humana_pregunta is passed from frontend company flow
     calidez_humana_pregunta = payload.get("calidez_humana_pregunta", "")
