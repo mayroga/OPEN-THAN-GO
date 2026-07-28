@@ -1344,6 +1344,7 @@ mostrarOpcionesSalir(container) {
         const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
         const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
         
+        // Extraemos de forma segura los enlaces identitarios calculados dinámicamente por tu backend
         const linkMaps = mission.destino_coordenadas_gps || "#";
         const linkYT = mission.enlace_youtube || "#";
         const linkSpotify = mission.enlace_spotify || "#";
@@ -1351,9 +1352,11 @@ mostrarOpcionesSalir(container) {
         const card = document.createElement('div');
         card.className = 'salida-option-card-multicanal';
         
+        // Estructura visual con los tres botones que pediste: Google Maps (con fotos/videos), YouTube y Spotify
         card.innerHTML = `
             <h3 class="salida-option-title">${missionTitle}</h3>
             <p class="salida-option-desc">${missionWhatToDo}</p>
+            
             <div class="somatic-multicanal-actions" style="display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0;">
                 <a href="${linkMaps}" target="_blank" class="btn-somatic btn-maps" style="text-decoration: none; text-align: center; padding: 0.6rem; background: #4285F4; color: white; border-radius: 4px; font-weight: bold; font-size: 0.9rem;">
                     ${t.mapsBtn}
@@ -1365,9 +1368,11 @@ mostrarOpcionesSalir(container) {
                     ${t.spBtn}
                 </a>
             </div>
+
             <button class="btn-select-salida" style="width: 100%; margin-top: 0.5rem;">${t.selBtn}</button>
         `;
 
+        // El botón de confirmación sigue ejecutando la inercia e inicio de ruta original de tu app
         card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
         optionsGrid.appendChild(card);
     });
