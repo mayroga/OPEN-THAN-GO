@@ -1458,21 +1458,6 @@ forzarCierre15MinutosEfectivo() {
         this.historialSalir = data.historial_salir_actualizado || [];
         localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
         this.pasosMisiones = data.misiones || [];
-        this.mostrarOpcionesSalir(container);
-    } 
-    else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
-        this.historialCasa = data.historial_casa_actualizado || [];
-        localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
-        this.pasosMisiones = data.misiones || [];
-        
-        if (typeof this.mostrarOpcionesCasa === 'function') {
-            this.mostrarOpcionesCasa(container);
-        } else if (typeof this.procesarFlujoSecuencial === 'function') {
-            this.procesarFlujoSecuencial(container);
-        }
-    }
-
-        this.pasosMisiones = data.misiones || [];
         this.procesarFlujoSecuencial(container);
     }
 } catch (error) {
@@ -1497,7 +1482,7 @@ mostrarOpcionesSalir(container) {
     
     const t = {
         es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:", mapsBtn: "🗺️ GOOGLE MAPS", ytBtn: "📺 YOUTUBE", spBtn: "🎵 SPOTIFY" },
-        en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:", mapsBtn: "🗺️ GOOGLE MAPS", ytBtn: "📺 YOUTUBE", spBtn: "🎵 SPOTIFY" }
+        en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:", mapsBtn: "🗺️ GOOGLE MAPS", ytBtn: "YOUTUBE", spBtn: "SPOTIFY" }
     }[this.idiomaActual];
     
     container.innerHTML = `
@@ -1524,6 +1509,16 @@ mostrarOpcionesSalir(container) {
         btnMaps.innerText = t.mapsBtn;
         btnMaps.onclick = () => this.iniciarSalidaConcreta(mission);
         optionsGrid.appendChild(btnMaps);
+        
+        // 2. RECTÁNGULO ROJO ORIGINAL: YouTube
+        const btnYT = document.createElement('a');
+        btnYT.href = linkYT;
+        btnYT.target = "_blank";
+        btnYT.className = "btn-select-salida-clean";
+        btnYT.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #dc2626; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s; box-shadow: 0 4px 6px rgba(0,0,0,0.2);";
+        btnYT.innerText = t.ytBtn;
+        btnYT.onclick = () => this.iniciarSalidaConcreta(mission);
+        optionsGrid.appendChild(btnYT);
         
         // 2. RECTÁNGULO ROJO ORIGINAL: YouTube
         const btnYT = document.createElement('a');
