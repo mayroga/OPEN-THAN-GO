@@ -1345,8 +1345,6 @@ forzarCierre15MinutosEfectivo() {
         // CORRECCIÓN: Usar el método hablar de KERNEL consistentemente
         this.hablar(textoElegido);
        
-        // Guardamos la calidez humana en la instancia
-        this.mensajeCalidezHumanaActual = textoElegido;
     // Guardamos la calidez humana en la instancia
     this.mensajeCalidezHumanaActual = textoElegido;
 
