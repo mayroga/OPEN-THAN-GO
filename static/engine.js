@@ -1408,38 +1408,6 @@ forzarCierre15MinutosEfectivo() {
             this.procesarFlujoSecuencial(container); 
         } 
     }
-
-    // ==========================================================================================
-    // CAMINO EXCLUSIVO 1: BIENESTAR ASISTIDO (VETERANOS, MAYORES, GOBIERNO)
-    // Bloque aislado de alta velocidad. Se ejecuta y corta el flujo para evitar congelamientos.
-    // ==========================================================================================
-    let listaRetos = data.misiones || [];
-    let perfilEspecialActivo = KERNEL.asistenciaEspecial?.categoria || "";
-
-    if (perfilEspecialActivo !== "" && listaRetos.length > 0) {
-        console.log("Abriendo canal asistido de alta velocidad unificado de Open Than Go.");
-        
-        // 1. Ocultar formulario de carga y activar pantalla interactiva nativa
-        document.getElementById("wrapper-form")?.classList.add("hidden");
-        container.classList.remove("hidden");
-        
-        // 2. Extraer de forma segura el primer elemento de la lista nativa enviado por Render
-        let retoAsignado = listaRetos[0];
-        
-        // 3. Pintar los títulos y descripciones profesionales en tu HTML
-        let elemTitulo = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title");
-        let elemDesc = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc");
-        
-        if (elemTitulo) elemTitulo.textContent = retoAsignado.titulo;
-        if (elemDesc) elemDesc.textContent = retoAsignado.descripcion;
-        
-        // 4. Forzar el arranque del conteo del tiempo de 15 minutos de descompresión
-        this.pasosMisiones = listaRetos;
-        if (typeof this.iniciarCiclo === 'function') {
-            this.iniciarCiclo();
-        } else if (typeof this.procesarFlujoSecuencial === 'function') {
-            this.procesarFlujoSecuencial(container);
-        }
         
         // 5. Registrar la Fase 2 (Durante) en tu métrica invisible de tres fases
         if (KERNEL.asistenciaEspecial) {
