@@ -696,21 +696,21 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
 <!-- ========================================================================================== -->
 <!-- SECCIÓN DE ACCESO ESPECIAL Y ALTO CONTRASTE (VETERANOS, ADULTOS MAYORES, GOBIERNO) -->
 <!-- ========================================================================================== -->
-<div id="seccion-asistencia-especial" style="margin: 20px auto; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; text-align: center; max-width: 400px; position: relative; z-index: 999;">
-    <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;">
-        <span>Acceso Especial de Bienestar / Special Wellness Access</span>
+<div id="seccion-asistencia-especial" style="margin: 30px auto; padding: 20px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 12px; text-align: center; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); clear: both; display: block;">
+    <h3 style="font-size: 1.1rem; color: #fff; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">
+        <span>Acceso Especial de Bienestar<br><small style="color: #aaa; font-size: 0.8rem; text-transform: none;">Special Wellness Access</small></span>
     </h3>
-    <div style="display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
         <!-- Botón Gigante Veteranos -->
-        <button onclick="ASISTENCIA_ESPECIAL_CORE.iniciarCanalAsistido('veterano')" style="padding: 16px; font-size: 1.2rem; font-weight: bold; background-color: #0b3c5d; color: #ffffff; border: 2px solid #002244; border-radius: 6px; cursor: pointer; text-transform: uppercase; width: 100%;">
+        <button onclick="ASISTENCIA_ESPECIAL_CORE.iniciarCanalAsistido('veterano')" style="padding: 18px; font-size: 1.25rem; font-weight: bold; background-color: #0b3c5d; color: #ffffff; border: 2px solid #002244; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; transition: background 0.2s;">
             🎖️ Veteranos / Veterans
         </button>
         <!-- Botón Gigante Adultos Mayores -->
-        <button onclick="ASISTENCIA_ESPECIAL_CORE.iniciarCanalAsistido('mayor')" style="padding: 16px; font-size: 1.2rem; font-weight: bold; background-color: #efb810; color: #1a202c; border: 2px solid #b8860b; border-radius: 6px; cursor: pointer; text-transform: uppercase; width: 100%;">
+        <button onclick="ASISTENCIA_ESPECIAL_CORE.iniciarCanalAsistido('mayor')" style="padding: 18px; font-size: 1.25rem; font-weight: bold; background-color: #efb810; color: #1a202c; border: 2px solid #b8860b; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; transition: background 0.2s;">
             🌟 Adulto Mayor / Senior Citizen
         </button>
         <!-- Botón Gigante Trabajadores del Gobierno -->
-        <button onclick="ASISTENCIA_ESPECIAL_CORE.iniciarCanalAsistido('gobierno')" style="padding: 16px; font-size: 1.2rem; font-weight: bold; background-color: #328cc1; color: #ffffff; border: 2px solid #1d5f8a; border-radius: 6px; cursor: pointer; text-transform: uppercase; width: 100%;">
+        <button onclick="ASISTENCIA_ESPECIAL_CORE.iniciarCanalAsistido('gobierno')" style="padding: 18px; font-size: 1.25rem; font-weight: bold; background-color: #328cc1; color: #ffffff; border: 2px solid #1d5f8a; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; transition: background 0.2s;">
             💼 Trabajador Gobierno / Gov Worker
         </button>
     </div>
@@ -750,7 +750,7 @@ document.addEventListener("error", function (e) {
 
 <!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
 <script src="/static/engine.js"></script>
-<script src="static/asistencia_especial.js"></script>
+<script src="/static/asistencia_especial.js"></script> <!-- <-- AGREGAMOS LA BARRA / AQUÍ -->
 
 <!-- Inicialización unificada del motor de control soberano sin alterar la inercia original -->
 <script>
