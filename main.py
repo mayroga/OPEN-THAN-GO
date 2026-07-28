@@ -1,4 +1,3 @@
-
 # ==========================================================================================
 # OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
 # Company: May Roga LLC
@@ -190,8 +189,9 @@ MANIFIESTOS_ORACULO = {
         "a un estado primario de ligereza. Un parque con niños jugando, una mascota corriendo, te recuerdan "
         "que la vida es también espontaneidad y asombro. Suelta la necesidad de planificar y permite que el "
         "momento te sorprenda. Tu misión es recordar la alegría de lo impredecible."
-        ]
-    }
+    ]
+}
+
 # ==========================================================================================
 # MOTOR DE HISTORIAL INTELIGENTE CWRE V2
 # Anti-Repetición + Exploración Controlada
@@ -937,49 +937,6 @@ async def get_company_questions(company: str, lang: str = "es"):
     questions = COMPANY_QUESTIONS[company_lower][lang]
     logo_path = COMPANY_QUESTIONS[company_lower]["logo_path"]
     return JSONResponse({"questions": questions, "logo_path": logo_path})
-# ==========================================================================================
-# MOTOR DE EXPORTACIÓN: COMPILADOR DE TEXTOS PARA EL REPORTE ESCRITO (3 FASES)
-# ==========================================================================================
-@app.post("/api/generar-reporte-bienestar")
-async def generar_reporte_bienestar(request: Request):
-    try:
-        data = await request.json()
-        categoria = str(data.get("categoria", "especial")).lower()
-        lang = str(data.get("lang", "es")).lower()
-        
-        titulos_categoria = {
-            "veterano": {"es": "BALANCE DE ENTORNO SEGURO Y DESCARGA SOMÁTICA", "en": "SECURE ENVIRONMENT & SOMATIC DISCHARGE BALANCE"},
-            "mayor": {"es": "MAPA DE ACTIVACIÓN SENSORIAL Y BIENESTAR INTEGRAL", "en": "GENTLE SENSORY ACTIVATION & INTEGRAL WELLBEING MAP"},
-            "gobierno": {"es": "REPORTE DE DESCOMPRESIÓN DE RUTINA INSTITUCIONAL", "en": "INSTITUTIONAL ROUTINE DECOMPRESSION REPORT"}
-        }
-        
-        cat_upper = categoria.upper()
-        titulo_documento = titulos_categoria.get(categoria, {"es": "MAPA DE EVOLUCIÓN", "en": "EVOLUTION MAP"})[lang]
-        
-        if lang == "es":
-            texto_antes = f"Fase de Apertura: Registro de saturación inicial bajo modalidad {cat_upper}. El usuario ingresa buscando mitigar la sobrecarga diaria, la rigidez del entorno y el desgaste de la rutina predecible."
-            texto_durante = "Fase de Sintonía: Monitoreo de respuesta somática activa. Se registra la interacción con las herramientas de Open Than Go, ejecutando pausas de respiración y desconexión visual para romper el piloto automático."
-            texto_despues = "Fase de Cierre: Consolidación de presencia y retorno al equilibrio biopsicosocial. Se verifica una reducción en el indicador de agobio y se entrega una pauta de hábitos conscientes para mantener el espacio interior libre."
-            clausula_legal = "Este balance es una guía automatizada de optimización del estilo de vida y desarrollo humano biopsicosocial; no constituye, sustituye ni representa un diagnóstico clínico, terapia ni tratamiento de salud médica o psicológica."
-        else:
-            texto_antes = f"Opening Phase: Baseline saturation record under {cat_upper} modality. User enters seeking to mitigate daily overload, environmental stiffness, and the wear of a predictable routine."
-            texto_durante = "Tuning Phase: Active somatic response monitoring. Interaction with Open Than Go tools is logged, executing breathing pauses and visual disconnection to break the mental autopilot."
-            texto_despues = "Closing Phase: Presence consolidation and return to biopsychosocial balance. A reduction in the overwhelm indicator is verified, delivering a conscious habit guide to keep the inner space free."
-            clausula_legal = "This balance is an automated lifestyle optimization and biopsychosocial human development guide; it does not constitute, replace, or represent a clinical diagnosis, therapy, or medical/psychological health treatment."
-
-        return JSONResponse({
-            "status": "success",
-            "documento_metadata": {
-                "identificador_sistema": "OPEN_THAN_GO_CWRE_V6",
-                "titulo": f"{titulo_documento} - {cat_upper}",
-                "fase_1_antes": texto_antes,
-                "fase_2_durante": texto_durante,
-                "fase_3_despues": texto_despues,
-                "pie_pagina_legal": clausula_legal
-            }
-        })
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
 
 # ==========================================================================================
 # OPEN THAN GO SYSTEM - Kernel Absolute Engine V.6.0.1
@@ -1001,61 +958,6 @@ async def mando_integral(request: Request):
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
-        # --- ENRUTAMIENTO QUIRÚRGICO DE CANAL ESPECIAL (VETERANOS, MAYOR, GOBIERNO) ---
-    perfil_especial_oculto = str(payload.get("perfil_especial", "")).lower()
-    if not perfil_especial_oculto and perfil_tipo in ["veterano", "mayor", "gobierno"]:
-        perfil_especial_oculto = perfil_tipo
-
-    if perfil_especial_oculto in ["veterano", "mayor", "gobierno"]:
-        import random
-        modo_actual = str(payload.get("modo", "SALIR")).upper()
-        if modo_actual not in ["SALIR", "CASA"]:
-            modo_actual = "SALIR"
-            
-        # Extrae la lista comprimida directamente del diccionario unificado que acabas de fusionar
-        # Si tu diccionario de misiones principal se llama MISIONES_DATA o de otra forma, cambia 'MISIONES' por ese nombre
-        lista_misiones = MISIONES_CATEGORIAS_ESPECIALES[perfil_especial_oculto][modo_actual]
-
-        mision_data = random.choice(lista_misiones)
-        
-        # Empaquetamos los datos con los nombres reales exactos que lee tu engine.js nativo
-        return JSONResponse({
-            "status": "success",
-            "misiones": [
-                {
-                    "id": mision_data["id"],
-                    "titulo": mision_data["titulo"] if lang == "es" else "Somatic Transformation Task",
-                    "descripcion": mision_data["descripcion"] if lang == "es" else "Focus on your breathing and biological presence.",
-                    "diagnostico_sintoma": mision_data["diagnostico_sintoma"] if lang == "es" else "Somatic stabilization.",
-                    "instruccion_fisiologica": mision_data["instruccion_fisiologica"] if lang == "es" else "Breathe naturally."
-                }
-            ],
-            "puntos_mapa": []  # Mantenemos el array limpio para que no rompa la lectura de geolocalización
-        })
-
-    # ==========================================================================================
-    # ENGRANAJE DE BIENESTAR: TRES AFLUENTES ESPECIALES (VALOR COMERCIAL PROTEGIDO)
-    # ==========================================================================================
-    if perfil_tipo in ["veterano", "mayor", "gobierno"]:
-        if perfil_tipo == "veterano":
-            perfil_local.update({"silencio": 98, "descanso": 95, "naturaleza": 90, "contemplacion": 85, "indicador_ansiedad": 70})
-            diagnostico_sintoma_es = "Estabilización de entorno seguro y descarga de tensión somática de alta prioridad."
-            diagnostico_sintoma_en = "Secure environment stabilization and high priority somatic tension discharge."
-            instruccion_fisiologica_es = "Siente el peso real de tus hombros caer en este segundo. Estás a salvo aquí. El suelo firme sostiene tu presencia."
-            instruccion_fisiologica_en = "Feel the real weight drop from your shoulders this second. You are safe here. The firm ground supports your presence."
-        elif perfil_tipo == "mayor":
-            perfil_local.update({"contemplacion": 100, "sol": 95, "aire_fresco": 90, "comunidad": 80, "descanso": 85})
-            payload["perfil"] = "accesible"  # Fuerza el enrutamiento sin barreras arquitectónicas en mapas
-            diagnostico_sintoma_es = "Activación sensorial gentil y optimización del entorno vital."
-            diagnostico_sintoma_en = "Gentle sensory activation and vital environment optimization."
-            instruccion_fisiologica_es = "Frota tus manos suavemente hasta sentir calor. Respira el aire nuevo de la ventana, tómate tu tiempo."
-            instruccion_fisiologica_en = "Gently rub your hands until you feel warmth. Breathe the fresh air from the window, take your time."
-        elif perfil_tipo == "gobierno":
-            perfil_local.update({"aire_fresco": 100, "movimiento": 95, "creatividad": 90, "juego": 85, "silencio": 60})
-            diagnostico_sintoma_es = "Quiebre de piloto automático de entorno cerrado y descompresión de rutina diaria."
-            diagnostico_sintoma_en = "Breakout of closed-environment autopilot and daily routine decompression."
-            instruccion_fisiologica_es = "Apaga la pantalla ahora. Rompe la postura de escritorio. Camina libremente por el pasillo más largo."
-            instruccion_fisiologica_en = "Turn off the screen now. Break the desk posture. Walk freely along the longest hallway."
    
     # NEW: calidez_humana_pregunta is passed from frontend company flow
     calidez_humana_pregunta = payload.get("calidez_humana_pregunta", "")
@@ -1407,61 +1309,8 @@ async def mando_integral(request: Request):
             "drive_prohibited": True
         })
 # ==========================================================================================
-# BANCO DE DATOS BIOCUANTIFICADOS (MISIONES EXCLUSIVAS CANAL ESPECIAL)
-# ==========================================================================================
-MISIONES_CATEGORIAS_ESPECIALES = {
-    "veterano": {
-        "SALIR": [
-            {"id": "v_s1", "titulo": "Filtro de Frecuencias", "descripcion": "Mira un punto estático lejano 3 minutos al aire libre. Registra la seguridad del espacio.", "diagnostico_sintoma": "Descarga de hipervigilancia periférica.", "instruccion_fisiologica": "Suelo firme. Entorno despejado. Estás seguro aquí."},
-            {"id": "v_s2", "titulo": "Reconocimiento Acústico", "descripcion": "Cierra los ojos en zona verde. Identifica tres sonidos suaves de la naturaleza.", "diagnostico_sintoma": "Descompresión del sistema auditivo de alerta.", "instruccion_fisiologica": "Suelta el cuello. Escucha el aire en absoluta paz."},
-            {"id": "v_s3", "titulo": "Marcha Consciente", "descripcion": "Camina contando mentalmente 4 pasos para inhalar y 4 para exhalar de forma suave.", "diagnostico_sintoma": "Sincronización del ritmo cardíaco y estabilidad somática.", "instruccion_fisiologica": "Siente el impacto suave. Avanzas a tu ritmo seguro."},
-            {"id": "v_s4", "titulo": "Anclaje Táctil Orgánico", "descripcion": "Toca una corteza o roca con la palma izquierda 2 minutos. Siente su temperatura real.", "diagnostico_sintoma": "Anclaje con la realidad presente liberando tensión.", "instruccion_fisiologica": "Conexión a algo firme. Respira hondo una vez."},
-            {"id": "v_s5", "titulo": "Horizonte Amplio", "descripcion": "Siéntate al sol mirando donde se une el cielo y la tierra. Brazos caídos y flojos.", "diagnostico_sintoma": "Ampliación del campo visual seguro.", "instruccion_fisiologica": "Siente el calor ambiental. Estás en control total."}
-        ],
-        "CASA": [
-            {"id": "v_c1", "titulo": "Anclaje Físico Axial", "descripcion": "Siéntate derecho con plantas de los pies planas en el piso. Siente el peso en el asiento.", "diagnostico_sintoma": "Centrado de la atención corporal y soltura muscular.", "instruccion_fisiologica": "Deja caer los hombros. El suelo te sostiene firme."},
-            {"id": "v_c2", "titulo": "Filtro de Fondo", "descripcion": "En el cuarto más silencioso cierra los ojos y atiende solo tu respiración.", "diagnostico_sintoma": "Reseteo del filtro auditivo de protección.", "instruccion_fisiologica": "Aire fresco entra y sale tibio. Espacio seguro."},
-            {"id": "v_c3", "titulo": "Descarga Escapular", "descripcion": "Sube hombros a las orejas tomando aire, sostén 3 segundos y suéltalos de golpe exhalando.", "diagnostico_sintoma": "Liberación express de cortisol acumulado.", "instruccion_fisiologica": "Brazos cuelgan libres y ligeros. Repítelo una vez."},
-            {"id": "v_c4", "titulo": "Escudo Térmico", "descripcion": "Sostén una taza templada entre las manos. Siente el calor fluir a la piel con ojos cerrados.", "diagnostico_sintoma": "Activación del sistema parasimpático por estímulo térmico.", "instruccion_fisiologica": "Disfruta el cobijo térmico. Respira muy despacio."}
-        ]
-    },
-    "mayor": {
-        "SALIR": [
-            {"id": "m_s1", "titulo": "Baño de Sol Directo", "descripcion": "Busca una banca cómoda sin escalones difíciles. Siéntate y deja que la luz ilumine tu rostro.", "diagnostico_sintoma": "Estimulación sensorial biológica y vitalidad.", "instruccion_fisiologica": "Siente la brisa en tu piel. El tiempo es tuyo."},
-            {"id": "m_s2", "titulo": "Paseo de Colores", "descripcion": "Camina muy lento por un jardín. Observa detalladamente las formas de una planta o flor.", "diagnostico_sintoma": "Activación de la atención plena visual ligera.", "instruccion_fisiologica": "Tu vista descansa en la belleza natural. Camina suave."},
-            {"id": "m_s3", "titulo": "Eco Acústico", "descripcion": "Siéntate bajo la sombra de un árbol. Manos en las piernas, ojos entornados, escucha aves.", "diagnostico_sintoma": "Reconexión ambiental y estímulo auditivo grato.", "instruccion_fisiologica": "Corazón a ritmo tranquilo. Todo tu cuerpo descansa."},
-            {"id": "m_s4", "titulo": "Paso Firme", "descripcion": "Camina en plano 3 minutos. Siente conscientemente el talón, la planta y luego los dedos.", "diagnostico_sintoma": "Mejora de la consciencia espacial y equilibrio.", "instruccion_fisiologica": "Seguridad en tu andar. Te conectas firme a la tierra."},
-            {"id": "m_s5", "titulo": "Vaivén Natural", "descripcion": "Observa el movimiento de hojas con el viento o el agua de una fuente por 2 minutos seguidos.", "diagnostico_sintoma": "Inducción de relajación mental por estímulos fluidos.", "instruccion_fisiologica": "Suelta preocupaciones. Mente tranquila como el viento."}
-        ],
-        "CASA": [
-            {"id": "m_c1", "titulo": "Despertar de Manos", "descripcion": "Frota tus palmas suavemente hasta que se pongan tibias. Acaricia tus brazos con ellas.", "diagnostico_sintoma": "Auto-estímulo táctil y mejora circulatoria periférica.", "instruccion_fisiologica": "Siente el calor de tu piel. Tu cuerpo es seguro."},
-            {"id": "m_c2", "titulo": "Sintonía Táctil", "descripcion": "Pasa las yemas de tus dedos sobre una manta suave o madera lisa con ojos cerrados.", "diagnostico_sintoma": "Estimulación táctil fina reduciendo aislamiento.", "instruccion_fisiologica": "Disfruta la sensación suave. Respira hondo y pausado."},
-            {"id": "m_c3", "titulo": "Hilo de Seda", "descripcion": "Inhala por la nariz y exhala por la boca tan suave que no moverías un hilo de seda frente a ti.", "diagnostico_sintoma": "Estabilización respiratoria aliviando fatiga pectoral.", "instruccion_fisiologica": "Pecho se infla en perfecta paz. Rostro flojo."},
-            {"id": "m_c4", "titulo": "Ventana Abierta", "descripcion": "Abre la ventana más luminosa de casa. Siente el aire fresco rozar tu cara mirando afuera.", "diagnostico_sintoma": "Ruptura del encierro y oxigenación celular consciente.", "instruccion_fisiologica": "El aire renueva tus energías. Disfruta la claridad."}
-        ]
-    },
-    "gobierno": {
-        "SALIR": [
-            {"id": "g_s1", "titulo": "Ruptura Burocrática", "descripcion": "Sal del edificio. Camina rápido balanceando brazos y mira las copas de los árboles 3 minutos.", "diagnostico_sintoma": "Interrupción del encierro y descompresión de rutina.", "instruccion_fisiologica": "Aire libre en movimiento. Ojos lejos de documentos."},
-            {"id": "g_s2", "titulo": "Reset Digital", "descripcion": "Guarda el teléfono en el bolsillo en una banca. Mantén manos vacías y observa el entorno real.", "diagnostico_sintoma": "Reseteo por sobreestimulación digital y urgencias.", "instruccion_fisiologica": "No hay correos que responder ahora. Tu tiempo es tuyo."},
-            {"id": "g_s3", "titulo": "Descarga Dinámica", "descripcion": "Camina 100 metros atendiendo el impacto del talón. Imagina que descargas el peso laboral.", "diagnostico_sintoma": "Derivación física del estrés hacia la motricidad.", "instruccion_fisiologica": "Camina libre. Eres más grande que tu escritorio."},
-            {"id": "g_s4", "titulo": "Elementos Vivos", "descripcion": "Detén tu paso ante tierra o plantas. Observa cómo interactúa la luz del sol con ellas.", "diagnostico_sintoma": "Desfragmentación de la fatiga por atención sostenida.", "instruccion_fisiologica": "Oxígeno directo de plantas. Se aclara tu mente."},
-            {"id": "g_s5", "titulo": "Pausa de Oficina", "descripcion": "Aléjate de teclados y ruidos. Quédate de pie en un rincón pacífico escuchando el entorno.", "diagnostico_sintoma": "Alivio del estrés acústico institucional.", "instruccion_fisiologica": "Siente el espacio open. Pecho expandido y libre."}
-        ],
-        "CASA": [
-            {"id": "g_c1", "titulo": "Reset Óptico", "descripcion": "Bloquea el monitor. Cierra los ojos y cúbrelos suavemente con tus palmas 2 minutos en sombra.", "diagnostico_sintoma": "Alivio de fatiga visual y reducción del agobio mental.", "instruccion_fisiologica": "Mundo digital apagado. Descanso visual en paz."},
-            {"id": "g_c2", "titulo": "Ajuste Postural", "descripcion": "Ponte de pie, estira brazos al techo tomando aire como si quisieras tocarlo y suelta de golpe.", "diagnostico_sintoma": "Corrección de rigidez sedente y flujo sanguíneo.", "instruccion_fisiologica": "Aire hasta el abdomen. Tu cuerpo recupera espacio."},
-            {"id": "g_c3", "titulo": "Vaciado Interoceptivo", "descripcion": "Toma un vaso de agua fría sintiendo el vidrio. Bebe un sorbo despacio notando el recorrido.", "diagnostico_sintoma": "Interrupción de pensamientos repetitivos de trabajo.", "instruccion_fisiologica": "El agua te refresca por dentro. Alivio inmediato."},
-            {"id": "g_c4", "titulo": "Soltura Cervical", "descripcion": "Deja caer la cabeza al hombro derecho 3 respiraciones sintiendo el estiramiento. Cambia de lado.", "diagnostico_sintoma": "Liberación de contracturas reflejas por estrés.", "instruccion_fisiologica": "Se afloja el músculo. La carga diaria se disuelve."}
-        ]
-    }
-}
-
-# ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==========================================================================================
 if __name__ == "__main__":
-    import os
-    import uvicorn
     port_env = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
