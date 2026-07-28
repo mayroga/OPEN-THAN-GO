@@ -2294,7 +2294,7 @@ inyectarPasarelaYAutenticacion(container) {
         this.datosLugarGlobal = null;
        
         location.reload();
-    }
+    },
     // --- ENLACE OPERATIVO DE BOTONES GIGANTES AL MOTOR CENTRAL ---
 activarRutaEspecial: function(perfilSeleccionado) {
     let menteActual = document.getElementById("mente-selector")?.value || "aburrido";
