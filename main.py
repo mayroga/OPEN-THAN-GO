@@ -1018,17 +1018,21 @@ async def mando_integral(request: Request):
 
         mision_data = random.choice(lista_misiones)
         
+        # Empaquetamos los datos con los nombres reales exactos que lee tu engine.js nativo
         return JSONResponse({
             "status": "success",
-            "mision": {
-                "id": mision_data["id"],
-                "titulo": mision_data["titulo"] if lang == "es" else "Somatic Transformation Task",
-                "descripcion": mision_data["descripcion"] if lang == "es" else "Focus on your breathing and biological presence.",
-                "diagnostico_sintoma": mision_data["diagnostico_sintoma"] if lang == "es" else "Somatic stabilization and decompression.",
-                "instruccion_fisiologica": mision_data["instruccion_fisiologica"] if lang == "es" else "Breathe naturally and feel your presence."
-            },
-            "puntos_mapa": []
+            "misiones": [
+                {
+                    "id": mision_data["id"],
+                    "titulo": mision_data["titulo"] if lang == "es" else "Somatic Transformation Task",
+                    "descripcion": mision_data["descripcion"] if lang == "es" else "Focus on your breathing and biological presence.",
+                    "diagnostico_sintoma": mision_data["diagnostico_sintoma"] if lang == "es" else "Somatic stabilization.",
+                    "instruccion_fisiologica": mision_data["instruccion_fisiologica"] if lang == "es" else "Breathe naturally."
+                }
+            ],
+            "puntos_mapa": []  # Mantenemos el array limpio para que no rompa la lectura de geolocalización
         })
+
     # ==========================================================================================
     # ENGRANAJE DE BIENESTAR: TRES AFLUENTES ESPECIALES (VALOR COMERCIAL PROTEGIDO)
     # ==========================================================================================
