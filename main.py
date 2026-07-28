@@ -1137,6 +1137,57 @@ async def mando_integral(request: Request):
 
         target_link = f"{link_base}{urllib.parse.quote_plus(query_maps)}"
 
+        # ==========================================================================================
+        # MOTOR AUTOMÁTICO DE INFORMES DE EVOLUCIÓN BIOPSICOSOCIAL (VALOR COMERCIAL NETO)
+        # ==========================================================================================
+        metrica_biopsicosocial = {
+            "veterano": {
+                "indicador_principal": "Hipervigilancia Activa y Tensión del Entorno",
+                "antes": "85%",
+                "esperado_despues": "32%",
+                "logro": "Apertura exitosa del rincón de expectación geográfica. Reducción de la carga amigdalina."
+            },
+            "anciano": {
+                "indicador_principal": "Índice de Aislamiento Físico e Inercia de Rutina",
+                "antes": "90%",
+                "esperado_despues": "38%",
+                "logro": "Desviación autónoma del bucle de soledad doméstica hacia oasis urbanos accesibles."
+            },
+            "gobierno": {
+                "indicador_principal": "Saturación de Estímulo Administrativo y Bloqueo Cognitivo",
+                "antes": "88%",
+                "esperado_despues": "28%",
+                "logro": "Interrupción de la inercia burocrática mediante choque de homeocinesis de las Big Tech."
+            }
+        }
+
+        sector_data = metrica_biopsicosocial.get(perfil_tipo, {
+            "indicador_principal": "Carga de Agobio y Prisión Mental Acumulada",
+            "antes": "80%",
+            "esperado_despues": "35%",
+            "logro": "Desfragmentación del estímulo digital y apertura de ventanas de escape."
+        })
+
+        reporte_progreso = {
+            "token_auditoria": f"OTG-BIO-LOG-{random.randint(100000, 999999)}",
+            "perfil_sectorial": perfil_tipo.upper(),
+            "antes_ingreso": {
+                "diagnostico_inicial": f"Burbuja Mental Activa en Estado: {mente.upper()}",
+                "estimulo_bloqueante": f"Impacto de bucle por: {origen_estimulo.upper()}",
+                "medicion_linea_base": sector_data["antes"]
+            },
+            "durante_intervencion": {
+                "tiempo_vida": "15 Minutos Eficaces (900 Segundos en Segundo Plano)",
+                "pausa_calidez_humana": f"{TIEMPO_EXTRA_REPOSO_SEGUNDOS} Segundos Añadidos de Respiro",
+                "orquestacion": "Intercepción y Desviación Asíncrona en 3 Canales Soberanos"
+            },
+            "despues_homeostasis": {
+                "fisiologia_evaluada": sector_data["indicador_principal"],
+                "medicion_final_esperada": sector_data["esperado_despues"],
+                "resultado_biopsicosocial": sector_data["logro"]
+            }
+        }
+
         final_misiones_para_frontend = [{
             "destino_id": 999,
             "destino_titulo": destino_titulo_dinamico,
@@ -1160,10 +1211,12 @@ async def mando_integral(request: Request):
             "forced_recovery": True,
             "legal_notice_es": ADVERTENCIA_LEGAL_ES,
             "legal_notice_en": ADVERTENCIA_LEGAL_EN,
-            "drive_prohibited": True
+            "drive_prohibited": True,
+            "reporte_biopsicosocial": reporte_progreso
         })
 
     elif opcion_usuario == "CASA":
+
 
         # 1. INTERVENCIÓN DOMÉSTICA (MODO CASA)
         textos_oraculo_casa = MANIFIESTOS_ORACULO.get(mente, MANIFIESTOS_ORACULO["aburrido"])
@@ -1227,40 +1280,156 @@ async def mando_integral(request: Request):
             "drive_prohibited": False
         })
 
-    else:
-        # 2. INTERVENCIÓN EXTERNA (MODO SALIR) - ENTRADA POR DEFECTO
-        opciones_salir_candidatas = BASE_MISIONES["SALIR"].get(mente, BASE_MISIONES["SALIR"]["aburrido"])
-        historial_salir = payload.get("historial_salir", [])
-       
-        misiones_seleccionadas_raw = seleccionar_n_misiones_inteligentes(
-            n=3,
-            misiones=opciones_salir_candidatas,
-            perfil_local=perfil_local,
-            historial_actual=historial_salir
-        )
+            else:
+                # ==========================================================================================
+                # CEREBRO CENTRAL UNIFICADO - INYECCIÓN SECTORIAL ADAPTATIVA (BILINGÜE Y COMPACTO)
+                # ==========================================================================================
+                marca_limpia = str(marca_detectada).strip().lower()
+                sintoma_limpio = str(diagnostico_sintoma_es).strip().lower()
+                origen_estimulo = marca_limpia if marca_limpia else "bucle_digital"
 
-        final_misiones_para_frontend = []
-        antidotos_digitales_default_yt = BIG_TECH_RESOURCES[f'youtube_base_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'youtube_default_search_{lang}'])
-        antidotos_digitales_default_sp = BIG_TECH_RESOURCES[f'spotify_base_search_url'] + urllib.parse.quote_plus(BIG_TECH_RESOURCES[f'spotify_default_genre_link_{lang}'])
+                matriz_sectorial = {
+                    "veterano": {
+                        "maps": [
+                            "explore+veterans+community+gardens+and+nature+sanctuaries+near+me",
+                            "explore+independent+vinyl+record+shops+near+me",
+                            "explore+panoramic+wilderness+overlooks+and+scenic+drives+near+me"
+                        ],
+                        "youtube": "cinematic+peaceful+military+tribute+ambient+music+beautiful+lyrics" if lang == "en" else "musica+ambiental+pacifica+para+veteranos+letra+profunda",
+                        "spotify": "classic+rock+anthems+70s+80s+motivation+energy" if lang == "en" else "rock+clasico+historico+energia+pura"
+                    },
+                    "anciano": {
+                        "maps": [
+                            "explore+local+botanical+greenhouses+and+wheelchair+accessible+gardens+near+me",
+                            "explore+cozy+independent+bookstores+with+reading+nooks+near+me",
+                            "explore+artisan+tea+houses+with+quiet+hidden+patios+near+me"
+                        ],
+                        "youtube": "vintage+nostalgic+big+band+jazz+live+session+4k+lyrics" if lang == "en" else "musica+del+recuerdo+nostalgiia+boleros+orquesta+letras",
+                        "spotify": "relaxing+classical+piano+sonatas+peaceful+mind" if lang == "en" else "grandes+exitos+oro+retro+felicidad"
+                    },
+                    "gobierno": {
+                        "maps": [
+                            "explore+retro+arcade+and+neon+pinball+bars+near+me",
+                            "explore+secret+rooftop+lounges+and+hidden+sunset+lookouts+near+me",
+                            "explore+sensory+deprivation+float+tank+therapy+spa+near+me"
+                        ],
+                        "youtube": "lofi+synthwave+cyberpunk+escape+beats+no+stress+visuals" if lang == "en" else "synthwave+escape+de+rutina+ritmos+despiertos+visuales",
+                        "spotify": "high+energy+indie+dance+post+punk+rebellion" if lang == "en" else "electronica+vibrante+baile+rompe+bucle"
+                    }
+                }
 
+                if perfil_tipo in ["veterano", "anciano", "gobierno"]:
+                    config_actual = matriz_sectorial[perfil_tipo]
+                else:
+                    matriz_somatico_basico = {
+                        "ansioso": {"maps": ["explore+luxury+botanical+gardens+near+me"], "youtube": "lofi+beats+lyrics", "spotify": "ambient+chill"},
+                        "estresado": {"maps": ["explore+scenic+viewpoints+near+me"], "youtube": "cinematic+piano", "spotify": "bossa+nova"},
+                        "aburrido": {"maps": ["explore+retro+arcade+near+me"], "youtube": "cyberpunk+mix", "spotify": "indie+dance"},
+                        "agotado": {"maps": ["explore+specialty+coffee+near+me"], "youtube": "dark+ambient", "spotify": "afro+house"},
+                        "cansado": {"maps": ["explore+art+galleries+near+me"], "youtube": "acoustic+folk", "spotify": "indie+pop"}
+                    }
+                    config_actual = matriz_somatico_basico.get(mente, matriz_somatico_basico["aburrido"])
 
-        for info_seleccionada in misiones_seleccionadas_raw:
-            # === MENSAJES DE ACOMPAÑAMIENTO Y GASTO AISLADOS PARA LA INTERFAZ ===
-            precio_real = ""
-            if budget == "0":
-                precio_real = "GASTO: Cero. Recarga sin costo." if lang == "es" else "COST: Zero. Free recharge."
-            elif budget == "1":
-                precio_real = "GASTO: Bajo. Pequeño gusto." if lang == "es" else "COST: Low. Small treat."
-            elif budget == "2":
-                precio_real = "GASTO: Libre. Tu escape." if lang == "es" else "COST: Free. Your escape."
+                termino_maps_elegido = random.choice(config_actual["maps"])
+                
+                modificador_compania = ""
+                if perfil_tipo == "familia": modificador_compania = "+family+friendly"
+                elif perfil_tipo == "accesible" or perfil_tipo == "anciano": modificador_compania = "+wheelchair+accessible"
+                elif perfil_tipo == "solo" or perfil_tipo == "veterano": modificador_compania = "+hidden+gems+aesthetic"
 
-            quienes_van = ""
-            if perfil_tipo == "solo":
-                quienes_van = "ACOMPAÑAMIENTO: Solo. Reconecta." if lang == "es" else "COMPANIONSHIP: Solo. Reconnect."
-            elif perfil_tipo == "familia":
-                quienes_van = "ACOMPAÑAMIENTO: Familia. Desahogo." if lang == "es" else "COMPANIONSHIP: Family. Unwind."
-            elif perfil_tipo == "accesible":
-                quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
+                query_maps = f"{termino_maps_elegido}{modificador_compania}+in+{zip_code}"
+                enlace_yt = f"https://youtube.com{config_actual['youtube']}"
+                enlace_sp = f"https://spotify.com{config_actual['spotify']}"
+                
+                titulos = {
+                    "veterano": ("HACKEO DE CONTENCIÓN: RUTA DEL HÉROE", "RECOVERY ROUTE: HERO PATH"),
+                    "anciano": ("DIRECCIÓN AUTOMÁTICA: BIENESTAR ADULTO", "AUTOMATIC DIRECTION: SENIOR WELLNESS"),
+                    "gobierno": ("DESVIACIÓN ANTICORPORATIVA: LIBERTAD TOTAL", "ANTI-BUREAUCRACY DEVIATION: FULL FREEDOM")
+                }
+                t_es, t_en = titulos.get(perfil_tipo, (f"HACKEO DE CONTENCIÓN: {marca_detectada.upper()}", f"BREAKOUT DEVIATION ACTIVE"))
+                
+                destino_titulo_dinamico = t_en if lang == "en" else t_es
+                que_hacer_dinamico = "Liberación autónoma ejecutada con éxito. Desfragmentando la rutina digital." if lang != "en" else "Somatic redirection fully executed. Breaking structural monotony."
+
+            target_link = f"{link_base}{urllib.parse.quote_plus(query_maps)}"
+
+            # ==========================================================================================
+            # MOTOR AUTOMÁTICO DE INFORMES DE EVOLUCIÓN BIOPSICOSOCIAL (VALOR COMERCIAL NETO)
+            # ==========================================================================================
+            metrica_biopsicosocial = {
+                "veterano": {
+                    "indicador_principal": "Hipervigilancia Activa y Tensión del Entorno",
+                    "antes": "85%",
+                    "esperado_despues": "32%",
+                    "logro": "Apertura exitosa del rincón de expectación geográfica. Reducción de la carga amigdalina."
+                },
+                "anciano": {
+                    "indicador_principal": "Índice de Aislamiento Físico e Inercia de Rutina",
+                    "antes": "90%",
+                    "esperado_despues": "38%",
+                    "logro": "Desviación autónoma del bucle de soledad doméstica hacia oasis urbanos accesibles."
+                },
+                "gobierno": {
+                    "indicador_principal": "Saturación de Estímulo Administrativo y Bloqueo Cognitivo",
+                    "antes": "88%",
+                    "esperado_despues": "28%",
+                    "logro": "Interrupción de la inercia burocrática mediante choque de homeocinesis de las Big Tech."
+                }
+            }
+
+            sector_data = metrica_biopsicosocial.get(perfil_tipo, {
+                "indicador_principal": "Carga de Agobio y Prisión Mental Acumulada",
+                "antes": "80%",
+                "esperado_despues": "35%",
+                "logro": "Desfragmentación del estímulo digital y apertura de ventanas de escape."
+            })
+
+            reporte_progreso = {
+                "token_auditoria": f"OTG-BIO-LOG-{random.randint(100000, 999999)}",
+                "perfil_sectorial": perfil_tipo.upper(),
+                "antes_ingreso": {
+                    "diagnostico_inicial": f"Burbuja Mental Activa en Estado: {mente.upper()}",
+                    "estimulo_bloqueante": f"Impacto de bucle por: {origen_estimulo.upper()}",
+                    "medicion_linea_base": sector_data["antes"]
+                },
+                "durante_intervencion": {
+                    "tiempo_vida": "15 Minutos Eficaces (900 Segundos en Segundo Plano)",
+                    "pausa_calidez_humana": f"{TIEMPO_EXTRA_REPOSO_SEGUNDOS} Segundos Añadidos de Respiro",
+                    "orquestacion": "Intercepción y Desviación Asíncrona en 3 Canales Soberanos"
+                },
+                "despues_homeostasis": {
+                    "fisiologia_evaluada": sector_data["indicador_principal"],
+                    "medicion_final_esperada": sector_data["medicion_final_esperada"],
+                    "resultado_biopsicosocial": sector_data["logro"]
+                }
+            }
+
+            final_misiones_para_frontend = [{
+                "destino_id": 999,
+                "destino_titulo": destino_titulo_dinamico,
+                "destino_titulo_en": f"ESCAPE ROUTE ACTIVE" if perfil_tipo != "gobierno" else "ANTI-BUREAUCRACY DEVIATION",
+                "que_hacer": que_hacer_dinamico,
+                "que_hacer_en": "Immediate breakout executed by the central processing unit.",
+                "destino_entorno": "EJE DE REDIRECCIÓN SOMÁTICA",
+                "destino_instruccion": "Ejecutando calibración interna automática a través de los tres mundos independientes.",
+                "destino_instruccion_en": "Somatic redirection fully executed. Breaking structural monotony.",
+                "destino_coordenadas_gps": target_link,
+                "enlace_youtube": enlace_yt,
+                "enlace_spotify": enlace_sp,
+                "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
+                "diagnostico_sintoma_es": diagnostico_sintoma_es,
+                "diagnostico_sintoma_en": diagnostico_sintoma_en,
+            }]
+
+            return JSONResponse({
+                "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+                "misiones": final_misiones_para_frontend,
+                "forced_recovery": True,
+                "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+                "legal_notice_en": ADVERTENCIA_LEGAL_EN,
+                "drive_prohibited": True,
+                "reporte_biopsicosocial": reporte_progreso
+            })
 
             # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
             titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
