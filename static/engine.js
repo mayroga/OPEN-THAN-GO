@@ -227,7 +227,7 @@ activarSensorSegundoPlano() {
             if (KERNEL.horaInicioSesionAbsoluta) {
                 let tiempoTranscurridoMs = Date.now() - KERNEL.horaInicioSesionAbsoluta;
                 let tiempoTranscurridoSegundos = Math.floor(tiempoTranscurridoMs / 1000);
-                
+               
                 if (tiempoTranscurridoSegundos >= 900) {
                     if (typeof KERNEL.forzarCierre15MinutosEfectivo === 'function') {
                         KERNEL.forzarCierre15MinutosEfectivo();
@@ -1337,64 +1337,44 @@ mostrarOpcionesSalir(container) {
     `;
 
     const optionsGrid = document.getElementById('salida-options-grid');
-    
+   
     if (Array.isArray(this.pasosMisiones) && this.pasosMisiones.length > 0) {
         const mission = this.pasosMisiones[0]; // Captura el primer elemento del cerebro central de forma segura
-        
+       
         const linkMaps = mission.destino_coordenadas_gps || "#";
         const linkYT = mission.enlace_youtube || "#";
         const linkSpotify = mission.enlace_spotify || "#";
 
-        // Función centralizada para auditar y salvar los resultados antes del salto a la Big Tech
-        const registrarProgresoComercial = () => {
-            // Nota: Aquí leemos 'mission' directamente ya que el backend te envía la data empaquetada
-            if (mission && window.lastSomaticResponse && window.lastSomaticResponse.reporte_biopsicosocial) {
-                const rep = window.lastSomaticResponse.reporte_biopsicosocial;
-                console.log("%c==========================================================================================", "color: #3b82f6; font-weight: bold;");
-                console.log(`📈 %c[INFORME DE PROGRESO DE BIENESTAR OPEN THAN GO] - REPORTE DE VALOR COMERCIAL`, "color: #10b981; font-weight: bold;");
-                console.log(`TOKEN DE SESIÓN ANÓNIMO: ${rep.token_auditoria} | SECTOR: ${rep.perfil_sectorial}`);
-                console.log(`[ANTES DE LA APP]: ${rep.antes_ingreso.diagnostico_inicial} | CARGA DE BLOQUEO: ${rep.antes_ingreso.medicion_linea_base}`);
-                console.log(`[DURANTE LA APP]: Orquestación asíncrona de 3 canales activos durante ${rep.durante_intervencion.tiempo_vida}`);
-                console.log(`[RESULTADO DESPUÉS]: ${rep.despues_homeostasis.fisiologia_evaluada} estimada al ${rep.despues_homeostasis.medicion_final_esperada}`);
-                console.log(`[LOGRO PREVENTIVO BIOPSICOSOCIAL]: ${rep.despues_homeostasis.resultado_biopsicosocial}`);
-                console.log("%c==========================================================================================", "color: #3b82f6; font-weight: bold;");
+        // 1. RECTÁNGULO AZUL ORIGINAL: Google Maps (Ocio Avanzado con Fotos y Reseñas Reales)
+        const btnMaps = document.createElement('a');
+        btnMaps.href = linkMaps;
+        btnMaps.target = "_blank";
+        btnMaps.className = "btn-select-salida-clean";
+        btnMaps.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #2563eb; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s; box-shadow: 0 4px 6px rgba(0,0,0,0.2);";
+        btnMaps.innerText = t.mapsBtn;
+        btnMaps.onclick = () => this.iniciarSalidaConcreta(mission);
+        optionsGrid.appendChild(btnMaps);
 
-                // Guardamos el log de éxito comercial en el disco duro local de forma 100% anónima para auditoría externa
-                let historicoComercial = JSON.parse(localStorage.getItem("otg_preventive_metrics") || "[]");
-                historicoComercial.push(rep);
-                localStorage.setItem("otg_preventive_metrics", JSON.stringify(historicoComercial));
-            }
-            this.iniciarSalidaConcreta(mission);
-        };
+        // 2. RECTÁNGULO ROJO ORIGINAL: YouTube (Sintonía de Alma con letras y videos artísticos)
+        const btnYT = document.createElement('a');
+        btnYT.href = linkYT;
+        btnYT.target = "_blank";
+        btnYT.className = "btn-select-salida-clean";
+        btnYT.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #dc2626; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s; box-shadow: 0 4px 6px rgba(0,0,0,0.2);";
+        btnYT.innerText = t.ytBtn;
+        btnYT.onclick = () => this.iniciarSalidaConcreta(mission);
+        optionsGrid.appendChild(btnYT);
 
-        const card = document.createElement('div');
-        card.className = 'salida-option-card-multicanal';
-        
-        card.innerHTML = `
-            <h3 class="salida-option-title">${missionTitle}</h3>
-            <p class="salida-option-desc">${missionWhatToDo}</p>
-            <div class="somatic-multicanal-actions" style="display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0;">
-                <a href="${linkMaps}" target="_blank" class="btn-somatic btn-maps" style="text-decoration: none; text-align: center; padding: 0.6rem; background: #4285F4; color: white; border-radius: 4px; font-weight: bold; font-size: 0.9rem;">
-                    ${t.mapsBtn}
-                </a>
-                <a href="${linkYT}" target="_blank" class="btn-somatic btn-yt" style="text-decoration: none; text-align: center; padding: 0.6rem; background: #FF0000; color: white; border-radius: 4px; font-weight: bold; font-size: 0.9rem;">
-                    ${t.ytBtn}
-                </a>
-                <a href="${linkSpotify}" target="_blank" class="btn-somatic btn-spotify" style="text-decoration: none; text-align: center; padding: 0.6rem; background: #1DB954; color: white; border-radius: 4px; font-weight: bold; font-size: 0.9rem;">
-                    ${t.spBtn}
-                </a>
-            </div>
-            <button class="btn-select-salida" style="width: 100%; margin-top: 0.5rem;">${t.selBtn}</button>
-        `;
-
-        // Asignamos de forma nativa e invisible la captura de métricas a tus rectángulos originales
-        card.querySelector('.btn-maps').onclick = () => registrarProgresoComercial();
-        card.querySelector('.btn-yt').onclick = () => registrarProgresoComercial();
-        card.querySelector('.btn-spotify').onclick = () => registrarProgresoComercial();
-        card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
-        
-        optionsGrid.appendChild(card);
-    });
+        // 3. RECTÁNGULO VERDE ORIGINAL: Spotify (Antídoto de Homeostasis con ritmos vibrantes)
+        const btnSpotify = document.createElement('a');
+        btnSpotify.href = linkSpotify;
+        btnSpotify.target = "_blank";
+        btnSpotify.className = "btn-select-salida-clean";
+        btnSpotify.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #16a34a; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s; box-shadow: 0 4px 6px rgba(0,0,0,0.2);";
+        btnSpotify.innerText = t.spBtn;
+        btnSpotify.onclick = () => this.iniciarSalidaConcreta(mission);
+        optionsGrid.appendChild(btnSpotify);
+    }
 
     const textoOraculo = this.mensajeCalidezHumanaActual || t.chooseOne;
     this.hablar(textoOraculo);
