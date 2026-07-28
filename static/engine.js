@@ -1313,16 +1313,18 @@ mostrarOpcionesSalir(container) {
         es: {
             choosePath: "ELIGE TU CAMINO DE LIBERTAD",
             chooseOne: "Toca una opción para continuar:",
-            mapsBtn: "🗺️ GOOGLE MAPS",
-            ytBtn: "📺 YOUTUBE",
-            spBtn: "🎵 SPOTIFY"
+            mapsBtn: "🗺️ Entorno Real (Fotos, Videos y Reseñas)",
+            ytBtn: "📺 Ver Transfondo en YouTube (Música y Video)",
+            spBtn: "🎵 Escuchar en Spotify (Música de Estado)",
+            selBtn: "Confirmar Ruta Somática"
         },
         en: {
             choosePath: "CHOOSE YOUR PATH TO FREEDOM",
             chooseOne: "Tap an option to continue:",
-            mapsBtn: "🗺️ GOOGLE MAPS",
-            ytBtn: "📺 YOUTUBE",
-            spBtn: "🎵 SPOTIFY"
+            mapsBtn: "🗺️ Real Environment (Photos, Videos & Reviews)",
+            ytBtn: "📺 Watch Background on YouTube (Music & Video)",
+            spBtn: "🎵 Tune Audio on Spotify (State Music)",
+            selBtn: "Confirm Somatic Route"
         }
     }[this.idiomaActual];
 
@@ -1330,55 +1332,53 @@ mostrarOpcionesSalir(container) {
         <div class="mision-choices-container">
             <h2 class="salida-main-title">${t.choosePath}</h2>
             <p class="salida-choose-instruction">${t.chooseOne}</p>
-            <div id="salida-options-grid" class="salida-grid" style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 400px; margin: 0 auto;">
-                <!-- Las tres opciones limpias de color se inyectan aquí -->
+            <div id="salida-options-grid" class="salida-grid">
+                <!-- Las tarjetas multimedia enriquecidas se inyectarán aquí -->
             </div>
         </div>
     `;
 
     const optionsGrid = document.getElementById('salida-options-grid');
     
-    if (Array.isArray(this.pasosMisiones) && this.pasosMisiones.length > 0) {
-        const mission = this.pasosMisiones[0]; // Conserva la inercia de tu misión de campo original
+    this.pasosMisiones.forEach((mission, index) => {
+        const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
+        const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
         
+        // Extraemos de forma segura los enlaces identitarios calculados dinámicamente por tu backend
         const linkMaps = mission.destino_coordenadas_gps || "#";
         const linkYT = mission.enlace_youtube || "#";
         const linkSpotify = mission.enlace_spotify || "#";
 
-        // 1. RECTÁNGULO AZUL NATIVO: Google Maps (Ocio Real, Explorar, Fotos y Videos sin anuncios)
-        const btnMaps = document.createElement('a');
-        btnMaps.href = linkMaps;
-        btnMaps.target = "_blank";
-        btnMaps.className = "btn-select-salida-clean";
-        btnMaps.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #2563eb; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s;";
-        btnMaps.innerText = t.mapsBtn;
-        btnMaps.onclick = () => this.iniciarSalidaConcreta(mission);
-        optionsGrid.appendChild(btnMaps);
+        const card = document.createElement('div');
+        card.className = 'salida-option-card-multicanal';
+        
+        // Estructura visual con los tres botones que pediste: Google Maps (con fotos/videos), YouTube y Spotify
+        card.innerHTML = `
+            <h3 class="salida-option-title">${missionTitle}</h3>
+            <p class="salida-option-desc">${missionWhatToDo}</p>
+            <div class="somatic-multicanal-actions" style="display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0;">
+                <a href="${linkMaps}" target="_blank" class="btn-somatic btn-maps" style="text-decoration: none; text-align: center; padding: 0.6rem; background: #4285F4; color: white; border-radius: 4px; font-weight: bold; font-size: 0.9rem;">
+                    ${t.mapsBtn}
+                </a>
+                <a href="${linkYT}" target="_blank" class="btn-somatic btn-yt" style="text-decoration: none; text-align: center; padding: 0.6rem; background: #FF0000; color: white; border-radius: 4px; font-weight: bold; font-size: 0.9rem;">
+                    ${t.ytBtn}
+                </a>
+                <a href="${linkSpotify}" target="_blank" class="btn-somatic btn-spotify" style="text-decoration: none; text-align: center; padding: 0.6rem; background: #1DB954; color: white; border-radius: 4px; font-weight: bold; font-size: 0.9rem;">
+                    ${t.spBtn}
+                </a>
+            </div>
+            <button class="btn-select-salida" style="width: 100%; margin-top: 0.5rem;">${t.selBtn}</button>
+        `;
 
-        // 2. RECTÁNGULO ROJO NATIVO: YouTube (Sintonía de Alma, validación emocional con letra y videos artísticos)
-        const btnYT = document.createElement('a');
-        btnYT.href = linkYT;
-        btnYT.target = "_blank";
-        btnYT.className = "btn-select-salida-clean";
-        btnYT.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #dc2626; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s;";
-        btnYT.innerText = t.ytBtn;
-        btnYT.onclick = () => this.iniciarSalidaConcreta(mission);
-        optionsGrid.appendChild(btnYT);
-
-        // 3. RECTÁNGULO VERDE NATIVO: Spotify (Antídoto de Homeostasis, frecuencias de choque, baile o viaje)
-        const btnSpotify = document.createElement('a');
-        btnSpotify.href = linkSpotify;
-        btnSpotify.target = "_blank";
-        btnSpotify.className = "btn-select-salida-clean";
-        btnSpotify.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #16a34a; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s;";
-        btnSpotify.innerText = t.spBtn;
-        btnSpotify.onclick = () => this.iniciarSalidaConcreta(mission);
-        optionsGrid.appendChild(btnSpotify);
-    }
+        // El botón de confirmación sigue ejecutando la inercia e inicio de ruta original de tu app
+        card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
+        optionsGrid.appendChild(card);
+    });
 
     const textoOraculo = this.mensajeCalidezHumanaActual || t.chooseOne;
     this.hablar(textoOraculo);
 },
+
 
     /**
      * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
