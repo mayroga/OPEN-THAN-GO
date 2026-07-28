@@ -1,88 +1,8 @@
-
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
 // Company: May Roga LLC
 // File: static/engine.js (Frontend Logic)
 
 const KERNEL = {
-        // --- CONTROLADOR DE ASISTENCIA ESPECIAL (VALOR COMERCIAL MODULAR) ---
-    asistenciaEspecial: {
-        categoria: "", 
-        faseAntes: null,
-        faseDurante: null,
-        faseDespues: null,
-
-        capturarAntes: function(categoriaSeleccionada, menteActual) {
-            this.categoria = categoriaSeleccionada;
-            this.faseAntes = { mente_inicial: menteActual, timestamp: new Date().toISOString() };
-            if (categoriaSeleccionada === "mayor") {
-                document.body.style.fontSize = "125%"; // Facilidad de lectura para adultos mayores
-            }
-        },
-
-        capturarDurante: function(misionId) {
-            this.faseDurante = { mision_activa: misionId, timestamp: new Date().toISOString() };
-        },
-
-        capturarDespuesYExportar: function(estadoRetorno) {
-            this.faseDespues = { estado_final: estadoRetorno, timestamp: new Date().toISOString() };
-            
-            fetch("/api/generar-reporte-bienestar", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    categoria: this.categoria,
-                    antes: this.faseAntes,
-                    durante: this.faseDurante,
-                    despues: this.faseDespues,
-                    lang: KERNEL.idiomaActual || "es"
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success" && data.documento_metadata) {
-                    KERNEL.asistenciaEspecial.pintarReportePantalla(data.documento_metadata);
-                }
-            });
-        },
-
-        pintarReportePantalla: function(metadataReporte) {
-            let contenedorReporte = document.getElementById("reporte-final-container");
-            if (!contenedorReporte) {
-                contenedorReporte = document.createElement("div");
-                contenedorReporte.id = "reporte-final-container";
-                document.body.insertBefore(contenedorReporte, document.body.firstChild);
-            }
-
-            contenedorReporte.innerHTML = `
-                <div style="background: #ffffff; border: 4px solid #0b3c5d; border-radius: 16px; padding: 25px; margin: 20px auto; max-width: 550px; font-family: sans-serif; box-shadow: 0px 10px 25px rgba(0,0,0,0.3); color: #1a202c; text-align: left;">
-                    <div style="text-align: center; border-bottom: 3px solid #efb810; padding-bottom: 15px; margin-bottom: 20px;">
-                        <h2 style="font-size: 1.5rem; font-weight: bold; color: #0b3c5d; margin: 0;">${metadataReporte.titulo}</h2>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <h4 style="color: #0b3c5d; margin: 0 0 5px 0;">🟢 1. ${KERNEL.idiomaActual === 'es' ? 'Punto de Partida' : 'Departure Point'}</h4>
-                        <p style="font-size: 1rem; background: #f7fafc; padding: 10px; border-left: 4px solid #48bb78; margin: 0;">${metadataReporte.fase_1_antes}</p>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <h4 style="color: #0b3c5d; margin: 0 0 5px 0;">🟡 2. ${KERNEL.idiomaActual === 'es' ? 'Bitácora de Acción' : 'Action Log'}</h4>
-                        <p style="font-size: 1rem; background: #f7fafc; padding: 10px; border-left: 4px solid #ecc94b; margin: 0;">${metadataReporte.fase_2_durante}</p>
-                    </div>
-                    <div style="margin-bottom: 20px;">
-                        <h4 style="color: #0b3c5d; margin: 0 0 5px 0;">🔵 3. ${KERNEL.idiomaActual === 'es' ? 'Consolidación' : 'Consolidation'}</h4>
-                        <p style="font-size: 1rem; background: #f7fafc; padding: 10px; border-left: 4px solid #4299e1; margin: 0;">${metadataReporte.fase_3_despues}</p>
-                    </div>
-                    <div style="text-align: center; margin-bottom: 15px;">
-                        <button onclick="window.print()" style="background: #0b3c5d; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-right: 10px;">🖨️ ${KERNEL.idiomaActual === 'es' ? 'Imprimir / PDF' : 'Print / PDF'}</button>
-                        <button onclick="document.getElementById('reporte-final-container').remove();" style="background: #e53e3e; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 8px; cursor: pointer;">❌ ${KERNEL.idiomaActual === 'es' ? 'Cerrar' : 'Close'}</button>
-                    </div>
-                    <div style="border-top: 1px solid #e2e8f0; padding-top: 10px;">
-                        <p style="font-size: 0.75rem; color: #718096; margin: 0; font-style: italic; line-height: 1.3;">${metadataReporte.pie_pagina_legal}</p>
-                    </div>
-                </div>
-            `;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    },
-
     timerInaccion: null,
     timerEnfocado: null,
     temporizadorCascada: null,
@@ -1326,163 +1246,106 @@ forzarCierre15MinutosEfectivo() {
        
         const data = await r.json();
        
-    if (data.error) { 
-        alert(data.error); 
-        document.getElementById('wrapper-form').classList.remove('hidden'); 
-        container.classList.add('hidden'); 
-        this.isLocked = false; 
-        this.validarZip(); 
-        return; 
-    } 
-
-    this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER; 
-    this.indiceMision = 0; 
-
-    // --- Captura ÚNICA de la Calidez Humana dinámica enviada por el Servidor --- 
-    let textoElegido = data.calidez_humana || (this.idiomaActual === 'es' ? "Respira profundo. Siente. Estás vivo. Respira." : "Breathe deeply. You are here. You are alive."); 
-
-    // --- Ejecuta el dictado por voz nativo único --- 
-    this.hablar(textoElegido); 
-    this.mensajeCalidezHumanaActual = textoElegido; 
-
-    // ========================================================================================== 
-    // CAMINO EXCLUSIVO 1: BIENESTAR ASISTIDO (VETERANOS, MAYORES, GOBIERNO) 
-    // Bloque aislado. No toca, no mezcla ni interfiere con las funciones antiguas. 
-    // ========================================================================================== 
-    let listaRetos = data.misiones || []; 
-    let perfilEspecialActivo = KERNEL.asistenciaEspecial?.categoria || ""; 
-
-    if (perfilEspecialActivo !== "" && listaRetos.length > 0) { 
-        console.log("Abriendo canal asistido de alta velocidad libre de mapas."); 
-        
-        // 1. Quitar formulario y abrir pantalla interactiva nativa de Open Than Go 
-        document.getElementById("wrapper-form")?.classList.add("hidden"); 
-        container.classList.remove("hidden"); 
-        
-        // 2. Extraer el primer elemento de la lista del JSON real que mandó Render 
-        let retoAsignado = listaRetos[0]; 
-        
-        // 3. Pintar los textos directo en el HTML nativo 
-        let elemTitulo = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title"); 
-        let elemDesc = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc"); 
-        
-        if (elemTitulo) elemTitulo.textContent = retoAsignado.titulo; 
-        if (elemDesc) elemDesc.textContent = retoAsignado.descripcion; 
-        
-        // 4. Activar los 15 minutos de descompresión somática 
-        this.pasosMisiones = listaRetos; 
-        if (typeof this.iniciarCiclo === 'function') { 
-            this.iniciarCiclo(); 
-        } else if (typeof this.procesarFlujoSecuencial === 'function') { 
-            this.procesarFlujoSecuencial(container); 
-        } 
-        
-        // 5. Registrar la Fase 2 (Durante) en la métrica invisible 
-        if (KERNEL.asistenciaEspecial) { 
-            KERNEL.asistenciaEspecial.capturarDurante(retoAsignado.id); 
-        } 
-        this.isLocked = false; 
-        return; // SEPARA LOS CAMINOS: El código se detiene aquí y NO rompe las funciones de abajo 
-    } 
-
-    // ========================================================================================== 
-    // CAMINO 2: FLUJO DE LOS MORTALES (CÓDIGO ORIGINAL TRADICIONAL RESTAURADO AL 100%) 
-    // Al poner el 'return' arriba, este bloque original queda protegido contra alteraciones. 
-    // ========================================================================================== 
-    if (this.tipoEscapeGlobal === "ACCION_CAMPO") { 
-        this.historialSalir = data.historial_salir_actualizado || []; 
-        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir)); 
-        this.pasosMisiones = data.misiones || []; 
-        this.mostrarOpcionesSalir(container); 
-    } 
-    // ========================================================================================== 
-    // MADO: INTERVENCIÓN DOMESTICA (MODO CASA ORIGINAL RESTAURADO AL 100%) 
-    // ========================================================================================== 
-    else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") { 
-        this.historialCasa = data.historial_casa_actualizado || []; 
-        localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa)); 
-        this.pasosMisiones = data.misiones || []; 
-        if (typeof this.mostrarOpcionesCasa === 'function') { 
-            this.mostrarOpcionesCasa(container); 
-        } else if (typeof this.procesarFlujoSecuencial === 'function') { 
-            this.procesarFlujoSecuencial(container); 
-        } 
-    }
-        
-        // 5. Registrar la Fase 2 (Durante) en tu métrica invisible de tres fases
-        if (KERNEL.asistenciaEspecial) {
-            KERNEL.asistenciaEspecial.capturarDurante(retoAsignado.id);
+        if (data.error) {
+            alert(data.error);
+            document.getElementById('wrapper-form').classList.remove('hidden');
+            container.classList.add('hidden');
+            this.isLocked = false;
+            this.validarZip();
+            return;
         }
-        
-        this.isLocked = false;
-        return; // SEPARA LOS CAMINOS: Detiene la ejecución aquí para las categorías especiales
-    }
+       
+        this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
+        this.indiceMision = 0;
+       
+        // --- Captura el 1% de Calidez Humana dinámica enviada por el Servidor ---
+        let textoElegido = data.calidez_humana || (this.idiomaActual === 'es' ? "Respira profundo. Siente. Estás vivo. Respira." : "Breathe deeply. You are here. You are alive.");
+       
+        // --- Ejecuta el dictado por voz nativo usando la calidez del Oráculo ---
+        // CORRECCIÓN: Usar el método hablar de KERNEL consistentemente
+        this.hablar(textoElegido);
+       
+        // Guardamos la calidez humana en la instancia
+        this.mensajeCalidezHumanaActual = textoElegido;
+       
+     // MADO: ACCIÓN DE CAMPO (SALIR)
+ if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
+ this.historialSalir = data.historial_salir_actualizado || [];
+ localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+ this.pasosMisiones = data.misiones || [];
+ this.mostrarOpcionesSalir(container);
+ }
+ // === CORRECCIÓN MAESTRA: SINOPSIS DE ENRUTAMIENTO PARA EL MODO CASA ===
+ // Cambiamos "INTERVENCION_DOMESTICA" por "MODO_CASA" para que enganche perfectamente con el Backend
+ else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
+ this.historialCasa = data.historial_casa_actualizado || [];
+ localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
 
-    // ==========================================================================================
-    // CAMINO 2: FLUJO DE LOS MORTALES (CÓDIGO ORIGINAL TRADICIONAL RESTAURADO AL 100%)
-    // Protegido gracias al 'return' de arriba. Mantiene tus condicionales nativos limpios.
-    // ==========================================================================================
-    if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
-        this.historialSalir = data.historial_salir_actualizado || [];
-        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-        this.pasosMisiones = data.misiones || [];
-        this.mostrarOpcionesSalir(container);
-    } 
-    // ==========================================================================================
-    // MADO: INTERVENCIÓN DOMESTICA (MODO CASA ORIGINAL RESTAURADO AL 100%)
-    // ==========================================================================================
-    else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
-        this.historialCasa = data.historial_casa_actualizado || [];
-        localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
-        this.pasosMisiones = data.misiones || [];
-        
-        if (typeof this.mostrarOpcionesCasa === 'function') {
-            this.mostrarOpcionesCasa(container);
-        } else if (typeof this.procesarFlujoSecuencial === 'function') {
+           
+            this.pasosMisiones = data.misiones || [];
             this.procesarFlujoSecuencial(container);
         }
+       
+    } catch (error) {
+        console.error("Fetch error:", error);
+        alert(this.idiomaActual === 'es'
+            ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo."
+            : "Connection error with the server. Please try again."
+        );
+        document.getElementById('wrapper-form').classList.remove('hidden');
+        container.classList.add('hidden');
+        this.isLocked = false;
+        this.validarZip();
     }
-} catch (error) {
-    console.error("Fetch error:", error);
-    alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
-    document.getElementById('wrapper-form').classList.remove('hidden');
-    container.classList.add('hidden');
-    this.isLocked = false;
-    this.validarZip();
-}
 },
 
-/**
- * Displays the 3 options for SALIR mode and waits for user selection.
- */
+    /**
+     * Displays the 3 options for SALIR mode and waits for user selection.
+     */
 mostrarOpcionesSalir(container) {
     clearInterval(this.timerEnfocado);
     clearInterval(this.salidaTimerId);
     this.speechQueue = [];
     this.isSpeaking = false;
     window.speechSynthesis.cancel();
-    
+
     const t = {
-        es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:", mapsBtn: "🗺️ GOOGLE MAPS", ytBtn: "📺 YOUTUBE", spBtn: "🎵 SPOTIFY" },
-        en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:", mapsBtn: "🗺️ GOOGLE MAPS", ytBtn: "YOUTUBE", spBtn: "SPOTIFY" }
+        es: {
+            choosePath: "ELIGE TU CAMINO DE LIBERTAD",
+            chooseOne: "Toca una opción para continuar:",
+            mapsBtn: "🗺️ GOOGLE MAPS",
+            ytBtn: "📺 YOUTUBE",
+            spBtn: "🎵 SPOTIFY"
+        },
+        en: {
+            choosePath: "CHOOSE YOUR PATH TO FREEDOM",
+            chooseOne: "Tap an option to continue:",
+            mapsBtn: "🗺️ GOOGLE MAPS",
+            ytBtn: "📺 YOUTUBE",
+            spBtn: "🎵 SPOTIFY"
+        }
     }[this.idiomaActual];
-    
+
     container.innerHTML = `
         <div class="mision-choices-container">
             <h2 class="salida-main-title" style="text-align: center; font-weight: 900; letter-spacing: 1px; color: #f8fafc; margin-top: 0;">${t.choosePath}</h2>
             <p class="salida-choose-instruction" style="text-align: center; color: #94a3b8; margin-bottom: 1.5rem;">${t.chooseOne}</p>
-            <div id="salida-options-grid" class="salida-grid" style="display: flex; flex-direction: column; gap: 0.85rem; max-width: 380px; margin: 0 auto;"></div>
+            <div id="salida-options-grid" class="salida-grid" style="display: flex; flex-direction: column; gap: 0.85rem; max-width: 380px; margin: 0 auto;">
+                <!-- Únicamente los tres rectángulos limpios originales -->
+            </div>
         </div>
     `;
-    
+
     const optionsGrid = document.getElementById('salida-options-grid');
+   
     if (Array.isArray(this.pasosMisiones) && this.pasosMisiones.length > 0) {
-        const mission = this.pasosMisiones[0];
+        const mission = this.pasosMisiones[0]; // Captura el primer elemento del cerebro central de forma segura
+       
         const linkMaps = mission.destino_coordenadas_gps || "#";
         const linkYT = mission.enlace_youtube || "#";
         const linkSpotify = mission.enlace_spotify || "#";
-        
-        // 1. RECTÁNGULO AZUL ORIGINAL: Google Maps
+
+        // 1. RECTÁNGULO AZUL ORIGINAL: Google Maps (Ocio Avanzado con Fotos y Reseñas Reales)
         const btnMaps = document.createElement('a');
         btnMaps.href = linkMaps;
         btnMaps.target = "_blank";
@@ -1491,18 +1354,8 @@ mostrarOpcionesSalir(container) {
         btnMaps.innerText = t.mapsBtn;
         btnMaps.onclick = () => this.iniciarSalidaConcreta(mission);
         optionsGrid.appendChild(btnMaps);
-        
-        // 2. RECTÁNGULO ROJO ORIGINAL: YouTube
-        const btnYT = document.createElement('a');
-        btnYT.href = linkYT;
-        btnYT.target = "_blank";
-        btnYT.className = "btn-select-salida-clean";
-        btnYT.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #dc2626; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s; box-shadow: 0 4px 6px rgba(0,0,0,0.2);";
-        btnYT.innerText = t.ytBtn;
-        btnYT.onclick = () => this.iniciarSalidaConcreta(mission);
-        optionsGrid.appendChild(btnYT);
-        
-        // 2. RECTÁNGULO ROJO ORIGINAL: YouTube
+
+        // 2. RECTÁNGULO ROJO ORIGINAL: YouTube (Sintonía de Alma con letras y videos artísticos)
         const btnYT = document.createElement('a');
         btnYT.href = linkYT;
         btnYT.target = "_blank";
@@ -2361,52 +2214,7 @@ inyectarPasarelaYAutenticacion(container) {
         this.datosLugarGlobal = null;
        
         location.reload();
-    },
-// --- ENLACE OPERATIVO DE BOTONES GIGANTES AL MOTOR CENTRAL ---
-activarRutaEspecial: function(perfilSeleccionado) {
-    // 1. Verificar si hay un código postal ingresado
-    let zipInput = document.getElementById("inp-zip");
-    if (zipInput && !zipInput.value) {
-        alert(this.idiomaActual === 'es' ? "Por favor, ingresa un Código Postal primero." : "Please enter a Zip Code first.");
-        return;
     }
-
-    let menteActual = document.getElementById("mente-selector")?.value || "aburrido";
-    this.asistenciaEspecial.capturarAntes(perfilSeleccionado, menteActual);
-    
-    let selectorPerfil = document.getElementById("perfil-selector");
-    if (selectorPerfil) {
-        if (!selectorPerfil.querySelector(`option[value="${perfilSeleccionado}"]`)) {
-            let opt = document.createElement("option");
-            opt.value = perfilSeleccionado;
-            opt.textContent = perfilSeleccionado.toUpperCase();
-            selectorPerfil.appendChild(opt);
-        }
-        selectorPerfil.value = perfilSeleccionado;
-    }
-
-    // 2. Auto-rellenar el cuadro de desahogo para asegurar la conexión limpia con Render
-    let textLibre = document.getElementById("inp-text-libre");
-    if (textLibre && !textLibre.value) {
-        textLibre.value = this.idiomaActual === 'es' ? 
-            "Activación de canal de descompresión y bienestar biopsicosocial." : 
-            "Activation of decompression channel and biopsychosocial wellbeing.";
-    }
-
-    console.log("Afluente unificado activado: " + perfilSeleccionado);
-    
-    // 3. Ejecutar el envío directo usando el motor nativo de la app
-    if (typeof this.enviarMandoIntegral === 'function') {
-        this.enviarMandoIntegral();
-    } else {
-        let btnActivar = document.getElementById("btn-activar-libre");
-        if (btnActivar) {
-            btnActivar.click();
-        }
-    }
-},
-
-
 }; // Cierre absoluto del objeto KERNEL
 
 // Optional: Placeholder for external music function if not already defined
