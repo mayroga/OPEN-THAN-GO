@@ -3,56 +3,6 @@
 // File: static/engine.js (Frontend Logic)
 
 const KERNEL = {
-    // --- GESTOR OPERATIVO DE PERFILES ASISTIDOS EN LA CORTINA NATIVA ---
-    gestionarCambioPerfilEspecial: function(perfilSeleccionado) {
-        let contenedorBoton = document.getElementById("zona-boton-gigante-asistido");
-        let btnActivarLibre = document.getElementById("btn-activar-libre");
-        
-        if (!contenedorBoton) return;
-        
-        if (["solo", "familia", "accesible"].includes(perfilSeleccionado)) {
-            contenedorBoton.classList.add("hidden");
-            contenedorBoton.innerHTML = "";
-            if (btnActivarLibre) btnActivarLibre.style.display = "block";
-            return;
-        }
-        
-        if (btnActivarLibre) btnActivarLibre.style.display = "none";
-        contenedorBoton.classList.remove("hidden");
-        
-        let configBotones = {
-            "veterano": { titulo: "🎖️ Iniciar Ruta Veteranos", bg: "#0b3c5d", border: "#002244", color: "#fff" },
-            "mayor": { titulo: "🌟 Iniciar Ruta Adulto Mayor", bg: "#efb810", border: "#b8860b", color: "#1a202c" },
-            "gobierno": { titulo: "💼 Iniciar Ruta Gobierno", bg: "#328cc1", border: "#1d5f8a", color: "#fff" }
-        };
-        
-        let cfg = configBotones[perfilSeleccionado];
-        
-        contenedorBoton.innerHTML = `
-            <button onclick="KERNEL.dispararEnvioAsistidoNat()" style="width: 100%; padding: 22px; font-size: 1.3rem; font-weight: bold; background-color: ${cfg.bg}; color: ${cfg.color}; border: 3px solid ${cfg.border}; border-radius: 12px; cursor: pointer; text-transform: uppercase; transition: transform 0.2s; box-shadow: 0 6px 15px rgba(0,0,0,0.3);">
-                ${cfg.titulo}
-            </button>
-        `;
-    },
-
-    dispararEnvioAsistidoNat: function() {
-        let zipInput = document.getElementById("inp-zip");
-        if (zipInput && !zipInput.value) {
-            alert(this.idiomaActual === 'es' ? "Por favor, ingresa un Código Postal primero." : "Please enter a Zip Code first.");
-            return;
-        }
-        
-        let textLibre = document.getElementById("inp-text-libre");
-        if (textLibre && !textLibre.value) {
-            textLibre.value = this.idiomaActual === 'es' ? "Activación de ruta prioritaria de bienestar somático." : "Activation of somatic wellness priority route.";
-        }
-        
-        let btnActivar = document.getElementById("btn-activar-libre");
-        if (btnActivar) {
-            btnActivar.click();
-        }
-    },
-    
     timerInaccion: null,
     timerEnfocado: null,
     temporizadorCascada: null,
@@ -1319,57 +1269,22 @@ forzarCierre15MinutosEfectivo() {
         this.mensajeCalidezHumanaActual = textoElegido;
        
      // MADO: ACCIÓN DE CAMPO (SALIR)
-    // ==========================================================================================
-    // INTERCEPCIÓN OPERATIVA DE RESPUESTA PARA CATEGORÍAS ESPECIALES (CASA Y SALIR)
-    // Ubicado arriba del todo para evitar congelamientos en el modo SALIR y CASA
-    // ==========================================================================================
-    let misionesServidor = data.misiones || [];
-    let perfilCortina = document.getElementById("perfil-selector")?.value || "";
+ if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
+ this.historialSalir = data.historial_salir_actualizado || [];
+ localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
+ this.pasosMisiones = data.misiones || [];
+ this.mostrarOpcionesSalir(container);
+ }
+ // === CORRECCIÓN MAESTRA: SINOPSIS DE ENRUTAMIENTO PARA EL MODO CASA ===
+ // Cambiamos "INTERVENCION_DOMESTICA" por "MODO_CASA" para que enganche perfectamente con el Backend
+ else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
+ this.historialCasa = data.historial_casa_actualizado || [];
+ localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
 
-    if (["veterano", "mayor", "gobierno"].includes(perfilCortina) && misionesServidor.length > 0) {
-        console.log("Conectando canal prioritario. Abriendo interfaz libre de mapas.");
-        
-        // 1. Ocultar el formulario centrado y abrir la pantalla interactiva nativa
-        document.getElementById("wrapper-form")?.classList.add("hidden");
-        container.classList.remove("hidden");
-        
-        // 2. Pintar los textos usando el índice real que envía tu backend en la lista
-        let tituloReto = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title");
-        let descReto = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc");
-        
-        if (tituloReto) tituloReto.textContent = misionesServidor[0].titulo;
-        if (descReto) descReto.textContent = misionesServidor[0].descripcion;
-        
-        // 3. Guardar las misiones en la instancia y arrancar el temporizador nativo
-        this.pasosMisiones = misionesServidor;
-        if (typeof this.iniciarCiclo === 'function') {
-            this.iniciarCiclo();
-        } else if (typeof this.procesarFlujoSecuencial === 'function') {
+           
+            this.pasosMisiones = data.misiones || [];
             this.procesarFlujoSecuencial(container);
         }
-        
-        this.isLocked = false;
-        return; // CORTA LA EJECUCIÓN: Evita el atasco y protege el flujo de los mortales
-    }
-
-    // ==========================================================================================
-    // MADO: ACCIÓN DE CAMPO (MODO SALIR ORIGINAL RESTAURADO AL 100% PARA LOS MORTALES)
-    // ==========================================================================================
-    if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
-        this.historialSalir = data.historial_salir_actualizado || [];
-        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
-        this.pasosMisiones = misionesServidor;
-        this.mostrarOpcionesSalir(container);
-    } 
-    // ==========================================================================================
-    // MADO: INTERVENCIÓN DOMESTICA (MODO CASA ORIGINAL RESTAURADO AL 100% PARA LOS MORTALES)
-    // ==========================================================================================
-    else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
-        this.historialCasa = data.historial_casa_actualizado || [];
-        localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
-        this.pasosMisiones = misionesServidor;
-        this.procesarFlujoSecuencial(container);
-    }
        
     } catch (error) {
         console.error("Fetch error:", error);
