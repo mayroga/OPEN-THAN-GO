@@ -636,8 +636,6 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
                 </select>
             </div>
         </div>
-            <!-- CONTENEDOR DINÁMICO EXCLUSIVO PARA EL BOTÓN GIGANTE ASISTIDO (CERO SUCIEDAD VISUAL) -->
-            <div id="zona-boton-gigante-asistido" class="hidden" style="margin: 20px auto; text-align: center; max-width: 100%; clear: both;"></div>
        
         <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent); font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
        
@@ -695,72 +693,37 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
         </svg>
     </a>
 
-<!-- ========================================================================================== -->
-<!-- SECCIÓN DE ACCESO ESPECIAL Y ALTO CONTRASTE (VETERANOS, ADULTOS MAYORES, GOBIERNO) -->
-<!-- ========================================================================================== -->
-<div id="seccion-asistencia-especial" style="margin: 30px auto; padding: 20px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 12px; text-align: center; max-width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); clear: both; display: block;">
-    <h3 style="font-size: 1.1rem; color: #fff; margin-top: 0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">
-        <span>Acceso Especial de Bienestar<br><small style="color: #aaa; font-size: 0.8rem; text-transform: none;">Special Wellness Access</small></span>
-    </h3>
-    <div style="display: flex; flex-direction: column; gap: 14px; width: 100%;">
-        <!-- Botón Gigante Veteranos -->
-        <button onclick="ASISTENCIA_ESPECIAL_CORE.iniciarCanalAsistido('veterano')" style="padding: 18px; font-size: 1.25rem; font-weight: bold; background-color: #0b3c5d; color: #ffffff; border: 2px solid #002244; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; transition: background 0.2s;">
-            🎖️ Veteranos / Veterans
-        </button>
-        <!-- Botón Gigante Adultos Mayores -->
-        <button onclick="ASISTENCIA_ESPECIAL_CORE.iniciarCanalAsistido('mayor')" style="padding: 18px; font-size: 1.25rem; font-weight: bold; background-color: #efb810; color: #1a202c; border: 2px solid #b8860b; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; transition: background 0.2s;">
-            🌟 Adulto Mayor / Senior Citizen
-        </button>
-        <!-- Botón Gigante Trabajadores del Gobierno -->
-        <button onclick="ASISTENCIA_ESPECIAL_CORE.iniciarCanalAsistido('gobierno')" style="padding: 18px; font-size: 1.25rem; font-weight: bold; background-color: #328cc1; color: #ffffff; border: 2px solid #1d5f8a; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; transition: background 0.2s;">
-            💼 Trabajador Gobierno / Gov Worker
-        </button>
-    </div>
-</div>
+    <!-- 1. DETECTOR E INTERCEPTOR DE ERRORES 404 (SVG FALLBACK) -->
+    <script>
+        document.addEventListener("error", function (e) {
+            if (e.target.tagName.toLowerCase() === "img") {
+                const src = e.target.src || "";
+                const fallbacks = {
+                    "square_breath.svg": "🔲",
+                    "silence.svg": "🤫",
+                    "gratitude.svg": "🙏",
+                    "laugh.svg": "😂",
+                    "observe.svg": "👁️",
+                    "stretch.svg": "🧘",
+                    "words.svg": "✍️",
+                    "nature_sound.svg": "🎵"
+                };
 
-<!-- 1. DETECTOR E INTERCEPTOR DE ERRORES 404 (SVG FALLBACK) -->
-<script>
-document.addEventListener("error", function (e) {
-    if (e.target.tagName.toLowerCase() === "img") {
-        const src = e.target.src || "";
-        const fallbacks = {
-            "square_breath.svg": "🔲",
-            "silence.svg": "🤫",
-            "gratitude.svg": "🙏",
-            "laugh.svg": "😂",
-            "observe.svg": "👁️",
-            "stretch.svg": "🧘",
-            "words.svg": "✍️",
-            "nature_sound.svg": "🎵"
-        };
-        for (const file in fallbacks) {
-            if (src.includes(file)) {
-                const textAnchor = document.createElement("span");
-                textAnchor.textContent = fallbacks[file];
-                textAnchor.style.fontSize = "1.5rem";
-                textAnchor.style.display = "inline-block";
-                textAnchor.style.lineHeight = "1";
-                textAnchor.className = e.target.className;
-                e.target.parentNode.replaceChild(textAnchor, e.target);
-                console.log(`Fallback activado con éxito para: ${file}`);
-                break;
+                for (const file in fallbacks) {
+                    if (src.includes(file)) {
+                        const textAnchor = document.createElement("span");
+                        textAnchor.textContent = fallbacks[file];
+                        textAnchor.style.fontSize = "1.5rem";
+                        textAnchor.style.display = "inline-block";
+                        textAnchor.style.lineHeight = "1";
+                        textAnchor.className = e.target.className;
+                       
+                        e.target.parentNode.replaceChild(textAnchor, e.target);
+                        console.log(`Fallback activado con éxito para: ${file}`);
+                        break;
+                    }
+                }
             }
-        }
-    }
-}, true);
-</script>
-
-<!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
-<script src="/static/engine.js"></script>
-<script src="/static/asistencia_especial.js"></script> <!-- <-- AGREGAMOS LA BARRA / AQUÍ -->
-
-<!-- Inicialización unificada del motor de control soberano sin alterar la inercia original -->
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-    if (typeof KERNEL !== 'undefined' && KERNEL.init) {
-        KERNEL.init();
-    }
-});
-</script>
-</body>
-</html>
+        }, true);
+    </script>
+<!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR --> <script src="/static/engine.js"></script> <!-- Inicialización unificada del motor de control soberano sin alterar la inercia original --> <script> window.addEventListener('DOMContentLoaded', () => { if (typeof KERNEL !== 'undefined' && KERNEL.init) { KERNEL.init(); } }); </script> </body> </html>
