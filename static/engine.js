@@ -1361,7 +1361,32 @@ forzarCierre15MinutosEfectivo() {
  this.historialCasa = data.historial_casa_actualizado || [];
  localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
 
-           
+         // --- DESBLOQUEO INTEGRAL PARA CANAL ESPECIAL (VETERANO, MAYOR, GOBIERNO) ---
+        if (data && data.mision && (this.asistenciaEspecial?.categoria || data.mision.id.startsWith('v_') || data.mision.id.startsWith('m_') || data.mision.id.startsWith('g_'))) {
+            console.log("Forzando apertura de interfaz asistida libre de mapas.");
+            
+            document.getElementById("wrapper-form")?.classList.add("hidden");
+            container.classList.remove("hidden");
+            
+            let tituloReto = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title");
+            let descReto = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc");
+            
+            if (tituloReto) tituloReto.textContent = data.mision.titulo;
+            if (descReto) descReto.textContent = data.mision.descripcion;
+            
+            if (typeof this.iniciarCiclo === 'function') {
+                this.iniciarCiclo();
+            } else if (typeof this.startTimer === 'function') {
+                this.startTimer();
+            }
+            
+            if (this.asistenciaEspecial) {
+                this.asistenciaEspecial.capturarDurante(data.mision.id);
+            }
+            this.isLocked = false;
+            return; 
+        }
+          
             this.pasosMisiones = data.misiones || [];
             this.procesarFlujoSecuencial(container);
         }
