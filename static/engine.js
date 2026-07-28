@@ -4,6 +4,85 @@
 // File: static/engine.js (Frontend Logic)
 
 const KERNEL = {
+        // --- CONTROLADOR DE ASISTENCIA ESPECIAL (VALOR COMERCIAL MODULAR) ---
+    asistenciaEspecial: {
+        categoria: "", 
+        faseAntes: null,
+        faseDurante: null,
+        faseDespues: null,
+
+        capturarAntes: function(categoriaSeleccionada, menteActual) {
+            this.categoria = categoriaSeleccionada;
+            this.faseAntes = { mente_inicial: menteActual, timestamp: new Date().toISOString() };
+            if (categoriaSeleccionada === "mayor") {
+                document.body.style.fontSize = "125%"; // Facilidad de lectura para adultos mayores
+            }
+        },
+
+        capturarDurante: function(misionId) {
+            this.faseDurante = { mision_activa: misionId, timestamp: new Date().toISOString() };
+        },
+
+        capturarDespuesYExportar: function(estadoRetorno) {
+            this.faseDespues = { estado_final: estadoRetorno, timestamp: new Date().toISOString() };
+            
+            fetch("/api/generar-reporte-bienestar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    categoria: this.categoria,
+                    antes: this.faseAntes,
+                    durante: this.faseDurante,
+                    despues: this.faseDespues,
+                    lang: KERNEL.idiomaActual || "es"
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success" && data.documento_metadata) {
+                    KERNEL.asistenciaEspecial.pintarReportePantalla(data.documento_metadata);
+                }
+            });
+        },
+
+        pintarReportePantalla: function(metadataReporte) {
+            let contenedorReporte = document.getElementById("reporte-final-container");
+            if (!contenedorReporte) {
+                contenedorReporte = document.createElement("div");
+                contenedorReporte.id = "reporte-final-container";
+                document.body.insertBefore(contenedorReporte, document.body.firstChild);
+            }
+
+            contenedorReporte.innerHTML = `
+                <div style="background: #ffffff; border: 4px solid #0b3c5d; border-radius: 16px; padding: 25px; margin: 20px auto; max-width: 550px; font-family: sans-serif; box-shadow: 0px 10px 25px rgba(0,0,0,0.3); color: #1a202c; text-align: left;">
+                    <div style="text-align: center; border-bottom: 3px solid #efb810; padding-bottom: 15px; margin-bottom: 20px;">
+                        <h2 style="font-size: 1.5rem; font-weight: bold; color: #0b3c5d; margin: 0;">${metadataReporte.titulo}</h2>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <h4 style="color: #0b3c5d; margin: 0 0 5px 0;">🟢 1. ${KERNEL.idiomaActual === 'es' ? 'Punto de Partida' : 'Departure Point'}</h4>
+                        <p style="font-size: 1rem; background: #f7fafc; padding: 10px; border-left: 4px solid #48bb78; margin: 0;">${metadataReporte.fase_1_antes}</p>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <h4 style="color: #0b3c5d; margin: 0 0 5px 0;">🟡 2. ${KERNEL.idiomaActual === 'es' ? 'Bitácora de Acción' : 'Action Log'}</h4>
+                        <p style="font-size: 1rem; background: #f7fafc; padding: 10px; border-left: 4px solid #ecc94b; margin: 0;">${metadataReporte.fase_2_durante}</p>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #0b3c5d; margin: 0 0 5px 0;">🔵 3. ${KERNEL.idiomaActual === 'es' ? 'Consolidación' : 'Consolidation'}</h4>
+                        <p style="font-size: 1rem; background: #f7fafc; padding: 10px; border-left: 4px solid #4299e1; margin: 0;">${metadataReporte.fase_3_despues}</p>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <button onclick="window.print()" style="background: #0b3c5d; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-right: 10px;">🖨️ ${KERNEL.idiomaActual === 'es' ? 'Imprimir / PDF' : 'Print / PDF'}</button>
+                        <button onclick="document.getElementById('reporte-final-container').remove();" style="background: #e53e3e; color: white; border: none; padding: 12px 20px; font-weight: bold; border-radius: 8px; cursor: pointer;">❌ ${KERNEL.idiomaActual === 'es' ? 'Cerrar' : 'Close'}</button>
+                    </div>
+                    <div style="border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                        <p style="font-size: 0.75rem; color: #718096; margin: 0; font-style: italic; line-height: 1.3;">${metadataReporte.pie_pagina_legal}</p>
+                    </div>
+                </div>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    },
+
     timerInaccion: null,
     timerEnfocado: null,
     temporizadorCascada: null,
@@ -2216,6 +2295,30 @@ inyectarPasarelaYAutenticacion(container) {
        
         location.reload();
     }
+    // --- ENLACE OPERATIVO DE BOTONES GIGANTES AL MOTOR CENTRAL ---
+activarRutaEspecial: function(perfilSeleccionado) {
+    let menteActual = document.getElementById("mente-selector")?.value || "aburrido";
+    this.asistenciaEspecial.capturarAntes(perfilSeleccionado, menteActual);
+    
+    let selectorPerfil = document.getElementById("perfil-selector");
+    if (selectorPerfil) {
+        if (!selectorPerfil.querySelector(`option[value="${perfilSeleccionado}"]`)) {
+            let opt = document.createElement("option");
+            opt.value = perfilSeleccionado;
+            opt.textContent = perfilSeleccionado.toUpperCase();
+            selectorPerfil.appendChild(opt);
+        }
+        selectorPerfil.value = perfilSeleccionado;
+    }
+
+    console.log("Afluente unificado activado: " + perfilSeleccionado);
+    
+    let btnActivar = document.getElementById("btn-activar-libre");
+    if (btnActivar) {
+        btnActivar.click();
+    }
+},
+
 }; // Cierre absoluto del objeto KERNEL
 
 // Optional: Placeholder for external music function if not already defined
