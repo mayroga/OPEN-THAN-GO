@@ -1311,90 +1311,69 @@ mostrarOpcionesSalir(container) {
 
     const t = {
         es: {
-            choosePath: "HACKEO MULTICANAL A LA PRISIÓN MENTAL",
-            chooseOne: "El oráculo automático ha pensado por ti. Abre la ventana que romperá tu vacío actual:",
-            mapsBtn: "🗺️ VENTANA REAL: Entornos de Ocio, Miradores, Viajes y Fotos en Directo",
-            ytBtn: "📺 SINTONÍA DE ALMA: Videos y Canciones con Letras que te Identifican",
-            spBtn: "🎵 TRASFONDO SÓNICO: Frecuencias, Ritmos y Baile para Cambiar el Cuerpo",
-            selBtn: "Fijar Ruta Abierta en el Sistema"
+            choosePath: "ELIGE TU CAMINO DE LIBERTAD",
+            chooseOne: "Toca una opción para continuar:",
+            mapsBtn: "🗺️ GOOGLE MAPS",
+            ytBtn: "📺 YOUTUBE",
+            spBtn: "🎵 SPOTIFY"
         },
         en: {
-            choosePath: "MULTICHANNEL BREAKOUT FROM THE BUBBLE",
-            chooseOne: "The system acts as your guide. Choose the freedom window that will expand your day:",
-            mapsBtn: "🗺️ REAL WINDOW: Leisure Spaces, Lookouts, Trips & Live Photos",
-            ytBtn: "📺 SOUL TUNE-IN: Videos & Songs with Meaningful Lyrics that Match You",
-            spBtn: "🎵 SONIC BACKGROUND: Frecuencies, Rhythms & Dance to Shift Your Body",
-            selBtn: "Fix Open Route in System"
+            choosePath: "CHOOSE YOUR PATH TO FREEDOM",
+            chooseOne: "Tap an option to continue:",
+            mapsBtn: "🗺️ GOOGLE MAPS",
+            ytBtn: "📺 YOUTUBE",
+            spBtn: "🎵 SPOTIFY"
         }
     }[this.idiomaActual];
 
     container.innerHTML = `
-        <div class="mision-choices-container" style="padding: 2rem; max-width: 650px; margin: 0 auto; background: #0f172a; border-radius: 12px; border: 2px solid #3b82f6;">
-            <h2 class="salida-main-title" style="text-align: center; color: #3b82f6; font-size: 1.6rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 10px rgba(59,130,246,0.3); margin-top: 0;">${t.choosePath}</h2>
-            <p class="salida-choose-instruction" style="text-align: center; color: #cbd5e1; font-size: 1.05rem; margin-bottom: 2rem; font-weight: 500;">${t.chooseOne}</p>
-            <div id="salida-options-grid" class="salida-grid" style="display: flex; flex-direction: column; gap: 1.5rem;">
-                <!-- Tarjetas de Dirección Somática Directa -->
+        <div class="mision-choices-container">
+            <h2 class="salida-main-title">${t.choosePath}</h2>
+            <p class="salida-choose-instruction">${t.chooseOne}</p>
+            <div id="salida-options-grid" class="salida-grid" style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 400px; margin: 0 auto;">
+                <!-- Las tres opciones limpias de color se inyectan aquí -->
             </div>
         </div>
     `;
 
     const optionsGrid = document.getElementById('salida-options-grid');
     
-    if (Array.isArray(this.pasosMisiones)) {
-        this.pasosMisiones.forEach((mission, index) => {
-            const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
-            const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
-            
-            const linkMaps = mission.destino_coordenadas_gps || "#";
-            const linkYT = mission.enlace_youtube || "#";
-            const linkSpotify = mission.enlace_spotify || "#";
+    if (Array.isArray(this.pasosMisiones) && this.pasosMisiones.length > 0) {
+        const mission = this.pasosMisiones[0]; // Conserva la inercia de tu misión de campo original
+        
+        const linkMaps = mission.destino_coordenadas_gps || "#";
+        const linkYT = mission.enlace_youtube || "#";
+        const linkSpotify = mission.enlace_spotify || "#";
 
-            const card = document.createElement('div');
-            card.className = 'salida-option-card-despierta';
-            card.style.background = '#1e293b';
-            card.style.padding = '1.75rem';
-            card.style.borderRadius = '10px';
-            card.style.borderLeft = '6px solid #10b981';
-            card.style.boxShadow = '0 20px 25px -5px rgba(0,0,0,0.4)';
+        // 1. RECTÁNGULO AZUL NATIVO: Google Maps (Ocio Real, Explorar, Fotos y Videos sin anuncios)
+        const btnMaps = document.createElement('a');
+        btnMaps.href = linkMaps;
+        btnMaps.target = "_blank";
+        btnMaps.className = "btn-select-salida-clean";
+        btnMaps.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #2563eb; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s;";
+        btnMaps.innerText = t.mapsBtn;
+        btnMaps.onclick = () => this.iniciarSalidaConcreta(mission);
+        optionsGrid.appendChild(btnMaps);
 
-            card.innerHTML = `
-                <h3 class="salida-option-title" style="margin-top:0; color: #10b981; font-size: 1.35rem; font-weight: 800; letter-spacing: 0.5px;">${missionTitle}</h3>
-                <p class="salida-option-desc" style="color: #94a3b8; line-height: 1.6; font-size: 1rem; margin-bottom: 1.5rem;">${missionWhatToDo}</p>
-                
-                <div class="somatic-multicanal-actions" style="display: flex; flex-direction: column; gap: 1rem;">
-                    <!-- Botón de Mapas: Modo Explore Multi-Pestaña Local Completo -->
-                    <a href="${linkMaps}" target="_blank" class="btn-somatic" style="text-decoration: none; text-align: center; padding: 0.9rem; background: #2563eb; color: white; border-radius: 8px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.2); transition: all 0.2s;">
-                        ${t.mapsBtn}
-                    </a>
-                    
-                    <!-- Botón de YouTube: Sintonizar e Identificarse con la Letra y Significado Artístico -->
-                    <a href="${linkYT}" target="_blank" class="btn-somatic" style="text-decoration: none; text-align: center; padding: 0.9rem; background: #dc2626; color: white; border-radius: 8px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 6px -1px rgba(220,38,38,0.2); transition: all 0.2s;">
-                        ${t.ytBtn}
-                    </a>
-                    
-                    <!-- Botón de Spotify: El Antídoto de Ritmo, Baile, Viaje o Frecuencias para Modificar el Panorama del Cuerpo -->
-                    <a href="${linkSpotify}" target="_blank" class="btn-somatic" style="text-decoration: none; text-align: center; padding: 0.9rem; background: #16a34a; color: white; border-radius: 8px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 6px -1px rgba(22,163,74,0.2); transition: all 0.2s;">
-                        ${t.spBtn}
-                    </a>
-                </div>
+        // 2. RECTÁNGULO ROJO NATIVO: YouTube (Sintonía de Alma, validación emocional con letra y videos artísticos)
+        const btnYT = document.createElement('a');
+        btnYT.href = linkYT;
+        btnYT.target = "_blank";
+        btnYT.className = "btn-select-salida-clean";
+        btnYT.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #dc2626; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s;";
+        btnYT.innerText = t.ytBtn;
+        btnYT.onclick = () => this.iniciarSalidaConcreta(mission);
+        optionsGrid.appendChild(btnYT);
 
-                <button class="btn-select-salida" style="width: 100%; padding: 0.85rem; background: transparent; color: #10b981; border: 2px solid #10b981; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 1.25rem; transition: all 0.2s;">
-                    ${t.selBtn}
-                </button>
-            `;
-
-            card.querySelector('.btn-select-salida').onmouseover = function() {
-                this.style.background = '#10b981';
-                this.style.color = 'white';
-            };
-            card.querySelector('.btn-select-salida').onmouseout = function() {
-                this.style.background = 'transparent';
-                this.style.color = '#10b981';
-            };
-
-            card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
-            optionsGrid.appendChild(card);
-        });
+        // 3. RECTÁNGULO VERDE NATIVO: Spotify (Antídoto de Homeostasis, frecuencias de choque, baile o viaje)
+        const btnSpotify = document.createElement('a');
+        btnSpotify.href = linkSpotify;
+        btnSpotify.target = "_blank";
+        btnSpotify.className = "btn-select-salida-clean";
+        btnSpotify.style = "display: block; text-decoration: none; text-align: center; padding: 1rem; background: #16a34a; color: white; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: transform 0.15s;";
+        btnSpotify.innerText = t.spBtn;
+        btnSpotify.onclick = () => this.iniciarSalidaConcreta(mission);
+        optionsGrid.appendChild(btnSpotify);
     }
 
     const textoOraculo = this.mensajeCalidezHumanaActual || t.chooseOne;
