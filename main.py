@@ -958,6 +958,31 @@ async def mando_integral(request: Request):
     perfil_tipo = str(payload.get("perfil", "solo")).lower()
     desahogo = str(payload.get("desahogo", "")).lower()
     lang = str(payload.get("lang", "es")).lower()
+    # ==========================================================================================
+    # ENGRANAJE INTEGRAL DE AFLUENTES ESPECIALES (VETERANO, MAYOR, GOBIERNO)
+    # ==========================================================================================
+    if perfil_tipo in ["veterano", "mayor", "gobierno"]:
+        import random
+        modo_actual = str(payload.get("modo", "SALIR")).upper()
+        if modo_actual not in ["SALIR", "CASA"]:
+            modo_actual = "SALIR"
+            
+        lista_misiones = MISIONES_CATEGORIAS_ESPECIALES[perfil_tipo][modo_actual]
+        mision_data = random.choice(lista_misiones)
+        
+        return JSONResponse({
+            "status": "success",
+            "misiones": [
+                {
+                    "id": mision_data["id"],
+                    "titulo": mision_data["titulo"] if lang == "es" else "Somatic Transformation Task",
+                    "descripcion": mision_data["descripcion"] if lang == "es" else "Focus on your breathing and biological presence.",
+                    "diagnostico_sintoma": mision_data["diagnostico_sintoma"] if lang == "es" else "Somatic stabilization.",
+                    "instruccion_fisiologica": mision_data["instruccion_fisiologica"] if lang == "es" else "Breathe naturally."
+                }
+            ],
+            "puntos_mapa": []
+        })
    
     # NEW: calidez_humana_pregunta is passed from frontend company flow
     calidez_humana_pregunta = payload.get("calidez_humana_pregunta", "")
