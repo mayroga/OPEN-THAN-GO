@@ -1326,210 +1326,196 @@ forzarCierre15MinutosEfectivo() {
        
         const data = await r.json();
        
-        if (data.error) {
-            alert(data.error);
-            document.getElementById('wrapper-form').classList.remove('hidden');
-            container.classList.add('hidden');
-            this.isLocked = false;
-            this.validarZip();
-            return;
-        }
-       
-        this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER;
-        this.indiceMision = 0;
-       
-        // --- Captura el 1% de Calidez Humana dinámica enviada por el Servidor ---
-        let textoElegido = data.calidez_humana || (this.idiomaActual === 'es' ? "Respira profundo. Siente. Estás vivo. Respira." : "Breathe deeply. You are here. You are alive.");
-       
-        // --- Ejecuta el dictado por voz nativo usando la calidez del Oráculo ---
-        // CORRECCIÓN: Usar el método hablar de KERNEL consistentemente
-        this.hablar(textoElegido);
-       
-    // Guardamos la calidez humana en la instancia
-    this.mensajeCalidezHumanaActual = textoElegido;
+    if (data.error) { 
+        alert(data.error); 
+        document.getElementById('wrapper-form').classList.remove('hidden'); 
+        container.classList.add('hidden'); 
+        this.isLocked = false; 
+        this.validarZip(); 
+        return; 
+    } 
+
+    this.tipoEscapeGlobal = data.DIRECCIONAMIENTO_MASTER; 
+    this.indiceMision = 0; 
+
+    // --- Captura ÚNICA de la Calidez Humana dinámica enviada por el Servidor --- 
+    let textoElegido = data.calidez_humana || (this.idiomaActual === 'es' ? "Respira profundo. Siente. Estás vivo. Respira." : "Breathe deeply. You are here. You are alive."); 
+
+    // --- Ejecuta el dictado por voz nativo único --- 
+    this.hablar(textoElegido); 
+    this.mensajeCalidezHumanaActual = textoElegido; 
+
+    // ========================================================================================== 
+    // CAMINO EXCLUSIVO 1: BIENESTAR ASISTIDO (VETERANOS, MAYORES, GOBIERNO) 
+    // Bloque aislado. No toca, no mezcla ni interfiere con las funciones antiguas. 
+    // ========================================================================================== 
+    let listaRetos = data.misiones || []; 
+    let perfilEspecialActivo = KERNEL.asistenciaEspecial?.categoria || ""; 
+
+    if (perfilEspecialActivo !== "" && listaRetos.length > 0) { 
+        console.log("Abriendo canal asistido de alta velocidad libre de mapas."); 
+        
+        // 1. Quitar formulario y abrir pantalla interactiva nativa de Open Than Go 
+        document.getElementById("wrapper-form")?.classList.add("hidden"); 
+        container.classList.remove("hidden"); 
+        
+        // 2. Extraer el primer elemento de la lista del JSON real que mandó Render 
+        let retoAsignado = listaRetos[0]; 
+        
+        // 3. Pintar los textos directo en el HTML nativo 
+        let elemTitulo = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title"); 
+        let elemDesc = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc"); 
+        
+        if (elemTitulo) elemTitulo.textContent = retoAsignado.titulo; 
+        if (elemDesc) elemDesc.textContent = retoAsignado.descripcion; 
+        
+        // 4. Activar los 15 minutos de descompresión somática 
+        this.pasosMisiones = listaRetos; 
+        if (typeof this.iniciarCiclo === 'function') { 
+            this.iniciarCiclo(); 
+        } else if (typeof this.procesarFlujoSecuencial === 'function') { 
+            this.procesarFlujoSecuencial(container); 
+        } 
+        
+        // 5. Registrar la Fase 2 (Durante) en la métrica invisible 
+        if (KERNEL.asistenciaEspecial) { 
+            KERNEL.asistenciaEspecial.capturarDurante(retoAsignado.id); 
+        } 
+        this.isLocked = false; 
+        return; // SEPARA LOS CAMINOS: El código se detiene aquí y NO rompe las funciones de abajo 
+    } 
+
+    // ========================================================================================== 
+    // CAMINO 2: FLUJO DE LOS MORTALES (CÓDIGO ORIGINAL TRADICIONAL RESTAURADO AL 100%) 
+    // Al poner el 'return' arriba, este bloque original queda protegido contra alteraciones. 
+    // ========================================================================================== 
+    if (this.tipoEscapeGlobal === "ACCION_CAMPO") { 
+        this.historialSalir = data.historial_salir_actualizado || []; 
+        localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir)); 
+        this.pasosMisiones = data.misiones || []; 
+        this.mostrarOpcionesSalir(container); 
+    } 
+    // ========================================================================================== 
+    // MADO: INTERVENCIÓN DOMESTICA (MODO CASA ORIGINAL RESTAURADO AL 100%) 
+    // ========================================================================================== 
+    else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") { 
+        this.historialCasa = data.historial_casa_actualizado || []; 
+        localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa)); 
+        this.pasosMisiones = data.misiones || []; 
+        if (typeof this.mostrarOpcionesCasa === 'function') { 
+            this.mostrarOpcionesCasa(container); 
+        } else if (typeof this.procesarFlujoSecuencial === 'function') { 
+            this.procesarFlujoSecuencial(container); 
+        } 
+    }
 
     // ==========================================================================================
-    // MADO: ACCIÓN DE CAMPO (MODO SALIR ORIGINAL RESTAURADO AL 100%)
+    // CAMINO EXCLUSIVO 1: BIENESTAR ASISTIDO (VETERANOS, MAYORES, GOBIERNO)
+    // Bloque aislado de alta velocidad. Se ejecuta y corta el flujo para evitar congelamientos.
+    // ==========================================================================================
+    let listaRetos = data.misiones || [];
+    let perfilEspecialActivo = KERNEL.asistenciaEspecial?.categoria || "";
+
+    if (perfilEspecialActivo !== "" && listaRetos.length > 0) {
+        console.log("Abriendo canal asistido de alta velocidad unificado de Open Than Go.");
+        
+        // 1. Ocultar formulario de carga y activar pantalla interactiva nativa
+        document.getElementById("wrapper-form")?.classList.add("hidden");
+        container.classList.remove("hidden");
+        
+        // 2. Extraer de forma segura el primer elemento de la lista nativa enviado por Render
+        let retoAsignado = listaRetos[0];
+        
+        // 3. Pintar los títulos y descripciones profesionales en tu HTML
+        let elemTitulo = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title");
+        let elemDesc = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc");
+        
+        if (elemTitulo) elemTitulo.textContent = retoAsignado.titulo;
+        if (elemDesc) elemDesc.textContent = retoAsignado.descripcion;
+        
+        // 4. Forzar el arranque del conteo del tiempo de 15 minutos de descompresión
+        this.pasosMisiones = listaRetos;
+        if (typeof this.iniciarCiclo === 'function') {
+            this.iniciarCiclo();
+        } else if (typeof this.procesarFlujoSecuencial === 'function') {
+            this.procesarFlujoSecuencial(container);
+        }
+        
+        // 5. Registrar la Fase 2 (Durante) en tu métrica invisible de tres fases
+        if (KERNEL.asistenciaEspecial) {
+            KERNEL.asistenciaEspecial.capturarDurante(retoAsignado.id);
+        }
+        
+        this.isLocked = false;
+        return; // SEPARA LOS CAMINOS: Detiene la ejecución aquí para las categorías especiales
+    }
+
+    // ==========================================================================================
+    // CAMINO 2: FLUJO DE LOS MORTALES (CÓDIGO ORIGINAL TRADICIONAL RESTAURADO AL 100%)
+    // Protegido gracias al 'return' de arriba. Mantiene tus condicionales nativos limpios.
     // ==========================================================================================
     if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
         this.historialSalir = data.historial_salir_actualizado || [];
         localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
         this.pasosMisiones = data.misiones || [];
-
-        // VERIFICACIÓN DEL CANAL ASISTIDO EN MODO SALIR (VETERANO, MAYOR, GOBIERNO)
-        let perfilActual = KERNEL.asistenciaEspecial?.categoria || "";
-        let esEspecialSalir = perfilActual !== "" && this.pasosMisiones.length > 0 && (this.pasosMisiones[0].id.startsWith('v_') || this.pasosMisiones[0].id.startsWith('m_') || this.pasosMisiones[0].id.startsWith('g_'));
-
-        if (esEspecialSalir) {
-            console.log("Desbloqueando interfaz asistida para Modo Salir.");
-            document.getElementById("wrapper-form")?.classList.add("hidden");
-            container.classList.remove("hidden");
-            
-            let elemTitulo = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title");
-            let elemDesc = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc");
-            if (elemTitulo) elemTitulo.textContent = this.pasosMisiones[0].titulo;
-            if (elemDesc) elemDesc.textContent = this.pasosMisiones[0].descripcion;
-
-            if (typeof this.iniciarCiclo === 'function') {
-                this.iniciarCiclo();
-            } else if (typeof this.procesarFlujoSecuencial === 'function') {
-                this.procesarFlujoSecuencial(container);
-            }
-
-            if (KERNEL.asistenciaEspecial) {
-                KERNEL.asistenciaEspecial.capturarDurante(this.pasosMisiones[0].id);
-            }
-            this.isLocked = false;
-        } else {
-            // Flujo nativo tradicional para los mortales en Modo Salir
-            this.mostrarOpcionesSalir(container);
-        }
+        this.mostrarOpcionesSalir(container);
     } 
-    // ==========================================================================================
-    // MADO: INTERVENCIÓN DOMESTICA (MODO CASA ORIGINAL RESTAURADO AL 100%)
-    // ==========================================================================================
     else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
         this.historialCasa = data.historial_casa_actualizado || [];
         localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
         this.pasosMisiones = data.misiones || [];
-
-        // VERIFICACIÓN DEL CANAL ASISTIDO EN MODO CASA (VETERANO, MAYOR, GOBIERNO)
-        let perfilActual = KERNEL.asistenciaEspecial?.categoria || "";
-        let esEspecialCasa = perfilActual !== "" && this.pasosMisiones.length > 0 && (this.pasosMisiones[0].id.startsWith('v_') || this.pasosMisiones[0].id.startsWith('m_') || this.pasosMisiones[0].id.startsWith('g_'));
-
-        if (esEspecialCasa) {
-            console.log("Desbloqueando interfaz asistida para Modo Casa.");
-            document.getElementById("wrapper-form")?.classList.add("hidden");
-            container.classList.remove("hidden");
-            
-            let elemTitulo = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title");
-            let elemDesc = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc");
-            if (elemTitulo) elemTitulo.textContent = this.pasosMisiones[0].titulo;
-            if (elemDesc) elemDesc.textContent = this.pasosMisiones[0].descripcion;
-
-            if (typeof this.iniciarCiclo === 'function') {
-                this.iniciarCiclo();
-            } else if (typeof this.procesarFlujoSecuencial === 'function') {
-                this.procesarFlujoSecuencial(container);
-            }
-
-            if (KERNEL.asistenciaEspecial) {
-                KERNEL.asistenciaEspecial.capturarDurante(this.pasosMisiones[0].id);
-            }
-            this.isLocked = false;
-        } else {
-            // Flujo nativo tradicional para los mortales en Modo Casa
-            if (typeof this.mostrarOpcionesCasa === 'function') {
-                this.mostrarOpcionesCasa(container);
-            } else if (typeof this.procesarFlujoSecuencial === 'function') {
-                this.procesarFlujoSecuencial(container);
-            }
-        }
-    }
-      
-     // MADO: ACCIÓN DE CAMPO (SALIR)
- if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
- this.historialSalir = data.historial_salir_actualizado || [];
- localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
- this.pasosMisiones = data.misiones || [];
- this.mostrarOpcionesSalir(container);
- }
- // === CORRECCIÓN MAESTRA: SINOPSIS DE ENRUTAMIENTO PARA EL MODO CASA ===
- // Cambiamos "INTERVENCION_DOMESTICA" por "MODO_CASA" para que enganche perfectamente con el Backend
- else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
- this.historialCasa = data.historial_casa_actualizado || [];
- localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
-
-         // --- DESBLOQUEO INTEGRAL PARA CANAL ESPECIAL (VETERANO, MAYOR, GOBIERNO) ---
-        if (data && data.mision && (this.asistenciaEspecial?.categoria || data.mision.id.startsWith('v_') || data.mision.id.startsWith('m_') || data.mision.id.startsWith('g_'))) {
-            console.log("Forzando apertura de interfaz asistida libre de mapas.");
-            
-            document.getElementById("wrapper-form")?.classList.add("hidden");
-            container.classList.remove("hidden");
-            
-            let tituloReto = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title");
-            let descReto = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc");
-            
-            if (tituloReto) tituloReto.textContent = data.mision.titulo;
-            if (descReto) descReto.textContent = data.mision.descripcion;
-            
-            if (typeof this.iniciarCiclo === 'function') {
-                this.iniciarCiclo();
-            } else if (typeof this.startTimer === 'function') {
-                this.startTimer();
-            }
-            
-            if (this.asistenciaEspecial) {
-                this.asistenciaEspecial.capturarDurante(data.mision.id);
-            }
-            this.isLocked = false;
-            return; 
-        }
-          
-            this.pasosMisiones = data.misiones || [];
+        
+        if (typeof this.mostrarOpcionesCasa === 'function') {
+            this.mostrarOpcionesCasa(container);
+        } else if (typeof this.procesarFlujoSecuencial === 'function') {
             this.procesarFlujoSecuencial(container);
         }
-       
-    } catch (error) {
-        console.error("Fetch error:", error);
-        alert(this.idiomaActual === 'es'
-            ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo."
-            : "Connection error with the server. Please try again."
-        );
-        document.getElementById('wrapper-form').classList.remove('hidden');
-        container.classList.add('hidden');
-        this.isLocked = false;
-        this.validarZip();
     }
+
+        this.pasosMisiones = data.misiones || [];
+        this.procesarFlujoSecuencial(container);
+    }
+} catch (error) {
+    console.error("Fetch error:", error);
+    alert(this.idiomaActual === 'es' ? "Error de conexión con el servidor. Por favor, inténtalo de nuevo." : "Connection error with the server. Please try again.");
+    document.getElementById('wrapper-form').classList.remove('hidden');
+    container.classList.add('hidden');
+    this.isLocked = false;
+    this.validarZip();
+}
 },
 
-    /**
-     * Displays the 3 options for SALIR mode and waits for user selection.
-     */
+/**
+ * Displays the 3 options for SALIR mode and waits for user selection.
+ */
 mostrarOpcionesSalir(container) {
     clearInterval(this.timerEnfocado);
     clearInterval(this.salidaTimerId);
     this.speechQueue = [];
     this.isSpeaking = false;
     window.speechSynthesis.cancel();
-
+    
     const t = {
-        es: {
-            choosePath: "ELIGE TU CAMINO DE LIBERTAD",
-            chooseOne: "Toca una opción para continuar:",
-            mapsBtn: "🗺️ GOOGLE MAPS",
-            ytBtn: "📺 YOUTUBE",
-            spBtn: "🎵 SPOTIFY"
-        },
-        en: {
-            choosePath: "CHOOSE YOUR PATH TO FREEDOM",
-            chooseOne: "Tap an option to continue:",
-            mapsBtn: "🗺️ GOOGLE MAPS",
-            ytBtn: "📺 YOUTUBE",
-            spBtn: "🎵 SPOTIFY"
-        }
+        es: { choosePath: "ELIGE TU CAMINO DE LIBERTAD", chooseOne: "Toca una opción para continuar:", mapsBtn: "🗺️ GOOGLE MAPS", ytBtn: "📺 YOUTUBE", spBtn: "🎵 SPOTIFY" },
+        en: { choosePath: "CHOOSE YOUR PATH TO FREEDOM", chooseOne: "Tap an option to continue:", mapsBtn: "🗺️ GOOGLE MAPS", ytBtn: "📺 YOUTUBE", spBtn: "🎵 SPOTIFY" }
     }[this.idiomaActual];
-
+    
     container.innerHTML = `
         <div class="mision-choices-container">
             <h2 class="salida-main-title" style="text-align: center; font-weight: 900; letter-spacing: 1px; color: #f8fafc; margin-top: 0;">${t.choosePath}</h2>
             <p class="salida-choose-instruction" style="text-align: center; color: #94a3b8; margin-bottom: 1.5rem;">${t.chooseOne}</p>
-            <div id="salida-options-grid" class="salida-grid" style="display: flex; flex-direction: column; gap: 0.85rem; max-width: 380px; margin: 0 auto;">
-                <!-- Únicamente los tres rectángulos limpios originales -->
-            </div>
+            <div id="salida-options-grid" class="salida-grid" style="display: flex; flex-direction: column; gap: 0.85rem; max-width: 380px; margin: 0 auto;"></div>
         </div>
     `;
-
+    
     const optionsGrid = document.getElementById('salida-options-grid');
-   
     if (Array.isArray(this.pasosMisiones) && this.pasosMisiones.length > 0) {
-        const mission = this.pasosMisiones[0]; // Captura el primer elemento del cerebro central de forma segura
-       
+        const mission = this.pasosMisiones[0];
         const linkMaps = mission.destino_coordenadas_gps || "#";
         const linkYT = mission.enlace_youtube || "#";
         const linkSpotify = mission.enlace_spotify || "#";
-
-        // 1. RECTÁNGULO AZUL ORIGINAL: Google Maps (Ocio Avanzado con Fotos y Reseñas Reales)
+        
+        // 1. RECTÁNGULO AZUL ORIGINAL: Google Maps
         const btnMaps = document.createElement('a');
         btnMaps.href = linkMaps;
         btnMaps.target = "_blank";
@@ -1538,8 +1524,8 @@ mostrarOpcionesSalir(container) {
         btnMaps.innerText = t.mapsBtn;
         btnMaps.onclick = () => this.iniciarSalidaConcreta(mission);
         optionsGrid.appendChild(btnMaps);
-
-        // 2. RECTÁNGULO ROJO ORIGINAL: YouTube (Sintonía de Alma con letras y videos artísticos)
+        
+        // 2. RECTÁNGULO ROJO ORIGINAL: YouTube
         const btnYT = document.createElement('a');
         btnYT.href = linkYT;
         btnYT.target = "_blank";
