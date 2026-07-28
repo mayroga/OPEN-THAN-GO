@@ -708,22 +708,36 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
                     "words.svg": "✍️",
                     "nature_sound.svg": "🎵"
                 };
-
-                for (const file in fallbacks) {
-                    if (src.includes(file)) {
-                        const textAnchor = document.createElement("span");
-                        textAnchor.textContent = fallbacks[file];
-                        textAnchor.style.fontSize = "1.5rem";
-                        textAnchor.style.display = "inline-block";
-                        textAnchor.style.lineHeight = "1";
-                        textAnchor.className = e.target.className;
-                       
-                        e.target.parentNode.replaceChild(textAnchor, e.target);
-                        console.log(`Fallback activado con éxito para: ${file}`);
-                        break;
-                    }
-                }
+        for (const file in fallbacks) {
+            if (src.includes(file)) {
+                const textAnchor = document.createElement("span");
+                textAnchor.textContent = fallbacks[file];
+                textAnchor.style.fontSize = "1.5rem";
+                textAnchor.style.display = "inline-block";
+                textAnchor.style.lineHeight = "1";
+                textAnchor.className = e.target.className;
+                
+                e.target.parentNode.replaceChild(textAnchor, e.target);
+                console.log(`Fallback activado con éxito para: ${file}`);
+                break;
             }
-        }, true);
-    </script>
-<!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR --> <script src="/static/engine.js"></script> <!-- Inicialización unificada del motor de control soberano sin alterar la inercia original --> <script> window.addEventListener('DOMContentLoaded', () => { if (typeof KERNEL !== 'undefined' && KERNEL.init) { KERNEL.init(); } }); </script> </body> </html>
+        }
+    }
+}, true);
+</script>
+
+<!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
+<script src="/static/engine.js"></script>
+
+<!-- Inicialización unificada del motor de control soberano sin alterar la inercia original -->
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    if (typeof KERNEL !== 'undefined' && KERNEL.init) {
+        KERNEL.init();
+    }
+});
+</script>
+
+</body>
+</html>
+                
