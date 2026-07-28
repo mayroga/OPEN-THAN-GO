@@ -1458,7 +1458,21 @@ forzarCierre15MinutosEfectivo() {
         this.historialSalir = data.historial_salir_actualizado || [];
         localStorage.setItem("otg_historial_salir", JSON.stringify(this.historialSalir));
         this.pasosMisiones = data.misiones || [];
-        this.procesarFlujoSecuencial(container);
+        this.mostrarOpcionesSalir(container);
+    } 
+    // ==========================================================================================
+    // MADO: INTERVENCIÓN DOMESTICA (MODO CASA ORIGINAL RESTAURADO AL 100%)
+    // ==========================================================================================
+    else if (this.tipoEscapeGlobal === "INTERVENCION_DOMESTICA" || this.tipoEscapeGlobal === "MODO_CASA") {
+        this.historialCasa = data.historial_casa_actualizado || [];
+        localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
+        this.pasosMisiones = data.misiones || [];
+        
+        if (typeof this.mostrarOpcionesCasa === 'function') {
+            this.mostrarOpcionesCasa(container);
+        } else if (typeof this.procesarFlujoSecuencial === 'function') {
+            this.procesarFlujoSecuencial(container);
+        }
     }
 } catch (error) {
     console.error("Fetch error:", error);
