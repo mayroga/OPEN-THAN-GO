@@ -1269,17 +1269,9 @@ async def mando_integral(request: Request):
         for m in misiones_domesticas_finales:
             historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
             
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
-            "misiones": misiones_domesticas_finales,
-            "oraculo_manifiesto": manif_humano_casa,
-            "historial_casa_actualizado": historial_casa_actualizado,
-            "forced_recovery": False,
-            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-            "drive_prohibited": False
-        })
+        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "MODO_CASA", "misiones": misiones_domesticas_finales, "oraculo_manifiesto": manif_humano_casa, "historial_casa_actualizado": historial_casa_actualizado, "forced_recovery": False, "legal_notice_es": ADVERTENCIA_LEGAL_ES, "drive_prohibited": False})
 
-        # ACCIÓN DE CAMPO (MODO SALIR) SECTORIAL CRÍTICA PARA ESTADOS UNIDOS
+        # ACCIÓN DE CAMPO (MODO SALIR) SECTORIAL CRÍTICA PARA ESTADOS UNIDOS - LÍNEA PLANA INMUNE A INDENTACIÓN
         return ejecutar_oraculo_sectorial(perfil_tipo, marca_detectada, diagnostico_sintoma_es, mente, lang, zip_code, budget, link_base, TIEMPO_EXTRA_REPOSO_SEGUNDOS, DEFAULT_NECESSITY_VECTOR, ADVERTENCIA_LEGAL_ES, ADVERTENCIA_LEGAL_EN)
 
                 # ==========================================================================================
