@@ -1347,7 +1347,38 @@ forzarCierre15MinutosEfectivo() {
        
         // Guardamos la calidez humana en la instancia
         this.mensajeCalidezHumanaActual = textoElegido;
-       
+    // --- ENTRADA DEL BLOQUE NUEVO QUE ACABAS DE COPIAR ---
+    let misionesServidor = data.misiones || [];
+    let primerReto = misionesServidor[0] || null;
+    let esCanalAsistido = primerReto && (primerReto.id.startsWith('v_') || primerReto.id.startsWith('m_') || primerReto.id.startsWith('g_') || this.asistenciaEspecial?.categoria !== "");
+
+    if (esCanalAsistido) {
+        console.log("Canal de descompresión somática unificado y conectado con éxito.");
+        
+        document.getElementById("wrapper-form")?.classList.add("hidden");
+        container.classList.remove("hidden");
+        
+        let elemTitulo = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title");
+        let elemDesc = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc");
+        
+        if (elemTitulo) elemTitulo.textContent = primerReto.titulo;
+        if (elemDesc) elemDesc.textContent = primerReto.descripcion;
+        
+        this.pasosMisiones = misionesServidor;
+        if (typeof this.iniciarCiclo === 'function') {
+            this.iniciarCiclo();
+        } else if (typeof this.procesarFlujoSecuencial === 'function') {
+            this.procesarFlujoSecuencial(container);
+        }
+        
+        if (this.asistenciaEspecial) {
+            this.asistenciaEspecial.capturarDurante(primerReto.id);
+        }
+        
+        this.isLocked = false;
+        return; 
+    }
+    // --- FIN DEL BLOQUE NUEVO ---       
      // MADO: ACCIÓN DE CAMPO (SALIR)
  if (this.tipoEscapeGlobal === "ACCION_CAMPO") {
  this.historialSalir = data.historial_salir_actualizado || [];
