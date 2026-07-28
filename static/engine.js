@@ -2295,8 +2295,15 @@ inyectarPasarelaYAutenticacion(container) {
        
         location.reload();
     },
-    // --- ENLACE OPERATIVO DE BOTONES GIGANTES AL MOTOR CENTRAL ---
+// --- ENLACE OPERATIVO DE BOTONES GIGANTES AL MOTOR CENTRAL ---
 activarRutaEspecial: function(perfilSeleccionado) {
+    // 1. Verificar si hay un código postal ingresado
+    let zipInput = document.getElementById("inp-zip");
+    if (zipInput && !zipInput.value) {
+        alert(this.idiomaActual === 'es' ? "Por favor, ingresa un Código Postal primero." : "Please enter a Zip Code first.");
+        return;
+    }
+
     let menteActual = document.getElementById("mente-selector")?.value || "aburrido";
     this.asistenciaEspecial.capturarAntes(perfilSeleccionado, menteActual);
     
@@ -2311,13 +2318,27 @@ activarRutaEspecial: function(perfilSeleccionado) {
         selectorPerfil.value = perfilSeleccionado;
     }
 
+    // 2. Auto-rellenar el cuadro de desahogo para asegurar la conexión limpia con Render
+    let textLibre = document.getElementById("inp-text-libre");
+    if (textLibre && !textLibre.value) {
+        textLibre.value = this.idiomaActual === 'es' ? 
+            "Activación de canal de descompresión y bienestar biopsicosocial." : 
+            "Activation of decompression channel and biopsychosocial wellbeing.";
+    }
+
     console.log("Afluente unificado activado: " + perfilSeleccionado);
     
-    let btnActivar = document.getElementById("btn-activar-libre");
-    if (btnActivar) {
-        btnActivar.click();
+    // 3. Ejecutar el envío directo usando el motor nativo de la app
+    if (typeof this.enviarMandoIntegral === 'function') {
+        this.enviarMandoIntegral();
+    } else {
+        let btnActivar = document.getElementById("btn-activar-libre");
+        if (btnActivar) {
+            btnActivar.click();
+        }
     }
 },
+
 
 }; // Cierre absoluto del objeto KERNEL
 
