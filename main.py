@@ -1494,59 +1494,11 @@ guia_masticada_lang = (
     else info_seleccionada.get("porque", "")
 )
 
-# ==========================================================================================
-# CONSTRUCCIÓN DEL ENLACE GOOGLE MAPS
-# ==========================================================================================
+        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "MODO_CASA", "misiones": misiones_domesticas_finales, "oraculo_manifiesto": manif_humano_casa, "historial_casa_actualizado": historial_casa_actualizado, "forced_recovery": False, "legal_notice_es": ADVERTENCIA_LEGAL_ES, "drive_prohibited": False})
 
-search_query_parts = []
+        # ACCIÓN DE CAMPO SECTORIAL INMUNE A INDENTACIÓN - EL ORÁCULO AUTOMÁTICO DE ESTADOS UNIDOS
+        return procesar_mando_libre_sectorial(perfil_tipo, marca_detectada, diagnostico_sintoma_es, mente, lang, zip_code, budget, link_base, TIEMPO_EXTRA_REPOSO_SEGUNDOS, DEFAULT_NECESSITY_VECTOR, ADVERTENCIA_LEGAL_ES, ADVERTENCIA_LEGAL_EN)
 
-if perfil_tipo == "accesible":
-    search_query_parts.append("wheelchair accessible")
-elif perfil_tipo == "familia":
-    search_query_parts.append("family friendly")
-
-search_query_parts.append(info_seleccionada.get("gps", "park"))
-
-target_link = (
-    f"{link_base}"
-    f"{urllib.parse.quote_plus('+'.join(search_query_parts))}"
-    f"+{zip_code}"
-)
-
-final_vector_necesidades = info_seleccionada.get(
-    "vector_necesidades",
-    {}
-)
-            # Usar los enlaces por defecto si no están definidos en la misión
-            enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
-            enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
-
-            # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
-            final_misiones_para_frontend.append({
-                "destino_id": info_seleccionada.get("id"),
-                "destino_titulo": titulo_ganador_lang,
-                "destino_titulo_en": (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper(),
-                "que_hacer": que_hacer_lang,
-                "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
-                "destino_entorno": donde_base_lang,
-                "destino_instruccion": guia_masticada_lang.strip(),
-                "destino_instruccion_en": info_seleccionada.get("porque_en", info_seleccionada.get("porque", "")).strip(),
-                "destino_coordenadas_gps": target_link,
-                "vector_entorno_seleccionado": final_vector_necesidades,
-                "enlace_youtube": enlace_yt,
-                "enlace_spotify": enlace_sp
-            })
-            historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
-
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "misiones": final_misiones_para_frontend,
-            "historial_salir_actualizado": historial_salir,
-            "forced_recovery": False,
-            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
-            "drive_prohibited": True
-        })
 # ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==========================================================================================
@@ -1554,7 +1506,7 @@ if __name__ == "__main__":
     port_env = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
 
-def ejecutar_oraculo_sectorial(perfil_tipo, marca_detectada, diagnostico_sintoma_es, mente, lang, zip_code, budget, link_base, TIEMPO_EXTRA_REPOSO_SEGUNDOS, DEFAULT_NECESSITY_VECTOR, ADVERTENCIA_LEGAL_ES, ADVERTENCIA_LEGAL_EN):
+def procesar_mando_libre_sectorial(perfil_tipo, marca_detectada, diagnostico_sintoma_es, mente, lang, zip_code, budget, link_base, TIEMPO_EXTRA_REPOSO_SEGUNDOS, DEFAULT_NECESSITY_VECTOR, ADVERTENCIA_LEGAL_ES, ADVERTENCIA_LEGAL_EN):
     import random, urllib.parse; from fastapi.responses import JSONResponse
     ml, sl, orig = str(marca_detectada).strip().lower(), str(diagnostico_sintoma_es).strip().lower(), (str(marca_detectada).strip().lower() if str(marca_detectada).strip() else "bucle_digital")
     m_sect = {"veterano": {"maps": ["explore+veterans+community+gardens+and+nature+sanctuaries+near+me", "explore+independent+vinyl+record+shops+near+me", "explore+panoramic+wilderness+overlooks+and+scenic+drives+near+me"], "youtube": "cinematic+peaceful+military+tribute+ambient+music+beautiful+lyrics" if lang == "en" else "musica+ambiental+pacifica+para+veteranos+letra+profunda", "spotify": "classic+rock+anthems+70s+80s+motivation+energy" if lang == "en" else "rock+clasico+historico+energia+pura"}, "anciano": {"maps": ["explore+local+botanical+greenhouses+and+wheelchair+accessible+gardens+near+me", "explore+cozy+independent+bookstores+with+reading+nooks+near+me", "explore+artisan+tea+houses+with+quiet+hidden+patios+near+me"], "youtube": "vintage+nostalgic+big+band+jazz+live+session+4k+lyrics" if lang == "en" else "musica+del+recuerdo+nostalgiia+boleros+orquesta+letras", "spotify": "relaxing+classical+piano+sonatas+peaceful+mind" if lang == "en" else "grandes+exitos+oro+retro+felicidad"}, "gobierno": {"maps": ["explore+retro+arcade+and+neon+pinball+bars+near+me", "explore+secret+rooftop+lounges+and+hidden+sunset+lookouts+near+me", "explore+sensory+deprivation+float+tank+therapy+spa+near+me"], "youtube": "lofi+synthwave+cyberpunk+escape+beats+no+stress+visuals" if lang == "en" else "synthwave+escape+de+rutina+ritmos+despiertos+visuales", "spotify": "high+energy+indie+dance+post+punk+rebellion" if lang == "en" else "electronica+vibrante+baile+rompe+bucle"}}
@@ -1569,7 +1521,7 @@ def ejecutar_oraculo_sectorial(perfil_tipo, marca_detectada, diagnostico_sintoma
     d_tit = t_en if lang == "en" else t_es
     q_hac = "Liberación autónoma ejecutada con éxito. Desfragmentando la rutina digital." if lang != "en" else "Somatic redirection fully executed. Breaking structural monotony."
     t_lnk = f"{link_base}{urllib.parse.quote_plus(q_maps)}"
-    m_biopsico = {"veterano": {"ind": "Hipervigilancia Activa y Tensión del Entorno", "ant": "85%", "des": "32%", "log": "Apertura exitosa del rincón de expectación geográfica. Reducción de la carga amigdalina."}, "anciano": {"ind": "Índice de Aislamiento Físico e Inercia de Rutina", "ant": "90%", "des": "38%", "log": "Desviación autónoma del bucle de soledad doméstica hacia oasis urbanos accesibles."}, "gobierno": {"ind": "Saturación de Estímulo Administrativo y Bloqueo Cognitivo", "ant": "88%", "des": "28%", "log": "Interrupción de la inercia burocrática mediante choque de homeocinesis de las Big Tech."}}
+    m_biopsico = {"veterano": {"ind": "Hipervigilancia Activa y Tensión del Entorno", "ant": "85%", "des": "32%", "log": "Apertura exitosa del rincón de expectación geográfica. Reducción de la carga amigdalina."}, "anciano": {"ind": "Índice de Aislamiento Físico e Inercia de Rutina", "ant": "90%", "des": "38%", "log": "Desviazión autónoma del bucle de soledad doméstica hacia oasis urbanos accesibles."}, "gobierno": {"ind": "Saturación de Estímulo Administrativo y Bloqueo Cognitivo", "ant": "88%", "des": "28%", "log": "Interrupción de la inercia burocrática mediante choque de homeocinesis de las Big Tech."}}
     s_dat = m_biopsico.get(perfil_tipo, {"ind": "Carga de Agobio y Prisión Mental Acumulada", "ant": "80%", "des": "35%", "log": "Desfragmentación del estímulo digital y apertura de ventanas de escape."})
     rep = {"token_auditoria": f"OTG-BIO-LOG-{random.randint(100000, 999999)}", "perfil_sectorial": str(perfil_tipo).upper(), "antes_ingreso": {"diagnostico_inicial": f"Burbuja Mental Activa en Estado: {str(mente).upper()}", "estimulo_bloqueante": f"Impacto de bucle por: {orig.upper()}", "medicion_linea_base": s_dat["ant"]}, "durante_intervencion": {"tiempo_vida": "15 Minutos Eficaces (900 Segundos en Segundo Plano)", "pausa_calidez_humana": f"{TIEMPO_EXTRA_REPOSO_SEGUNDOS} Segundos Añadidos de Respiro", "orquestacion": "Intercepción y Desviación Asíncrona en 3 Canales Soberanos"}, "despues_homeostasis": {"fisiologia_evaluada": s_dat["ind"], "medicion_final_esperada": s_dat["des"], "resultado_biopsicosocial": s_dat["log"]}}
     f_misiones = [{"destino_id": 999, "destino_titulo": d_tit, "destino_titulo_en": "ESCAPE ROUTE ACTIVE" if perfil_tipo != "gobierno" else "ANTI-BUREAUCRACY DEVIATION", "que_hacer": q_hac, "que_hacer_en": "Immediate breakout executed by the central processing unit.", "destino_entorno": "EJE DE REDIRECCIÓN SOMÁTICA", "destino_instruccion": "Ejecutando calibración interna automática a través de los tres mundos independientes.", "destino_instruccion_en": "Somatic redirection fully executed. Breaking structural monotony.", "destino_coordenadas_gps": t_lnk, "enlace_youtube": e_yt, "enlace_spotify": e_sp, "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True}, "diagnostico_sintoma_es": diagnostico_sintoma_es, "diagnostico_sintoma_en": diagnostico_sintoma_en}]
