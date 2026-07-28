@@ -1050,104 +1050,99 @@ async def mando_integral(request: Request):
         enlace_sp = f"{BIG_TECH_RESOURCES['spotify_base_search_url']}{urllib.parse.quote_plus(search_term_antidoto)}"
 
         # ==========================================================================================
-        # CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL (GOOGLE MAPS UNIVERSAL & SOMATIC AUDIO)
+        # CONSTRUCCIÓN DE CONSULTA DINÁMICA DE ECONOMÍA REAL - EL ORÁCULO AUTOMÁTICO MULTICANAL
         # ==========================================================================================
-        # Selector aleatorio de fase biológica profunda (Sintonía Emocional vs Antídoto de Homeostasis)
-        fase_somatica = random.choice(["sintonizar_identidad", "antidoto_homeostasis"])
+        # DETECTOR DE ESPECIALIDAD: Si el cliente habla explícitamente de buscar trabajo o empleo,
+        # la app lo asiste en su necesidad real. Si no, bloquea lo corporativo y ejecuta liberación pura.
+        pide_trabajo = any(palabra in marca_detectada.lower() or palabra in diagnostico_sintoma_es.lower() for palabra in ["trabajo", "empleo", "work", "job", "curriculum", "vacantes"])
 
-        # Diccionario de Inteligencia Emocional Avanzada para Google Maps, YouTube y Spotify
-        matriz_intencional = {
-            "ansioso": {
-                "sintonizar_identidad": {
-                    "maps": "fountains+and+quiet+lakes+gardens+scenic+viewpoints",
-                    "yt": "432hz+solfeggio+frequencies+anxiety+relief+sacred+geometry+meditation",
-                    "sp": "calm+inner+peace+healing+frequencies"
+        if pide_trabajo:
+            query_maps = f"explore+employment+agencies+and+career+recruitment+centers+near+me+in+{zip_code}"
+            enlace_yt = "https://youtube.com"
+            enlace_sp = "https://spotify.com"
+            destino_titulo_dinamico = "DIRECCIÓN DE ENFOQUE: DESARROLLO Y EMPLEO ACTIVO"
+            que_hacer_dinamico = "Canalización de recursos y herramientas para inserción laboral inmediata."
+        else:
+            # EL ADIVINO SOMÁTICO: Diversidad humana absoluta sin dogmas (Viajes, baile, miradores, expectación, ocio)
+            # Cada canal hackea un fragmento distinto de las Big Tech para suplir el vacío sin que el usuario escriba nada.
+            matriz_diversidad_total = {
+                "ansioso": {
+                    "maps": [
+                        "explore+hidden+panoramic+city+viewpoints+at+sunset+near+me",
+                        "explore+cat+cafe+or+secret+pet+sanctuaries+near+me",
+                        "explore+botanical+greenhouses+and+indoor+gardens+near+me",
+                        "explore+vintage+vinyl+record+shops+and+music+stores+near+me"
+                    ],
+                    "youtube": "cinematic+aesthetic+lofi+live+animation+session+with+deep+meaningful+lyrics",
+                    "spotify": "high+energy+70s+80s+funk+and+disco+classics+groove+dance+party"
                 },
-                "antidoto_homeostasis": {
-                    "maps": "independent+vintage+bookstores+record+shops+cozy+coffee",
-                    "yt": "upbeat+retro+funk+soul+grooves+live+session+feel+good",
-                    "sp": "vintage+funk+disco+high+vibes"
-                }
-            },
-            "estresado": {
-                "sintonizar_identidad": {
-                    "maps": "isolated+nature+reserves+hiking+trails+silent+forests",
-                    "yt": "heavy+rain+on+window+cinematic+piano+melancholy+stress+relief",
-                    "sp": "weightless+drone+ambient+deep+relaxation"
+                "estresado": {
+                    "maps": [
+                        "explore+cozy+independent+bookstores+with+hidden+patios+near+me",
+                        "explore+independent+comic+bookstores+and+retro+toy+shops+near+me",
+                        "explore+scenic+lake+drives+and+isolated+forest+parking+near+me",
+                        "explore+artisan+tea+houses+with+gardens+near+me"
+                    ],
+                    "youtube": "slow+cinematic+indie+music+video+session+melancholic+validation+lyrics",
+                    "spotify": "upbeat+bossa+nova+jazz+samba+rhythms+sunshine+escape+groove"
                 },
-                "antidoto_homeostasis": {
-                    "maps": "local+sensory+art+galleries+hidden+gardens+museums",
-                    "yt": "chillhop+lofi+beats+focus+smooth+jazz+lounge",
-                    "sp": "bossa+nova+jazz+sunset+escape"
-                }
-            },
-            "aburrido": {
-                "sintonizar_identidad": {
-                    "maps": "minimalist+structural+architectural+spaces+brutalist+plazas",
-                    "yt": "absurdist+surreal+art+films+background+ambient+glitch",
-                    "sp": "experimental+glitch+jazz+intelligent+idm"
+                "aburrido": {
+                    "maps": [
+                        "explore+classic+arcade+and+retro+pinball+venues+near+me",
+                        "explore+local+street+art+graffiti+walks+and+flea+markets+near+me",
+                        "explore+go+kart+racing+or+indoor+climbing+centers+near+me",
+                        "explore+theme+parks+and+live+entertainment+hubs+near+me"
+                    ],
+                    "youtube": "high+energy+cyberpunk+synthwave+dynamic+visual+mix+neon+art",
+                    "spotify": "indie+dance+post+punk+high+energy+dancefloor+hits"
                 },
-                "antidoto_homeostasis": {
-                    "maps": "amusement+parks+go+karts+live+music+venues+street+art+hubs",
-                    "yt": "high+energy+cyberpunk+synthwave+dynamic+visual+mix",
-                    "sp": "indie+dance+post+punk+high+energy"
-                }
-            },
-            "agotado": {
-                "sintonizar_identidad": {
-                    "maps": "scenic+lakes+quiet+public+parks+botanical+greenhouse",
-                    "yt": "deep+exhaustion+dark+ambient+aesthetic+melancholic+chords",
-                    "sp": "ambient+sleep+melancholic+isolated+piano"
+                "agotado": {
+                    "maps": [
+                        "explore+gourmet+specialty+coffee+roasters+and+pastry+shops+near+me",
+                        "explore+thermal+mineral+baths+and+relaxation+lounges+near+me",
+                        "explore+historic+hidden+cloisters+and+secret+courtyards+near+me",
+                        "explore+boutique+hotels+with+panoramic+terraces+near+me"
+                    ],
+                    "youtube": "deep+relaxation+melancholic+dark+ambient+piano+visual+chords+soothing",
+                    "spotify": "afro+house+organic+grooves+vibrant+tribal+rhythms+revival+dance"
                 },
-                "antidoto_homeostasis": {
-                    "maps": "gourmet+specialty+coffee+shops+vibrant+botanic+walks",
-                    "yt": "lofi+upbeat+groove+smooth+neo+soul+vibe",
-                    "sp": "morning+energy+organic+house+revival"
-                }
-            },
-            "cansado": {
-                "sintonizar_identidad": {
-                    "maps": "public+libraries+ancient+cloisters+silent+sanctuaries",
-                    "yt": "slow+cinematic+background+soundtrack+sad+beautiful+lyrics",
-                    "sp": "melancholy+acoustic+guitar+strings+folk"
-                },
-                "antidoto_homeostasis": {
-                    "maps": "panoramic+city+lookouts+sunset+points+beach+resorts",
-                    "yt": "synthwave+retrowave+driving+motivational+neon+mix",
-                    "sp": "indie+pop+sun+drenched+road+trip"
+                "cansado": {
+                    "maps": [
+                        "explore+interactive+sensory+modern+art+galleries+near+me",
+                        "explore+scenic+coastal+lookouts+or+mountain+passes+near+me",
+                        "explore+local+flea+markets+and+antiques+shops+near+me",
+                        "explore+independent+theaters+and+art+cinemas+near+me"
+                    ],
+                    "youtube": "acoustic+folk+live+session+intimate+performance+sad+beautiful+lyrics",
+                    "spotify": "indie+pop+road+trip+sun+drenched+motivational+anthems+freedom"
                 }
             }
-        }
 
-        # Extracción automática del núcleo operativo basado en el diagnóstico en tiempo real
-        config_actual = matriz_intencional.get(mente, matriz_intencional["aburrido"])[fase_somatica]
-        
-        gasto_key = budget if budget in ["0", "1", "2"] else "0"
-        modificador_compania = ""
-        if perfil_tipo == "familia":
-            modificador_compania = "+family+friendly"
-        elif perfil_tipo == "accesible":
-            modificador_compania = "+wheelchair+accessible"
-        elif perfil_tipo == "solo":
-            modificador_compania = "+hidden+gems"
+            config_somatico = matriz_diversidad_total.get(mente, matriz_diversidad_total["aburrido"])
+            # Selección aleatoria pura para que NUNCA repita el mismo destino o caiga en monotonía
+            termino_maps_elegido = random.choice(config_somatico["maps"])
+            
+            modificador_compania = ""
+            if perfil_tipo == "familia": modificador_compania = "+family+friendly"
+            elif perfil_tipo == "accesible": modificador_compania = "+wheelchair+accessible"
+            elif perfil_tipo == "solo": modificador_compania = "+hidden+gems"
 
-        # OPTIMIZACIÓN GOOGLE MAPS: Inyección de operadores de descubrimiento ("explore", "near+me") 
-        # Esto arranca a Google Maps en su modo visual completo, desplegando múltiples negocios, fotos, reviews e inercia real del mapa.
-        query_explore_maps = f"explore+{config_actual['maps']}{modificador_compania}+near+me+or+in+{zip_code}"
-        target_link = f"{link_base}{urllib.parse.quote_plus(query_explore_maps)}"
+            query_maps = f"{termino_maps_elegido}{modificador_compania}+in+{zip_code}"
+            enlace_yt = f"https://youtube.com{config_somatico['youtube']}"
+            enlace_sp = f"https://spotify.com{config_somatico['spotify']}"
+            destino_titulo_dinamico = f"DIRECCIÓN DE ESCAPE A: {marca_detectada.upper()}"
+            que_hacer_dinamico = "Interrupción autónoma de la burbuja rutinaria y apertura del mapa de expectación."
 
-        # AUTOMATIZACIÓN DE AUDIO INTERACTIVO: Enlaces directos que pre-cargan el estado somático exacto
-        enlace_yt = f"https://youtube.com{config_actual['yt']}"
-        enlace_sp = f"https://spotify.com{config_actual['sp']}"
+        target_link = f"{link_base}{urllib.parse.quote_plus(query_maps)}"
 
-        # Inyección segura en tu diccionario nativo de misiones
+        # Estructuración segura e inyectada en tu diccionario nativo de misiones de campo
         final_misiones_para_frontend = [{
             "destino_id": 999,
-            "destino_titulo": f"HACKEO A {marca_detectada.upper()} ({fase_somatica.upper()})",
-            "destino_titulo_en": f"HACKING {marca_detectada.upper()} ({fase_somatica.upper()})",
-            "que_hacer": "Interrupción de Control Mental y Retorno al Cuerpo.",
-            "que_hacer_en": "Mental Control Interruption & Return to Body.",
-            "destino_entorno": "PERÍMETRO DE ACCIÓN DE CAMPO",
+            "destino_titulo": destino_titulo_dinamico,
+            "destino_titulo_en": f"ESCAPE ROUTE TO: {marca_detectada.upper()}" if not pide_trabajo else "CAREER PATH DIRECTION",
+            "que_hacer": que_hacer_dinamico,
+            "que_hacer_en": "Immediate breakout from the mental prison through multichannel routing.",
+            "destino_entorno": "ZONA DE HOMEOCINESIS ACTIVA" if not pide_trabajo else "ZONA DE FOCO PROFESIONAL",
             "destino_instruccion": instruccion_fisiologica_es,
             "destino_instruccion_en": instruccion_fisiologica_en,
             "destino_coordenadas_gps": target_link,
