@@ -3,6 +3,56 @@
 // File: static/engine.js (Frontend Logic)
 
 const KERNEL = {
+    // --- GESTOR OPERATIVO DE PERFILES ASISTIDOS EN LA CORTINA NATIVA ---
+    gestionarCambioPerfilEspecial: function(perfilSeleccionado) {
+        let contenedorBoton = document.getElementById("zona-boton-gigante-asistido");
+        let btnActivarLibre = document.getElementById("btn-activar-libre");
+        
+        if (!contenedorBoton) return;
+        
+        if (["solo", "familia", "accesible"].includes(perfilSeleccionado)) {
+            contenedorBoton.classList.add("hidden");
+            contenedorBoton.innerHTML = "";
+            if (btnActivarLibre) btnActivarLibre.style.display = "block";
+            return;
+        }
+        
+        if (btnActivarLibre) btnActivarLibre.style.display = "none";
+        contenedorBoton.classList.remove("hidden");
+        
+        let configBotones = {
+            "veterano": { titulo: "🎖️ Iniciar Ruta Veteranos", bg: "#0b3c5d", border: "#002244", color: "#fff" },
+            "mayor": { titulo: "🌟 Iniciar Ruta Adulto Mayor", bg: "#efb810", border: "#b8860b", color: "#1a202c" },
+            "gobierno": { titulo: "💼 Iniciar Ruta Gobierno", bg: "#328cc1", border: "#1d5f8a", color: "#fff" }
+        };
+        
+        let cfg = configBotones[perfilSeleccionado];
+        
+        contenedorBoton.innerHTML = `
+            <button onclick="KERNEL.dispararEnvioAsistidoNat()" style="width: 100%; padding: 22px; font-size: 1.3rem; font-weight: bold; background-color: ${cfg.bg}; color: ${cfg.color}; border: 3px solid ${cfg.border}; border-radius: 12px; cursor: pointer; text-transform: uppercase; transition: transform 0.2s; box-shadow: 0 6px 15px rgba(0,0,0,0.3);">
+                ${cfg.titulo}
+            </button>
+        `;
+    },
+
+    dispararEnvioAsistidoNat: function() {
+        let zipInput = document.getElementById("inp-zip");
+        if (zipInput && !zipInput.value) {
+            alert(this.idiomaActual === 'es' ? "Por favor, ingresa un Código Postal primero." : "Please enter a Zip Code first.");
+            return;
+        }
+        
+        let textLibre = document.getElementById("inp-text-libre");
+        if (textLibre && !textLibre.value) {
+            textLibre.value = this.idiomaActual === 'es' ? "Activación de ruta prioritaria de bienestar somático." : "Activation of somatic wellness priority route.";
+        }
+        
+        let btnActivar = document.getElementById("btn-activar-libre");
+        if (btnActivar) {
+            btnActivar.click();
+        }
+    },
+    
     timerInaccion: null,
     timerEnfocado: null,
     temporizadorCascada: null,
@@ -1281,6 +1331,26 @@ forzarCierre15MinutosEfectivo() {
  this.historialCasa = data.historial_casa_actualizado || [];
  localStorage.setItem("otg_historial_casa", JSON.stringify(this.historialCasa));
 
+        // INTERCEPCIÓN OPERATIVA DE RESPUESTA PARA CATEGORÍAS ESPECIALES
+        let perfilCortina = document.getElementById("perfil-selector")?.value || "";
+        if (["veterano", "mayor", "gobierno"].includes(perfilCortina) && data.misiones && data.misiones.length > 0) {
+            console.log("Conectando canal prioritario. Abriendo interfaz libre de mapas.");
+            
+            document.getElementById("wrapper-form")?.classList.add("hidden");
+            container.classList.remove("hidden");
+            
+            let tituloReto = document.getElementById("reto-titulo") || document.getElementById("txt-interactive-title");
+            let descReto = document.getElementById("reto-descripcion") || document.getElementById("txt-interactive-desc");
+            
+            if (tituloReto) tituloReto.textContent = data.misiones[0].titulo;
+            if (descReto) descReto.textContent = data.misiones[0].descripcion;
+            
+            if (typeof this.iniciarCiclo === 'function') {
+                this.iniciarCiclo();
+            }
+            this.isLocked = false;
+            return; 
+        }
            
             this.pasosMisiones = data.misiones || [];
             this.procesarFlujoSecuencial(container);
