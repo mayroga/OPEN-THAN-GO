@@ -1344,7 +1344,6 @@ mostrarOpcionesSalir(container) {
         const missionTitle = this.idiomaActual === 'es' ? mission.destino_titulo : mission.destino_titulo_en || mission.destino_titulo;
         const missionWhatToDo = this.idiomaActual === 'es' ? mission.que_hacer : mission.que_hacer_en || mission.que_hacer;
         
-        // Extraemos de forma segura los enlaces identitarios calculados dinámicamente por tu backend
         const linkMaps = mission.destino_coordenadas_gps || "#";
         const linkYT = mission.enlace_youtube || "#";
         const linkSpotify = mission.enlace_spotify || "#";
@@ -1352,7 +1351,6 @@ mostrarOpcionesSalir(container) {
         const card = document.createElement('div');
         card.className = 'salida-option-card-multicanal';
         
-        // Estructura visual con los tres botones que pediste: Google Maps (con fotos/videos), YouTube y Spotify
         card.innerHTML = `
             <h3 class="salida-option-title">${missionTitle}</h3>
             <p class="salida-option-desc">${missionWhatToDo}</p>
@@ -1370,7 +1368,6 @@ mostrarOpcionesSalir(container) {
             <button class="btn-select-salida" style="width: 100%; margin-top: 0.5rem;">${t.selBtn}</button>
         `;
 
-        // El botón de confirmación sigue ejecutando la inercia e inicio de ruta original de tu app
         card.querySelector('.btn-select-salida').onclick = () => this.iniciarSalidaConcreta(mission);
         optionsGrid.appendChild(card);
     });
@@ -1378,7 +1375,6 @@ mostrarOpcionesSalir(container) {
     const textoOraculo = this.mensajeCalidezHumanaActual || t.chooseOne;
     this.hablar(textoOraculo);
 },
-
 
     /**
      * Initiates the 35s stabilization + 45s phrase injection for a selected SALIR mission.
