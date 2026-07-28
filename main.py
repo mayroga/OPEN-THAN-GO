@@ -1431,56 +1431,12 @@ return JSONResponse({
     "drive_prohibited": True,
     "reporte_biopsicosocial": reporte_progreso
 })
-            # ==========================================================================================
-            # MOTOR AUTOMÁTICO DE INFORMES DE EVOLUCIÓN BIOPSICOSOCIAL (VALOR COMERCIAL NETO)
-            # ==========================================================================================
-            metrica_biopsicosocial = {
-                "veterano": {
-                    "indicador_principal": "Hipervigilancia Activa y Tensión del Entorno",
-                    "antes": "85%",
-                    "esperado_despues": "32%",
-                    "logro": "Apertura exitosa del rincón de expectación geográfica. Reducción de la carga amigdalina."
-                },
-                "anciano": {
-                    "indicador_principal": "Índice de Aislamiento Físico e Inercia de Rutina",
-                    "antes": "90%",
-                    "esperado_despues": "38%",
-                    "logro": "Desviación autónoma del bucle de soledad doméstica hacia oasis urbanos accesibles."
-                },
-                "gobierno": {
-                    "indicador_principal": "Saturación de Estímulo Administrativo y Bloqueo Cognitivo",
-                    "antes": "88%",
-                    "esperado_despues": "28%",
-                    "logro": "Interrupción de la inercia burocrática mediante choque de homeocinesis de las Big Tech."
-                }
-            }
-
-            sector_data = metrica_biopsicosocial.get(perfil_tipo, {
-                "indicador_principal": "Carga de Agobio y Prisión Mental Acumulada",
-                "antes": "80%",
-                "esperado_despues": "35%",
-                "logro": "Desfragmentación del estímulo digital y apertura de ventanas de escape."
-            })
-
-            reporte_progreso = {
-                "token_auditoria": f"OTG-BIO-LOG-{random.randint(100000, 999999)}",
-                "perfil_sectorial": perfil_tipo.upper(),
-                "antes_ingreso": {
-                    "diagnostico_inicial": f"Burbuja Mental Activa en Estado: {mente.upper()}",
-                    "estimulo_bloqueante": f"Impacto de bucle por: {origen_estimulo.upper()}",
-                    "medicion_linea_base": sector_data["antes"]
-                },
-                "durante_intervencion": {
-                    "tiempo_vida": "15 Minutos Eficaces (900 Segundos en Segundo Plano)",
-                    "pausa_calidez_humana": f"{TIEMPO_EXTRA_REPOSO_SEGUNDOS} Segundos Añadidos de Respiro",
-                    "orquestacion": "Intercepción y Desviación Asíncrona en 3 Canales Soberanos"
-                },
-                "despues_homeostasis": {
-                    "fisiologia_evaluada": sector_data["indicador_principal"],
-                    "medicion_final_esperada": sector_data["medicion_final_esperada"],
-                    "resultado_biopsicosocial": sector_data["logro"]
-                }
-            }
+        # ==========================================================================================
+        # MOTOR HORIZONTAL UNIFICADO BIOPSICOSOCIAL INMUNE A INDENTACIÓN
+        # ==========================================================================================
+        m_bio = {"veterano": {"ind": "Hipervigilancia Activa y Tensión del Entorno", "ant": "85%", "des": "32%", "log": "Apertura exitosa del rincón de expectación geográfica. Reducción de la carga amigdalina."}, "anciano": {"ind": "Índice de Aislamiento Físico e Inercia de Rutina", "ant": "90%", "des": "38%", "log": "Desviación autónoma del bucle de soledad doméstica hacia oasis urbanos accesibles."}, "gobierno": {"ind": "Saturación de Estímulo Administrativo y Bloqueo Cognitivo", "ant": "88%", "des": "28%", "log": "Interrupción de la inercia burocrática mediante choque de homeocinesis de las Big Tech."}}
+        s_dat = m_bio.get(perfil_tipo, {"ind": "Carga de Agobio y Prisión Mental Acumulada", "ant": "80%", "des": "35%", "log": "Desfragmentación del estímulo digital y apertura de ventanas de escape."})
+        reporte_progreso = {"token_auditoria": f"OTG-BIO-LOG-{random.randint(100000, 999999)}", "perfil_sectorial": str(perfil_tipo).upper(), "antes_ingreso": {"diagnostico_inicial": f"Burbuja Mental Activa en Estado: {str(mente).upper()}", "estimulo_bloqueante": f"Impacto de bucle por: {origen_estimulo.upper()}", "medicion_linea_base": s_dat["ant"]}, "durante_intervencion": {"tiempo_vida": "15 Minutos Eficaces (900 Segundos en Segundo Plano)", "pausa_calidez_humana": f"{TIEMPO_EXTRA_REPOSO_SEGUNDOS} Segundos Añadidos de Respiro", "orquestacion": "Intercepción y Desviación Asíncrona en 3 Canales Soberanos"}, "despues_homeostasis": {"fisiologia_evaluada": s_dat["ind"], "medicion_final_esperada": s_dat["des"], "resultado_biopsicosocial": s_dat["log"]}}
 
             final_misiones_para_frontend = [{
                 "destino_id": 999,
