@@ -1404,10 +1404,38 @@ reporte_progreso = {
     }
 }
 
+# ==========================================================================================
+# MOTOR AUTOMÁTICO DE INFORMES DE EVOLUCIÓN BIOPSICOSOCIAL
+# ==========================================================================================
+
+rep_p = {
+    "token_auditoria": f"OTG-BIO-LOG-{random.randint(100000,999999)}",
+    "perfil_sectorial": str(perfil_tipo).upper(),
+    "antes_ingreso": {
+        "diagnostico_inicial": f"Burbuja Mental Activa en Estado: {str(mente).upper()}",
+        "estimulo_bloqueante": f"Impacto de bucle por: {str(marca_detectada).strip().lower() if str(marca_detectada).strip() else 'bucle_digital'}",
+        "medicion_linea_base": MASTER_M_BIO.get(perfil_tipo, {"ant": "80%"})["ant"]
+    },
+    "durante_intervencion": {
+        "tiempo_vida": "15 Minutos Eficaces (900 Segundos en Segundo Plano)",
+        "pausa_calidez_humana": f"{TIEMPO_EXTRA_REPOSO_SEGUNDOS} Segundos Añadidos de Respiro",
+        "orquestacion": "Intercepción y Desviación Asíncrona en 3 Canales Soberanos"
+    },
+    "despues_homeostasis": {
+        "fisiologia_evaluada": MASTER_M_BIO.get(perfil_tipo, {"ind": "Carga de Agobio Acumulada"})["ind"],
+        "medicion_final_esperada": MASTER_M_BIO.get(perfil_tipo, {"des": "35%"})["des"],
+        "resultado_biopsicosocial": MASTER_M_BIO.get(perfil_tipo, {"log": "Desfragmentación del estímulo digital y apertura de ventanas de escape."})["log"]
+    }
+}
+
+# ==========================================================================================
+# MISIÓN ENVIADA AL FRONTEND
+# ==========================================================================================
+
 final_misiones_para_frontend = [{
     "destino_id": 999,
     "destino_titulo": destino_titulo_dinamico,
-    "destino_titulo_en": "BREAKOUT DEVIATION ACTIVE",
+    "destino_titulo_en": "ESCAPE ROUTE ACTIVE" if perfil_tipo != "gobierno" else "ANTI-BUREAUCRACY DEVIATION",
     "que_hacer": que_hacer_dinamico,
     "que_hacer_en": "Immediate breakout executed by the central processing unit.",
     "destino_entorno": "EJE DE REDIRECCIÓN SOMÁTICA",
@@ -1424,6 +1452,10 @@ final_misiones_para_frontend = [{
     "diagnostico_sintoma_en": diagnostico_sintoma_en
 }]
 
+# ==========================================================================================
+# RESPUESTA JSON
+# ==========================================================================================
+
 return JSONResponse({
     "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
     "misiones": final_misiones_para_frontend,
@@ -1431,57 +1463,60 @@ return JSONResponse({
     "legal_notice_es": ADVERTENCIA_LEGAL_ES,
     "legal_notice_en": ADVERTENCIA_LEGAL_EN,
     "drive_prohibited": True,
-    "reporte_biopsicosocial": reporte_progreso
+    "reporte_biopsicosocial": rep_p
 })
-        # ==========================================================================================
-        # MOTOR HORIZONTAL UNIFICADO BIOPSICOSOCIAL INMUNE A INDENTACIÓN
-        # ==========================================================================================
-        rep_p = {"token_auditoria": f"OTG-BIO-LOG-{random.randint(100000, 999999)}", "perfil_sectorial": str(perfil_tipo).upper(), "antes_ingreso": {"diagnostico_inicial": f"Burbuja Mental Activa en Estado: {str(mente).upper()}", "estimulo_bloqueante": f"Impacto de bucle por: {str(marca_detectada).strip().lower() if str(marca_detectada).strip() else 'bucle_digital'}", "medicion_linea_base": MASTER_M_BIO.get(perfil_tipo, {"ant": "80%"})["ant"]}, "durante_intervencion": {"tiempo_vida": "15 Minutos Eficaces (900 Segundos en Segundo Plano)", "pausa_calidez_humana": f"{TIEMPO_EXTRA_REPOSO_SEGUNDOS} Segundos Añadidos de Respiro", "orquestacion": "Intercepción y Desviación Asíncrona en 3 Canales Soberanos"}, "despues_homeostasis": {"fisiologia_evaluada": MASTER_M_BIO.get(perfil_tipo, {"ind": "Carga de Agobio Acumulada"})["ind"], "medicion_final_esperada": MASTER_M_BIO.get(perfil_tipo, {"des": "35%"})["des"], "resultado_biopsicosocial": MASTER_M_BIO.get(perfil_tipo, {"log": "Desfragmentación del estímulo digital y apertura de ventanas de escape."})["log"]}}
-        return JSONResponse({"DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO", "misiones": [{"destino_id": 999, "destino_titulo": destino_titulo_dinamico, "destino_titulo_en": "ESCAPE ROUTE ACTIVE" if perfil_tipo != "gobierno" else "ANTI-BUREAUCRACY DEVIATION", "que_hacer": que_hacer_dinamico, "que_hacer_en": "Immediate breakout executed by the central processing unit.", "destino_entorno": "EJE DE REDIRECCIÓN SOMÁTICA", "destino_instruccion": "Ejecutando calibración interna automática a través de los tres mundos independientes.", "destino_instruccion_en": "Somatic redirection fully executed. Breaking structural monotony.", "destino_coordenadas_gps": target_link, "enlace_youtube": enlace_yt, "enlace_spotify": enlace_sp, "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True}, "diagnostico_sintoma_es": diagnostico_sintoma_es, "diagnostico_sintoma_en": diagnostico_sintoma_en}], "forced_recovery": True, "legal_notice_es": ADVERTENCIA_LEGAL_ES, "legal_notice_en": ADVERTENCIA_LEGAL_EN, "drive_prohibited": True, "reporte_biopsicosocial": rep_p})
 
-            final_misiones_para_frontend = [{
-                "destino_id": 999,
-                "destino_titulo": destino_titulo_dinamico,
-                "destino_titulo_en": f"ESCAPE ROUTE ACTIVE" if perfil_tipo != "gobierno" else "ANTI-BUREAUCRACY DEVIATION",
-                "que_hacer": que_hacer_dinamico,
-                "que_hacer_en": "Immediate breakout executed by the central processing unit.",
-                "destino_entorno": "EJE DE REDIRECCIÓN SOMÁTICA",
-                "destino_instruccion": "Ejecutando calibración interna automática a través de los tres mundos independientes.",
-                "destino_instruccion_en": "Somatic redirection fully executed. Breaking structural monotony.",
-                "destino_coordenadas_gps": target_link,
-                "enlace_youtube": enlace_yt,
-                "enlace_spotify": enlace_sp,
-                "vector_entorno_seleccionado": {**DEFAULT_NECESSITY_VECTOR, "homeostasis_urgente": True},
-                "diagnostico_sintoma_es": diagnostico_sintoma_es,
-                "diagnostico_sintoma_en": diagnostico_sintoma_en,
-            }]
+# ==========================================================================================
+# CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
+# ==========================================================================================
 
-            return JSONResponse({
-                "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-                "misiones": final_misiones_para_frontend,
-                "forced_recovery": True,
-                "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-                "legal_notice_en": ADVERTENCIA_LEGAL_EN,
-                "drive_prohibited": True,
-                "reporte_biopsicosocial": reporte_progreso
-            })
+titulo_ganador_lang = (
+    (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper()
+    if lang == "en"
+    else (info_seleccionada["titulo"] or "").upper()
+)
 
-            # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
-            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
-            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or ""
-            donde_base_lang = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-            guia_masticada_lang = info_seleccionada.get('porque_en', info_seleccionada.get('porque', '')) if lang == "en" else info_seleccionada.get('porque', '')
+que_hacer_lang = (
+    info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]) or ""
+    if lang == "en"
+    else info_seleccionada["que_hacer"] or ""
+)
 
-            search_query_parts = []
-            if perfil_tipo == "accesible":
-                search_query_parts.append("wheelchair accessible")
-            elif perfil_tipo == "familia":
-                search_query_parts.append("family friendly")
-               
-            search_query_parts.append(info_seleccionada.get("gps", "park"))
-            target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}"
-            final_vector_necesidades = info_seleccionada.get("vector_necesidades", {})
+donde_base_lang = (
+    info_seleccionada.get("donde_en", info_seleccionada["donde"])
+    if lang == "en"
+    else info_seleccionada["donde"]
+)
 
+guia_masticada_lang = (
+    info_seleccionada.get("porque_en", info_seleccionada.get("porque", ""))
+    if lang == "en"
+    else info_seleccionada.get("porque", "")
+)
+
+# ==========================================================================================
+# CONSTRUCCIÓN DEL ENLACE GOOGLE MAPS
+# ==========================================================================================
+
+search_query_parts = []
+
+if perfil_tipo == "accesible":
+    search_query_parts.append("wheelchair accessible")
+elif perfil_tipo == "familia":
+    search_query_parts.append("family friendly")
+
+search_query_parts.append(info_seleccionada.get("gps", "park"))
+
+target_link = (
+    f"{link_base}"
+    f"{urllib.parse.quote_plus('+'.join(search_query_parts))}"
+    f"+{zip_code}"
+)
+
+final_vector_necesidades = info_seleccionada.get(
+    "vector_necesidades",
+    {}
+)
             # Usar los enlaces por defecto si no están definidos en la misión
             enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
             enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
