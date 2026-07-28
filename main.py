@@ -191,9 +191,7 @@ MANIFIESTOS_ORACULO = {
         "que la vida es también espontaneidad y asombro. Suelta la necesidad de planificar y permite que el "
         "momento te sorprenda. Tu misión es recordar la alegría de lo impredecible."
     ]
-}
-}, # <-- COLOCA ESTA COMA AQUÍ MISMOS DESPUÉS DE TUS DOS LLAVES ORIGINALES
-
+},
 # Y PEGAS DIRECTAMENTE LAS TRES CATEGORÍAS EN ESTE FORMATO DE CONTINUACIÓN:
 "veterano": {
     "SALIR": [
