@@ -1260,16 +1260,15 @@ async def mando_integral(request: Request):
 
         # SELECCIÓN INTELIGENTE UTILIZANDO LA FUNCIÓN CASA V2 PURIFICADA
         misiones_domesticas_finales = seleccionar_misiones_casa_inteligente(
-            misiones=final_misiones_casa, # Use the prepared list
+            misiones=final_misiones_casa,  # Use the prepared list
             perfil_local=perfil_local,
             historial_casa=payload.get("historial_casa", []),
             cantidad=3
         )
-       
         historial_casa_actualizado = payload.get("historial_casa", [])
         for m in misiones_domesticas_finales:
             historial_casa_actualizado = actualizar_historial(historial_casa_actualizado, m["id"], MAX_HISTORY_CASA)
-
+            
         return JSONResponse({
             "DIRECCIONAMIENTO_MASTER": "MODO_CASA",
             "misiones": misiones_domesticas_finales,
@@ -1280,9 +1279,9 @@ async def mando_integral(request: Request):
             "drive_prohibited": False
         })
 
-            else:
-                return ejecutar_oraculo_sectorial(perfil_tipo, marca_detectada, diagnostico_sintoma_es, mente, lang, zip_code, budget, link_base, TIEMPO_EXTRA_REPOSO_SEGUNDOS, DEFAULT_NECESSITY_VECTOR, ADVERTENCIA_LEGAL_ES, ADVERTENCIA_LEGAL_EN)
-                
+        # ACCIÓN DE CAMPO (MODO SALIR) SECTORIAL CRÍTICA PARA ESTADOS UNIDOS
+        return ejecutar_oraculo_sectorial(perfil_tipo, marca_detectada, diagnostico_sintoma_es, mente, lang, zip_code, budget, link_base, TIEMPO_EXTRA_REPOSO_SEGUNDOS, DEFAULT_NECESSITY_VECTOR, ADVERTENCIA_LEGAL_ES, ADVERTENCIA_LEGAL_EN)
+
                 # ==========================================================================================
                 # CEREBRO CENTRAL UNIFICADO - INYECCIÓN SECTORIAL ADAPTATIVA (BILINGÜE Y COMPACTO)
                 # ==========================================================================================
