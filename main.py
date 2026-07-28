@@ -15,6 +15,8 @@ from fastapi import FastAPI, Request, HTTPException # HTTPException import fixed
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+MASTER_M_BIO = {"veterano": {"ind": "Hipervigilancia Activa y Tensión del Entorno", "ant": "85%", "des": "32%", "log": "Apertura exitosa del rincón de expectación geográfica. Reducción de la carga amigdalina."}, "anciano": {"ind": "Índice de Aislamiento Físico e Inercia de Rutina", "ant": "90%", "des": "38%", "log": "Desviación autónoma del bucle de soledad doméstica hacia oasis urbanos accesibles."}, "gobierno": {"ind": "Saturación de Estímulo Administrativo y Bloqueo Cognitivo", "ant": "88%", "des": "28%", "log": "Interrupción de la inercia burocrática mediante choque de homeocinesis de las Big Tech."}}
+
 # ==========================================================================================
 # INYECCIÓN CRÍTICA DE CONTROL: PASARELA STRIPE & BYPASS MAESTRO
 # ==========================================================================================
@@ -1434,8 +1436,7 @@ return JSONResponse({
         # ==========================================================================================
         # MOTOR HORIZONTAL UNIFICADO BIOPSICOSOCIAL INMUNE A INDENTACIÓN
         # ==========================================================================================
-        m_bio = {"veterano": {"ind": "Hipervigilancia Activa y Tensión del Entorno", "ant": "85%", "des": "32%", "log": "Apertura exitosa del rincón de expectación geográfica. Reducción de la carga amigdalina."}, "anciano": {"ind": "Índice de Aislamiento Físico e Inercia de Rutina", "ant": "90%", "des": "38%", "log": "Desviación autónoma del bucle de soledad doméstica hacia oasis urbanos accesibles."}, "gobierno": {"ind": "Saturación de Estímulo Administrativo y Bloqueo Cognitivo", "ant": "88%", "des": "28%", "log": "Interrupción de la inercia burocrática mediante choque de homeocinesis de las Big Tech."}}
-        s_dat = m_bio.get(perfil_tipo, {"ind": "Carga de Agobio y Prisión Mental Acumulada", "ant": "80%", "des": "35%", "log": "Desfragmentación del estímulo digital y apertura de ventanas de escape."})
+        s_dat = MASTER_M_BIO.get(perfil_tipo, {"ind": "Carga de Agobio y Prisión Mental Acumulada", "ant": "80%", "des": "35%", "log": "Desfragmentación del estímulo digital y apertura de ventanas de escape."})
         reporte_progreso = {"token_auditoria": f"OTG-BIO-LOG-{random.randint(100000, 999999)}", "perfil_sectorial": str(perfil_tipo).upper(), "antes_ingreso": {"diagnostico_inicial": f"Burbuja Mental Activa en Estado: {str(mente).upper()}", "estimulo_bloqueante": f"Impacto de bucle por: {origen_estimulo.upper()}", "medicion_linea_base": s_dat["ant"]}, "durante_intervencion": {"tiempo_vida": "15 Minutos Eficaces (900 Segundos en Segundo Plano)", "pausa_calidez_humana": f"{TIEMPO_EXTRA_REPOSO_SEGUNDOS} Segundos Añadidos de Respiro", "orquestacion": "Intercepción y Desviación Asíncrona en 3 Canales Soberanos"}, "despues_homeostasis": {"fisiologia_evaluada": s_dat["ind"], "medicion_final_esperada": s_dat["des"], "resultado_biopsicosocial": s_dat["log"]}}
 
             final_misiones_para_frontend = [{
