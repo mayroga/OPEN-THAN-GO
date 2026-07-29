@@ -65,33 +65,116 @@ PROTOCOLOS_MATRIZ_BASE = {
     }
 }
 
+# ==========================================================================================
+# MOTOR DE ASISTENCIA OPERATIVA Y ENRUTAMIENTO DE TAREAS (SEGURO, OBJETIVO Y ACCIONABLE)
+# ==========================================================================================
+
 def procesar_caso_matriz_unico(categoria, fase, parametro_problema):
-    cat = categoria if categoria in PROTOCOLOS_MATRIZ_BASE else "veteranos"
-    fs = fase if fase in ["antes", "durante", "despues"] else "antes"
-    problema = parametro_problema.strip() if parametro_problema else "Incidencia estándar sin especificar"
+    cat = str(categoria).lower().strip()
+    fs = str(fase).lower().strip()
     
-    seed_str = f"{cat}-{fs}-{problema}-{datetime.now().microsecond}"
+    # Aseguramos que el contenido sea un texto plano limpio, ideal para textos muy extensos pegados
+    problema = str(parametro_problema).lower().strip()
+    
+    # Registro de control interno estándar
+    seed_str = f"{cat}-{fs}-{datetime.now().microsecond}"
     case_id = hashlib.md5(seed_str.encode()).hexdigest()[:8].upper()
-    datos_cientificos = PROTOCOLOS_MATRIZ_BASE[cat][fs]
     
-    if cat == "veteranos":
-        if fs == "antes": instruccion = f"1. Aislar el conflicto en '{problema[:45]}...'. 2. Consignar el soporte en la oficina asignada con folio temporal."
-        elif fs == "durante": instruccion = f"1. Ajustar el trámite para '{problema[:45]}...'. 2. Validar estatus en ventanilla en un plazo de 24 horas."
-        else: instruccion = f"1. Archivar comprobante de '{problema[:45]}...'. El cauce normativo está asegurado; proceda con certeza."
-    elif cat == "adultos_mayores":
-        if fs == "antes": instruccion = f"1. Registrar la situación de '{problema[:45]}...'. 2. Solicitar atención preferente automatizada en el módulo."
-        elif fs == "durante": instruccion = f"1. Aplicar la guía paso a paso para '{problema[:45]}...'. 2. Mantener el documento de identidad a la vista."
-        else: instruccion = f"1. Concluir gestión sobre '{problema[:45]}...'. Su trámite cuenta con respaldo prioritario garantizado."
+    # Variables de salida en lenguaje ultra-sencillo (comprensible para todos)
+    guia_paso_a_paso = ""
+    sugerencia_de_lugar = ""
+    ejercicio_de_apoyo = ""
+
+    # --------------------------------------------------------------------------------------
+    # 1. PERFIL: ADULTOS MAYORES (Acciones fáciles de baja intensidad en casa o paseos planos)
+    # --------------------------------------------------------------------------------------
+    if cat == "adultos_mayores":
+        sugerencia_de_lugar = "Un espacio de la casa con buena luz natural, una silla cómoda o un parque plano sin escalones."
+        
+        # Detector inteligente de agobios específicos (casillas o texto pegado)
+        if any(w in problema for w in ["triste", "solo", "esposa", "familia", "soledad"]):
+            guia_paso_a_paso = (
+                "Misión de Acompañamiento en Casa:\n"
+                "1. Toma un vaso de agua limpia y bébelo despacio a pequeños sorbos.\n"
+                "2. Busca un objeto o recuerdo en tu habitación que te traiga un momento de paz.\n"
+                "3. Si es posible, haz una llamada corta a un amigo, vecino o familiar para saludarle hoy."
+            )
+            ejercicio_de_apoyo = "Ejercicio rápido: Siéntate derecho en una silla firme, cierra los ojos y respira lento 3 veces."
+        elif any(w in problema for w in ["cansado", "dolor", "pantalla", "luz", "fatiga"]):
+            guia_paso_a_paso = (
+                "Misión de Descanso Visual:\n"
+                "1. Apaga el televisor, radio o teléfono durante los próximos 15 minutos.\n"
+                "2. Recuéstate o descansa en tu sillón favorito manteniendo la habitación en silencio.\n"
+                "3. Masajea suavemente tus sienes con las yemas de tus dedos en círculos pequeños."
+            )
+            ejercicio_de_apoyo = "Ejercicio rápido: Mira a través de la ventana hacia el punto más lejano que alcances a ver."
+        else:
+            guia_paso_a_paso = (
+                "Misión de Activación Suave:\n"
+                "1. Ponte de pie despacio asegurándose de tener un punto de apoyo firme.\n"
+                "2. Camina a paso muy lento por el pasillo o la sala durante 5 minutos.\n"
+                "3. Abre una ventana para que entre aire fresco a la casa."
+            )
+            ejercicio_de_apoyo = "Ejercicio rápido: Mueve tus hombros hacia atrás en círculos suaves para estirar la espalda."
+
+    # --------------------------------------------------------------------------------------
+    # 2. PERFIL: VETERANOS (Acciones estructuradas y entornos muy tranquilos sin ruidos fuertes)
+    # --------------------------------------------------------------------------------------
+    elif cat == "veteranos":
+        sugerencia_de_lugar = "Lugares abiertos amplios, senderos naturales con árboles, bibliotecas silenciosas o zonas con poca gente."
+        
+        if any(w in problema for w in ["trámite", "papeleo", "burocracia", "oficina", "documento", "espera"]):
+            guia_paso_a_paso = (
+                "Ruta de Organización por Bloques:\n"
+                "1. Detén el papeleo en este momento. Deja los papeles sobre la mesa y da tres pasos hacia atrás.\n"
+                "2. Elige un solo papel o tarea para resolver hoy. Guarda todos los demás dentro de una carpeta fuera de tu vista.\n"
+                "3. Trabaja en esa única tarea durante 15 minutos exactos usando un reloj de cocina o temporizador, luego para."
+            )
+            ejercicio_de_apoyo = "Ejercicio rápido: Toma una hoja en blanco y anota un solo paso sencillo que dependa solo de ti."
+        elif any(w in problema for w in ["ruido", "alerta", "susto", "fuerte", "estruendo"]):
+            guia_paso_a_paso = (
+                "Misión de Cobertura Silenciosa:\n"
+                "1. Dirígete a la habitación más aislada y tranquila que tengas disponible inmediatamente.\n"
+                "2. Colócate audífonos con música ambiental muy suave, sonido de lluvia o utiliza tapones.\n"
+                "3. Enfoca tu mirada en un punto fijo de la pared y cuenta del 10 al 1 en voz baja de forma lenta."
+            )
+            ejercicio_de_apoyo = "Ejercicio rápido: Coloca tus manos sobre tus rodillas y presiona los pies firmemente contra el suelo."
+        else:
+            guia_paso_a_paso = (
+                "Misión de Marcha Neutra:\n"
+                "1. Sal de la habitación actual y realiza una caminata corta a paso constante durante 10 minutos.\n"
+                "2. Durante el camino, numera mentalmente 3 cosas de color verde que encuentres a tu alrededor.\n"
+                "3. Mantén una postura erguida y respira exclusivamente por la nariz."
+            )
+            ejercicio_de_apoyo = "Ejercicio rápido: Toma un sorbo de agua fresca para cambiar el estímulo de tu boca."
+
+    # --------------------------------------------------------------------------------------
+    # 3. PERFIL: TRABAJADORES DEL GOBIERNO (Límites de pantalla, pausas de oficina y descompresión)
+    # --------------------------------------------------------------------------------------
     else:
-        if fs == "antes": instruccion = f"1. Auditar parámetros críticos de '{problema[:45]}...'. 2. Bloquear ejecución hasta validar conformidad interna."
-        elif fs == "durante": instruccion = f"1. Corregir desviación en '{problema[:45]}...'. 2. Sincronizar registros con el estándar operativo vigente."
-        else: instruccion = f"1. Certificar cierre de expediente sobre '{problema[:45]}...'. Procedimiento blindado contra incidencias."
+        sugerencia_de_lugar = "Puntos de hidratación, jardines externos de la oficina, pasillos poco transitados o cafeterías tenues."
+        
+        guia_paso_a_paso = (
+            "Pausa Informativa de Oficina:\n"
+            "1. Cierra todas las pestañas de la computadora que no correspondan a la tarea de este minuto.\n"
+            "2. Ponte de pie, sepárate del escritorio y estira tus brazos hacia el techo durante 15 segundos.\n"
+            "3. Camina a buscar un vaso de agua fresca al dispensador más lejano de tu módulo de trabajo."
+        )
+        ejercicio_de_apoyo = "Ejercicio rápido: Parpadea seguido durante 10 segundos para lubricar tus ojos cansados de la pantalla."
 
     return {
-        "metadatos_sistema": {"id_caso": f"REF-{case_id}", "categoria_perfil": cat.upper(), "fase_proceso": fs.upper(), "marca_temporal": datetime.now().strftime("%Y-%m-%d %H:%M:%S")},
-        "analisis_cientifico_implicito": {"fundamento_tecnico": datos_cientificos["fundamento"], "metrica_impacto": datos_cientificos["metrica"]},
-        "parametro_ingresado": problema,
-        "instruccion_ejecutiva_directa": instruccion,
+        "metadatos_sistema": {
+            "id_caso": f"OTG-{case_id}",
+            "categoria_perfil": cat.upper(),
+            "fase_proceso": fs.upper(),
+            "marca_temporal": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        },
+        "analisis_cientifico_implicito": {
+            "fundamento_tecnico": sugerencia_de_lugar,
+            "metrica_impacto": ejercicio_de_apoyo
+        },
+        "parametro_ingresado": parametro_problema[:200],  # Guardamos un resumen corto para el historial
+        "instruccion_ejecutiva_directa": guia_paso_a_paso,
         "status": "success"
     }
 
@@ -114,6 +197,9 @@ async def api_procesar_atencion(request: Request):
     except Exception as e:
         return JSONResponse(status_code=500, content={"status": "error", "codigo": 500, "mensaje": str(e)})
 
+# ==========================================================================================
+# SERVICIO DE INTERFAZ MADRE (OPEN THAN GO HOME)
+# ==========================================================================================
 @app.get("/")
 async def index():
     return FileResponse('static/session.html')
