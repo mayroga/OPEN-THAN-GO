@@ -246,11 +246,11 @@
 </style>
 
 <script>
-    const API_URL = "/api/v1/procesar-atencion";
+    // URL ABSOLUTA UNIFICADA (Evita el error de desconexión con el servidor backend)
+    const API_URL = "https://onrender.com";
     let tagsSeleccionados = [];
     let tiempoAudioTimer = null;
 
-    // Control de las casillas rápidas de un toque
     function marcarTag(elemento, textoValor) {
         elemento.classList.toggle('seleccionado');
         if (elemento.classList.contains('seleccionado')) {
@@ -260,16 +260,12 @@
         }
     }
 
-    // Grabación simulada de audio (hasta 60 segundos)
     function iniciarGrabacionAudio() {
         const btn = document.getElementById('btn-microfono');
         const txt = document.getElementById('texto-mic');
         btn.style.backgroundColor = '#b91c1c';
         txt.innerText = "Grabando... Suelta para enviar (Máx 60s)";
-        
-        tiempoAudioTimer = setTimeout(() => {
-            detenerGrabacionAudio();
-        }, 60000);
+        tiempoAudioTimer = setTimeout(() => { detenerGrabacionAudio(); }, 60000);
     }
 
     function detenerGrabacionAudio() {
@@ -281,7 +277,7 @@
         
         const areaTexto = document.getElementById('parametroInput');
         if(areaTexto.value === "") {
-            areaTexto.value = "Mensaje de voz grabado de 60 segundos: Requiero asistencia de tarea inmediata para calmar la rutina actual.";
+            areaTexto.value = "Asistencia de voz: Requiero ayuda para mitigar el agobio de mi entorno de trabajo habitual.";
         }
     }
 
@@ -290,7 +286,12 @@
         const fase = document.getElementById('faseInput').value;
         let textoEscrito = document.getElementById('parametroInput').value.trim();
         
-        // Unimos las casillas rápidas con el texto largo
+        // Detección exacta del idioma del sistema
+        let idiomaDetectado = "es";
+        if (navigator.language && navigator.language.startsWith("en")) {
+            idiomaDetectado = "en";
+        }
+        
         let parametroFinal = "";
         if (tagsSeleccionados.length > 0) {
             parametroFinal += "[Marcado rápido: " + tagsSeleccionados.join(", ") + "] ";
@@ -298,7 +299,7 @@
         parametroFinal += textoEscrito;
         
         if (!parametroFinal.trim()) {
-            alert('Por favor, toca una casilla de arriba o escribe una situación.');
+            alert('Por favor, selecciona una casilla rápida o detalla tu situación.');
             return;
         }
         
@@ -306,27 +307,36 @@
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ categoria, fase, parametro: parametroFinal })
+                body: JSON.stringify({ 
+                    categoria: categoria, 
+                    fase: fase, 
+                    parametro: parametroFinal,
+                    lang: idiomaDetectado // Clave exacta enviada al backend en main.py
+                })
             });
             const res = await response.json();
             
             if (res.status === 'success') {
                 const rep = res.reporte;
+                const fData = rep.fases_tratamiento_bienestar;
                 
                 document.getElementById('caseIdText').textContent = rep.metadatos_sistema.id_caso;
-                document.getElementById('fundamentoText').textContent = rep.analisis_cientifico_implicito.fundamento_tecnico;
-                document.getElementById('metricaText').textContent = rep.analisis_cientifico_implicito.metrica_impacto;
-                document.getElementById('instruccionText').textContent = rep.instruccion_ejecutiva_directa;
+                document.getElementById('fase1-accion').textContent = fData.antes.pauta_accion;
+                document.getElementById('fase1-ajuste').textContent = "Ajuste del sistema: " + fData.antes.ajuste_entorno;
+                document.getElementById('fase2-tarea').textContent = fData.durante.tarea_principal;
+                document.getElementById('fase2-mapa').href = fData.durante.enlace_mapa;
+                document.getElementById('fase3-cierre').textContent = fData.despues.pauta_cierre;
+                document.getElementById('fase3-seguimiento').textContent = "Pauta futura: " + fData.despues.seguimiento_futuro;
                 
                 document.getElementById('reportCard').style.display = 'block';
                 
-                // Enviar la señal cruzada a la App Madre (Open Than Go principal)
+                // Transmisión de mensaje cruzado con claves idénticas alineadas en minúsculas
                 window.parent.postMessage({
                     identificador: "MATRIX_WIDGET_RESCUE",
                     perfil: categoria,
-                    fase: fase,
-                    instruccion: rep.instruccion_ejecutiva_directa,
-                    id_caso: rep.metadatos_sistema.id_caso
+                    instruccion: fData.durante.tarea_principal,
+                    id_caso: rep.metadatos_sistema.id_caso,
+                    lang: idiomaDetectado // Clave exacta enviada a la App Madre en engine.js
                 }, "*");
             }
         } catch (error) {
@@ -342,5 +352,6 @@
         document.querySelectorAll('.tag-opcion').forEach(el => el.classList.remove('seleccionado'));
     }
 </script>
+
 </body>
 </html>
