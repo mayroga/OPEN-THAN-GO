@@ -246,8 +246,8 @@
 </style>
 
 <script>
-    // URL ABSOLUTA UNIFICADA (Evita el error de desconexión con el servidor backend)
-    const API_URL = "https://onrender.com";
+    // CONEXIÓN FIJADA: Apunta automáticamente a tu propio dominio de Open Than Go sin importar la URL
+    const API_URL = window.location.origin + "/api/v1/procesar-atencion";
     let tagsSeleccionados = [];
     let tiempoAudioTimer = null;
 
@@ -352,6 +352,5 @@
         document.querySelectorAll('.tag-opcion').forEach(el => el.classList.remove('seleccionado'));
     }
 </script>
-
 </body>
 </html>
