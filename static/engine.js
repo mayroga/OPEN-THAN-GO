@@ -2822,6 +2822,82 @@ document.addEventListener("DOMContentLoaded", () => {
     OTG_SENSORIAL.init();
   }
 });
+// ==========================================================================================
+// OPEN THAN GO SYSTEM - Frontend Homeostasis & Cross-Origin Synchronization V.7.0.0
+// File: engine.js - INYECCIÓN DE SISTEMA CORE (Carrusel Biológico + Canal Matrix)
+// ==========================================================================================
+
+// 1. ACTIVADOR EN CASCADA PARA HOMEOSTASIS VISUAL (CARRUSEL REAL)
+KERNEL.activarCarruselEmocional = function(estadoMente) {
+    // Limpiar cualquier intervalo previo activo para evitar fugas de memoria en Render
+    if (KERNEL.carouselInterval) {
+        clearInterval(KERNEL.carouselInterval);
+    }
+
+    // Mapeo seguro del pool de imágenes nativas del KERNEL
+    const poolImagenes = KERNEL.IMAGENES_CARRUSEL ? KERNEL.IMAGENES_CARRUSEL[estadoMente] : null;
+    if (!poolImagenes || poolImagenes.length === 0) {
+        console.warn(`[Homeostasis] No se encontró un pool de imágenes válido para el estado: ${estadoMente}`);
+        return;
+    }
+
+    // Localizar nodos visuales en el DOM (Compatibilidad con session.html e index)
+    const contenedorImagen = document.querySelector(".reto-image-container img") || document.getElementById("reto-image");
+
+    if (contenedorImagen) {
+        let indexImagen = 0;
+        
+        // Configurar estilos de transición CSS nativos para suavidad visual (Evita parpadeos)
+        contenedorImagen.style.transition = "opacity 0.5s ease-in-out";
+        contenedorImagen.src = poolImagenes[indexImagen];
+        contenedorImagen.style.opacity = "1";
+        
+        // Ciclo biológico de transición automatizado cada 8 segundos
+        KERNEL.carouselInterval = setInterval(() => {
+            contenedorImagen.style.opacity = "0"; // Desvanecer
+            
+            setTimeout(() => {
+                indexImagen = (indexImagen + 1) % poolImagenes.length;
+                contenedorImagen.src = poolImagenes[indexImagen];
+                contenedorImagen.style.opacity = "1"; // Aparecer con nueva imagen curada
+            }, 500);
+        }, 8000);
+        
+        console.log(`[Homeostasis] Carrusel activado con éxito para el estado: ${estadoMente}`);
+    } else {
+        console.error("Error estructural Frontend: No se detectó el nodo visual ('#reto-image') en el DOM.");
+    }
+};
+
+// 2. RECEPTOR DE SEÑALES PARA LA VENTANILLA / WIDGET EXTERNO INTER-ESTRUCTURAS
+window.addEventListener("message", function(event) {
+    // Validación de seguridad de la estructura del payload entrante
+    if (event.data && event.data.identificador === "MATRIX_WIDGET_RESCUE") {
+        console.log(`[Matrix Core] Mensaje inter-origen interceptado con éxito. Caso: ${event.data.id_caso}`);
+        
+        // Forzar mitigación inmediata del sistema nervioso asignando estado ansioso
+        KERNEL.menteActual = "ansioso";
+        
+        // Cambiar la visualización de la interfaz madre para pintar los datos del caso
+        const cajaTitulo = document.getElementById("destino-titulo") || document.querySelector(".mision-header h3");
+        const cajaCuerpo = document.getElementById("que-hacer-texto") || document.querySelector(".mision-body p");
+        const cajaRef = document.getElementById("caseIdText") || document.getElementById("oraculo-ref");
+        
+        if (cajaTitulo) cajaTitulo.innerText = `PERFIL: ${event.data.perfil.toUpperCase()}`;
+        if (cajaCuerpo) cajaCuerpo.innerText = event.data.instruccion;
+        if (cajaRef) cajaRef.innerText = `ID CASO: ${event.data.id_caso}`;
+        
+        // Disparar las dos herramientas somáticas integradas
+        if (typeof KERNEL.activarCarruselEmocional === 'function') {
+            KERNEL.activarCarruselEmocional(KERNEL.menteActual);
+        }
+        
+        if (typeof KERNEL.reproducirVozHumana === 'function') {
+            // Ejecutar pauta por altavoz a velocidad humana controlada (0.95) para inducir calma
+            KERNEL.reproducirVozHumana(event.data.instruccion, KERNEL.VELOCIDAD_VOZ_HUMANA || 0.95);
+        }
+    }
+}, false);
 
 // SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
 // ESTAS DOS LÍNEAS DE ABAJO DEBEN SER LAS ÚNICAS QUE CIERREN TODO TU ARCHIVO ENGINE.JS:
