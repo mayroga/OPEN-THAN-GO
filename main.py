@@ -1299,18 +1299,39 @@ async def mando_integral(request: Request):
             })
             historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "misiones": final_misiones_para_frontend,
-            "historial_salir_actualizado": historial_salir,
-            "forced_recovery": False,
-            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
-            "drive_prohibited": True
-        })
+    return JSONResponse({
+        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+        "misiones": final_misiones_para_frontend,
+        "historial_salir_actualizado": historial_salir,
+        "forced_recovery": False,
+        "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+        "legal_notice_en": ADVERTENCIA_LEGAL_EN,
+        "drive_prohibited": True
+    })
+
+# ==========================================================================================
+# AFLUENTES SEPARADOS: ENTORNO AUTÓNOMO PARA PERFILES ESPECIALES (CERO INTERFERENCIAS)
+# ==========================================================================================
+
+@app.get("/perfiles")
+async def navegar_perfiles_especiales():
+    """
+    Sirve el nuevo archivo de interfaz bilingüe e independiente perfiles.html.
+    Mantiene la sección especial totalmente aislada del Open Than Go tradicional.
+    """
+    return FileResponse('static/perfiles.html')
+
+@app.get("/")
+async def index():
+    """
+    Servicio base que mantiene la inercia original de session.html intacta.
+    """
+    return FileResponse('static/session.html')
+
 # ==========================================================================================
 # APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
 # ==========================================================================================
 if __name__ == "__main__":
+    import uvicorn
     port_env = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False
+    uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
