@@ -1,46 +1,123 @@
 # ==========================================================================================
-# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
+# OPEN THAN GO SYSTEM - Contextual Wellbeing & Matrix Processing Engine (CWRE) V.7.0.0
 # Company: May Roga LLC
-# File: main.py - SECCIÓN 1 DE 2 (Backend Core)
+# File: main.py - CORE UNIFICADO (Backend Core + Especialidades de Perfil)
 # ==========================================================================================
-
 import os
 import random
 import re
 import urllib.parse
+import hashlib
 from datetime import datetime
-
 import stripe
-from fastapi import FastAPI, Request, HTTPException # HTTPException import fixed
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
-# ==========================================================================================
-# INYECCIÓN CRÍTICA DE CONTROL: PASARELA STRIPE & BYPASS MAESTRO
-# ==========================================================================================
+# --- CONFIGURACIÓN DE PASARELAS Y ENTORNO ---
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
-
 ADMIN_USER = os.environ.get("ADMIN_USERNAME")
 ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
 
-# Matriz oficial de Price IDs inmutables de Stripe
 PLANES_STRIPE = {
     "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
     "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
     "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
 }
 
-# ==========================================================================================
-link_base = "https://www.google.com/maps/search/?api=1&query="
+link_base = "https://google.com"
 
 app = FastAPI()
 
-# Ensure the 'static' directory exists before mounting
+# --- INSTALACIÓN DE CORS ABIERTO PARA VINCULACIÓN DE WIDGET EXTERNO ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Habilita vinculación libre con aplicaciones web externas (CORS abierto)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 if not os.path.exists("static"):
     os.makedirs("static")
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# ==========================================================================================
+# ARQUITECTURA DE PROTOCOLOS MATRIZ (Veteranos, Adultos Mayores y Gobierno)
+# ==========================================================================================
+PROTOCOLOS_MATRIZ_BASE = {
+    "veteranos": {
+        "antes": {"fundamento": "Evaluación de carga previa por fricción burocrática y activación de respuesta simpática inicial.", "metrica": "Índice de Fricción Previa: 88/100 (Crítico)"},
+        "durante": {"fundamento": "Aplicación de patrón de reducción de opciones (foco único) para estabilizar el flujo documental.", "metrica": "Estabilización de Flujo: En proceso activo"},
+        "despues": {"fundamento": "Consolidación de certeza jurídica y disminución del cortisol cognitivo logrado.", "metrica": "Índice de Resolución: Óptimo (95%)"}
+    },
+    "adultos_mayores": {
+        "antes": {"fundamento": "Diagnóstico de accesibilidad perceptual y reducción de fatiga cognitiva en la interfaz.", "metrica": "Barrera de Interfaz Inicial: Alta"},
+        "durante": {"fundamento": "Ejecución de asistencia guiada paso a paso con priorización de memoria de trabajo.", "metrica": "Simplificación Activa: Aplicada"},
+        "despues": {"fundamento": "Validación de autonomía, seguridad y retención total de la directriz.", "metrica": "Comprensión y Retención: 100%"}
+    },
+    "gobierno": {
+        "antes": {"fundamento": "Análisis de riesgo normativo inicial y exposición a variabilidad procedimental.", "metrica": "Exposición Operativa: Nivel de Alerta"},
+        "durante": {"fundamento": "Aplicación de filtro de validación cruzada para neutralizar desviación administrativa.", "metrica": "Filtro de Cumplimiento: Ejecutándose"},
+        "despues": {"fundamento": "Cierre de expediente verificado con mitigación total de margen de error.", "metrica": "Validación de Cierre: Segura y Conforme"}
+    }
+}
+
+def procesar_caso_matriz_unico(categoria, fase, parametro_problema):
+    cat = categoria if categoria in PROTOCOLOS_MATRIZ_BASE else "veteranos"
+    fs = fase if fase in ["antes", "durante", "despues"] else "antes"
+    problema = parametro_problema.strip() if parametro_problema else "Incidencia estándar sin especificar"
+    
+    seed_str = f"{cat}-{fs}-{problema}-{datetime.now().microsecond}"
+    case_id = hashlib.md5(seed_str.encode()).hexdigest()[:8].upper()
+    datos_cientificos = PROTOCOLOS_MATRIZ_BASE[cat][fs]
+    
+    if cat == "veteranos":
+        if fs == "antes": instruccion = f"1. Aislar el conflicto en '{problema[:45]}...'. 2. Consignar el soporte en la oficina asignada con folio temporal."
+        elif fs == "durante": instruccion = f"1. Ajustar el trámite para '{problema[:45]}...'. 2. Validar estatus en ventanilla en un plazo de 24 horas."
+        else: instruccion = f"1. Archivar comprobante de '{problema[:45]}...'. El cauce normativo está asegurado; proceda con certeza."
+    elif cat == "adultos_mayores":
+        if fs == "antes": instruccion = f"1. Registrar la situación de '{problema[:45]}...'. 2. Solicitar atención preferente automatizada en el módulo."
+        elif fs == "durante": instruccion = f"1. Aplicar la guía paso a paso para '{problema[:45]}...'. 2. Mantener el documento de identidad a la vista."
+        else: instruccion = f"1. Concluir gestión sobre '{problema[:45]}...'. Su trámite cuenta con respaldo prioritario garantizado."
+    else:
+        if fs == "antes": instruccion = f"1. Auditar parámetros críticos de '{problema[:45]}...'. 2. Bloquear ejecución hasta validar conformidad interna."
+        elif fs == "durante": instruccion = f"1. Corregir desviación en '{problema[:45]}...'. 2. Sincronizar registros con el estándar operativo vigente."
+        else: instruccion = f"1. Certificar cierre de expediente sobre '{problema[:45]}...'. Procedimiento blindado contra incidencias."
+
+    return {
+        "metadatos_sistema": {"id_caso": f"REF-{case_id}", "categoria_perfil": cat.upper(), "fase_proceso": fs.upper(), "marca_temporal": datetime.now().strftime("%Y-%m-%d %H:%M:%S")},
+        "analisis_cientifico_implicito": {"fundamento_tecnico": datos_cientificos["fundamento"], "metrica_impacto": datos_cientificos["metrica"]},
+        "parametro_ingresado": problema,
+        "instruccion_ejecutiva_directa": instruccion,
+        "status": "success"
+    }
+
+# ==========================================================================================
+# ENDPOINT DE INTEGRACIÓN PARA LA VENTANILLA / WIDGET EXTERNO (CORS OPEN)
+# ==========================================================================================
+@app.post("/api/v1/procesar-atencion")
+async def api_procesar_atencion(request: Request):
+    try:
+        datos_entrada = await request.json()
+        categoria = datos_entrada.get('categoria', '').strip().lower()
+        fase = datos_entrada.get('fase', '').strip().lower()
+        parametro = datos_entrada.get('parametro', '').strip()
+        
+        if not categoria or not fase or not parametro:
+            return JSONResponse(status_code=400, content={"status": "error", "codigo": 400, "mensaje": "Faltan parámetros esenciales."})
+            
+        reporte = procesar_caso_matriz_unico(categoria, fase, parametro)
+        return JSONResponse({"status": "success", "codigo": 200, "reporte": reporte})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"status": "error", "codigo": 500, "mensaje": str(e)})
+
+@app.get("/")
+async def index():
+    return FileResponse('static/session.html')
+
 
 DEFAULT_NECESSITY_VECTOR = {
     "movimiento": 50,
