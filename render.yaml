@@ -1,0 +1,27 @@
+# ==========================================================================================
+# OPEN THAN GO SYSTEM - Unified Infrastructure Blueprint (Render Deployment) V.7.0.0
+# Company: May Roga LLC
+# File: render.yaml - PRODUCTION TOPOLOGY
+# ==========================================================================================
+services:
+  - type: web
+    name: open-than-go
+    runtime: python
+    buildCommand: "pip install --upgrade pip && pip install -r requirements.txt"
+    # Gunicorn dynamically mounts the FastAPI application using the Uvicorn worker layer
+    startCommand: "gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      
+      # --- STRIPE GATEWAY ORCHESTRATION ---
+      - key: STRIPE_SECRET_KEY
+        sync: false # Set via Render Dashboard for cryptographic safety
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false # Set via Render Dashboard for cryptographic safety
+        
+      # --- ADMINISTRATIVE COMPLIANCE ESCUDO ---
+      - key: ADMIN_USERNAME
+        sync: false # Set via Render Dashboard
+      - key: ADMIN_PASSWORD
+        sync: false # Set via Render Dashboard
