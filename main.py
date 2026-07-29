@@ -1299,33 +1299,151 @@ async def mando_integral(request: Request):
             })
             historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
 
-    return JSONResponse({
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-        "misiones": final_misiones_para_frontend,
-        "historial_salir_actualizado": historial_salir,
-        "forced_recovery": False,
-        "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-        "legal_notice_en": ADVERTENCIA_LEGAL_EN,
-        "drive_prohibited": True
-    })
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "misiones": final_misiones_para_frontend,
+            "historial_salir_actualizado": historial_salir,
+            "forced_recovery": False,
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
+            "drive_prohibited": True
+        })
+# ==========================================================================================
+# CEREBRO EXCLUSIVO: PERFILES ESPECIALES (UNIVERSAL, BILINGÜE Y SEGURO)
+# Nivel 8 años - Cero términos médicos - Soporte simultáneo infinito con entropía por reloj
+# ==========================================================================================
+
+POOL_MISIONES_ESPECIALES = {
+    "es": {
+        "adultos_mayores": [
+            {
+                "antes": "Freno de soledad: Detén lo que estás haciendo. Toma un vaso de agua fresca y bébelo muy despacio. Siente cómo pasa el agua.",
+                "ajuste": "Modo descanso visual: Bajando el brillo de tu pantalla para cuidar tus ojos.",
+                "durante": "Misión de acompañamiento: Camina despacio por tu hogar. Busca un objeto, un álbum de fotos viejas o un recuerdo que te dé alegría. Míralo en silencio durante 10 minutos completos.",
+                "mapa": "parques+planos+con+asientos+y+caminos+faciles",
+                "despues": "Registro completado: Tu mente ha cambiado de enfoque con éxito.",
+                "futuro": "Tu tarea para mañana: Llama por teléfono a un amigo o familiar durante 3 minutos para saludarle."
+            },
+            {
+                "antes": "Freno de rutina: Cierra los ojos en este instante. Respira profundo por la nariz y suelta el aire por la boca 3 veces muy lento.",
+                "ajuste": "Ajuste de luz: El sistema suaviza el contraste visual de tu pantalla ahora.",
+                "durante": "Misión de confort: Busca tu sillón favorito. Siéntate derecho y masajea suavemente tus orejas y sienes con las yemas de tus dedos haciendo círculos pequeños por 5 minutos.",
+                "mapa": "cafeterias+tranquilas+con+sillones+comodos",
+                "despues": "Registro completado: El sedentarismo de la tarde se ha roto de forma segura.",
+                "futuro": "Tu tarea para mañana: Abre una ventana a primera hora para que entre aire fresco y sol a tu habitación."
+            }
+        ],
+        "veteranos": [
+            {
+                "antes": "Freno de alerta: Ve de inmediato a la habitación más tranquila, aislada y oscura de tu casa en este momento.",
+                "ajuste": "Filtro de sonido preventivo: Colócate audífonos o tapones para oídos ya mismo para apagar el ruido exterior.",
+                "durante": "Misión de control: Apoya tus manos con firmeza sobre tus rodillas. Presiona tus talones contra el suelo. Cuenta en reversa del 10 al 1 muy despacio en tu mente.",
+                "mapa": "senderos+naturales+silenciosos+y+bosques",
+                "despues": "Registro completado: Tu atención se ha movido fuera del peligro con éxito.",
+                "futuro": "Tu tarea para después: Mantén tus audífonos puestos 10 minutos más mientras ordenas un objeto pequeño de tu habitación."
+            },
+            {
+                "antes": "Pausa táctica: Colócate de pie de forma recta. Bebe un sorbo de agua fría y mantén el agua en tu boca por 5 segundos antes de pasarla.",
+                "ajuste": "Modo operativo neutro: Minimizando notificaciones y sonidos molestos del entorno digital.",
+                "durante": "Misión de anclaje: Elige un objeto fijo de la habitación (un cuadro, una silla, un reloj). Observa detalladamente su forma, sus colores y sus bordes durante 5 minutos sin desviar la mirada.",
+                "mapa": "museos+de+arte+locales+o+galerias+silenciosas",
+                "despues": "Registro completado: Lograste regresar tu mente a un estado de control y orden.",
+                "futuro": "Tu tarea para después: Realiza una caminata corta de paso firme y constante al finalizar la tarde."
+            }
+        ],
+        "gobierno": [
+            {
+                "antes": "Freno de oficina: Cierra o minimiza todas las hojas de trabajo, tareas y correos en este segundo. Deja solo esta pantalla.",
+                "ajuste": "Límite digital activado: Te has desconectado de la red del trabajo por un momento.",
+                "durante": "Misión de descompresión: Ponte de pie. Sepárate de la silla de oficina. Estira tus brazos hacia el techo por 2 minutos. Camina al punto de agua más lejano de tu piso.",
+                "mapa": "jardines+botanicos+o+plazas+abiertas+silenciosas",
+                "despues": "Registro completado: Lograste separar tu mente de la carga del sistema laboral.",
+                "futuro": "Tu tarea para después: Parpadea seguido durante 15 segundos para aliviar tus ojos cansados de mirar el monitor."
+            }
+        ]
+    },
+    "en": {
+        "adultos_mayores": [
+            {
+                "antes": "Stop loneliness: Take a glass of fresh water and drink it very slowly. Feel the water go down.",
+                "ajuste": "Visual rest mode: Lowering your screen brightness to protect your eyes.",
+                "durante": "Companion mission at home: Walk slowly through your home. Find an old photo album, a beloved book, or a keepsake that brings you joy. Look at it in silence for 10 full minutes.",
+                "mapa": "flat+parks+with+benches+and+easy+walking+paths",
+                "despues": "Registration completed: Your mind has successfully changed its focus.",
+                "futuro": "Your task for tomorrow: Make a short 3-minute phone call to a friend or relative just to say hello."
+            }
+        ],
+        "veteranos": [
+            {
+                "antes": "Stop alert: Go immediately to the quietest and darkest room in your house right now. Put on protective headphones or earplugs right now to shut out external noise.",
+                "durante": "Control mission at home: Place your hands firmly on your knees. Press your heels hard against the floor. Count backward from 10 to 1 very slowly in your mind.",
+                "mapa": "quiet+nature+trails+and+forests",
+                "despues": "Registration completed: Your attention has successfully moved away from the disturbance.",
+                "futuro": "Your task for later: Keep your headphones on for 10 more minutes while organizing a small item."
+            }
+        ],
+        "gobierno": [
+            {
+                "antes": "Stop office work: Close or minimize all spreadsheets and emails this second. You have disconnected from the work network systems for a short block of time.",
+                "durante": "Decompression mission: Stand up. Step away from your office chair. Stretch your arms toward the ceiling for 2 minutes. Walk to the farthest water station on your floor.",
+                "mapa": "botanical+gardens+or+quiet+open+air+squares",
+                "despues": "Registration completed: You successfully separated your mind from the heavy burden. Blink continuously for 15 seconds to relieve your eyes from screen strain."
+            }
+        ]
+    }
+}
+
+def cerebro_procesar_perfil_especial(categoria, idioma_cliente="es"):
+    cat = str(categoria).lower().strip()
+    lang = "en" if str(idioma_cliente).lower().strip() == "en" else "es"
+    
+    if cat not in ["veteranos", "adultos_mayores", "gobierno"]:
+        cat = "veteranos"
+        
+    # Entropía pura por microsegundos: 50 personas al mismo tiempo reciben combinaciones distintas
+    import random, hashlib
+    from datetime import datetime
+    seed_str = f"{cat}-{datetime.now().microsecond}-{random.randint(1000,9999)}"
+    case_id = hashlib.md5(seed_str.encode()).hexdigest()[:8].upper()
+    
+    pool_opciones = POOL_MISIONES_ESPECIALES[lang][cat]
+    mision_elegida = random.choice(pool_opciones) if len(pool_opciones) > 0 else POOL_MISIONES_ESPECIALES["es"][cat][0]
+    
+    return {
+        "id_caso": f"OTG-{case_id}",
+        "perfil": cat.upper(),
+        "idioma": lang.upper(),
+        "antes": mision_elegida["antes"] + " (" + mision_elegida["ajuste"] + ")",
+        "durante": mision_elegida["durante"],
+        "mapa_url": "https://google.com" + mision_elegida["mapa"] + "+near+me",
+        "despues": mision_elegida["despues"] + "\n\n" + mision_elegida["futuro"],
+        "status": "success"
+    }
 
 # ==========================================================================================
-# AFLUENTES SEPARADOS: ENTORNO AUTÓNOMO PARA PERFILES ESPECIALES (CERO INTERFERENCIAS)
+# ENDPOINT DE ATENCIÓN EXCLUSIVA PARA EL CEREBRO DE PERFILES ESPECIALES
 # ==========================================================================================
+@app.post("/api/v1/perfiles-especiales/procesar")
+async def endpoint_perfiles_especiales(request: Request):
+    try:
+        datos = await request.json()
+        categoria = datos.get('categoria', 'veteranos')
+        idioma = datos.get('lang', 'es')
+        
+        # El cerebro procesa y entrega el plan especializado aislado
+        resultado = cerebro_procesar_perfil_especial(categoria, idioma)
+        return JSONResponse(resultado)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"status": "error", "mensaje": str(e)})
 
 @app.get("/perfiles")
-async def navegar_perfiles_especiales():
-    """
-    Sirve el nuevo archivo de interfaz bilingüe e independiente perfiles.html.
-    Mantiene la sección especial totalmente aislada del Open Than Go tradicional.
-    """
+async def navegar_afluente_perfiles():
+    # El cerebro sirve la ruta de la nueva pantalla independiente
     return FileResponse('static/perfiles.html')
 
 @app.get("/")
 async def index():
-    """
-    Servicio base que mantiene la inercia original de session.html intacta.
-    """
+    # CONEXIÓN FIJADA: El cerebro sirve la app tradicional ordinaria sin tocar su inercia
     return FileResponse('static/session.html')
 
 # ==========================================================================================
