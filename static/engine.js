@@ -2869,54 +2869,55 @@ KERNEL.activarCarruselEmocional = function(estadoMente) {
     }
 };
 
-// 2. RECEPTOR DE SEÑALES PARA LA VENTANILLA / WIDGET EXTERNO INTER-ESTRUCTURAS
+// ==========================================================================================
+// 2. RECEPTOR DE SEÑALES PARA LA VENTANILLA / WIDGET EXTERNO INTER-ESTRUCTURAS (CORREGIDO)
+// ==========================================================================================
 window.addEventListener("message", function(event) {
-    // Validación de seguridad de la estructura del payload entrante
     if (event.data && event.data.identificador === "MATRIX_WIDGET_RESCUE") {
-        console.log(`[Matrix Core] Mensaje inter-origen interceptado con éxito. Caso: ${event.data.id_caso}`);
         
-        // Forzar mitigación inmediata del sistema nervioso asignando estado ansioso
+        // CONEXIÓN CORREGIDA: Nombres idénticos y limpios sin errores de sintaxis (.trim() válido)
+        const perfil = String(event.data.perfil).toLowerCase().trim();
+        const idiomaActivo = String(event.data.lang || "es").toLowerCase().trim();
+        
+        console.log(`[Matrix Core] Mensaje validado. Perfil: ${perfil}. Idioma: ${idiomaActivo}`);
+        
         KERNEL.menteActual = "ansioso";
         
-        // Cambiar la visualización de la interfaz madre para pintar los datos del caso
-        const cajaTitulo = document.getElementById("destino-titulo") || document.querySelector(".mision-header h3");
-        const cajaCuerpo = document.getElementById("que-hacer-texto") || document.querySelector(".mision-body p");
-        const cajaRef = document.getElementById("caseIdText") || document.getElementById("oraculo-ref");
+        const contenedorInteractivo = document.getElementById("wrapper-interactive");
+        const contenedorFondo = document.getElementById("carousel-background");
         
-        if (cajaTitulo) cajaTitulo.innerText = `PERFIL: ${event.data.perfil.toUpperCase()}`;
-        if (cajaCuerpo) cajaCuerpo.innerText = event.data.instruccion;
-        if (cajaRef) cajaRef.innerText = `ID CASO: ${event.data.id_caso}`;
-        
-        // Disparar las dos herramientas somáticas integradas
+        if (contenedorInteractivo) { contenedorInteractivo.classList.remove("hidden"); }
+        if (contenedorFondo) { contenedorFondo.classList.remove("hidden"); }
+
         if (typeof KERNEL.activarCarruselEmocional === 'function') {
             KERNEL.activarCarruselEmocional(KERNEL.menteActual);
         }
-        
         if (typeof KERNEL.reproducirVozHumana === 'function') {
-            // Ejecutar pauta por altavoz a velocidad humana controlada (0.95) para inducir calma
             KERNEL.reproducirVozHumana(event.data.instruccion, KERNEL.VELOCIDAD_VOZ_HUMANA || 0.95);
         }
 
-        // 3. ACTUALIZACIÓN QUIRÚRGICA: AJUSTAR EL ENRUTAMIENTO DEL MODO SALIR GENERAL
+        // AJUSTE DE MAPAS BILINGÜE: Enrutamiento universal de Google Maps
         const botonSalirMadre = document.getElementById("btn-modo-salir") || document.querySelector(".btn-salir-main");
         if (botonSalirMadre) {
             let busquedaEspecialMaps = "quiet+parks+with+nature+and+benches";
             
-            if (perfil === "veteranos") {
-                busquedaEspecialMaps = "isolated+nature+trails+or+dense+forest+parks+near+me";
-            } else if (perfil === "adultos_mayores") {
-                busquedaEspecialMaps = "flat+walking+paths+botanical+gardens+and+easy+access+near+me";
-            } else if (perfil === "gobierno") {
-                busquedaEspecialMaps = "quiet+open+air+squares+or+public+reading+rooms+near+me";
+            if (idiomaActivo === "en") {
+                if (perfil === "veteranos") busquedaEspecialMaps = "isolated+nature+trails+or+dense+forest+parks+near+me";
+                else if (perfil === "adultos_mayores") busquedaEspecialMaps = "flat+walking+paths+botanical+gardens+and+easy+access+near+me";
+                else if (perfil === "gobierno") busquedaEspecialMaps = "quiet+open+air+squares+or+public+reading+rooms+near+me";
+            } else {
+                if (perfil === "veteranos") busquedaEspecialMaps = "senderos+naturales+silenciosos+y+bosques+cerca+de+mi";
+                else if (perfil === "adultos_mayores") busquedaEspecialMaps = "parques+planos+con+asientos+y+caminos+faciles+cerca+de+mi";
+                else if (perfil === "gobierno") busquedaEspecialMaps = "jardines+botanicos+o+plazas+abiertas+silenciosas+cerca+de+mi";
             }
             
             botonSalirMadre.onclick = function() {
                 window.open(`https://google.com{busquedaEspecialMaps}`, '_blank');
-                console.log(`[Modo Salir Especial] Redirección segura ejecutada para perfil: ${perfil}`);
+                console.log(`[Modo Salir] Redirección ejecutada en idioma: ${idiomaActivo}`);
             };
         }
 
-        // 4. INYECCIÓN DEL MOTOR DE RESPIRACIÓN ADAPTADO CON TEMPORIZADOR DE 15 MINUTOS
+        // INYECCIÓN DEL MOTOR DE RESPIRACIÓN ADAPTADO CON TEMPORIZADOR DE 15 MINUTOS
         let cajaPulmon = document.getElementById("otg-breath-engine-container");
         if (!cajaPulmon) {
             cajaPulmon = document.createElement("div");
