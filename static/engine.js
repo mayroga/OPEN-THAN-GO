@@ -2987,27 +2987,46 @@ window.actualizarPlataformaTexto = function() {
     }
 };
 
+// ==========================================================================================
+// CONTROLADORES DE ENTORNO LOCAL (CORREGIDOS Y SIN DUPLICACIONES)
+// ==========================================================================================
+
 window.activarEntornoEspecial = function() {
+    // Poner en espera la interfaz común
     const bloqueOrdinario = document.getElementById("bloque-mando-principal") || document.querySelector(".main-form") || document.getElementById("bloque-escritura-libre")?.parentNode;
-    if (bloqueOrdinario) { bloqueOrdinario.style.display = "none"; }
+    if (bloqueOrdinario) { 
+        bloqueOrdinario.style.display = "none"; 
+    }
     
     document.getElementById("otg-bloque-boton-lanzador").style.display = "none";
     document.getElementById("otg-modulo-especial-completo").style.display = "block";
     
+    // Carga inicial bilingüe nativa
     window.actualizarPlataformaTexto();
 };
 
 window.desactivarEntornoEspecial = function() {
+    // Apagar temporizadores activos de inmediato
     if (otgIntervaloEsfera) clearInterval(otgIntervaloEsfera);
     if (otgIntervaloReloj) clearInterval(otgIntervaloReloj);
     
     document.getElementById("otg-modulo-especial-completo").style.display = "none";
     document.getElementById("otg-panel-respuesta").style.display = "none";
     
+    // CORRECCIÓN: Volver a ocultar el contenedor interactivo para limpiar la pantalla principal
+    const contenedorMadreInteractive = document.getElementById("wrapper-interactive");
+    if (contenedorMadreInteractive) {
+        contenedorMadreInteractive.classList.add("hidden");
+    }
+    
+    // Despertar la app normal sin obstrucciones
     const bloqueOrdinario = document.getElementById("bloque-mando-principal") || document.querySelector(".main-form") || document.getElementById("bloque-escritura-libre")?.parentNode;
-    if (bloqueOrdinario) { bloqueOrdinario.style.display = "block"; }
+    if (bloqueOrdinario) { 
+        bloqueOrdinario.style.display = "block"; 
+    }
     document.getElementById("otg-bloque-boton-lanzador").style.display = "block";
     
+    // Limpieza de memoria
     poolTagsLocales = [];
     document.getElementById('otg-texto-extenso').value = '';
 };
@@ -3028,6 +3047,40 @@ window.limpiarVentanillaLocal = function() {
     window.actualizarPlataformaTexto();
     if (otgIntervaloEsfera) clearInterval(otgIntervaloEsfera);
     if (otgIntervaloReloj) clearInterval(otgIntervaloReloj);
+};
+
+// ==========================================================================================
+// UBICACIÓN EXACTA: FUNCIÓN DE APAGADO Y DESCONEXIÓN DE LA VENTANILLA
+// ==========================================================================================
+window.desactivarEntornoEspecial = function() {
+    if (otgIntervaloEsfera) clearInterval(otgIntervaloEsfera);
+    if (otgIntervaloReloj) clearInterval(otgIntervaloReloj);
+    
+    document.getElementById("otg-modulo-especial-completo").style.display = "none";
+    document.getElementById("otg-panel-respuesta").style.display = "none";
+    
+    // Volver a ocultar el contenedor interactivo para limpiar la pantalla negra
+    const contenedorMadreInteractive = document.getElementById("wrapper-interactive");
+    if (contenedorMadreInteractive) {
+        contenedorMadreInteractive.classList.add("hidden");
+    }
+    
+    // Despertar la app normal para que vuelva a funcionar
+    const bloqueOrdinario = document.getElementById("bloque-mando-principal") || document.querySelector(".main-form") || document.getElementById("bloque-escritura-libre")?.parentNode;
+    if (bloqueOrdinario) { bloqueOrdinario.style.display = "block"; }
+    document.getElementById("otg-bloque-boton-lanzador").style.display = "block";
+    
+    poolTagsLocales = [];
+    document.getElementById('otg-texto-extenso').value = '';
+};
+
+window.marcarTagLocal = function(elemento, valorPalabra) {
+    elemento.classList.toggle('seleccionado');
+    if (elemento.classList.contains('seleccionado')) {
+        poolTagsLocales.push(valorPalabra);
+    } else {
+        poolTagsLocales = poolTagsLocales.filter(v => v !== valorPalabra);
+    }
 };
 
 window.ejecutarTratamientoLocal = function() {
@@ -3084,8 +3137,17 @@ window.ejecutarTratamientoLocal = function() {
     document.getElementById("otg-f2-pauta").innerText = m.durante;
     document.getElementById("otg-f3-pauta").innerText = m.despues;
     
-    // Conexión corregida del mapa a la API oficial de Google Maps
+    // Conexión corregida del mapa a la API oficial de Google Maps (Sin enlaces rotos)
     document.getElementById("otg-f2-mapa").href = "https://google.com" + m.mapa + "+near+me";
+    
+    // CORRECCIÓN CRÍTICA DE VISIBILIDAD: Removemos la clase 'hidden' para evitar la pantalla negra
+    const contenedorMadreInteractive = document.getElementById("wrapper-interactive");
+    if (contenedorMadreInteractive) {
+        contenedorMadreInteractive.classList.remove("hidden");
+        contenedorMadreInteractive.style.display = "block"; // Fuerza al navegador a pintar los elementos
+    }
+    
+    // Desplegar el bloque interno del asistente
     document.getElementById("otg-panel-respuesta").style.display = "block";
 
     // CONFIGURACIÓN DE LOS DOS ENGRANAJES AUTOMÁTICOS
