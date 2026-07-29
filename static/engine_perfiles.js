@@ -426,7 +426,9 @@ window.KERNEL_ESPECIAL = {
 
         } catch (e) {
             console.error("Error executing plan:", e);
-            alert(es ? "Fallo de conexión." : "Connection error.");
+            // CORRECCIÓN: Leemos directamente desde el objeto local para evitar romper la sintaxis
+            const esModo = window.KERNEL_ESPECIAL.idioma === "es";
+            alert(esModo ? "Fallo de conexión con el servidor central." : "Connection error with central server.");
         }
     }
 };
@@ -435,4 +437,3 @@ window.KERNEL_ESPECIAL = {
 document.addEventListener("DOMContentLoaded", () => {
     window.KERNEL_ESPECIAL.cambiarIdioma("es");
 });
-        
