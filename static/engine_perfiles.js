@@ -8,8 +8,9 @@ window.KERNEL_ESPECIAL = {
     esferaInterval: null,
     relojInterval: null,
     tiempoAudioTimer: null,
-    contadorMilisegundos: 0,
+    // [FIX] 'contadorMilisegundos' removed as its previous logic for audio timing was refactored.
     modoTiempoLibre: false,
+    breathCycleCount: 0, // [NEW] Track full breath cycles for audio phrase timing
 
     // BANCO EXTENSO MUTANTE CON JUSTIFICACIÓN OCULTA (Garantiza nula repetición en 50 sesiones)
     bancoContenido: {
@@ -120,12 +121,21 @@ window.KERNEL_ESPECIAL = {
                 "frases_7s": ["Your time is precious.", "Enjoy this quiet time.", "Breathe softly, no rush.", "Peace fills this room.", "Feel the cozy warmth.", "You are safe and sound."],
                 "frases_15s": ["Life is savored one slow heartbeat at a time.", "Your wisdom has guided many, now it is your time to rest.", "Guarding your tranquility today is your most important task."],
                 "proverbios": ["Deep rivers run with the least amount of noise.", "Patience is a bitter plant, but its fruit is remarkably sweet."],
-                "juegos_mentales": [{ "tipo": "adivinanza", "enunciado": "I tick away all day but never move from my place. What am I?", "respuesta": "A wall clock.", "justificacion": "The clock hands move safely. This game triggers long-term logical memory structures without creating cognitive stress." }]
+                "juegos_mentales": [
+                    { "tipo": "adivinanza", "enunciado": "I tick away all day but never move from my place. What am I?", "respuesta": "A wall clock.", "justificacion": "The clock hands move safely. This game triggers long-term logical memory structures without creating cognitive stress." },
+                    // [FIX] Added missing 'matematica' game for consistency
+                    { "tipo": "matematica", "enunciado": "If you have 3 pots with beautiful flowers and each needs 4 sips of fresh water daily, how many sips do you give in total today?", "respuesta": "You give 12 sips of water.", "justificacion": "3 multiplied by 4 is 12. Simple multiplication stimulates active analog working memory, helping seniors connect numeric logic with daily home care." }
+                ]
+            }, // [FIX] Missing closing brace '}' for 'adultos_mayores' object in 'en' language was added here.
             "gobierno": {
                 "frases_7s": ["The office has stopped.", "The network can wait.", "This minute is strictly yours.", "Drop the screen strain.", "Free your mind from tasks.", "Breathe outside the loop."],
                 "frases_15s": ["No urgent task is worth more than your mental sovereignty today.", "Disconnecting from the system is a vital and healthy right.", "The world keeps turning even if you step away from the monitor."],
                 "proverbios": ["Labor fills your pockets, but only silence restores your inner self.", "Do not mistake being busy all day with truly experiencing life."],
-                "juegos_mentales": [{ "tipo": "matematica", "enunciado": "If you have 24 task files and complete 8 right now, how many are remaining?", "respuesta": "16 files remain.", "justificacion": "24 minus 8 is 16. Simple math math help shift administrative anxiety patterns into structured modules under your direct control." }]
+                "juegos_mentales": [
+                    { "tipo": "matematica", "enunciado": "If you have 24 task files and complete 8 right now, how many are remaining?", "respuesta": "16 files remain.", "justificacion": "24 minus 8 is 16. Simple math math help shift administrative anxiety patterns into structured modules under your direct control." },
+                    // [FIX] Added missing 'adivinanza' game for consistency
+                    { "tipo": "adivinanza", "enunciado": "I enter water hard and dry, but come out soft, smooth, and wet. What am I?", "respuesta": "A warm tea bag.", "justificacion": "The tea bag softens when submerged. This riddle activates the logical mechanisms of sensory association in the cerebral cortex, disconnecting stress from routine spreadsheets." }
+                ]
             }
         }
     },
@@ -244,8 +254,9 @@ window.KERNEL_ESPECIAL = {
         document.getElementById('otg-panel-respuesta').style.display = 'none';
         this.tagsSeleccionados = [];
         this.traducirInterfaz();
-        if (this.esferaInterval) clearInterval(this.esferaInterval);
+        if (this.esferaInterval) clearTimeout(this.esferaInterval); // [FIX] Use clearTimeout for setTimeout IDs
         if (this.relojInterval) clearInterval(this.relojInterval);
+        this.breathCycleCount = 0; // [FIX] Reset breath cycle counter
     },
 
     ejecutarPlan: async function() {
@@ -253,7 +264,8 @@ window.KERNEL_ESPECIAL = {
         const es = this.idioma === "es";
         let textoEscrito = document.getElementById('otg-texto-extenso').value.trim();
         this.modoTiempoLibre = false;
-        this.contadorMilisegundos = 0;
+        // this.contadorMilisegundos = 0; // [FIX] Removed as 'breathCycleCount' is now used for audio timing logic.
+        this.breathCycleCount = 0; // [FIX] Reset breath cycle counter for a new plan execution
         
         let parametroFinal = "";
         if (this.tagsSeleccionados.length > 0) {
@@ -282,9 +294,11 @@ window.KERNEL_ESPECIAL = {
             document.getElementById("otg-id-display").innerText = rep.id_caso;
             
             // Inyección corregida con comillas invertidas válidas para la Fase 1
+            // [SECURITY NOTE]: Ensure 'rep.antes' is properly sanitized on the server-side to prevent XSS.
             document.getElementById("otg-f1-pauta").innerHTML = `<strong>${rep.antes}</strong><br><br><span style="color:#38bdf8; font-style:italic; font-size:15px; font-weight:700;">📜 ${proverbioGanador}</span>`;
             
             // Inyección corregida con comillas invertidas válidas para la Fase 2
+            // [SECURITY NOTE]: Ensure 'rep.durante' is properly sanitized on the server-side to prevent XSS.
             document.getElementById("otg-f2-pauta").innerHTML = `
                 <span style="display:block; margin-bottom:10px;">${rep.durante}</span>  
                 <div style="background:#131f38; border:1px dashed #334155; padding:12px; border-radius:6px; margin:10px 0;">  
@@ -296,6 +310,7 @@ window.KERNEL_ESPECIAL = {
                     </div>  
                 </div>
             `;
+            // [SECURITY NOTE]: Ensure 'rep.despues' is properly sanitized on the server-side to prevent XSS.
             document.getElementById("otg-f3-pauta").innerText = rep.despues;
             
             const media = this.recursosMultimedia[perfil];
@@ -324,7 +339,7 @@ window.KERNEL_ESPECIAL = {
             }
             document.getElementById("otg-ritmo-titulo").innerText = txtRitmo;
             
-            if (this.esferaInterval) clearInterval(this.esferaInterval);
+            if (this.esferaInterval) clearTimeout(this.esferaInterval); // [FIX] Use clearTimeout
             let alternarCiclo = true;
             
             const animarEsfera = () => {
@@ -332,7 +347,6 @@ window.KERNEL_ESPECIAL = {
                 const txt = document.getElementById("otg-esfera-texto");
                 if(!esf || !txt) return;
                 
-                this.contadorMilisegundos += alternarCiclo ? tInhala : tExhala;
                 const poolEspecial = this.bancoContenido[this.idioma][perfil];
                 
                 if (alternarCiclo) {
@@ -341,18 +355,20 @@ window.KERNEL_ESPECIAL = {
                     txt.innerText = es ? "INHALA" : "BREATHE IN";
                     alternarCiclo = false;
                     
-                    if (this.contadorMilisegundos % 7000 < 4000) {
-                        const frase7 = poolEspecial.frases_7s[Math.floor(Math.random() * poolEspecial.frases_7s.length)];
-                        this.reproducirVozHumana(frase7);
-                    }
+                    // [FIX] Always play a 7s phrase on inhale for consistent cues
+                    const frase7 = poolEspecial.frases_7s[Math.floor(Math.random() * poolEspecial.frases_7s.length)];
+                    this.reproducirVozHumana(frase7);
+                    
                     this.esferaInterval = setTimeout(animarEsfera, tInhala);
                 } else {
                     esf.style.transform = "scale(0.92)";
                     esf.style.backgroundColor = "rgba(56, 189, 248, 0.04)";
                     txt.innerText = es ? "EXHALA" : "BREATHE OUT";
                     alternarCiclo = true;
+                    this.breathCycleCount++; // [FIX] Increment after a full breath cycle (inhale+exhale)
                     
-                    if (this.contadorMilisegundos % 15000 < 5000) {
+                    // [FIX] Play a 15s phrase on every 2nd full breath cycle for predictable timing
+                    if (this.breathCycleCount % 2 === 0) { 
                         const frase15 = poolEspecial.frases_15s[Math.floor(Math.random() * poolEspecial.frases_15s.length)];
                         this.reproducirVozHumana(frase15);
                     }
@@ -362,7 +378,7 @@ window.KERNEL_ESPECIAL = {
             animarEsfera();
             
             if (this.relojInterval) clearInterval(this.relojInterval);
-            let remSegundos = 900;
+            let remSegundos = 900; // 15 minutes
             
             this.relojInterval = setInterval(() => {
                 const nodoReloj = document.getElementById("otg-reloj-display");
@@ -388,7 +404,7 @@ window.KERNEL_ESPECIAL = {
                         this.reproducirVozHumana(preguntaComodidad);
                         
                         if (confirm(preguntaComodidad)) {
-                            remSegundos = 0;
+                            remSegundos = 0; // Reset for free mode to start counting up from 0
                             document.getElementById("otg-txt-reloj-lbl").innerText = es ? "⏱️ Modo Libre Opcional Activo:" : "⏱️ Optional Free Mode Active:";
                             nodoReloj.style.color = "#38bdf8";
                         } else {
@@ -406,6 +422,7 @@ window.KERNEL_ESPECIAL = {
             }, 1000);
             
         } catch (e) {
+            console.error("Error executing plan:", e); // [OPTIMIZATION] Log actual error for debugging
             alert(es ? "Fallo de conexión." : "Connection error.");
         }
     }
