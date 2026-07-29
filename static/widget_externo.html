@@ -1,0 +1,283 @@
+<!-- ============================================================================== -->
+<!-- ARCHIVO 4 DE 5: widget_externo.html                                           -->
+<!-- Interfaz Gráfica / Ventana Aparte para Inserción en Cualquier App de Bienestar -->
+<!-- ============================================================================== -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo Independiente de Orientación Directa</title>
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-color: #0284c7;
+            --accent-hover: #0ea5e9;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .widget-wrapper {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+        }
+
+        .widget-header h2 {
+            font-size: 18px;
+            margin: 0 0 5px 0;
+            color: #38bdf8;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .widget-header p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 5px 0 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-size: 13px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, textarea:focus {
+            border-color: var(--accent-color);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 2;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-ejecutar {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .btn-ejecutar:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-borrar {
+            flex: 1;
+            background-color: var(--danger-color);
+            color: #fff;
+        }
+
+        .btn-borrar:hover {
+            background-color: #dc2626;
+        }
+
+        .report-card {
+            margin-top: 20px;
+            background: var(--bg-main);
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid var(--accent-color);
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .report-card h3 {
+            font-size: 14px;
+            margin: 0 0 10px 0;
+            color: #38bdf8;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .report-row {
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .report-row strong {
+            color: var(--text-main);
+        }
+
+        .report-instruction {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+            font-size: 13px;
+            font-weight: bold;
+            color: #f1f5f9;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+<div class="widget-wrapper">
+    <div class="widget-header">
+        <h2>Ventanilla Externa de Orientación</h2>
+        <p>Módulo especializado para análisis de variables y resolución inmediata.</p>
+    </div>
+
+    <!-- Selección de Categoría -->
+    <div class="form-group">
+        <label for="categoriaInput">Perfil de Atención:</label>
+        <select id="categoriaInput">
+            <option value="veteranos">Veteranos</option>
+            <option value="adultos_mayores">Adultos Mayores</option>
+            <option value="gobierno">Trabajadores del Gobierno</option>
+        </select>
+    </div>
+
+    <!-- Selección de Fase -->
+    <div class="form-group">
+        <label for="faseInput">Momento del Proceso:</label>
+        <select id="faseInput">
+            <option value="antes">1. Antes (Evaluación Inicial / Diagnóstico)</option>
+            <option value="durante">2. Durante (Estabilización / Proceso)</option>
+            <option value="despues">3. Después (Cierre / Resultado y Validación)</option>
+        </select>
+    </div>
+
+    <!-- Parámetro / Problema del Usuario -->
+    <div class="form-group">
+        <label for="parametroInput">Parámetro o Situación Específica:</label>
+        <textarea id="parametroInput" placeholder="Describa brevemente el caso o la incidencia a resolver..."></textarea>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="btn-container">
+        <button type="button" class="btn-ejecutar" onclick="ejecutarAnalisis()">Procesar y Emitir Reporte</button>
+        <button type="button" class="btn-borrar" onclick="limpiarVentanilla()">Borrar</button>
+    </div>
+
+    <!-- Tarjeta de Resultados (Reporte Dinámico) -->
+    <div id="reportCard" class="report-card">
+        <h3>
+            <span>Reporte de Caso</span>
+            <span id="caseIdText" style="font-size: 11px; color: #94a3b8;"></span>
+        </h3>
+        <div class="report-row"><strong>Fundamento Técnico:</strong> <span id="fundamentoText"></span></div>
+        <div class="report-row"><strong>Métrica de Impacto:</strong> <span id="metricaText"></span></div>
+        <div class="report-instruction" id="instruccionText"></div>
+    </div>
+</div>
+
+<script>
+    // URL del backend oficial unificado de Open Than Go en Render
+    const API_URL = "https://open-than-go.onrender.com/api/v1/procesar-atencion";
+
+    async function ejecutarAnalisis() {
+        const categoria = document.getElementById('categoriaInput').value;
+        const fase = document.getElementById('faseInput').value;
+        const parametro = document.getElementById('parametroInput').value.trim();
+        
+        if (!parametro) {
+            alert('Por favor, ingrese el parámetro o la situación a evaluar.');
+            return;
+        }
+        
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ categoria, fase, parametro })
+            });
+            const res = await response.json();
+            
+            if (res.status === 'success') {
+                const rep = res.reporte;
+                
+                // 1. Rellenar datos en la tarjeta visual local del Widget
+                document.getElementById('caseIdText').textContent = rep.metadatos_sistema.id_caso;
+                document.getElementById('fundamentoText').textContent = rep.analisis_cientifico_implicito.fundamento_tecnico;
+                document.getElementById('metricaText').textContent = rep.analisis_cientifico_implicito.metrica_impacto;
+                document.getElementById('instruccionText').textContent = rep.instruccion_ejecutiva_directa;
+                
+                // Mostrar tarjeta en la interfaz flotante
+                document.getElementById('reportCard').style.display = 'block';
+                
+                // 2. INYECCIÓN CRÍTICA: Comunicación cruzada con Open Than Go (App Madre)
+                window.parent.postMessage({
+                    identificador: "MATRIX_WIDGET_RESCUE",
+                    perfil: categoria,
+                    fase: fase,
+                    instruccion: rep.instruccion_ejecutiva_directa,
+                    id_caso: rep.metadatos_sistema.id_caso
+                }, "*");
+                
+                console.log(`[Widget Matrix] Transmisión cruzada emitida con éxito. Caso: ${rep.metadatos_sistema.id_caso}`);
+            } else {
+                alert('Error al procesar: ' + res.mensaje);
+            }
+        } catch (error) {
+            console.error('Error de red en canal Matrix:', error);
+            alert('No se pudo establecer conexión con el servidor backend.');
+        }
+    }
+
+    function limpiarVentanilla() {
+        document.getElementById('parametroInput').value = '';
+        document.getElementById('reportCard').style.display = 'none';
+    }
+</script>
+</body>
+</html>
