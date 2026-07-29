@@ -2896,6 +2896,120 @@ window.addEventListener("message", function(event) {
             // Ejecutar pauta por altavoz a velocidad humana controlada (0.95) para inducir calma
             KERNEL.reproducirVozHumana(event.data.instruccion, KERNEL.VELOCIDAD_VOZ_HUMANA || 0.95);
         }
+
+        // 3. ACTUALIZACIÓN QUIRÚRGICA: AJUSTAR EL ENRUTAMIENTO DEL MODO SALIR GENERAL
+        const botonSalirMadre = document.getElementById("btn-modo-salir") || document.querySelector(".btn-salir-main");
+        if (botonSalirMadre) {
+            let busquedaEspecialMaps = "quiet+parks+with+nature+and+benches";
+            
+            if (perfil === "veteranos") {
+                busquedaEspecialMaps = "isolated+nature+trails+or+dense+forest+parks+near+me";
+            } else if (perfil === "adultos_mayores") {
+                busquedaEspecialMaps = "flat+walking+paths+botanical+gardens+and+easy+access+near+me";
+            } else if (perfil === "gobierno") {
+                busquedaEspecialMaps = "quiet+open+air+squares+or+public+reading+rooms+near+me";
+            }
+            
+            botonSalirMadre.onclick = function() {
+                window.open(`https://google.com{busquedaEspecialMaps}`, '_blank');
+                console.log(`[Modo Salir Especial] Redirección segura ejecutada para perfil: ${perfil}`);
+            };
+        }
+
+        // 4. INYECCIÓN DEL MOTOR DE RESPIRACIÓN ADAPTADO CON TEMPORIZADOR DE 15 MINUTOS
+        let cajaPulmon = document.getElementById("otg-breath-engine-container");
+        if (!cajaPulmon) {
+            cajaPulmon = document.createElement("div");
+            cajaPulmon.id = "otg-breath-engine-container";
+            cajaPulmon.style = "background:#0f172a; border:2px solid #38bdf8; border-radius:12px; padding:20px; margin-top:20px; text-align:center; box-shadow: 0 4px 20px rgba(56,189,248,0.15); font-family:sans-serif; color:#f8fafc;";
+            
+            const nodoDestino = document.getElementById("wrapper-interactive") || document.body;
+            nodoDestino.insertBefore(cajaPulmon, nodoDestino.firstChild);
+        }
+
+        let tiempoInhalar = 4000;
+        let tiempoExhalar = 4000;
+        let etiquetaRitmo = "Ritmo Regular de Homeostasis (4s x 4s)";
+        
+        if (perfil === "veteranos") {
+            tiempoInhalar = 5000; 
+            tiempoExhalar = 5000;
+            etiquetaRitmo = "Pauta de Anclaje Táctico (5s Inhalar / 5s Exhalar)";
+        } else if (perfil === "adultos_mayores") {
+            tiempoInhalar = 3000; 
+            tiempoExhalar = 4000;
+            etiquetaRitmo = "Pauta de Confort Suave (3s Inhalar / 4s Exhalar)";
+        }
+
+        cajaPulmon.innerHTML = `
+            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:bold; letter-spacing:1px; margin-bottom:5px;">Módulo Somático de Regulación Colectiva</div>
+            <div style="font-size:16px; font-weight:bold; color:#38bdf8; margin-bottom:15px;">${etiquetaRitmo}</div>
+            
+            <div id="circulo-biologico" style="width:120px; height:120px; background:rgba(56,189,248,0.1); border:4px solid #38bdf8; border-radius:50%; margin:20px auto; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; color:#38bdf8; transition: all 3s ease-in-out; box-shadow: 0 0 15px rgba(56,189,248,0.2);">
+                <span id="texto-estado-respiracion">Iniciar</span>
+            </div>
+            
+            <div style="background:#1e293b; padding:8px; border-radius:6px; display:inline-block; margin-top:10px; font-size:13px;">
+                ⏱️ Tiempo restante de desconexión obligatoria: <strong id="reloj-15min" style="color:#10b981;">15:00</strong>
+            </div>
+        `;
+
+        if (KERNEL.intervaloRespiracion) clearInterval(KERNEL.intervaloRespiracion);
+        
+        function ejecutarCicloEsfera() {
+            const esfera = document.getElementById("circulo-biologico");
+            const txtEsfera = document.getElementById("texto-estado-respiracion");
+            if (!esfera || !txtEsfera) return;
+
+            esfera.style.transform = "scale(1.4)";
+            esfera.style.backgroundColor = "rgba(56,189,248,0.3)";
+            esfera.style.boxShadow = "0 0 30px rgba(56,189,248,0.6)";
+            txtEsfera.innerText = "INHALA";
+
+            setTimeout(() => {
+                const esferaCheck = document.getElementById("circulo-biologico");
+                const txtCheck = document.getElementById("texto-estado-respiracion");
+                if (!esferaCheck || !txtCheck) return;
+                
+                esferaCheck.style.transform = "scale(0.9)";
+                esferaCheck.style.backgroundColor = "rgba(56,189,248,0.05)";
+                esferaCheck.style.boxShadow = "0 0 10px rgba(56,189,248,0.1)";
+                txtCheck.innerText = "EXHALA";
+            }, tiempoInhalar);
+        }
+
+        ejecutarCicloEsfera();
+        KERNEL.intervaloRespiracion = setInterval(ejecutarCicloEsfera, (tiempoInhalar + tiempoExhalar));
+
+        if (KERNEL.intervaloReloj15) clearInterval(KERNEL.intervaloReloj15);
+        let segundosTotales = 900; 
+
+        KERNEL.intervaloReloj15 = setInterval(() => {
+            const nodoReloj = document.getElementById("reloj-15min");
+            if (!nodoReloj) {
+                clearInterval(KERNEL.intervaloReloj15);
+                return;
+            }
+
+            segundosTotales--;
+            
+            let mins = Math.floor(segundosTotales / 60);
+            let segs = segundosTotales % 60;
+            if (segs < 10) segs = "0" + segs;
+            if (mins < 10) mins = "0" + mins;
+
+            nodoReloj.innerText = `${mins}:${segs}`;
+
+            if (segundosTotales <= 0) {
+                clearInterval(KERNEL.intervaloReloj15);
+                clearInterval(KERNEL.intervaloRespiracion);
+                cajaPulmon.innerHTML = `
+                    <div style="color:#10b981; font-weight:bold; font-size:16px;">✓ Misión del Ciclo de 15 Minutos Concluida</div>
+                    <p style="font-size:13px; color:#94a3b8; margin:5px 0 0 0;">Has completado tu pauta de descompresión con éxito. Puedes regresar a tus actividades con enfoque renovado.</p>
+                `;
+                console.log("[Matrix Core] Ciclo de desconexión completado con éxito absoluto.");
+            }
+        }, 1000);
     }
 }, false);
 
@@ -2907,8 +3021,6 @@ window.abrirModalEspecial = function() {
     if (modal) {
         modal.style.display = "block";
         console.log("[Ecosistema Matrix] Ventanilla de Perfiles Especiales desplegada.");
-    } else {
-        console.error("[Error] No se encontró el elemento HTML 'modalPerfiles'.");
     }
 };
 
@@ -2921,5 +3033,4 @@ window.cerrarModalEspecial = function() {
 };
 
 // SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
-// ESTAS DOS LÍNEAS DE ABAJO DEBEN SER LAS ÚNICAS QUE CIERREN TODO TU ARCHIVO ENGINE.JS:
 })();
