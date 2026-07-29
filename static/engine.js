@@ -1,3 +1,4 @@
+
 // OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
 // Company: May Roga LLC
 // File: static/engine.js (Frontend Logic)
@@ -2823,61 +2824,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 // ==========================================================================================
-// OPEN THAN GO SYSTEM - Frontend Homeostasis & Cross-Origin Synchronization V.7.0.0
-// File: engine.js - INYECCIÓN DE SISTEMA CORE (Carrusel Biológico + Canal Matrix)
-// ==========================================================================================
-
-// 1. ACTIVADOR EN CASCADA PARA HOMEOSTASIS VISUAL (CARRUSEL REAL)
-KERNEL.activarCarruselEmocional = function(estadoMente) {
-    // Limpiar cualquier intervalo previo activo para evitar fugas de memoria en Render
-    if (KERNEL.carouselInterval) {
-        clearInterval(KERNEL.carouselInterval);
-    }
-
-    // Mapeo seguro del pool de imágenes nativas del KERNEL
-    const poolImagenes = KERNEL.IMAGENES_CARRUSEL ? KERNEL.IMAGENES_CARRUSEL[estadoMente] : null;
-    if (!poolImagenes || poolImagenes.length === 0) {
-        console.warn(`[Homeostasis] No se encontró un pool de imágenes válido para el estado: ${estadoMente}`);
-        return;
-    }
-
-    // Localizar nodos visuales en el DOM (Compatibilidad con session.html e index)
-    const contenedorImagen = document.querySelector(".reto-image-container img") || document.getElementById("reto-image");
-
-    if (contenedorImagen) {
-        let indexImagen = 0;
-        
-        // Configurar estilos de transición CSS nativos para suavidad visual (Evita parpadeos)
-        contenedorImagen.style.transition = "opacity 0.5s ease-in-out";
-        contenedorImagen.src = poolImagenes[indexImagen];
-        contenedorImagen.style.opacity = "1";
-        
-        // Ciclo biológico de transición automatizado cada 8 segundos
-        KERNEL.carouselInterval = setInterval(() => {
-            contenedorImagen.style.opacity = "0"; // Desvanecer
-            
-            setTimeout(() => {
-                indexImagen = (indexImagen + 1) % poolImagenes.length;
-                contenedorImagen.src = poolImagenes[indexImagen];
-                contenedorImagen.style.opacity = "1"; // Aparecer con nueva imagen curada
-            }, 500);
-        }, 8000);
-        
-        console.log(`[Homeostasis] Carrusel activado con éxito para el estado: ${estadoMente}`);
-    } else {
-        console.error("Error estructural Frontend: No se detectó el nodo visual ('#reto-image') en el DOM.");
-    }
-};
-
-// ==========================================================================================
-// INTERRUPTORES DE CONGELAMIENTO MUTUAMENTE EXCLUSIVOS (AISLAMIENTO TOTAL)
+// ENGRANAJE INTEGRAL EXCLUSIVO: AISLAMIENTO MUTUO Y CONTROL BILINGÜE SIN RED
+// Nivel 8 años - Idiomas Simétricos - Cero Fricción de Conexión
 // ==========================================================================================
 let poolTagsLocales = [];
 let otgIntervaloEsfera = null;
 let otgIntervaloReloj = null;
-let otgIdiomaActual = "es"; // Idioma controlado de forma nativa por el botón
+let otgIdiomaActual = "es"; 
 
-// Etiquetas fijas de la interfaz para cambio milimétrico de idioma
 const DICCIONARIO_INTERFAZ = {
     "es": {
         "titulo": "Asistente de Bienestar Habitual", 
@@ -2889,9 +2843,9 @@ const DICCIONARIO_INTERFAZ = {
         "tags": "Toca las palabras que describan tu agobio de hoy (Opcional):",
         "texto": "O copia y pega aquí un texto largo o queja burocrática:", 
         "placeholder": "Puedes pegar correos extensos o escribir libremente lo que pasa en tu mente hoy...",
-        "btn_act": "Activar Mi Plan", 
+        "btn_act": "Activar Plan", 
         "btn_borrar": "Borrar Todo", 
-        "btn_cerrar": "✕ CERRAR VENTANILLA", 
+        "btn_cerrar": "✕ CERRAR", 
         "registro": "✓ Estrategia Operativa Generada",
         "reloj_lbl": "⏱️ Tiempo restante de desconexión obligatoria:", 
         "f1_lbl": "Modo Casa Propio: Antes del Uso (Freno de Tensión)",
@@ -2918,7 +2872,7 @@ const DICCIONARIO_INTERFAZ = {
         "placeholder": "You can paste long emails or write freely what is on your mind today...",
         "btn_act": "Activate My Plan", 
         "btn_borrar": "Clear All", 
-        "btn_cerrar": "✕ CLOSE WINDOW", 
+        "btn_cerrar": "✕ CLOSE", 
         "registro": "✓ Operational Strategy Generated",
         "reloj_lbl": "⏱️ Required disconnection time remaining:", 
         "f1_lbl": "Own Home Mode: Before Use (Tension Brake)",
@@ -2937,7 +2891,6 @@ const DICCIONARIO_INTERFAZ = {
 
 window.cambiarIdiomaLocal = function(nuevoIdioma) {
     otgIdiomaActual = nuevoIdioma;
-    
     const btnEs = document.getElementById("otg-btn-lang-es");
     const btnEn = document.getElementById("otg-btn-lang-en");
     if(btnEs && btnEn) {
@@ -2954,7 +2907,6 @@ window.cambiarIdiomaLocal = function(nuevoIdioma) {
 
 window.actualizarPlataformaTexto = function() {
     const d = DICCIONARIO_INTERFAZ[otgIdiomaActual];
-    
     document.getElementById("otg-txt-titulo-modulo").innerText = d.titulo;
     document.getElementById("otg-txt-subtitulo-modulo").innerText = d.subtitulo;
     document.getElementById("otg-lbl-perfil").innerText = d.perfil;
@@ -2987,46 +2939,25 @@ window.actualizarPlataformaTexto = function() {
     }
 };
 
-// ==========================================================================================
-// CONTROLADORES DE ENTORNO LOCAL (CORREGIDOS Y SIN DUPLICACIONES)
-// ==========================================================================================
-
 window.activarEntornoEspecial = function() {
-    // Poner en espera la interfaz común
     const bloqueOrdinario = document.getElementById("bloque-mando-principal") || document.querySelector(".main-form") || document.getElementById("bloque-escritura-libre")?.parentNode;
-    if (bloqueOrdinario) { 
-        bloqueOrdinario.style.display = "none"; 
-    }
-    
+    if (bloqueOrdinario) { bloqueOrdinario.style.display = "none"; }
     document.getElementById("otg-bloque-boton-lanzador").style.display = "none";
     document.getElementById("otg-modulo-especial-completo").style.display = "block";
-    
-    // Carga inicial bilingüe nativa
     window.actualizarPlataformaTexto();
 };
 
 window.desactivarEntornoEspecial = function() {
-    // Apagar temporizadores activos de inmediato
     if (otgIntervaloEsfera) clearInterval(otgIntervaloEsfera);
     if (otgIntervaloReloj) clearInterval(otgIntervaloReloj);
     
     document.getElementById("otg-modulo-especial-completo").style.display = "none";
     document.getElementById("otg-panel-respuesta").style.display = "none";
     
-    // CORRECCIÓN: Volver a ocultar el contenedor interactivo para limpiar la pantalla principal
-    const contenedorMadreInteractive = document.getElementById("wrapper-interactive");
-    if (contenedorMadreInteractive) {
-        contenedorMadreInteractive.classList.add("hidden");
-    }
-    
-    // Despertar la app normal sin obstrucciones
     const bloqueOrdinario = document.getElementById("bloque-mando-principal") || document.querySelector(".main-form") || document.getElementById("bloque-escritura-libre")?.parentNode;
-    if (bloqueOrdinario) { 
-        bloqueOrdinario.style.display = "block"; 
-    }
+    if (bloqueOrdinario) { bloqueOrdinario.style.display = "block"; }
     document.getElementById("otg-bloque-boton-lanzador").style.display = "block";
     
-    // Limpieza de memoria
     poolTagsLocales = [];
     document.getElementById('otg-texto-extenso').value = '';
 };
@@ -3047,40 +2978,6 @@ window.limpiarVentanillaLocal = function() {
     window.actualizarPlataformaTexto();
     if (otgIntervaloEsfera) clearInterval(otgIntervaloEsfera);
     if (otgIntervaloReloj) clearInterval(otgIntervaloReloj);
-};
-
-// ==========================================================================================
-// UBICACIÓN EXACTA: FUNCIÓN DE APAGADO Y DESCONEXIÓN DE LA VENTANILLA
-// ==========================================================================================
-window.desactivarEntornoEspecial = function() {
-    if (otgIntervaloEsfera) clearInterval(otgIntervaloEsfera);
-    if (otgIntervaloReloj) clearInterval(otgIntervaloReloj);
-    
-    document.getElementById("otg-modulo-especial-completo").style.display = "none";
-    document.getElementById("otg-panel-respuesta").style.display = "none";
-    
-    // Volver a ocultar el contenedor interactivo para limpiar la pantalla negra
-    const contenedorMadreInteractive = document.getElementById("wrapper-interactive");
-    if (contenedorMadreInteractive) {
-        contenedorMadreInteractive.classList.add("hidden");
-    }
-    
-    // Despertar la app normal para que vuelva a funcionar
-    const bloqueOrdinario = document.getElementById("bloque-mando-principal") || document.querySelector(".main-form") || document.getElementById("bloque-escritura-libre")?.parentNode;
-    if (bloqueOrdinario) { bloqueOrdinario.style.display = "block"; }
-    document.getElementById("otg-bloque-boton-lanzador").style.display = "block";
-    
-    poolTagsLocales = [];
-    document.getElementById('otg-texto-extenso').value = '';
-};
-
-window.marcarTagLocal = function(elemento, valorPalabra) {
-    elemento.classList.toggle('seleccionado');
-    if (elemento.classList.contains('seleccionado')) {
-        poolTagsLocales.push(valorPalabra);
-    } else {
-        poolTagsLocales = poolTagsLocales.filter(v => v !== valorPalabra);
-    }
 };
 
 window.ejecutarTratamientoLocal = function() {
@@ -3137,17 +3034,16 @@ window.ejecutarTratamientoLocal = function() {
     document.getElementById("otg-f2-pauta").innerText = m.durante;
     document.getElementById("otg-f3-pauta").innerText = m.despues;
     
-    // Conexión corregida del mapa a la API oficial de Google Maps (Sin enlaces rotos)
+    // Conexión corregida del mapa a la API oficial de Google Maps (Evita enlaces rotos)
     document.getElementById("otg-f2-mapa").href = "https://google.com" + m.mapa + "+near+me";
     
-    // CORRECCIÓN CRÍTICA DE VISIBILIDAD: Removemos la clase 'hidden' para evitar la pantalla negra
+    // CORRECCIÓN CRÍTICA DE VISIBILIDAD: OBLIGA AL NAVEGADOR A QUITAR LA PANTALLA NEGRA
     const contenedorMadreInteractive = document.getElementById("wrapper-interactive");
     if (contenedorMadreInteractive) {
         contenedorMadreInteractive.classList.remove("hidden");
-        contenedorMadreInteractive.style.display = "block"; // Fuerza al navegador a pintar los elementos
+        contenedorMadreInteractive.style.display = "block"; 
     }
     
-    // Desplegar el bloque interno del asistente
     document.getElementById("otg-panel-respuesta").style.display = "block";
 
     // CONFIGURACIÓN DE LOS DOS ENGRANAJES AUTOMÁTICOS
@@ -3222,4 +3118,5 @@ window.ejecutarTratamientoLocal = function() {
 };
 
 // SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
+// ESTAS DOS LÍNEAS DE ABAJO DEBEN SER LAS ÚNICAS QUE CIERREN TODO TU ARCHIVO ENGINE.JS:
 })();
