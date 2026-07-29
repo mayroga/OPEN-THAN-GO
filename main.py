@@ -1,251 +1,46 @@
 # ==========================================================================================
-# OPEN THAN GO SYSTEM - Contextual Wellbeing & Matrix Processing Engine (CWRE) V.7.0.0
+# OPEN THAN GO SYSTEM - Contextual Wellbeing Routing Engine (CWRE) V.6.0.1
 # Company: May Roga LLC
-# File: main.py - CORE UNIFICADO (Backend Core + Especialidades de Perfil)
+# File: main.py - SECCIÓN 1 DE 2 (Backend Core)
 # ==========================================================================================
+
 import os
 import random
 import re
 import urllib.parse
-import hashlib
 from datetime import datetime
+
 import stripe
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException # HTTPException import fixed
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
 
-# --- CONFIGURACIÓN DE PASARELAS Y ENTORNO ---
+# ==========================================================================================
+# INYECCIÓN CRÍTICA DE CONTROL: PASARELA STRIPE & BYPASS MAESTRO
+# ==========================================================================================
 stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET")
+
 ADMIN_USER = os.environ.get("ADMIN_USERNAME")
 ADMIN_PASS = os.environ.get("ADMIN_PASSWORD")
 
+# Matriz oficial de Price IDs inmutables de Stripe
 PLANES_STRIPE = {
     "unico": "price_1TtbjXBOA5mT4t0PMCJSext6",
     "mensual": "price_1TtblSBOA5mT4t0PGiYvT2l9",
     "anual": "price_1TtbltBOA5mT4t0PpJ8io219"
 }
 
-link_base = "https://google.com"
+# ==========================================================================================
+link_base = "https://www.google.com/maps/search/?api=1&query="
 
 app = FastAPI()
 
-# --- INSTALACIÓN DE CORS ABIERTO PARA VINCULACIÓN DE WIDGET EXTERNO ---
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Habilita vinculación libre con aplicaciones web externas (CORS abierto)
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+# Ensure the 'static' directory exists before mounting
 if not os.path.exists("static"):
     os.makedirs("static")
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# ==========================================================================================
-# ARQUITECTURA DE PROTOCOLOS MATRIZ (Veteranos, Adultos Mayores y Gobierno)
-# ==========================================================================================
-PROTOCOLOS_MATRIZ_BASE = {
-    "veteranos": {
-        "antes": {"fundamento": "Evaluación de carga previa por fricción burocrática y activación de respuesta simpática inicial.", "metrica": "Índice de Fricción Previa: 88/100 (Crítico)"},
-        "durante": {"fundamento": "Aplicación de patrón de reducción de opciones (foco único) para estabilizar el flujo documental.", "metrica": "Estabilización de Flujo: En proceso activo"},
-        "despues": {"fundamento": "Consolidación de certeza jurídica y disminución del cortisol cognitivo logrado.", "metrica": "Índice de Resolución: Óptimo (95%)"}
-    },
-    "adultos_mayores": {
-        "antes": {"fundamento": "Diagnóstico de accesibilidad perceptual y reducción de fatiga cognitiva en la interfaz.", "metrica": "Barrera de Interfaz Inicial: Alta"},
-        "durante": {"fundamento": "Ejecución de asistencia guiada paso a paso con priorización de memoria de trabajo.", "metrica": "Simplificación Activa: Aplicada"},
-        "despues": {"fundamento": "Validación de autonomía, seguridad y retención total de la directriz.", "metrica": "Comprensión y Retención: 100%"}
-    },
-    "gobierno": {
-        "antes": {"fundamento": "Análisis de riesgo normativo inicial y exposición a variabilidad procedimental.", "metrica": "Exposición Operativa: Nivel de Alerta"},
-        "durante": {"fundamento": "Aplicación de filtro de validación cruzada para neutralizar desviación administrativa.", "metrica": "Filtro de Cumplimiento: Ejecutándose"},
-        "despues": {"fundamento": "Cierre de expediente verificado con mitigación total de margen de error.", "metrica": "Validación de Cierre: Segura y Conforme"}
-    }
-}
-
-# ==========================================================================================
-# # BANCO MUTANTE DE MISIONES UNIVERSALES BILINGÜES (MÁXIMA DIVERSIDAD MASIVA)
-# # Lenguaje nivel 8 años - Cero repeticiones - Soporte simultáneo infinito
-# ==========================================================================================
-POOL_MISIONES_EXTENSO = {
-    "es": {
-        "adultos_mayores": [
-            {
-                "antes": "Freno de soledad: Detén lo que estás haciendo. Toma un vaso de agua fresca y bébelo muy despacio. Siente cómo pasa el agua.",
-                "ajuste": "Modo descanso visual: Bajando el brillo de tu pantalla para cuidar tus ojos.",
-                "durante": "Misión de acompañamiento: Camina despacio por tu hogar. Busca un objeto, un álbum de fotos viejas o un recuerdo que te dé alegría. Míralo en silencio durante 10 minutos completos.",
-                "mapa": "parques+planos+con+asientos+y+caminos+faciles+cerca+de+mi",
-                "despues": "Registro completado: Tu mente ha cambiado de enfoque con éxito.",
-                "futuro": "Tu tarea para mañana: Llama por teléfono a un amigo o familiar durante 3 minutos para saludarle."
-            },
-            {
-                "antes": "Freno de rutina: Cierra los ojos en este instante. Respira profundo por la nariz y suelta el aire por la boca 3 veces muy lento.",
-                "ajuste": "Ajuste de luz: El sistema suaviza el contraste visual de tu pantalla ahora.",
-                "durante": "Misión de confort: Busca tu sillón favorito. Siéntate derecho y masajea suavemente tus orejas y sienes con las yemas de tus dedos haciendo círculos pequeños por 5 minutos.",
-                "mapa": "cafeterias+tranquilas+con+sillones+comodos+cerca+de+mi",
-                "despues": "Registro completado: El sedentarismo de la tarde se ha roto de forma segura.",
-                "futuro": "Tu tarea para mañana: Abre una ventana a primera hora para que entre aire fresco y sol a tu habitación."
-            },
-            {
-                "antes": "Pausa de atención: Suelta el teléfono sobre la mesa. Mira hacia el techo y estira tu cuello suavemente hacia la derecha y luego hacia la izquierda.",
-                "ajuste": "Filtro de tranquilidad: Activando sonidos de naturaleza de baja frecuencia en la app madre.",
-                "durante": "Misión del entorno: Camina hacia la ventana más cercana. Observa el cielo, las nubes o los árboles de afuera. Cuenta mentalmente 5 cosas en movimiento que veas en la calle.",
-                "mapa": "jardines+botanicos+o+invernaderos+con+rampas+cerca+de+mi",
-                "despues": "Registro completado: Lograste conectar tu mente con el mundo real exterior.",
-                "futuro": "Tu tarea para mañana: Riega una planta de tu casa o dedica 2 minutos a observar el jardín con la luz de la mañana."
-            }
-        ],
-        "veteranos": [
-            {
-                "antes": "Freno de alerta: Ve de inmediato a la habitación más tranquila, aislada y oscura de tu casa en este momento.",
-                "ajuste": "Filtro de sonido preventivo: Colócate audífonos o tapones para oídos ya mismo para apagar el ruido exterior.",
-                "durante": "Misión de control: Apoya tus manos con firmeza sobre tus rodillas. Presiona tus talones contra el suelo. Cuenta en reversa del 10 al 1 muy despacio en tu mente.",
-                "mapa": "senderos+naturales+silenciosos+y+bosques+cerca+de+mi",
-                "despues": "Registro completado: Tu atención se ha movido fuera del peligro con éxito.",
-                "futuro": "Tu tarea para después: Mantén tus audífonos puestos 10 minutos más mientras ordenas un objeto pequeño de tu habitación."
-            },
-            {
-                "antes": "Freno de tensión: Suelta el bolígrafo o aléjate de la computadora ahora. Da tres pasos físicos hacia atrás y sacude tus manos con fuerza.",
-                "ajuste": "Bloqueo de datos: El sistema limpia la pantalla temporalmente para apagar estímulos innecesarios.",
-                "durante": "Misión de enfoque modular: Toma una sola hoja de papel o tarea que tengas pendiente hoy. Guarda todos los demás papeles en un cajón cerrado, fuera de tu vista. Trabaja solo en esa hoja por 15 minutos.",
-                "mapa": "bibliotecas+publicas+con+salas+de+estudio+silenciosas+cerca+de+mi",
-                "despues": "Registro completado: Conseguiste dividir un gran peso en una micro-tarea bajo tu control directo.",
-                "futuro": "Tu tarea para después: Anota en una libreta de papel un solo paso sencillo que dependa solo de ti para resolver mañana."
-            },
-            {
-                "antes": "Pausa táctica: Colócate de pie de forma recta. Bebe un sorbo de agua fría y mantén el agua en tu boca por 5 segundos antes de pasarla.",
-                "ajuste": "Modo operativo neutro: Minimizando notificaciones y sonidos molestos del entorno digital.",
-                "durante": "Misión de anclaje: Elige un objeto fijo de la habitación (un cuadro, una silla, un reloj). Observa detalladamente su forma, sus colores y sus bordes durante 5 minutos sin desviar la mirada.",
-                "mapa": "museos+de+arte+locales+o+galerias+silenciosas+cerca+de+mi",
-                "despues": "Registro completado: Lograste regresar tu mente a un estado de control y orden.",
-                "futuro": "Tu tarea para después: Realiza una caminata corta de paso firme y constante alrededor de tu cuadra al finalizar la tarde."
-            }
-        ],
-        "gobierno": [
-            {
-                "antes": "Freno de oficina: Cierra o minimiza todas las hojas de trabajo, tareas y correos en este segundo. Deja solo esta pantalla.",
-                "ajuste": "Límite digital activado: Te has desconectado de la red del trabajo por un momento.",
-                "durante": "Misión de descompresión: Ponte de pie. Sepárate de la silla de oficina. Estira tus brazos hacia el techo por 2 minutos. Camina al punto de agua más lejano de tu piso.",
-                "mapa": "jardines+botanicos+o+plazas+abiertas+silenciosas+cerca+de+mi",
-                "despues": "Registro completado: Lograste separar tu mente de la carga del sistema laboral.",
-                "futuro": "Tu tarea para después: Parpadea seguido durante 15 segundos para aliviar tus ojos cansados de mirar el monitor."
-            },
-            {
-                "antes": "Pausa administrativa: Quita tus manos del teclado inmediatamente. Entrelaza tus dedos y estira tus muñecas hacia el frente durante 30 segundos.",
-                "ajuste": "Aislamiento de tareas: Desactivando alertas sonoras de correos entrantes por los próximos 20 minutos.",
-                "durante": "Misión de oxigenación: Sal de tu módulo de trabajo o cubículo. Camina a paso constante hacia un pasillo exterior o jardín de la oficina y respira aire fresco de forma profunda 5 veces.",
-                "mapa": "cafeterias+pequeñas+con+luz+tenue+cerca+de+mi",
-                "despues": "Registro completado: Estableciste un límite saludable entre tu mente y las exigencias del estado.",
-                "futuro": "Tu tarea para después: Al llegar a casa, apaga el teléfono del trabajo y déjalo dentro de una mochila hasta mañana."
-            }
-        ]
-    },
-    "en": {
-        "adultos_mayores": [
-            {
-                "antes": "Stop loneliness: Stop what you are doing. Take a glass of fresh water and drink it very slowly. Feel the water go down.",
-                "ajuste": "Visual rest mode: Lowering your screen brightness to protect your eyes.",
-                "durante": "Companion mission: Walk slowly through your home. Find an object, an old photo album, or a keepsake that brings you joy. Look at it in silence for 10 full minutes.",
-                "mapa": "flat+parks+with+benches+and+easy+walking+paths+near+me",
-                "despues": "Registration completed: Your mind has successfully changed its focus.",
-                "futuro": "Your task for tomorrow: Make a short 3-minute phone call to a friend or relative just to say hello."
-            }
-        ],
-        "veteranos": [
-            {
-                "antes": "Stop alert: Go immediately to the quietest, most isolated, and darkest room in your house right now.",
-                "ajuste": "Preventive sound filter: Put on headphones or earplugs right now to block out external noise.",
-                "durante": "Control mission: Place your hands firmly on your knees. Press your heels against the floor. Count backward from 10 to 1 very slowly in your mind.",
-                "mapa": "quiet+nature+trails+and+forests+near+me",
-                "despues": "Registration completed: Your attention has successfully moved away from the disturbance.",
-                "futuro": "Your task for later: Keep your headphones on for 10 more minutes while organizing a small item in your room."
-            }
-        ],
-        "gobierno": [
-            {
-                "antes": "Stop office work: Close or minimize all worksheets, tasks, and emails this second. Leave only this screen visible.",
-                "ajuste": "Digital limit activated: You have disconnected from the work network for a moment.",
-                "durante": "Decompression mission: Stand up. Step away from your office chair. Stretch your arms toward the ceiling for 2 minutes. Walk to the farthest water station on your floor.",
-                "mapa": "botanical+gardens+or+quiet+open+air+squares+near+me",
-                "despues": "Registration completed: You successfully separated your mind from the burden of the work system.",
-                "futuro": "Your task for later: Blink continuously for 15 seconds to relieve your eyes from monitor strain."
-            }
-        ]
-    }
-}
-
-# ==========================================================================================
-# ==========================================================================================
-# MOTOR DE ASISTENCIA OPERATIVA Y ENRUTAMIENTO DE TAREAS (SEGURO, OBJETIVO Y ACCIONABLE)
-# ==========================================================================================
-def procesar_caso_matriz_unico(categoria, fase, parametro_problema, idioma_cliente="es"):
-    cat = str(categoria).lower().strip()
-    lang = "en" if str(idioma_cliente).lower().strip() == "en" else "es"
-    
-    if cat not in ["veteranos", "adultos_mayores", "gobierno"]:
-        cat = "veteranos"
-        
-    # Algoritmo de entropía: Usamos microsegundos y el texto para generar IDs indestructibles
-    seed_str = f"{cat}-{datetime.now().microsecond}-{random.randint(1000,9999)}"
-    case_id = hashlib.md5(seed_str.encode()).hexdigest()[:8].upper()
-    
-    # SELECCIÓN ALEATORIA DE CONTENIDO DESDE EL POOL EXTENSO COMPLETO
-    pool_opciones = POOL_MISIONES_EXTENSO[lang][cat]
-    
-    # Fallback seguro si la lista está corta en desarrollo
-    mision_elegida = random.choice(pool_opciones) if len(pool_opciones) > 0 else POOL_MISIONES_EXTENSO["es"][cat][0]
-    
-    fases_resultado = {
-        "antes": {
-            "pauta_accion": mision_elegida["antes"],
-            "ajuste_entorno": mision_elegida["ajuste"]
-        },
-        "durante": {
-            "tarea_principal": mision_elegida["durante"],
-            "enlace_mapa": link_base + mision_elegida["mapa"]
-        },
-        "despues": {
-            "pauta_cierre": mision_elegida["despues"],
-            "seguimiento_futuro": mision_elegida["futuro"]
-        }
-    }
-    
-    return {
-        "metadatos_sistema": {
-            "id_caso": f"OTG-{case_id}",
-            "categoria_perfil": cat.upper(),
-            "marca_temporal": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "idioma_utilizado": lang.upper(),
-            "concurrencia_safe": True
-        },
-        "fases_tratamiento_bienestar": fases_resultado,
-        "status": "success"
-    }
-
-# ==========================================================================================
-# ENDPOINT RECEPTOR DE INTEGRACIÓN BILINGÜE INTELIGENTE
-# ==========================================================================================
-@app.post("/api/v1/procesar-atencion")
-async def api_procesar_atencion(request: Request):
-    try:
-        datos_entrada = await request.json()
-        categoria = datos_entrada.get('categoria', '').strip().lower()
-        fase = datos_entrada.get('fase', '').strip().lower()
-        parametro = datos_entrada.get('parametro', '').strip()
-        
-        # Leemos el idioma del payload; si no viene, usamos "es" por defecto
-        idioma = datos_entrada.get('lang', 'es').strip().lower()
-        
-        if not categoria or not parametro:
-            return JSONResponse(status_code=400, content={"status": "error", "codigo": 400, "mensaje": "Faltan parámetros esenciales."})
-            
-        reporte = procesar_caso_matriz_unico(categoria, fase, parametro, idioma)
-        return JSONResponse({"status": "success", "codigo": 200, "reporte": reporte})
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"status": "error", "codigo": 500, "mensaje": str(e)})
-
 
 DEFAULT_NECESSITY_VECTOR = {
     "movimiento": 50,
@@ -1467,84 +1262,55 @@ async def mando_integral(request: Request):
             elif perfil_tipo == "accesible":
                 quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
 
-    # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES 
-    titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper() 
-    que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or "" 
-    donde_base_lang = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"] 
-    guia_masticada_lang = info_seleccionada.get('porque_en', info_seleccionada.get('porque', '')) if lang == "en" else info_seleccionada.get('porque', '') 
-    
-    search_query_parts = [] 
-    if perfil_tipo == "accesible": 
-        search_query_parts.append("wheelchair accessible") 
-    elif perfil_tipo == "familia": 
-        search_query_parts.append("family friendly") 
-        
-    search_query_parts.append(info_seleccionada.get("gps", "park")) 
-    target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}" 
-    final_vector_necesidades = info_seleccionada.get("vector_necesidades", {}) 
-    
-    # Usar los enlaces por defecto si no están definidos en la misión 
-    enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt) 
-    enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp) 
-    
-    # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES === 
-    final_misiones_para_frontend.append({ 
-        "destino_id": info_seleccionada.get("id"), 
-        "destino_titulo": titulo_ganador_lang, 
-        "destino_titulo_en": (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper(), 
-        "que_hacer": que_hacer_lang, 
-        "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]), 
-        "destino_entorno": donde_base_lang, 
-        "destino_instruccion": guia_masticada_lang.strip(), 
-        "destino_instruccion_en": info_seleccionada.get("porque_en", info_seleccionada.get("porque", "")).strip(), 
-        "destino_coordenadas_gps": target_link, 
-        "vector_entorno_seleccionado": final_vector_necesidades, 
-        "enlace_youtube": enlace_yt, 
-        "enlace_spotify": enlace_sp 
-    }) 
-    historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR) 
-    
-    return JSONResponse({ 
-        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO", 
-        "misiones": final_misiones_para_frontend, 
-        "historial_salir_actualizado": historial_salir, 
-        "forced_recovery": False, 
-        "legal_notice_es": ADVERTENCIA_LEGAL_ES, 
-        "legal_notice_en": ADVERTENCIA_LEGAL_EN, 
-        "drive_prohibited": True 
-    })
+            # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
+            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
+            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or ""
+            donde_base_lang = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
+            guia_masticada_lang = info_seleccionada.get('porque_en', info_seleccionada.get('porque', '')) if lang == "en" else info_seleccionada.get('porque', '')
 
-# ==========================================================================================
-# ENDPOINT DE INTEGRACIÓN PARA LA VENTANILLA / WIDGET EXTERNO (CONEXIÓN FIJADA)
-# ==========================================================================================
-@app.post("/api/v1/procesar-atencion")
-async def api_procesar_atencion(request: Request):
-    try:
-        datos_entrada = await request.json()
-        categoria = datos_entrada.get('categoria', '').strip().lower()
-        fase = datos_entrada.get('fase', '').strip().lower()
-        parametro = datos_entrada.get('parametro', '').strip()
-        idioma = datos_entrada.get('lang', 'es').strip().lower()
-        
-        if not categoria or not parametro:
-            return JSONResponse(status_code=400, content={"status": "error", "codigo": 400, "mensaje": "Faltan parámetros esenciales."})
-            
-        reporte = procesar_caso_matriz_unico(categoria, fase, parametro, idioma)
-        return JSONResponse({"status": "success", "codigo": 200, "reporte": reporte})
-    except Exception as e:
-        return JSONResponse(status_code=500, content={"status": "error", "codigo": 500, "mensaje": str(e)})
+            search_query_parts = []
+            if perfil_tipo == "accesible":
+                search_query_parts.append("wheelchair accessible")
+            elif perfil_tipo == "familia":
+                search_query_parts.append("family friendly")
+               
+            search_query_parts.append(info_seleccionada.get("gps", "park"))
+            target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}"
+            final_vector_necesidades = info_seleccionada.get("vector_necesidades", {})
 
-# ==========================================================================================
-# SERVICIO DE INTERFAZ MADRE (OPEN THAN GO HOME)
-# ==========================================================================================
-@app.get("/")
-async def index():
-    return FileResponse('static/session.html')
+            # Usar los enlaces por defecto si no están definidos en la misión
+            enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
+            enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
 
-# ========================================================================================== 
-# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE) 
-# ========================================================================================== 
-if __name__ == "__main__": 
-    import uvicorn
-    port_env = int(os.environ.get("PORT", 8000)) 
+            # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
+            final_misiones_para_frontend.append({
+                "destino_id": info_seleccionada.get("id"),
+                "destino_titulo": titulo_ganador_lang,
+                "destino_titulo_en": (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper(),
+                "que_hacer": que_hacer_lang,
+                "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
+                "destino_entorno": donde_base_lang,
+                "destino_instruccion": guia_masticada_lang.strip(),
+                "destino_instruccion_en": info_seleccionada.get("porque_en", info_seleccionada.get("porque", "")).strip(),
+                "destino_coordenadas_gps": target_link,
+                "vector_entorno_seleccionado": final_vector_necesidades,
+                "enlace_youtube": enlace_yt,
+                "enlace_spotify": enlace_sp
+            })
+            historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
+
+        return JSONResponse({
+            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
+            "misiones": final_misiones_para_frontend,
+            "historial_salir_actualizado": historial_salir,
+            "forced_recovery": False,
+            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
+            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
+            "drive_prohibited": True
+        })
+# ==========================================================================================
+# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
+# ==========================================================================================
+if __name__ == "__main__":
+    port_env = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
