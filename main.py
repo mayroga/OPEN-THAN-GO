@@ -1467,55 +1467,84 @@ async def mando_integral(request: Request):
             elif perfil_tipo == "accesible":
                 quienes_van = "ACOMPAÑAMIENTO: Ruta accesible. Sin barreras." if lang == "es" else "COMPANIONSHIP: Accessible route. No barriers."
 
-            # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES
-            titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper()
-            que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or ""
-            donde_base_lang = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"]
-            guia_masticada_lang = info_seleccionada.get('porque_en', info_seleccionada.get('porque', '')) if lang == "en" else info_seleccionada.get('porque', '')
+    # CONDICIONALES DE IDIOMA TOTALMENTE SIMÉTRICOS E INDEPENDIENTES 
+    titulo_ganador_lang = (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper() if lang == "en" else (info_seleccionada["titulo"] or "").upper() 
+    que_hacer_lang = info_seleccionada.get('que_hacer_en', info_seleccionada['que_hacer']) or '' if lang == "en" else info_seleccionada["que_hacer"] or "" 
+    donde_base_lang = info_seleccionada.get("donde_en", info_seleccionada["donde"]) if lang == "en" else info_seleccionada["donde"] 
+    guia_masticada_lang = info_seleccionada.get('porque_en', info_seleccionada.get('porque', '')) if lang == "en" else info_seleccionada.get('porque', '') 
+    
+    search_query_parts = [] 
+    if perfil_tipo == "accesible": 
+        search_query_parts.append("wheelchair accessible") 
+    elif perfil_tipo == "familia": 
+        search_query_parts.append("family friendly") 
+        
+    search_query_parts.append(info_seleccionada.get("gps", "park")) 
+    target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}" 
+    final_vector_necesidades = info_seleccionada.get("vector_necesidades", {}) 
+    
+    # Usar los enlaces por defecto si no están definidos en la misión 
+    enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt) 
+    enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp) 
+    
+    # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES === 
+    final_misiones_para_frontend.append({ 
+        "destino_id": info_seleccionada.get("id"), 
+        "destino_titulo": titulo_ganador_lang, 
+        "destino_titulo_en": (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper(), 
+        "que_hacer": que_hacer_lang, 
+        "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]), 
+        "destino_entorno": donde_base_lang, 
+        "destino_instruccion": guia_masticada_lang.strip(), 
+        "destino_instruccion_en": info_seleccionada.get("porque_en", info_seleccionada.get("porque", "")).strip(), 
+        "destino_coordenadas_gps": target_link, 
+        "vector_entorno_seleccionado": final_vector_necesidades, 
+        "enlace_youtube": enlace_yt, 
+        "enlace_spotify": enlace_sp 
+    }) 
+    historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR) 
+    
+    return JSONResponse({ 
+        "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO", 
+        "misiones": final_misiones_para_frontend, 
+        "historial_salir_actualizado": historial_salir, 
+        "forced_recovery": False, 
+        "legal_notice_es": ADVERTENCIA_LEGAL_ES, 
+        "legal_notice_en": ADVERTENCIA_LEGAL_EN, 
+        "drive_prohibited": True 
+    })
 
-            search_query_parts = []
-            if perfil_tipo == "accesible":
-                search_query_parts.append("wheelchair accessible")
-            elif perfil_tipo == "familia":
-                search_query_parts.append("family friendly")
-               
-            search_query_parts.append(info_seleccionada.get("gps", "park"))
-            target_link = f"{link_base}{urllib.parse.quote_plus('+'.join(search_query_parts))}+{zip_code}"
-            final_vector_necesidades = info_seleccionada.get("vector_necesidades", {})
-
-            # Usar los enlaces por defecto si no están definidos en la misión
-            enlace_yt = info_seleccionada.get("enlace_youtube", antidotos_digitales_default_yt)
-            enlace_sp = info_seleccionada.get("enlace_spotify", antidotos_digitales_default_sp)
-
-            # === ASIGNACIÓN SIMÉTRICA DE DATOS ORIGINALES ===
-            final_misiones_para_frontend.append({
-                "destino_id": info_seleccionada.get("id"),
-                "destino_titulo": titulo_ganador_lang,
-                "destino_titulo_en": (info_seleccionada.get("titulo_en", info_seleccionada["titulo"]) or "").upper(),
-                "que_hacer": que_hacer_lang,
-                "que_hacer_en": info_seleccionada.get("que_hacer_en", info_seleccionada["que_hacer"]),
-                "destino_entorno": donde_base_lang,
-                "destino_instruccion": guia_masticada_lang.strip(),
-                "destino_instruccion_en": info_seleccionada.get("porque_en", info_seleccionada.get("porque", "")).strip(),
-                "destino_coordenadas_gps": target_link,
-                "vector_entorno_seleccionado": final_vector_necesidades,
-                "enlace_youtube": enlace_yt,
-                "enlace_spotify": enlace_sp
-            })
-            historial_salir = actualizar_historial(historial_salir, info_seleccionada["id"], MAX_HISTORY_SALIR)
-
-        return JSONResponse({
-            "DIRECCIONAMIENTO_MASTER": "ACCION_CAMPO",
-            "misiones": final_misiones_para_frontend,
-            "historial_salir_actualizado": historial_salir,
-            "forced_recovery": False,
-            "legal_notice_es": ADVERTENCIA_LEGAL_ES,
-            "legal_notice_en": ADVERTENCIA_LEGAL_EN,
-            "drive_prohibited": True
-        })
 # ==========================================================================================
-# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
+# ENDPOINT DE INTEGRACIÓN PARA LA VENTANILLA / WIDGET EXTERNO (CONEXIÓN FIJADA)
 # ==========================================================================================
-if __name__ == "__main__":
-    port_env = int(os.environ.get("PORT", 8000))
+@app.post("/api/v1/procesar-atencion")
+async def api_procesar_atencion(request: Request):
+    try:
+        datos_entrada = await request.json()
+        categoria = datos_entrada.get('categoria', '').strip().lower()
+        fase = datos_entrada.get('fase', '').strip().lower()
+        parametro = datos_entrada.get('parametro', '').strip()
+        idioma = datos_entrada.get('lang', 'es').strip().lower()
+        
+        if not categoria or not parametro:
+            return JSONResponse(status_code=400, content={"status": "error", "codigo": 400, "mensaje": "Faltan parámetros esenciales."})
+            
+        reporte = procesar_caso_matriz_unico(categoria, fase, parametro, idioma)
+        return JSONResponse({"status": "success", "codigo": 200, "reporte": reporte})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"status": "error", "codigo": 500, "mensaje": str(e)})
+
+# ==========================================================================================
+# SERVICIO DE INTERFAZ MADRE (OPEN THAN GO HOME)
+# ==========================================================================================
+@app.get("/")
+async def index():
+    return FileResponse('static/session.html')
+
+# ========================================================================================== 
+# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE) 
+# ========================================================================================== 
+if __name__ == "__main__": 
+    import uvicorn
+    port_env = int(os.environ.get("PORT", 8000)) 
     uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
