@@ -2870,167 +2870,293 @@ KERNEL.activarCarruselEmocional = function(estadoMente) {
 };
 
 // ==========================================================================================
-// 2. RECEPTOR DE SEÑALES PARA LA VENTANILLA / WIDGET EXTERNO INTER-ESTRUCTURAS (CORREGIDO)
+// INTERRUPTORES DE CONGELAMIENTO MUTUAMENTE EXCLUSIVOS (AISLAMIENTO TOTAL)
 // ==========================================================================================
-window.addEventListener("message", function(event) {
-    if (event.data && event.data.identificador === "MATRIX_WIDGET_RESCUE") {
-        
-        // CONEXIÓN CORREGIDA: Nombres idénticos y limpios sin errores de sintaxis (.trim() válido)
-        const perfil = String(event.data.perfil).toLowerCase().trim();
-        const idiomaActivo = String(event.data.lang || "es").toLowerCase().trim();
-        
-        console.log(`[Matrix Core] Mensaje validado. Perfil: ${perfil}. Idioma: ${idiomaActivo}`);
-        
-        KERNEL.menteActual = "ansioso";
-        
-        const contenedorInteractivo = document.getElementById("wrapper-interactive");
-        const contenedorFondo = document.getElementById("carousel-background");
-        
-        if (contenedorInteractivo) { contenedorInteractivo.classList.remove("hidden"); }
-        if (contenedorFondo) { contenedorFondo.classList.remove("hidden"); }
+let poolTagsLocales = [];
+let otgIntervaloEsfera = null;
+let otgIntervaloReloj = null;
+let otgIdiomaActual = "es"; // Idioma controlado de forma nativa por el botón
 
-        if (typeof KERNEL.activarCarruselEmocional === 'function') {
-            KERNEL.activarCarruselEmocional(KERNEL.menteActual);
-        }
-        if (typeof KERNEL.reproducirVozHumana === 'function') {
-            KERNEL.reproducirVozHumana(event.data.instruccion, KERNEL.VELOCIDAD_VOZ_HUMANA || 0.95);
-        }
-
-        // AJUSTE DE MAPAS BILINGÜE: Enrutamiento universal de Google Maps
-        const botonSalirMadre = document.getElementById("btn-modo-salir") || document.querySelector(".btn-salir-main");
-        if (botonSalirMadre) {
-            let busquedaEspecialMaps = "quiet+parks+with+nature+and+benches";
-            
-            if (idiomaActivo === "en") {
-                if (perfil === "veteranos") busquedaEspecialMaps = "isolated+nature+trails+or+dense+forest+parks+near+me";
-                else if (perfil === "adultos_mayores") busquedaEspecialMaps = "flat+walking+paths+botanical+gardens+and+easy+access+near+me";
-                else if (perfil === "gobierno") busquedaEspecialMaps = "quiet+open+air+squares+or+public+reading+rooms+near+me";
-            } else {
-                if (perfil === "veteranos") busquedaEspecialMaps = "senderos+naturales+silenciosos+y+bosques+cerca+de+mi";
-                else if (perfil === "adultos_mayores") busquedaEspecialMaps = "parques+planos+con+asientos+y+caminos+faciles+cerca+de+mi";
-                else if (perfil === "gobierno") busquedaEspecialMaps = "jardines+botanicos+o+plazas+abiertas+silenciosas+cerca+de+mi";
-            }
-            
-            botonSalirMadre.onclick = function() {
-                window.open(`https://google.com{busquedaEspecialMaps}`, '_blank');
-                console.log(`[Modo Salir] Redirección ejecutada en idioma: ${idiomaActivo}`);
-            };
-        }
-
-        // INYECCIÓN DEL MOTOR DE RESPIRACIÓN ADAPTADO CON TEMPORIZADOR DE 15 MINUTOS
-        let cajaPulmon = document.getElementById("otg-breath-engine-container");
-        if (!cajaPulmon) {
-            cajaPulmon = document.createElement("div");
-            cajaPulmon.id = "otg-breath-engine-container";
-            cajaPulmon.style = "background:#0f172a; border:2px solid #38bdf8; border-radius:12px; padding:20px; margin-top:20px; text-align:center; box-shadow: 0 4px 20px rgba(56,189,248,0.15); font-family:sans-serif; color:#f8fafc;";
-            
-            const nodoDestino = document.getElementById("wrapper-interactive") || document.body;
-            nodoDestino.insertBefore(cajaPulmon, nodoDestino.firstChild);
-        }
-
-        let tiempoInhalar = 4000;
-        let tiempoExhalar = 4000;
-        let etiquetaRitmo = "Ritmo Regular de Homeostasis (4s x 4s)";
-        
-        if (perfil === "veteranos") {
-            tiempoInhalar = 5000; 
-            tiempoExhalar = 5000;
-            etiquetaRitmo = "Pauta de Anclaje Táctico (5s Inhalar / 5s Exhalar)";
-        } else if (perfil === "adultos_mayores") {
-            tiempoInhalar = 3000; 
-            tiempoExhalar = 4000;
-            etiquetaRitmo = "Pauta de Confort Suave (3s Inhalar / 4s Exhalar)";
-        }
-
-        cajaPulmon.innerHTML = `
-            <div style="font-size:11px; text-transform:uppercase; color:#94a3b8; font-weight:bold; letter-spacing:1px; margin-bottom:5px;">Módulo Somático de Regulación Colectiva</div>
-            <div style="font-size:16px; font-weight:bold; color:#38bdf8; margin-bottom:15px;">${etiquetaRitmo}</div>
-            
-            <div id="circulo-biologico" style="width:120px; height:120px; background:rgba(56,189,248,0.1); border:4px solid #38bdf8; border-radius:50%; margin:20px auto; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; color:#38bdf8; transition: all 3s ease-in-out; box-shadow: 0 0 15px rgba(56,189,248,0.2);">
-                <span id="texto-estado-respiracion">Iniciar</span>
-            </div>
-            
-            <div style="background:#1e293b; padding:8px; border-radius:6px; display:inline-block; margin-top:10px; font-size:13px;">
-                ⏱️ Tiempo restante de desconexión obligatoria: <strong id="reloj-15min" style="color:#10b981;">15:00</strong>
-            </div>
-        `;
-
-        if (KERNEL.intervaloRespiracion) clearInterval(KERNEL.intervaloRespiracion);
-        
-        function ejecutarCicloEsfera() {
-            const esfera = document.getElementById("circulo-biologico");
-            const txtEsfera = document.getElementById("texto-estado-respiracion");
-            if (!esfera || !txtEsfera) return;
-
-            esfera.style.transform = "scale(1.4)";
-            esfera.style.backgroundColor = "rgba(56,189,248,0.3)";
-            esfera.style.boxShadow = "0 0 30px rgba(56,189,248,0.6)";
-            txtEsfera.innerText = "INHALA";
-
-            setTimeout(() => {
-                const esferaCheck = document.getElementById("circulo-biologico");
-                const txtCheck = document.getElementById("texto-estado-respiracion");
-                if (!esferaCheck || !txtCheck) return;
-                
-                esferaCheck.style.transform = "scale(0.9)";
-                esferaCheck.style.backgroundColor = "rgba(56,189,248,0.05)";
-                esferaCheck.style.boxShadow = "0 0 10px rgba(56,189,248,0.1)";
-                txtCheck.innerText = "EXHALA";
-            }, tiempoInhalar);
-        }
-
-        ejecutarCicloEsfera();
-        KERNEL.intervaloRespiracion = setInterval(ejecutarCicloEsfera, (tiempoInhalar + tiempoExhalar));
-
-        if (KERNEL.intervaloReloj15) clearInterval(KERNEL.intervaloReloj15);
-        let segundosTotales = 900; 
-
-        KERNEL.intervaloReloj15 = setInterval(() => {
-            const nodoReloj = document.getElementById("reloj-15min");
-            if (!nodoReloj) {
-                clearInterval(KERNEL.intervaloReloj15);
-                return;
-            }
-
-            segundosTotales--;
-            
-            let mins = Math.floor(segundosTotales / 60);
-            let segs = segundosTotales % 60;
-            if (segs < 10) segs = "0" + segs;
-            if (mins < 10) mins = "0" + mins;
-
-            nodoReloj.innerText = `${mins}:${segs}`;
-
-            if (segundosTotales <= 0) {
-                clearInterval(KERNEL.intervaloReloj15);
-                clearInterval(KERNEL.intervaloRespiracion);
-                cajaPulmon.innerHTML = `
-                    <div style="color:#10b981; font-weight:bold; font-size:16px;">✓ Misión del Ciclo de 15 Minutos Concluida</div>
-                    <p style="font-size:13px; color:#94a3b8; margin:5px 0 0 0;">Has completado tu pauta de descompresión con éxito. Puedes regresar a tus actividades con enfoque renovado.</p>
-                `;
-                console.log("[Matrix Core] Ciclo de desconexión completado con éxito absoluto.");
-            }
-        }, 1000);
-    }
-}, false);
-
-// ==========================================================================================
-// INTERRUPTORES GLOBALIZADOS DE CONTROL DE LA INTERFAZ MODAL (CONEXIÓN FIJADA)
-// ==========================================================================================
-window.abrirModalEspecial = function() {
-    const modal = document.getElementById("modalPerfiles");
-    if (modal) {
-        modal.style.display = "block";
-        console.log("[Ecosistema Matrix] Ventanilla de Perfiles Especiales desplegada.");
+// Etiquetas fijas de la interfaz para cambio milimétrico de idioma
+const DICCIONARIO_INTERFAZ = {
+    "es": {
+        "titulo": "Asistente de Bienestar Habitual", 
+        "subtitulo": "Módulo directo de orientación práctica y organización de misiones.",
+        "perfil": "Selecciona tu Perfil de Atención Especial:", 
+        "vet": "Veteranos de Guerra", 
+        "am": "Adultos Mayores / Personas Mayores",
+        "gob": "Trabajadores del Gobierno / Oficina", 
+        "tags": "Toca las palabras que describan tu agobio de hoy (Opcional):",
+        "texto": "O copia y pega aquí un texto largo o queja burocrática:", 
+        "placeholder": "Puedes pegar correos extensos o escribir libremente lo que pasa en tu mente hoy...",
+        "btn_act": "Activar Mi Plan", 
+        "btn_borrar": "Borrar Todo", 
+        "btn_cerrar": "✕ CERRAR VENTANILLA", 
+        "registro": "✓ Estrategia Operativa Generada",
+        "reloj_lbl": "⏱️ Tiempo restante de desconexión obligatoria:", 
+        "f1_lbl": "Modo Casa Propio: Antes del Uso (Freno de Tensión)",
+        "f2_lbl": "Modo Salir Propio: Durante la Actividad (Misión Práctica)", 
+        "f3_lbl": "Cierre del Ciclo: Después del Uso (Descanso Garantizado)",
+        "mapa_lbl": "🗺️ Abrir Ruta de Entorno Seguro en Google Maps",
+        "tags_pool": [
+            {id: "triste", txt: "Tristeza / Soledad"}, 
+            {id: "cansado", txt: "Cansancio / Pantalla"},
+            {id: "papeleo", txt: "Papeleo / Trámite largo"}, 
+            {id: "ruido", txt: "Mucho Ruido afuera"}, 
+            {id: "estres", txt: "Estrés de Oficina"}
+        ]
+    },
+    "en": {
+        "titulo": "Habitual Wellbeing Assistant", 
+        "subtitulo": "Direct module for practical orientation and routine mission organization.",
+        "perfil": "Select your Special Care Profile:", 
+        "vet": "War Veterans", 
+        "am": "Elderly / Senior Citizens",
+        "gob": "Government / Office Workers", 
+        "tags": "Tap the words that describe your overwhelm today (Optional):",
+        "texto": "Or copy and paste a long text or bureaucratic complaint here:", 
+        "placeholder": "You can paste long emails or write freely what is on your mind today...",
+        "btn_act": "Activate My Plan", 
+        "btn_borrar": "Clear All", 
+        "btn_cerrar": "✕ CLOSE WINDOW", 
+        "registro": "✓ Operational Strategy Generated",
+        "reloj_lbl": "⏱️ Required disconnection time remaining:", 
+        "f1_lbl": "Own Home Mode: Before Use (Tension Brake)",
+        "f2_lbl": "Own Out Mode: During Activity (Practical Mission)", 
+        "f3_lbl": "Cycle Close: After Use (Guaranteed Rest)",
+        "mapa_lbl": "🗺️ Open Safe Environment Route on Google Maps",
+        "tags_pool": [
+            {id: "triste", txt: "Sadness / Loneliness"}, 
+            {id: "cansado", txt: "Fatigue / Screen Strain"},
+            {id: "papeleo", txt: "Paperwork / Long Bureaucracy"}, 
+            {id: "ruido", txt: "Loud Noise Outside"}, 
+            {id: "estres", txt: "Office Stress"}
+        ]
     }
 };
 
-window.cerrarModalEspecial = function() {
-    const modal = document.getElementById("modalPerfiles");
-    if (modal) {
-        modal.style.display = "none";
-        console.log("[Ecosistema Matrix] Ventanilla cerrada de forma segura.");
+window.cambiarIdiomaLocal = function(nuevoIdioma) {
+    otgIdiomaActual = nuevoIdioma;
+    
+    const btnEs = document.getElementById("otg-btn-lang-es");
+    const btnEn = document.getElementById("otg-btn-lang-en");
+    if(btnEs && btnEn) {
+        if(nuevoIdioma === "es") {
+            btnEs.style.background = "#38bdf8"; btnEs.style.color = "#0f172a";
+            btnEn.style.background = "#1e293b"; btnEn.style.color = "#94a3b8";
+        } else {
+            btnEn.style.background = "#38bdf8"; btnEn.style.color = "#0f172a";
+            btnEs.style.background = "#1e293b"; btnEs.style.color = "#94a3b8";
+        }
     }
+    window.actualizarPlataformaTexto();
+};
+
+window.actualizarPlataformaTexto = function() {
+    const d = DICCIONARIO_INTERFAZ[otgIdiomaActual];
+    
+    document.getElementById("otg-txt-titulo-modulo").innerText = d.titulo;
+    document.getElementById("otg-txt-subtitulo-modulo").innerText = d.subtitulo;
+    document.getElementById("otg-lbl-perfil").innerText = d.perfil;
+    document.getElementById("otg-opt-vet").innerText = d.vet;
+    document.getElementById("otg-opt-am").innerText = d.am;
+    document.getElementById("otg-lbl-tags").innerText = d.tags;
+    document.getElementById("otg-lbl-texto").innerText = d.texto;
+    document.getElementById("otg-texto-extenso").placeholder = d.placeholder;
+    document.getElementById("otg-btn-activar").innerText = d.btn_act;
+    document.getElementById("otg-btn-borrar").innerText = d.btn_borrar;
+    document.getElementById("otg-btn-cerrar").innerText = d.btn_cerrar;
+    document.getElementById("otg-txt-registro").innerText = d.registro;
+    document.getElementById("otg-txt-reloj-lbl").innerText = d.reloj_lbl;
+    document.getElementById("otg-lbl-f1").innerText = d.f1_lbl;
+    document.getElementById("otg-lbl-f2").innerText = d.f2_lbl;
+    document.getElementById("otg-lbl-f3").innerText = d.f3_lbl;
+    document.getElementById("otg-f2-mapa").innerText = d.mapa_lbl;
+
+    const contenedor = document.getElementById("otg-contenedor-tags-html");
+    if(contenedor) {
+        contenedor.innerHTML = "";
+        d.tags_pool.forEach(t => {
+            const span = document.createElement("span");
+            span.className = "tag-local";
+            if(poolTagsLocales.includes(t.id)) { span.className += " seleccionado"; }
+            span.innerText = t.txt;
+            span.onclick = function() { window.marcarTagLocal(this, t.id); };
+            contenedor.appendChild(span);
+        });
+    }
+};
+
+window.activarEntornoEspecial = function() {
+    const bloqueOrdinario = document.getElementById("bloque-mando-principal") || document.querySelector(".main-form") || document.getElementById("bloque-escritura-libre")?.parentNode;
+    if (bloqueOrdinario) { bloqueOrdinario.style.display = "none"; }
+    
+    document.getElementById("otg-bloque-boton-lanzador").style.display = "none";
+    document.getElementById("otg-modulo-especial-completo").style.display = "block";
+    
+    window.actualizarPlataformaTexto();
+};
+
+window.desactivarEntornoEspecial = function() {
+    if (otgIntervaloEsfera) clearInterval(otgIntervaloEsfera);
+    if (otgIntervaloReloj) clearInterval(otgIntervaloReloj);
+    
+    document.getElementById("otg-modulo-especial-completo").style.display = "none";
+    document.getElementById("otg-panel-respuesta").style.display = "none";
+    
+    const bloqueOrdinario = document.getElementById("bloque-mando-principal") || document.querySelector(".main-form") || document.getElementById("bloque-escritura-libre")?.parentNode;
+    if (bloqueOrdinario) { bloqueOrdinario.style.display = "block"; }
+    document.getElementById("otg-bloque-boton-lanzador").style.display = "block";
+    
+    poolTagsLocales = [];
+    document.getElementById('otg-texto-extenso').value = '';
+};
+
+window.marcarTagLocal = function(elemento, valorPalabra) {
+    elemento.classList.toggle('seleccionado');
+    if (elemento.classList.contains('seleccionado')) {
+        poolTagsLocales.push(valorPalabra);
+    } else {
+        poolTagsLocales = poolTagsLocales.filter(v => v !== valorPalabra);
+    }
+};
+
+window.limpiarVentanillaLocal = function() {
+    document.getElementById('otg-texto-extenso').value = '';
+    document.getElementById('otg-panel-respuesta').style.display = 'none';
+    poolTagsLocales = [];
+    window.actualizarPlataformaTexto();
+    if (otgIntervaloEsfera) clearInterval(otgIntervaloEsfera);
+    if (otgIntervaloReloj) clearInterval(otgIntervaloReloj);
+};
+
+window.ejecutarTratamientoLocal = function() {
+    const perfil = document.getElementById("otg-perfil-select").value;
+    const folioUnico = "OTG-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+    document.getElementById("otg-id-display").innerText = folioUnico;
+
+    const bancoLocalMisiones = {
+        "es": {
+            "adultos_mayores": {
+                "antes": "Freno de soledad: Detén lo que estás haciendo. Toma un vaso de agua fresca y bébelo muy despacio. Siente cómo pasa el agua. Bajando el brillo de tu pantalla para cuidar tus ojos.",
+                "durante": "Misión de acompañamiento en casa: Camina despacio por tu hogar. Busca un álbum de fotos viejas, un libro querido o un recuerdo que te dé alegría. Míralo en silencio durante 10 minutos enteros.",
+                "mapa": "parques+planos+con+asientos+y+caminos+faciles",
+                "despues": "Cierre de ciclo: Tu enfoque ha salido de la rutina estática del día con éxito. Mañana llama por teléfono a un familiar o vecino durante 3 minutos para saludarle."
+            },
+            "veteranos": {
+                "antes": "Freno de alerta: Dirígete de inmediato a la habitación más tranquila, aislada y silenciosa de tu casa ahora. Colócate audífonos protectores o tapones para oídos de inmediato para apagar ruidos.",
+                "durante": "Misión de control en casa: Apoya tus manos con firmeza sobre tus rodillas. Presiona tus talones con fuerza contra el suelo. Cuenta en reversa del 10 al 1 muy despacio en tu mente.",
+                "mapa": "senderos+naturales+silenciosos+y+bosques",
+                "despues": "Cierre de ciclo: Conseguiste mover tu atención fuera del peligro y la fricción exterior. Mantén tus audífonos puestos 10 minutos más mientras ordenas un objeto de tu cuarto."
+            },
+            "gobierno": {
+                "antes": "Freno de oficina: Cierra o minimiza todas las hojas de cálculo, tareas y correos en este segundo. Deja solo esta pantalla. Te has desconectado de la red del sistema de trabajo por un bloque de tiempo.",
+                "durante": "Misión de descompresión: Ponte de pie. Sepárate de tu silla de oficina. Estira tus brazos hacia el techo por 2 minutos exactos. Camina al punto de agua más lejano de tu piso.",
+                "mapa": "jardines+botanicos+o+plazas+abiertas+silenciosas",
+                "despues": "Cierre de ciclo: Estableciste un límite saludable entre tu mente y la carga administrativa del estado. Parpadea continuamente por 15 segundos para aliviar tus ojos cansados del monitor."
+            }
+        },
+        "en": {
+            "adultos_mayores": {
+                "antes": "Stop loneliness: Take a glass of fresh water and drink it very slowly. Feel the water go down. Close your eyes for 30 full seconds to rest your vision from the monitor.",
+                "durante": "Companion mission at home: Walk slowly through your home. Find an old photo album, a beloved book, or a keepsake that brings you joy. Look at it in silence for 10 full minutes.",
+                "mapa": "flat+parks+with+benches+and+easy+walking+paths",
+                "despues": "Cycle close: Your focus has successfully broken the static routine. Tomorrow make a short 3-minute phone call to a friend or relative just to say hello."
+            },
+            "veteranos": {
+                "antes": "Stop alert: Go immediately to the quietest and darkest room in your house right now. Put on protective headphones or earplugs right now to shut out external noise.",
+                "durante": "Control mission at home: Place your hands firmly on your knees. Press your heels hard against the floor. Count backward from 10 to 1 very slowly in your mind.",
+                "mapa": "quiet+nature+trails+and+forests",
+                "despues": "Cycle close: You successfully shifted your attention away from the external disturbance. Keep your headphones on for 10 more minutes while organizing a small item."
+            },
+            "gobierno": {
+                "antes": "Stop office work: Close or minimize all spreadsheets and emails this second. You have disconnected from the work network systems for a short block of time.",
+                "durante": "Decompression mission: Stand up. Step away from your office chair. Stretch your arms toward the ceiling for 2 minutes. Walk to the farthest water station on your floor.",
+                "mapa": "botanical+gardens+or+quiet+open+air+squares",
+                "despues": "Cycle close: You successfully separated your mind from the heavy burden. Blink continuously for 15 seconds to relieve your eyes from screen strain."
+            }
+        }
+    };
+
+    const m = bancoLocalMisiones[otgIdiomaActual][perfil];
+
+    document.getElementById("otg-f1-pauta").innerText = m.antes;
+    document.getElementById("otg-f2-pauta").innerText = m.durante;
+    document.getElementById("otg-f3-pauta").innerText = m.despues;
+    
+    // Conexión corregida del mapa a la API oficial de Google Maps
+    document.getElementById("otg-f2-mapa").href = "https://google.com" + m.mapa + "+near+me";
+    document.getElementById("otg-panel-respuesta").style.display = "block";
+
+    // CONFIGURACIÓN DE LOS DOS ENGRANAJES AUTOMÁTICOS
+    let tInhala = 4000; 
+    let tExhala = 4000;
+    let txtRitmo = otgIdiomaActual === "en" ? "Homeostasis Pace (4s x 4s)" : "Ritmo Regular de Homeostasis (4s Inhalar / 4s Exhalar)";
+
+    if (perfil === "veteranos") {
+        tInhala = 5000; 
+        tExhala = 5000;
+        txtRitmo = otgIdiomaActual === "en" ? "Tactical Grounding Pace (5s x 5s)" : "Pauta de Anclaje Táctico (5s Inhalar / 5s Exhalar)";
+    } else if (perfil === "adultos_mayores") {
+        tInhala = 3000; 
+        tExhala = 4000;
+        txtRitmo = otgIdiomaActual === "en" ? "Gentle Comfort Pace (3s x 4s)" : "Pauta de Confort Suave (3s Inhalar / 4s Exhalar)";
+    }
+
+    document.getElementById("otg-ritmo-titulo").innerText = txtRitmo;
+
+    if (otgIntervaloEsfera) clearInterval(otgIntervaloEsfera);
+    
+    function animarEsferaLocal() {
+        const esf = document.getElementById("otg-esfera-visual");
+        const txtEsf = document.getElementById("otg-esfera-texto");
+        if(!esf || !txtEsf) return;
+
+        esf.style.transform = "scale(1.3)";
+        esf.style.backgroundColor = "rgba(56, 189, 248, 0.25)";
+        esf.style.boxShadow = "0 0 25px rgba(56, 189, 248, 0.5)";
+        txtEsf.innerText = otgIdiomaActual === "en" ? "BREATHE IN" : "INHALA";
+
+        setTimeout(() => {
+            const esfCheck = document.getElementById("otg-esfera-visual");
+            const txtCheck = document.getElementById("otg-esfera-texto");
+            if(!esfCheck || !txtCheck) return;
+            
+            esfCheck.style.transform = "scale(0.95)";
+            esfCheck.style.backgroundColor = "rgba(56, 189, 248, 0.05)";
+            esfCheck.style.boxShadow = "0 0 8px rgba(56, 189, 248, 0.1)";
+            txtCheck.innerText = otgIdiomaActual === "en" ? "BREATHE OUT" : "EXHALA";
+        }, tInhala);
+    }
+
+    animarEsferaLocal();
+    otgIntervaloEsfera = setInterval(animarEsferaLocal, (tInhala + tExhala));
+
+    if (otgIntervaloReloj) clearInterval(otgIntervaloReloj);
+    let remSegundos = 900;
+
+    otgIntervaloReloj = setInterval(() => {
+        const nodoReloj = document.getElementById("otg-reloj-display");
+        if (!nodoReloj) { 
+            clearInterval(otgIntervaloReloj); 
+            return; 
+        }
+
+        remSegundos--;
+        let mm = Math.floor(remSegundos / 60);
+        let ss = remSegundos % 60;
+        if (ss < 10) ss = "0" + ss;
+        if (mm < 10) mm = "0" + mm;
+
+        nodoReloj.innerText = mm + ":" + ss;
+
+        if (remSegundos <= 0) {
+            clearInterval(otgIntervaloReloj);
+            clearInterval(otgIntervaloEsfera);
+            const textoFinalMsg = otgIdiomaActual === 'en' ? 'Disconnection Cycle Completed' : 'Ciclo de Desconexión Completado';
+            document.getElementById("otg-panel-respuesta").innerHTML = '<div style="color:#10b981; font-weight:bold; text-align:center; padding:15px; font-size:15px;">✓ ' + textoFinalMsg + '</div>';
+        }
+    }, 1000);
 };
 
 // SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
