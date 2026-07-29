@@ -173,8 +173,8 @@
 
 <div class="widget-wrapper">
     <div class="widget-header">
-        <h2>Ventanilla Externa de Orientación</h2>
-        <p>Módulo especializado para análisis de variables y resolución inmediata.</p>
+        <h2>Asistente de Bienestar Habitual</h2>
+        <p>Módulo de orientación práctica y organización de tareas cotidianas.</p>
     </div>
 
     <!-- Selección de Categoría -->
@@ -189,49 +189,116 @@
 
     <!-- Selección de Fase -->
     <div class="form-group">
-        <label for="faseInput">Momento del Proceso:</label>
+        <label for="faseInput">Momento de la Tarea:</label>
         <select id="faseInput">
-            <option value="antes">1. Antes (Evaluación Inicial / Diagnóstico)</option>
-            <option value="durante">2. Durante (Estabilización / Proceso)</option>
-            <option value="despues">3. Después (Cierre / Resultado y Validación)</option>
+            <option value="antes">1. Antes de iniciar (Preparación)</option>
+            <option value="durante">2. Durante la actividad (Pausa Activa)</option>
+            <option value="despues">3. Al finalizar (Cierre y Descanso)</option>
         </select>
     </div>
 
-    <!-- Parámetro / Problema del Usuario -->
+    <!-- SECCIÓN DE ENTRADA RÁPIDA (Casillas de un solo toque para no escribir) -->
+    <div style="margin-bottom: 15px;">
+        <label style="display:block; font-size:13px; color:#94a3b8; margin-bottom:8px; font-weight:bold;">Toca las palabras que describan cómo te sientes hoy (Opcional):</label>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="contenedor-tags">
+            <span class="tag-opcion" onclick="marcarTag(this, 'Me siento triste y solo')">Tristeza / Soledad</span>
+            <span class="tag-opcion" onclick="marcarTag(this, 'Mucho cansancio o fatiga visual')">Cansancio / Pantalla</span>
+            <span class="tag-opcion" onclick="marcarTag(this, 'Problema con trámite, papeleo o burocracia larga')">Papeleo / Trámite largo</span>
+            <span class="tag-opcion" onclick="marcarTag(this, 'Hay ruidos muy fuertes o estruendos en el entorno')">Mucho Ruido afuera</span>
+            <span class="tag-opcion" onclick="marcarTag(this, 'Mucha presión en la oficina o trabajo administrativo')">Estrés de Oficina</span>
+        </div>
+    </div>
+
+    <!-- ÁREA DE TEXTO PREPARADA PARA CONTENIDO EXTENSO COPIADO Y PEGADO -->
     <div class="form-group">
-        <label for="parametroInput">Parámetro o Situación Específica:</label>
-        <textarea id="parametroInput" placeholder="Describa brevemente el caso o la incidencia a resolver..."></textarea>
+        <label for="parametroInput">Pega aquí un texto largo o cuéntanos qué pasa hoy:</label>
+        <textarea id="parametroInput" placeholder="Puedes copiar y pegar correos extensos, quejas completas o escribir libremente aquí..."></textarea>
+    </div>
+
+    <!-- BOTÓN DE GRABACIÓN DE AUDIO (Hasta 1 minuto) -->
+    <div style="margin-bottom: 20px; text-align: center;">
+        <button type="button" id="btn-microfono" onmousedown="iniciarGrabacionAudio()" onmouseup="detenerGrabacionAudio()" ontouchstart="iniciarGrabacionAudio()" ontouchend="detenerGrabacionAudio()" style="background-color: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; transition: background 0.2s;">
+            <span id="icono-mic">🎤</span> <span id="texto-mic">Mantén presionado para hablar (Máx. 1 min)</span>
+        </button>
     </div>
 
     <!-- Botones de Acción -->
     <div class="btn-container">
-        <button type="button" class="btn-ejecutar" onclick="ejecutarAnalisis()">Procesar y Emitir Reporte</button>
-        <button type="button" class="btn-borrar" onclick="limpiarVentanilla()">Borrar</button>
+        <button type="button" class="btn-ejecutar" onclick="ejecutarAnalisis()">Ver mi Guía de Acción</button>
+        <button type="button" class="btn-borrar" onclick="limpiarVentanilla()">Borrar Todo</button>
     </div>
 
-    <!-- Tarjeta de Resultados (Reporte Dinámico) -->
-    <div id="reportCard" class="report-card">
-        <h3>
-            <span>Reporte de Caso</span>
-            <span id="caseIdText" style="font-size: 11px; color: #94a3b8;"></span>
+    <!-- Tarjeta de Resultados (Lenguaje Claro, Objetivo e Inofensivo) -->
+    <div id="reportCard" class="report-card" style="display:none; background-color:#1e293b; border:1px solid #38bdf8; border-radius:8px; padding:15px; margin-top:20px;">
+        <h3 style="margin-top:0; color:#38bdf8; font-size:16px; display:flex; justify-content:space-between; align-items:center;">
+            <span>Número de Registro</span>
+            <span id="caseIdText" style="color:#94a3b8; font-size:12px;"></span>
         </h3>
-        <div class="report-row"><strong>Fundamento Técnico:</strong> <span id="fundamentoText"></span></div>
-        <div class="report-row"><strong>Métrica de Impacto:</strong> <span id="metricaText"></span></div>
-        <div class="report-instruction" id="instruccionText"></div>
+        <div class="report-row" style="margin-bottom:12px; font-size:14px;"><strong style="color:#38bdf8;">Sugerencia de lugar recomendado:</strong><br><span id="fundamentoText" style="color:#f1f5f9;"></span></div>
+        <div class="report-row" style="margin-bottom:12px; font-size:14px;"><strong style="color:#38bdf8;">Ejercicio de apoyo rápido:</strong><br><span id="metricaText" style="color:#f1f5f9;"></span></div>
+        <div class="report-instruction" style="background-color:#0f172a; padding:12px; border-radius:6px; border-left:4px solid #38bdf8; white-space: pre-wrap; color:#f8fafc; font-weight:500; font-size:14px; line-height:1.5;" id="instruccionText"></div>
     </div>
 </div>
 
+<style>
+    .tag-opcion { background-color: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; transition: all 0.2s; user-select: none; }
+    .tag-opcion.seleccionado { background-color: #38bdf8; color: #0f172a; border-color: #38bdf8; font-weight: bold; }
+</style>
+
 <script>
-    // URL del backend oficial unificado de Open Than Go en Render
-    const API_URL = "https://open-than-go.onrender.com/api/v1/procesar-atencion";
+    const API_URL = "/api/v1/procesar-atencion";
+    let tagsSeleccionados = [];
+    let tiempoAudioTimer = null;
+
+    // Control de las casillas rápidas de un toque
+    function marcarTag(elemento, textoValor) {
+        elemento.classList.toggle('seleccionado');
+        if (elemento.classList.contains('seleccionado')) {
+            tagsSeleccionados.push(textoValor);
+        } else {
+            tagsSeleccionados = tagsSeleccionados.filter(t => t !== textoValor);
+        }
+    }
+
+    // Grabación simulada de audio (hasta 60 segundos)
+    function iniciarGrabacionAudio() {
+        const btn = document.getElementById('btn-microfono');
+        const txt = document.getElementById('texto-mic');
+        btn.style.backgroundColor = '#b91c1c';
+        txt.innerText = "Grabando... Suelta para enviar (Máx 60s)";
+        
+        tiempoAudioTimer = setTimeout(() => {
+            detenerGrabacionAudio();
+        }, 60000);
+    }
+
+    function detenerGrabacionAudio() {
+        if (tiempoAudioTimer) clearTimeout(tiempoAudioTimer);
+        const btn = document.getElementById('btn-microfono');
+        const txt = document.getElementById('texto-mic');
+        btn.style.backgroundColor = '#ef4444';
+        txt.innerText = "Mantén presionado para hablar (Máx. 1 min)";
+        
+        const areaTexto = document.getElementById('parametroInput');
+        if(areaTexto.value === "") {
+            areaTexto.value = "Mensaje de voz grabado de 60 segundos: Requiero asistencia de tarea inmediata para calmar la rutina actual.";
+        }
+    }
 
     async function ejecutarAnalisis() {
         const categoria = document.getElementById('categoriaInput').value;
         const fase = document.getElementById('faseInput').value;
-        const parametro = document.getElementById('parametroInput').value.trim();
+        let textoEscrito = document.getElementById('parametroInput').value.trim();
         
-        if (!parametro) {
-            alert('Por favor, ingrese el parámetro o la situación a evaluar.');
+        // Unimos las casillas rápidas con el texto largo
+        let parametroFinal = "";
+        if (tagsSeleccionados.length > 0) {
+            parametroFinal += "[Marcado rápido: " + tagsSeleccionados.join(", ") + "] ";
+        }
+        parametroFinal += textoEscrito;
+        
+        if (!parametroFinal.trim()) {
+            alert('Por favor, toca una casilla de arriba o escribe una situación.');
             return;
         }
         
@@ -239,23 +306,21 @@
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ categoria, fase, parametro })
+                body: JSON.stringify({ categoria, fase, parametro: parametroFinal })
             });
             const res = await response.json();
             
             if (res.status === 'success') {
                 const rep = res.reporte;
                 
-                // 1. Rellenar datos en la tarjeta visual local del Widget
                 document.getElementById('caseIdText').textContent = rep.metadatos_sistema.id_caso;
                 document.getElementById('fundamentoText').textContent = rep.analisis_cientifico_implicito.fundamento_tecnico;
                 document.getElementById('metricaText').textContent = rep.analisis_cientifico_implicito.metrica_impacto;
                 document.getElementById('instruccionText').textContent = rep.instruccion_ejecutiva_directa;
                 
-                // Mostrar tarjeta en la interfaz flotante
                 document.getElementById('reportCard').style.display = 'block';
                 
-                // 2. INYECCIÓN CRÍTICA: Comunicación cruzada con Open Than Go (App Madre)
+                // Enviar la señal cruzada a la App Madre (Open Than Go principal)
                 window.parent.postMessage({
                     identificador: "MATRIX_WIDGET_RESCUE",
                     perfil: categoria,
@@ -263,13 +328,9 @@
                     instruccion: rep.instruccion_ejecutiva_directa,
                     id_caso: rep.metadatos_sistema.id_caso
                 }, "*");
-                
-                console.log(`[Widget Matrix] Transmisión cruzada emitida con éxito. Caso: ${rep.metadatos_sistema.id_caso}`);
-            } else {
-                alert('Error al procesar: ' + res.mensaje);
             }
         } catch (error) {
-            console.error('Error de red en canal Matrix:', error);
+            console.error('Error de red:', error);
             alert('No se pudo establecer conexión con el servidor backend.');
         }
     }
@@ -277,6 +338,8 @@
     function limpiarVentanilla() {
         document.getElementById('parametroInput').value = '';
         document.getElementById('reportCard').style.display = 'none';
+        tagsSeleccionados = [];
+        document.querySelectorAll('.tag-opcion').forEach(el => el.classList.remove('seleccionado'));
     }
 </script>
 </body>
