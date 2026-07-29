@@ -2900,23 +2900,25 @@ window.addEventListener("message", function(event) {
 }, false);
 
 // ==========================================================================================
-// INTERRUPTORES DE CONTROL DE LA INTERFAZ MODAL (PERFILES ESPECIALES)
+// INTERRUPTORES GLOBALIZADOS DE CONTROL DE LA INTERFAZ MODAL (CONEXIÓN FIJADA)
 // ==========================================================================================
-function abrirModalEspecial() {
+window.abrirModalEspecial = function() {
     const modal = document.getElementById("modalPerfiles");
     if (modal) {
         modal.style.display = "block";
         console.log("[Ecosistema Matrix] Ventanilla de Perfiles Especiales desplegada.");
+    } else {
+        console.error("[Error] No se encontró el elemento HTML 'modalPerfiles'.");
     }
-}
+};
 
-function cerrarModalEspecial() {
+window.cerrarModalEspecial = function() {
     const modal = document.getElementById("modalPerfiles");
     if (modal) {
         modal.style.display = "none";
         console.log("[Ecosistema Matrix] Ventanilla cerrada de forma segura.");
     }
-}
+};
 
 // SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
 // ESTAS DOS LÍNEAS DE ABAJO DEBEN SER LAS ÚNICAS QUE CIERREN TODO TU ARCHIVO ENGINE.JS:
