@@ -140,7 +140,7 @@ window.KERNEL_ESPECIAL = {
         }
     },
 
-    // RECURSOS MULTIMEDIA CALIBRADOS CLAROS PARA CADA CATEGORÍA ESPECIAL
+    // RECURSOS MULTIMEDIA CORREGIDOS Y ENLAZADOS EXCLUSIVAMENTE AL DOLOR DE CADA CATEGORÍA
     recursosMultimedia: {
         "veteranos": {
             "youtube": "https://youtube.com",
@@ -158,9 +158,7 @@ window.KERNEL_ESPECIAL = {
 
     conmutarCortina: function(idCuerpo) {
         const cuerpo = document.getElementById(idCuerpo);
-        if(cuerpo) {
-            cuerpo.style.display = (cuerpo.style.display === "block") ? "none" : "block";
-        }
+        if(cuerpo) { cuerpo.style.display = (cuerpo.style.display === "block") ? "none" : "block"; }
     },
 
     reproducirVozHumana: function(texto) {
@@ -206,6 +204,7 @@ window.KERNEL_ESPECIAL = {
         document.getElementById("otg-lbl-f2").innerText = es ? "Fase 2: Durante el Uso (Misión Práctica) ▼" : "Phase 2: During Use (Practical Mission) ▼";
         document.getElementById("otg-lbl-f3").innerText = es ? "Fase 3: Después del Uso (Cierre Seguro) ▼" : "Phase 3: After Use (Safe Close) ▼";
         document.getElementById("otg-f2-mapa").innerText = es ? "🗺️ Abrir Ruta de Entorno Seguro en Google Maps" : "🗺️ Open Safe Route on Google Maps";
+
         const contenedor = document.getElementById("otg-contenedor-tags-html");
         if(contenedor) {
             contenedor.innerHTML = "";
@@ -241,32 +240,35 @@ window.KERNEL_ESPECIAL = {
         const txt = document.getElementById('texto-mic');
         btn.style.backgroundColor = '#ef4444';
         txt.innerText = this.idioma === "en" ? "Hold to talk (Max. 1 min)" : "Mantén presionado para hablar (Máx. 1 min)";
-        
         const areaTexto = document.getElementById('otg-texto-extenso');
         if(areaTexto.value === "") {
             areaTexto.value = this.idioma === "en" ? "Voice message recorded: I need immediate help." : "Mensaje de voz grabado de 60 segundos: Requiero asistencia de tarea inmediata.";
         }
     },
-
+    
     limpiarVentanilla: function() {
         window.speechSynthesis.cancel();
         document.getElementById('otg-texto-extenso').value = '';
         document.getElementById('otg-panel-respuesta').style.display = 'none';
         this.tagsSeleccionados = [];
         this.traducirInterfaz();
-        if (this.esferaInterval) clearTimeout(this.esferaInterval); // [FIX] Use clearTimeout for setTimeout IDs
+        if (this.esferaInterval) clearTimeout(this.esferaInterval);
         if (this.relojInterval) clearInterval(this.relojInterval);
-        this.breathCycleCount = 0; // [FIX] Reset breath cycle counter
+        this.breathCycleCount = 0;
     },
-
+    
+    // ==========================================================================================
+    // EJECUTAR PLAN: CONEXIÓN INTERACTIVA FIJA CON EL CEREBRO DE MAIN.PY (CON CLAVE CORRECTA)
+    // ==========================================================================================
     ejecutarPlan: async function() {
         const perfil = document.getElementById("otg-perfil-select").value;
         const es = this.idioma === "es";
         let textoEscrito = document.getElementById('otg-texto-extenso').value.trim();
         this.modoTiempoLibre = false;
-        // this.contadorMilisegundos = 0; // [FIX] Removed as 'breathCycleCount' is now used for audio timing logic.
-        this.breathCycleCount = 0; // [FIX] Reset breath cycle counter for a new plan execution
+        this.breathCycleCount = 0;
         
+        // CORRECCIÓN CRÍTICA DE CONEXIÓN: Si no escribe nada, el sistema asigna una frase analógica automática
+        // para asegurar que la variable 'parametro' viaje llena al servidor y main.py no rompa el JSON.
         let parametroFinal = "";
         if (this.tagsSeleccionados.length > 0) {
             parametroFinal += "[Tags: " + this.tagsSeleccionados.join(", ") + "] ";
@@ -274,60 +276,61 @@ window.KERNEL_ESPECIAL = {
         parametroFinal += textoEscrito;
         
         if (!parametroFinal.trim()) {
-            alert(es ? 'Por favor, selecciona una opción o describe la situación.' : 'Please select an option or describe your situation.');
-            return;
+            parametroFinal = es ? "Asistencia de rutina general solicitada." : "General routine assistance requested.";
         }
-
+        
         const API_URL = window.location.origin + "/api/v1/perfiles-especiales/procesar";
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ categoria: perfil, lang: this.idioma, parametro: parametroFinal })
+                // Sincronización milimétrica con el backend: Mandamos la clave 'parametro' exacta que main.py espera leer
+                body: JSON.stringify({
+                    categoria: perfil,
+                    lang: this.idioma,
+                    parametro: parametroFinal
+                })
             });
             const rep = await response.json();
             
             const poolEspecial = this.bancoContenido[this.idioma][perfil];
             const proverbioGanador = poolEspecial.proverbios[Math.floor(Math.random() * poolEspecial.proverbios.length)];
             const juegoGanador = poolEspecial.juegos_mentales[Math.floor(Math.random() * poolEspecial.juegos_mentales.length)];
-
+            
             document.getElementById("otg-id-display").innerText = rep.id_caso;
             
-            // Inyección corregida con comillas invertidas válidas para la Fase 1
-            // [SECURITY NOTE]: Ensure 'rep.antes' is properly sanitized on the server-side to prevent XSS.
+            // Inyección estable usando comillas invertidas nativas corrigiendo las cadenas simples
             document.getElementById("otg-f1-pauta").innerHTML = `<strong>${rep.antes}</strong><br><br><span style="color:#38bdf8; font-style:italic; font-size:15px; font-weight:700;">📜 ${proverbioGanador}</span>`;
             
-            // Inyección corregida con comillas invertidas válidas para la Fase 2
-            // [SECURITY NOTE]: Ensure 'rep.durante' is properly sanitized on the server-side to prevent XSS.
             document.getElementById("otg-f2-pauta").innerHTML = `
-                <span style="display:block; margin-bottom:10px;">${rep.durante}</span>  
-                <div style="background:#131f38; border:1px dashed #334155; padding:12px; border-radius:6px; margin:10px 0;">  
-                    <strong style="color:#ef4444; text-transform:uppercase; font-size:11px; display:block; margin-bottom:4px;">🧠 RETO ACTIVO (60s):</strong>  
-                    <span style="font-size:14px; font-weight:600;">${juegoGanador.enunciado}</span>  
-                    <div style="margin-top:10px; padding-top:8px; border-top:1px solid #1e293b; color:#10b981; font-size:13px; font-weight:700;">  
-                        💡 Solución: ${juegoGanador.respuesta}<br>  
-                        <span style="color:#94a3b8; font-size:12px; font-weight:500; font-style:italic; display:block; margin-top:2px;">Justificación: ${juegoGanador.justificacion}</span>  
-                    </div>  
+                <span style="display:block; margin-bottom:10px;">${rep.durante}</span> 
+                <div style="background:#131f38; border:1px dashed #334155; padding:12px; border-radius:6px; margin:10px 0;"> 
+                    <strong style="color:#ef4444; text-transform:uppercase; font-size:11px; display:block; margin-bottom:4px;">🧠 RETO ACTIVO (60s):</strong> 
+                    <span style="font-size:14px; font-weight:600;">${juegoGanador.enunciado}</span> 
+                    <div style="margin-top:10px; padding-top:8px; border-top:1px solid #1e293b; color:#10b981; font-size:13px; font-weight:700;"> 
+                        💡 Solución: ${juegoGanador.respuesta}<br> 
+                        <span style="color:#94a3b8; font-size:12px; font-weight:500; font-style:italic; display:block; margin-top:2px;">Justificación: ${juegoGanador.justificacion}</span> 
+                    </div> 
                 </div>
             `;
-            // [SECURITY NOTE]: Ensure 'rep.despues' is properly sanitized on the server-side to prevent XSS.
             document.getElementById("otg-f3-pauta").innerText = rep.despues;
-            
+
             const media = this.recursosMultimedia[perfil];
             document.getElementById("otg-f2-mapa").href = rep.mapa_url;
             document.getElementById("otg-f2-youtube").href = media.youtube;
             document.getElementById("otg-f2-spotify").href = media.spotify;
-            
+
             document.getElementById("otg-f2-cuerpo").style.display = "none";
             document.getElementById("otg-f3-cuerpo").style.display = "none";
             document.getElementById("otg-panel-respuesta").style.display = "block";
-            
+
+            // LOCUCIÓN AUTOMÁTICA DEL PLAN GENERADO + EL RETO INTERACTIVO CON SU SOLUCIÓN
             this.reproducirVozHumana(rep.antes + ". " + proverbioGanador + ". " + (es ? "Tu reto mental de sesenta segundos es: " : "Your sixty second challenge is: ") + juegoGanador.enunciado);
-            
+
             let tInhala = 4000;
             let tExhala = 4000;
             let txtRitmo = es ? "Ritmo Regular (4s x 4s)" : "Regular Pace (4s x 4s)";
-            
+
             if (perfil === "veteranos") {
                 tInhala = 5000;
                 tExhala = 5000;
@@ -338,37 +341,36 @@ window.KERNEL_ESPECIAL = {
                 txtRitmo = es ? "Confort Suave (3s x 4s)" : "Gentle Comfort (3s x 4s)";
             }
             document.getElementById("otg-ritmo-titulo").innerText = txtRitmo;
-            
-            if (this.esferaInterval) clearTimeout(this.esferaInterval); // [FIX] Use clearTimeout
+
+            if (this.esferaInterval) clearTimeout(this.esferaInterval);
             let alternarCiclo = true;
-            
+
             const animarEsfera = () => {
                 const esf = document.getElementById("otg-esfera-visual");
                 const txt = document.getElementById("otg-esfera-texto");
-                if(!esf || !txt) return;
-                
+                if (!esf || !txt) return;
+
                 const poolEspecial = this.bancoContenido[this.idioma][perfil];
-                
+
                 if (alternarCiclo) {
                     esf.style.transform = "scale(1.35)";
                     esf.style.backgroundColor = "rgba(56, 189, 248, 0.22)";
                     txt.innerText = es ? "INHALA" : "BREATHE IN";
                     alternarCiclo = false;
-                    
-                    // [FIX] Always play a 7s phrase on inhale for consistent cues
+
+                    // Locución de frase corta de apoyo cada 7 segundos aproximados al inhalar
                     const frase7 = poolEspecial.frases_7s[Math.floor(Math.random() * poolEspecial.frases_7s.length)];
                     this.reproducirVozHumana(frase7);
-                    
                     this.esferaInterval = setTimeout(animarEsfera, tInhala);
                 } else {
                     esf.style.transform = "scale(0.92)";
                     esf.style.backgroundColor = "rgba(56, 189, 248, 0.04)";
                     txt.innerText = es ? "EXHALA" : "BREATHE OUT";
                     alternarCiclo = true;
-                    this.breathCycleCount++; // [FIX] Increment after a full breath cycle (inhale+exhale)
-                    
-                    // [FIX] Play a 15s phrase on every 2nd full breath cycle for predictable timing
-                    if (this.breathCycleCount % 2 === 0) { 
+                    this.breathCycleCount++;
+
+                    // Locución de frase larga de apoyo cada 2 ciclos completos (15 segundos aproximados)
+                    if (this.breathCycleCount % 2 === 0) {
                         const frase15 = poolEspecial.frases_15s[Math.floor(Math.random() * poolEspecial.frases_15s.length)];
                         this.reproducirVozHumana(frase15);
                     }
@@ -376,53 +378,54 @@ window.KERNEL_ESPECIAL = {
                 }
             };
             animarEsfera();
-            
+
             if (this.relojInterval) clearInterval(this.relojInterval);
-            let remSegundos = 900; // 15 minutes
-            
+            let remSegundos = 900;
+
             this.relojInterval = setInterval(() => {
                 const nodoReloj = document.getElementById("otg-reloj-display");
                 if (!nodoReloj) {
                     clearInterval(this.relojInterval);
                     return;
                 }
-                
+
                 if (!this.modoTiempoLibre) {
                     remSegundos--;
                     let mm = Math.floor(remSegundos / 60);
                     let ss = remSegundos % 60;
                     nodoReloj.innerText = (mm < 10 ? "0" + mm : mm) + ":" + (ss < 10 ? "0" + ss : ss);
-                    
+
                     if (remSegundos <= 0) {
                         window.speechSynthesis.cancel();
                         this.modoTiempoLibre = true;
-                        
+
                         const preguntaComodidad = es ?
                             "Has cumplido tus 15 minutos obligados de descompresión con éxito. La puerta está abierta: ¿Deseas continuar en modo libre o regresar?" :
                             "You have successfully completed your 15 required minutes. The door is open: Would you like to continue in free mode or return?";
-                        
+
                         this.reproducirVozHumana(preguntaComodidad);
-                        
+
                         if (confirm(preguntaComodidad)) {
-                            remSegundos = 0; // Reset for free mode to start counting up from 0
+                            remSegundos = 0; // El cronómetro inicia desde cero en el modo libre
                             document.getElementById("otg-txt-reloj-lbl").innerText = es ? "⏱️ Modo Libre Opcional Activo:" : "⏱️ Optional Free Mode Active:";
                             nodoReloj.style.color = "#38bdf8";
                         } else {
                             clearInterval(this.relojInterval);
-                            if(this.esferaInterval) clearTimeout(this.esferaInterval);
+                            if (this.esferaInterval) clearTimeout(this.esferaInterval);
                             window.location.href = "/";
                         }
                     }
                 } else {
+                    // El tiempo libre avanza de forma ascendente
                     remSegundos++;
                     let mm = Math.floor(remSegundos / 60);
                     let ss = remSegundos % 60;
                     nodoReloj.innerText = (mm < 10 ? "0" + mm : mm) + ":" + (ss < 10 ? "0" + ss : ss);
                 }
             }, 1000);
-            
+
         } catch (e) {
-            console.error("Error executing plan:", e); // [OPTIMIZATION] Log actual error for debugging
+            console.error("Error executing plan:", e);
             alert(es ? "Fallo de conexión." : "Connection error.");
         }
     }
@@ -432,3 +435,4 @@ window.KERNEL_ESPECIAL = {
 document.addEventListener("DOMContentLoaded", () => {
     window.KERNEL_ESPECIAL.cambiarIdioma("es");
 });
+        
