@@ -639,26 +639,52 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
        
         <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent); font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
        
-        <!-- CASCADING SCROLL BOX -->
-        <div class="oraculo-scroll-box">
-            <div class="oraculo-grid" id="contenedor-preguntas-oraculo">
-                <!-- Questions are dynamically injected here by engine.js -->
-            </div>
-        </div>
-       
-        <!-- THE FREE WRITING BOX HEALED 100% -->
-        <div class="field" id="bloque-escritura-libre">
-            <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label>
-            <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea>
-            <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button>
-        </div>
-    </div>
+<!-- CASCADING SCROLL BOX --> 
+<div class="oraculo-scroll-box"> 
+    <div class="oraculo-grid" id="contenedor-preguntas-oraculo"> 
+        <!-- Questions are dynamically injected here by engine.js --> 
+    </div> 
+</div> 
 
-    <!-- INTERACTIVE OUTPUT CONTAINER FOR PARKS, VIDEOS, AND LUNG -->
-    <div class="container hidden" id="wrapper-interactive">
-        <!-- New Carousel Container (will be filled dynamically by engine.js) -->
-        <div id="carousel-background" class="carousel-container hidden"></div>
+<!-- THE FREE WRITING BOX HEALED 100% --> 
+<div class="field" id="bloque-escritura-libre"> 
+    <label id="lbl-desahogo" style="color: #aaa; transition: color 0.3s;">O escribe aquí tu propio agobio si no aparece arriba:</label> 
+    <textarea id="inp-text-libre" placeholder="Cuéntale al mando libremente qué te pasa hoy..."></textarea> 
+    <button id="btn-activar-libre" style="width: 100%; background: #222; color: #888; border: 1px solid #333; padding: 14px; font-weight: 900; margin-top: 10px; border-radius: 4px; text-transform: uppercase; cursor: pointer; transition: all 0.3s;">Activar Mando Libre</button> 
+</div> 
+
+<!-- ========================================================================================== -->
+<!-- COMPONENTE UNIFICADO: BOTÓN EXTERNAL Y VENTANA EMERGENTE DE PERFILES ESPECIALES          -->
+<!-- ========================================================================================== -->
+<div style="margin: 20px 0;">
+    <button type="button" class="btn-external" id="btn-perfiles-especiales" onclick="abrirModalEspecial()">
+        PERFILES ESPECIALES
+    </button>
+</div>
+
+<!-- Ventana Emergente (Modal) con fondo oscuro integrado -->
+<div id="modalPerfiles" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px);">
+    <div style="background-color: #0f172a; color: #f8fafc; margin: 5% auto; padding: 25px; border: 1px solid #334155; width: 90%; max-width: 500px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); position: relative;">
+        
+        <!-- Botón de cierre (X) -->
+        <span onclick="cerrarModalEspecial()" style="position: absolute; right: 20px; top: 15px; color: #94a3b8; font-size: 28px; font-weight: bold; cursor: pointer; transition: color 0.2s;">&times;</span>
+        
+        <h2 style="color: #38bdf8; font-size: 20px; margin-bottom: 20px; border-bottom: 1px solid #1e293b; padding-bottom: 10px; font-family: sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">
+            Contención Somática: Perfiles Especiales
+        </h2>
+        
+        <!-- Carga del widget de forma nativa -->
+        <iframe src="/static/widget_externo.html" style="width: 100%; height: 500px; border: none; background: transparent;"></iframe>
     </div>
+</div>
+
+</div> 
+
+<!-- INTERACTIVE OUTPUT CONTAINER FOR PARKS, VIDEOS, AND LUNG --> 
+<div class="container hidden" id="wrapper-interactive"> 
+    <!-- New Carousel Container (will be filled dynamically by engine.js) --> 
+    <div id="carousel-background" class="carousel-container hidden"></div> 
+</div>
 
     <!-- PANTALLA DE CIERRE CONSCIENTE / REINICIO INTELIGENTE -->
     <div id="pantalla-cierre" class="hidden">
