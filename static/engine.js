@@ -2939,25 +2939,46 @@ window.actualizarPlataformaTexto = function() {
     }
 };
 
+// ==========================================================================================
+// INTERRUPTORES DE CONTROL DE MANDO MUTUO (ESPEJO DE ENTORNO SENSORIAL CORREGIDO)
+// ==========================================================================================
 window.activarEntornoEspecial = function() {
-    const bloqueOrdinario = document.getElementById("bloque-mando-principal") || document.querySelector(".main-form") || document.getElementById("bloque-escritura-libre")?.parentNode;
-    if (bloqueOrdinario) { bloqueOrdinario.style.display = "none"; }
+    const perfilSeleccionado = document.getElementById("otg-perfil-select").value;
+    console.log(`[Mando Espejo] Activando tratamiento especial para: ${perfilSeleccionado}`);
+    
+    // 1. DESACTIVAR FUNCIONES DEL MANDO ORDINARIO DE OPEN THAN GO (Entra en espera segura)
+    if (typeof KERNEL !== 'undefined') {
+        if (KERNEL.carouselInterval) clearInterval(KERNEL.carouselInterval);
+        if (KERNEL.intervaloRespiracion) clearInterval(KERNEL.intervaloRespiracion);
+        KERNEL.menteActual = "ansioso"; 
+    }
+
+    // 2. CONGELAR INTERFAZ COMÚN: Esconde los elementos de siempre para evitar obstrucciones
+    document.getElementById("bloque-mando-principal").style.display = "none";
     document.getElementById("otg-bloque-boton-lanzador").style.display = "none";
     document.getElementById("otg-modulo-especial-completo").style.display = "block";
     window.actualizarPlataformaTexto();
 };
 
 window.desactivarEntornoEspecial = function() {
+    console.log("[Mando Espejo] Cerrando ventanilla especial. Restaurando Open Than Go ordinario.");
+    
+    // 1. Apagar por completo los contadores y la esfera del espejo especial
     if (otgIntervaloEsfera) clearInterval(otgIntervaloEsfera);
     if (otgIntervaloReloj) clearInterval(otgIntervaloReloj);
     
     document.getElementById("otg-modulo-especial-completo").style.display = "none";
     document.getElementById("otg-panel-respuesta").style.display = "none";
     
-    const bloqueOrdinario = document.getElementById("bloque-mando-principal") || document.querySelector(".main-form") || document.getElementById("bloque-escritura-libre")?.parentNode;
-    if (bloqueOrdinario) { bloqueOrdinario.style.display = "block"; }
+    // 2. REACTIVAR LA FUNCIÓN DEL MANDO ORDINARIO LIMPIO
+    document.getElementById("bloque-mando-principal").style.display = "block";
     document.getElementById("otg-bloque-boton-lanzador").style.display = "block";
     
+    // Forzar al Kernel nativo a limpiar su lienzo y regresar al estado inicial limpio
+    if (typeof KERNEL !== 'undefined' && typeof KERNEL.init === 'function') {
+        KERNEL.init(); 
+    }
+
     poolTagsLocales = [];
     document.getElementById('otg-texto-extenso').value = '';
 };
