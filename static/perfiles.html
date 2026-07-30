@@ -1,350 +1,325 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente de Bienestar Habitual - Perfiles Especiales Prime</title>
-    <style>
-        :root { 
-            --primary: #0f172a; 
-            --secondary: #38bdf8; 
-            --bg: #0f172a; 
-            --text: #f8fafc; 
-            --accent-red: #ef4444;
-            --accent-green: #10b981;
+// ==========================================================================================
+// FILE: static/engine_perfiles.js - PART 1 OF 3: STATE VARIABLES & DOM INTERACTIVE TOGGLES
+// ==========================================================================================
+window.KERNEL_ESPECIAL = {
+    idioma: "es",
+    perfilSeleccionado: "veteranos",
+    modoSeleccionado: "salir",
+    menteSeleccionada: "aburrido",
+    esferaInterval: null,
+    relojInterval: null,
+    bucleIntervalVoz: null,
+    tiempoAudioTimer: null,
+    bucleAudiosCortos: [],
+    indiceAudioActual: 0,
+
+    cambiarIdioma: function(lang) {
+        this.idioma = lang;
+        const btnEs = document.getElementById("otg-btn-lang-es");
+        const btnEn = document.getElementById("otg-btn-lang-en");
+        if (btnEs && btnEn) {
+            btnEs.style.background = lang === "es" ? "#38bdf8" : "#1e293b";
+            btnEs.style.color = lang === "es" ? "#0f172a" : "#94a3b8";
+            btnEn.style.background = lang === "en" ? "#38bdf8" : "#1e293b";
+            btnEn.style.color = lang === "en" ? "#0f172a" : "#94a3b8";
         }
-        body { 
-            background-color: var(--bg); 
-            color: var(--text); 
-            font-family: system-ui, -apple-system, sans-serif; 
-            margin: 0; 
-            padding: 20px; 
-            display: flex;
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            transition: background-color 0.5s ease;
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel(); // Forcefully clear any cross-language audio cues
         }
-        body.modo-servicio {
-            background-color: #1e293b;
+        this.traducirInterfaz();
+    },
+
+    alternarCortina: function(idCortina) {
+        const elemento = document.getElementById(idCortina);
+        if (elemento) {
+            const estaAbierto = elemento.style.display === "block";
+            elemento.style.display = estaAbierto ? "none" : "block";
         }
-        .main-form { 
-            width: 100%; 
-            max-width: 580px; 
-            background: #1e293b; 
-            padding: 30px; 
-            border-radius: 16px; 
-            border: 2px solid var(--secondary); 
-            box-shadow: 0 12px 40px rgba(56, 189, 248, 0.15); 
-            transition: all 0.4s ease;
-        }
-        .main-form.compacto {
-            background: rgba(15, 23, 42, 0.85);
-            border-color: #475569;
-        }
-        h1, h2 {
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .seccion-titulo {
-            font-size: 12px;
-            font-weight: bold;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            margin-top: 20px;
-        }
+    },
+
+    seleccionarPerfil: function(perfilId) {
+        this.perfilSeleccionado = perfilId;
+        const IDs = ["veteranos", "adultos_mayores", "gobierno"];
+        IDs.forEach(id => {
+            const nodo = document.getElementById("perfil-" + id);
+            if (nodo) nodo.classList.remove("seleccionado");
+        });
+        const target = document.getElementById("perfil-" + perfilId);
+        if (target) target.classList.add("seleccionado");
+    },
+
+    seleccionarModo: function(modoId) {
+        this.modoSeleccionado = modoId;
+        const salirNodo = document.getElementById("modo-salir");
+        const casaNodo = document.getElementById("modo-casa");
+        if (salirNodo) salirNodo.classList.remove("seleccionado");
+        if (casaNodo) casaNodo.classList.remove("seleccionado");
         
-        /* BOTONES INTERACTIVOS DE UN SOLO TOQUE ESTILO OPEN THAN GO */
-        .grid-botones {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .grid-botones-tres {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-        .btn-otg-interactivo {
-            background: #0f172a;
-            color: #94a3b8;
-            border: 2px solid #334155;
-            padding: 14px 10px;
-            font-weight: bold;
-            font-size: 13px;
-            text-transform: uppercase;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s ease;
-            user-select: none;
-        }
-        .btn-otg-interactivo:hover {
-            border-color: var(--secondary);
-            color: #fff;
-        }
-        .btn-otg-interactivo.seleccionado {
-            background: rgba(56, 189, 248, 0.15);
-            border-color: var(--secondary);
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
-        }
+        const target = document.getElementById("modo-" + modoId);
+        if (target) target.classList.add("seleccionado");
+    },
+
+    seleccionarMente: function(menteId) {
+        this.menteSeleccionada = menteId;
+        const mentes = ["aburrido", "agotado", "estresado", "cansado", "ansioso"];
+        mentes.forEach(id => {
+            const nodo = document.getElementById("mente-" + id);
+            if (nodo) nodo.classList.remove("seleccionado");
+        });
+        const target = document.getElementById("mente-" + menteId);
+        if (target) target.classList.add("seleccionado");
+    },
+
+    traducirInterfaz: function() {
+        const es = this.idioma === "es";
         
-        /* BOTONES DE ENTORNO EN COLOR ROJO OPERATIVO */
-        .btn-otg-entorno {
-            background: #0f172a;
-            color: #ef4444;
-            border: 2px solid #b91c1c;
-            padding: 16px;
-            font-weight: 900;
-            font-size: 14px;
-            text-transform: uppercase;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .btn-otg-entorno.seleccionado {
-            background: rgba(239, 68, 68, 0.2);
-            color: #fff;
-            border-color: var(--accent-red);
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-        }
-
-        /* DISEÑO DE ESFERA PULMONAR PRESTIGIO (30% MÁS GRANDE Y RESPONSIVA) */
-        #otg-esfera-visual { 
-            width: 195px; 
-            height: 195px; 
-            background: rgba(56, 189, 248, 0.04); 
-            border: 6px solid var(--secondary); 
-            border-radius: 50%; 
-            margin: 25px auto; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: 900; 
-            font-size: 17px; 
-            color: var(--secondary); 
-            transition: transform 1s ease-in-out, background-color 1s ease-in-out, border-color 1s ease-in-out; 
-            box-shadow: 0 0 35px rgba(56, 189, 248, 0.2); 
-            user-select: none;
-        }
+        document.getElementById("otg-txt-titulo-modulo").innerText = es ? "OPEN THAN GO" : "OPEN THAN GO";
+        document.getElementById("otg-txt-subtitulo-modulo").innerText = es ? "Módulo Premium: Perfiles Especiales" : "Premium Module: Special Profiles";
+        document.getElementById("otg-lbl-perfil").innerText = es ? "Perfil de Contención Especial" : "Special Containment Profile";
+        document.getElementById("otg-lbl-modo").innerText = es ? "Modo Operativo de Entorno" : "Environment Operational Mode";
+        document.getElementById("otg-lbl-mente").innerText = es ? "Mente / Diagnóstico de Agobio Existencial" : "Mind / Existential Overwhelm Diagnosis";
+        document.getElementById("otg-lbl-texto").innerText = es ? "O escribe aquí tu propio agobio si no aparece arriba:" : "Or write your own overwhelm here if it does not appear above:";
+        document.getElementById("otg-texto-extenso").placeholder = es ? "Copia correos extensos o escribe lo que sature tu mente hoy..." : "Copy long emails or write what saturates your mind today...";
         
-        /* LETRAS EN PANTALLA LIMPIA PARA DICTADO DE VOZ HUMANA */
-        #otg-subtitulado-voz {
-            font-size: 16px; 
-            font-weight: 500; 
-            color: #f1f5f9; 
-            text-align: center;
-            margin: 15px auto 25px auto; 
-            min-height: 52px; 
-            max-width: 92%; 
-            line-height: 1.5;
-        }
-
-        .btn-action-master { 
-            width: 100%; 
-            background: var(--secondary); 
-            color: #0f172a; 
-            border: none; 
-            padding: 16px; 
-            font-weight: 900; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 14px; 
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .btn-clear-master { 
-            width: 100%; 
-            background: #334155; 
-            color: #94a3b8; 
-            border: none; 
-            padding: 16px; 
-            font-weight: 900; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 14px; 
-            text-transform: uppercase;
-        }
+        document.getElementById("mente-aburrido").innerText = es ? "Aburrido" : "Bored";
+        document.getElementById("mente-agotado").innerText = es ? "Agotado" : "Exhausted";
+        document.getElementById("mente-estresado").innerText = es ? "Estresado" : "Stressed";
+        document.getElementById("mente-cansado").innerText = es ? "Cansado" : "Tired";
+        document.getElementById("mente-ansioso").innerText = es ? "Ansioso" : "Anxious";
         
-        /* CORTINAS PLEGABLES ESTILO ACORDEÓN INTERACTIVO */
-        .cortina-acordeon {
-            background: #0f172a; 
-            border: 1px solid #334155; 
-            border-radius: 8px; 
-            margin-bottom: 12px; 
-            overflow: hidden;
+        document.getElementById("perfil-veteranos").innerText = es ? "Veteranos" : "Veterans";
+        document.getElementById("perfil-adultos_mayores").innerText = es ? "Mayor" : "Senior";
+        document.getElementById("perfil-gobierno").innerText = es ? "Gobierno" : "Government";
+
+        document.getElementById("otg-btn-activar").innerText = es ? "Activar Mando Especial" : "Activate Special Command";
+        document.getElementById("otg-btn-borrar").innerText = es ? "Borrar Todo" : "Clear All";
+        
+        document.getElementById("otg-txt-reloj-lbl").innerText = es ? "⏱️ Desconexión Somática:" : "⏱️ Somatic Disconnection:";
+        document.getElementById("otg-lbl-f1").innerText = es ? "Fase 1: Preparación Analógica" : "Phase 1: Analog Preparation";
+        document.getElementById("otg-lbl-f2").innerText = es ? "Fase 2: Misión Somática en Curso" : "Phase 2: Active Somatic Mission";
+        document.getElementById("otg-lbl-f3").innerText = es ? "Fase 3: Cierre de Vector Soberano" : "Phase 3: Sovereign Vector Close";
+        document.getElementById("otg-reporte-titulo").innerText = es ? "Síntesis de Equilibrio Somático" : "Somatic Balance Synthesis";
+
+        this.seleccionarPerfil(this.perfilSeleccionado);
+        this.seleccionarModo(this.modoSeleccionado);
+        this.seleccionarMente(this.menteSeleccionada);
+    },
+    // ==========================================================================================
+    // FILE: static/engine_perfiles.js - PART 2 OF 3: MICROPHONE CAPTURE & AUDIO ENGINE
+    // ==========================================================================================
+    iniciarGrabacionAudio: function() {
+        const btn = document.getElementById('btn-microfono');
+        const txt = document.getElementById('texto-mic');
+        if (btn && txt) {
+            btn.style.backgroundColor = '#b91c1c';
+            txt.innerText = this.idioma === "en" ? "Recording... Release to process" : "Grabando... Suelta para procesar";
         }
-        .cortina-header {
-            background: #1e293b; 
-            padding: 15px; 
-            font-size: 13px; 
-            font-weight: bold;
-            color: var(--secondary); 
-            text-transform: uppercase; 
-            cursor: pointer;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            user-select: none;
+        this.tiempoAudioTimer = setTimeout(() => { this.detenerGrabacionAudio(); }, 60000);
+    },
+
+    detenerGrabacionAudio: function() {
+        if (this.tiempoAudioTimer) clearTimeout(this.tiempoAudioTimer);
+        const btn = document.getElementById('btn-microfono');
+        const txt = document.getElementById('texto-mic');
+        if (btn && txt) {
+            btn.style.backgroundColor = 'var(--accent-red)';
+            txt.innerText = this.idioma === "en" ? "Hold to talk" : "Mantén presionado para hablar";
         }
-        .cortina-content {
-            padding: 16px; 
-            font-size: 14px; 
-            color: #cbd5e1; 
-            line-height: 1.5; 
-            display: none; 
-            white-space: pre-line;
+        const areaTexto = document.getElementById('otg-texto-extenso');
+        if (areaTexto && areaTexto.value === "") {
+            areaTexto.value = this.idioma === "en" ? "Voice entry registered." : "Entrada de desahogo procesada de forma analógica.";
         }
-        .btn-media {
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px;
-            padding: 12px 18px; 
-            border-radius: 6px; 
-            font-size: 12px; 
-            font-weight: bold;
-            text-transform: uppercase; 
-            text-decoration: none; 
-            margin-right: 10px; 
-            margin-top: 10px;
-        }
-<body>
-    <div class="main-form" id="otg-contenedor-master">
-        <!-- Encabezado de Control de Alternancia Nv. 12 -->
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 14px; margin-bottom: 25px;">
-            <div>
-                <h1 id="otg-txt-titulo-modulo" style="color: var(--secondary); font-size: 20px;">OPEN THAN GO</h1>
-                <p id="otg-txt-subtitulo-modulo" style="color: #94a3b8; font-size: 11px; margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 0.5px;">Módulo Premium: Perfiles Especiales</p>
-            </div>
-            <div style="display: flex; gap: 6px; align-items: center;">
-                <button type="button" onclick="KERNEL_ESPECIAL.cambiarIdioma('es')" id="otg-btn-lang-es" style="background: #38bdf8; color: #0f172a; border: none; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">ESP</button>
-                <button type="button" onclick="KERNEL_ESPECIAL.cambiarIdioma('en')" id="otg-btn-lang-en" style="background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">ENG</button>
-                <a href="/" id="otg-btn-cerrar" style="background: var(--accent-red); color: white; border: none; padding: 6px 14px; border-radius: 4px; font-weight: bold; font-size: 11px; margin-left: 6px; text-decoration: none; text-transform: uppercase;">✕ REGRESAR</a>
-            </div>
-        </div>
+    },
 
-        <!-- DASHBOARD INTERACTIVO DE ENTRADA -->
-        <div id="otg-bloque-configuracion">
-            <div class="seccion-titulo" id="otg-lbl-perfil">Perfil de Contención Especial</div>
-            <div class="grid-botones-tres">
-                <div class="btn-otg-interactivo" id="perfil-veteranos" onclick="KERNEL_ESPECIAL.seleccionarPerfil('veteranos')">Veteranos</div>
-                <div class="btn-otg-interactivo" id="perfil-adultos_mayores" onclick="KERNEL_ESPECIAL.seleccionarPerfil('adultos_mayores')">Mayor</div>
-                <div class="btn-otg-interactivo" id="perfil-gobierno" onclick="KERNEL_ESPECIAL.seleccionarPerfil('gobierno')">Gobierno</div>
-            </div>
+    limpiarVentanilla: function() {
+        document.getElementById('otg-texto-extenso').value = '';
+        document.getElementById('otg-panel-respuesta').style.display = 'none';
+        document.getElementById('otg-bloque-configuracion').style.display = 'block';
+        document.getElementById('otg-contenedor-master').classList.remove('compacto');
+        document.body.classList.remove('modo-servicio');
+        
+        this.perfilSeleccionado = "veteranos";
+        this.modoSeleccionado = "salir";
+        this.menteSeleccionada = "aburrido";
+        
+        this.traducirInterfaz();
+        
+        if (this.esferaInterval) clearInterval(this.esferaInterval);
+        if (this.relojInterval) clearInterval(this.relojInterval);
+        if (this.bucleIntervalVoz) clearInterval(this.bucleIntervalVoz);
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+    },
 
-            <div class="seccion-titulo" id="otg-lbl-modo">Modo Operativo de Entorno</div>
-            <div class="grid-botones">
-                <button type="button" class="btn-otg-entorno" id="modo-salir" onclick="KERNEL_ESPECIAL.seleccionarModo('salir')">SALIR</button>
-                <button type="button" class="btn-otg-entorno" id="modo-casa" onclick="KERNEL_ESPECIAL.seleccionarModo('casa')">CASA</button>
-            </div>
+    emitirVozHumana: function(textoALeer) {
+        if (!textoALeer || !window.speechSynthesis) return;
+        
+        window.speechSynthesis.cancel(); // Terminate preceding queues to avoid spanglish stacking
+        
+        const enunciado = new SpeechSynthesisUtterance(textoALeer);
+        enunciado.lang = this.idioma === "en" ? "en-US" : "es-ES";
+        
+        // DE-ESCALATION CALIBRATION: Strong, deliberate speed curve avoiding pacing fatigue
+        enunciado.rate = 0.82; 
+        enunciado.pitch = 0.95; 
+        
+        // Push current text readout cleanly to the UI subtitle block
+        document.getElementById("otg-subtitulado-voz").innerText = textoALeer;
+        
+        window.speechSynthesis.speak(enunciado);
+    },
+    // ==========================================================================================
+    // FILE: static/engine_perfiles.js - PART 3 OF 3: ASYNCHRONOUS SCORING & CHRONO CORE
+    // ==========================================================================================
+    ejecutarPlan: function() {
+        const es = this.idioma === "es";
+        const entradaManual = document.getElementById("otg-texto-extenso").value.trim();
+        const factorAgobio = entradaManual !== "" ? entradaManual : this.menteSeleccionada;
+        
+        // Read historical vectors directly if present from cookie matrix, else default
+        const localHistorial = JSON.parse(localStorage.getItem("otg_historial_especial") || "[]");
+        const localVector = JSON.parse(localStorage.getItem("otg_vector_necesidades") || "{}");
 
-            <!-- SECCIÓN DE DIAGNÓSTICO EMOCIONAL DIRECTO (CORREGIDA SIN DUPLICADOS) -->
-            <div class="seccion-titulo" id="otg-lbl-mente">Mente / Diagnóstico de Agobio Existencial</div>
-            <div class="grid-botones-tres">
-                <div class="btn-otg-interactivo" id="mente-aburrido" onclick="KERNEL_ESPECIAL.seleccionarMente('aburrido')">Aburrido</div>
-                <div class="btn-otg-interactivo" id="mente-agotado" onclick="KERNEL_ESPECIAL.seleccionarMente('agotado')">Agotado</div>
-                <div class="btn-otg-interactivo" id="mente-estresado" onclick="KERNEL_ESPECIAL.seleccionarMente('estresado')">Estresado</div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                <div class="btn-otg-interactivo" id="mente-cansado" onclick="KERNEL_ESPECIAL.seleccionarMente('cansado')">Cansado</div>
-                <div class="btn-otg-interactivo" id="mente-ansioso" onclick="KERNEL_ESPECIAL.seleccionarMente('ansioso')">Ansioso</div>
-            </div>
-            <!-- ENTRADA DE TEXTO ALTERNATIVA -->
-            <div class="seccion-titulo" id="otg-lbl-texto">O escribe aquí tu propio agobio si no aparece arriba:</div>
-            <div class="field">
-                <textarea id="otg-texto-extenso" placeholder="Copia correos extensos o escribe lo que sature tu mente hoy..."></textarea>
-            </div>
+        const payloadMaster = {
+            categoria: this.perfilSeleccionado,
+            entorno: this.modoSeleccionado,
+            lang: this.idioma,
+            tag_agobio: factorAgobio,
+            vector_necesidades: localVector,
+            historial: localHistorial
+        };
 
-            <!-- BOTÓN INTERACTIVO DE AUDIO DE UN MINUTO -->
-            <div style="margin-bottom: 25px; text-align: center;">
-                <button type="button" id="btn-microfono" 
-                        onmousedown="KERNEL_ESPECIAL.iniciarGrabacionAudio()" 
-                        onmouseup="KERNEL_ESPECIAL.detenerGrabacionAudio()" 
-                        ontouchstart="KERNEL_ESPECIAL.iniciarGrabacionAudio()" 
-                        ontouchend="KERNEL_ESPECIAL.detenerGrabacionAudio()" 
-                        style="background-color: var(--accent-red); color: white; border: none; padding: 14px 26px; border-radius: 30px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);">
-                    <span id="icono-mic">🎤</span> <span id="texto-mic">Mantén presionado para hablar</span>
-                </button>
-            </div>
-
-            <!-- DISPARADORES MAESTROS DE ACCIÓN -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                <button type="button" id="otg-btn-activar" onclick="KERNEL_ESPECIAL.ejecutarPlan()" class="btn-action-master">Activar Mando Especial</button>
-                <button type="button" id="otg-btn-borrar" onclick="KERNEL_ESPECIAL.limpiarVentanilla()" class="btn-clear-master">Borrar Todo</button>
-            </div>
-        </div>
-
-        <!-- ========================================================================================== -->
-        <!-- ENTORNO INMERSIVO EXCLUSIVO DEL PULMÓN RESPIRATORIO (PANTALLA LIMPIA DE RESCATE) -->
-        <!-- ========================================================================================== -->
-        <div id="otg-panel-respuesta" style="display: none;">
-            <div id="otg-ritmo-titulo" style="font-size: 13px; font-weight: bold; color: var(--secondary); text-align: center; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px;"></div>
+        fetch("/api/v1/perfiles-especiales/procesar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payloadMaster)
+        })
+        .then(res => res.json())
+        .then(datos => {
+            if (datos.status !== "success") return;
             
-            <!-- EL GRAN PULMÓN RESPIRATORIO RESPONSIVO (30% MÁS GRANDE) -->
-            <div id="otg-esfera-visual">
-                <span id="otg-esfera-texto">START</span>
-            </div>
+            // IMMERSIVE TRANSITION: Contract configurations, bring slate background highlights forward
+            document.body.classList.add('modo-servicio');
+            document.getElementById('otg-bloque-configuracion').style.display = 'none';
+            document.getElementById('otg-contenedor-master').classList.add('compacto');
             
-            <!-- CONTENEDOR DE DICTADO FLUIDO EN PANTALLA LIMPIA -->
-            <div id="otg-subtitulado-voz"></div>
+            document.getElementById("otg-id-display").innerText = datos.id_caso;
             
-            <div style="font-size: 13px; color: #94a3b8; text-align: center; margin-bottom: 25px;">
-                <span id="otg-txt-reloj-lbl">⏱️ Desconexión Somática:</span>
-                <strong id="otg-reloj-display" style="color: var(--accent-green); font-size: 17px; font-family: monospace;">15:00</strong>
-            </div>
+            // Sync history nodes back to client buffers
+            if (datos.historial_actualizado) {
+                localStorage.setItem("otg_historial_especial", JSON.stringify(datos.historial_actualizado));
+            }
+            
+            // Pack content cleanly inside accordion containers
+            document.getElementById("cortina-f1").innerText = datos.antes;
+            document.getElementById("otg-html-mision-texto").innerText = datos.durante;
+            document.getElementById("cortina-f3").innerText = datos.despues;
+            
+            // Unify direct assisted maps and multimedia access hooks
+            document.getElementById("otg-f2-mapa").href = datos.mapa_url;
+            document.getElementById("otg-f2-youtube").href = datos.youtube_url;
+            document.getElementById("otg-f2-spotify").href = datos.spotify_url;
+            
+            document.getElementById("otg-panel-respuesta").style.display = "block";
+            document.getElementById("otg-bloque-reporte-acordeon").style.display = "none";
+            
+            this.emitirVozHumana(datos.antes_voz);
+            
+            this.bucleAudiosCortos = datos.bucle_audios_cortos || [];
+            this.indiceAudioActual = 0;
+            
+            // Lung pace tuning matrix (30% scale expansion)
+            let tInhala = 4000, tExhala = 4000;
+            let txtRitmo = es ? "Ritmo Regular (4s x 4s)" : "Regular Pace (4s x 4s)";
+            
+            if (this.perfilSeleccionado === "veteranos") { 
+                tInhala = 5000; tExhala = 5000; 
+                txtRitmo = es ? "Anclaje Táctico (5s x 5s)" : "Tactical Grounding (5s x 5s)"; 
+            } else if (this.perfilSeleccionado === "adultos_mayores") { 
+                tInhala = 3000; tExhala = 4000; 
+                txtRitmo = es ? "Confort Suave (3s x 4s)" : "Gentle Comfort (3s x 4s)"; 
+            }
+            
+            document.getElementById("otg-ritmo-titulo").innerText = txtRitmo;
+            
+            if (this.esferaInterval) clearInterval(this.esferaInterval);
+            const animarEsfera = () => {
+                const esf = document.getElementById("otg-esfera-visual");
+                if (!esf) return;
+                esf.style.transform = "scale(1.25)";
+                esf.style.borderColor = "#10b981";
+                document.getElementById("otg-esfera-texto").innerText = es ? "INHALA" : "BREATHE IN";
+                
+                setTimeout(() => {
+                    const esfCheck = document.getElementById("otg-esfera-visual");
+                    if (!esfCheck) return;
+                    esfCheck.style.transform = "scale(0.9)";
+                    esfCheck.style.borderColor = "var(--secondary)";
+                    document.getElementById("otg-esfera-texto").innerText = es ? "EXHALA" : "BREATHE OUT";
+                }, tInhala);
+            };
+            animarEsfera();
+            this.esferaInterval = setInterval(animarEsfera, (tInhala + tExhala));
+            
+            this.iniciarCicloVidaSomatica(datos.durante_voz, datos.despues_voz, datos.reporte_anonimo, datos.reporte_nota);
+        });
+    },
 
-            <!-- CORTINAS PLEGABLES ESTILO ACORDEÓN INTERACTIVO -->
-            <div class="cortina-acordeon">
-                <div class="cortina-header" onclick="KERNEL_ESPECIAL.alternarCortina('cortina-f1')">
-                    <span id="otg-lbl-f1">Fase 1: Preparación Analógica</span> <span>▼</span>
-                </div>
-                <div class="cortina-content" id="cortina-f1"></div>
-            </div>
-            
-            <div class="cortina-acordeon">
-                <div class="cortina-header" onclick="KERNEL_ESPECIAL.alternarCortina('cortina-f2')">
-                    <span id="otg-lbl-f2">Fase 2: Misión Somática en Curso</span> <span>▼</span>
-                </div>
-                <div class="cortina-content" id="cortina-f2">
-                    <p id="otg-html-mision-texto" style="margin: 0 0 15px 0; font-size: 14px; line-height: 1.5;"></p>
-                    
-                    <!-- ENLACES CORPORATIVOS DIRECTOS PARA ENTORNO SEGURO Y RECURSOS MEDIA -->
-                    <a id="otg-f2-mapa" href="#" target="_blank" class="btn-media" style="background: var(--secondary); color: #0f172a;">🗺️ Google Maps</a>
-                    <a id="otg-f2-youtube" href="#" target="_blank" class="btn-media" style="background: var(--accent-red); color: white;">📺 YouTube Antidote</a>
-                    <a id="otg-f2-spotify" href="#" target="_blank" class="btn-media" style="background: #1ed760; color: #0f172a;">🎵 Spotify Flow</a>
-                </div>
-            </div>
-            
-            <div class="cortina-acordeon">
-                <div class="cortina-header" onclick="KERNEL_ESPECIAL.alternarCortina('cortina-f3')">
-                    <span id="otg-lbl-f3">Fase 3: Cierre de Vector Soberano</span> <span>▼</span>
-                </div>
-                <div class="cortina-content" id="cortina-f3"></div>
-            </div>
+    iniciarCicloVidaSomatica: function(duranteVoz, despuesVoz, reporteCuerpo, reporteNota) {
+        if (this.relojInterval) clearInterval(this.relojInterval);
+        if (this.bucleIntervalVoz) clearInterval(this.bucleIntervalVoz);
+        
+        const es = this.idioma === "es";
+        let remSegundos = 900; 
+        
+        setTimeout(() => {
+            if (document.getElementById("otg-panel-respuesta").style.display === "block") {
+                this.emitirVozHumana(duranteVoz);
+            }
+        }, 35000);
 
-            <!-- REPORTE DE SÍNTESIS DE EQUILIBRIO COMPLETAMENTE CONVERTIDO EN ACORDEÓN OCULTO -->
-            <div class="cortina-acordeon" id="otg-bloque-reporte-acordeon" style="display: none; border-color: var(--accent-green);">
-                <div class="cortina-header" style="color: var(--accent-green);" onclick="KERNEL_ESPECIAL.alternarCortina('cortina-reporte')">
-                    <span id="otg-reporte-titulo">Síntesis de Equilibrio Somático</span> <span>▼</span>
-                </div>
-                <div class="cortina-content" id="cortina-reporte">
-                    <div style="font-size: 11px; font-weight: bold; color: var(--secondary); margin-bottom: 8px; text-transform: uppercase;">ID Caso Técnico: <span id="otg-id-display"></span></div>
-                    <p id="otg-reporte-cuerpo" style="margin: 0; font-size: 13px; line-height: 1.5; color: #cbd5e1;"></p>
-                    <span id="otg-reporte-nota" style="display: block; margin-top: 12px; color: #64748b; font-size: 11px; font-style: italic;"></span>
-                </div>
-            </div>
-        </div>
-    </div>
+        // EXTRA DE-ESCALATION PACING: Cycle accompanying vocal streams exactly every 20 seconds
+        this.bucleIntervalVoz = setInterval(() => {
+            if (remSegundos <= 15) return;
+            if (this.bucleAudiosCortos && this.bucleAudiosCortos.length > 0) {
+                const fraseActual = this.bucleAudiosCortos[this.indiceAudioActual];
+                this.emitirVozHumana(fraseActual);
+                this.indiceAudioActual = (this.indiceAudioActual + 1) % this.bucleAudiosCortos.length;
+            }
+        }, 20000);
 
-    <!-- INYECCIÓN NATIVA DEL MOTOR CLIENTE ADAPTATIVO -->
-    <script src="/static/engine_perfiles.js"></script>
-</body>
-</html>
+        this.relojInterval = setInterval(() => {
+            remSegundos--;
+            let mm = Math.floor(remSegundos / 60);
+            let ss = remSegundos % 60;
+            document.getElementById("otg-reloj-display").innerText = (mm < 10 ? "0" + mm : mm) + ":" + (ss < 10 ? "0" + ss : ss);
+            
+            // Interrupt cycle at second 10 to clear cognitive fatigue with the focus challenge
+            if (remSegundos === 10) {
+                clearInterval(this.bucleIntervalVoz);
+                const retoLector = document.getElementById("otg-html-mision-texto").innerText;
+                this.emitirVozHumana(es ? "Atención se activa el reto de desfragmentación mental final " + retoLector : "Attention final de-escalation mind challenge activated " + retoLector);
+            }
+            
+            // VALID PERFORMANCE ENFORCEMENT: Never render psychometric parameters before zero mark
+            if (remSegundos <= 0) {
+                clearInterval(this.relojInterval);
+                clearInterval(this.esferaInterval);
+                clearInterval(this.bucleIntervalVoz);
+                
+                document.getElementById("otg-esfera-visual").style.transform = "scale(1.0)";
+                document.getElementById("otg-esfera-texto").innerText = es ? "CONCLUIDO" : "DONE";
+                
+                this.emitirVozHumana(despuesVoz);
+                
+                // Unlock and load tech analysis data onto the bottom accordion node
+                document.getElementById("otg-reporte-cuerpo").innerText = reporteCuerpo;
+                document.getElementById("otg-reporte-nota").innerText = reporteNota;
+                document.getElementById("otg-bloque-reporte-acordeon").style.display = "block";
+            }
+        }, 1000);
+    }
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    window.KERNEL_ESPECIAL.cambiarIdioma("es");
+});
