@@ -2823,6 +2823,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
-// ESTAS DOS LÍNEAS DE ABAJO DEBEN SER LAS ÚNICAS QUE CIERREN TODO TU ARCHIVO ENGINE.JS:
+// Colocar al final de todo en static/engine.js para forzar la carga en Render
+(function(){
+    console.log("Iniciando auto-carga forzada de Perfiles Especiales...");
+    let scriptEspecial = document.createElement('script');
+    // Agregamos un timestamp dinámico para obligar al navegador a no usar caché vieja
+    scriptEspecial.src = '/static/perfiles.js?v=' + Date.now();
+    scriptEspecial.defer = true;
+    document.body.appendChild(scriptEspecial);
 })();
