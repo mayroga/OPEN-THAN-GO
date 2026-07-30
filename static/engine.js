@@ -2823,12 +2823,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// Colocar al final de todo en static/engine.js para forzar la carga en Render
-(function(){
-    console.log("Iniciando auto-carga forzada de Perfiles Especiales...");
-    let scriptEspecial = document.createElement('script');
-    // Agregamos un timestamp dinámico para obligar al navegador a no usar caché vieja
-    scriptEspecial.src = '/static/perfiles.js?v=' + Date.now();
-    scriptEspecial.defer = true;
-    document.body.appendChild(scriptEspecial);
+// ====================================================================
+// ÚLTIMAS LÍNEAS DE TU ENGINE.JS ORIGINAL (Asegúrate de que terminen así)
+// ====================================================================
+// ... (código previo de Open Than Go)
+
+// INYECTOR MAESTRO DE PERFILES ESPECIALES (Aislado al final)
+;(function(){
+    console.log("Inyectando script de perfiles especiales de forma segura...");
+    if(!document.getElementById("script-perfiles-modulo")){
+        let sc = document.createElement('script');
+        sc.id = "script-perfiles-modulo";
+        sc.src = '/static/perfiles.js?v=' + Date.now();
+        sc.defer = true;
+        document.body.appendChild(sc);
+    }
 })();
