@@ -726,15 +726,4 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
             }
         }, true);
     </script>
-<!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR --> 
-<script src="/static/engine.js"></script> 
-<!-- Inicialización unificada del motor de control soberano sin alterar la inercia original --> 
-<script> 
- window.addEventListener('DOMContentLoaded', () => { 
- if (typeof KERNEL !== 'undefined' && KERNEL.init) { 
- KERNEL.init(); 
- } 
- }); 
-</script> 
-</body> 
-</html>
+<!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR --> <script src="/static/engine.js"></script> <!-- Inicialización unificada del motor de control soberano sin alterar la inercia original --> <script> window.addEventListener('DOMContentLoaded', () => { if (typeof KERNEL !== 'undefined' && KERNEL.init) { KERNEL.init(); } }); </script> </body> </html>
