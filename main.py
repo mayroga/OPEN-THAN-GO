@@ -722,8 +722,8 @@ BASE_MISIONES = {
  "gps": "community dog park open area", 
  "vector_necesidades": {"juego": 100, "risa": 95, "comunidad": 90, "movimiento": 60, "naturaleza": 70, "aire_fresco": 90, "esperanza": 95, "descanso": 60}},
 
-        ]
-    }
+      }  
+    ]
 }
 # ==========================================================================================
 # SECCIÓN DE EJERCICIOS DE BIENESTAR - PERFIL: VETERANOS
