@@ -2823,19 +2823,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// ====================================================================
-// ÚLTIMAS LÍNEAS DE TU ENGINE.JS ORIGINAL (Asegúrate de que terminen así)
-// ====================================================================
-// ... (código previo de Open Than Go)
-
-// INYECTOR MAESTRO DE PERFILES ESPECIALES (Aislado al final)
-;(function(){
-    console.log("Inyectando script de perfiles especiales de forma segura...");
-    if(!document.getElementById("script-perfiles-modulo")){
-        let sc = document.createElement('script');
-        sc.id = "script-perfiles-modulo";
-        sc.src = '/static/perfiles.js?v=' + Date.now();
-        sc.defer = true;
-        document.body.appendChild(sc);
-    }
+// SI TU ARCHIVO PRINCIPAL SE ABRE CON UN PARENTESIS DE AUTO-EJECUCIÓN (function(){ ...
+// ESTAS DOS LÍNEAS DE ABAJO DEBEN SER LAS ÚNICAS QUE CIERREN TODO TU ARCHIVO ENGINE.JS:
 })();
