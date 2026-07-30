@@ -1,95 +1,18 @@
-// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1 
-// Company: May Roga LLC 
-// File: static/engine.js (Frontend Logic) 
+// OPEN THAN GO SYSTEM - Kernel Somatic Voice Engine V.6.0.1
+// Company: May Roga LLC
+// File: static/engine.js (Frontend Logic)
 
-const KERNEL = { 
-    timerInaccion: null, 
-    timerEnfocado: null, 
-    temporizadorCascada: null, 
-    temporizadorCierre: null, 
-    salidaSugeridaTimeoutId: null, 
-    salidaTimerId: null, // New timer for SALIR mode 45s phrases 
-    speechQueue: [], // New property for speech queue management 
-    isSpeaking: false, // New property to track if speech is active 
+const KERNEL = {
+    timerInaccion: null,
+    timerEnfocado: null,
+    temporizadorCascada: null,
+    temporizadorCierre: null,
+    salidaSugeridaTimeoutId: null,
+    salidaTimerId: null, // New timer for SALIR mode 45s phrases
+    speechQueue: [], // New property for speech queue management
+    isSpeaking: false, // New property to track if speech is active
     carouselInterval: null, // New interval ID for image carousel
-
-    // ==========================================================================================
-    // ¡AQUÍ PEGAS ESTA LÍNEA NUEVA! (No olvides la coma al final)
-    // ==========================================================================================
-    perfilActual: 'veterano', // Valores posibles: 'veterano', 'adulto_mayor', 'gobierno'
-
-// ==========================================================================================
-    // EXPANSIÓN DE FRASES DE BIENESTAR Y MITIGACIÓN (NUEVOS PERFILES)
-    // ==========================================================================================
-    FRASES_VETERANOS: {
-        es: [
-            "Tu presencia aquí es valiosa; caminamos a tu lado en este momento de descanso.",
-            "Permítete habitar este espacio seguro; estamos aquí para acompañar tu pausa.",
-            "Mitigamos el ruido del entorno para que encuentres un instante de total serenidad.",
-            "Mejoramos la experiencia de tu presente ofreciéndote un entorno libre de prisas.",
-            "Cada respiración en calma es un paso firme hacia tu bienestar interno.",
-            "Tu fortaleza se complementa con este merecido descanso; te acompañamos siempre.",
-            "Suavizamos las cargas del día para cobijar tu tranquilidad en este rincón.",
-            "Estamos contigo en cada paso, resguardando tu paz y tu espacio protector."
-        ],
-        en: [
-            "Your presence here is valuable; we walk by your side in this moment of rest.",
-            "Allow yourself to inhabit this safe space; we are here to accompany your pause.",
-            "We mitigate the surrounding noise so you can find an instant of total serenity.",
-            "We improve your present experience by offering an environment free of rush.",
-            "Every calm breath is a firm step toward your internal wellbeing.",
-            "Your strength is complemented by this well-deserved rest; we always accompany you.",
-            "We soften the burdens of the day to shelter your tranquility in this corner.",
-            "We are with you every step of the way, safeguarding your peace and protective space."
-        ]
-    },
-
-    FRASES_ADULTO_MAYOR: {
-        es: [
-            "Agradecemos compartir este trayecto contigo; caminamos a tu propio ritmo y con total calma.",
-            "Este espacio está diseñado para cobijar tu bienestar; te acompañamos en cada instante.",
-            "Mitigamos las prisas del entorno para regalarte un momento de grata serenidad.",
-            "Mejoramos la armonía de tu día ofreciéndote un entorno seguro, predecible y confortable.",
-            "Cada paso suave que das hoy fortalece tu vitalidad y llena de luz tu camino.",
-            "Tu experiencia es un pilar admirable; estamos aquí para resguardar tu tranquilidad.",
-            "Suavizamos el esfuerzo diario para que disfrutes de un descanso pleno y reparador.",
-            "Tu presencia nos inspira; caminamos juntos protegiendo tu paz en todo momento."
-        ],
-        en: [
-            "We are grateful to share this journey with you; we walk at your own pace and with total calm.",
-            "This space is designed to shelter your wellbeing; we accompany you at every instant.",
-            "We mitigate the rush of the surroundings to grant you a moment of pleasant serenity.",
-            "We improve the harmony of your day by offering a safe, predictable, and comfortable environment.",
-            "Every gentle step you take today strengthens your vitality and fills your path with light.",
-            "Your experience is an admirable pillar; we are here to safeguard your tranquility.",
-            "We soften daily effort so you can enjoy a full and restorative rest.",
-            "Your presence inspires us; we walk together protecting your peace at all times."
-        ]
-    },
-
-    FRASES_GOBIERNO: {
-        es: [
-            "Agradecemos tu dedicación diaria; caminamos a tu lado en este espacio de desconexión.",
-            "Permítete liberar las responsabilidades del entorno; te acompañamos en tu descanso.",
-            "Mitigamos la saturación informativa del día para que recuperes tu centro en paz.",
-            "Mejoramos tu experiencia presente ofreciéndote un entorno libre de trámites y agendas.",
-            "Cada instante de pausa en este refugio renueva tu enfoque y tu bienestar interno.",
-            "Tu labor es un pilar importante; estamos aquí para resguardar tu tranquilidad hoy.",
-            "Suavizamos las exigencias del día para cobijar tu calma en este rincón protegido.",
-            "Caminamos juntos paso a paso, protegiendo tu soberanía mental y tu balance natural."
-        ],
-        en: [
-            "We appreciate your daily dedication; we walk by your side in this space of disconnection.",
-            "Allow yourself to release the surroundings' responsibilities; we accompany your rest.",
-            "We mitigate the day's information overload so you can recover your core in peace.",
-            "We improve your present experience by offering an environment free of procedures and agendas.",
-            "Every instant of pause in this refuge renews your focus and internal wellbeing.",
-            "Your labor is an important pillar; we are here to safeguard your tranquility today.",
-            "We soften the demands of the day to shelter your calm in this protected corner.",
-            "We walk together step by step, protecting your mental sovereignty and natural balance."
-        ]
-    },
-
+   
     historialFaseCasaSublime: {}, // New history for the 4-min phase audio (daily object)
     historialAudiosCasaSecuenciales: {}, // History for AUDIOS_SECUENCIALES_CASA (daily object)
     historialAudiosSalirSecuenciales: {}, // History for AUDIOS_SECUENCIALES_SALIR (daily object)
@@ -1516,31 +1439,7 @@ mostrarOpcionesSalir(container) {
         const btnSpotify = document.getElementById('btn-spotify-action'); // NEW
         const phrasesDiv = document.getElementById('salida-countdown-phrases');
         const AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
-       // ==========================================================================================
-// AQUÍ QUEDA PEGADO EL BLOQUE QUE DETECTA EL PERFIL ACTIVO:
-// ==========================================================================================
-let AUDIOS_SECUENCIALES_SALIR = [];
-
-if (this.perfilActual === 'veterano') {
-    AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.FRASES_VETERANOS.es : this.FRASES_VETERANOS.en;
-} else if (this.perfilActual === 'adulto_mayor') {
-    AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.FRASES_ADULTO_MAYOR.es : this.FRASES_ADULTO_MAYOR.en;
-} else if (this.perfilActual === 'gobierno') {
-    AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.FRASES_GOBIERNO.es : this.FRASES_GOBIERNO.en;
-} else {
-    AUDIOS_SECUENCIALES_SALIR = this.idiomaActual === 'es' ? this.AUDIOS_SECUENCIALES_SALIR_ES : this.AUDIOS_SECUENCIALES_SALIR_EN;
-}
-
-// ==========================================================================================
-// Y DEBAJO SIGUE TU CÓDIGO ACTUAL SIN NINGÚN CAMBIO:
-// ==========================================================================================
-// NEW: History for SALIR sequential audios 
-let lastSalirAudioTime = -1; // To ensure audio plays only every ~10-15 seconds 
-this.salidaTimerId = setInterval(() => { 
-    if (retencion > 0) { 
-        retencion--;
-        // ... el resto de tu temporizador sigue igual hacia abajo ...
-
+       
         // NEW: History for SALIR sequential audios
         let lastSalirAudioTime = -1; // To ensure audio plays only every ~10-15 seconds
        
