@@ -693,22 +693,21 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
         </svg>
     </a>
 
-    <!-- 1. DETECTOR E INTERCEPTOR DE ERRORES 404 (SVG FALLBACK) -->
     <script>
-        document.addEventListener("error", function (e) {
-            if (e.target.tagName.toLowerCase() === "img") {
+        // Interceptor global de errores de carga de imágenes (Mapeo de Fallbacks Sutiles)
+        document.body.addEventListener("error", function (e) {
+            if (e.target.tagName === "IMG") {
                 const src = e.target.src || "";
                 const fallbacks = {
-                    "square_breath.svg": "🔲",
-                    "silence.svg": "🤫",
-                    "gratitude.svg": "🙏",
-                    "laugh.svg": "😂",
+                    "nature_sound.svg": "🍃",
+                    "words.svg": "💬",
+                    "laugh.svg": "✨",
                     "observe.svg": "👁️",
+                    "gratitude.svg": "🙏",
                     "stretch.svg": "🧘",
-                    "words.svg": "✍️",
-                    "nature_sound.svg": "🎵"
+                    "silence.svg": "🤫",
+                    "square_breath.svg": "⏹️"
                 };
-
                 for (const file in fallbacks) {
                     if (src.includes(file)) {
                         const textAnchor = document.createElement("span");
@@ -717,7 +716,6 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
                         textAnchor.style.display = "inline-block";
                         textAnchor.style.lineHeight = "1";
                         textAnchor.className = e.target.className;
-                       
                         e.target.parentNode.replaceChild(textAnchor, e.target);
                         console.log(`Fallback activado con éxito para: ${file}`);
                         break;
@@ -726,4 +724,21 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
             }
         }, true);
     </script>
-<!-- 2. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR --> <script src="/static/engine.js"></script> <!-- Inicialización unificada del motor de control soberano sin alterar la inercia original --> <script> window.addEventListener('DOMContentLoaded', () => { if (typeof KERNEL !== 'undefined' && KERNEL.init) { KERNEL.init(); } }); </script> </body> </html>
+
+    <!-- 1. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
+    <script src="/static/engine.js"></script>
+
+    <!-- 2. NUESTRO MÓDULO DE PERFILES ESPECIALES (Cargado inmediatamente después del motor) -->
+    <script src="/static/perfiles.js?v=105"></script>
+
+    <!-- 3. Inicialización unificada del motor de control soberano sin alterar la inercia original -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof KERNEL !== 'undefined' && KERNEL.init) {
+                KERNEL.init();
+                console.log("Núcleo KERNEL inicializado de fábrica.");
+            }
+        });
+    </script>
+</body>
+</html>
