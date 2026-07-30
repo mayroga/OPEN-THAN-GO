@@ -3,228 +3,348 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente de Bienestar Habitual - Perfiles Especiales</title>
+    <title>Asistente de Bienestar Habitual - Perfiles Especiales Prime</title>
     <style>
         :root { 
             --primary: #0f172a; 
             --secondary: #38bdf8; 
             --bg: #0f172a; 
             --text: #f8fafc; 
+            --accent-red: #ef4444;
+            --accent-green: #10b981;
         }
         body { 
             background-color: var(--bg); 
             color: var(--text); 
-            font-family: sans-serif; 
+            font-family: system-ui, -apple-system, sans-serif; 
             margin: 0; 
             padding: 20px; 
             display: flex;
             justify-content: center; 
             align-items: center; 
             min-height: 100vh; 
+            transition: background-color 0.5s ease;
+        }
+        body.modo-servicio {
+            background-color: #1e293b;
         }
         .main-form { 
             width: 100%; 
-            max-width: 550px; 
+            max-width: 580px; 
             background: #1e293b; 
-            padding: 25px; 
-            border-radius: 12px; 
+            padding: 30px; 
+            border-radius: 16px; 
             border: 2px solid var(--secondary); 
-            box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15); 
+            box-shadow: 0 12px 40px rgba(56, 189, 248, 0.15); 
+            transition: all 0.4s ease;
         }
-        .field { 
-            margin-bottom: 20px; 
+        .main-form.compacto {
+            background: rgba(15, 23, 42, 0.85);
+            border-color: #475569;
         }
-        label { 
-            display: block; 
-            font-size: 13px; 
-            font-weight: bold; 
-            margin-bottom: 8px; 
-            color: #94a3b8; 
-            text-transform: uppercase; 
-            letter-spacing: 0.3px; 
+        h1, h2 {
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        select, textarea { 
-            width: 100%; 
-            background: #0f172a; 
-            color: #fff; 
-            border: 1px solid #334155; 
-            padding: 12px; 
-            border-radius: 6px; 
-            font-size: 14px; 
-            outline: none; 
-            box-sizing: border-box; 
+        .seccion-titulo {
+            font-size: 12px;
+            font-weight: bold;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            margin-top: 20px;
         }
-        textarea { 
-            height: 100px; 
-            resize: vertical; 
-            font-family: sans-serif; 
-            line-height: 1.4; 
+        
+        /* BOTONES INTERACTIVOS DE UN SOLO TOQUE ESTILO OPEN THAN GO */
+        .grid-botones {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
         }
-        .tag-local { 
-            background-color: #0f172a; 
-            color: #94a3b8; 
-            border: 1px solid #334155; 
-            padding: 8px 14px; 
-            border-radius: 15px; 
-            font-size: 12px; 
-            cursor: pointer; 
-            transition: all 0.2s; 
-            user-select: none; 
-            display: inline-block; 
-            margin-bottom: 5px; 
+        .grid-botones-tres {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
         }
-        .tag-local.seleccionado { 
-            background-color: var(--secondary); 
-            color: #0f172a; 
-            border-color: var(--secondary); 
-            font-weight: bold; 
+        .btn-otg-interactivo {
+            background: #0f172a;
+            color: #94a3b8;
+            border: 2px solid #334155;
+            padding: 14px 10px;
+            font-weight: bold;
+            font-size: 13px;
+            text-transform: uppercase;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            user-select: none;
         }
-        .btn-action { 
+        .btn-otg-interactivo:hover {
+            border-color: var(--secondary);
+            color: #fff;
+        }
+        .btn-otg-interactivo.seleccionado {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: var(--secondary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+        }
+        
+        /* BOTONES DE ENTORNO EN COLOR ROJO OPERATIVO */
+        .btn-otg-entorno {
+            background: #0f172a;
+            color: #ef4444;
+            border: 2px solid #b91c1c;
+            padding: 16px;
+            font-weight: 900;
+            font-size: 14px;
+            text-transform: uppercase;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-otg-entorno.seleccionado {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fff;
+            border-color: var(--accent-red);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* DISEÑO DE ESFERA PULMONAR PRESTIGIO (30% MÁS GRANDE Y RESPONSIVA) */
+        #otg-esfera-visual { 
+            width: 195px; 
+            height: 195px; 
+            background: rgba(56, 189, 248, 0.04); 
+            border: 6px solid var(--secondary); 
+            border-radius: 50%; 
+            margin: 25px auto; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            font-size: 17px; 
+            color: var(--secondary); 
+            transition: transform 1s ease-in-out, background-color 1s ease-in-out, border-color 1s ease-in-out; 
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.2); 
+            user-select: none;
+        }
+        
+        /* LETRAS EN PANTALLA LIMPIA PARA DICTADO DE VOZ HUMANA */
+        #otg-subtitulado-voz {
+            font-size: 16px; 
+            font-weight: 500; 
+            color: #f1f5f9; 
+            text-align: center;
+            margin: 15px auto 25px auto; 
+            min-height: 52px; 
+            max-width: 92%; 
+            line-height: 1.5;
+        }
+
+        .btn-action-master { 
             width: 100%; 
             background: var(--secondary); 
             color: #0f172a; 
             border: none; 
-            padding: 14px; 
+            padding: 16px; 
             font-weight: 900; 
-            border-radius: 6px; 
+            border-radius: 8px; 
             cursor: pointer; 
-            font-size: 13px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
+            font-size: 14px; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .btn-clear { 
+        .btn-clear-master { 
             width: 100%; 
             background: #334155; 
             color: #94a3b8; 
             border: none; 
-            padding: 14px; 
+            padding: 16px; 
             font-weight: 900; 
-            border-radius: 6px; 
+            border-radius: 8px; 
             cursor: pointer; 
-            font-size: 13px; 
-            text-transform: uppercase; 
-            letter-spacing: 0.5px; 
+            font-size: 14px; 
+            text-transform: uppercase;
         }
-        #otg-esfera-visual { 
-            width: 110px; 
-            height: 110px; 
-            background: rgba(56, 189, 248, 0.08); 
-            border: 4px solid var(--secondary); 
-            border-radius: 50%; 
-            margin: 20px auto; 
+        
+        /* CORTINAS PLEGABLES ESTILO ACORDEÓN INTERACTIVO */
+        .cortina-acordeon {
+            background: #0f172a; 
+            border: 1px solid #334155; 
+            border-radius: 8px; 
+            margin-bottom: 12px; 
+            overflow: hidden;
+        }
+        .cortina-header {
+            background: #1e293b; 
+            padding: 15px; 
+            font-size: 13px; 
+            font-weight: bold;
+            color: var(--secondary); 
+            text-transform: uppercase; 
+            cursor: pointer;
             display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            user-select: none;
+        }
+        .cortina-content {
+            padding: 16px; 
+            font-size: 14px; 
+            color: #cbd5e1; 
+            line-height: 1.5; 
+            display: none; 
+            white-space: pre-line;
+        }
+        .btn-media {
+            display: inline-flex; 
             align-items: center; 
             justify-content: center; 
-            font-weight: 900; 
-            font-size: 13px; 
-            color: var(--secondary); 
-            transition: all 3.5s ease-in-out; 
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.15); 
-            user-select: none; 
+            gap: 8px;
+            padding: 12px 18px; 
+            border-radius: 6px; 
+            font-size: 12px; 
+            font-weight: bold;
+            text-transform: uppercase; 
+            text-decoration: none; 
+            margin-right: 10px; 
+            margin-top: 10px;
         }
-    </style>
-</head>
 <body>
-    <div class="main-form">
-        <!-- Encabezado con Interruptor de Idioma Directo y Botón de Regreso -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+    <div class="main-form" id="otg-contenedor-master">
+        <!-- Encabezado de Control de Alternancia Nv. 12 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 14px; margin-bottom: 25px;">
             <div>
-                <h2 id="otg-txt-titulo-modulo" style="color: var(--secondary); font-size: 19px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Asistente de Bienestar Habitual</h2>
-                <p id="otg-txt-subtitulo-modulo" style="color: #94a3b8; font-size: 12px; margin: 4px 0 0 0;">Módulo directo de orientación práctica y misiones.</p>
+                <h1 id="otg-txt-titulo-modulo" style="color: var(--secondary); font-size: 20px;">OPEN THAN GO</h1>
+                <p id="otg-txt-subtitulo-modulo" style="color: #94a3b8; font-size: 11px; margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 0.5px;">Módulo Premium: Perfiles Especiales</p>
             </div>
             <div style="display: flex; gap: 6px; align-items: center;">
-                <button type="button" onclick="KERNEL_ESPECIAL.cambiarIdioma('es')" id="otg-btn-lang-es" style="background: #38bdf8; color: #0f172a; border: none; padding: 5px 10px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">ESP</button>
-                <button type="button" onclick="KERNEL_ESPECIAL.cambiarIdioma('en')" id="otg-btn-lang-en" style="background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 5px 10px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">ENG</button>
-                <!-- BOTÓN INTEGRADO DE REGRESO: Vuelve a la aplicación principal Open Than Go -->
-                <a href="/" id="otg-btn-cerrar" style="background: #ef4444; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 11px; margin-left: 8px; letter-spacing: 0.5px; text-decoration: none; text-transform: uppercase;">✕ REGRESAR</a>
+                <button type="button" onclick="KERNEL_ESPECIAL.cambiarIdioma('es')" id="otg-btn-lang-es" style="background: #38bdf8; color: #0f172a; border: none; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">ESP</button>
+                <button type="button" onclick="KERNEL_ESPECIAL.cambiarIdioma('en')" id="otg-btn-lang-en" style="background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">ENG</button>
+                <a href="/" id="otg-btn-cerrar" style="background: var(--accent-red); color: white; border: none; padding: 6px 14px; border-radius: 4px; font-weight: bold; font-size: 11px; margin-left: 6px; text-decoration: none; text-transform: uppercase;">✕ REGRESAR</a>
             </div>
         </div>
-        <!-- Selección del Perfil -->
-        <div class="field">
-            <label id="otg-lbl-perfil" for="otg-perfil-select">Selecciona tu Perfil de Atención Especial:</label>
-            <select id="otg-perfil-select" onchange="KERNEL_ESPECIAL.traducirInterfaz()">
-                <option value="veteranos" id="otg-opt-vet">Veteranos de Guerra</option>
-                <option value="adultos_mayores" id="otg-opt-am">Adultos Mayores / Personas Mayores</option>
-                <option value="gobierno" id="otg-opt-gob">Trabajadores del Gobierno / Oficina</option>
-            </select>
-        </div>
 
-        <!-- Casillas de Un Solo Toque -->
-        <div class="field">
-            <label id="otg-lbl-tags">Toca las palabras que describan tu agobio de hoy (Opcional):</label>
-            <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="otg-contenedor-tags-html"></div>
-        </div>
-
-        <!-- Caja de Texto Extenso -->
-        <div class="field">
-            <label id="otg-lbl-texto" for="otg-texto-extenso">O copia y pega aquí un texto largo o queja burocrática:</label>
-            <textarea id="otg-texto-extenso" placeholder="Puedes pegar correos extensos o escribir libremente lo que pasa en tu mente hoy..."></textarea>
-        </div>
-        <!-- Botón de Grabación de Audio (Hasta 1 minuto) -->
-        <div style="margin-bottom: 25px; text-align: center;">
-            <button type="button" id="btn-microfono" 
-                    onmousedown="KERNEL_ESPECIAL.iniciarGrabacionAudio()" 
-                    onmouseup="KERNEL_ESPECIAL.detenerGrabacionAudio()" 
-                    ontouchstart="KERNEL_ESPECIAL.iniciarGrabacionAudio()" 
-                    ontouchend="KERNEL_ESPECIAL.detenerGrabacionAudio()" 
-                    style="background-color: #ef4444; color: white; border: none; padding: 12px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; transition: background 0.2s;">
-                <span id="icono-mic">🎤</span> 
-                <span id="texto-mic">Mantén presionado para hablar (Máx. 1 min)</span>
-            </button>
-        </div>
-
-        <!-- Botones de Acción Directos -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 25px;">
-            <button type="button" id="otg-btn-activar" onclick="KERNEL_ESPECIAL.ejecutarPlan()" class="btn-action">Activar Plan</button>
-            <button type="button" id="otg-btn-borrar" onclick="KERNEL_ESPECIAL.limpiarVentanilla()" class="btn-clear">Borrar Todo</button>
-        </div>
-        <!-- PANEL DE RESPUESTA EN TRES DIMENSIONES -->
-        <div id="otg-panel-respuesta" style="display: none; border-top: 1px solid #334155; padding-top: 25px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #1e293b; padding: 10px 14px; border-radius: 6px; border: 1px solid #334155;">
-                <span id="otg-txt-registro" style="font-size: 13px; font-weight: bold; color: var(--secondary);">✓ Estrategia Operativa Generada</span>
-                <span id="otg-id-display" style="font-size: 12px; color: #94a3b8; font-weight: 900; background: #0f172a; padding: 3px 8px; border-radius: 4px;"></span>
+        <!-- DASHBOARD INTERACTIVO DE ENTRADA -->
+        <div id="otg-bloque-configuracion">
+            <div class="seccion-titulo" id="otg-lbl-perfil">Perfil de Contención Especial</div>
+            <div class="grid-botones-tres">
+                <div class="btn-otg-interactivo" id="perfil-veteranos" onclick="KERNEL_ESPECIAL.seleccionarPerfil('veteranos')">Veteranos</div>
+                <div class="btn-otg-interactivo" id="perfil-adultos_mayores" onclick="KERNEL_ESPECIAL.seleccionarPerfil('adultos_mayores')">Mayor</div>
+                <div class="btn-otg-interactivo" id="perfil-gobierno" onclick="KERNEL_ESPECIAL.seleccionarPerfil('gobierno')">Gobierno</div>
             </div>
 
-            <!-- EJERCICIO RESPIRATORIO PROPIO (ESPEJO AISLADO) -->
-            <div style="background: #0f172a; border: 1px solid #334155; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
-                <div id="otg-ritmo-titulo" style="font-size: 14px; font-weight: bold; color: var(--secondary); margin-bottom: 12px;"></div>
-                <div id="otg-esfera-visual">
-                    <span id="otg-esfera-texto">START</span>
+            <div class="seccion-titulo" id="otg-lbl-modo">Modo Operativo de Entorno</div>
+            <div class="grid-botones">
+                <button type="button" class="btn-otg-entorno" id="modo-salir" onclick="KERNEL_ESPECIAL.seleccionarModo('salir')">SALIR</button>
+                <button type="button" class="btn-otg-entorno" id="modo-casa" onclick="KERNEL_ESPECIAL.seleccionarModo('casa')">CASA</button>
+            </div>
+
+            <!-- SECCIÓN DE DIAGNÓSTICO EMOCIONAL DIRECTO (CORREGIDA SIN DUPLICADOS) -->
+            <div class="seccion-titulo" id="otg-lbl-mente">Mente / Diagnóstico de Agobio Existencial</div>
+            <div class="grid-botones-tres">
+                <div class="btn-otg-interactivo" id="mente-aburrido" onclick="KERNEL_ESPECIAL.seleccionarMente('aburrido')">Aburrido</div>
+                <div class="btn-otg-interactivo" id="mente-agotado" onclick="KERNEL_ESPECIAL.seleccionarMente('agotado')">Agotado</div>
+                <div class="btn-otg-interactivo" id="mente-estresado" onclick="KERNEL_ESPECIAL.seleccionarMente('estresado')">Estresado</div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                <div class="btn-otg-interactivo" id="mente-cansado" onclick="KERNEL_ESPECIAL.seleccionarMente('cansado')">Cansado</div>
+                <div class="btn-otg-interactivo" id="mente-ansioso" onclick="KERNEL_ESPECIAL.seleccionarMente('ansioso')">Ansioso</div>
+            </div>
+            <!-- ENTRADA DE TEXTO ALTERNATIVA -->
+            <div class="seccion-titulo" id="otg-lbl-texto">O escribe aquí tu propio agobio si no aparece arriba:</div>
+            <div class="field">
+                <textarea id="otg-texto-extenso" placeholder="Copia correos extensos o escribe lo que sature tu mente hoy..."></textarea>
+            </div>
+
+            <!-- BOTÓN INTERACTIVO DE AUDIO DE UN MINUTO -->
+            <div style="margin-bottom: 25px; text-align: center;">
+                <button type="button" id="btn-microfono" 
+                        onmousedown="KERNEL_ESPECIAL.iniciarGrabacionAudio()" 
+                        onmouseup="KERNEL_ESPECIAL.detenerGrabacionAudio()" 
+                        ontouchstart="KERNEL_ESPECIAL.iniciarGrabacionAudio()" 
+                        ontouchend="KERNEL_ESPECIAL.detenerGrabacionAudio()" 
+                        style="background-color: var(--accent-red); color: white; border: none; padding: 14px 26px; border-radius: 30px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);">
+                    <span id="icono-mic">🎤</span> <span id="texto-mic">Mantén presionado para hablar</span>
+                </button>
+            </div>
+
+            <!-- DISPARADORES MAESTROS DE ACCIÓN -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                <button type="button" id="otg-btn-activar" onclick="KERNEL_ESPECIAL.ejecutarPlan()" class="btn-action-master">Activar Mando Especial</button>
+                <button type="button" id="otg-btn-borrar" onclick="KERNEL_ESPECIAL.limpiarVentanilla()" class="btn-clear-master">Borrar Todo</button>
+            </div>
+        </div>
+
+        <!-- ========================================================================================== -->
+        <!-- ENTORNO INMERSIVO EXCLUSIVO DEL PULMÓN RESPIRATORIO (PANTALLA LIMPIA DE RESCATE) -->
+        <!-- ========================================================================================== -->
+        <div id="otg-panel-respuesta" style="display: none;">
+            <div id="otg-ritmo-titulo" style="font-size: 13px; font-weight: bold; color: var(--secondary); text-align: center; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px;"></div>
+            
+            <!-- EL GRAN PULMÓN RESPIRATORIO RESPONSIVO (30% MÁS GRANDE) -->
+            <div id="otg-esfera-visual">
+                <span id="otg-esfera-texto">START</span>
+            </div>
+            
+            <!-- CONTENEDOR DE DICTADO FLUIDO EN PANTALLA LIMPIA -->
+            <div id="otg-subtitulado-voz"></div>
+            
+            <div style="font-size: 13px; color: #94a3b8; text-align: center; margin-bottom: 25px;">
+                <span id="otg-txt-reloj-lbl">⏱️ Desconexión Somática:</span>
+                <strong id="otg-reloj-display" style="color: var(--accent-green); font-size: 17px; font-family: monospace;">15:00</strong>
+            </div>
+
+            <!-- CORTINAS PLEGABLES ESTILO ACORDEÓN INTERACTIVO -->
+            <div class="cortina-acordeon">
+                <div class="cortina-header" onclick="KERNEL_ESPECIAL.alternarCortina('cortina-f1')">
+                    <span id="otg-lbl-f1">Fase 1: Preparación Analógica</span> <span>▼</span>
                 </div>
-                <div style="font-size: 13px; color: #94a3b8; margin-top: 10px;">
-                    <span id="otg-txt-reloj-lbl">⏱️ Tiempo de desconexión obligatoria:</span>
-                    <strong id="otg-reloj-display" style="color: #10b981; font-size: 15px; font-family: monospace;">15:00</strong>
+                <div class="cortina-content" id="cortina-f1"></div>
+            </div>
+            
+            <div class="cortina-acordeon">
+                <div class="cortina-header" onclick="KERNEL_ESPECIAL.alternarCortina('cortina-f2')">
+                    <span id="otg-lbl-f2">Fase 2: Misión Somática en Curso</span> <span>▼</span>
+                </div>
+                <div class="cortina-content" id="cortina-f2">
+                    <p id="otg-html-mision-texto" style="margin: 0 0 15px 0; font-size: 14px; line-height: 1.5;"></p>
+                    
+                    <!-- ENLACES CORPORATIVOS DIRECTOS PARA ENTORNO SEGURO Y RECURSOS MEDIA -->
+                    <a id="otg-f2-mapa" href="#" target="_blank" class="btn-media" style="background: var(--secondary); color: #0f172a;">🗺️ Google Maps</a>
+                    <a id="otg-f2-youtube" href="#" target="_blank" class="btn-media" style="background: var(--accent-red); color: white;">📺 YouTube Antidote</a>
+                    <a id="otg-f2-spotify" href="#" target="_blank" class="btn-media" style="background: #1ed760; color: #0f172a;">🎵 Spotify Flow</a>
                 </div>
             </div>
-            <!-- FASE 1: MODO CASA PROPIO -->
-            <div style="margin-bottom: 15px; background: #0f172a; padding: 15px; border-radius: 8px; border-left: 5px solid #ef4444; line-height: 1.5;">
-                <strong id="otg-lbl-f1" style="color: #ef4444; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 5px;">Fase 1: Antes del Uso (Freno de Tensión)</strong>
-                <p id="otg-f1-pauta" style="color: #f8fafc; margin: 0; font-size: 14px;"></p>
+            
+            <div class="cortina-acordeon">
+                <div class="cortina-header" onclick="KERNEL_ESPECIAL.alternarCortina('cortina-f3')">
+                    <span id="otg-lbl-f3">Fase 3: Cierre de Vector Soberano</span> <span>▼</span>
+                </div>
+                <div class="cortina-content" id="cortina-f3"></div>
             </div>
 
-            <!-- FASE 2: MODO SALIR PROPIO -->
-            <div style="margin-bottom: 15px; background: #0f172a; padding: 15px; border-radius: 8px; border-left: 5px solid #38bdf8; line-height: 1.5;">
-                <strong id="otg-lbl-f2" style="color: #38bdf8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 5px;">Fase 2: Durante la Actividad (Misión Práctica)</strong>
-                <p id="otg-f2-pauta" style="margin: 0 0 10px 0; color: #f8fafc; font-size: 14px;"></p>
-                <a id="otg-f2-mapa" href="#" target="_blank" style="display: inline-block; background: var(--secondary); color: #0f172a; padding: 8px 14px; border-radius: 4px; font-size: 12px; font-weight: 900; text-decoration: none;">Abrir Ruta de Entorno Seguro en Google Maps</a>
-            </div>
-
-            <!-- FASE 3: DESPUÉS -->
-            <div style="margin-bottom: 20px; background: #0f172a; padding: 15px; border-radius: 8px; border-left: 5px solid #10b981; line-height: 1.5;">
-                <strong id="otg-lbl-f3" style="color: #10b981; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 5px;">Fase 3: Al Finalizar (Cierre y Descanso)</strong>
-                <p id="otg-f3-pauta" style="color: #f8fafc; margin: 0; font-size: 14px;"></p>
-            </div>
-
-            <!-- CONTENEDOR PARA EL REPORTE DE ORIENTACIÓN PRÁCTICA (NO OFICIAL) -->
-            <div id="otg-contenedor-reporte" style="display: none; background: #1e293b; border: 1px dashed #334155; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                <h4 id="otg-reporte-titulo" style="margin: 0 0 8px 0; color: #10b981; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Síntesis de Equilibrio Rutinario</h4>
-                <p id="otg-reporte-cuerpo" style="margin: 0; color: #94a3b8; font-size: 13px; line-height: 1.4;"></p>
-                <span id="otg-reporte-nota" style="display: block; margin-top: 10px; color: #64748b; font-size: 11px; font-style: italic;">*Este reporte no es obligatorio ni oficial; constituye una guía práctica de bienestar habitual.</span>
+            <!-- REPORTE DE SÍNTESIS DE EQUILIBRIO COMPLETAMENTE CONVERTIDO EN ACORDEÓN OCULTO -->
+            <div class="cortina-acordeon" id="otg-bloque-reporte-acordeon" style="display: none; border-color: var(--accent-green);">
+                <div class="cortina-header" style="color: var(--accent-green);" onclick="KERNEL_ESPECIAL.alternarCortina('cortina-reporte')">
+                    <span id="otg-reporte-titulo">Síntesis de Equilibrio Somático</span> <span>▼</span>
+                </div>
+                <div class="cortina-content" id="cortina-reporte">
+                    <div style="font-size: 11px; font-weight: bold; color: var(--secondary); margin-bottom: 8px; text-transform: uppercase;">ID Caso Técnico: <span id="otg-id-display"></span></div>
+                    <p id="otg-reporte-cuerpo" style="margin: 0; font-size: 13px; line-height: 1.5; color: #cbd5e1;"></p>
+                    <span id="otg-reporte-nota" style="display: block; margin-top: 12px; color: #64748b; font-size: 11px; font-style: italic;"></span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- CARGA DEL MOTOR DE CONTROL INDEPENDIENTE DE PERFILES -->
+    <!-- INYECCIÓN NATIVA DEL MOTOR CLIENTE ADAPTATIVO -->
     <script src="/static/engine_perfiles.js"></script>
 </body>
 </html>
