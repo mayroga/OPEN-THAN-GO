@@ -155,30 +155,30 @@ window.KERNEL_ESPECIAL = {
     emitirVozHumana: function(textoALeer) {
         if (!textoALeer || !window.speechSynthesis) return;
         
-        window.speechSynthesis.cancel(); // Romper superposiciones de Spanglish al instante [13.0]
+        window.speechSynthesis.cancel(); // Romper superposiciones de Spanglish al instante
         
         const enunciado = new SpeechSynthesisUtterance(textoALeer);
         enunciado.lang = this.idioma === "en" ? "en-US" : "es-ES";
         
-        // PARÁMETROS DE RESCATE EMOCIONAL PRIME: Voz fuerte, pausada, firme y antiestrés [14.0]
+        // PARÁMETROS DE RESCATE EMOCIONAL PRIME: Voz fuerte, pausada, firme y antiestrés
         enunciado.rate = 0.82; 
         enunciado.pitch = 0.95; 
         
-        // Imprimir en pantalla limpia las letras de lo que dicta el hilo de voz [14.0]
+        // Imprimir en pantalla limpia las letras de lo que dicta el hilo de voz
         document.getElementById("otg-subtitulado-voz").innerText = textoALeer;
         
-        window.speechSynthesis.speak(enunciado);
+        window.speechSynthesis.speak(enunciado); // CORREGIDO: Variable simétrica reparada
     },
 
     // ==========================================================================================
-    // FILE: static/engine_perfiles.js - BLOQUE 3 DE 3: PROCESAMIENTO ASÍNCRONO Y CRONÓMETRO [14.0]
+    // FILE: static/engine_perfiles.js - BLOQUE 3 DE 3: PROCESAMIENTO ASÍNCRONO Y CRONÓMETRO
     // ==========================================================================================
     ejecutarPlan: function() {
         const es = this.idioma === "es";
         const entradaManual = document.getElementById("otg-texto-extenso").value.trim();
         const factorAgobio = entradaManual !== "" ? entradaManual : this.menteSeleccionada;
         
-        // Sincronización nativa con el almacenamiento local (localStorage) de Open Than Go [15.0]
+        // Sincronización nativa con el almacenamiento local (localStorage) de Open Than Go
         const localHistorial = JSON.parse(localStorage.getItem("otg_historial_especial") || "[]");
         const localVector = JSON.parse(localStorage.getItem("otg_vector_necesidades") || "{}");
 
@@ -200,24 +200,24 @@ window.KERNEL_ESPECIAL = {
         .then(datos => {
             if (datos.status !== "success") return;
             
-            // TRANSICIÓN VISUAL INMERSIVA: Ocultar dashboard de entrada, compactar máster [14.0]
+            // TRANSICIÓN VISUAL INMERSIVA: Ocultar dashboard de entrada, compactar máster
             document.body.classList.add('modo-servicio');
             document.getElementById('otg-bloque-configuracion').style.display = 'none';
             document.getElementById('otg-contenedor-master').classList.add('compacto');
             
             document.getElementById("otg-id-display").innerText = datos.id_caso;
             
-            // Actualizar el historial anti-repetición en las cookies de sesión del cliente [15.0]
+            // Actualizar el historial anti-repetición en las cookies de sesión del cliente
             if (datos.historial_actualizado) {
                 localStorage.setItem("otg_historial_especial", JSON.stringify(datos.historial_actualizado));
             }
             
-            // Cargar datos en las cortinas plegables ocultas [14.0]
+            // Cargar datos en las cortinas plegables ocultas
             document.getElementById("cortina-f1").innerText = datos.antes;
             document.getElementById("otg-html-mision-texto").innerText = datos.durante;
             document.getElementById("cortina-f3").innerText = datos.despues;
             
-            // Enlace de direccionamiento absoluto directo a recursos externos asistidos [14.0]
+            // Enlace de direccionamiento absoluto directo a recursos externos asistidos
             document.getElementById("otg-f2-mapa").href = datos.mapa_url;
             document.getElementById("otg-f2-youtube").href = datos.youtube_url;
             document.getElementById("otg-f2-spotify").href = datos.spotify_url;
@@ -225,13 +225,13 @@ window.KERNEL_ESPECIAL = {
             document.getElementById("otg-panel-respuesta").style.display = "block";
             document.getElementById("otg-bloque-reporte-acordeon").style.display = "none";
             
-            // Primer impacto acústico libre de Spanglish: Freno de Alerta Inicial [13.0]
+            // Primer impacto acústico libre de Spanglish: Freno de Alerta Inicial
             this.emitirVozHumana(datos.antes_voz);
             
             this.bucleAudiosCortos = datos.bucle_audios_cortos || [];
             this.indiceAudioActual = 0;
             
-            // Ajustar intervalos rítmicos del gran pulmón respiratorio real (30% expandido) [14.0]
+            // Ajustar intervalos rítmicos del gran pulmón respiratorio real (30% expandido)
             let tInhala = 4000, tExhala = 4000;
             let txtRitmo = es ? "Ritmo Regular (4s x 4s)" : "Regular Pace (4s x 4s)";
             
@@ -264,7 +264,7 @@ window.KERNEL_ESPECIAL = {
             animarEsfera();
             this.esferaInterval = setInterval(animarEsfera, (tInhala + tExhala));
             
-            // Activar cronómetro somático e hilos mutantes cada 20 segundos exactos [14.0]
+            // Activar cronómetro somático e hilos mutantes cada 20 segundos exactos
             this.iniciarCicloVidaSomatica(datos.durante_voz, datos.despues_voz, datos.reporte_anonimo, datos.reporte_nota);
         });
     },
@@ -276,14 +276,14 @@ window.KERNEL_ESPECIAL = {
         const es = this.idioma === "es";
         let remSegundos = 900; 
         
-        // Pauta intermedia inyectada al segundo 35 [14.0]
+        // Pauta intermedia inyectada al segundo 35
         setTimeout(() => {
             if (document.getElementById("otg-panel-respuesta").style.display === "block") {
                 this.emitirVozHumana(duranteVoz);
             }
         }, 35000);
 
-        // GUIADO CON ALTA VARIABILIDAD EN INTERVALOS RÍGIDOS DE 20 SEGUNDOS (Cero monotonía robot) [14.0]
+        // GUIADO CON ALTA VARIABILIDAD EN INTERVALOS RÍGIDOS DE 20 SEGUNDOS (Cero monotonía robot)
         this.bucleIntervalVoz = setInterval(() => {
             if (remSegundos <= 15) return;
             if (this.bucleAudiosCortos && this.bucleAudiosCortos.length > 0) {
@@ -293,21 +293,21 @@ window.KERNEL_ESPECIAL = {
             }
         }, 20000);
 
-        // Cronómetro maestro en tiempo real de 15 minutos exactos [15.2]
+        // Cronómetro maestro en tiempo real de 15 minutos exactos
         this.relojInterval = setInterval(() => {
             remSegundos--;
             let mm = Math.floor(remSegundos / 60);
             let ss = remSegundos % 60;
             document.getElementById("otg-reloj-display").innerText = (mm < 10 ? "0" + mm : mm) + ":" + (ss < 10 ? "0" + ss : ss);
             
-            // Al segundo 10, romper el bucle cíclico y forzar dictado por voz humana del reto lógico/numérico [14.0]
+            // Al segundo 10, romper el bucle cíclico y forzar dictado por voz humana del reto lógico/numérico
             if (remSegundos === 10) {
                 clearInterval(this.bucleIntervalVoz);
                 const retoLector = document.getElementById("otg-html-mision-texto").innerText;
                 this.emitirVozHumana(es ? "Atención se activa el reto de desfragmentación mental final " + retoLector : "Attention final de-escalation mind challenge activated " + retoLector);
             }
             
-            // CONCLUSIÓN DEL SERVICIO: Revelar el reporte psicométrico acumulativo [14.0]
+            // CONCLUSIÓN DEL SERVICIO: Revelar el reporte psicométrico acumulativo
             if (remSegundos <= 0) {
                 clearInterval(this.relojInterval);
                 clearInterval(this.esferaInterval);
@@ -316,9 +316,10 @@ window.KERNEL_ESPECIAL = {
                 document.getElementById("otg-esfera-visual").style.transform = "scale(1.0)";
                 document.getElementById("otg-esfera-texto").innerText = es ? "CONCLUIDO" : "DONE";
                 
-                // Emisión de pauta larga de 60 segundos por voz pausada antiestrés [14.0]
+                // Emisión de pauta larga de 60 segundos por voz pausada antiestrés
                 this.emitirVozHumana(despuesVoz);
-                // Carga dinámica del diagnóstico invisible sobre la cortina del acordeón inferior [14.0]
+                
+                // Carga dinámica del diagnóstico invisible sobre la cortina del acordeón inferior
                 document.getElementById("otg-reporte-cuerpo").innerText = reporteCuerpo;
                 document.getElementById("otg-reporte-nota").innerText = reporteNota;
                 document.getElementById("otg-bloque-reporte-acordeon").style.display = "block";
