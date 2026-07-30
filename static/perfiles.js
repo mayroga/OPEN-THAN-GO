@@ -380,31 +380,43 @@
             });
             const data = await res.json();
             
-            if (data.status === "success" && window.KERNEL) {
-                window.KERNEL.tipoEscapeGlobal = "ACCION_CAMPO";
-                window.KERNEL.indiceMision = 0;
-                window.KERNEL.pasosMisiones = data.misiones || [];
-                window.KERNEL.mensajeCalidezHumanaActual = data.calidez_humana;
-                
-                // Corrección de producción: Acceso seguro al índice del array de misiones sugeridas
-                if (data.misiones && data.misiones.length > 0) {
-                    this.recorridoMisiones.push(data.misiones[0].destino_titulo);
-                }
-                
-                if (window.KERNEL.hablar) window.KERNEL.hablar(data.calidez_humana);
-                if (window.KERNEL.mostrarOpcionesSalir) {
-                    containerInteractive.classList.remove("hidden");
-                    window.KERNEL.mostrarOpcionesSalir(containerInteractive);
+                if (data.status === "success" && window.KERNEL) {
+                    window.KERNEL.tipoEscapeGlobal = "ACCION_CAMPO";
+                    window.KERNEL.indiceMision = 0;
+                    window.KERNEL.pasosMisiones = data.misiones || [];
+                    window.KERNEL.mensajeCalidezHumanaActual = data.calidez_humana;
                     
-                    const linkMaps = containerInteractive.querySelector("a[href*='maps']");
-                    if (linkMaps) {
-                        const urlMaps = linkMaps.getAttribute("href");
-                        const iframeMaps = document.createElement("iframe");
-                        iframeMaps.style = "width:100%; height:320px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
-                        iframeMaps.src = urlMaps.replace("search/?api=1&query=", "maps?q=") + "&output=embed";
-                        linkMaps.parentNode.insertBefore(iframeMaps, linkMaps.nextSibling);
+                    // Almacenamos las frases personalizadas de 15 minutos en el estado local
+                    this.frasesRespiracionActuales = data.frases_respiracion;
+                    
+                    if (data.misiones && data.misiones.length > 0) {
+                        this.recorridoMisiones.push(data.misiones[0].destino_titulo);
                     }
-                }
+                    
+                    if (window.KERNEL.hablar) window.KERNEL.hablar(data.calidez_humana);
+                    if (window.KERNEL.mostrarOpcionesSalir) {
+                        containerInteractive.classList.remove("hidden");
+                        window.KERNEL.mostrarOpcionesSalir(containerInteractive);
+                        
+                        // CORRECCIÓN LETAL DE MAPAS Y YOUTUBE: Inyectamos iframes directos funcionales y limpios
+                        const linkMaps = containerInteractive.querySelector("a[href*='maps']");
+                        if (linkMaps && data.misiones && data.misiones[0]) {
+                            const iframeMaps = document.createElement("iframe");
+                            iframeMaps.style = "width:100%; height:320px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
+                            iframeMaps.src = data.misiones[0].destino_coordenadas_gps;
+                            linkMaps.parentNode.insertBefore(iframeMaps, linkMaps.nextSibling);
+                            linkMaps.style.display = "none";
+                        }
+                        
+                        const linkYT = containerInteractive.querySelector("a[href*='youtube']");
+                        if (linkYT && data.misiones && data.misiones[0]) {
+                            const iframeYT = document.createElement("iframe");
+                            iframeYT.style = "width:100%; height:240px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
+                            iframeYT.src = data.misiones[0].enlace_youtube;
+                            iframeYT.allow = "autoplay; encrypted-media";
+                            linkYT.parentNode.insertBefore(iframeYT, linkYT.nextSibling);
+                            linkYT.style.display = "none";
+                        }
                 
                 const btnVolver = document.getElementById("btn-volver-app");
                 if (btnVolver) btnVolver.classList.remove("hidden");
@@ -469,11 +481,39 @@
         }
     };
 
+    // INTERCEPTOR COMERCIAL ASÍNCRONO PARA EL MODO CASA (CICLO DE 15 MINUTOS)
+    function interceptarMesaDeRelojes() {
+        if (window.KERNEL && window.KERNEL.iniciarRelojEnfocadoCasa) {
+            console.log("Mesa de Relojes interceptada con éxito.");
+            const originalRelojCasa = window.KERNEL.iniciarRelojEnfocadoCasa;
+            
+            window.KERNEL.iniciarRelojEnfocadoCasa = function() {
+                // 1. Inyectamos proactivamente por voz la frase de inicio adaptada a la categoría
+                if (PERFILES_ESPECIALES.activo && PERFILES_ESPECIALES.frasesRespiracionActuales) {
+                    if (window.KERNEL.hablar) window.KERNEL.hablar(PERFILES_ESPECIALES.frasesRespiracionActuales.antes);
+                }
+                
+                // 2. Ejecuta el ciclo elástico original e intocable de 15 minutos de Open Than Go
+                originalRelojCasa.call(window.KERNEL);
+                
+                // 3. Programamos por hardware la frase final para el minuto 15 exacto (15 * 60 * 1000)
+                if (PERFILES_ESPECIALES.activo && PERFILES_ESPECIALES.frasesRespiracionActuales) {
+                    setTimeout(() => {
+                        if (window.KERNEL.hablar) window.KERNEL.hablar(PERFILES_ESPECIALES.frasesRespiracionActuales.despues);
+                    }, 900000);
+                }
+            };
+        } else {
+            setTimeout(interceptarMesaDeRelojes, 200);
+        }
+    }
+
     function intentarMontarModulo() {
         const langBar = document.querySelector(".lang-bar");
         const wrapperForm = document.getElementById("wrapper-form");
         if (langBar && wrapperForm && window.KERNEL) {
             PERFILES_ESPECIALES.init();
+            interceptarMesaDeRelojes(); // Activamos el interceptor somático
         } else {
             setTimeout(intentarMontarModulo, 150);
         }
