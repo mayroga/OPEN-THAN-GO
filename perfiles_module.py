@@ -75,6 +75,10 @@ DATA_PERFILES = {
     }
 }
 
+# ==========================================================================================
+# BLOQUE CORREGIDO: ESQUEMAS PYDANTIC Y ENDPOINTS DE CONFIGURACIÓN Y PROCESAMIENTO
+# ==========================================================================================
+
 class ProcesarInputSchema(BaseModel):
     perfil: str
     lang: str
@@ -83,10 +87,10 @@ class ProcesarInputSchema(BaseModel):
     contexto_pdf: Optional[str] = ""
 
 class ReporteSchema(BaseModel):
-perfil: str
-lang: str
-recorrido: List[str]
-informacion_compartida: List[str]
+    perfil: str
+    lang: str
+    recorrido: List[str]
+    informacion_compartida: List[str]
 
 @router.get("/config")
 async def get_config(perfil: str, lang: str = "es"):
