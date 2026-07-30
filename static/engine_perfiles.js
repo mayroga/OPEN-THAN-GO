@@ -1,9 +1,11 @@
 // ==========================================================================================
-// FILE: static/engine_perfiles.js - BLOQUE 1 DE 4: INICIALIZACIÓN Y IDIOMA
+// FILE: static/engine_perfiles.js - BLOQUE 1 DE 3: VARIABLES Y CONTROL DE BOTONES TÁCTILES
 // ==========================================================================================
 window.KERNEL_ESPECIAL = {
     idioma: "es",
-    tagsSeleccionados: [],
+    perfilSeleccionado: "veteranos",
+    modoSeleccionado: "salir",
+    menteSeleccionada: "aburrido",
     esferaInterval: null,
     relojInterval: null,
     bucleIntervalVoz: null,
@@ -21,68 +23,97 @@ window.KERNEL_ESPECIAL = {
             btnEn.style.background = lang === "en" ? "#38bdf8" : "#1e293b";
             btnEn.style.color = lang === "en" ? "#0f172a" : "#94a3b8";
         }
+        if (window.speechSynthesis) window.speechSynthesis.cancel(); // Silenciar Spanglish de golpe
         this.traducirInterfaz();
     },
+
+    alternarCortina: function(idCortina) {
+        const elemento = document.getElementById(idCortina);
+        if (elemento) {
+            const estaAbierto = elemento.style.display === "block";
+            elemento.style.display = estaAbierto ? "none" : "block";
+        }
+    },
+
+    // CONTROL TÁCTIL: Enciende el perfil seleccionado y apaga los otros dos
+    seleccionarPerfil: function(perfilId) {
+        this.perfilSeleccionado = perfilId;
+        const IDs = ["veteranos", "adultos_mayores", "gobierno"];
+        IDs.forEach(id => {
+            const nodo = document.getElementById("perfil-" + id);
+            if (nodo) nodo.classList.remove("seleccionado");
+        });
+        document.getElementById("perfil-" + perfilId).classList.add("seleccionado");
+    },
+
+    // CONTROL TÁCTIL: Alterna entre entorno SALIR o CASA
+    seleccionarModo: function(modoId) {
+        this.modoSeleccionado = modoId;
+        document.getElementById("modo-salir").classList.remove("seleccionado");
+        document.getElementById("modo-casa").classList.remove("seleccionado");
+        document.getElementById("modo-" + modoId).classList.add("seleccionado");
+    },
+
+    // CONTROL TÁCTIL: Enciende el estado de agobio de un toque y apaga el resto
+    seleccionarMente: function(menteId) {
+        this.menteSeleccionada = menteId;
+        const mentes = ["aburrido", "agotado", "estresado", "cansado", "ansioso"];
+        mentes.forEach(id => {
+            const nodo = document.getElementById("mente-" + id);
+            if (nodo) nodo.classList.remove("seleccionado");
+        });
+        document.getElementById("mente-" + menteId).classList.add("seleccionado");
+    },
     // ==========================================================================================
-    // FILE: static/engine_perfiles.js - BLOQUE 2 DE 4: TRADUCCIÓN DE INTERFAZ
+    // FILE: static/engine_perfiles.js - BLOQUE 2 DE 3: TRADUCCIÓN NATIVA Y MICROFONO
     // ==========================================================================================
     traducirInterfaz: function() {
         const es = this.idioma === "es";
         
-        document.getElementById("otg-txt-titulo-modulo").innerText = es ? "Asistente de Bienestar Habitual" : "Habitual Wellbeing Assistant";
-        document.getElementById("otg-txt-subtitulo-modulo").innerText = es ? "Módulo directo de orientación práctica y misiones." : "Direct module for practical orientation.";
-        document.getElementById("otg-lbl-perfil").innerText = es ? "Selecciona tu Perfil de Atención Especial:" : "Select your Special Care Profile:";
-        document.getElementById("otg-opt-vet").innerText = es ? "Veteranos de Guerra" : "War Veterans";
-        document.getElementById("otg-opt-am").innerText = es ? "Adultos Mayores / Personas Mayores" : "Elderly / Senior Citizens";
-        document.getElementById("otg-opt-gob").innerText = es ? "Trabajadores del Gobierno / Oficina" : "Government / Office Workers";
-        document.getElementById("otg-lbl-tags").innerText = es ? "Toca las palabras que describan tu agobio de hoy (Opcional):" : "Tap the words that describe your overwhelm (Optional):";
-        document.getElementById("otg-lbl-texto").innerText = es ? "O copia y pega aquí un texto largo o queja burocrática:" : "Or copy and paste a long text here:";
-        document.getElementById("otg-texto-extenso").placeholder = es ? "Puedes pegar correos extensos o escribir libremente..." : "You can paste long emails or write freely...";
+        // Traducción de Títulos Principales y Secciones Estilo Open Than Go
+        document.getElementById("otg-txt-titulo-modulo").innerText = es ? "OPEN THAN GO" : "OPEN THAN GO";
+        document.getElementById("otg-txt-subtitulo-modulo").innerText = es ? "Módulo Premium: Perfiles Especiales" : "Premium Module: Special Profiles";
+        document.getElementById("otg-lbl-perfil").innerText = es ? "Perfil de Contención Especial" : "Special Containment Profile";
+        document.getElementById("otg-lbl-modo").innerText = es ? "Modo Operativo de Entorno" : "Environment Operational Mode";
+        document.getElementById("otg-lbl-mente").innerText = es ? "Mente / Diagnóstico de Agobio Existencial" : "Mind / Existential Overwhelm Diagnosis";
+        document.getElementById("otg-lbl-texto").innerText = es ? "O escribe aquí tu propio agobio si no aparece arriba:" : "Or write your own overwhelm here if it does not appear above:";
+        document.getElementById("otg-texto-extenso").placeholder = es ? "Copia correos extensos o escribe lo que sature tu mente hoy..." : "Copy long emails or write what saturates your mind today...";
         
-        document.getElementById("otg-btn-activar").innerText = es ? "Activar Plan" : "Activate Plan";
+        // Botones de Mente Individuales
+        document.getElementById("mente-aburrido").innerText = es ? "Aburrido" : "Bored";
+        document.getElementById("mente-agotado").innerText = es ? "Agotado" : "Exhausted";
+        document.getElementById("mente-estresado").innerText = es ? "Estresado" : "Stressed";
+        document.getElementById("mente-cansado").innerText = es ? "Cansado" : "Tired";
+        document.getElementById("mente-ansioso").innerText = es ? "Ansioso" : "Anxious";
+        
+        // Nombres de Perfiles en Botones Táctiles
+        document.getElementById("perfil-veteranos").innerText = es ? "Veteranos" : "Veterans";
+        document.getElementById("perfil-adultos_mayores").innerText = es ? "Mayor" : "Senior";
+        document.getElementById("perfil-gobierno").innerText = es ? "Gobierno" : "Government";
+
+        // Botones de Acción de Fondo
+        document.getElementById("otg-btn-activar").innerText = es ? "Activar Mando Especial" : "Activate Special Command";
         document.getElementById("otg-btn-borrar").innerText = es ? "Borrar Todo" : "Clear All";
         
-        document.getElementById("otg-txt-registro").innerText = es ? "✓ Estrategia Operativa Generada" : "✓ Operational Strategy Generated";
-        document.getElementById("otg-txt-reloj-lbl").innerText = es ? "⏱️ Tiempo de desconexión obligatoria:" : "⏱️ Required disconnection time remaining:";
-        document.getElementById("otg-lbl-f1").innerText = es ? "Fase 1: Antes del Uso (Freno de Tensión)" : "Phase 1: Before Use (Tension Brake)";
-        document.getElementById("otg-lbl-f2").innerText = es ? "Fase 2: Durante la Actividad (Misión Práctica)" : "Phase 2: During Activity (Practical Mission)";
-        document.getElementById("otg-lbl-f3").innerText = es ? "Fase 3: Al Finalizar (Cierre y Descanso)" : "Phase 3: Cycle Close (Guaranteed Rest)";
-        document.getElementById("otg-f2-mapa").innerText = es ? "Abrir Ruta de Entorno Seguro en Google Maps" : "Open Safe Route on Google Maps";
-        document.getElementById("otg-reporte-titulo").innerText = es ? "Síntesis de Equilibrio Rutinario" : "Routine Balance Synthesis";
-        document.getElementById("otg-reporte-nota").innerText = es ? "*Este reporte no es obligatorio ni oficial; constituye una guía práctica de bienestar habitual." : "*This report is neither mandatory nor official; it constitutes a practical guide for habitual well-being.";
+        // Elementos Dinámicos de las Cortinas Plegables Inmersivas
+        document.getElementById("otg-txt-reloj-lbl").innerText = es ? "⏱️ Desconexión Somática:" : "⏱️ Somatic Disconnection:";
+        document.getElementById("otg-lbl-f1").innerText = es ? "Fase 1: Preparación Analógica" : "Phase 1: Analog Preparation";
+        document.getElementById("otg-lbl-f2").innerText = es ? "Fase 2: Misión Somática en Curso" : "Phase 2: Active Somatic Mission";
+        document.getElementById("otg-lbl-f3").innerText = es ? "Fase 3: Cierre de Vector Soberano" : "Phase 3: Sovereign Vector Close";
+        document.getElementById("otg-reporte-titulo").innerText = es ? "Síntesis de Equilibrio Somático" : "Somatic Balance Synthesis";
 
-        const contenedor = document.getElementById("otg-contenedor-tags-html");
-        if (contenedor) {
-            contenedor.innerHTML = "";
-            const pool = es ?
-                [{id:"triste", t:"Tristeza"}, {id:"cansado", t:"Cansancio"}, {id:"papeleo", t:"Papeleo"}, {id:"ruido", t:"Ruido"}, {id:"estres", t:"Estrés"}] :
-                [{id:"triste", t:"Sadness"}, {id:"cansado", t:"Fatigue"}, {id:"papeleo", t:"Paperwork"}, {id:"ruido", t:"Noise"}, {id:"estres", t:"Stress"}];
-            
-            pool.forEach(item => {
-                const span = document.createElement("span");
-                span.className = "tag-local" + (this.tagsSeleccionados.includes(item.id) ? " seleccionado" : "");
-                span.innerText = item.t;
-                span.onclick = () => {
-                    span.classList.toggle("seleccionado");
-                    if (span.classList.contains("seleccionado")) { 
-                        this.tagsSeleccionados.push(item.id); 
-                    } else { 
-                        this.tagsSeleccionados = this.tagsSeleccionados.filter(x => x !== item.id); 
-                    }
-                };
-                contenedor.appendChild(span);
-            });
-        }
+        // Forzar el encendido visual de los botones configurados por defecto
+        this.seleccionarPerfil(this.perfilSeleccionado);
+        this.seleccionarModo(this.modoSeleccionado);
+        this.seleccionarMente(this.menteSeleccionada);
     },
-    // ==========================================================================================
-    // FILE: static/engine_perfiles.js - BLOQUE 3 DE 4: COMPONENTES TÁCTILES Y FETCH
-    // ==========================================================================================
+
     iniciarGrabacionAudio: function() {
         const btn = document.getElementById('btn-microfono');
         const txt = document.getElementById('texto-mic');
         if (btn && txt) {
             btn.style.backgroundColor = '#b91c1c';
-            txt.innerText = this.idioma === "en" ? "Recording... Release to send (Max 60s)" : "Grabando... Suelta para enviar (Máx 60s)";
+            txt.innerText = this.idioma === "en" ? "Recording... Release to process" : "Grabando... Suelta para procesar";
         }
         this.tiempoAudioTimer = setTimeout(() => { this.detenerGrabacionAudio(); }, 60000);
     },
@@ -92,51 +123,65 @@ window.KERNEL_ESPECIAL = {
         const btn = document.getElementById('btn-microfono');
         const txt = document.getElementById('texto-mic');
         if (btn && txt) {
-            btn.style.backgroundColor = '#ef4444';
-            txt.innerText = this.idioma === "en" ? "Hold to talk (Max. 1 min)" : "Mantén presionado para hablar (Máx. 1 min)";
+            btn.style.backgroundColor = 'var(--accent-red)';
+            txt.innerText = this.idioma === "en" ? "Hold to talk" : "Mantén presionado para hablar";
         }
         const areaTexto = document.getElementById('otg-texto-extenso');
         if (areaTexto && areaTexto.value === "") {
-            areaTexto.value = this.idioma === "en" ? "Voice message recorded: I need immediate routine help." : "Mensaje de voz grabado de 60 segundos: Requiero asistencia de tarea inmediata.";
+            areaTexto.value = this.idioma === "en" ? "Voice entry registered." : "Entrada de desahogo procesada de forma analógica.";
         }
     },
 
     limpiarVentanilla: function() {
-        const areaTexto = document.getElementById('otg-texto-extenso');
-        const panelRespuesta = document.getElementById('otg-panel-respuesta');
-        const contenedorReporte = document.getElementById('otg-contenedor-reporte');
+        document.getElementById('otg-texto-extenso').value = '';
+        document.getElementById('otg-panel-respuesta').style.display = 'none';
+        document.getElementById('otg-bloque-configuracion').style.display = 'block';
+        document.getElementById('otg-contenedor-master').classList.remove('compacto');
+        document.body.classList.remove('modo-servicio');
         
-        if (areaTexto) areaTexto.value = '';
-        if (panelRespuesta) panelRespuesta.style.display = 'none';
-        if (contenedorReporte) contenedorReporte.style.display = 'none';
+        this.perfilSeleccionado = "veteranos";
+        this.modoSeleccionado = "salir";
+        this.menteSeleccionada = "aburrido";
         
-        this.tagsSeleccionados = [];
         this.traducirInterfaz();
         
         if (this.esferaInterval) clearInterval(this.esferaInterval);
         if (this.relojInterval) clearInterval(this.relojInterval);
         if (this.bucleIntervalVoz) clearInterval(this.bucleIntervalVoz);
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
     },
-
+    // ==========================================================================================
+    // FILE: static/engine_perfiles.js - BLOQUE 3 DE 3: PROCESAMIENTO DINÁMICO PRIME
+    // ==========================================================================================
     emitirVozHumana: function(textoALeer) {
-        if (!textoALeer) return;
-        if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-        }
+        if (!textoALeer || !window.speechSynthesis) return;
+        
+        window.speechSynthesis.cancel(); // Detener de golpe cualquier residuo acústico anterior
+        
         const enunciado = new SpeechSynthesisUtterance(textoALeer);
         enunciado.lang = this.idioma === "en" ? "en-US" : "es-ES";
-        enunciado.rate = 0.95; 
-        enunciado.pitch = 1.0;
-        window.speechSynthesis.speak(enunciado);
+        
+        // CALIBRACIÓN CORPORATIVA PRIME: Voz fuerte, firme, pausada y antiestrés (cero prisa robot)
+        enunciado.rate = 0.82; 
+        enunciado.pitch = 0.95; 
+        
+        // Imprimir de inmediato en la pantalla limpia las letras de la instrucción en curso
+        document.getElementById("otg-subtitulado-voz").innerText = textoALeer;
+        
+        window.speechSynthesis.speak(enuncique);
     },
 
     ejecutarPlan: function() {
-        const perfilSeleccionado = document.getElementById("otg-perfil-select").value;
         const es = this.idioma === "es";
+        const entradaManual = document.getElementById("otg-texto-extenso").value.trim();
+        const factorAgobio = entradaManual !== "" ? entradaManual : this.menteSeleccionada;
         
+        // Captura del cargamento multi-vectorial para el servidor
         const payloadMaster = {
-            categoria: perfilSeleccionado,
-            lang: this.idioma
+            categoria: this.perfilSeleccionado,
+            entorno: this.modoSeleccionado,
+            lang: this.idioma,
+            tag_agobio: factorAgobio
         };
 
         fetch("/api/v1/perfiles-especiales/procesar", {
@@ -144,147 +189,135 @@ window.KERNEL_ESPECIAL = {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payloadMaster)
         })
-        .then(res => {
-            if (!res.ok) throw new Error("Fallo de respuesta del servidor");
-            return res.json();
-        })
+        .then(res => res.json())
         .then(datos => {
             if (datos.status !== "success") return;
             
+            // LIMPIEZA RADICAL DE INTERFAZ PRIME: Ocultar dashboard, aclarar fondo, compactar panel
+            document.body.classList.add('modo-servicio');
+            document.getElementById('otg-bloque-configuracion').style.display = 'none';
+            document.getElementById('otg-contenedor-master').classList.add('compacto');
+            
+            // Asignación de identificador único de caso generado por entropía
             document.getElementById("otg-id-display").innerText = datos.id_caso;
-            document.getElementById("otg-f1-pauta").innerText = datos.antes;
-            document.getElementById("otg-f2-pauta").innerText = datos.durante;
-            document.getElementById("otg-f3-pauta").innerText = datos.despues;
+            
+            // Cargar cortinas (Repliegan todo el contenido para evitar el agobio visual de golpe)
+            document.getElementById("cortina-f1").innerText = datos.antes;
+            document.getElementById("otg-html-mision-texto").innerText = datos.durante;
+            document.getElementById("cortina-f3").innerText = datos.despues;
+            
+            // Direccionamiento absoluto y directo a recursos de APIs externas Big Tech
             document.getElementById("otg-f2-mapa").href = datos.mapa_url;
+            document.getElementById("otg-f2-youtube").href = datos.youtube_url;
+            document.getElementById("otg-f2-spotify").href = datos.spotify_url;
             
             document.getElementById("otg-panel-respuesta").style.display = "block";
-            document.getElementById("otg-contenedor-reporte").style.display = "none";
+            document.getElementById("otg-bloque-reporte-acordeon").style.display = "none";
             
+            // Primer impacto acústico inmersivo: Freno de tensión inicial
             this.emitirVozHumana(datos.antes_voz);
             
             this.bucleAudiosCortos = datos.bucle_audios_cortos || [];
             this.indiceAudioActual = 0;
             
-            let tInhala = 4000;
-            let tExhala = 4000;
+            // Configurar el gran pulmón responsivo real (30% más grande) según perfil
+            let tInhala = 4000, tExhala = 4000;
             let txtRitmo = es ? "Ritmo Regular (4s x 4s)" : "Regular Pace (4s x 4s)";
             
-            if (perfilSeleccionado === "veteranos") {
-                tInhala = 5000;
-                tExhala = 5000;
-                txtRitmo = es ? "Anclaje Táctico (5s x 5s)" : "Tactical Grounding (5s x 5s)";
-            } else if (perfilSeleccionado === "adultos_mayores") {
-                tInhala = 3000;
-                tExhala = 4000;
-                txtRitmo = es ? "Confort Suave (3s x 4s)" : "Gentle Comfort (3s x 4s)";
+            if (this.perfilSeleccionado === "veteranos") { 
+                tInhala = 5000; tExhala = 5000; 
+                txtRitmo = es ? "Anclaje Táctico (5s x 5s)" : "Tactical Grounding (5s x 5s)"; 
+            } else if (this.perfilSeleccionado === "adultos_mayores") { 
+                tInhala = 3000; tExhala = 4000; 
+                txtRitmo = es ? "Confort Suave (3s x 4s)" : "Gentle Comfort (3s x 4s)"; 
             }
             
             document.getElementById("otg-ritmo-titulo").innerText = txtRitmo;
             
             if (this.esferaInterval) clearInterval(this.esferaInterval);
-            
             const animarEsfera = () => {
                 const esf = document.getElementById("otg-esfera-visual");
-                const txt = document.getElementById("otg-esfera-texto");
-                if (!esf || !txt) return;
-                
-                esf.style.transform = "scale(1.3)";
-                esf.style.backgroundColor = "rgba(56, 189, 248, 0.25)";
-                txt.innerText = es ? "INHALA" : "BREATHE IN";
+                if (!esf) return;
+                esf.style.transform = "scale(1.25)";
+                esf.style.borderColor = "#10b981";
+                document.getElementById("otg-esfera-texto").innerText = es ? "INHALA" : "BREATHE IN";
                 
                 setTimeout(() => {
                     const esfCheck = document.getElementById("otg-esfera-visual");
-                    const txtCheck = document.getElementById("otg-esfera-texto");
-                    if (!esfCheck || !txtCheck) return;
-                    
-                    esfCheck.style.transform = "scale(0.95)";
-                    esfCheck.style.backgroundColor = "rgba(56, 189, 248, 0.05)";
-                    txtCheck.innerText = es ? "EXHALA" : "BREATHE OUT";
+                    if (!esfCheck) return;
+                    esfCheck.style.transform = "scale(0.9)";
+                    esfCheck.style.borderColor = "var(--secondary)";
+                    document.getElementById("otg-esfera-texto").innerText = es ? "EXHALA" : "BREATHE OUT";
                 }, tInhala);
             };
-            
             animarEsfera();
             this.esferaInterval = setInterval(animarEsfera, (tInhala + tExhala));
             
-            this.iniciarCicloVidaSomatica(perfilSeleccionado, datos.durante_voz, datos.despues_voz);
-        })
-        .catch(err => {
-            console.error("Error en el canal de red: ", err);
+            // Activar cronómetro maestro y el hacedor de variedad cada 20 segundos
+            this.iniciarCicloVidaSomatica(datos.durante_voz, datos.despues_voz, datos.reporte_anonimo, datos.reporte_nota);
         });
     },
-    // ==========================================================================================
-    // FILE: static/engine_perfiles.js - BLOQUE 4 DE 4: TEMPORIZADOR DE AUDIO Y ARRANQUE
-    // ==========================================================================================
-    iniciarCicloVidaSomatica: function(perfil, duranteVoz, despuesVoz) {
+
+    iniciarCicloVidaSomatica: function(duranteVoz, despuesVoz, reporteCuerpo, reporteNota) {
         if (this.relojInterval) clearInterval(this.relojInterval);
         if (this.bucleIntervalVoz) clearInterval(this.bucleIntervalVoz);
         
         const es = this.idioma === "es";
-        let remSegundos = 900; 
+        let remSegundos = 900; // 15 minutos exactos de sesión
         
-        // Disparador a los 35 segundos para la pauta central
+        // Pauta intermedia inyectada al segundo 35
         setTimeout(() => {
-            const panel = document.getElementById("otg-panel-respuesta");
-            if (panel && panel.style.display === "block") {
+            if (document.getElementById("otg-panel-respuesta").style.display === "block") {
                 this.emitirVozHumana(duranteVoz);
             }
         }, 35000);
 
-        // Bucle periódico de voz conversacional de acompañamiento cada 15 segundos
+        // GUIADO SEGURO DINÁMICO CADA 20 SEGUNDOS EXACTOS (Cero monotonía, cero robots)
         this.bucleIntervalVoz = setInterval(() => {
-            const panel = document.getElementById("otg-panel-respuesta");
-            if (!panel || panel.style.display !== "block" || remSegundos <= 10) return;
-
+            if (remSegundos <= 15) return;
             if (this.bucleAudiosCortos && this.bucleAudiosCortos.length > 0) {
                 const fraseActual = this.bucleAudiosCortos[this.indiceAudioActual];
                 this.emitirVozHumana(fraseActual);
                 this.indiceAudioActual = (this.indiceAudioActual + 1) % this.bucleAudiosCortos.length;
             }
-        }, 15000);
+        }, 20000);
 
         // Cronómetro maestro en tiempo real
         this.relojInterval = setInterval(() => {
-            const nodoReloj = document.getElementById("otg-reloj-display");
-            if (!nodoReloj) {
-                clearInterval(this.relojInterval);
-                if (this.bucleIntervalVoz) clearInterval(this.bucleIntervalVoz);
-                return;
-            }
-            
             remSegundos--;
             let mm = Math.floor(remSegundos / 60);
             let ss = remSegundos % 60;
-            nodoReloj.innerText = (mm < 10 ? "0" + mm : mm) + ":" + (ss < 10 ? "0" + ss : ss);
+            document.getElementById("otg-reloj-display").innerText = (mm < 10 ? "0" + mm : mm) + ":" + (ss < 10 ? "0" + ss : ss);
             
-            // Inyectar el Reto de Atención en el segundo 10
+            // Al segundo 10, romper acompañamientos periódicos y dictar reto lógico final en voz alta
             if (remSegundos === 10) {
-                if (this.bucleIntervalVoz) clearInterval(this.bucleIntervalVoz); 
-                const textoDuranteConReto = document.getElementById("otg-f2-pauta").innerText;
-                this.emitirVozHumana(es ? "Atención llega un reto especial de diez segundos " + textoDuranteConReto : "Attention special ten second challenge incoming " + textoDuranteConReto);
+                clearInterval(this.bucleIntervalVoz);
+                const retoLector = document.getElementById("otg-html-mision-texto").innerText;
+                this.emitirVozHumana(es ? "Atención se activa el reto de desfragmentación mental final " + retoLector : "Attention final de-escalation mind challenge activated " + retoLector);
             }
             
-            // Cierre definitivo con la frase larga de 60 segundos
+            // CONCLUSIÓN DEL SERVICIO COMPLETO (Cero resultados antes de finalizar)
             if (remSegundos <= 0) {
                 clearInterval(this.relojInterval);
                 clearInterval(this.esferaInterval);
-                if (this.bucleIntervalVoz) clearInterval(this.bucleIntervalVoz);
+                clearInterval(this.bucleIntervalVoz);
                 
-                const textoFinalMsg = es ? 'Ciclo de Desconexión Completado' : 'Disconnection Cycle Completed';
-                document.getElementById("otg-panel-respuesta").innerHTML = '<div style="color: #10b981; font-weight: bold; text-align: center; padding: 15px; font-size: 15px;">✓ ' + textoFinalMsg + '</div>';
+                document.getElementById("otg-esfera-visual").style.transform = "scale(1.0)";
+                document.getElementById("otg-esfera-texto").innerText = es ? "CONCLUIDO" : "DONE";
                 
+                // Emisión acústica de cierre soberano largo de 60 segundos
                 this.emitirVozHumana(despuesVoz);
                 
-                const contenedorReporte = document.getElementById("otg-contenedor-reporte");
-                if (contenedorReporte) {
-                    contenedorReporte.style.display = "block";
-                    contenedorReporte.scrollIntoView({ behavior: 'smooth' });
-                }
+                // REVELAR RESULTADOS PSICOMÉTRICOS CALCULADOS INVISIBLEMENTE POR LA TÉCNICA (OCULTOS BAJO CORTINA)
+                document.getElementById("otg-reporte-cuerpo").innerText = reporteCuerpo;
+                document.getElementById("otg-reporte-nota").innerText = reporteNota;
+                document.getElementById("otg-bloque-reporte-acordeon").style.display = "block";
             }
         }, 1000);
     }
 };
 
-// Disparador de carga inicial limpia del documento
+// Inicialización automática del entorno
 document.addEventListener("DOMContentLoaded", () => {
     window.KERNEL_ESPECIAL.cambiarIdioma("es");
 });
