@@ -243,6 +243,7 @@ const KERNEL_ESPECIAL = {
     traducirInterfaz: function() {
         const es = this.idiomaActual === "es";
         
+        // Elementos de Encabezado y Títulos del HTML Clonado
         const titleNode = document.getElementById("txt-app-title");
         if (titleNode) titleNode.innerText = "OPEN THAN GO";
         
@@ -276,14 +277,7 @@ const KERNEL_ESPECIAL = {
             inpTextLibre.placeholder = es ? "Cuéntale al mando libremente qué te pasa hoy..." : "Tell the command freely what is happening to you today...";
         }
 
-        const btnActivarLibre = document.getElementById("btn-activar-libre");
-        if (btnActivarLibre) {
-            btnActivarLibre.innerText = es ? "Activar Mando Libre Especial" : "Activate Special Free Command";
-        }
-
-        const lblZip = document.getElementById("lbl-zip");
-        if (lblZip) lblZip.innerText = es ? "Código Postal" : "Zip Code";
-
+        // Traducir Opciones de Selectores Desplegables
         const optMenteAburrido = document.getElementById("opt-mente-aburrido");
         if (optMenteAburrido) { optMenteAburrido.innerText = es ? "Aburrido" : "Bored"; }
         const optMenteAgotado = document.getElementById("opt-mente-agotado");
@@ -300,7 +294,7 @@ const KERNEL_ESPECIAL = {
         const optBudget1 = document.getElementById("opt-budget-1");
         if (optBudget1) { optBudget1.innerText = es ? "Bajo" : "Low"; }
         const optBudget2 = document.getElementById("opt-budget-2");
-        if (optBudget2) { optBudget2.header = es ? "Abierto" : "Open"; }
+        if (optBudget2) { optBudget2.innerText = es ? "Abierto" : "Open"; }
 
         const optGrupoSolo = document.getElementById("opt-grupo-solo");
         if (optGrupoSolo) { optGrupoSolo.innerText = es ? "Solo" : "Solo"; }
@@ -309,7 +303,38 @@ const KERNEL_ESPECIAL = {
         const optGrupoAccesible = document.getElementById("opt-grupo-accesible");
         if (optGrupoAccesible) { optGrupoAccesible.innerText = es ? "Accesible" : "Accessible"; }
 
+        const optPerfilVet = document.getElementById("opt-perfil-vet");
+        if (optPerfilVet) { optPerfilVet.innerText = es ? "Veteranos de Guerra" : "War Veterans"; }
+        const optPerfilAm = document.getElementById("opt-perfil-am");
+        if (optPerfilAm) { optPerfilAm.innerText = es ? "Adultos Mayores / Personas Mayores" : "Elderly / Senior Citizens"; }
+        const optPerfilGob = document.getElementById("opt-perfil-gob");
+        if (optPerfilGob) { optPerfilGob.innerText = es ? "Trabajadores del Gobierno / Oficina" : "Government / Office Workers"; }
+
+        // Elementos Dinámicos de la Interfaz del Pulmón e Inversión Multimedia
+        const txtRelojLbl = document.getElementById("otg-txt-reloj-lbl");
+        if (txtRelojLbl) { txtRelojLbl.innerText = es ? "⏱️ Desconexión Somática:" : "⏱️ Somatic Disconnection:"; }
+        const lblF1 = document.getElementById("otg-lbl-f1");
+        if (lblF1) { lblF1.innerText = es ? "Fase 1: Preparación Analógica" : "Phase 1: Analog Preparation"; }
+        const lblF2 = document.getElementById("otg-lbl-f2");
+        if (lblF2) { lblF2.innerText = es ? "Fase 2: Misión Somática en Curso" : "Phase 2: Active Somatic Mission"; }
+        const lblF3 = document.getElementById("otg-lbl-f3");
+        if (lblF3) { lblF3.innerText = es ? "Fase 3: Cierre de Vector Soberano" : "Phase 3: Sovereign Vector Close"; }
+        const btnActivarLibre = document.getElementById("btn-activar-libre");
+        if (btnActivarLibre) { btnActivarLibre.innerText = es ? "Activar Mando Libre Especial" : "Activate Special Free Command"; }
+        const repoTitulo = document.getElementById("otg-reporte-titulo");
+        if (repoTitulo) { repoTitulo.innerText = es ? "Síntesis de Equilibrio Somático" : "Somatic Balance Synthesis"; }
+
+        // Sincronizar de forma segura las variables de control interno
+        const perfSel = document.getElementById("perfil-selector");
+        if (perfSel) { this.perfilSeleccionado = perfSel.value; }
+        const modoSel = document.getElementById("modo-selector");
+        if (modoSel) { this.modoSeleccionado = modoSel.value; }
+        const mentSel = document.getElementById("mente-selector");
+        if (mentSel) { this.menteSeleccionada = mentSel.value; }
+
         this.inyectarPreguntasCascada();
+    },
+
     },
     // ==========================================================================================
     // FILE: static/engine_perfiles.js - PART 3 OF 5: QUESTION CASCADES & AUDIO MECHANICS
