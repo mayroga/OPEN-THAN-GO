@@ -503,6 +503,229 @@ BASE_MISIONES = {
         ]
     }
 }
+# ==========================================================================================
+# FILE: main.py - PARTE 1: BASE DE MISIONES ESPECIALES MASIVA (ESPEJO DE OPEN THAN GO)
+# Coexiste pacíficamente sin alterar ninguna de las líneas clásicas de tu plataforma original
+# ==========================================================================================
+BASE_MISIONES_ESPECIALES = {
+ "CASA_ES": [
+  {
+   "id": 901, 
+   "titulo": "Anclaje de Posición Firme", 
+   "titulo_en": "Firm Position Grounding", 
+   "descripcion": "Siéntate con la espalda apoyada por completo en una estructura sólida de tu habitación. Coloca las palmas de tus manos abiertas sobre tus rodillas ejerciendo una fuerza constante hacia abajo. Siente tus talones firmes contra el suelo para activar la percepción del presente físico corporal.", 
+   "vector_necesidades": {"contemplacion": 95, "descanso": 90, "silencio": 85, "salud": 90}
+  },
+  {
+   "id": 902, 
+   "titulo": "Misión de Memoria Analógica Activa", 
+   "titulo_en": "Active Analog Memory Mission", 
+   "descripcion": "Busca un objeto entrañable con historia en tu habitación, como un cuadro querido o un libro antiguo. Sostenlo entre tus manos para percibir su peso y relieve real, evocando cronológicamente el instante feliz en que llegó a tu vida.", 
+   "vector_necesidades": {"contemplacion": 100, "descanso": 80, "silencio": 90, "esperanza": 95}
+  },
+  {
+   "id": 903, 
+   "titulo": "Descompresión Somática de Escritorio", 
+   "titulo_en": "Desk Somatic Decompression", 
+   "descripcion": "Minimiza de inmediato todas las pantallas y sistemas de gestión de tu monitor. Toma una hoja de papel de desecho y dibuja patrones circulares abstractos continuos sin levantar el bolígrafo por dos minutos. Límpiate de plazos fiscales.", 
+   "vector_necesidades": {"silencio": 95, "descanso": 85, "creatividad": 100, "salud": 90}
+  },
+  {
+   "id": 904, 
+   "titulo": "Freno de Alerta Periférica Doméstica", 
+   "titulo_en": "Domestic Perimeter Alert Brake", 
+   "descripcion": "Cierra las cortinas de tu espacio actual para atenuar la luz artificial. Siéntate en el suelo apoyando los glúteos y mantén las manos sobre el regazo en total inmovilidad por tres minutos seguidos, aislando los ruidos urbanos.", 
+   "vector_necesidades": {"silencio": 100, "descanso": 95, "contemplacion": 90, "sombra": 95}
+  },
+  {
+   "id": 905, 
+   "titulo": "Tregua Cortical Óptica", 
+   "titulo_en": "Cortical Optical Truce", 
+   "descripcion": "Frota tus palmas enérgicamente hasta calentar la piel. Colócalas cóncavas sobre tus ojos cerrados bloqueando la luz por completo durante noventa segundos. Enfoca tu atención únicamente en la oscuridad absoluta generada.", 
+   "vector_necesidades": {"descanso": 100, "silencio": 95, "contemplacion": 85, "salud": 90}
+  },
+  {
+   "id": 906, 
+   "titulo": "Calibración del Flujo Térmico", 
+   "titulo_en": "Thermal Flow Calibration", 
+   "descripcion": "Sirve un vaso con agua fresca. Sostén el cristal con ambas manos percibiendo su baja temperatura en las palmas. Da tres sorbos extremadamente lentos, registrando de forma consciente el camino frío del líquido por tu garganta.", 
+   "vector_necesidades": {"agua": 100, "descanso": 85, "silencio": 75, "contemplacion": 90}
+  },
+  {
+   "id": 907, 
+   "titulo": "Aislamiento de Frecuencia Digital", 
+   "titulo_en": "Digital Frequency Isolation", 
+   "descripcion": "Apaga por completo la pantalla de cualquier dispositivo cercano y colócalo boca abajo en otra superficie. Fija tu mirada en una esquina superior fija del techo durante dos minutos continuos sin desviar el foco electrónico.", 
+   "vector_necesidades": {"silencio": 95, "descanso": 90, "contemplacion": 95, "organizacion": 70}
+  },
+  {
+   "id": 908, 
+   "titulo": "Descompresión Cervical de Oficina", 
+   "titulo_en": "Office Cervical Decompression", 
+   "descripcion": "Ponte de pie rompiendo la postura rígida de la jornada. Deja colgar tus brazos sueltos a los lados. Gira la cabeza trazando semicírculos lentos hacia el pecho para liberar la carga acumulada en las vértebras por mirar el monitor institucional.", 
+   "vector_necesidades": {"movimiento": 90, "salud": 95, "descanso": 85, "silencio": 60}
+  },
+  {
+   "id": 909, 
+   "titulo": "Resguardo de Sombra Analógica", 
+   "titulo_en": "Analog Shade Shelter", 
+   "descripcion": "Ubica el rincón más oscuro y aislado de tu hogar. Permanece de pie allí con la espalda recta pegada a la pared. Junta los talones y mantén los ojos cerrados respirando pausadamente por la nariz diez veces.", 
+   "vector_necesidades": {"sombra": 100, "silencio": 90, "descanso": 95, "contemplacion": 80}
+  },
+  {
+   "id": 910, 
+   "titulo": "Soberanía Atencional de Estructura", 
+   "titulo_en": "Structural Focus Sovereignty", 
+   "descripcion": "Toma un objeto puramente inanimado y pesado de tu entorno, como una taza sólida o un libro pesado. Sostenlo con el brazo estirado por treinta segundos sintiendo la fuerza muscular presente, luego colócalo suavemente en la mesa.", 
+   "vector_necesidades": {"movimiento": 85, "descanso": 70, "contemplacion": 90, "salud": 80}
+  }
+ ],
+ "SALIR": {
+  "ansioso": [
+   {
+    "id": 951,
+    "titulo": "Repliegue Acústico Táctico",
+    "titulo_en": "Tactical Acoustic Retreat",
+    "porque": "Hoy busca un rincón arbolado o reserva forestal de baja densidad acústica en tu región. Si la prisa mental te agobia por estímulos externos, camina lento, colócate protectores auditivos de inmediato y quédate de pie observando la inmovilidad de los troncos por tres minutos exactos para equilibrar tus constantes vitales en paz.",
+    "porque_en": "Today, look for a quiet wooded corner or low-density nature track in your region. If mental rush overwhelms your senses due to heavy external stimuli, walk slowly, put on noise-isolating headphones immediately, and stand still observing the immovable trees for exactly three minutes to balance your vital rhythm in peace.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Reserva natural o sendero forestal aislado.",
+    "donde_en": "Isolated nature reserve or quiet wooded trail.",
+    "gps": "isolated nature trails and forests",
+    "vector_necesidades": {"movimiento": 50, "naturaleza": 100, "silencio": 95, "aire_fresco": 95, "contemplacion": 90, "descanso": 80}
+   },
+   {
+    "id": 952,
+    "titulo": "Anclaje de Horizonte Abierto",
+    "titulo_en": "Open Horizon Grounding",
+    "porque": "Hoy camina a paso firme hacia un mirador elevado o un espacio abierto alejado de la fricción urbana. Si tu mente está atrapada en pensamientos repetitivos, levanta la mirada y enfócate en la línea del horizonte inmóvil por cuatro minutos continuos, permitiendo que tu respiración recupere su curso somático regular.",
+    "porque_en": "Today, walk with steady steps to an elevated overlook or open space far from urban friction. If your mind is trapped in repetitive loops, elevate your gaze and focus on the steady horizon line for four continuous minutes, letting your breathing recover its regular somatic course.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Mirador público o explanada alta despejada.",
+    "donde_en": "Public overlook or clear high clearing.",
+    "gps": "scenic overlooks and high panoramic views",
+    "vector_necesidades": {"movimiento": 60, "naturaleza": 90, "silencio": 85, "aire_fresco": 100, "contemplacion": 100, "descanso": 70}
+   },
+   {
+    "id": 953,
+    "titulo": "Descompresión Somática Hidro-Calma",
+    "titulo_en": "Hydro-Calm Somatic Decompression",
+    "porque": "Hoy dirígete a un parque local pacífico que posea un estanque, fuente o lago público. Si el ruido del sistema drena tu energía, toma asiento en el banco más cercano a la orilla. Contempla el movimiento continuo y fluido del agua por cinco minutos exactos para desacelerar los niveles de ansiedad muscular.",
+    "porque_en": "Today, head to a peaceful local park with a pond, fountain, or public lake. If the system noise drains your energy, take a seat on the bench closest to the edge. Contemplate the continuous and fluid movement of water for exactly five minutes to slow down your muscular anxiety levels.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Banco de parque junto a un estanque o lago regional.",
+    "donde_en": "Park bench next to a regional pond or lake.",
+    "gps": "public lake parks and quiet fountains",
+    "vector_necesidades": {"agua": 100, "naturaleza": 85, "silencio": 80, "aire_fresco": 90, "contemplacion": 95, "descanso": 90}
+   }
+  ],
+  "estresado": [
+   {
+    "id": 954,
+    "titulo": "Freno de Alerta Periférica",
+    "titulo_en": "Peripheral Alert Brake",
+    "porque": "Hoy camina con pasos lentos y talones firmes hacia un punto con sombra densa en un sendero natural. Fija tu mirada en una línea del horizonte inmóvil. Permanece en posición de descanso analógico bloqueando el ruido exterior y la hipervigilancia por cuatro minutos seguidos.",
+    "porque_en": "Today, walk with slow steps toward a dense shade area in a natural path. Fix your gaze on a steady horizon line. Inhabit absolute silence to break the automatic pilot and hypervigilance for four straight minutes.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Zonas de quietud vegetal o senderos boscosos.",
+    "donde_en": "Quiet wooded trails or botanical spaces.",
+    "gps": "state park trail or nature reserve",
+    "vector_necesidades": {"movimiento": 70, "naturaleza": 95, "silencio": 85, "contemplacion": 100, "descanso": 90}
+   },
+   {
+    "id": 955, 
+    "titulo": "Evacuación de Presión Somática", 
+    "titulo_en": "Somatic Pressure Evacuation", 
+    "porque": "Hoy busca escaleras públicas al aire libre o una rampa de elevación urbana. Sube a paso firme e intenso durante tres minutos seguidos registrando el peso de tu musculatura en cada escalón para quemar el estrés burocrático acumulado.",
+    "porque_en": "Today, look for public outdoor stairs or an urban ramp. Walk up with steady, intense steps for three continuous minutes, tracing your muscle weight on every step to burn away accumulated bureaucratic stress.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Estructuras de escaleras públicas o rampas de parques.",
+    "donde_en": "Public outdoor stairs or park ramps.",
+    "gps": "public stairs or park tracks",
+    "vector_necesidades": {"movimiento": 100, "aire_fresco": 90, "silencio": 60, "contemplacion": 70, "descanso": 20}
+   }
+  ],
+  "aburrido": [
+   {
+    "id": 956,
+    "titulo": "Exploración Sensorial Gentil",
+    "titulo_en": "Gentle Sensory Exploration",
+    "porque": "Hoy camina a paso lento y completamente seguro hacia el parque llano o jardín botánico más cercano. Permite que la luz natural del sol entibie tus manos y rostro por tres minutos exactos mientras notas la temperatura del viento, libre de pantallas.",
+    "porque_en": "Today, walk at a slow and safe pace to the nearest flat park or botanical garden. Let natural sunlight warm your hands and face for exactly three minutes while noticing the wind temperature, completely free from screens.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Parque plano con asientos y caminos fáciles.",
+    "donde_en": "Flat park with benches and easy walking paths.",
+    "gps": "flat parks with benches and easy walking paths",
+    "vector_necesidades": {"movimiento": 50, "naturaleza": 90, "silencio": 80, "contemplacion": 95, "descanso": 100}
+   },
+   {
+    "id": 957,
+    "titulo": "Inmersión Textural Analógica",
+    "titulo_en": "Analog Textural Immersion",
+    "porque": "Hoy dirígete a una plaza pública arbolada. Rompe la inercia monótona buscando tres superficies con relieves completamente diferentes (corteza rugosa, metal frío, piedra lisa). Tócalas en completo silencio absoluto durante dos minutos.",
+    "porque_en": "Today, head to a wooded public plaza. Break monotonous inertia by seeking three surfaces with completely different textures (rough bark, cold metal, smooth stone). Touch them in absolute quietness for two minutes.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Plaza pública, parque o entorno urbano abierto.",
+    "donde_en": "Public plaza, park, or open urban environment.",
+    "gps": "public plaza or community park",
+    "vector_necesidades": {"naturaleza": 95, "movimiento": 60, "creatividad": 85, "contemplacion": 100, "silencio": 75}
+   }
+  ],
+  "agotado": [
+   {
+    "id": 958,
+    "titulo": "Freno de Saturación Administrativa",
+    "titulo_en": "Administrative Overwhelm Brake",
+    "porque": "Hoy sal de la estructura del edificio de oficinas y rompe la ruta predecible. Camina hacia el punto de vegetación más apartado de tu piso laboral. Observa los bloques de concreto como simples formas geométricas por cuatro minutos sin pensar en plazos.",
+    "porque_en": "Today, step outside the office building and break your predictable layout route. Walk to the furthest green space near your workplace. Observe concrete blocks as simple shapes for four minutes without thinking about deadlines.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Jardines botánicos o plazas abiertas silenciosas.",
+    "donde_en": "Botanical gardens or quiet open air squares.",
+    "gps": "botanical gardens or quiet open air squares",
+    "vector_necesidades": {"movimiento": 80, "naturaleza": 85, "silencio": 100, "contemplacion": 90, "descanso": 85}
+  },
+  {
+    "id": 959,
+    "titulo": "Refugio Intelectual Silencioso",
+    "titulo_en": "Silent Intellectual Shelter",
+    "porque": "Hoy visita la biblioteca municipal o sala de lectura pública más cercana. Ingresa despacio. Toma asiento en la zona más apartada y descansa tu mirada contemplando un punto lejano por tres minutos exactos, aislando tu mente de ruidos fiscales.",
+    "porque_en": "Today, visit the nearest municipal library or public reading room. Enter slowly. Take a seat in the furthest area and rest your gaze on a distant spot for exactly three minutes, isolating your mind from fiscal rush.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Sala de lectura, biblioteca o zona de estudio.",
+    "donde_en": "Reading room, municipal library, or study zone.",
+    "gps": "public library",
+    "vector_necesidades": {"aprendizaje": 100, "silencio": 100, "contemplacion": 95, "descanso": 90, "organizacion": 70}
+   }
+  ],
+  "cansado": [
+   {
+    "id": 960,
+    "titulo": "Tregua de Campo Abierto",
+    "titulo_en": "Open Field Truce",
+    "porque": "Hoy busca un rincón de quietud rodeado de árboles antiguos. Desvía tus ojos de luces artificiales. Presta atención al movimiento de las hojas en silencio absoluto por cinco minutos continuos, estirando tus hombros y cuello en paz.",
+    "porque_en": "Today, look for a quiet nature corner surrounded by old growth trees. Turn your eyes away from artificial lights. Pay close attention to the leaves moving in absolute silence for five continuous minutes, stretching shoulders in peace.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Parques urbanos o áreas arboladas comunes.",
+    "donde_en": "Urban parks or common wooded spaces.",
+    "gps": "public plaza or community park",
+    "vector_necesidades": {"movimiento": 60, "naturaleza": 100, "silencio": 90, "contemplacion": 95, "descanso": 90}
+   },
+   {
+    "id": 961,
+    "titulo": "Desaceleración Marítima Pasiva",
+    "titulo_en": "Passive Maritime Deceleration",
+    "porque": "Hoy dirígete al paseo costero, muelle o puerto local más cercano. Detén la marcha frente a la orilla del agua por cuatro minutos enteros. Deja que el reflejo natural de la luz sobre la superficie limpie la fatiga acumulada en tus sienes.",
+    "porque_en": "Today, head to the nearest coastal boardwalk, pier, or local dock. Stop your walk by the water's edge for four full minutes. Let the natural light reflection on the surface clear away accumulated fatigue from your temples.",
+    "que_hacer": "", "que_hacer_en": "", "cuando": "", "cuando_en": "", "para_que": "", "para_que_en": "",
+    "donde": "Muelle, puerto de la ciudad o zona costera abierta.",
+    "donde_en": "Dock, city pier, or open coastal zone.",
+    "gps": "harbor walk or pier",
+    "vector_necesidades": {"agua": 100, "contemplacion": 95, "descanso": 90, "aire_fresco": 90, "silencio": 70}
+   }
+  ]
+ }
+}
+      
 BIG_TECH_RESOURCES = {
     "youtube_base_url": "https://www.youtube.com/results?search_query=",
     "spotify_base_search_url": "https://open.spotify.com/search/",
@@ -1593,23 +1816,30 @@ def cerebro_procesar_perfil_especial(categoria_perfil, tipo_mision="salir", idio
         "status": "success"
     }
 
+# ==========================================================================================
+# FILE: main.py - COMPUERTA DE ENTRADA JSON AISLADA PARA PERFILES ESPECIALES (MÁXIMO RIGOR)
+# Reemplaza tu bloque final para conectar los selectores táctiles con el motor premium
+# ==========================================================================================
 @app.post("/api/v1/perfiles-especiales/procesar")
 async def endpoint_perfiles_especiales(request: Request):
     try:
         datos = await request.json()
         categoria = datos.get('categoria', 'veteranos')
         tipo_entorno = datos.get('entorno', 'salir')
+        mente_estado = datos.get('mente', 'aburrido')
         idioma = datos.get('lang', 'es')
-        
-        # Sincronización nativa con las cookies o estados locales de Open Than Go
-        vector_necesidades = datos.get('vector_necesidades', {})
+        big_tech = datos.get('big_tech', 'ninguna')
+        tag_agobio = datos.get('tag_agobio', '')
         historial = datos.get('historial', [])
         
-        resultado = cerebro_procesar_perfil_especial(
+        # Invocación directa al motor clonado y adaptado de alta variedad anti-repetición
+        resultado = cerebro_procesar_canal_privado_premium(
             categoria_perfil=categoria,
             tipo_mision=tipo_entorno,
+            mente_estado=mente_estado,
             idioma_cliente=idioma,
-            vector_usuario=vector_necesidades,
+            big_tech=big_tech,
+            tag_agobio=tag_agobio,
             historial_usuario=historial
         )
         return JSONResponse(resultado)
@@ -1623,6 +1853,7 @@ async def navegar_afluente_perfiles():
 @app.get("/")
 async def index():
     return FileResponse('static/session.html')
+
 
 if __name__ == "__main__":
     import uvicorn
