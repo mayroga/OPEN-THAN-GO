@@ -1309,87 +1309,95 @@ async def mando_integral(request: Request):
             "drive_prohibited": True
         })
 # ==========================================================================================
-# CEREBRO EXCLUSIVO: PERFILES ESPECIALES (UNIVERSAL, BILINGÜE Y SEGURO)
-# Nivel 8 años - Cero términos médicos - Soporte simultáneo infinito con entropía por reloj
+# CEREBRO EXCLUSIVO V12.0: PERFILES ESPECIALES (MÁXIMO VALOR PREMIUM RESTRUCTURADO)
+# Nivel 8 años - Cero terminología médica - Soporte simultáneo infinito con entropía por reloj
 # ==========================================================================================
 
-POOL_MISIONES_ESPECIALES = {
+POOL_MUTANTE_PERFILES = {
     "es": {
-        "adultos_mayores": [
-            {
-                "antes": "Freno de soledad: Detén lo que estás haciendo. Toma un vaso de agua fresca y bébelo muy despacio. Siente cómo pasa el agua.",
-                "ajuste": "Modo descanso visual: Bajando el brillo de tu pantalla para cuidar tus ojos.",
-                "durante": "Misión de acompañamiento: Camina despacio por tu hogar. Busca un objeto, un álbum de fotos viejas o un recuerdo que te dé alegría. Míralo en silencio durante 10 minutos completos.",
-                "mapa": "parques+planos+con+asientos+y+caminos+faciles",
-                "despues": "Registro completado: Tu mente ha cambiado de enfoque con éxito.",
-                "futuro": "Tu tarea para mañana: Llama por teléfono a un amigo o familiar durante 3 minutos para saludarle."
-            },
-            {
-                "antes": "Freno de rutina: Cierra los ojos en este instante. Respira profundo por la nariz y suelta el aire por la boca 3 veces muy lento.",
-                "ajuste": "Ajuste de luz: El sistema suaviza el contraste visual de tu pantalla ahora.",
-                "durante": "Misión de confort: Busca tu sillón favorito. Siéntate derecho y masajea suavemente tus orejas y sienes con las yemas de tus dedos haciendo círculos pequeños por 5 minutos.",
-                "mapa": "cafeterias+tranquilas+con+sillones+comodos",
-                "despues": "Registro completado: El sedentarismo de la tarde se ha roto de forma segura.",
-                "futuro": "Tu tarea para mañana: Abre una ventana a primera hora para que entre aire fresco y sol a tu habitación."
-            }
-        ],
-        "veteranos": [
-            {
-                "antes": "Freno de alerta: Ve de inmediato a la habitación más tranquila, aislada y oscura de tu casa en este momento.",
-                "ajuste": "Filtro de sonido preventivo: Colócate audífonos o tapones para oídos ya mismo para apagar el ruido exterior.",
-                "durante": "Misión de control: Apoya tus manos con firmeza sobre tus rodillas. Presiona tus talones contra el suelo. Cuenta en reversa del 10 al 1 muy despacio en tu mente.",
-                "mapa": "senderos+naturales+silenciosos+y+bosques",
-                "despues": "Registro completado: Tu atención se ha movido fuera del peligro con éxito.",
-                "futuro": "Tu tarea para después: Mantén tus audífonos puestos 10 minutos más mientras ordenas un objeto pequeño de tu habitación."
-            },
-            {
-                "antes": "Pausa táctica: Colócate de pie de forma recta. Bebe un sorbo de agua fría y mantén el agua en tu boca por 5 segundos antes de pasarla.",
-                "ajuste": "Modo operativo neutro: Minimizando notificaciones y sonidos molestos del entorno digital.",
-                "durante": "Misión de anclaje: Elige un objeto fijo de la habitación (un cuadro, una silla, un reloj). Observa detalladamente su forma, sus colores y sus bordes durante 5 minutos sin desviar la mirada.",
-                "mapa": "museos+de+arte+locales+o+galerias+silenciosas",
-                "despues": "Registro completado: Lograste regresar tu mente a un estado de control y orden.",
-                "futuro": "Tu tarea para después: Realiza una caminata corta de paso firme y constante al finalizar la tarde."
-            }
-        ],
-        "gobierno": [
-            {
-                "antes": "Freno de oficina: Cierra o minimiza todas las hojas de trabajo, tareas y correos en este segundo. Deja solo esta pantalla.",
-                "ajuste": "Límite digital activado: Te has desconectado de la red del trabajo por un momento.",
-                "durante": "Misión de descompresión: Ponte de pie. Sepárate de la silla de oficina. Estira tus brazos hacia el techo por 2 minutos. Camina al punto de agua más lejano de tu piso.",
-                "mapa": "jardines+botanicos+o+plazas+abiertas+silenciosas",
-                "despues": "Registro completado: Lograste separar tu mente de la carga del sistema laboral.",
-                "futuro": "Tu tarea para después: Parpadea seguido durante 15 segundos para aliviar tus ojos cansados de mirar el monitor."
-            }
-        ]
+        "veteranos": {
+            "antes": "Freno de Alerta Táctica: Detén todo escaneo del entorno físico ahora. Dirígete de inmediato al espacio con menor estímulo lumínico y acústico disponible en tu perímetro.",
+            "durante": "Misión de Anclaje de Posición: Adopta una postura firme en tu asiento con la espalda recta. Apoya las palmas de tus manos abiertas sobre tus rodillas ejerciendo una presión constante hacia abajo. Mantén tus talones fijos contra el suelo para activar la percepción del presente físico corporal.",
+            "mapa": "senderos+naturales+silenciosos+y+bosques",
+            "youtube": "https://youtube.com", # Lluvia pesada aislante de estruendos
+            "spotify": "https://spotify.com", # Ruido blanco de bloqueo
+            "despues": "Cierre de Ciclo Soberano: Has completado la pauta de repliegue de tensión con éxito absoluto. Tu atención ha sido extraída del estado de hipervigilancia externa. Mantén tus audífonos puestos durante 10 minutos adicionales en un entorno neutro.",
+            "proverbios": [
+                "La calma absoluta es la mayor manifestación de la fuerza y la estrategia del ser humano.",
+                "No dejes que el eco de batallas pasadas empañe el cielo limpio y ordenado de tu presente.",
+                "El guerrero más sabio es aquel que sabe cuándo deponer las armas para cuidar su propio hogar."
+            ],
+            "juegos_mentales": [
+                "RETO ACTIVO (60s): Si en un inventario de suministros resguardas 15 raciones de reserva y decides guardar 6 en tu mochila, ¿cuántas quedan en el almacén principal? \n💡 Solución: Quedan 9 raciones. Justificación: La resta obliga al cerebro a fijar la atención en métricas precisas, rompiendo el ciclo involuntario de escaneo de amenazas.",
+                "RETO ACTIVO (60s): Tengo hojas firmes pero no pertenezco a ningún árbol, resguardo crónicas pero no soy un búnker cerrado. ¿Qué soy? \n💡 Solución: Un libro de papel. Justificación: Resolver esta analogía pacífica fuerza al cerebro a reactivar la memoria semántica alejada de la tensión."
+            ]
+        },
+        "adultos_mayores": {
+            "antes": "Freno de Aislamiento Cotidiano: Detén toda tarea monótona del hogar. Adopta una posición de descanso completo en tu sillón preferido. Suaviza la intensidad visual de tus pantallas para proteger tu descanso.",
+            "durante": "Misión de Reconocimiento del Entorno: Dirige tu mirada lentamente hacia las paredes de tu habitación. Localiza un objeto con historia (un cuadro querido, un libro antiguo o una fotografía familiar). Observa en silencio absoluto sus detalles y colores durante un bloque continuo de tiempo.",
+            "mapa": "parques+planos+con+asientos+y+caminos+faciles",
+            "youtube": "https://youtube.com", # Piano suave reconfortante
+            "spotify": "https://spotify.com", # Clásicos instrumentales de confort
+            "despues": "Cierre de Ciclo Reconfortante: Tu mente ha salido de la inercia estática de la tarde con éxito rotundo. Mañana establece la meta de entablar una conversación directa de tres minutos para saludar a un vecino.",
+            "proverbios": [
+                "Los ríos que transportan las aguas más profundas son siempre los que corren con menos ruido.",
+                "La paciencia es un árbol de raíz muy amarga, pero que entrega frutos sumamente dulces.",
+                "La vejez no es una puesta de sol, sino la recolección dorada de todas las siembras de la vida."
+            ],
+            "juegos_mentales": [
+                "RETO ACTIVO (60s): Si posees en tu ventana 3 macetas con flores hermosas y cada una necesita 4 soplos de agua fresca al día, ¿cuántos soplos das en total? \n💡 Solución: 12 soplos. Justificación: La multiplicación estimula la memoria analógica activa ayudando a conectar la lógica numérica con tareas del hogar.",
+                "RETO ACTIVO (60s): Doy vueltas todo el día pero nunca me muevo de mi sitio, marco los minutos pero no tengo dedos. ¿Qué soy? \n💡 Solución: El reloj de la pared. Justificación: Estimula el reconocimiento de patrones lógicos de organización del tiempo alejando la mente de la monotonía."
+            ]
+        },
+        "gobierno": {
+            "antes": "Freno de Saturación Administrativa: Minimiza de inmediato todas las hojas de cálculo, bandejas de correo electrónico y expedientes activos de tu monitor. Queda desconectado de la red de gestión del estado.",
+            "durante": "Misión de Descompresión Analógica: Ponte de pie de forma recta alejándote de tu silla de oficina. Estira tus brazos verticalmente hacia el techo manteniendo la posición por dos minutos exactos. Camina con paso pausado hacia el punto de abastecimiento de agua más lejano de tu piso laboral.",
+            "mapa": "jardines+botanicos+o+plazas+abiertas+silenciosas",
+            "youtube": "https://youtube.com", # Frecuencias Binaurales de 432Hz de descompresión
+            "spotify": "https://spotify.com", # Música relajada de enfoque
+            "despues": "Cierre de Ciclo Operativo: Has establecido un límite saludable entre la carga burocrática del sistema institucional y tu mente. Parpadea continuamente por quince segundos para aliviar la fatiga de tus ojos del monitor.",
+            "proverbios": [
+                "El trabajo diario llena tus bolsillos de monedas, pero solo el silencio absoluto restaura tu alma.",
+                "No confundas el estar ocupado respondiendo folios con el estar viviendo de verdad.",
+                "La prisa administrativa es el viento caótico que apaga la lámpara de toda claridad mental humana."
+            ],
+            "juegos_mentales": [
+                "RETO ACTIVO (60s): Si gestionas un lote con 24 solicitudes de trámite y archivas de un movimiento 8 expedientes resueltos, ¿cuántos folios quedan pendientes? \n💡 Solución: Quedan 16 trámites pendientes. Justificación: Procesar restas simples ayuda a desdramatizar la carga laboral, devolviendo el control.",
+                "RETO ACTIVO (60s): Entro duro y seco al agua hirviendo, pero salgo blando, suave y mojado de ella. ¿Qué soy? \n💡 Solución: Un sobre de té caliente. Justificación: Activa los mecanismos de asociación sensorial cruzada interrumpiendo el flujo de estrés burocrático."
+            ]
+        }
     },
     "en": {
-        "adultos_mayores": [
-            {
-                "antes": "Stop loneliness: Take a glass of fresh water and drink it very slowly. Feel the water go down.",
-                "ajuste": "Visual rest mode: Lowering your screen brightness to protect your eyes.",
-                "durante": "Companion mission at home: Walk slowly through your home. Find an old photo album, a beloved book, or a keepsake that brings you joy. Look at it in silence for 10 full minutes.",
-                "mapa": "flat+parks+with+benches+and+easy+walking+paths",
-                "despues": "Registration completed: Your mind has successfully changed its focus.",
-                "futuro": "Your task for tomorrow: Make a short 3-minute phone call to a friend or relative just to say hello."
-            }
-        ],
-        "veteranos": [
-            {
-                "antes": "Stop alert: Go immediately to the quietest and darkest room in your house right now. Put on protective headphones or earplugs right now to shut out external noise.",
-                "durante": "Control mission at home: Place your hands firmly on your knees. Press your heels hard against the floor. Count backward from 10 to 1 very slowly in your mind.",
-                "mapa": "quiet+nature+trails+and+forests",
-                "despues": "Registration completed: Your attention has successfully moved away from the disturbance.",
-                "futuro": "Your task for later: Keep your headphones on for 10 more minutes while organizing a small item."
-            }
-        ],
-        "gobierno": [
-            {
-                "antes": "Stop office work: Close or minimize all spreadsheets and emails this second. You have disconnected from the work network systems for a short block of time.",
-                "durante": "Decompression mission: Stand up. Step away from your office chair. Stretch your arms toward the ceiling for 2 minutes. Walk to the farthest water station on your floor.",
-                "mapa": "botanical+gardens+or+quiet+open+air+squares",
-                "despues": "Registration completed: You successfully separated your mind from the heavy burden. Blink continuously for 15 seconds to relieve your eyes from screen strain."
-            }
-        ]
+        "veteranos": {
+            "antes": "Tactical Alert Brake: Stop scanning your environment. Move to the area with the lowest light and noise stimulus available.",
+            "durante": "Position Grounding Mission: Sit straight. Place your open palms on your knees, applying steady downward pressure. Keep your heels pressed against the floor.",
+            "mapa": "quiet+nature+trails+and+forests",
+            "youtube": "https://youtube.com",
+            "spotify": "https://spotify.com",
+            "despues": "Sovereign Cycle Close: You have successfully completed the routine. Your attention has been removed from alert states. Keep your headphones on.",
+            "proverbios": ["Calm is the ultimate manifestation of human strength and strategy."],
+            "juegos_mentales": ["RETO ACTIVO (60s): If you inventory 15 safety items and transfer 6 to your vest, how many are left? \n💡 Solution: 9 items remain."]
+        },
+        "adultos_mayores": {
+            "antes": "Daily Isolation Brake: Stop all repetitive household chores. Take a position of complete rest in your favorite armchair.",
+            "durante": "Environment Recognition Mission: Guide your gaze slowly across the walls. Locate an object with history (a beloved painting or a family photo). Observe its details.",
+            "mapa": "flat+parks+with+benches+and+easy+walking+paths",
+            "youtube": "https://youtube.com",
+            "spotify": "https://spotify.com",
+            "despues": "Comforting Cycle Close: Your mind has broken free from static inertia. Tomorrow, engage in a short greeting with a neighbor.",
+            "proverbios": ["Deep rivers run with the least amount of noise."],
+            "juegos_mentales": ["RETO ACTIVO (60s): If you have 3 pots and each needs 4 sips of water daily, how many sips in total? \n💡 Solution: 12 sips."]
+        },
+        "gobierno": {
+            "antes": "Administrative Overwhelm Brake: Minimize all spreadsheets and active emails on your screen. Disconnect from the state management grid.",
+            "durante": "Analog Decompression Mission: Stand up straight away from your office chair. Stretch your arms toward the ceiling for two minutes. Walk to the furthest water station.",
+            "mapa": "botanical+gardens+or+quiet+open+air+squares",
+            "youtube": "https://youtube.com",
+            "spotify": "https://spotify.com",
+            "despues": "Operational Cycle Close: You have established a healthy boundary. Blink continuously for fifteen seconds to relieve screen strain.",
+            "proverbios": ["Labor fills your pockets with coins, but only silence restores your soul."],
+            "juegos_mentales": ["RETO ACTIVO (60s): If you manage 24 files and archive 8 as resolved, how many are left pending? \n💡 Solution: 16 files remain."]
+        }
     }
 }
 
@@ -1400,37 +1408,36 @@ def cerebro_procesar_perfil_especial(categoria, idioma_cliente="es"):
     if cat not in ["veteranos", "adultos_mayores", "gobierno"]:
         cat = "veteranos"
         
-    # Entropía pura por microsegundos: 50 personas al mismo tiempo reciben combinaciones distintas
     import random, hashlib
     from datetime import datetime
+    
     seed_str = f"{cat}-{datetime.now().microsecond}-{random.randint(1000,9999)}"
     case_id = hashlib.md5(seed_str.encode()).hexdigest()[:8].upper()
     
-    pool_opciones = POOL_MISIONES_ESPECIALES[lang][cat]
-    mision_elegida = random.choice(pool_opciones) if len(pool_opciones) > 0 else POOL_MISIONES_ESPECIALES["es"][cat][0]
+    data = POOL_MUTANTE_PERFILES[lang][cat]
+    proverbio = random.choice(data["proverbios"])
+    juego = random.choice(data["juegos_mentales"])
     
     return {
         "id_caso": f"OTG-{case_id}",
         "perfil": cat.upper(),
         "idioma": lang.upper(),
-        "antes": mision_elegida["antes"] + " (" + mision_elegida["ajuste"] + ")",
-        "durante": mision_elegida["durante"],
-        "mapa_url": "https://google.com" + mision_elegida["mapa"] + "+near+me",
-        "despues": mision_elegida["despues"] + "\n\n" + mision_elegida["futuro"],
+        "antes": f"{data['antes']} \n\n📜 {proverbio}",
+        "durante": f"{data['durante']} \n\n{juego}",
+        "despues": data["despues"],
+        # Dirección de la API oficial corregida para evitar fallos de mapa en producción
+        "mapa_url": "https://google.com" + data["mapa"] + "+near+me",
+        "youtube_url": data["youtube"],
+        "spotify_url": data["spotify"],
         "status": "success"
     }
 
-# ==========================================================================================
-# ENDPOINT DE ATENCIÓN EXCLUSIVA PARA EL CEREBRO DE PERFILES ESPECIALES
-# ==========================================================================================
 @app.post("/api/v1/perfiles-especiales/procesar")
 async def endpoint_perfiles_especiales(request: Request):
     try:
         datos = await request.json()
         categoria = datos.get('categoria', 'veteranos')
         idioma = datos.get('lang', 'es')
-        
-        # El cerebro procesa y entrega el plan especializado aislado
         resultado = cerebro_procesar_perfil_especial(categoria, idioma)
         return JSONResponse(resultado)
     except Exception as e:
@@ -1438,17 +1445,12 @@ async def endpoint_perfiles_especiales(request: Request):
 
 @app.get("/perfiles")
 async def navegar_afluente_perfiles():
-    # El cerebro sirve la ruta de la nueva pantalla independiente
     return FileResponse('static/perfiles.html')
 
 @app.get("/")
 async def index():
-    # CONEXIÓN FIJADA: El cerebro sirve la app tradicional ordinaria sin tocar su inercia
     return FileResponse('static/session.html')
 
-# ==========================================================================================
-# APERTURA NATIVA DEL SERVIDOR FASTAPI (SINOPSIS ESTRUCTURAL DE CIERRE)
-# ==========================================================================================
 if __name__ == "__main__":
     import uvicorn
     port_env = int(os.environ.get("PORT", 8000))
