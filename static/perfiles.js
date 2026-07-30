@@ -175,48 +175,56 @@ ejecutarVozBienvenida() {
     window.KERNEL.hablar(msgs[this.perfilSeleccionado]);
 },
 
-renderizarInterfazEspecial() {
-    const container = document.getElementById("panel-perfiles-especiales");
-    if (!container) return;
-    const lang = window.KERNEL?.idiomaActual || "es";
-    const t = this.TEXTOS[lang];
-    
-    container.innerHTML = `
-        ${t.seleccionaPerfil}
-        ${t.veterano} ⚡
-        ${t.adulto_mayor} ⚡
-        ${t.gubernamental} ⚡
-        ${t.lblKeywords}
-        ${t.btnMicGrabar}
-        📂 Escanear PDF Estructural
-        ${t.btnProcesar}
-        ${t.btnReporte}
-    `;
-    this.enlazarEventosInterfaz();
-    this.cargarKeywordsPerfil();
-},
-
-enlazarEventosInterfaz() {
-    const container = document.getElementById("panel-perfiles-especiales");
-    if (!container) return;
-    
-    container.querySelectorAll(".portal-card-premium").forEach(card => {
-        card.onclick = () => {
-            container.className = "cinematic-module-container " + card.getAttribute("data-portal") + "-theme";
-            container.querySelectorAll(".portal-card-premium").forEach(c => c.classList.remove("active"));
-            card.classList.add("active");
+        renderizarInterfazEspecial() {
+            const container = document.getElementById("panel-perfiles-especiales");
+            if (!container) return;
             
-            this.perfilSeleccionado = card.getAttribute("data-portal");
-            this.keywordsSeleccionadas = [];
-            this.textoPdfExtraido = "";
+            const lang = window.KERNEL?.idiomaActual || "es";
+            const t = this.TEXTOS[lang];
             
-            const hiddenTxt = document.getElementById("txt-input-especial");
-            if (hiddenTxt) hiddenTxt.value = "";
+            container.innerHTML = `
+                <div class="cinematic-module-container ${this.perfilSeleccionado}-theme">
+                    <h3 style="color:#555; font-size:0.85rem; margin: 0 0 25px 0; text-transform:uppercase; font-weight:900; letter-spacing:2px;">${t.seleccionaPerfil}</h3>
+                    
+                    <div class="portal-flex-list">
+                        <div class="portal-card-premium ${this.perfilSeleccionado === 'veterano' ? 'active' : ''}" data-portal="veterano">
+                            <h4>🎖️ ${t.veterano.replace('🎖️ ', '')}</h4> <span>⚡</span>
+                        </div>
+                        <div class="portal-card-premium ${this.perfilSeleccionado === 'adulto_mayor' ? 'active' : ''}" data-portal="adulto_mayor">
+                            <h4>👵 ${t.adulto_mayor.replace('👵 ', '')}</h4> <span>⚡</span>
+                        </div>
+                        <div class="portal-card-premium ${this.perfilSeleccionado === 'gubernamental' ? 'active' : ''}" data-portal="gubernamental">
+                            <h4>💼 ${t.gubernamental.replace('💼 ', '')}</h4> <span>⚡</span>
+                        </div>
+                    </div>
+                    
+                    <div class="cortina-desplegable-premium open">
+                        <label style="display:block; color: var(--cyan-inhale, #00bcd4); font-weight:900; margin-bottom:15px; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">${t.lblKeywords}</label>
+                        
+                        <!-- CONTENEDOR EXCLUSIVO DE SINTONIZADORES FLOTANTES -->
+                        <div id="box-keywords-flotantes" class="keywords-floating-box"></div>
+                        
+                        <div style="margin-top:25px; display:flex; gap:14px; justify-content:center; align-items:center;">
+                            <button id="btn-mic-especial" class="pill-action-trigger" style="color:#fff; border-color:#333;">🎙️ ${t.btnMicGrabar.replace('🎙️ ', '')}</button>
+                            <label class="pill-action-trigger" style="margin:0;">
+                                📂 Escanear PDF Estructural
+                                <input type="file" id="file-pdf-especial" style="display:none;" accept=".pdf">
+                            </label>
+                        </div>
+                        <input type="hidden" id="txt-input-especial" value="">
+                    </div>
+                    
+                    <button id="btn-procesar-especial" class="action-btn-fatal-premium">${t.btnProcesar}</button>
+                    <button id="btn-reporte-especial" style="width:100%; background:transparent; color:#333; border:none; margin-top:25px; cursor:pointer; font-weight:bold; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">${t.btnReporte}</button>
+                    
+                    <div id="wrapper-reporte-output" class="hidden"></div>
+                </div>
+            `;
             
-            this.ejecutarVozBienvenida();
+            this.enlazarEventosInterfaz();
             this.cargarKeywordsPerfil();
-        };
-    });
+        },
+
  // LECTOR REAL ASÍNCRONO DE DOCUMENTOS POR FLUJO BINARIO (FileReader)
 const fileInput = document.getElementById("file-pdf-especial");
 if (fileInput) {
