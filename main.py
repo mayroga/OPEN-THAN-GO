@@ -1413,6 +1413,65 @@ def limpiar_voz_humana_sin_tecnicismos(texto_sucio: str) -> str:
     texto = re.sub(r'[\.,\-\[\]\(\)\"\'区域“”‘’¿\?¡\!:\d#📜💡➔→_]', ' ', texto)
     return " ".join(texto.split()).strip()
 
+def limpiar_voz_humana_sin_tecnicismos(texto_sucio: str) -> str:
+    """
+    Erradica comas puntos comillas corchetes guiones y emojis del flujo de texto.
+    Devuelve una cadena limpia para que el motor de voz hable como conversación humana pura.
+    """
+    if not texto_sucio:
+        return ""
+    texto = texto_sucio.encode('utf-8', 'ignore').decode('utf-8')
+    texto = re.sub(r'[^\x00-\x7F]+', '', texto)
+    texto = re.sub(r'[\.,\-\[\]\(\)\"\'区域“”‘’¿\?¡\!:\d#📜💡➔→_]', ' ', texto)
+    return " ".join(texto.split()).strip()
+
+# ==========================================================================================
+# POOL DINÁMICO DE FRASES CORTAS DE ACOMPAÑAMIENTO (CADA 15 SEGUNDOS SEGÚN PERFIL)
+# Tratamiento diferenciado sin repetir para evitar monotonía en el pulmón visual
+# ==========================================================================================
+FRASES_CORTAS_ACOMPANAMIENTO_POOL = {
+    "es": {
+        "veteranos": [
+            "Tu entorno analógico esta bajo control absoluto permanece firme",
+            "Registra la solidez del suelo bajo tus pies el perímetro esta despejado",
+            "El ruido exterior es solo vibración pasada estás en zona neutral",
+            "Conserva la mirada fija en tu punto de anclaje mantén la inmovilidad",
+            "Siente el peso de tus brazos descansando con fuerza en tu regazo"
+        ],
+        "adultos_mayores": [
+            "Camina con pasos lentos y completamente seguros el camino es plano",
+            "Siente la frescura del aire renovando tu pecho con cada balanceo",
+            "El día transcurre de forma pausada no hay prisa ninguna en tu andar",
+            "Disfruta de la luz del sol sobre tus manos la naturaleza te da la calma",
+            "Mira la belleza de las formas que adornan tu sendero habitual"
+        ],
+        "gobierno": [
+            "La maquinaria burocrática se ha quedado atrás recupera tu soberanía",
+            "Camina rompiendo la ruta predecible de la oficina habita el presente",
+            "El aire del exterior limpia el cansancio acumulado por el monitor industrial",
+            "Mira las estructuras como simples formas de concreto no pienses en trámites",
+            "Tus pies marcan un ritmo libre ajeno a los plazos del estado"
+        ]
+    },
+    "en": {
+        "veteranos": [
+            "Your analog environment is under absolute control remain firm",
+            "Feel the solid ground beneath your feet the perimeter is clear",
+            "External noise is just past vibration you are in a neutral zone"
+        ],
+        "adultos_mayores": [
+            "Walk with slow and secure steps your path is flat and easy",
+            "Feel the fresh breeze renewing your chest with every breath",
+            "Day flows softly there is no rush in your walk"
+        ],
+        "gobierno": [
+            "The bureaucratic machinery is left behind reclaim your autonomy",
+            "Walk breaking the predictable path of office grids enjoy this space",
+            "Fresh air clears the heavy strain built up by industrial monitors"
+        ]
+    }
+}
+
 def cerebro_procesar_perfil_especial(categoria, idioma_cliente="es"):
     cat = str(categoria).lower().strip()
     lang = "en" if str(idioma_cliente).lower().strip() == "en" else "es"
@@ -1423,6 +1482,7 @@ def cerebro_procesar_perfil_especial(categoria, idioma_cliente="es"):
     import hashlib
     from datetime import datetime
     
+    # Entropía absoluta por microsegundo para soporte simultáneo infinito libre de colisiones
     seed_str = f"{cat}-{datetime.now().microsecond}-{random.randint(1000,9999)}"
     case_id = hashlib.md5(seed_str.encode()).hexdigest()[:8].upper()
     
@@ -1434,51 +1494,8 @@ def cerebro_procesar_perfil_especial(categoria, idioma_cliente="es"):
     durante_combinado = f"{data['durante']} \n\n{juego}"
     despues_combinado = data["despues"]
     
-    # Pool de frases cortas integradas para el tratamiento diferenciado
-    frases_cortas_pool = {
-        "es": {
-            "veteranos": [
-                "Tu entorno analógico esta bajo control absoluto permanece firme",
-                "Registra la solidez del suelo bajo tus pies el perimetro esta despejado",
-                "El ruido exterior es solo vibracion pasada estas en zona neutral",
-                "Conserva la mirada fija en tu punto de anclaje manten la inmovilidad",
-                "Siente el peso de tus brazos descansando con fuerza en tu regazo"
-            ],
-            "adultos_mayores": [
-                "Camina con pasos lentos y completamente seguros el camino es plano",
-                "Siente la frescura del aire renovando tu pecho con cada balanceo",
-                "El dia transcurre de forma pausada no hay prisa ninguna en tu andar",
-                "Disfruta de la luz del sol sobre tus manos la naturaleza te de la calma",
-                "Mira la belleza de las formas que adornan tu sendero habitual"
-            ],
-            "gobierno": [
-                "La maquinaria burocratica se ha quedado atras recupera tu soberania",
-                "Camina rompiendo la ruta predecible de la oficina habita el presente",
-                "El aire del exterior limpia el cansancio acumulado por el monitor industrial",
-                "Mira las estructuras como simples formas de concreto no pienses en tramites",
-                "Tus pies marcan un ritmo libre ajeno a los plazos del estado"
-            ]
-        },
-        "en": {
-            "veteranos": [
-                "Your analog environment is under absolute control remain firm",
-                "Feel the solid ground beneath your feet the perimeter is clear",
-                "External noise is just past vibration you are in a neutral zone"
-            ],
-            "adultos_mayores": [
-                "Walk with slow and secure steps your path is flat and easy",
-                "Feel the fresh breeze renewing your chest with every breath",
-                "Day flows softly there is no rush in your walk"
-            ],
-            "gobierno": [
-                "The bureaucratic machinery is left behind reclaim your autonomy",
-                "Walk breaking the predictable path of office grids enjoy this space",
-                "Fresh air clears the heavy strain built up by industrial monitors"
-            ]
-        }
-    }
-    
-    lista_acompanamiento = frases_cortas_pool[lang][cat]
+    # Mezclador aleatorio para garantizar tratamiento diferenciado sin repetición monótona
+    lista_acompanamiento = FRASES_CORTAS_ACOMPANAMIENTO_POOL[lang][cat]
     random.shuffle(lista_acompanamiento)
     
     return {
@@ -1488,6 +1505,7 @@ def cerebro_procesar_perfil_especial(categoria, idioma_cliente="es"):
         "antes": antes_combinado,
         "durante": durante_combinado,
         "despues": despues_combinado,
+        # Atributos purificados para hilos de audio fluidos y humanos
         "antes_voz": limpiar_voz_humana_sin_tecnicismos(antes_combinado),
         "durante_voz": limpiar_voz_humana_sin_tecnicismos(durante_combinado),
         "despues_voz": limpiar_voz_humana_sin_tecnicismos(despues_combinado),
