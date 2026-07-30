@@ -5,45 +5,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistente de Bienestar Habitual - Perfiles Especiales</title>
     <style>
-        :root { --primary: #0f172a; --secondary: #38bdf8; --bg: #0f172a; --text: #f8fafc; }
-        body { background-color: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .main-form { width: 100%; max-width: 550px; background: #1e293b; padding: 25px; border-radius: 12px; border: 2px solid var(--secondary); box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15); }
-        .field { margin-bottom: 20px; }
-        label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.3px; }
-        select, textarea { width: 100%; background: #0f172a; color: #fff; border: 1px solid #334155; padding: 12px; border-radius: 6px; font-size: 14px; outline: none; box-sizing: border-box; }
-        textarea { height: 90px; resize: vertical; font-family: sans-serif; line-height: 1.4; }
-        .tag-local { background-color: #0f172a; color: #94a3b8; border: 1px solid #334155; padding: 8px 14px; border-radius: 15px; font-size: 12px; cursor: pointer; transition: all 0.2s; user-select: none; display: inline-block; margin-bottom: 5px; }
-        .tag-local.seleccionado { background-color: var(--secondary); color: #0f172a; border-color: var(--secondary); font-weight: bold; }
-        .btn-action { width: 100%; background: var(--secondary); color: #0f172a; border: none; padding: 14px; font-weight: 900; border-radius: 6px; cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-clear { width: 100%; background: #334155; color: #94a3b8; border: none; padding: 14px; font-weight: 900; border-radius: 6px; cursor: pointer; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        /* Cortinas Colapsables estilo Open Than Go */
-        .cortina-btn { width: 100%; background: #0f172a; color: #fff; text-align: left; padding: 12px; border: 1px solid #334155; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .cortina-cuerpo { background: #131f38; border: 1px solid #22314d; padding: 15px; border-radius: 6px; margin-bottom: 15px; display: none; font-size: 14px; line-height: 1.5; color: #e2e8f0; }
-        
-        #otg-esfera-visual { width: 115px; height: 110px; background: rgba(56,189,248,0.08); border: 4px solid var(--secondary); border-radius: 50%; margin: 15px auto; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; color: var(--secondary); transition: all 3.5s ease-in-out; box-shadow: 0 0 15px rgba(56,189,248,0.15); user-select: none; }
-        .btn-media { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 4px; font-size: 11px; font-weight: 900; text-decoration: none; text-transform: uppercase; margin-top: 8px; margin-right: 5px; }
+        :root { 
+            --primary: #0f172a; 
+            --secondary: #38bdf8; 
+            --bg: #0f172a; 
+            --text: #f8fafc; 
+        }
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            font-family: sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+        }
+        .main-form { 
+            width: 100%; 
+            max-width: 550px; 
+            background: #1e293b; 
+            padding: 25px; 
+            border-radius: 12px; 
+            border: 2px solid var(--secondary); 
+            box-shadow: 0 8px 32px rgba(56, 189, 248, 0.15); 
+        }
+        .field { 
+            margin-bottom: 20px; 
+        }
+        label { 
+            display: block; 
+            font-size: 13px; 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            color: #94a3b8; 
+            text-transform: uppercase; 
+            letter-spacing: 0.3px; 
+        }
+        select, textarea { 
+            width: 100%; 
+            background: #0f172a; 
+            color: #fff; 
+            border: 1px solid #334155; 
+            padding: 12px; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            outline: none; 
+            box-sizing: border-box; 
+        }
+        textarea { 
+            height: 100px; 
+            resize: vertical; 
+            font-family: sans-serif; 
+            line-height: 1.4; 
+        }
+        .tag-local { 
+            background-color: #0f172a; 
+            color: #94a3b8; 
+            border: 1px solid #334155; 
+            padding: 8px 14px; 
+            border-radius: 15px; 
+            font-size: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            user-select: none; 
+            display: inline-block; 
+            margin-bottom: 5px; 
+        }
+        .tag-local.seleccionado { 
+            background-color: var(--secondary); 
+            color: #0f172a; 
+            border-color: var(--secondary); 
+            font-weight: bold; 
+        }
+        .btn-action { 
+            width: 100%; 
+            background: var(--secondary); 
+            color: #0f172a; 
+            border: none; 
+            padding: 14px; 
+            font-weight: 900; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 13px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        .btn-clear { 
+            width: 100%; 
+            background: #334155; 
+            color: #94a3b8; 
+            border: none; 
+            padding: 14px; 
+            font-weight: 900; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 13px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+        }
+        #otg-esfera-visual { 
+            width: 110px; 
+            height: 110px; 
+            background: rgba(56, 189, 248, 0.08); 
+            border: 4px solid var(--secondary); 
+            border-radius: 50%; 
+            margin: 20px auto; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            font-size: 13px; 
+            color: var(--secondary); 
+            transition: all 3.5s ease-in-out; 
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.15); 
+            user-select: none; 
+        }
     </style>
 </head>
 <body>
     <div class="main-form">
-        <!-- Encabezado e Interruptor de Idioma -->
+        <!-- Encabezado con Interruptor de Idioma Directo y Botón de Regreso -->
         <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #334155; padding-bottom: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
             <div>
-                <h2 id="otg-txt-titulo-modulo" style="color: var(--secondary); font-size: 18px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Asistente de Bienestar Habitual</h2>
+                <h2 id="otg-txt-titulo-modulo" style="color: var(--secondary); font-size: 19px; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">Asistente de Bienestar Habitual</h2>
                 <p id="otg-txt-subtitulo-modulo" style="color: #94a3b8; font-size: 12px; margin: 4px 0 0 0;">Módulo directo de orientación práctica y misiones.</p>
             </div>
             <div style="display: flex; gap: 6px; align-items: center;">
-                <button type="button" onclick="window.KERNEL_ESPECIAL.cambiarIdioma('es')" id="otg-btn-lang-es" style="background: #38bdf8; color: #0f172a; border: none; padding: 5px 10px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">ESP</button>
-                <button type="button" onclick="window.KERNEL_ESPECIAL.cambiarIdioma('en')" id="otg-btn-lang-en" style="background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 5px 10px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">ENG</button>
+                <button type="button" onclick="KERNEL_ESPECIAL.cambiarIdioma('es')" id="otg-btn-lang-es" style="background: #38bdf8; color: #0f172a; border: none; padding: 5px 10px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">ESP</button>
+                <button type="button" onclick="KERNEL_ESPECIAL.cambiarIdioma('en')" id="otg-btn-lang-en" style="background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 5px 10px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer;">ENG</button>
+                <!-- BOTÓN INTEGRADO DE REGRESO: Vuelve a la aplicación principal Open Than Go -->
                 <a href="/" id="otg-btn-cerrar" style="background: #ef4444; color: white; border: none; padding: 5px 12px; border-radius: 4px; font-weight: bold; font-size: 11px; margin-left: 8px; letter-spacing: 0.5px; text-decoration: none; text-transform: uppercase;">✕ REGRESAR</a>
             </div>
         </div>
-
         <!-- Selección del Perfil -->
         <div class="field">
             <label id="otg-lbl-perfil" for="otg-perfil-select">Selecciona tu Perfil de Atención Especial:</label>
-            <select id="otg-perfil-select" onchange="window.KERNEL_ESPECIAL.traducirInterfaz()">
+            <select id="otg-perfil-select" onchange="KERNEL_ESPECIAL.traducirInterfaz()">
                 <option value="veteranos" id="otg-opt-vet">Veteranos de Guerra</option>
                 <option value="adultos_mayores" id="otg-opt-am">Adultos Mayores / Personas Mayores</option>
                 <option value="gobierno" id="otg-opt-gob">Trabajadores del Gobierno / Oficina</option>
@@ -61,49 +160,71 @@
             <label id="otg-lbl-texto" for="otg-texto-extenso">O copia y pega aquí un texto largo o queja burocrática:</label>
             <textarea id="otg-texto-extenso" placeholder="Puedes pegar correos extensos o escribir libremente lo que pasa en tu mente hoy..."></textarea>
         </div>
-
-        <!-- Grabación de Audio -->
-        <div style="margin-bottom: 20px; text-align: center;">
-            <button type="button" id="btn-microfono" onmousedown="window.KERNEL_ESPECIAL.iniciarGrabacionAudio()" onmouseup="window.KERNEL_ESPECIAL.detenerGrabacionAudio()" ontouchstart="window.KERNEL_ESPECIAL.iniciarGrabacionAudio()" ontouchend="window.KERNEL_ESPECIAL.detenerGrabacionAudio()" style="background-color: #ef4444; color: white; border: none; padding: 12px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; transition: background 0.2s; outline:none;">
-                <span id="icono-mic">🎤</span> <span id="texto-mic">Mantén presionado para hablar (Máx. 1 min)</span>
+        <!-- Botón de Grabación de Audio (Hasta 1 minuto) -->
+        <div style="margin-bottom: 25px; text-align: center;">
+            <button type="button" id="btn-microfono" 
+                    onmousedown="KERNEL_ESPECIAL.iniciarGrabacionAudio()" 
+                    onmouseup="KERNEL_ESPECIAL.detenerGrabacionAudio()" 
+                    ontouchstart="KERNEL_ESPECIAL.iniciarGrabacionAudio()" 
+                    ontouchend="KERNEL_ESPECIAL.detenerGrabacionAudio()" 
+                    style="background-color: #ef4444; color: white; border: none; padding: 12px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; transition: background 0.2s;">
+                <span id="icono-mic">🎤</span> 
+                <span id="texto-mic">Mantén presionado para hablar (Máx. 1 min)</span>
             </button>
         </div>
 
-        <!-- Botones de Acción -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-bottom:20px;">
-            <button type="button" id="otg-btn-activar" onclick="window.KERNEL_ESPECIAL.ejecutarPlan()" class="btn-action">Activar Plan</button>
-            <button type="button" id="otg-btn-borrar" onclick="window.KERNEL_ESPECIAL.limpiarVentanilla()" class="btn-clear">Borrar Todo</button>
+        <!-- Botones de Acción Directos -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 25px;">
+            <button type="button" id="otg-btn-activar" onclick="KERNEL_ESPECIAL.ejecutarPlan()" class="btn-action">Activar Plan</button>
+            <button type="button" id="otg-btn-borrar" onclick="KERNEL_ESPECIAL.limpiarVentanilla()" class="btn-clear">Borrar Todo</button>
         </div>
-
-        <!-- PANEL DE RESPUESTA UNIFICADO (SIN DUPLICACIONES) -->
-        <div id="otg-panel-respuesta" style="display:none; border-top:1px solid #334155; padding-top:20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1e293b; padding:10px 14px; border-radius:6px; border: 1px solid #334155;">
-                <span id="otg-txt-registro" style="font-size:12px; font-weight:bold; color:var(--secondary);">✓ Estrategia Operativa Generada</span>
-                <span id="otg-id-display" style="font-size:11px; color:#94a3b8; font-weight:900; background:#0f172a; padding:3px 8px; border-radius:4px;"></span>
+        <!-- PANEL DE RESPUESTA EN TRES DIMENSIONES -->
+        <div id="otg-panel-respuesta" style="display: none; border-top: 1px solid #334155; padding-top: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #1e293b; padding: 10px 14px; border-radius: 6px; border: 1px solid #334155;">
+                <span id="otg-txt-registro" style="font-size: 13px; font-weight: bold; color: var(--secondary);">✓ Estrategia Operativa Generada</span>
+                <span id="otg-id-display" style="font-size: 12px; color: #94a3b8; font-weight: 900; background: #0f172a; padding: 3px 8px; border-radius: 4px;"></span>
             </div>
 
-            <!-- EJERCICIO RESPIRATORIO DE LA ESFERA ASILADA -->
-            <div style="background:#0f172a; border:1px solid #334155; padding:15px; border-radius:10px; text-align:center; margin-bottom:15px;">
-                <div id="otg-ritmo-titulo" style="font-size:13px; font-weight:bold; color:var(--secondary); margin-bottom:10px;"></div>
+            <!-- EJERCICIO RESPIRATORIO PROPIO (ESPEJO AISLADO) -->
+            <div style="background: #0f172a; border: 1px solid #334155; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
+                <div id="otg-ritmo-titulo" style="font-size: 14px; font-weight: bold; color: var(--secondary); margin-bottom: 12px;"></div>
                 <div id="otg-esfera-visual">
                     <span id="otg-esfera-texto">START</span>
                 </div>
-                <div style="font-size:12px; color:#94a3b8; margin-top:8px;">
+                <div style="font-size: 13px; color: #94a3b8; margin-top: 10px;">
                     <span id="otg-txt-reloj-lbl">⏱️ Tiempo de desconexión obligatoria:</span>
-                    <strong id="otg-reloj-display" style="color:#10b981; font-size:14px; font-family: monospace;">15:00</strong>
+                    <strong id="otg-reloj-display" style="color: #10b981; font-size: 15px; font-family: monospace;">15:00</strong>
                 </div>
             </div>
-
-            <!-- FASE 1: ANTES (VISTA DIRECTA PARA FRENO INMEDIATO) -->
-            <div style="margin-bottom:10px; background:#0f172a; padding:15px; border-radius:8px; border-left:5px solid #ef4444; line-height: 1.5;">
-                <strong id="otg-lbl-f1" style="color:#ef4444; font-size:11px; text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:4px;">Fase 1: Antes del Uso (Freno de Tensión)</strong>
-                <p id="otg-f1-pauta" style="color:#f8fafc; margin:0; font-size:13.5px;"></p>
+            <!-- FASE 1: MODO CASA PROPIO -->
+            <div style="margin-bottom: 15px; background: #0f172a; padding: 15px; border-radius: 8px; border-left: 5px solid #ef4444; line-height: 1.5;">
+                <strong id="otg-lbl-f1" style="color: #ef4444; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 5px;">Fase 1: Antes del Uso (Freno de Tensión)</strong>
+                <p id="otg-f1-pauta" style="color: #f8fafc; margin: 0; font-size: 14px;"></p>
             </div>
 
-            <!-- FASE 2: DURANTE (CORTINA DESPLEGABLE) -->
-            <button type="button" class="cortina-btn" onclick="window.KERNEL_ESPECIAL.conmutarCortina('otg-f2-cuerpo')">
-                <span id="otg-lbl-f2">Fase 2: Durante la Actividad (Misión Práctica) ▼</span>
-            </button>
-            <div id="otg-f2-cuerpo" class="cortina-cuerpo">
-                <p id="otg-f2-pauta" style="margin:0 0 12px 0;"></p>
-                <div style="margin-top:10px; padding-top:5px;">
+            <!-- FASE 2: MODO SALIR PROPIO -->
+            <div style="margin-bottom: 15px; background: #0f172a; padding: 15px; border-radius: 8px; border-left: 5px solid #38bdf8; line-height: 1.5;">
+                <strong id="otg-lbl-f2" style="color: #38bdf8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 5px;">Fase 2: Durante la Actividad (Misión Práctica)</strong>
+                <p id="otg-f2-pauta" style="margin: 0 0 10px 0; color: #f8fafc; font-size: 14px;"></p>
+                <a id="otg-f2-mapa" href="#" target="_blank" style="display: inline-block; background: var(--secondary); color: #0f172a; padding: 8px 14px; border-radius: 4px; font-size: 12px; font-weight: 900; text-decoration: none;">Abrir Ruta de Entorno Seguro en Google Maps</a>
+            </div>
+
+            <!-- FASE 3: DESPUÉS -->
+            <div style="margin-bottom: 20px; background: #0f172a; padding: 15px; border-radius: 8px; border-left: 5px solid #10b981; line-height: 1.5;">
+                <strong id="otg-lbl-f3" style="color: #10b981; font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 5px;">Fase 3: Al Finalizar (Cierre y Descanso)</strong>
+                <p id="otg-f3-pauta" style="color: #f8fafc; margin: 0; font-size: 14px;"></p>
+            </div>
+
+            <!-- CONTENEDOR PARA EL REPORTE DE ORIENTACIÓN PRÁCTICA (NO OFICIAL) -->
+            <div id="otg-contenedor-reporte" style="display: none; background: #1e293b; border: 1px dashed #334155; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <h4 id="otg-reporte-titulo" style="margin: 0 0 8px 0; color: #10b981; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Síntesis de Equilibrio Rutinario</h4>
+                <p id="otg-reporte-cuerpo" style="margin: 0; color: #94a3b8; font-size: 13px; line-height: 1.4;"></p>
+                <span id="otg-reporte-nota" style="display: block; margin-top: 10px; color: #64748b; font-size: 11px; font-style: italic;">*Este reporte no es obligatorio ni oficial; constituye una guía práctica de bienestar habitual.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARGA DEL MOTOR DE CONTROL INDEPENDIENTE DE PERFILES -->
+    <script src="/static/engine_perfiles.js"></script>
+</body>
+</html>
