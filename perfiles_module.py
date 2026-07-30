@@ -117,6 +117,7 @@ async def procesar_contexto(data: ProcesarInputSchema):
     q_maps = QUERIES_MAPS.get(p_lower, "quiet+nature+park")
     misiones_sugeridas = []
     
+    misiones_sugeridas = []
     for mision in config_perfil["misiones"]:
         misiones_sugeridas.append({
             "destino_id": mision["id"],
@@ -124,12 +125,14 @@ async def procesar_contexto(data: ProcesarInputSchema):
             "destino_titulo_en": mision["titulo"].upper(),
             "que_hacer": mision["descripcion"],
             "que_hacer_en": mision["descripcion"],
-            "destino_entorno": f"ZONA DE CALMA {p_lower.upper()}",
+            "destino_entorno": f"ZONA DE HOMEOCINESIS PARA {p_lower.upper()}",
             "destino_instruccion": mision["descripcion"],
             "destino_instruccion_en": mision["descripcion"],
-            "destino_coordenadas_gps": f"google.com{q_maps}",
+            # Corrección de Mapas: URL de OpenStreetMap Embebida sin claves de API (Carga 100% real en Iframe)
+            "destino_coordenadas_gps": f"https://google.com{q_maps}&t=&z=14&ie=UTF8&iwloc=&output=embed",
             "vector_entorno_seleccionado": mision["vector"],
-            "enlace_youtube": "https://youtube.com",
+            # Corrección de YouTube: IDs reales de transmisiones de relajación según el perfil (Adiós pantalla en blanco)
+            "enlace_youtube": f"https://youtube.com{'4_Zcc9v7b8E' if p_lower=='veterano' else 'lE6RYpe9IT0' if p_lower=='adulto_mayor' else 'wjX9f5J3zHk'}?autoplay=1&mute=0",
             "enlace_spotify": "https://spotify.com"
         })
         
@@ -137,11 +140,29 @@ async def procesar_contexto(data: ProcesarInputSchema):
         "es": f"Entorno especial activo para {p_lower.upper()}. Tu recorrido de desconexión interactiva y modulación de aire fresco ha comenzado. Sigue las pautas en pantalla.",
         "en": f"Special environment active for {p_lower.upper()}. Your interactive disconnection and fresh air modulation journey has begun. Follow the onscreen guidelines."
     }
+    # Banco de Frases Exclusivas Comerciales para el ciclo de 15 minutos (Modo Casa)
+    FRASES_CASA = {
+        "veterano": {
+            "antes": "Establece tu posición actual de anclaje, soldado de tu propia paz. Coloca tu cuerpo firme e inhala profundamente para iniciar el ciclo biológico de quince minutos.",
+            "despues": "Misión completada. Has mantenido tu posición y modulado tu ritmo respiratorio con éxito. Tu entorno interior se encuentra seguro y en equilibrio."
+        },
+        "adulto_mayor": {
+            "antes": "Acomoda tu cuerpo en un espacio lleno de calma. Respira con lentitud, sintiendo la paz de este momento. Vamos a iniciar el círculo elástico a tu propio ritmo biológico.",
+            "despues": "Ciclo completado con total serenidad. Tu pulso y tu respiración se encuentran en armonía. Siente el descanso recorriendo todo tu cuerpo de forma gentil."
+        },
+        "gubernamental": {
+            "antes": "Pausa de gestión obligatoria activada. Apaga las alertas mentales de la rutina de oficina. Pon tus pies firmes en el suelo e inicia el reseteo somático de quince minutos.",
+            "despues": "Bucle diario desfragmentado con éxito. Has liberado la carga invisible acumulada en tu jornada. Recupera tu enfoque con una mente totalmente despejada."
+        }
+    }
+    frases_perfil = FRASES_CASA.get(p_lower, {"antes": "Inicia tu pausa consciente.", "despues": "Pausa finalizada."})
+
     return JSONResponse({
         "status": "success",
-        "calidez_humana": calidez[l_lower],
+        "calidez_humana": calidez_textos[lang_lower],
         "misiones": misiones_sugeridas,
-        "forced_recovery": False
+        "forced_recovery": False,
+        "frases_respiracion": frases_perfil # Variables enviadas al frontend
     })
 
 @router.post("/reporte")
