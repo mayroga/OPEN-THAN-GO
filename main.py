@@ -745,9 +745,8 @@ EJERCICIOS_BIENESTAR = {
             "nombre_en": "Calm Wrist Rotation",
             "instruccion": "Extiende tus brazos hacia el frente a la altura del pecho de forma relajada. Cierra tus manos suavemente sin apretar y dibuja cinco círculos pausados en el aire con tus muñecas hacia afuera, y luego cinco hacia adentro. Siente cómo se libera el esfuerzo acumulado.",
             "instruccion_en": "Extend your arms forward at chest height in a relaxed manner. Close your hands gently without squeezing and draw five unhurried circles in the air with your wrists outward, then five inward. Feel the accumulated strain release."
-        }
-    ]
-}
+          }
+    ],
     "GOBIERNO": [
         {
             "id": 821, 
