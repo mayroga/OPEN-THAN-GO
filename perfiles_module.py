@@ -31,22 +31,20 @@ DATA_PERFILES = {
         "es": {
             "keywords": ["ANCLAJE", "TACTICA", "TERRITORIO", "DISCIPLINA", "HONOR", "SILENCIO PROTECTOR", "ENFOQUE", "PROPÓSITO", "FUERZA INTERNA", "PAUSA SERENA"],
             "misiones": [
-                {"id": 901, "titulo": "OPERACIÓN ANCLAJE TERRITORIAL", "descripcion": "Establece tu posición actual de forma consciente. Camina de forma pausada diez pasos firmes sintiendo la solidez del suelo. Eres el guardián de tu propia paz en este rincón seguro.", "vector": {"movimiento": 85, "silencio": 95, "contemplacion": 90}},
-                {"id": 902, "titulo": "ESTRATEGIA DEL VIENTO FRESCO", "descripcion": "Busca un espacio abierto al aire libre o acércate a una ventana amplia. Inhala la frescura del entorno durante cuatro tiempos exactos, sosteniendo tu fortaleza interna.", "vector": {"aire_fresco": 100, "naturaleza": 90, "descanso": 80}}
+                {"id": 901, "titulo": "OPERACIÓN ANCLAJE TERRITORIAL", "descripcion": "Establece tu posición actual de forma consciente. Camina de forma pausada diez pasos firmes sintiendo la solidez del suelo.", "vector": {"movimiento": 85, "silencio": 95, "contemplacion": 90}},
+                {"id": 902, "titulo": "ESTRATEGIA DEL VIENTO FRESCO", "descripcion": "Busca un espacio abierto al aire libre o acércate a una ventana amplia. Inhala la frescura del entorno durante cuatro tiempos exactos.", "vector": {"aire_fresco": 100, "naturaleza": 90, "descanso": 80}}
             ],
             "youtube_id": "4_Zcc9v7b8E"
- }               
         },
-DATA_PERFILES = {
-    "veterano": {
-        "es": {
-            "keywords": ["ANCLAJE", "TACTICA", "TERRITORIO", "DISCIPLINA", "HONOR", "SILENCIO PROTECTOR", "ENFOQUE", "PROPÓSITO", "FUERZA INTERNA", "PAUSA SERENA"],
+        "en": {
+            "keywords": ["ANCHORING", "TACTICS", "TERRITORY", "DISCIPLINE", "HONOR", "PROTECTIVE SILENCE", "FOCUS", "PURPOSE", "INNER STRENGTH", "SERENE PAUSE"],
             "misiones": [
-                {"id": 901, "titulo": "OPERACIÓN ANCLAJE TERRITORIAL", "descripcion": "Establece tu posición actual de forma consciente. Camina de forma pausada diez pasos firmes sintiendo la solidez del suelo. Eres el guardián de tu propia paz en este rincón seguro.", "vector": {"movimiento": 85, "silencio": 95, "contemplacion": 90}},
-                {"id": 902, "titulo": "ESTRATEGIA DEL VIENTO FRESCO", "descripcion": "Busca un espacio abierto al aire libre o acércate a una ventana amplia. Inhala la frescura del entorno durante cuatro tiempos exactos, sosteniendo tu fortaleza interna.", "vector": {"aire_fresco": 100, "naturaleza": 90, "descanso": 80}}
+                {"id": 901, "titulo": "TERRITORIAL ANCHORING OPERATION", "descripcion": "Consciously establish your current position. Walk ten firm steps feeling the solidity of the ground.", "vector": {"movimiento": 85, "silencio": 95, "contemplacion": 90}},
+                {"id": 902, "titulo": "FRESH BREEZE STRATEGY", "descripcion": "Find an open space outdoors or approach a window. Inhale the freshness of the environment for four exact counts.", "vector": {"aire_fresco": 100, "naturaleza": 90, "descanso": 80}}
             ],
             "youtube_id": "4_Zcc9v7b8E"
-        },
+        }
+    },
     "adulto_mayor": {
         "es": {
             "keywords": ["SABIDURÍA", "TRAYECTORIA", "CALMA", "PAZ FAMILIAR", "LEGADO VIVO", "TIEMPO SERENO", "RAÍCES", "BIENESTAR", "GRATITUD PLENA", "ASOMBRO SUTIL"],
