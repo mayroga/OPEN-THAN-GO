@@ -472,14 +472,12 @@
             recorrido: this.recorridoMisiones,
             informacion_compartida: infoCompartida
         };
-        try {
         const res = await fetch("/api/perfiles-especiales/reporte", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
         const data = await res.json();
-        
         wrapperReporte.innerHTML = `
             <div class="reporte-premium-box" style="margin-top:25px; border-top:1px dashed #222; padding-top:20px; text-align:left;">
                 <h2 style="color:var(--cyan-inhale, #00bcd4); font-size:1.1rem; font-weight:900; text-transform:uppercase; margin:0 0 10px 0;">\${data.titulo}</h2>
@@ -493,7 +491,6 @@
                 <span style="font-size:0.65rem; color:#444; display:block; margin-top:15px; text-align:justify; line-height:1.3;">\${data.nota_legal}</span>
             </div>
         `;
-        
         wrapperReporte.classList.remove("hidden");
         if (window.KERNEL?.hablar) {
             window.KERNEL.hablar(lang === 'es' ? "Reporte descriptivo de acompañamiento generado." : "Descriptive report generated.");
@@ -502,7 +499,7 @@
         console.error("Error al compilar reporte:", e);
     }
 }
-};
+}; // <- Cierre formal y único del objeto principal PERFILES_ESPECIALES
 
 function interceptarMesaDeRelojes() {
     if (window.KERNEL && window.KERNEL.iniciarRelojEnfocadoCasa) {
@@ -524,37 +521,17 @@ function interceptarMesaDeRelojes() {
     }
 }
 
-    function acoplarModuloEspecial() {
-        const barra = document.querySelector(".lang-bar");
-        
-        // Si Open Than Go ya dibujó la barra de idiomas, enganchamos el botón de forma inmutable
-        if (barra && !document.getElementById("btn-master-toggle-modulo")) {
-            const containerSwitch = document.createElement("div");
-            containerSwitch.className = "switch-perfiles-container";
-            
-            const btn = document.createElement("button");
-            btn.className = "btn-switch-perfil";
-            btn.id = "btn-master-toggle-modulo";
-            btn.innerText = PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
-            btn.onclick = () => {
-                PERFILES_ESPECIALES.activo = !PERFILES_ESPECIALES.activo;
-                btn.classList.toggle("active", PERFILES_ESPECIALES.activo);
-                btn.innerText = PERFILES_ESPECIALES.activo 
-                    ? PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchNormal 
-                    : PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
-                PERFILES_ESPECIALES.alternarVisibilidadPaneles();
-            };
-            
-            containerSwitch.appendChild(btn);
-            barra.parentNode.insertBefore(containerSwitch, barra);
-            PERFILES_ESPECIALES.init();
-            interceptarMesaDeRelojes();
-            console.log("Módulo Especial acoplado al KERNEL soberano.");
-        } else {
-            setTimeout(acoplarModuloEspecial, 100);
-        }
+function intentarMontarModulo() {
+    const langBar = document.querySelector(".lang-bar");
+    const wrapperForm = document.getElementById("wrapper-form");
+    if (langBar && wrapperForm && window.KERNEL) {
+        PERFILES_ESPECIALES.init();
+        interceptarMesaDeRelojes();
+    } else {
+        setTimeout(intentarMontarModulo, 150);
     }
+}
 
-    acoplarModuloEspecial();
-    window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
+intentarMontarModulo();
+window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
 })();
