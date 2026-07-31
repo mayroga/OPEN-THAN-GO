@@ -54,10 +54,17 @@
             }
         },
         
+    // PASO 2: RECUPERACIÓN DEL COMPORTAMIENTO DE ARRANQUE QUE SÍ FUNCIONABA
     init() {
         this.inyectarEstilosCinematicos();
         this.crearContenedorInterfazEspecial();
-        console.log("Módulo Comercial de Perfiles Especiales inicializado.");
+        
+        // Sincronizamos de inmediato el estado visual del botón físico que está arriba
+        const btnFijo = document.getElementById("btn-session-toggle-modulo");
+        if (btnFijo) {
+            btnFijo.classList.toggle("active", this.activo);
+            console.log("Enlace síncrono con el botón de session.html establecido.");
+        }
     },
 
     conmutarDesdeHtml() {
