@@ -726,20 +726,20 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
         }, true);
     </script>
 
-    <!-- 1. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
-    <script src="/static/engine.js"></script>
-
-    <!-- 2. NUESTRO MÓDULO DE PERFILES ESPECIALES (Cargado inmediatamente después del motor) -->
-    <script src="/static/perfiles.js?v=105"></script>
-
-    <!-- 3. Inicialización unificada del motor de control soberano sin alterar la inercia original -->
-    <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof KERNEL !== 'undefined' && KERNEL.init) {
-                KERNEL.init();
-                console.log("Núcleo KERNEL inicializado de fábrica.");
-            }
-        });
-    </script>
+ <!-- 1. CONTROLADOR LOGICO PRINCIPAL DE TU MOTOR -->
+ <script src="/static/engine.js"></script>
+ 
+ <!-- 2. NUESTRO MÓDULO DE PERFILES ESPECIALES (Cargado inmediatamente después del motor con versión renovada) -->
+ <script src="/static/perfiles.js?v=600"></script>
+ 
+ <!-- 3. Inicialización unificada del motor de control soberano sin alterar la inercia original -->
+ <script>
+ window.addEventListener('DOMContentLoaded', () => {
+ if (typeof KERNEL !== 'undefined' && KERNEL.init) {
+ KERNEL.init();
+ console.log("Núcleo KERNEL inicializado de fábrica.");
+ }
+ });
+ </script>
 </body>
 </html>
