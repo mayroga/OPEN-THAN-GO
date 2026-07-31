@@ -592,59 +592,51 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
         <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1>
     </div>
 
-        <!-- HEADER WITH REAL MOVING CLOUDS -->
-        <div class="header-wrapper">
-            <div class="sky-container">
-                <div class="cloud c1"></div>
-                <div class="cloud c2"></div>
-            </div>
-            <h1 class="dynamic-title" id="txt-app-title">OPEN THAN GO</h1>
+    <!-- GEOLOCATION INPUTS CORRECTED -->
+    <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <div style="flex: 2;">
+            <label id="lbl-zip">Código Postal</label>
+            <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5" pattern="[0-9]{5}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
         </div>
-       
-        <!-- GEOLOCATION INPUTS CORRECTED -->
-        <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <div style="flex: 2;">
-                <label id="lbl-zip">Código Postal</label>
-                <input type="text" id="inp-zip" placeholder="Ej: 33167" maxlength="5" pattern="[0-9]{5}" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
-            </div>
-            <div style="flex: 1;">
-                <label>Modo</label>
-                <select id="modo-selector">
-                    <option value="SALIR" selected>SALIR</option>
-                    <option value="CASA">CASA</option>
-                </select>
-            </div>
+        <div style="flex: 1;">
+            <label>Modo</label>
+            <select id="modo-selector">
+                <option value="SALIR" selected>SALIR</option>
+                <option value="CASA">CASA</option>
+            </select>
         </div>
+    </div>
 
-        <!-- NEW SELECTORS FOR MENTE, BUDGET, PERFIL -->
-        <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <div style="flex: 1;">
-                <label>Mente</label>
-                <select id="mente-selector">
-                    <option value="aburrido" id="opt-mente-aburrido" selected>Aburrido</option>
-                    <option value="agotado" id="opt-mente-agotado">Agotado</option>
-                    <option value="estresado" id="opt-mente-estresado">Estresado</option>
-                    <option value="cansado" id="opt-mente-cansado">Cansado</option>
-                    <option value="ansioso" id="opt-mente-ansioso">Ansioso</option>
-                </select>
-            </div>
-            <div style="flex: 1;">
-                <label>Gasto</label>
-                <select id="budget-selector">
-                    <option value="0" id="opt-budget-0" selected>Gratis</option>
-                    <option value="1" id="opt-budget-1">Bajo</option>
-                    <option value="2" id="opt-budget-2">Abierto</option>
-                </select>
-            </div>
-            <div style="flex: 1;">
-                <label>Perfil</label>
-                <select id="perfil-selector">
-                    <option value="solo" id="opt-perfil-solo" selected>Solo</option>
-                    <option value="familia" id="opt-perfil-familia">Familia</option>
-                    <option value="accesible" id="opt-perfil-accesible">Accesible</option>
-                </select>
-            </div>
+    <!-- NEW SELECTORS FOR MENTE, BUDGET, PERFIL -->
+    <div class="field" style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <div style="flex: 1;">
+            <label>Mente</label>
+            <select id="mente-selector">
+                <option value="aburrido" id="opt-mente-aburrido" selected>Aburrido</option>
+                <option value="agotado" id="opt-mente-agotado">Agotado</option>
+                <option value="estresado" id="opt-mente-estresado">Estresado</option>
+                <option value="cansado" id="opt-mente-cansado">Cansado</option>
+                <option value="ansioso" id="opt-mente-ansioso">Ansioso</option>
+            </select>
         </div>
+        <div style="flex: 1;">
+            <label>Gasto</label>
+            <select id="budget-selector">
+                <option value="0" id="opt-budget-0" selected>Gratis</option>
+                <option value="1" id="opt-budget-1">Bajo</option>
+                <option value="2" id="opt-budget-2">Abierto</option>
+            </select>
+        </div>
+        <div style="flex: 1;">
+            <label>Perfil</label>
+            <select id="perfil-selector">
+                <option value="solo" id="opt-perfil-solo" selected>Solo</option>
+                <option value="familia" id="opt-perfil-familia">Familia</option>
+                <option value="accesible" id="opt-perfil-accesible">Accesible</option>
+            </select>
+        </div>
+    </div>
+
        
         <p id="lbl-oraculo-instruccion" style="font-size: 0.8rem; text-transform: uppercase; color: var(--accent); font-weight: bold; letter-spacing: 1px; text-align: center; margin-bottom: 15px;">¿Qué te tiene atrapado hoy?</p>
        
