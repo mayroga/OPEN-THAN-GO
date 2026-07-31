@@ -538,20 +538,42 @@ PERFILES_ESPECIALES.frasesRespiracionActuales.despues
 setTimeout(interceptarMesaDeRelojes,200);
 }
 }
-function intentarMontarModulo(){
-const langBar =
-document.querySelector(".lang-bar");
-const wrapperForm =
-document.getElementById("wrapper-form");
-if(langBar && wrapperForm && window.KERNEL){
-PERFILES_ESPECIALES.init();
-interceptarMesaDeRelojes();
-}else{
-setTimeout(intentarMontarModulo,150);
-}
-}
+// ==========================================================================================
+// MOTOR DE ACOPLAMIENTO COMERCIAL MEDIANTE OBSERVADOR DE MUTACIONES (Final de perfiles.js)
+// ==========================================================================================
 
-intentarMontarModulo();
-window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
+    function iniciarObservadorDeMontaje() {
+        // Si el botón ya fue inyectado con éxito por seguridad, abortamos el ciclo
+        if (document.getElementById("btn-master-toggle-modulo")) return;
 
-})();    
+        const langBar = document.querySelector(".lang-bar");
+        const wrapperForm = document.getElementById("wrapper-form");
+
+        // En el instante en que Open Than Go crea sus componentes base en el DOM, nos acoplamos
+        if (langBar && wrapperForm && window.KERNEL) {
+            console.log("Ecosistema Open Than Go detectado de forma síncrona. Acoplando interfaz...");
+            PERFILES_ESPECIALES.init();
+            interceptarMesaDeRelojes();
+            return;
+        }
+
+        // Si aún no existen, creamos un observador de alta velocidad que vigila el cuerpo de la app
+        const observador = new MutationObserver((mutaciones, obs) => {
+            const targetBar = document.querySelector(".lang-bar");
+            const targetForm = document.getElementById("wrapper-form");
+
+            if (targetBar && targetForm && window.KERNEL) {
+                console.log("Componentes de Open Than Go detectados dinámicamente. Inyectando botón...");
+                PERFILES_ESPECIALES.init();
+                interceptarMesaDeRelojes();
+                obs.disconnect(); // Apagamos el observador para liberar memoria de hardware
+            }
+        });
+
+        observador.observe(document.body, { childList: true, subtree: true });
+    }
+
+    // Lanzamiento inmediato e independiente de la velocidad del servidor de Render
+    iniciarObservadorDeMontaje();
+    window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
+})();
