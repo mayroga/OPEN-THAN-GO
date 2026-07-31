@@ -14,7 +14,6 @@ import stripe
 from fastapi import FastAPI, Request, HTTPException # HTTPException import fixed
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from perfiles_module import router as perfiles_router
 
 # ==========================================================================================
 # INYECCIÓN CRÍTICA DE CONTROL: PASARELA STRIPE & BYPASS MAESTRO
@@ -36,7 +35,6 @@ PLANES_STRIPE = {
 link_base = "https://www.google.com/maps/search/?api=1&query="
 
 app = FastAPI()
-app.include_router(perfiles_router)
 
 # Ensure the 'static' directory exists before mounting
 if not os.path.exists("static"):
