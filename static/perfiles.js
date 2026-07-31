@@ -192,11 +192,14 @@
     renderizarInterfazEspecial() {
         const container = document.getElementById("panel-perfiles-especiales");
         if (!container) return;
+        
         const lang = window.KERNEL?.idiomaActual || "es";
         const t = this.TEXTOS[lang];
+        
         container.innerHTML = `
             <div class="cinematic-module-container">
                 <h3 style="color:#555; font-size:0.85rem; margin: 0 0 25px 0; text-transform:uppercase; font-weight:900; letter-spacing:2px;">Portal de Estabilidad Somática</h3>
+                
                 <div class="portal-flex-list">
                     <div class="portal-card-premium ${this.perfilSeleccionado === 'veterano' ? 'active' : ''}" data-portal="veterano" style="border-left: 4px solid #4caf50;">
                         <h4>🎖️ Portal Veteranos de Guerra</h4> <span>⚡</span>
@@ -208,6 +211,7 @@
                         <h4>💼 Portal Servidores Públicos</h4> <span>⚡</span>
                     </div>
                 </div>
+                
                 <div class="cortina-desplegable-premium" style="background:#040404; padding:20px; border-radius:14px; border:1px solid #161616; margin: 15px 0;">
                     <label style="display:block; color: #00bcd4; font-weight:900; margin-bottom:15px; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">Sintonizadores Somáticos Interactivos:</label>
                     <div id="box-keywords-flotantes" class="keywords-floating-box"></div>
@@ -220,6 +224,7 @@
                     </div>
                     <input type="hidden" id="txt-input-especial" value="">
                 </div>
+                
                 <button id="btn-procesar-especial" class="action-btn-fatal-premium" style="width:100%; background:linear-gradient(135deg, #4caf50 0%, #1b5e20 100%); color:#fff; padding:18px; font-weight:900; border-radius:12px; border:none; cursor:pointer; text-transform:uppercase;">⚡ Lanzar Desconexión Letal e Inmediata</button>
                 <button id="btn-reporte-especial" style="width:100%; background:transparent; color:#333; border:none; margin-top:25px; cursor:pointer; font-weight:bold; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">📋 Solicitar Reporte Descriptivo</button>
                 <div id="wrapper-reporte-output" class="hidden"></div>
@@ -228,6 +233,7 @@
         this.enlazarEventosInterfaz();
         this.cargarKeywordsPerfil();
     },
+
 
     enlazarEventosInterfaz() {
         const container = document.getElementById("panel-perfiles-especiales");
