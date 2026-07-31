@@ -53,18 +53,38 @@
                 errorProcesar: "The engine requires at least one active tuner."
             }
         },
+        
+    init() {
+        this.inyectarEstilosCinematicos();
+        this.crearContenedorInterfazEspecial();
+        console.log("Módulo Comercial de Perfiles Especiales inicializado.");
+    },
 
-        init() {
-            this.inyectarEstilosCinematicos();
-            this.crearBotonAlternancia();
-            this.crearContenedorInterfazEspecial();
-            console.log("Módulo Comercial de Perfiles Especiales inicializado.");
-        },
+            init() {
+        this.inyectarEstilosCinematicos();
+        this.crearContenedorInterfazEspecial();
+        console.log("Módulo Comercial de Perfiles Especiales inicializado.");
+    },
 
-        inyectarEstilosCinematicos() {
-            if (document.getElementById("styles-perfiles-fatal-premium")) return;
-            let css = document.createElement("style");
-            css.id = "styles-perfiles-fatal-premium";
+    conmutarDesdeHtml() {
+        const btn = document.getElementById("btn-session-toggle-modulo");
+        if (!btn) return;
+        
+        this.activo = !this.activo;
+        btn.classList.toggle("active", this.activo);
+        
+        btn.innerText = this.activo 
+            ? this.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchNormal 
+            : this.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
+            
+        this.alternarVisibilidadPaneles();
+    },
+
+    inyectarEstilosCinematicos() {
+        if (document.getElementById("styles-perfiles-fatal-premium")) return;
+        let css = document.createElement("style");
+        css.id = "styles-perfiles-fatal-premium";
+
             css.textContent = `
                 .switch-perfiles-container { display: flex; justify-content: center; margin: 15px 0; }
                 .btn-switch-perfil { background: #000; color: var(--cyan-inhale, #00bcd4); border: 2px solid #151515; padding: 12px 28px; border-radius: 40px; font-weight: 900; cursor: pointer; transition: all 0.4s cubic-bezier(0.075, 0.82, 0.165, 1); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
