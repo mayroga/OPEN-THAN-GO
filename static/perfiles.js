@@ -272,41 +272,80 @@
             };
         }
 
-        const btnMic = document.getElementById("btn-mic-especial");
-        if (btnMic) btnMic.onclick = () => this.gestionarFlujoMicrofono(btnMic);
-        
-        document.getElementById("btn-procesar-especial").onclick = () => this.ejecutarMandoEspecial();
-        document.getElementById("btn-reporte-especial").onclick = () => this.generarReporteBienestar();
+        const btnMic = document.getElementById("btn-mic-especial"); 
+        if (btnMic) btnMic.onclick = () => this.gestionarFlujoMicrofono(btnMic); 
+        document.getElementById("btn-procesar-especial").onclick = () => this.ejecutarMandoEspecial(); 
+        document.getElementById("btn-reporte-especial").onclick = () => this.generarReporteBienestar(); 
+    }, 
+
+    async cargarKeywordsPerfil() { 
+        const box = document.getElementById("box-keywords-flotantes"); 
+        if (!box) return; 
+        box.innerHTML = ""; 
+        const lang = window.KERNEL?.idiomaActual || "es"; 
+        try { 
+            const res = await fetch("/api/perfiles-especiales/config?perfil=" + this.perfilSeleccionado + "&lang=" + lang); 
+            const data = await res.json(); 
+            if (data.keywords) { 
+                data.keywords.forEach(kw => { 
+                    const b = document.createElement("div"); 
+                    b.className = "badge-keyword-fatal"; 
+                    b.innerText = kw; 
+                    b.onclick = () => { 
+                        b.classList.toggle("selected"); 
+                        if (b.classList.contains("selected")) { 
+                            this.keywordsSeleccionadas.push(kw); 
+                            if (window.KERNEL?.hablar) window.KERNEL.hablar(kw.toLowerCase()); 
+                        } else { 
+                            this.keywordsSeleccionadas = this.keywordsSeleccionadas.filter(k => k !== kw); 
+                        } 
+                    }; 
+                    box.appendChild(b); 
+                }); 
+            } 
+        } catch (e) { 
+            console.error("Error cargando sintonizadores:", e); 
+        } 
     },
 
-    async cargarKeywordsPerfil() {
-        const box = document.getElementById("box-keywords-flotantes");
-        if (!box) return;
-        box.innerHTML = "";
-        const lang = window.KERNEL?.idiomaActual || "es";
-        try {
-            const res = await fetch(`/api/perfiles-especiales/config?perfil=${this.perfilSeleccionado}&lang=${lang}`);
-            const data = await res.json();
-            if (data.keywords) {
-                data.keywords.forEach(kw => {
-                    const b = document.createElement("div");
-                    b.className = "badge-keyword-fatal";
-                    b.innerText = kw;
-                    b.onclick = () => {
-                        b.classList.toggle("selected");
-                        if (b.classList.contains("selected")) {
-                            this.keywordsSeleccionadas.push(kw);
-                            if (window.KERNEL?.hablar) window.KERNEL.hablar(kw.toLowerCase());
-                        } else {
-                            this.keywordsSeleccionadas = this.keywordsSeleccionadas.filter(k => k !== kw);
-                        }
-                    };
-                    box.appendChild(b);
-                });
-            }
-        } catch (e) {
-            console.error("Error cargando sintonizadores:", e);
-        }
+    async generarReporteBienestar() { 
+        const hdnInput = document.getElementById("txt-input-especial"); 
+        const txtInput = hdnInput ? hdnInput.value.trim() : ""; 
+        const wrapperReporte = document.getElementById("wrapper-reporte-output"); 
+        if (!wrapperReporte) return; 
+        const lang = window.KERNEL?.idiomaActual || "es"; 
+        const infoCompartida = [...this.keywordsSeleccionadas]; 
+        if (txtInput) infoCompartida.push("Sintonía acústica por voz."); 
+        if (this.textoPdfExtraido) infoCompartida.push("Mapeo de documento."); 
+        const payload = { 
+            perfil: this.perfilSeleccionado, 
+            lang: lang, 
+            recorrido: this.recorridoMisiones, 
+            informacion_compartida: infoCompartida 
+        }; 
+        try { 
+            const res = await fetch("/api/perfiles-especiales/reporte", { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify(payload) 
+            }); 
+            const data = await res.json(); 
+            wrapperReporte.innerHTML = `
+                <div class="reporte-premium-box" style="margin-top:25px; border-top:1px dashed #222; padding-top:20px; text-align:left;"> 
+                    <h2 style="color:var(--cyan-inhale, #00bcd4); font-size:1.1rem; font-weight:900; text-transform:uppercase; margin:0 0 10px 0;">` + data.titulo + `</h2> 
+                    <p style="font-size:0.85rem; color:#888; line-height:1.4; margin-bottom:15px;">` + data.resumen_descriptivo + `</p> 
+                    <h4 style="color:#fff; margin:0 0 5px 0; font-size:0.9rem; text-transform:uppercase;">Evaluación de Autocuidado Comercial:</h4> 
+                    <p style="font-size:0.85rem; color:#ccc; margin:0; line-height:1.4; text-align:justify;">` + data.observaciones_finales + `</p> 
+                    <span style="font-size:0.65rem; color:#444; display:block; margin-top:15px; text-align:justify; line-height:1.3;">` + data.nota_legal + `</span> 
+                </div>
+            `; 
+            wrapperReporte.classList.remove("hidden"); 
+            if (window.KERNEL?.hablar) { 
+                window.KERNEL.hablar(lang === 'es' ? "Reporte descriptivo de acompañamiento generado." : "Descriptive report generated."); 
+            } 
+        } catch (e) { 
+            console.error("Error al compilar reporte:", e); 
+        } 
     },
 
     gestionarFlujoMicrofono(btn) {
