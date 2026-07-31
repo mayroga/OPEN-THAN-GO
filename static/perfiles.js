@@ -119,64 +119,64 @@
             `;
             document.head.appendChild(css);
         },
-        crearBotonAlternancia() {
-            if (document.getElementById("btn-master-toggle-modulo")) return;
-            const langBar = document.querySelector(".lang-bar");
-            if (!langBar) return;
-            
-            const containerSwitch = document.createElement("div");
-            containerSwitch.className = "switch-perfiles-container";
-            
-            const btn = document.createElement("button");
-            btn.className = "btn-switch-perfil";
-            btn.id = "btn-master-toggle-modulo";
-            btn.innerText = this.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
-            
-            btn.onclick = () => {
-                this.activo = !this.activo;
-                btn.classList.toggle("active", this.activo);
-                btn.innerText = this.activo 
-                    ? this.TEXTOS[window.KERNEL.idiomaActual].switchNormal 
-                    : this.TEXTOS[window.KERNEL.idiomaActual].switchEspecial;
-                
-                this.alternarVisibilidadPaneles();
-            };
-            
-            containerSwitch.appendChild(btn);
-            langBar.parentNode.insertBefore(containerSwitch, langBar.nextSibling);
-        },
+    crearBotonAlternancia() {
+        if (document.getElementById("btn-master-toggle-modulo")) return;
+        const barraIdiomas = document.querySelector(".lang-bar");
+        if (!barraIdiomas) return;
+        
+        const containerSwitch = document.createElement("div");
+        containerSwitch.className = "switch-perfiles-container";
+        
+        const btn = document.createElement("button");
+        btn.className = "btn-switch-perfil";
+        btn.id = "btn-master-toggle-modulo";
+        btn.innerText = this.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
+        
+        btn.onclick = () => {
+            this.activo = !this.activo;
+            btn.classList.toggle("active", this.activo);
+            btn.innerText = this.activo 
+                ? this.TEXTOS[window.KERNEL.idiomaActual].switchNormal 
+                : this.TEXTOS[window.KERNEL.idiomaActual].switchEspecial;
+            this.alternarVisibilidadPaneles();
+        };
+        
+        containerSwitch.appendChild(btn);
+        // Posicionamiento inmutable: se inserta arriba de la barra de idiomas
+        barraIdiomas.parentNode.insertBefore(containerSwitch, barraIdiomas);
+    },
 
-        crearContenedorInterfazEspecial() {
-            if (document.getElementById("panel-perfiles-especiales")) return;
-            const wrapperForm = document.getElementById("wrapper-form");
-            if (!wrapperForm) return;
-            
-            const divEspecial = document.createElement("div");
-            divEspecial.id = "panel-perfiles-especiales";
-            divEspecial.className = "hidden";
-            wrapperForm.parentNode.insertBefore(divEspecial, wrapperForm.nextSibling);
-        },
+    crearContenedorInterfazEspecial() {
+        if (document.getElementById("panel-perfiles-especiales")) return;
+        const wrapperForm = document.getElementById("wrapper-form");
+        if (!wrapperForm) return;
+        
+        const divEspecial = document.createElement("div");
+        divEspecial.id = "panel-perfiles-especiales";
+        divEspecial.className = "hidden";
+        wrapperForm.parentNode.insertBefore(divEspecial, wrapperForm.nextSibling);
+    },
 
-        alternarVisibilidadPaneles() {
-            const wrapperForm = document.getElementById("wrapper-form");
-            const panelEspecial = document.getElementById("panel-perfiles-especiales");
-            const wrapperInteractive = document.getElementById("wrapper-interactive");
-            const pantallaCierre = document.getElementById('pantalla-cierre');
-            
-            if (this.activo) {
-                if (wrapperForm) wrapperForm.classList.add("hidden");
-                if (wrapperInteractive) wrapperInteractive.classList.add("hidden");
-                if (pantallaCierre) pantallaCierre.classList.add("hidden");
-                if (panelEspecial) {
-                    panelEspecial.classList.remove("hidden");
-                    this.renderizarInterfazEspecial();
-                }
-                this.ejecutarVozBienvenida();
-            } else {
-                if (panelEspecial) panelEspecial.classList.add("hidden");
-                if (wrapperForm) wrapperForm.classList.remove("hidden");
+    alternarVisibilidadPaneles() {
+        const wrapperForm = document.getElementById("wrapper-form");
+        const panelEspecial = document.getElementById("panel-perfiles-especiales");
+        const wrapperInteractive = document.getElementById("wrapper-interactive");
+        const pantallaCierre = document.getElementById('pantalla-cierre');
+        
+        if (this.activo) {
+            if (wrapperForm) wrapperForm.classList.add("hidden");
+            if (wrapperInteractive) wrapperInteractive.classList.add("hidden");
+            if (pantallaCierre) pantallaCierre.classList.add("hidden");
+            if (panelEspecial) {
+                panelEspecial.classList.remove("hidden");
+                this.renderizarInterfazEspecial();
             }
-        },
+            this.ejecutarVozBienvenida();
+        } else {
+            if (panelEspecial) panelEspecial.classList.add("hidden");
+            if (wrapperForm) wrapperForm.classList.remove("hidden");
+        }
+    },
 
         ejecutarVozBienvenida() {
             if (!window.KERNEL?.hablar) return;
