@@ -572,16 +572,24 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
     <img src="/static/images/anxious_1_ocean_horizon.jpg" class="hidden" alt="Ocean Horizon">
     <!-- ... and other 23 images for each category, but only showing 5 examples for brevity ... -->
 </head>
-<body>
-    <div id="pantalla-bienvenida">
-        <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button>
-    </div>
-<!-- CÓDIGO CORREGIDO: CONTENEDOR UNIFICADO SIN DUPLICADOS -->
-<div class="container hidden" id="wrapper-form">
-    <div class="lang-bar">
-        <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button>
-        <button class="btn-lang" id="lang-en" onclick="KERNEL.cambiarIdioma('en')">ENG</button>
-    </div>
+<body> 
+    <div id="pantalla-bienvenida"> 
+        <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button> 
+    </div> 
+    
+    <!-- CÓDIGO CORREGIDO: CONTENEDOR UNIFICADO SIN DUPLICADOS --> 
+    <div class="container hidden" id="wrapper-form"> 
+        <!-- BOTÓN INTERRUPTOR INMUTABLE DE ENTORNO COMERCIAL -->
+        <div class="switch-perfiles-container" style="display: flex; justify-content: center; margin-bottom: 15px; width: 100%;">
+            <button class="btn-switch-perfil" id="btn-conmutador-entorno" onclick="if(window.PERFILES_ESPECIALES) window.PERFILES_ESPECIALES.conmutarInterfazNativa();" style="background: #000; color: #00bcd4; border: 2px solid #151515; padding: 12px 28px; border-radius: 40px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; display: block; margin: 0 auto;">
+                ✨ Activar Entorno Especial Adaptado
+            </button>
+        </div>
+
+        <div class="lang-bar"> 
+            <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button> 
+            <button class="btn-lang" id="lang-en" onclick="KERNEL.cambiarIdioma('en')">ENG</button> 
+        </div>
     
     <!-- HEADER WITH REAL MOVING CLOUDS -->
     <div class="header-wrapper">
