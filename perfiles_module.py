@@ -1,17 +1,31 @@
 # ==========================================================================================
-# OPEN THAN GO SYSTEM - Módulo de Perfiles Especiales (Backend Core - Edición Comercial v6.0)
-# Company: May Roga LLC - Version: 6.0.0 - Control de Homeostasis de Alta Velocidad
+# OPEN THAN GO SYSTEM - Módulo de Perfiles Especiales (Backend Core - Clon de Producción)
+# Company: May Roga LLC - Versión: 6.0.0 - Control de Homeostasis de Alta Velocidad
 # Language Restrictions: Strict Preventative/Wellbeing Tone (No Clinical/Medical Terms)
 # ==========================================================================================
+import os
 import re
-from typing import List, Dict, Optional
-from pydantic import BaseModel
+import json
+import random
+import asyncio
+from typing import List, Dict, Optional, Any
+from pydantic import BaseModel, Field
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 
-router = APIRouter(prefix="/api/perfiles-especiales")
+router = APIRouter(prefix="/api/perfiles-especiales", tags=["Special Profiles"])
+class ProcesarInputSchema(BaseModel):
+    perfil: str = Field(..., description="Categoría especial activa")
+    lang: str = Field("es", description="Idioma de la sesión")
+    texto: str = Field("", description="Texto o estímulo acústico")
+    keywords_seleccionadas: List[str] = Field(default_factory=list, description="Sintonizadores marcados")
+    contexto_pdf: Optional[str] = Field("", description="Flujo de documento")
 
-# Matrices de Sintonizadores de Alta Visibilidad y Misiones Contextuales Premium por Perfil
+class ReporteSchema(BaseModel):
+    perfil: str
+    lang: str
+    recorrido: List[str]
+    informacion_compartida: List[str]
 DATA_PERFILES = {
     "veterano": {
         "es": {
@@ -22,15 +36,16 @@ DATA_PERFILES = {
             ],
             "youtube_id": "4_Zcc9v7b8E"
         },
-        "en": {
-            "keywords": ["ANCHORING", "TACTICS", "TERRITORY", "DISCIPLINE", "HONOR", "PROTECTIVE SILENCE", "FOCUS", "PURPOSE", "INNER STRENGTH", "SERENE PAUSE"],
+DATA_PERFILES = {
+    "veterano": {
+        "es": {
+            "keywords": ["ANCLAJE", "TACTICA", "TERRITORIO", "DISCIPLINA", "HONOR", "SILENCIO PROTECTOR", "ENFOQUE", "PROPÓSITO", "FUERZA INTERNA", "PAUSA SERENA"],
             "misiones": [
-                {"id": 901, "titulo": "TERRITORIAL ANCHORING OPERATION", "descripcion": "Consciously establish your current position. Walk ten firm steps feeling the solidity of the ground. You are the guardian of your own peace in this safe space.", "vector": {"movimiento": 85, "silencio": 95, "contemplacion": 90}},
-                {"id": 902, "titulo": "FRESH BREEZE STRATEGY", "descripcion": "Find an open space outdoors or approach a window. Inhale the freshness of the environment for four exact counts, sustaining your inner strength.", "vector": {"aire_fresco": 100, "naturaleza": 90, "descanso": 80}}
+                {"id": 901, "titulo": "OPERACIÓN ANCLAJE TERRITORIAL", "descripcion": "Establece tu posición actual de forma consciente. Camina de forma pausada diez pasos firmes sintiendo la solidez del suelo. Eres el guardián de tu propia paz en este rincón seguro.", "vector": {"movimiento": 85, "silencio": 95, "contemplacion": 90}},
+                {"id": 902, "titulo": "ESTRATEGIA DEL VIENTO FRESCO", "descripcion": "Busca un espacio abierto al aire libre o acércate a una ventana amplia. Inhala la frescura del entorno durante cuatro tiempos exactos, sosteniendo tu fortaleza interna.", "vector": {"aire_fresco": 100, "naturaleza": 90, "descanso": 80}}
             ],
             "youtube_id": "4_Zcc9v7b8E"
-        }
-    },
+        },
     "adulto_mayor": {
         "es": {
             "keywords": ["SABIDURÍA", "TRAYECTORIA", "CALMA", "PAZ FAMILIAR", "LEGADO VIVO", "TIEMPO SERENO", "RAÍCES", "BIENESTAR", "GRATITUD PLENA", "ASOMBRO SUTIL"],
@@ -68,19 +83,6 @@ DATA_PERFILES = {
         }
     }
 }
-
-class ProcesarInputSchema(BaseModel):
-    perfil: str
-    lang: str
-    texto: str
-    keywords_seleccionadas: List[str]
-    contexto_pdf: Optional[str] = ""
-
-class ReporteSchema(BaseModel):
-    perfil: str
-    lang: str
-    recorrido: List[str]
-    informacion_compartida: List[str]
 @router.get("/config")
 async def get_config(perfil: str, lang: str = "es"):
     p_lower = perfil.lower()
@@ -88,7 +90,6 @@ async def get_config(perfil: str, lang: str = "es"):
         raise HTTPException(status_code=404, detail="Perfil no configurado.")
     l_lower = "en" if lang.lower() == "en" else "es"
     return JSONResponse(DATA_PERFILES[p_lower][l_lower])
-
 @router.post("/procesar")
 async def procesar_contexto(data: ProcesarInputSchema):
     p_lower = data.perfil.lower()
@@ -98,14 +99,13 @@ async def procesar_contexto(data: ProcesarInputSchema):
     l_lower = "en" if data.lang.lower() == "en" else "es"
     config_perfil = DATA_PERFILES[p_lower][l_lower]
     
-    # Enrutamiento geográfico enfocado a parajes de naturaleza protectora
+    # Enrutamiento geográfico adaptado para entornos abiertos y protectores
     QUERIES_MAPS = {
         "veterano": "quiet+nature+reserve+park",
         "adulto_mayor": "botanical+garden+walking+paths",
         "gubernamental": "open+scenic+viewpoint+nature"
     }
     q_maps = QUERIES_MAPS.get(p_lower, "quiet+nature+park")
-    
     misiones_sugeridas = []
     for mision in config_perfil["misiones"]:
         misiones_sugeridas.append({
@@ -117,32 +117,29 @@ async def procesar_contexto(data: ProcesarInputSchema):
             "destino_entorno": f"ZONA DE HOMEOCINESIS PARA {p_lower.upper()}",
             "destino_instruccion": mision["descripcion"],
             "destino_instruccion_en": mision["descripcion"],
-            # Enrutamiento nativo limpio en Iframe embebido oficial sin requerir API key
             "destino_coordenadas_gps": f"https://google.com{q_maps}&t=&z=14&ie=UTF8&iwloc=&output=embed",
             "vector_entorno_seleccionado": mision["vector"],
             "enlace_youtube": f"https://youtube.com{config_perfil['youtube_id']}?autoplay=1&mute=0",
             "enlace_spotify": "https://spotify.com"
         })
     
-    # Banco de Frases Exclusivas para interceptar la Mesa de Relojes Doméstica de 15 Minutos (900s)
     FRASES_CASA = {
         "veterano": {
-            "antes": "Establece tu posición actual de anclaje, soldado de tu propia paz. Coloca tu cuerpo firme e inhala profundamente para iniciar el ciclo biológico de quince minutos.",
-            "despues": "Misión completada con éxito. Has mantenido tu posición y modulado tu ritmo respiratorio. Tu entorno interior se encuentra seguro y en equilibrio."
+            "antes": "Establece tu posición actual de anclaje, soldado de tu propia paz. Coloca tu cuerpo firme e inhala profundamente para iniciar el ciclo de quince minutos.",
+            "despues": "Misión completada con éxito. Has mantenido tu posición y modulado tu ritmo respiratorio. Tu entorno interior se encuentra en equilibrio."
         },
         "adulto_mayor": {
-            "antes": "Acomoda tu cuerpo en un espacio lleno de calma. Respira con lentitud, sintiendo la paz de este momento. Vamos a iniciar el círculo elástico a tu propio ritmo biológico.",
-            "despues": "Ciclo completado con total serenidad. Tu pulso y tu respiración se encuentran en armonía. Siente la calidez del descanso recorriendo tu cuerpo de forma gentil."
+            "antes": "Acomoda tu cuerpo en un espacio lleno de calma. Respira con lentitud, sintiendo la paz de este momento. Vamos a iniciar el círculo elástico a tu propio ritmo.",
+            "despues": "Ciclo completado con total serenidad. Tu pulso y tu respiración se encuentran en armonía. Siente la calidez del descanso recorriendo tu cuerpo."
         },
         "gubernamental": {
-            "antes": "Pausa de gestión obligatoria activada. Apaga las alertas mentales de la rutina de oficina. Pon tus pies firmes en el suelo e inicia el reseteo somático de quince minutos.",
+            "antes": "Pausa de gestión obligatoria activada. Apaga las alertas de la rutina de oficina. Pon tus pies firmes en el suelo e inicia el reseteo somático.",
             "despues": "Bucle diario desfragmentado de forma eficiente. Has liberado la carga invisible acumulada en tu jornada. Recupera tu enfoque con una mente despejada."
         }
     }
-    
     calidez = {
-        "es": f"Entorno especial activo para {p_lower.upper()}. Tu recorrido de desconexión interactiva y modulación de aire fresco de 15 minutos ha comenzado. Sigue las pautas en pantalla.",
-        "en": f"Special environment active for {p_lower.upper()}. Your interactive disconnection and fresh air modulation journey has begun. Follow the onscreen guidelines."
+        "es": f"Entorno especial activo para {p_lower.upper()}. Tu recorrido de desconexión interactiva y modulación de aire fresco de 15 minutos ha comenzado.",
+        "en": f"Special environment active for {p_lower.upper()}. Your interactive disconnection and fresh air modulation journey has begun."
     }
     
     return JSONResponse({
@@ -161,7 +158,6 @@ async def generar_reporte_bienestar(data: ReporteSchema):
     perfil_es = {"veterano": "Veteranos de Guerra", "adulto_mayor": "Adultos Mayores", "gubernamental": "Trabajadores Públicos"}.get(p_lower, "Especial")
     perfil_en = {"veterano": "War Veterans", "adulto_mayor": "Senior Citizens", "gubernamental": "Public Servants"}.get(p_lower, "Special")
     
-    # Sanitización de strings informativos del buffer para el resumen
     inputs_limpios = [item for item in data.informacion_compartida if "Variables" not in item and "analizado" not in item]
     sintonizadores_txt = ", ".join(inputs_limpios) if inputs_limpios else "Modulación general activa"
     
