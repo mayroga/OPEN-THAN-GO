@@ -14,14 +14,14 @@
         timerGrabacion: null,
         recorridoMisiones: [],
         recognitionInstance: null,
-        frasesRespiracionActuales: null, // Captura de frases personalizadas de 15 minutos
+        frasesRespiracionActuales: null,
         
         TEXTOS: {
             es: {
                 switchEspecial: "✨ Modo Especial Adaptado",
                 switchNormal: "🛸 Regresar a Open Than Go",
                 seleccionaPerfil: "Selecciona tu Portal de Estabilidad Somática:",
-                veterano: "Portal Veteranos de Guerra",
+                veterano: "Portal Veterans de Guerra",
                 adulto_mayor: "Portal Adultos Mayores",
                 gubernamental: "Portal Servidores Públicos",
                 lblKeywords: "Sintonizadores Somáticos Interactivos (Toca para modular):",
@@ -175,7 +175,6 @@
             const lang = window.KERNEL?.idiomaActual || "es";
             const t = this.TEXTOS[lang];
             
-            // Renderizado estático con inyección de sintonizadores e inputs
             container.innerHTML = `
                 <div class="cinematic-module-container \${this.perfilSeleccionado}-theme">
                     <h3 style="color:#555; font-size:0.85rem; margin: 0 0 25px 0; text-transform:uppercase; font-weight:900; letter-spacing:2px;">\${t.seleccionaPerfil}</h3>
@@ -216,177 +215,197 @@
             this.enlazarEventosInterfaz();
             this.cargarKeywordsPerfil();
         },
-    enlazarEventosInterfaz() {
-        const container = document.getElementById("panel-perfiles-especiales");
-        if (!container) return;
-        
-        container.querySelectorAll(".portal-card-premium").forEach(card => {
-            card.onclick = () => {
-                container.querySelectorAll(".portal-card-premium").forEach(c => c.classList.remove("active"));
-                card.classList.add("active");
-                this.perfilSeleccionado = card.getAttribute("data-portal");
-                this.keywordsSeleccionadas = [];
-                this.textoPdfExtraido = "";
-                const hiddenTxt = document.getElementById("txt-input-especial");
-                if (hiddenTxt) hiddenTxt.value = "";
-                this.ejecutarVozBienvenida();
-                this.renderizarInterfazEspecial();
-            };
-        });
-
-        const fileInput = document.getElementById("file-pdf-especial");
-        if (fileInput) {
-            fileInput.onchange = (e) => {
-                const files = e.target.files;
-                if (!files || files.length === 0) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const buffer = event.target.result;
-                    const chunkStr = new TextDecoder("utf-8").decode(new Uint8Array(buffer).slice(0, 7000));
-                    this.textoPdfExtraido = "Flujo real binario analizado. Variables integradas al motor.";
-                    if (window.KERNEL?.hablar) {
-                        window.KERNEL.hablar(window.KERNEL.idiomaActual === 'es' ? "Documento sincronizado." : "Documento synchronized.");
-                    }
-                    alert(this.TEXTOS[window.KERNEL?.idiomaActual || "es"].alertPdf);
+        enlazarEventosInterfaz() {
+            const container = document.getElementById("panel-perfiles-especiales");
+            if (!container) return;
+            
+            container.querySelectorAll(".portal-card-premium").forEach(card => {
+                card.onclick = () => {
+                    container.querySelectorAll(".portal-card-premium").forEach(c => c.classList.remove("active"));
+                    card.classList.add("active");
+                    this.perfilSeleccionado = card.getAttribute("data-portal");
+                    this.keywordsSeleccionadas = [];
+                    this.textoPdfExtraido = "";
+                    const hiddenTxt = document.getElementById("txt-input-especial");
+                    if (hiddenTxt) hiddenTxt.value = "";
+                    this.ejecutarVozBienvenida();
+                    this.renderizarInterfazEspecial();
                 };
-                reader.readAsArrayBuffer(files[0]);
-            };
-        }
-
-        const btnMic = document.getElementById("btn-mic-especial");
-        if (btnMic) btnMic.onclick = () => this.gestionarFlujoMicrofono(btnMic);
-        
-        document.getElementById("btn-procesar-especial").onclick = () => this.ejecutarMandoEspecial();
-        document.getElementById("btn-reporte-especial").onclick = () => this.generarReporteBienestar();
-    },
-    async cargarKeywordsPerfil() {
-        const box = document.getElementById("box-keywords-flotantes");
-        if (!box) return;
-        box.innerHTML = "";
-        const lang = window.KERNEL?.idiomaActual || "es";
-        try {
-            const res = await fetch(`/api/perfiles-especiales/config?perfil=${this.perfilSeleccionado}&lang=${lang}`);
-            const data = await res.json();
-            if (data.keywords) {
-                data.keywords.forEach(kw => {
-                    const b = document.createElement("div");
-                    b.className = "badge-keyword-fatal";
-                    b.innerText = kw;
-                    b.onclick = () => {
-                        b.classList.toggle("selected");
-                        if (b.classList.contains("selected")) {
-                            this.keywordsSeleccionadas.push(kw);
-                            if (window.KERNEL?.hablar) window.KERNEL.hablar(kw.toLowerCase());
-                        } else {
-                            this.keywordsSeleccionadas = this.keywordsSeleccionadas.filter(k => k !== kw);
-                        }
-                    };
-                    box.appendChild(b);
-                });
-            }
-        } catch (e) {
-            console.error("Error cargando sintonizadores:", e);
-        }
-    },
-
-    gestionarFlujoMicrofono(btn) {
-        const lang = window.KERNEL?.idiomaActual || "es";
-        const t = this.TEXTOS[lang];
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert(t.errorMic);
-            return;
-        }
-        if (!this.grabando) {
-            this.grabando = true;
-            btn.style.background = "#dc2626";
-            btn.style.borderColor = "#dc2626";
-            btn.innerText = t.btnMicDetener;
-            this.recognitionInstance = new SpeechRecognition();
-            this.recognitionInstance.lang = lang === 'es' ? 'es-US' : 'en-US';
-            this.recognitionInstance.interimResults = false;
-            this.recognitionInstance.continuous = true;
-            this.recognitionInstance.onresult = (event) => {
-                const currentIdx = event.resultIndex;
-                const textoVoz = event.results[currentIdx].transcript;
-                const hdnInput = document.getElementById("txt-input-especial");
-                if (hdnInput && textoVoz) {
-                    hdnInput.value = (hdnInput.value + " " + textoVoz).trim();
-                    if (window.KERNEL?.hablar) window.KERNEL.hablar(textoVoz);
-                }
-            };
-            this.recognitionInstance.onerror = () => this.detenerGraboHardware(btn, t);
-            this.recognitionInstance.start();
-            this.timerGrabacion = setTimeout(() => { this.detenerGraboHardware(btn, t); }, 60000);
-        } else {
-            this.detenerGraboHardware(btn, t);
-        }
-    },
-
-    detenerGraboHardware(btn, t) {
-        this.grabando = false;
-        clearTimeout(this.timerGrabacion);
-        btn.style.background = "#0b0b0b";
-        btn.style.borderColor = "#222";
-        btn.innerText = "🎙️ Sintonizar por Voz";
-        if (this.recognitionInstance) this.recognitionInstance.stop();
-    },
-    async ejecutarMandoEspecial() {
-        const hdnInput = document.getElementById("txt-input-especial");
-        const txtInput = hdnInput ? hdnInput.value.trim() : "";
-        const lang = window.KERNEL?.idiomaActual || "es";
-        if (txtInput.length === 0 && this.keywordsSeleccionadas.length === 0 && this.textoPdfExtraido.length === 0) {
-            alert(this.TEXTOS[lang].errorProcesar);
-            return;
-        }
-        const containerInteractive = document.getElementById("wrapper-interactive");
-        const panelPerfiles = document.getElementById("panel-perfiles-especiales");
-        if (panelPerfiles) panelPerfiles.classList.add("hidden");
-        const payload = {
-            perfil: this.perfilSeleccionado,
-            lang: lang,
-            texto: txtInput,
-            keywords_seleccionadas: this.keywordsSeleccionadas,
-            contexto_pdf: this.textoPdfExtraido
-        };
-        try {
-            const res = await fetch("/api/perfiles-especiales/procesar", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
             });
-            const data = await res.json();
-            if (data.status === "success" && window.KERNEL) {
-                window.KERNEL.tipoEscapeGlobal = "ACCION_CAMPO";
-                window.KERNEL.indiceMision = 0;
-                window.KERNEL.pasosMisiones = data.misiones || [];
-                window.KERNEL.mensajeCalidezHumanaActual = data.calidez_humana;
-                this.frasesRespiracionActuales = data.frases_respiracion;
-                if (data.misiones && data.misiones.length > 0) {
-                    this.recorridoMisiones.push(data.misiones.destino_titulo);
+
+            const fileInput = document.getElementById("file-pdf-especial");
+            if (fileInput) {
+                fileInput.onchange = (e) => {
+                    const files = e.target.files;
+                    if (!files || files.length === 0) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const buffer = event.target.result;
+                        const chunkStr = new TextDecoder("utf-8").decode(new Uint8Array(buffer).slice(0, 7000));
+                        this.textoPdfExtraido = "Flujo real binario analizado. Variables integradas al motor.";
+                        
+                        if (window.KERNEL?.hablar) {
+                            window.KERNEL.hablar(window.KERNEL.idiomaActual === 'es' ? "Documento sincronizado." : "Documento synchronized.");
+                        }
+                        alert(this.TEXTOS[window.KERNEL?.idiomaActual || "es"].alertPdf);
+                    };
+                    reader.readAsArrayBuffer(files);
+                };
+            }
+
+            const btnMic = document.getElementById("btn-mic-especial");
+            if (btnMic) btnMic.onclick = () => this.gestionarFlujoMicrofono(btnMic);
+            
+            document.getElementById("btn-procesar-especial").onclick = () => this.ejecutarMandoEspecial();
+            document.getElementById("btn-reporte-especial").onclick = () => this.generarReporteBienestar();
+        },
+
+        async cargarKeywordsPerfil() {
+            const box = document.getElementById("box-keywords-flotantes");
+            if (!box) return;
+            box.innerHTML = "";
+            
+            const lang = window.KERNEL?.idiomaActual || "es";
+            try {
+                const res = await fetch(`/api/perfiles-especiales/config?perfil=\${this.perfilSeleccionado}&lang=\${lang}`);
+                const data = await res.json();
+                
+                if (data.keywords) {
+                    data.keywords.forEach(kw => {
+                        const b = document.createElement("div");
+                        b.className = "badge-keyword-fatal";
+                        b.innerText = kw;
+                        b.onclick = () => {
+                            b.classList.toggle("selected");
+                            if (b.classList.contains("selected")) {
+                                this.keywordsSeleccionadas.push(kw);
+                                if (window.KERNEL?.hablar) window.KERNEL.hablar(kw.toLowerCase());
+                            } else {
+                                this.keywordsSeleccionadas = this.keywordsSeleccionadas.filter(k => k !== kw);
+                            }
+                        };
+                        box.appendChild(b);
+                    });
                 }
-                if (window.KERNEL.hablar) window.KERNEL.hablar(data.calidez_humana);
-                if (window.KERNEL.mostrarOpcionesSalir) {
-                    containerInteractive.classList.remove("hidden");
-                    window.KERNEL.mostrarOpcionesSalir(containerInteractive);
-                    const linkMaps = containerInteractive.querySelector("a[href*='maps']");
-                    if (linkMaps && data.misiones) {
-                        const iframeMaps = document.createElement("iframe");
-                        iframeMaps.style = "width:100%; height:320px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
-                        iframeMaps.src = data.misiones.destino_coordenadas_gps;
-                        linkMaps.parentNode.insertBefore(iframeMaps, linkMaps.nextSibling);
-                        linkMaps.style.display = "none";
+            } catch (e) {
+                console.error("Error cargando sintonizadores:", e);
+            }
+        },
+
+        gestionarFlujoMicrofono(btn) {
+            const lang = window.KERNEL?.idiomaActual || "es";
+            const t = this.TEXTOS[lang];
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert(t.errorMic);
+                return;
+            }
+            
+            if (!this.grabando) {
+                this.grabando = true;
+                btn.style.background = "#dc2626";
+                btn.style.borderColor = "#dc2626";
+                btn.innerText = t.btnMicDetener;
+                
+                this.recognitionInstance = new SpeechRecognition();
+                this.recognitionInstance.lang = lang === 'es' ? 'es-US' : 'en-US';
+                this.recognitionInstance.interimResults = false;
+                this.recognitionInstance.continuous = true;
+                
+                this.recognitionInstance.onresult = (event) => {
+                    const currentIdx = event.resultIndex;
+                    const textoVoz = event.results[currentIdx].transcript;
+                    const hdnInput = document.getElementById("txt-input-especial");
+                    if (hdnInput && textoVoz) {
+                        hdnInput.value = (hdnInput.value + " " + textoVoz).trim();
+                        if (window.KERNEL?.hablar) window.KERNEL.hablar(textoVoz);
                     }
-                    const linkYT = containerInteractive.querySelector("a[href*='youtube']");
-                    if (linkYT && data.misiones) {
-                        const iframeYT = document.createElement("iframe");
-                        iframeYT.style = "width:100%; height:240px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
-                        iframeYT.src = data.misiones.enlace_youtube;
-                        iframeYT.allow = "autoplay; encrypted-media";
-                        linkYT.parentNode.insertBefore(iframeYT, linkYT.nextSibling);
-                        linkYT.style.display = "none";
+                };
+                
+                this.recognitionInstance.onerror = () => this.detenerGraboHardware(btn, t);
+                this.recognitionInstance.start();
+                this.timerGrabacion = setTimeout(() => { this.detenerGraboHardware(btn, t); }, 60000);
+            } else {
+                this.detenerGraboHardware(btn, t);
+            }
+        },
+
+        detenerGraboHardware(btn, t) {
+            this.grabando = false;
+            clearTimeout(this.timerGrabacion);
+            btn.style.background = "#0b0b0b";
+            btn.style.borderColor = "#222";
+            btn.innerText = "🎙️ Sintonizar por Voz";
+            if (this.recognitionInstance) this.recognitionInstance.stop();
+        },
+
+        async ejecutarMandoEspecial() {
+            const hdnInput = document.getElementById("txt-input-especial");
+            const txtInput = hdnInput ? hdnInput.value.trim() : "";
+            const lang = window.KERNEL?.idiomaActual || "es";
+            
+            if (txtInput.length === 0 && this.keywordsSeleccionadas.length === 0 && this.textoPdfExtraido.length === 0) {
+                alert(this.TEXTOS[lang].errorProcesar);
+                return;
+            }
+            
+            const containerInteractive = document.getElementById("wrapper-interactive");
+            const panelPerfiles = document.getElementById("panel-perfiles-especiales");
+            if (panelPerfiles) panelPerfiles.classList.add("hidden");
+            
+            const payload = {
+                perfil: this.perfilSeleccionado,
+                lang: lang,
+                texto: txtInput,
+                keywords_seleccionadas: this.keywordsSeleccionadas,
+                contexto_pdf: this.textoPdfExtraido
+            };
+            
+            try {
+                const res = await fetch("/api/perfiles-especiales/procesar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                
+                if (data.status === "success" && window.KERNEL) {
+                    window.KERNEL.tipoEscapeGlobal = "ACCION_CAMPO";
+                    window.KERNEL.indiceMision = 0;
+                    window.KERNEL.pasosMisiones = data.misiones || [];
+                    window.KERNEL.mensajeCalidezHumanaActual = data.calidez_humana;
+                    this.frasesRespiracionActuales = data.frases_respiracion;
+                    
+                    if (data.misiones && data.misiones.length > 0) {
+                        this.recorridoMisiones.push(data.misiones[0].destino_titulo);
                     }
-                }
+                    
+                    if (window.KERNEL.hablar) window.KERNEL.hablar(data.calidez_humana);
+                    if (window.KERNEL.mostrarOpcionesSalir) {
+                        containerInteractive.classList.remove("hidden");
+                        window.KERNEL.mostrarOpcionesSalir(containerInteractive);
+                        
+                        const linkMaps = containerInteractive.querySelector("a[href*='maps']");
+                        if (linkMaps && data.misiones && data.misiones[0]) {
+                            const iframeMaps = document.createElement("iframe");
+                            iframeMaps.style = "width:100%; height:320px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
+                            iframeMaps.src = data.misiones[0].destino_coordenadas_gps;
+                            linkMaps.parentNode.insertBefore(iframeMaps, linkMaps.nextSibling);
+                            linkMaps.style.display = "none";
+                        }
+                        
+                        const linkYT = containerInteractive.querySelector("a[href*='youtube']");
+                        if (linkYT && data.misiones && data.misiones[0]) {
+                            const iframeYT = document.createElement("iframe");
+                            iframeYT.style = "width:100%; height:240px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
+                            iframeYT.src = data.misiones[0].enlace_youtube;
+                            iframeYT.allow = "autoplay; encrypted-media";
+                            linkYT.parentNode.insertBefore(iframeYT, linkYT.nextSibling);
+                            linkYT.style.display = "none";
+                        }
+                    }
                 const btnVolver = document.getElementById("btn-volver-app");
                 if (btnVolver) btnVolver.classList.remove("hidden");
             }
@@ -396,7 +415,6 @@
             this.alternarVisibilidadPaneles();
         }
     },
-
     async generarReporteBienestar() {
         const hdnInput = document.getElementById("txt-input-especial");
         const txtInput = hdnInput ? hdnInput.value.trim() : "";
@@ -425,7 +443,7 @@
                     <p style="font-size:0.85rem; color:#888; line-height:1.4; margin-bottom:15px;">\${data.resumen_descriptivo}</p>
                     <h4 style="color:#fff; margin:0 0 5px 0; font-size:0.9rem; text-transform:uppercase;">Recorrido Concluido:</h4>
                     <ul style="padding-left:15px; margin:0 0 15px 0; font-size:0.85rem; color:#ccc;">
-                        \${data.recorrido_realizado.map(r => \`<li>\${r}</li>\`).join('')}
+                        \${data.recorrido_realizado.map(r => `<li>\${r}</li>`).join('')}
                     </ul>
                     <h4 style="color:#fff; margin:0 0 5px 0; font-size:0.9rem; text-transform:uppercase;">Evaluación de Autocuidado Comercial:</h4>
                     <p style="font-size:0.85rem; color:#ccc; margin:0; line-height:1.4; text-align:justify;">\${data.observaciones_finales}</p>
@@ -486,4 +504,3 @@ function iniciarObservadorDeMontaje() {
 iniciarObservadorDeMontaje();
 window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
 })();
-            
