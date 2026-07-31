@@ -501,24 +501,40 @@ function interceptarMesaDeRelojes() {
     }
 }
 
-// ==========================================================================================
-// AQUÍ VA EL BLOQUE NUEVO (EL FINAL ABSOLUTO DEL ARCHIVO)
-// ==========================================================================================
-function conectarBotonHtmlFijo() {
-    window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
-    
-    if (window.KERNEL && window.KERNEL.init) {
-        const originalInit = window.KERNEL.init;
-        window.KERNEL.init = function() {
-            originalInit.call(window.KERNEL);
+    function forzarMontajeBotonArriba() {
+        // 1. Buscamos el contenedor nativo donde se encuentra la barra de idiomas original
+        const barraIdiomas = document.querySelector(".lang-bar");
+        
+        // 2. Si ya existe en el árbol HTML y no hemos duplicado el botón, lo inyectamos de forma nativa arriba
+        if (barraIdiomas && !document.getElementById("btn-master-toggle-modulo")) {
+            const btn = document.createElement("button");
+            btn.className = "btn-switch-perfil";
+            btn.id = "btn-master-toggle-modulo";
+            btn.style = "background: #000; color: #00bcd4; border: 2px solid #151515; padding: 12px 28px; border-radius: 40px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin: 15px auto; display: block;";
+            btn.innerText = PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
+            
+            // Enlace de clics directo al motor del módulo para conmutar las cortinas
+            btn.onclick = () => {
+                PERFILES_ESPECIALES.activo = !PERFILES_ESPECIALES.activo;
+                btn.classList.toggle("active", PERFILES_ESPECIALES.activo);
+                btn.innerText = PERFILES_ESPECIALES.activo 
+                    ? PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchNormal 
+                    : PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
+                PERFILES_ESPECIALES.alternarVisibilidadPaneles();
+            };
+            
+            // Lo colocamos exactamente arriba de la barra de idiomas sin romper el diseño de Open Than Go
+            barraIdiomas.parentNode.insertBefore(btn, barraIdiomas);
             PERFILES_ESPECIALES.init();
             interceptarMesaDeRelojes();
-        };
-        console.log("Módulo Especial enlazado de forma inmutable al núcleo de Open Than Go.");
-    } else {
-        setTimeout(conectarBotonHtmlFijo, 50);
+            console.log("Botón Maestro inyectado arriba de forma inmutable.");
+        } else {
+            // Reintentos continuos para acoplarse de forma transparente al ciclo asíncrono de KERNEL.init
+            setTimeout(forzarMontajeBotonArriba, 100);
+        }
     }
-}
 
-conectarBotonHtmlFijo();
-})(); // <- Este paréntesis y llave cierran la función autoejecutable inicial del archivo
+    // Arranque inmediato por hardware
+    forzarMontajeBotonArriba();
+    window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
+})();
