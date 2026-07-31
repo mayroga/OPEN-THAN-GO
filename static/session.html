@@ -576,7 +576,13 @@ h1.dynamic-title { font-size: 1.4rem; letter-spacing: 0.3em; font-weight: 900; m
     <div id="pantalla-bienvenida">
         <button class="btn-bienvenida" onclick="KERNEL.despertarInicial();">INICIAR SESIÓN / START</button>
     </div>
-   
+   <!-- BOTÓN MAESTRO DE ACCESO DIRECTO FIJO (INVASIÓN CERO EN HTML) -->
+<div class="switch-perfiles-container" style="display: flex; justify-content: center; margin: 15px 0;">
+    <button class="btn-switch-perfil" id="btn-session-toggle-modulo" onclick="if(window.PERFILES_ESPECIALES) window.PERFILES_ESPECIALES.conmutarDesdeHtml();" style="background: #000; color: #00bcd4; border: 2px solid #151515; padding: 12px 28px; border-radius: 40px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;">
+        ✨ Modo Especial Adaptado
+    </button>
+</div>
+
     <div class="container hidden" id="wrapper-form">
         <div class="lang-bar">
             <button class="btn-lang active" id="lang-es" onclick="KERNEL.cambiarIdioma('es')">ESP</button>
