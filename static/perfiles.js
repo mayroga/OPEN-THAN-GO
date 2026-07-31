@@ -60,12 +60,6 @@
         console.log("Módulo Comercial de Perfiles Especiales inicializado.");
     },
 
-            init() {
-        this.inyectarEstilosCinematicos();
-        this.crearContenedorInterfazEspecial();
-        console.log("Módulo Comercial de Perfiles Especiales inicializado.");
-    },
-
     conmutarDesdeHtml() {
         const btn = document.getElementById("btn-session-toggle-modulo");
         if (!btn) return;
