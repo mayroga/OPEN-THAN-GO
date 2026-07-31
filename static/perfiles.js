@@ -163,30 +163,30 @@
         const t = this.TEXTOS[lang];
         
         container.innerHTML = `
-            <div class="cinematic-module-container ${this.perfilSeleccionado}-theme">
-                <h3 style="color:#555; font-size:0.85rem; margin: 0 0 25px 0; text-transform:uppercase; font-weight:900; letter-spacing:2px;">${t.seleccionaPerfil}</h3>
+            <div class="cinematic-module-container">
+                <h3 style="color:#555; font-size:0.85rem; margin: 0 0 25px 0; text-transform:uppercase; font-weight:900; letter-spacing:2px;">Portal de Estabilidad Somática</h3>
                 
                 <div class="portal-flex-list">
-                    <div class="portal-card-premium ${this.perfilSeleccionado === 'veterano' ? 'active' : ''}" data-portal="veterano">
-                        <h4>🎖️ ${t.veterano}</h4> <span>⚡</span>
+                    <div class="portal-card-premium ${this.perfilSeleccionado === 'veterano' ? 'active' : ''}" data-portal="veterano" style="border-left: 4px solid #4caf50;">
+                        <h4>🎖️ Portal Veteranos de Guerra</h4> <span>⚡</span>
                     </div>
-                    <div class="portal-card-premium ${this.perfilSeleccionado === 'adulto_mayor' ? 'active' : ''}" data-portal="adulto_mayor">
-                        <h4>👵 ${t.adulto_mayor}</h4> <span>⚡</span>
+                    <div class="portal-card-premium ${this.perfilSeleccionado === 'adulto_mayor' ? 'active' : ''}" data-portal="adulto_mayor" style="border-left: 4px solid #00bcd4;">
+                        <h4>👵 Portal Adultos Mayores</h4> <span>⚡</span>
                     </div>
-                    <div class="portal-card-premium ${this.perfilSeleccionado === 'gubernamental' ? 'active' : ''}" data-portal="gubernamental">
-                        <h4>💼 ${t.gubernamental}</h4> <span>⚡</span>
+                    <div class="portal-card-premium ${this.perfilSeleccionado === 'gubernamental' ? 'active' : ''}" data-portal="gubernamental" style="border-left: 4px solid #3f51b5;">
+                        <h4>💼 Portal Servidores Públicos</h4> <span>⚡</span>
                     </div>
                 </div>
                 
-                <div class="cortina-desplegable-premium">
-                    <label style="display:block; color: var(--cyan-inhale, #00bcd4); font-weight:900; margin-bottom:15px; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">${t.lblKeywords}</label>
+                <div class="cortina-desplegable-premium" style="background:#040404; padding:20px; border-radius:14px; border:1px solid #161616; margin: 15px 0;">
+                    <label style="display:block; color: #00bcd4; font-weight:900; margin-bottom:15px; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">Sintonizadores Somáticos Interactivos:</label>
                     
-                    <!-- Inyección crítica del contenedor de palabras flotantes -->
+                    <!-- Contenedor inmutable donde la API inyecta las burbujas flotantes -->
                     <div id="box-keywords-flotantes" class="keywords-floating-box"></div>
                     
                     <div style="margin-top:25px; display:flex; gap:14px; justify-content:center; align-items:center;">
-                        <button id="btn-mic-especial" class="pill-action-trigger" style="color:#fff; border-color:#333;">🎙️ ${t.btnMicGrabar}</button>
-                        <label class="pill-action-trigger" style="margin:0;">
+                        <button id="btn-mic-especial" class="pill-action-trigger" style="color:#fff; background:#0b0b0b; border:1px solid #222; padding:10px 20px; border-radius:40px; cursor:pointer;">🎙️ Sintonizar por Voz</button>
+                        <label class="pill-action-trigger" style="margin:0; background:#0b0b0b; border:1px solid #222; padding:10px 20px; border-radius:40px; cursor:pointer; color:#999;">
                             📂 Escanear PDF Estructural
                             <input type="file" id="file-pdf-especial" style="display:none;" accept=".pdf">
                         </label>
@@ -194,8 +194,8 @@
                     <input type="hidden" id="txt-input-especial" value="">
                 </div>
                 
-                <button id="btn-procesar-especial" class="action-btn-fatal-premium">${t.btnProcesar}</button>
-                <button id="btn-reporte-especial" style="width:100%; background:transparent; color:#333; border:none; margin-top:25px; cursor:pointer; font-weight:bold; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">${t.btnReporte}</button>
+                <button id="btn-procesar-especial" class="action-btn-fatal-premium" style="width:100%; background:linear-gradient(135deg, #4caf50 0%, #1b5e20 100%); color:#fff; padding:18px; font-weight:900; border-radius:12px; border:none; cursor:pointer; text-transform:uppercase;">⚡ Lanzar Desconexión Letal e Inmediata</button>
+                <button id="btn-reporte-especial" style="width:100%; background:transparent; color:#333; border:none; margin-top:25px; cursor:pointer; font-weight:bold; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">📋 Solicitar Reporte Descriptivo</button>
                 
                 <div id="wrapper-reporte-output" class="hidden"></div>
             </div>
