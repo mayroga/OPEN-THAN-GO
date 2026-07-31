@@ -233,62 +233,67 @@
         const lang = window.KERNEL?.idiomaActual || "es";
         try {
             const res = await fetch("/api/perfiles-especiales/config?perfil=" + this.perfilSeleccionado + "&lang=" + lang);
-            const data = await res.json();
-            if (data.keywords) {
-                data.keywords.forEach(kw => {
-                    const b = document.createElement("div");
-                    b.className = "badge-keyword-fatal";
-                    b.innerText = kw;
-                    b.onclick = () => {
-                        b.classList.toggle("selected");
-                        if (b.classList.contains("selected")) {
-                            this.keywordsSeleccionadas.push(kw);
-                            if (window.KERNEL?.hablar) window.KERNEL.hablar(kw.toLowerCase());
-                        } else {
-                            this.keywordsSeleccionadas = this.keywordsSeleccionadas.filter(k => k !== kw);
-                        }
-                    };
-                    box.appendChild(b);
-                });
-            }
-        } catch (e) {
-            console.error("Error cargando sintonizadores:", e);
+        const data = await res.json();
+        if (data.keywords) {
+            data.keywords.forEach(kw => {
+                const b = document.createElement("div");
+                b.className = "badge-keyword-fatal";
+                b.innerText = kw;
+                b.onclick = () => {
+                    b.classList.toggle("selected");
+                    if (b.classList.contains("selected")) {
+                        this.keywordsSeleccionadas.push(kw);
+                        if (window.KERNEL?.hablar) window.KERNEL.hablar(kw.toLowerCase());
+                    } else {
+                        this.keywordsSeleccionadas = this.keywordsSeleccionadas.filter(k => k !== kw);
+                    }
+                };
+                box.appendChild(b);
+            });
         }
-    },
+    } catch (e) {
+        console.error("Error cargando sintonizadores:", e);
+    }
+},
 
-    gestionarFlujoMicrofono(btn) {
-        const lang = window.KERNEL?.idiomaActual || "es";
-        const t = this.TEXTOS[lang];
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert(t.errorMic);
-            return;
-        }
-        if (!this.grabando) {
-            this.grabando = true;
-            btn.style.background = "#dc2626";
-            btn.style.borderColor = "#dc2626";
-            btn.innerText = t.btnMicDetener;
-            this.recognitionInstance = new SpeechRecognition();
-            this.recognitionInstance.lang = lang === 'es' ? 'es-US' : 'en-US';
-            this.recognitionInstance.interimResults = false;
-            this.recognitionInstance.continuous = true;
-            this.recognitionInstance.onresult = (event) => {
-                const currentIdx = event.resultIndex;
-                const textoVoz = event.results[currentIdx].transcript;
-                const hdnInput = document.getElementById("txt-input-especial");
-                if (hdnInput && textoVoz) {
-                    hdnInput.value = (hdnInput.value + " " + textoVoz).trim();
-                    if (window.KERNEL?.hablar) window.KERNEL.hablar(textoVoz);
-                }
-            };
-            this.recognitionInstance.onerror = () => this.detenerGraboHardware(btn, t);
-            this.recognitionInstance.start();
-            this.timerGrabacion = setTimeout(() => { this.detenerGraboHardware(btn, t); }, 60000);
-        } else {
-            this.detenerGraboHardware(btn, t);
-        }
-    },
+gestionarFlujoMicrofono(btn) {
+    const lang = window.KERNEL?.idiomaActual || "es";
+    const t = this.TEXTOS[lang];
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+        alert(t.errorMic);
+        return;
+    }
+    
+    if (!this.grabando) {
+        this.grabando = true;
+        btn.style.background = "#dc2626";
+        btn.style.borderColor = "#dc2626";
+        btn.innerText = t.btnMicDetener;
+        
+        this.recognitionInstance = new SpeechRecognition();
+        this.recognitionInstance.lang = lang === 'es' ? 'es-US' : 'en-US';
+        this.recognitionInstance.interimResults = false;
+        this.recognitionInstance.continuous = true;
+        
+        this.recognitionInstance.onresult = (event) => {
+            const currentIdx = event.resultIndex;
+            const textoVoz = event.results[currentIdx].transcript;
+            const hdnInput = document.getElementById("txt-input-especial");
+            if (hdnInput && textoVoz) {
+                hdnInput.value = (hdnInput.value + " " + textoVoz).trim();
+                if (window.KERNEL?.hablar) window.KERNEL.hablar(textoVoz);
+            }
+        };
+        
+        this.recognitionInstance.onerror = () => this.detenerGraboHardware(btn, t);
+        this.recognitionInstance.start();
+        this.timerGrabacion = setTimeout(() => { this.detenerGraboHardware(btn, t); }, 60000);
+    } else {
+        this.detenerGraboHardware(btn, t);
+    }
+},
 
     detenerGraboHardware(btn, t) {
         this.grabando = false;
