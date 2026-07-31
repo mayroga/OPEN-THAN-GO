@@ -322,69 +322,65 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
-            const data = await res.json();
-            if (data.status === "success" && window.KERNEL) {
-                window.KERNEL.tipoEscapeGlobal = "ACCION_CAMPO";
-                window.KERNEL.indiceMision = 0;
-                window.KERNEL.pasosMisiones = data.misiones || [];
-                window.KERNEL.mensajeCalidezHumanaActual = data.calidez_humana;
-                this.frasesRespiracionActuales = data.frases_respiracion;
-                if (data.misiones && data.misiones.length > 0) {
-                    this.recorridoMisiones.push(data.misiones[0].destino_titulo);
-                }
-                if (window.KERNEL.hablar) window.KERNEL.hablar(data.calidez_humana);
-                if (window.KERNEL.mostrarOpcionesSalir) {
-                    containerInteractive.classList.remove("hidden");
-                    window.KERNEL.mostrarOpcionesSalir(containerInteractive);
-                    const linkMaps = containerInteractive.querySelector("a[href*='maps']");
-                    if (linkMaps && data.misiones && data.misiones[0]) {
-                        const iframeMaps = document.createElement("iframe");
-                        iframeMaps.style = "width:100%; height:320px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
-                        iframeMaps.src = data.misiones[0].destino_coordenadas_gps;
-                        linkMaps.parentNode.insertBefore(iframeMaps, linkMaps.nextSibling);
-                        linkMaps.style.display = "none";
-                    }
-                    const linkYT = containerInteractive.querySelector("a[href*='youtube']");
-                    if (linkYT && data.misiones && data.misiones[0]) {
-                        const iframeYT = document.createElement("iframe");
-                        iframeYT.style = "width:100%; height:240px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
-                        iframeYT.src = data.misiones[0].enlace_youtube;
-                        iframeYT.allow = "autoplay; encrypted-media";
-                        linkYT.parentNode.insertBefore(iframeYT, linkYT.nextSibling);
-                        linkYT.style.display = "none";
-                    }
-                }
-                const btnVolver = document.getElementById("btn-volver-app");
-                if (btnVolver) btnVolver.classList.remove("hidden");
+        const data = await res.json();
+        if (data.status === "success" && window.KERNEL) {
+            window.KERNEL.tipoEscapeGlobal = "ACCION_CAMPO";
+            window.KERNEL.indiceMision = 0;
+            window.KERNEL.pasosMisiones = data.misiones || [];
+            window.KERNEL.mensajeCalidezHumanaActual = data.calidez_humana;
+            this.frasesRespiracionActuales = data.frases_respiracion;
+            
+            if (data.misiones && data.misiones.length > 0) {
+                this.recorridoMisiones.push(data.misiones[0].destino_titulo);
             }
-        } catch (e) {
-            console.error("Fallo crítico despachando mando:", e);
-            this.activo = false;
-            this.alternarVisibilidadPaneles();
+            if (window.KERNEL.hablar) window.KERNEL.hablar(data.calidez_humana);
+            
+            if (window.KERNEL.mostrarOpcionesSalir) {
+                containerInteractive.classList.remove("hidden");
+                window.KERNEL.mostrarOpcionesSalir(containerInteractive);
+                
+                const linkMaps = containerInteractive.querySelector("a[href*='maps']");
+                if (linkMaps && data.misiones && data.misiones[0]) {
+                    const iframeMaps = document.createElement("iframe");
+                    iframeMaps.style = "width:100%; height:320px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
+                    iframeMaps.src = data.misiones[0].destino_coordenadas_gps;
+                    linkMaps.parentNode.insertBefore(iframeMaps, linkMaps.nextSibling);
+                    linkMaps.style.display = "none";
+                }
+                
+                const linkYT = containerInteractive.querySelector("a[href*='youtube']");
+                if (linkYT && data.misiones && data.misiones[0]) {
+                    const iframeYT = document.createElement("iframe");
+                    iframeYT.style = "width:100%; height:240px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
+                    iframeYT.src = data.misiones[0].enlace_youtube;
+                    iframeYT.allow = "autoplay; encrypted-media";
+                    linkYT.parentNode.insertBefore(iframeYT, linkYT.nextSibling);
+                    linkYT.style.display = "none";
+                }
+            }
+            const btnVolver = document.getElementById("btn-volver-app");
+            if (btnVolver) btnVolver.classList.remove("hidden");
         }
-    },
-    async generarReporteBienestar() {
-        const hdnInput = document.getElementById("txt-input-especial");
-        const txtInput = hdnInput ? hdnInput.value.trim() : "";
-        const wrapperReporte = document.getElementById("wrapper-reporte-output");
-        if (!wrapperReporte) return;
-        const lang = window.KERNEL?.idiomaActual || "es";
-        const infoCompartida = [...this.keywordsSeleccionadas];
-        if (txtInput) infoCompartida.push("Sintonía acústica por voz.");
-        if (this.textoPdfExtraido) infoCompartida.push("Mapeo de documento.");
-        const payload = {
-            perfil: this.perfilSeleccionado,
-            lang: lang,
-            recorrido: this.recorridoMisiones,
-            informacion_compartida: infoCompartida
-        };
-        try {
-            const res = await fetch("/api/perfiles-especiales/reporte", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
+    } catch (e) {
+        console.error("Fallo crítico despachando mando:", e);
+        this.activo = false;
+        this.conmutarInterfazNativa(); // <- CORREGIDO: Llama a la función organizada correcta
+    }
+},
+
+async generarReporteBienestar() {
+    const hdnInput = document.getElementById("txt-input-especial");
+    const txtInput = hdnInput ? hdnInput.value.trim() : "";
+    const wrapperReporte = document.getElementById("wrapper-reporte-output");
+    if (!wrapperReporte) return;
+    const lang = window.KERNEL?.idiomaActual || "es";
+    const infoCompartida = [...this.keywordsSeleccionadas];
+    if (txtInput) infoCompartida.push("Sintonía acústica por voz.");
+    if (this.textoPdfExtraido) infoCompartida.push("Mapeo de documento.");
+    const payload = { perfil: this.perfilSeleccionado, lang: lang, recorrido: this.recorridoMisiones, informacion_compartida: infoCompartida };
+    try {
+        const res = await fetch("/api/perfiles-especiales/reporte", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+        const data = await res.json();
             
             wrapperReporte.innerHTML = `
                 <div class="reporte-premium-box" style="margin-top:25px; border-top:1px dashed #222; padding-top:20px; text-align:left;">
