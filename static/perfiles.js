@@ -189,244 +189,219 @@
             window.KERNEL.hablar(msgs[this.perfilSeleccionado]);
         },
 
-        renderizarInterfazEspecial() {
-            const container = document.getElementById("panel-perfiles-especiales");
-            if (!container) return;
-            
-            const lang = window.KERNEL?.idiomaActual || "es";
-            const t = this.TEXTOS[lang];
-            
-            container.innerHTML = `
-                <div class="cinematic-module-container \${this.perfilSeleccionado}-theme">
-                    <h3 style="color:#555; font-size:0.85rem; margin: 0 0 25px 0; text-transform:uppercase; font-weight:900; letter-spacing:2px;">\${t.seleccionaPerfil}</h3>
-                    
-                    <div class="portal-flex-list">
-                        <div class="portal-card-premium \${this.perfilSeleccionado === 'veterano' ? 'active' : ''}" data-portal="veterano">
-                            <h4>🎖️ \${t.veterano}</h4> <span>⚡</span>
-                        </div>
-                        <div class="portal-card-premium \${this.perfilSeleccionado === 'adulto_mayor' ? 'active' : ''}" data-portal="adulto_mayor">
-                            <h4>👵 \${t.adulto_mayor}</h4> <span>⚡</span>
-                        </div>
-                        <div class="portal-card-premium \${this.perfilSeleccionado === 'gubernamental' ? 'active' : ''}" data-portal="gubernamental">
-                            <h4>💼 \${t.gubernamental}</h4> <span>⚡</span>
-                        </div>
+    renderizarInterfazEspecial() {
+        const container = document.getElementById("panel-perfiles-especiales");
+        if (!container) return;
+        const lang = window.KERNEL?.idiomaActual || "es";
+        const t = this.TEXTOS[lang];
+        container.innerHTML = `
+            <div class="cinematic-module-container">
+                <h3 style="color:#555; font-size:0.85rem; margin: 0 0 25px 0; text-transform:uppercase; font-weight:900; letter-spacing:2px;">Portal de Estabilidad Somática</h3>
+                <div class="portal-flex-list">
+                    <div class="portal-card-premium ${this.perfilSeleccionado === 'veterano' ? 'active' : ''}" data-portal="veterano" style="border-left: 4px solid #4caf50;">
+                        <h4>🎖️ Portal Veteranos de Guerra</h4> <span>⚡</span>
                     </div>
-                    
-                    <div class="cortina-desplegable-premium">
-                        <label style="display:block; color: var(--cyan-inhale, #00bcd4); font-weight:900; margin-bottom:15px; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">\${t.lblKeywords}</label>
-                        
-                        <div id="box-keywords-flotantes" class="keywords-floating-box"></div>
-                        
-                        <div style="margin-top:25px; display:flex; gap:14px; justify-content:center; align-items:center;">
-                            <button id="btn-mic-especial" class="pill-action-trigger" style="color:#fff; border-color:#333;">🎙️ \${t.btnMicGrabar}</button>
-                            <label class="pill-action-trigger" style="margin:0;">
-                                📂 Escanear PDF Estructural
-                                <input type="file" id="file-pdf-especial" style="display:none;" accept=".pdf">
-                            </label>
-                        </div>
-                        <input type="hidden" id="txt-input-especial" value="">
+                    <div class="portal-card-premium ${this.perfilSeleccionado === 'adulto_mayor' ? 'active' : ''}" data-portal="adulto_mayor" style="border-left: 4px solid #00bcd4;">
+                        <h4>👵 Portal Adultos Mayores</h4> <span>⚡</span>
                     </div>
-                    
-                    <button id="btn-procesar-especial" class="action-btn-fatal-premium">\${t.btnProcesar}</button>
-                    <button id="btn-reporte-especial" style="width:100%; background:transparent; color:#333; border:none; margin-top:25px; cursor:pointer; font-weight:bold; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; transition:color 0.2s;">\${t.btnReporte}</button>
-                    
-                    <div id="wrapper-reporte-output" class="hidden"></div>
+                    <div class="portal-card-premium ${this.perfilSeleccionado === 'gubernamental' ? 'active' : ''}" data-portal="gubernamental" style="border-left: 4px solid #3f51b5;">
+                        <h4>💼 Portal Servidores Públicos</h4> <span>⚡</span>
+                    </div>
                 </div>
-            `;
-            this.enlazarEventosInterfaz();
-            this.cargarKeywordsPerfil();
-        },
-        enlazarEventosInterfaz() {
-            const container = document.getElementById("panel-perfiles-especiales");
-            if (!container) return;
-            
-            container.querySelectorAll(".portal-card-premium").forEach(card => {
-                card.onclick = () => {
-                    container.querySelectorAll(".portal-card-premium").forEach(c => c.classList.remove("active"));
-                    card.classList.add("active");
-                    this.perfilSeleccionado = card.getAttribute("data-portal");
-                    this.keywordsSeleccionadas = [];
-                    this.textoPdfExtraido = "";
-                    const hiddenTxt = document.getElementById("txt-input-especial");
-                    if (hiddenTxt) hiddenTxt.value = "";
-                    this.ejecutarVozBienvenida();
-                    this.renderizarInterfazEspecial();
-                };
-            });
+                <div class="cortina-desplegable-premium" style="background:#040404; padding:20px; border-radius:14px; border:1px solid #161616; margin: 15px 0;">
+                    <label style="display:block; color: #00bcd4; font-weight:900; margin-bottom:15px; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px;">Sintonizadores Somáticos Interactivos:</label>
+                    <div id="box-keywords-flotantes" class="keywords-floating-box"></div>
+                    <div style="margin-top:25px; display:flex; gap:14px; justify-content:center; align-items:center;">
+                        <button id="btn-mic-especial" class="pill-action-trigger" style="color:#fff; background:#0b0b0b; border:1px solid #222; padding:10px 20px; border-radius:40px; cursor:pointer;">🎙️ Sintonizar por Voz</button>
+                        <label class="pill-action-trigger" style="margin:0; background:#0b0b0b; border:1px solid #222; padding:10px 20px; border-radius:40px; cursor:pointer; color:#999;">
+                            📂 Escanear PDF Estructural
+                            <input type="file" id="file-pdf-especial" style="display:none;" accept=".pdf">
+                        </label>
+                    </div>
+                    <input type="hidden" id="txt-input-especial" value="">
+                </div>
+                <button id="btn-procesar-especial" class="action-btn-fatal-premium" style="width:100%; background:linear-gradient(135deg, #4caf50 0%, #1b5e20 100%); color:#fff; padding:18px; font-weight:900; border-radius:12px; border:none; cursor:pointer; text-transform:uppercase;">⚡ Lanzar Desconexión Letal e Inmediata</button>
+                <button id="btn-reporte-especial" style="width:100%; background:transparent; color:#333; border:none; margin-top:25px; cursor:pointer; font-weight:bold; font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">📋 Solicitar Reporte Descriptivo</button>
+                <div id="wrapper-reporte-output" class="hidden"></div>
+            </div>
+        `;
+        this.enlazarEventosInterfaz();
+        this.cargarKeywordsPerfil();
+    },
 
-            const fileInput = document.getElementById("file-pdf-especial");
-            if (fileInput) {
-                fileInput.onchange = (e) => {
-                    const files = e.target.files;
-                    if (!files || files.length === 0) return;
-                    
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const buffer = event.target.result;
-                        const chunkStr = new TextDecoder("utf-8").decode(new Uint8Array(buffer).slice(0, 7000));
-                        this.textoPdfExtraido = "Flujo real binario analizado. Variables integradas al motor.";
-                        
-                        if (window.KERNEL?.hablar) {
-                            window.KERNEL.hablar(window.KERNEL.idiomaActual === 'es' ? "Documento sincronizado." : "Documento synchronized.");
-                        }
-                        alert(this.TEXTOS[window.KERNEL?.idiomaActual || "es"].alertPdf);
-                    };
-                    reader.readAsArrayBuffer(files);
-                };
-            }
-
-            const btnMic = document.getElementById("btn-mic-especial");
-            if (btnMic) btnMic.onclick = () => this.gestionarFlujoMicrofono(btnMic);
-            
-            document.getElementById("btn-procesar-especial").onclick = () => this.ejecutarMandoEspecial();
-            document.getElementById("btn-reporte-especial").onclick = () => this.generarReporteBienestar();
-        },
-
-        async cargarKeywordsPerfil() {
-            const box = document.getElementById("box-keywords-flotantes");
-            if (!box) return;
-            box.innerHTML = "";
-            
-            const lang = window.KERNEL?.idiomaActual || "es";
-            try {
-                const res = await fetch(`/api/perfiles-especiales/config?perfil=\${this.perfilSeleccionado}&lang=\${lang}`);
-                const data = await res.json();
-                
-                if (data.keywords) {
-                    data.keywords.forEach(kw => {
-                        const b = document.createElement("div");
-                        b.className = "badge-keyword-fatal";
-                        b.innerText = kw;
-                        b.onclick = () => {
-                            b.classList.toggle("selected");
-                            if (b.classList.contains("selected")) {
-                                this.keywordsSeleccionadas.push(kw);
-                                if (window.KERNEL?.hablar) window.KERNEL.hablar(kw.toLowerCase());
-                            } else {
-                                this.keywordsSeleccionadas = this.keywordsSeleccionadas.filter(k => k !== kw);
-                            }
-                        };
-                        box.appendChild(b);
-                    });
-                }
-            } catch (e) {
-                console.error("Error cargando sintonizadores:", e);
-            }
-        },
-
-        gestionarFlujoMicrofono(btn) {
-            const lang = window.KERNEL?.idiomaActual || "es";
-            const t = this.TEXTOS[lang];
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            
-            if (!SpeechRecognition) {
-                alert(t.errorMic);
-                return;
-            }
-            
-            if (!this.grabando) {
-                this.grabando = true;
-                btn.style.background = "#dc2626";
-                btn.style.borderColor = "#dc2626";
-                btn.innerText = t.btnMicDetener;
-                
-                this.recognitionInstance = new SpeechRecognition();
-                this.recognitionInstance.lang = lang === 'es' ? 'es-US' : 'en-US';
-                this.recognitionInstance.interimResults = false;
-                this.recognitionInstance.continuous = true;
-                
-                this.recognitionInstance.onresult = (event) => {
-                    const currentIdx = event.resultIndex;
-                    const textoVoz = event.results[currentIdx].transcript;
-                    const hdnInput = document.getElementById("txt-input-especial");
-                    if (hdnInput && textoVoz) {
-                        hdnInput.value = (hdnInput.value + " " + textoVoz).trim();
-                        if (window.KERNEL?.hablar) window.KERNEL.hablar(textoVoz);
-                    }
-                };
-                
-                this.recognitionInstance.onerror = () => this.detenerGraboHardware(btn, t);
-                this.recognitionInstance.start();
-                this.timerGrabacion = setTimeout(() => { this.detenerGraboHardware(btn, t); }, 60000);
-            } else {
-                this.detenerGraboHardware(btn, t);
-            }
-        },
-
-        detenerGraboHardware(btn, t) {
-            this.grabando = false;
-            clearTimeout(this.timerGrabacion);
-            btn.style.background = "#0b0b0b";
-            btn.style.borderColor = "#222";
-            btn.innerText = "🎙️ Sintonizar por Voz";
-            if (this.recognitionInstance) this.recognitionInstance.stop();
-        },
-
-        async ejecutarMandoEspecial() {
-            const hdnInput = document.getElementById("txt-input-especial");
-            const txtInput = hdnInput ? hdnInput.value.trim() : "";
-            const lang = window.KERNEL?.idiomaActual || "es";
-            
-            if (txtInput.length === 0 && this.keywordsSeleccionadas.length === 0 && this.textoPdfExtraido.length === 0) {
-                alert(this.TEXTOS[lang].errorProcesar);
-                return;
-            }
-            
-            const containerInteractive = document.getElementById("wrapper-interactive");
-            const panelPerfiles = document.getElementById("panel-perfiles-especiales");
-            if (panelPerfiles) panelPerfiles.classList.add("hidden");
-            
-            const payload = {
-                perfil: this.perfilSeleccionado,
-                lang: lang,
-                texto: txtInput,
-                keywords_seleccionadas: this.keywordsSeleccionadas,
-                contexto_pdf: this.textoPdfExtraido
+    enlazarEventosInterfaz() {
+        const container = document.getElementById("panel-perfiles-especiales");
+        if (!container) return;
+        
+        container.querySelectorAll(".portal-card-premium").forEach(card => {
+            card.onclick = () => {
+                container.querySelectorAll(".portal-card-premium").forEach(c => c.classList.remove("active"));
+                card.classList.add("active");
+                this.perfilSeleccionado = card.getAttribute("data-portal");
+                this.keywordsSeleccionadas = [];
+                this.textoPdfExtraido = "";
+                const hiddenTxt = document.getElementById("txt-input-especial");
+                if (hiddenTxt) hiddenTxt.value = "";
+                this.ejecutarVozBienvenida();
+                this.renderizarInterfazEspecial();
             };
-            
-            try {
-                const res = await fetch("/api/perfiles-especiales/procesar", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
+        });
+
+        const fileInput = document.getElementById("file-pdf-especial");
+        if (fileInput) {
+            fileInput.onchange = (e) => {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const buffer = event.target.result;
+                    const chunkStr = new TextDecoder("utf-8").decode(new Uint8Array(buffer).slice(0, 7000));
+                    this.textoPdfExtraido = "Flujo real binario analizado. Variables integradas al motor.";
+                    if (window.KERNEL?.hablar) {
+                        window.KERNEL.hablar(window.KERNEL.idiomaActual === 'es' ? "Documento sincronizado." : "Documento synchronized.");
+                    }
+                    alert(this.TEXTOS[window.KERNEL?.idiomaActual || "es"].alertPdf);
+                };
+                reader.readAsArrayBuffer(files[0]);
+            };
+        }
+
+        const btnMic = document.getElementById("btn-mic-especial");
+        if (btnMic) btnMic.onclick = () => this.gestionarFlujoMicrofono(btnMic);
+        
+        document.getElementById("btn-procesar-especial").onclick = () => this.ejecutarMandoEspecial();
+        document.getElementById("btn-reporte-especial").onclick = () => this.generarReporteBienestar();
+    },
+
+    async cargarKeywordsPerfil() {
+        const box = document.getElementById("box-keywords-flotantes");
+        if (!box) return;
+        box.innerHTML = "";
+        const lang = window.KERNEL?.idiomaActual || "es";
+        try {
+            const res = await fetch(`/api/perfiles-especiales/config?perfil=${this.perfilSeleccionado}&lang=${lang}`);
+            const data = await res.json();
+            if (data.keywords) {
+                data.keywords.forEach(kw => {
+                    const b = document.createElement("div");
+                    b.className = "badge-keyword-fatal";
+                    b.innerText = kw;
+                    b.onclick = () => {
+                        b.classList.toggle("selected");
+                        if (b.classList.contains("selected")) {
+                            this.keywordsSeleccionadas.push(kw);
+                            if (window.KERNEL?.hablar) window.KERNEL.hablar(kw.toLowerCase());
+                        } else {
+                            this.keywordsSeleccionadas = this.keywordsSeleccionadas.filter(k => k !== kw);
+                        }
+                    };
+                    box.appendChild(b);
                 });
-                const data = await res.json();
-                
-                if (data.status === "success" && window.KERNEL) {
-                    window.KERNEL.tipoEscapeGlobal = "ACCION_CAMPO";
-                    window.KERNEL.indiceMision = 0;
-                    window.KERNEL.pasosMisiones = data.misiones || [];
-                    window.KERNEL.mensajeCalidezHumanaActual = data.calidez_humana;
-                    this.frasesRespiracionActuales = data.frases_respiracion;
-                    
-                    if (data.misiones && data.misiones.length > 0) {
-                        this.recorridoMisiones.push(data.misiones[0].destino_titulo);
+            }
+        } catch (e) {
+            console.error("Error cargando sintonizadores:", e);
+        }
+    },
+
+    gestionarFlujoMicrofono(btn) {
+        const lang = window.KERNEL?.idiomaActual || "es";
+        const t = this.TEXTOS[lang];
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert(t.errorMic);
+            return;
+        }
+        if (!this.grabando) {
+            this.grabando = true;
+            btn.style.background = "#dc2626";
+            btn.style.borderColor = "#dc2626";
+            btn.innerText = t.btnMicDetener;
+            this.recognitionInstance = new SpeechRecognition();
+            this.recognitionInstance.lang = lang === 'es' ? 'es-US' : 'en-US';
+            this.recognitionInstance.interimResults = false;
+            this.recognitionInstance.continuous = true;
+            this.recognitionInstance.onresult = (event) => {
+                const currentIdx = event.resultIndex;
+                const textoVoz = event.results[currentIdx].transcript;
+                const hdnInput = document.getElementById("txt-input-especial");
+                if (hdnInput && textoVoz) {
+                    hdnInput.value = (hdnInput.value + " " + textoVoz).trim();
+                    if (window.KERNEL?.hablar) window.KERNEL.hablar(textoVoz);
+                }
+            };
+            this.recognitionInstance.onerror = () => this.detenerGraboHardware(btn, t);
+            this.recognitionInstance.start();
+            this.timerGrabacion = setTimeout(() => { this.detenerGraboHardware(btn, t); }, 60000);
+        } else {
+            this.detenerGraboHardware(btn, t);
+        }
+    },
+
+    detenerGraboHardware(btn, t) {
+        this.grabando = false;
+        clearTimeout(this.timerGrabacion);
+        btn.style.background = "#0b0b0b";
+        btn.style.borderColor = "#222";
+        btn.innerText = "🎙️ Sintonizar por Voz";
+        if (this.recognitionInstance) this.recognitionInstance.stop();
+    },
+
+    async ejecutarMandoEspecial() {
+        const hdnInput = document.getElementById("txt-input-especial");
+        const txtInput = hdnInput ? hdnInput.value.trim() : "";
+        const lang = window.KERNEL?.idiomaActual || "es";
+        if (txtInput.length === 0 && this.keywordsSeleccionadas.length === 0 && this.textoPdfExtraido.length === 0) {
+            alert(this.TEXTOS[lang].errorProcesar);
+            return;
+        }
+        const containerInteractive = document.getElementById("wrapper-interactive");
+        const panelPerfiles = document.getElementById("panel-perfiles-especiales");
+        if (panelPerfiles) panelPerfiles.classList.add("hidden");
+        const payload = {
+            perfil: this.perfilSeleccionado,
+            lang: lang,
+            texto: txtInput,
+            keywords_seleccionadas: this.keywordsSeleccionadas,
+            contexto_pdf: this.textoPdfExtraido
+        };
+        try {
+            const res = await fetch("/api/perfiles-especiales/procesar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.status === "success" && window.KERNEL) {
+                window.KERNEL.tipoEscapeGlobal = "ACCION_CAMPO";
+                window.KERNEL.indiceMision = 0;
+                window.KERNEL.pasosMisiones = data.misiones || [];
+                window.KERNEL.mensajeCalidezHumanaActual = data.calidez_humana;
+                this.frasesRespiracionActuales = data.frases_respiracion;
+                if (data.misiones && data.misiones.length > 0) {
+                    this.recorridoMisiones.push(data.misiones[0].destino_titulo);
+                }
+                if (window.KERNEL.hablar) window.KERNEL.hablar(data.calidez_humana);
+                if (window.KERNEL.mostrarOpcionesSalir) {
+                    containerInteractive.classList.remove("hidden");
+                    window.KERNEL.mostrarOpcionesSalir(containerInteractive);
+                    const linkMaps = containerInteractive.querySelector("a[href*='maps']");
+                    if (linkMaps && data.misiones && data.misiones[0]) {
+                        const iframeMaps = document.createElement("iframe");
+                        iframeMaps.style = "width:100%; height:320px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
+                        iframeMaps.src = data.misiones[0].destino_coordenadas_gps;
+                        linkMaps.parentNode.insertBefore(iframeMaps, linkMaps.nextSibling);
+                        linkMaps.style.display = "none";
                     }
-                    
-                    if (window.KERNEL.hablar) window.KERNEL.hablar(data.calidez_humana);
-                    if (window.KERNEL.mostrarOpcionesSalir) {
-                        containerInteractive.classList.remove("hidden");
-                        window.KERNEL.mostrarOpcionesSalir(containerInteractive);
-                        
-                        const linkMaps = containerInteractive.querySelector("a[href*='maps']");
-                        if (linkMaps && data.misiones && data.misiones[0]) {
-                            const iframeMaps = document.createElement("iframe");
-                            iframeMaps.style = "width:100%; height:320px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
-                            iframeMaps.src = data.misiones[0].destino_coordenadas_gps;
-                            linkMaps.parentNode.insertBefore(iframeMaps, linkMaps.nextSibling);
-                            linkMaps.style.display = "none";
-                        }
-                        
-                        const linkYT = containerInteractive.querySelector("a[href*='youtube']");
-                        if (linkYT && data.misiones && data.misiones[0]) {
-                            const iframeYT = document.createElement("iframe");
-                            iframeYT.style = "width:100%; height:240px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
-                            iframeYT.src = data.misiones[0].enlace_youtube;
-                            iframeYT.allow = "autoplay; encrypted-media";
-                            linkYT.parentNode.insertBefore(iframeYT, linkYT.nextSibling);
-                            linkYT.style.display = "none";
-                        }
+                    const linkYT = containerInteractive.querySelector("a[href*='youtube']");
+                    if (linkYT && data.misiones && data.misiones[0]) {
+                        const iframeYT = document.createElement("iframe");
+                        iframeYT.style = "width:100%; height:240px; border:1px solid #1a1a1a; border-radius:12px; margin-top:15px;";
+                        iframeYT.src = data.misiones[0].enlace_youtube;
+                        iframeYT.allow = "autoplay; encrypted-media";
+                        linkYT.parentNode.insertBefore(iframeYT, linkYT.nextSibling);
+                        linkYT.style.display = "none";
                     }
+                }
                 const btnVolver = document.getElementById("btn-volver-app");
                 if (btnVolver) btnVolver.classList.remove("hidden");
             }
@@ -436,6 +411,7 @@
             this.alternarVisibilidadPaneles();
         }
     },
+
     async generarReporteBienestar() {
         const hdnInput = document.getElementById("txt-input-especial");
         const txtInput = hdnInput ? hdnInput.value.trim() : "";
@@ -452,34 +428,36 @@
             informacion_compartida: infoCompartida
         };
         try {
-            const res = await fetch("/api/perfiles-especiales/reporte", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            wrapperReporte.innerHTML = `
-                <div class="reporte-premium-box" style="margin-top:25px; border-top:1px dashed #222; padding-top:20px; text-align:left;">
-                    <h2 style="color:var(--cyan-inhale, #00bcd4); font-size:1.1rem; font-weight:900; text-transform:uppercase; margin:0 0 10px 0;">\${data.titulo}</h2>
-                    <p style="font-size:0.85rem; color:#888; line-height:1.4; margin-bottom:15px;">\${data.resumen_descriptivo}</p>
-                    <h4 style="color:#fff; margin:0 0 5px 0; font-size:0.9rem; text-transform:uppercase;">Recorrido Concluido:</h4>
-                    <ul style="padding-left:15px; margin:0 0 15px 0; font-size:0.85rem; color:#ccc;">
-                        \${data.recorrido_realizado.map(r => `<li>\${r}</li>`).join('')}
-                    </ul>
-                    <h4 style="color:#fff; margin:0 0 5px 0; font-size:0.9rem; text-transform:uppercase;">Evaluación de Autocuidado Comercial:</h4>
-                    <p style="font-size:0.85rem; color:#ccc; margin:0; line-height:1.4; text-align:justify;">\${data.observaciones_finales}</p>
-                    <span style="font-size:0.65rem; color:#444; display:block; margin-top:15px; text-align:justify; line-height:1.3;">\${data.nota_legal}</span>
-                </div>
-            `;
-            wrapperReporte.classList.remove("hidden");
-            if (window.KERNEL?.hablar) {
-                window.KERNEL.hablar(lang === 'es' ? "Reporte descriptivo de acompañamiento generado." : "Descriptive report generated.");
-            }
-        } catch (e) {
-            console.error("Error al compilar reporte:", e);
+        const res = await fetch("/api/perfiles-especiales/reporte", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        
+        wrapperReporte.innerHTML = `
+            <div class="reporte-premium-box" style="margin-top:25px; border-top:1px dashed #222; padding-top:20px; text-align:left;">
+                <h2 style="color:var(--cyan-inhale, #00bcd4); font-size:1.1rem; font-weight:900; text-transform:uppercase; margin:0 0 10px 0;">\${data.titulo}</h2>
+                <p style="font-size:0.85rem; color:#888; line-height:1.4; margin-bottom:15px;">\${data.resumen_descriptivo}</p>
+                <h4 style="color:#fff; margin:0 0 5px 0; font-size:0.9rem; text-transform:uppercase;">Recorrido Concluido:</h4>
+                <ul style="padding-left:15px; margin:0 0 15px 0; font-size:0.85rem; color:#ccc;">
+                    \${data.recorrido_realizado.map(r => `<li>\${r}</li>`).join('')}
+                </ul>
+                <h4 style="color:#fff; margin:0 0 5px 0; font-size:0.9rem; text-transform:uppercase;">Evaluación de Autocuidado Comercial:</h4>
+                <p style="font-size:0.85rem; color:#ccc; margin:0; line-height:1.4; text-align:justify;">\${data.observaciones_finales}</p>
+                <span style="font-size:0.65rem; color:#444; display:block; margin-top:15px; text-align:justify; line-height:1.3;">\${data.nota_legal}</span>
+            </div>
+        `;
+        
+        wrapperReporte.classList.remove("hidden");
+        if (window.KERNEL?.hablar) {
+            window.KERNEL.hablar(lang === 'es' ? "Reporte descriptivo de acompañamiento generado." : "Descriptive report generated.");
         }
+    } catch (e) {
+        console.error("Error al compilar reporte:", e);
     }
-}; // <- Esta llave cierra el objeto principal PERFILES_ESPECIALES
+}
+};
 
 function interceptarMesaDeRelojes() {
     if (window.KERNEL && window.KERNEL.iniciarRelojEnfocadoCasa) {
@@ -501,40 +479,17 @@ function interceptarMesaDeRelojes() {
     }
 }
 
-    function forzarMontajeBotonArriba() {
-        // 1. Buscamos el contenedor nativo donde se encuentra la barra de idiomas original
-        const barraIdiomas = document.querySelector(".lang-bar");
-        
-        // 2. Si ya existe en el árbol HTML y no hemos duplicado el botón, lo inyectamos de forma nativa arriba
-        if (barraIdiomas && !document.getElementById("btn-master-toggle-modulo")) {
-            const btn = document.createElement("button");
-            btn.className = "btn-switch-perfil";
-            btn.id = "btn-master-toggle-modulo";
-            btn.style = "background: #000; color: #00bcd4; border: 2px solid #151515; padding: 12px 28px; border-radius: 40px; font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin: 15px auto; display: block;";
-            btn.innerText = PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
-            
-            // Enlace de clics directo al motor del módulo para conmutar las cortinas
-            btn.onclick = () => {
-                PERFILES_ESPECIALES.activo = !PERFILES_ESPECIALES.activo;
-                btn.classList.toggle("active", PERFILES_ESPECIALES.activo);
-                btn.innerText = PERFILES_ESPECIALES.activo 
-                    ? PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchNormal 
-                    : PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
-                PERFILES_ESPECIALES.alternarVisibilidadPaneles();
-            };
-            
-            // Lo colocamos exactamente arriba de la barra de idiomas sin romper el diseño de Open Than Go
-            barraIdiomas.parentNode.insertBefore(btn, barraIdiomas);
-            PERFILES_ESPECIALES.init();
-            interceptarMesaDeRelojes();
-            console.log("Botón Maestro inyectado arriba de forma inmutable.");
-        } else {
-            // Reintentos continuos para acoplarse de forma transparente al ciclo asíncrono de KERNEL.init
-            setTimeout(forzarMontajeBotonArriba, 100);
-        }
+function intentarMontarModulo() {
+    const langBar = document.querySelector(".lang-bar");
+    const wrapperForm = document.getElementById("wrapper-form");
+    if (langBar && wrapperForm && window.KERNEL) {
+        PERFILES_ESPECIALES.init();
+        interceptarMesaDeRelojes();
+    } else {
+        setTimeout(intentarMontarModulo, 150);
     }
+}
 
-    // Arranque inmediato por hardware
-    forzarMontajeBotonArriba();
-    window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
+intentarMontarModulo();
+window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
 })();
