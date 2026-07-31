@@ -101,29 +101,39 @@
         wrapperForm.parentNode.insertBefore(divEspecial, wrapperForm.nextSibling);
     },
 
-    alternarVisibilidadPaneles() {
+    conmutarInterfazNativa() {
         const wrapperForm = document.getElementById("wrapper-form");
         const panelEspecial = document.getElementById("panel-perfiles-especiales");
         const wrapperInteractive = document.getElementById("wrapper-interactive");
         const pantallaCierre = document.getElementById('pantalla-cierre');
+        const btnConmutador = document.getElementById("btn-conmutador-entorno");
+        
+        this.activo = !this.activo;
         
         if (this.activo) {
+            // Se apaga por completo el formulario genérico de Open Than Go
             if (wrapperForm) wrapperForm.classList.add("hidden");
             if (wrapperInteractive) wrapperInteractive.classList.add("hidden");
             if (pantallaCierre) pantallaCierre.classList.add("hidden");
+            
+            // Se enciende de forma simétrica la interfaz del Modo Especial Adaptado
             if (panelEspecial) {
                 panelEspecial.classList.remove("hidden");
                 this.renderizarInterfazEspecial();
             }
+            if (btnConmutador) btnConmutador.innerText = this.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchNormal;
             this.ejecutarVozBienvenida();
         } else {
+            // Retorno instantáneo devolviendo el control total a Open Than Go
             if (panelEspecial) panelEspecial.classList.add("hidden");
             if (wrapperForm) wrapperForm.classList.remove("hidden");
+            if (btnConmutador) btnConmutador.innerText = this.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
         }
     },
+
     ejecutarVozBienvenida() {
         if (!window.KERNEL?.hablar) return;
-        const lang = window.KERNEL.idiomaActual || "es";
+        const lang = window.KERNEL.idmaActual || "es";
         const msgs = {
             veterano: this.TEXTOS[lang].bienvenidaVet,
             adulto_mayor: this.TEXTOS[lang].bienvenidaMayor,
@@ -137,6 +147,7 @@
         if (!container) return;
         const lang = window.KERNEL?.idiomaActual || "es";
         const t = this.TEXTOS[lang];
+
         
         container.innerHTML = `
             <div class="cinematic-module-container">
