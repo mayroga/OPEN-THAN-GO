@@ -485,17 +485,37 @@ function interceptarMesaDeRelojes() {
     }
 }
 
-function intentarMontarModulo() {
-    const langBar = document.querySelector(".lang-bar");
-    const wrapperForm = document.getElementById("wrapper-form");
-    if (langBar && wrapperForm && window.KERNEL) {
-        PERFILES_ESPECIALES.init();
-        interceptarMesaDeRelojes();
-    } else {
-        setTimeout(intentarMontarModulo, 150);
+    function acoplarModuloEspecial() {
+        const barra = document.querySelector(".lang-bar");
+        
+        // Si Open Than Go ya dibujó la barra de idiomas, enganchamos el botón de forma inmutable
+        if (barra && !document.getElementById("btn-master-toggle-modulo")) {
+            const containerSwitch = document.createElement("div");
+            containerSwitch.className = "switch-perfiles-container";
+            
+            const btn = document.createElement("button");
+            btn.className = "btn-switch-perfil";
+            btn.id = "btn-master-toggle-modulo";
+            btn.innerText = PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
+            btn.onclick = () => {
+                PERFILES_ESPECIALES.activo = !PERFILES_ESPECIALES.activo;
+                btn.classList.toggle("active", PERFILES_ESPECIALES.activo);
+                btn.innerText = PERFILES_ESPECIALES.activo 
+                    ? PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchNormal 
+                    : PERFILES_ESPECIALES.TEXTOS[window.KERNEL?.idiomaActual || "es"].switchEspecial;
+                PERFILES_ESPECIALES.alternarVisibilidadPaneles();
+            };
+            
+            containerSwitch.appendChild(btn);
+            barra.parentNode.insertBefore(containerSwitch, barra);
+            PERFILES_ESPECIALES.init();
+            interceptarMesaDeRelojes();
+            console.log("Módulo Especial acoplado al KERNEL soberano.");
+        } else {
+            setTimeout(acoplarModuloEspecial, 100);
+        }
     }
-}
 
-intentarMontarModulo();
-window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
+    acoplarModuloEspecial();
+    window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
 })();
