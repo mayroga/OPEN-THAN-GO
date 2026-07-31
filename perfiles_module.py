@@ -23,7 +23,7 @@ DATA_PERFILES = {
             "keywords": ["ANCLAJE", "TACTICA", "TERRITORIO", "DISCIPLINA", "HONOR", "SILENCIO PROTECTOR", "ENFOQUE", "PROPÓSITO", "FUERZA INTERNA", "PAUSA SERENA"],
             "misiones": [
                 {"id": 901, "titulo": "Misión de Anclaje Territorial", "descripcion": "Establece tu posición actual de forma consciente. Camina diez pasos firmes sintiendo la solidez del suelo. Eres el guardián de tu propia paz en este rincón seguro.", "vector": {"movimiento": 80, "silencio": 90, "contemplacion": 85}},
-                {"id": 902, "titulo": "Estrategia del Viento Fresco", "descripcion": "Busca un espacio abierto al aire libre o acércate a una ventana amplia. Inhala la frescura del entorno durante cuatro tiempos exactos, sosteniendo tu fortaleza interna.", "vector": {"aire_fresco": 100, "naturaleza": 80, "descanso": 70}}
+                {"id": 902, "titulo": "Estrategia del Viento Fresco", "descripcion": "Busca un espacio abierto al aire libre o acércate a una ventana amplia. Inhala la frescura del entorno durante cuatro tiempos exactos, sosteniendo tu fortaleza interna.", "vector": {"aire_fresco": 100, "naturaleza": 80, "descanso": 70}},
                 {"id": 901, "titulo": "OPERACIÓN ANCLAJE TERRITORIAL", "descripcion": "Establece tu posición actual de forma consciente. Camina diez pasos firmes sintiendo la solidez del suelo. Eres el guardián de tu propia paz en este espacio seguro.", "vector": {"movimiento": 85, "silencio": 95, "contemplacion": 90}},
                 {"id": 902, "titulo": "ESTRATEGIA DEL VIENTO FRESCO", "descripcion": "Busca un espacio abierto al aire libre o acércate a una ventana amplia. Inhala la frescura del entorno durante cuatro tiempos exactos, sosteniendo tu fortaleza interna.", "vector": {"aire_fresco": 100, "naturaleza": 90, "descanso": 80}},
                 {"id": 903, "titulo": "OPERACIÓN SILENCIO MENTAL", "descripcion": "Sienta tu cuerpo en una postura firme y erguida. Cierra los ojos por sesenta segundos y concéntrate únicamente en el eco de tu respiración profunda.", "vector": {"silencio": 100, "descanso": 80, "contemplacion": 90}},
@@ -32,10 +32,10 @@ DATA_PERFILES = {
         },
         "en": {
             "keywords": ["Honor", "Camaraderie", "Discipline", "Purpose", "Firm Nature", "Protective Silence", "Focus", "Legacy", "Inner Strength", "Serene Pause"],
-            "keywords": ["ANCHORING", "TACTICS", "TERRITORY", "DISCIPLINE", "HONOR", "PROTECTIVE SILENCE", "FOCUS", "PURPOSE", "INNER STRENGTH", "SERENE PAUSE"],
+            "keywords": ["ANCHORING", "TACTICS", "TERRITORY", "DISCIPLINA", "HONOR", "PROTECTIVE SILENCE", "FOCUS", "PURPOSE", "INNER STRENGTH", "SERENE PAUSE"],
             "misiones": [
                 {"id": 901, "titulo": "Territorial Anchoring Mission", "descripcion": "Consciously establish your current position. Walk ten firm steps feeling the solidity of the ground. You are the guardian of your own peace in this safe corner.", "vector": {"movimiento": 80, "silencio": 90, "contemplacion": 85}},
-                {"id": 902, "titulo": "Fresh Breeze Strategy", "descripcion": "Find an open space outdoors or approach a wide window. Inhale the freshness of the environment for four exact counts, sustaining your inner strength.", "vector": {"aire_fresco": 100, "naturaleza": 80, "descanso": 70}}
+                {"id": 902, "titulo": "Fresh Breeze Strategy", "descripcion": "Find an open space outdoors or approach a wide window. Inhale the freshness of the environment for four exact counts, sustaining your inner strength.", "vector": {"aire_fresco": 100, "naturaleza": 80, "descanso": 70}},
                 {"id": 901, "titulo": "TERRITORIAL ANCHORING OPERATION", "descripcion": "Consciously establish your current position. Walk ten firm steps feeling the solidity of the ground. You are the guardian of your own peace in this safe space.", "vector": {"movimiento": 85, "silencio": 95, "contemplacion": 90}},
                 {"id": 902, "titulo": "FRESH BREEZE STRATEGY", "descripcion": "Find an open space outdoors or approach a window. Inhale the freshness of the environment for four exact counts, sustaining your inner strength.", "vector": {"aire_fresco": 100, "naturaleza": 90, "descanso": 80}},
                 {"id": 903, "titulo": "OPERATION MENTAL SILENCE", "descripcion": "Sit your body in a firm and upright posture. Close your eyes for sixty seconds and focus solely on the echo of your deep breath.", "vector": {"silencio": 100, "descanso": 80, "contemplacion": 90}},
@@ -49,7 +49,7 @@ DATA_PERFILES = {
             "keywords": ["SABIDURÍA", "TRAYECTORIA", "CALMA", "PAZ FAMILIAR", "LEGADO VIVO", "TIEMPO SERENO", "RAÍCES", "BIENESTAR", "GRATITUD PLENA", "ASOMBRO SUTIL"],
             "misiones": [
                 {"id": 911, "titulo": "Ritual de la Mirada Lejana", "descripcion": "Toma asiento en un lugar cómodo con la espalda recta y relajada. Diríge tu mirada al punto más distante en el horizonte exterior, permitiendo que tus ojos descansen en total tranquilidad.", "vector": {"contemplacion": 100, "descanso": 95, "silencio": 90}},
-                {"id": 912, "titulo": "Sintonía de Manos Consecuentes", "descripcion": "Frota suavemente las palmas de tus manos hasta percibir un agradable calor biológico. Colócalas sobre tus hombros regalándote un abrazo reconfortante cargado de agradecimiento.", "vector": {"descanso": 100, "movimiento": 40, "esperanza": 90}}
+                {"id": 912, "titulo": "Sintonía de Manos Consecuentes", "descripcion": "Frota suavemente las palmas de tus manos hasta percibir un agradable calor biológico. Colócalas sobre tus hombros regalándote un abrazo reconfortante cargado de agradecimiento.", "vector": {"descanso": 100, "movimiento": 40, "esperanza": 90}},
                 {"id": 911, "titulo": "RITUAL DE LA MIRADA LEJANA", "descripcion": "Toma asiento en un lugar cómodo con la espalda recta y relajada. Diríge tu mirada al punto más distante en el horizonte exterior, permitiendo que tus ojos descansen en total tranquilidad.", "vector": {"contemplacion": 100, "descanso": 95, "silencio": 90}},
                 {"id": 912, "titulo": "SINTONÍA DE MANOS CONSECUENTES", "descripcion": "Frota suavemente las palmas de tus manos hasta percibir un agradable calor biológico. Colócalas sobre tus hombros regalándote un abrazo reconfortante cargado de agradecimiento.", "vector": {"descanso": 100, "movimiento": 40, "esperanza": 95}},
                 {"id": 913, "titulo": "EL ECO DEL AGUA SERENA", "descripcion": "Sirve un vaso con agua fresca de forma muy pausada. Observa los reflejos de la luz en el líquido durante un minuto en absoluto silencio antes de tomar un sorbo lento y consciente.", "vector": {"agua": 100, "contemplacion": 90, "silencio": 85}},
@@ -61,7 +61,7 @@ DATA_PERFILES = {
             "keywords": ["WISDOM", "PATHWAY", "CALM", "FAMILY PEACE", "LIVING LEGACY", "SERENE TIME", "ROOTS", "WELLBEING", "FULL GRATITUDE", "SUBTLE WONDER"],
             "misiones": [
                 {"id": 911, "titulo": "Distant Gaze Ritual", "descripcion": "Take a seat in a comfortable spot with a straight, relaxed spine. Direct your gaze to the furthest point on the outer horizon, allowing your eyes to rest in total tranquility.", "vector": {"contemplacion": 100, "descanso": 95, "silencio": 90}},
-                {"id": 912, "titulo": "Mindful Hands Harmony", "descripcion": "Gently rub the palms of your hands until you feel a pleasant biological warmth. Place them on your shoulders giving yourself a comforting hug filled with gratitude.", "vector": {"descanso": 100, "movimiento": 40, "esperanza": 90}}
+                {"id": 912, "titulo": "Mindful Hands Harmony", "descripcion": "Gently rub the palms of your hands until you feel a pleasant biological warmth. Place them on your shoulders giving yourself a comforting hug filled with gratitude.", "vector": {"descanso": 100, "movimiento": 40, "esperanza": 90}},
                 {"id": 911, "titulo": "DISTANT GAZE RITUAL", "descripcion": "Take a seat in a comfortable spot with a straight, relaxed spine. Direct your gaze to the furthest point on the outer horizon, allowing your eyes to rest in total tranquility.", "vector": {"contemplacion": 100, "descanso": 95, "silencio": 90}},
                 {"id": 912, "titulo": "MINDFUL HANDS HARMONY", "descripcion": "Gently rub the palms of your hands until you feel biological warmth. Place them on your shoulders giving yourself a comforting hug filled with gratitude.", "vector": {"descanso": 100, "movimiento": 40, "esperanza": 95}},
                 {"id": 913, "titulo": "THE ECHO OF SERENE WATER", "descripcion": "Pour a glass of fresh water very slowly. Observe the reflections of light on the liquid for one minute in absolute silence before taking a slow, conscious sip.", "vector": {"agua": 100, "contemplacion": 90, "silencio": 85}},
@@ -75,7 +75,7 @@ DATA_PERFILES = {
             "keywords": ["DESCONEXIÓN", "ESTRUCTURA", "ORDEN VITAL", "PAUSA DE GESTIÓN", "CLARIDAD MENTAL", "ENFOQUE HUMANO", "HOMEOSTASIS", "SINTONÍA", "RESETEO", "EQUILIBRIO"],
             "misiones": [
                 {"id": 921, "titulo": "Desfragmentación de Bucle Diario", "descripcion": "Coloca tu pantalla hacia abajo en absoluto reposo. Dedica sesenta segundos a escuchar los sonidos ambientales más sutiles e imperceptibles de tu espacio físico actual.", "vector": {"silencio": 100, "organizacion": 80, "descanso": 90}},
-                {"id": 922, "titulo": "Mapeo de Estabilidad Somática", "descripcion": "Apoya ambos pies firmes sobre el piso en un ángulo recto perfecto. Siente cómo la estructura del suelo sostiene tu peso de manera gratuita, liberando la carga acumulada en tus hombros.", "vector": {"descanso": 95, "organizacion": 90, "contemplacion": 80}}
+                {"id": 922, "titulo": "Mapeo de Estabilidad Somática", "descripcion": "Apoya ambos pies firmes sobre el piso en un ángulo recto perfecto. Siente cómo la estructura del suelo sostiene tu peso de manera gratuita, liberando la carga acumulada en tus hombros.", "vector": {"descanso": 95, "organizacion": 90, "contemplacion": 80}},
                 {"id": 921, "titulo": "DESFRAGMENTACIÓN DE BUCLE DIARIO", "descripcion": "Coloca tu pantalla hacia abajo en absoluto reposo. Dedica sesenta segundos a escuchar los sonidos ambientales más sutiles e imperceptibles de tu espacio físico actual.", "vector": {"silencio": 100, "organizacion": 85, "descanso": 90}},
                 {"id": 922, "titulo": "MAPEO DE ESTABILIDAD SOMÁTICA", "descripcion": "Apoya ambos pies firmes sobre el piso en un ángulo recto perfecto. Siente cómo la estructura del suelo sostiene tu peso de manera gratuita, liberando la carga acumulada.", "vector": {"descanso": 95, "organizacion": 95, "contemplacion": 80}},
                 {"id": 923, "titulo": "RESETEO DE ENFOQUE ÓPTICO", "descripcion": "Aparta tu mirada de cualquier documento o pantalla ahora mismo. Busca un objeto de color azul o verde a tu alrededor y observa sus detalles geométricos durante 30 segundos.", "vector": {"contemplacion": 95, "silencio": 90, "organizacion": 70}},
@@ -87,7 +87,7 @@ DATA_PERFILES = {
             "keywords": ["DISCONNECT", "STRUCTURE", "VITAL ORDER", "MANAGEMENT PAUSE", "MENTAL CLARITY", "HUMAN FOCUS", "HOMEOSTASIS", "TUNING", "RESET", "EQUILIBRIUM"],
             "misiones": [
                 {"id": 921, "titulo": "Daily Loop Defragmentation", "descripcion": "Turn your screen face down into absolute rest. Spend sixty seconds listening to the most subtle and imperceptible ambient sounds of your current physical space.", "vector": {"silencio": 100, "organizacion": 80, "descanso": 90}},
-                {"id": 922, "titulo": "Somatic Stability Mapping", "descripcion": "Place both feet firmly on the floor at a perfect right angle. Feel how the structure of the ground supports your weight for free, releasing the load built up in your shoulders.", "vector": {"descanso": 95, "organizacion": 90, "contemplacion": 80}}
+                {"id": 922, "titulo": "Somatic Stability Mapping", "descripcion": "Place both feet firmly on the floor at a perfect right angle. Feel how the structure of the ground supports your weight for free, releasing the load built up in your shoulders.", "vector": {"descanso": 95, "organizacion": 90, "contemplacion": 80}},
                 {"id": 921, "titulo": "DAILY LOOP DEFRAGMENTATION", "descripcion": "Turn your screen face down into absolute rest. Spend sixty seconds listening to the most subtle and imperceptible ambient sounds of your current physical space.", "vector": {"silencio": 100, "organizacion": 85, "descanso": 90}},
                 {"id": 922, "titulo": "SOMATIC STABILITY MAPPING", "descripcion": "Place both feet firmly on the floor at a perfect right angle. Feel how the structure of the ground supports your weight for free, releasing the built-up load.", "vector": {"descanso": 95, "organizacion": 95, "contemplacion": 80}},
                 {"id": 923, "titulo": "OPTICAL FOCUS RESET", "descripcion": "Take your eyes off any document or screen right now. Look for a blue or green object around you and observe its geometric details for 30 seconds.", "vector": {"contemplacion": 95, "silencio": 90, "organizacion": 70}},
@@ -95,7 +95,8 @@ DATA_PERFILES = {
             ]
         }
     }
-@@ -71,94 +83,99 @@ class ProcesarInputSchema(BaseModel):
+}
+class ProcesarInputSchema(BaseModel):
     contexto_pdf: Optional[str] = ""
 
 class ReporteSchema(BaseModel):
@@ -103,10 +104,6 @@ class ReporteSchema(BaseModel):
     lang: str
     recorrido: List[str]
     informacion_compartida: List[str]
-perfil: str
-lang: str
-recorrido: List[str]
-informacion_compartida: List[str]
 
 @router.get("/config")
 async def get_config(perfil: str, lang: str = "es"):
@@ -125,6 +122,7 @@ async def get_config(perfil: str, lang: str = "es"):
 async def procesar_contexto(data: ProcesarInputSchema):
     perfil_lower = data.perfil.lower()
     if perfil_lower not in DATA_PERFILES:
+        pass
     p_lower = data.perfil.lower()
     if p_lower not in DATA_PERFILES:
         raise HTTPException(status_code=404, detail="Perfil inválido.")
@@ -169,7 +167,7 @@ async def procesar_contexto(data: ProcesarInputSchema):
     calidez_textos = {
         "es": f"Hemos procesado tu configuración voluntaria para el perfil de {perfiles_nombre_es(perfil_lower)}. Tu espacio de desconexión adaptada está listo. Concéntrate en tu ritmo biológico.",
         "en": f"We have processed your voluntary parameters for the {perfiles_nombre_en(perfil_lower)} experience. Your tailored disconnection space is active. Focus on your biological rhythm."
-        
+    }    
     calidez = {
         "es": f"Entorno especial activo para {p_lower.upper()}. Tu recorrido de desconexión interactiva y modulación de aire fresco ha comenzado. Sigue las pautas en pantalla.",
         "en": f"Special environment active for {p_lower.upper()}. Your interactive disconnection and fresh air modulation journey has begun. Follow the onscreen guidelines."
@@ -229,7 +227,7 @@ async def generar_reporte_bienestar(data: ReporteSchema):
             "Dinámicas de modulación de aire." if l_lower == "es" else "Air modulation dynamics."
         ],
         "observaciones_finales": observaciones,
-        "nota_legal": "Este reporte es un documento de uso privado, con fines informativos, educativos y de autocuidado individual. No posee validez legal, institucional, gubernamental ni clínica."
+        "nota_legal": "Este reporte es un documento de uso privado, con fines informativos, educativos y de autocuidado individual. No posee validez legal, institucional, gubernamental ni clínica.",
         "nota_legal": nota
     })
 
