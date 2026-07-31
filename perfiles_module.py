@@ -98,7 +98,7 @@ async def procesar_contexto(data: ProcesarInputSchema):
     l_lower = "en" if data.lang.lower() == "en" else "es"
     config_perfil = DATA_PERFILES[p_lower][l_lower]
     
-    # Enrutamiento geográfico adaptado a entornos naturales para evitar rutas rotas
+    # Enrutamiento geográfico enfocado a parajes de naturaleza protectora
     QUERIES_MAPS = {
         "veterano": "quiet+nature+reserve+park",
         "adulto_mayor": "botanical+garden+walking+paths",
@@ -117,32 +117,32 @@ async def procesar_contexto(data: ProcesarInputSchema):
             "destino_entorno": f"ZONA DE HOMEOCINESIS PARA {p_lower.upper()}",
             "destino_instruccion": mision["descripcion"],
             "destino_instruccion_en": mision["descripcion"],
-            # Formato nativo oficial para renderizar dentro de un iframe sin API Key
+            # Enrutamiento nativo limpio en Iframe embebido oficial sin requerir API key
             "destino_coordenadas_gps": f"https://google.com{q_maps}&t=&z=14&ie=UTF8&iwloc=&output=embed",
             "vector_entorno_seleccionado": mision["vector"],
             "enlace_youtube": f"https://youtube.com{config_perfil['youtube_id']}?autoplay=1&mute=0",
             "enlace_spotify": "https://spotify.com"
         })
     
-    # Banco de Frases Exclusivas de 15 Minutos para el ciclo doméstico de respiración
+    # Banco de Frases Exclusivas para interceptar la Mesa de Relojes Doméstica de 15 Minutos (900s)
     FRASES_CASA = {
         "veterano": {
-            "antes": "Establece tu posición actual de anclaje, guardián de tu propia paz. Coloca tu columna firme e inicia la modulación de aire fresco de quince minutos.",
-            "despues": "Misión completada con éxito. Has asegurado tu perímetro de calma interna. Tu armonía vital se encuentra restablecida en esta posición."
+            "antes": "Establece tu posición actual de anclaje, soldado de tu propia paz. Coloca tu cuerpo firme e inhala profundamente para iniciar el ciclo biológico de quince minutos.",
+            "despues": "Misión completada con éxito. Has mantenido tu posición y modulado tu ritmo respiratorio. Tu entorno interior se encuentra seguro y en equilibrio."
         },
         "adulto_mayor": {
-            "antes": "Busca una postura muy cómoda. Permite que tus hombros descansen y respira con lentitud a tu propio compás biológico durante este ciclo.",
-            "despues": "Ciclo doméstico finalizado con total serenidad. Tu pulso y tu respiración fluyen en armonía sutil. Siente la calidez del descanso en todo tu ser."
+            "antes": "Acomoda tu cuerpo en un espacio lleno de calma. Respira con lentitud, sintiendo la paz de este momento. Vamos a iniciar el círculo elástico a tu propio ritmo biológico.",
+            "despues": "Ciclo completado con total serenidad. Tu pulso y tu respiración se encuentran en armonía. Siente la calidez del descanso recorriendo tu cuerpo de forma gentil."
         },
         "gubernamental": {
-            "antes": "Pausa de gestión obligatoria activada. Desconecta las pantallas de la rutina urbana. Pon tus pies firmes en el suelo e inicia el reseteo somático.",
-            "despues": "Bucle diario desfragmentado de forma eficiente. Has liberado la carga invisible acumulada en tu jornada de trabajo. Conserva tu claridad mental."
+            "antes": "Pausa de gestión obligatoria activada. Apaga las alertas mentales de la rutina de oficina. Pon tus pies firmes en el suelo e inicia el reseteo somático de quince minutos.",
+            "despues": "Bucle diario desfragmentado de forma eficiente. Has liberado la carga invisible acumulada en tu jornada. Recupera tu enfoque con una mente despejada."
         }
     }
     
     calidez = {
-        "es": f"Entorno especial activo para {p_lower.upper()}. Tu espacio adaptado de modulación de aire de 15 minutos e inmersión por voz está listo. Ejecuta el Mando.",
-        "en": f"Special environment active for {p_lower.upper()}. Your tailored 15-minute air modulation space and voice immersion is ready. Execute Control."
+        "es": f"Entorno especial activo para {p_lower.upper()}. Tu recorrido de desconexión interactiva y modulación de aire fresco de 15 minutos ha comenzado. Sigue las pautas en pantalla.",
+        "en": f"Special environment active for {p_lower.upper()}. Your interactive disconnection and fresh air modulation journey has begun. Follow the onscreen guidelines."
     }
     
     return JSONResponse({
@@ -161,18 +161,19 @@ async def generar_reporte_bienestar(data: ReporteSchema):
     perfil_es = {"veterano": "Veteranos de Guerra", "adulto_mayor": "Adultos Mayores", "gubernamental": "Trabajadores Públicos"}.get(p_lower, "Especial")
     perfil_en = {"veterano": "War Veterans", "adulto_mayor": "Senior Citizens", "gubernamental": "Public Servants"}.get(p_lower, "Special")
     
+    # Sanitización de strings informativos del buffer para el resumen
     inputs_limpios = [item for item in data.informacion_compartida if "Variables" not in item and "analizado" not in item]
     sintonizadores_txt = ", ".join(inputs_limpios) if inputs_limpios else "Modulación general activa"
     
     if l_lower == "es":
-        titulo = f"REPORTE DESCRIPTIVO DE HOMEOCINESIS Y BIENESTAR: CATEGORÍA {perfil_es.upper()}"
-        resumen = f"Este documento compila de forma descriptiva el recorrido de pausas conscientes y dinámicas de autocuidado voluntarias: [{sintonizadores_txt}]."
-        observaciones = "VALORACIÓN COMERCIAL DE BIENESTAR: Se constata una sintonización óptima ante los ciclos de respiración profunda en el hogar. Se recomienda de forma preventiva sostener intervalos autónomos de aislamiento de carga invisible, promoviendo caminatas ligeras en espacios naturales abiertos para estabilizar el equilibrio biológico cotidiano frente a la rutina digital."
-        nota = "Este reporte es un documento de uso privado, con fines informativos, de autocuidado y educación individual. No posee validez legal, institucional, gubernamental ni clínica."
+        titulo = f"REPORTE DESCRIPTIVO DE ORIENTACIÓN Y BIENESTAR: PORTAL {perfil_es.upper()}"
+        resumen = f"Este documento recopila el recorrido voluntario de pausas conscientes y dinámicas de autocuidado realizadas por el participante dentro de la plataforma. Se procesaron los siguientes sintonizadores bio-ambientales compartidos de forma autónoma: [{sintonizadores_txt}]."
+        observaciones = "VALORACIÓN COMERCIAL DE BIENESTAR: Se sugiere continuar priorizando los espacios autónomos de desconexión digital e intervalos de aislamiento de carga invisible en el hogar. Se recomienda de forma preventiva mantener pautas regulares de respiración profunda en un rincón seguro y actividades físicas ligeras en entornos naturales protectores para conservar el equilibrio vital cotidiano."
+        nota = "Este reporte es un documento de uso privado, con fines informativos, educativos y de autocuidado individual. No posee validez legal, institucional, gubernamental ni clínica."
     else:
-        titulo = f"HOMEOCINESIS AND BIOLOGICAL BALANCE REPORT: {perfil_en.upper()} CATEGORY"
-        resumen = f"This document compiles descriptively the autonomous journey executed by the participant. The following voluntary bio-environmental tuners were processed: [{sintonizadores_txt}]."
-        observaciones = "COMMERCIAL WELLBEING ASSESSMENT: A favorable response was observed during the home-guided breathing dynamics. It is preventatively recommended to sustain regular invisible load isolation intervals, prioritizing firm ground anchoring and coordinated digital screen disconnection for a minimum of 15 minutes at home to stabilize daily vital homeostasis."
+        titulo = f"DESCRIPTIVE ORIENTATION AND WELLBEING REPORT: {perfil_en.upper()} PORTAL"
+        resumen = f"This document compiles the voluntary journey of conscious pauses and self-care dynamics executed by the participant within the platform. The following bio-environmental tuners were autonomously shared: [{sintonizadores_txt}]."
+        observaciones = "COMMERCIAL WELLBEING ASSESSMENT: It is suggested to keep prioritizing autonomous digital disconnection intervals and invisible load isolation spaces at home. It is preventatively recommended to practice regular deep breathing guidelines in a safe corner and engage in light physical tasks within open natural spaces to support daily vital equilibrium."
         nota = "This report is strictly for private, informative, educational, and individual self-care purposes. It holds no legal, institutional, governmental, or clinical validity."
 
     return JSONResponse({
