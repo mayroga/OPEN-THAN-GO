@@ -35,6 +35,7 @@ DATA_PERFILES = {
                 {"id": 902, "titulo": "ESTRATEGIA DEL VIENTO FRESCO", "descripcion": "Busca un espacio abierto al aire libre o acércate a una ventana amplia. Inhala la frescura del entorno durante cuatro tiempos exactos, sosteniendo tu fortaleza interna.", "vector": {"aire_fresco": 100, "naturaleza": 90, "descanso": 80}}
             ],
             "youtube_id": "4_Zcc9v7b8E"
+ }               
         },
 DATA_PERFILES = {
     "veterano": {
