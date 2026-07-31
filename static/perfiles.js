@@ -478,7 +478,7 @@
             console.error("Error al compilar reporte:", e);
         }
     }
-};
+}; // <- Esta llave cierra el objeto principal PERFILES_ESPECIALES
 
 function interceptarMesaDeRelojes() {
     if (window.KERNEL && window.KERNEL.iniciarRelojEnfocadoCasa) {
@@ -500,27 +500,24 @@ function interceptarMesaDeRelojes() {
     }
 }
 
-function iniciarObservadorDeMontaje() {
-    if (document.getElementById("btn-master-toggle-modulo")) return;
-    const langBar = document.querySelector(".lang-bar");
-    const wrapperForm = document.getElementById("wrapper-form");
-    if (langBar && wrapperForm && window.KERNEL) {
-        PERFILES_ESPECIALES.init();
-        interceptarMesaDeRelojes();
-        return;
-    }
-    const observador = new MutationObserver((mutaciones, obs) => {
-        const targetBar = document.querySelector(".lang-bar");
-        const targetForm = document.getElementById("wrapper-form");
-        if (targetBar && targetForm && window.KERNEL) {
+// ==========================================================================================
+// AQUÍ VA EL BLOQUE NUEVO (EL FINAL ABSOLUTO DEL ARCHIVO)
+// ==========================================================================================
+function conectarBotonHtmlFijo() {
+    window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
+    
+    if (window.KERNEL && window.KERNEL.init) {
+        const originalInit = window.KERNEL.init;
+        window.KERNEL.init = function() {
+            originalInit.call(window.KERNEL);
             PERFILES_ESPECIALES.init();
             interceptarMesaDeRelojes();
-            obs.disconnect();
-        }
-    });
-    observador.observe(document.body, { childList: true, subtree: true });
+        };
+        console.log("Módulo Especial enlazado de forma inmutable al núcleo de Open Than Go.");
+    } else {
+        setTimeout(conectarBotonHtmlFijo, 50);
+    }
 }
 
-iniciarObservadorDeMontaje();
-window.PERFILES_ESPECIALES = PERFILES_ESPECIALES;
-})();
+conectarBotonHtmlFijo();
+})(); // <- Este paréntesis y llave cierran la función autoejecutable inicial del archivo
