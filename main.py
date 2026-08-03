@@ -1314,3 +1314,6 @@ async def mando_integral(request: Request):
 if __name__ == "__main__":
     port_env = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port_env, reload=False)
+@app.get("/ping")
+def ping():
+    return JSONResponse(content={"status": "alive"}, status_code=200)
