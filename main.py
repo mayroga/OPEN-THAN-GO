@@ -872,6 +872,7 @@ async def index():
 # ==========================================================================================
 # INYECCIÓN OPERATIVA: CONTROLADORES DE COMPRA Y ACCESO ADMINISTRATIVO CON REQUEST SEGURO
 # ==========================================================================================
+
 @app.post("/crear-checkout")
 async def crear_checkout(request: Request):
     try:
@@ -883,7 +884,6 @@ async def crear_checkout(request: Request):
             raise HTTPException(status_code=400, detail="Plan inválido")
 
         session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
             line_items=[{"price": PLANES_STRIPE[tipo_plan], "quantity": 1}],
             mode="subscription" if tipo_plan != "unico" else "payment",
             success_url="https://open-than-go.onrender.com",
@@ -892,8 +892,13 @@ async def crear_checkout(request: Request):
         )
 
         return {"url": session.url}
+    except HTTPException:
+        raise
     except Exception as e:
-        return JSONResponse(status_code=500, content={"error": str(e)})
+        return JSONResponse(
+            status_code=500,
+            content={"error": str(e)}
+        )
 
 @app.post("/login-admin")
 async def login_admin(request: Request):
